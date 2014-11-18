@@ -2,6 +2,7 @@
 "use strict";
 
 var http = require('http');
+var config = require('./config');
 var qs = require('querystring');
 var crypto = require('crypto');
 var base64url = require('base64-url');
@@ -46,4 +47,4 @@ http.createServer(function (req, res) {
 
     //Functions, each get a request argument and paramaters
 
-}).listen(5000);
+}).listen(config.port, config.ip);
