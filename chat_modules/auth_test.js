@@ -2,9 +2,9 @@ var crypto = require('crypto');
 
 module.exports = {
   init:
-     function (res, post) {
+     function (res, post, options) {
         var authToken;
-        crypto.randomBytes(16, function(ex, buf) {
+        crypto.randomBytes(options.token_length, function(ex, buf) {
           authToken = buf.toString('hex');
           res.end("Auth token: " + authToken);
         })

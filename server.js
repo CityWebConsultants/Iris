@@ -36,7 +36,7 @@ http.createServer(function (req, res) {
             
             if(chat.api[req.url]){
              
-                chat.api[req.url].init(res, body);
+                chat.api[req.url].init(res, body, chat.api[req.url].options);
                 
             } else {
              
