@@ -12,9 +12,13 @@ chat.api = {};
 
 // Automatically load modules
 config.modules_enabled.forEach( function (element, index) {
-    chat.api['/' + element] = require('./chat_modules/' + element);
-    console.log(element + " module enabled");
+    var elementName = element.name.split('_').join('/');
+    chat.api['/' + elementName] = require('./chat_modules/' + element.name);
+    chat.api['/' + elementName].options = element.options;
+    console.log(element.name + " module enabled");
 });
+
+console.log(chat.api['/auth/test'].options);
 
 //Server and request function router
 
@@ -32,7 +36,7 @@ http.createServer(function (req, res) {
             
             if(chat.api[req.url]){
              
-                chat.api[req.url](res, body);
+                chat.api[req.url].init(res, body);
                 
             } else {
              
