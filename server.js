@@ -5,7 +5,6 @@ var http = require('http');
 var config = require('./config');
 var qs = require('querystring');
 var crypto = require('crypto');
-var base64url = require('base64-url');
 
 //API functions
 
@@ -14,8 +13,8 @@ chat.api = {};
 
 chat.api.login = function (res, post) {
   var authToken;
-  crypto.randomBytes(32, function(ex, buf) {
-    authToken = base64url.encode(buf);
+  crypto.randomBytes(16, function(ex, buf) {
+    authToken = buf.toString('hex');
     res.end("Auth token: " + authToken);
   });
 };
@@ -47,4 +46,4 @@ http.createServer(function (req, res) {
 
     //Functions, each get a request argument and paramaters
 
-}).listen(config.port, config.ip);
+}).listen(config.port);
