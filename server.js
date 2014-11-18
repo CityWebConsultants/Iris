@@ -11,7 +11,7 @@ var crypto = require('crypto');
 var chat = {};
 chat.api = {};
 
-chat.api.login = function (res, post) {
+chat.api["/auth"] = function (res, post) {
   var authToken;
   crypto.randomBytes(16, function(ex, buf) {
     authToken = buf.toString('hex');
@@ -33,12 +33,14 @@ http.createServer(function (req, res) {
         req.on('end', function () {
             var post = qs.parse(body);
             
-            switch (req.url) {
-            case "/auth":
-                chat.api.login(res, post);
-                break;
-            default:
-                res.end("false request");
+            if(chat.api[req.url]){
+             
+                chat.api[req.url](res, body);
+                
+            } else {
+             
+                res.end("invalid response");
+                
             }
             
         });
