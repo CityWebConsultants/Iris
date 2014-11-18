@@ -4,20 +4,17 @@
 var http = require('http');
 var config = require('./config');
 var qs = require('querystring');
-var crypto = require('crypto');
 
 //API functions
 
 var chat = {};
 chat.api = {};
 
-chat.api["/auth"] = function (res, post) {
-  var authToken;
-  crypto.randomBytes(16, function(ex, buf) {
-    authToken = buf.toString('hex');
-    res.end("Auth token: " + authToken);
-  });
-};
+// Automatically load modules
+config.modules_enabled.forEach( function (element, index) {
+    chat.api['/' + element] = require('./chat_modules/' + element);
+    console.log(element + " module enabled");
+});
 
 //Server and request function router
 
