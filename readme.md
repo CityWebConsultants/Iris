@@ -7,14 +7,16 @@ API endpoints
 ### /auth
 Handles authorisation requests.
 
-Returns an authorisation token for a user.
-
 **POST parameters:**
 
 * uid (string)   
 The user ID as provided by a site making use of this server. For example, a user ID from Drupal sent from a Drupal chat integration module.
 * key  
 The site authorisation API key.
+
+**Returns:**
+
+* authorisation token for user
 
 ### /group
 Handles group creation and manipulation.
@@ -52,24 +54,24 @@ General group structure: `{ 'gid': 'group ID', 'members': {}, 'name': 'group nam
 ```
 { 'gid': '_ZS3sd234h',
   'members': {
-    {uid: '_5aErt33eB', joined: 1416316036},
-    {uid: '_3334dfEEd', joined: 1416316516},
-    {uid: '_EnDEKX34d', joined: 1416314536},
+    {'uid': '_5aErt33eB', 'joined': 1416316036},
+    {'uid': '_3334dfEEd', 'joined': 1416316516},
+    {'uid': '_EnDEKX34d', 'joined': 1416314536},
   }
   'name': 'An Example Group',
 }
 ```
 ### Message
-Each message consists of an essential core set of values - author, group reference and timestamp (@todo: decide on whether to use the MongoDB ID for timestamping) followed by a content array that is filled depending on which modules are in use.
+Each message consists of an essential core set of values - author, group reference and timestamp (TODO: decide on whether to use the MongoDB ID for timestamping) followed by a content array that is filled depending on which modules are in use.
 
-Messsage structure: `{ 'author': 'author ID', 'group': 'group ID', 'time': 'timestamp', 'content': [] }`
+Messsage structure: `{ 'author': 'author ID', 'group': 'group ID', 'time': 'timestamp', 'content': {} }`
 
 **Example message:**
 ```
 { 'author': '_5aErt33eB',
   'group': '_ZS3sd234h',
   'timestamp': 1416316536,
-  'content': [],
+  'content': {},
 }
 ```
 Note that this message contains no content; it is nothing but a base object ready to have data such as a text message or file transfer request added to it by the relevant module. A text message might have content resembling `content: {text: "Example message body"}`.
