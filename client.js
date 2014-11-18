@@ -19,10 +19,16 @@ chat.request = function request(url, method, parameters, callback) {
 
 chat.login = function (id) {
 
-    chat.request("http://localhost:5000/auth", "POST", {id : id}, function (e) {
+    chat.request("http://localhost:5000/auth", "POST", {id : id}, function (token) {
     
-        alert(e);
+        document.getElementById("accesstoken").innerHTML = token;
     
     });
+    
+};
+
+document.getElementById("login").onclick = function () {
+  
+    chat.login(1);
     
 };
