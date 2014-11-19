@@ -4,6 +4,7 @@
 var http = require('http');
 var config = require('./config');
 var qs = require('querystring');
+var io = require('socket.io');
 
 //API functions
 
@@ -20,7 +21,7 @@ config.modules_enabled.forEach(function (element, index) {
 
 //Server and request function router
 
-http.createServer(function (req, res) {
+var server = http.createServer(function (req, res) {
     res.writeHead(200, {
         'Access-Control-Allow-Origin': '*'
     });
@@ -65,3 +66,30 @@ http.createServer(function (req, res) {
     //Functions, each get a request argument and paramaters
 
 }).listen(config.port);
+
+//Web sockets
+
+io = io(server);
+
+var socketevents = [];
+
+socketevents.push({event : "hello", callback: function () {console.log("hello world"); }});
+
+var socketapi = function (socket) {
+ 
+    socketevents.forEach(function (element, index) {
+       
+        socket.on(element.event, element.callback);
+        
+    });
+    
+};
+
+
+io.on('connection', function (socket) {
+    
+    socketapi(socket);
+    
+    socket.emit("hello", "hello");
+
+});
