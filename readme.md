@@ -83,3 +83,46 @@ Files
 
 ###client.js
 Initial client implementation. This will test all the specified functionality by making API requests.
+
+###config.js
+The core system configuration file. Includes base settings and an enabled modules object.
+
+**System Settings:**   
+
+* port   
+  Port number to run the server on
+
+**Module Settings:**
+
+* `name` (object)   
+  Machine name of module to enable. This will be looked for in the filesystem under the chat_modules/ directory.
+
+* `options` (object)   
+Object of options that will be parsed by the module itself to determine its behaviour.
+
+**Example modules table:**   
+```
+modules_enabled: [
+    {
+        name: 'auth',
+        options: {
+            token_length: 16
+        }
+    }
+]
+```
+
+Module System
+-------------
+Modules are .js files stored in the chat_modules/ directory. Modules are loaded by looking for module entries 
+in the config.js file (see config.js section above). A module is a single object returned by setting 
+`module.exports` containing functions and options.
+
+**API endpoints**   
+To present an API endpoint, a module must implement a `rest` or equivalent method which will automatically be
+called by the base system and passed the relevant values.
+
+**Options**   
+The `options` property of the module object is automatically populated from the config.js file during the
+bootstrap process. One can set defaults as an `options` object within the module should the person configuring
+the module not set any values.
