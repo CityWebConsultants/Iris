@@ -18,8 +18,6 @@ config.modules_enabled.forEach(function (element, index) {
     console.log(element.name + " module enabled");
 });
 
-console.log(chat.api['/auth/test'].options);
-
 //Server and request function router
 
 http.createServer(function (req, res) {
@@ -45,9 +43,9 @@ http.createServer(function (req, res) {
             req.on('end', function () {
                 var post = qs.parse(body);
 
-                if (chat.api[req.url]) {
+                if (chat.api[req.url] && chat.api[req.url].rest) {
 
-                    chat.api[req.url].init(res, body, chat.api[req.url].options);
+                    chat.api[req.url].rest(res, body, chat.api[req.url].options);
 
                 } else {
 
