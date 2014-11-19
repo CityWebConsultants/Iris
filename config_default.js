@@ -2,7 +2,7 @@ module.exports = {
     port: 3000,
     modules_enabled: [
         {
-            name: 'auth_test',
+            name: 'auth',
             options: {
                 token_length: 16
             }
