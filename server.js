@@ -11,7 +11,7 @@ var chat = {};
 chat.api = {};
 
 // Automatically load modules
-config.modules_enabled.forEach( function (element, index) {
+config.modules_enabled.forEach(function (element, index) {
     var elementName = element.name.split('_').join('/');
     chat.api['/' + elementName] = require('./chat_modules/' + element.name);
     chat.api['/' + elementName].options = element.options;
@@ -27,25 +27,42 @@ http.createServer(function (req, res) {
         'Access-Control-Allow-Origin': '*'
     });
 
-    var body;
-    req.on('data', function (data) {
-        body += data;
+    if (req.method === "POST") {
+        
+        //Check if POST request is empty
+        
+        if (req.headers["content-length"] === "0") {
+           
+            res.end("Empty request");
+            
+        }
+        
+        var body;
+        req.on('data', function (data) {
 
-        req.on('end', function () {
-            var post = qs.parse(body);
-            
-            if(chat.api[req.url]){
-             
-                chat.api[req.url].init(res, body, chat.api[req.url].options);
-                
-            } else {
-             
-                res.end("invalid response");
-                
-            }
-            
+            body += data;
+
+            req.on('end', function () {
+                var post = qs.parse(body);
+
+                if (chat.api[req.url]) {
+
+                    chat.api[req.url].init(res, body, chat.api[req.url].options);
+
+                } else {
+
+                    res.end("invalid response");
+
+                }
+
+            });
         });
-    });
+    } else {
+        
+        //GET or other request
+        res.end("GET?");
+        
+    }
 
     //Functions, each get a request argument and paramaters
 
