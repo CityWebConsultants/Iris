@@ -1,0 +1,20 @@
+{
+  "name": "chat-app",
+  "version": "0.0.1",
+  "description": "Core server for an extensible, modular chat application",
+  "main": "server.js",
+  "dependencies": {
+    "mongodb": "^1.4.20"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:rabbitmedia/chat-app.git"
+  },
+  "author": "City Web Consultants",
+  "license": "All your base are belong to us"
+}
