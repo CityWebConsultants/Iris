@@ -1,7 +1,7 @@
 var crypto = require('crypto');
 
 module.exports = {
-  api:
+  rest:
      function (res, post, options) {
         var authToken;
         crypto.randomBytes(options.token_length, function(ex, buf) {

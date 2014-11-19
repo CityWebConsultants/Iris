@@ -43,9 +43,9 @@ http.createServer(function (req, res) {
             req.on('end', function () {
                 var post = qs.parse(body);
 
-                if (chat.api[req.url]) {
+                if (chat.api[req.url] && chat.api[req.url].rest) {
 
-                    chat.api[req.url].api(res, body, chat.api[req.url].options);
+                    chat.api[req.url].rest(res, body, chat.api[req.url].options);
 
                 } else {
 
