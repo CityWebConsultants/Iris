@@ -52,7 +52,7 @@ General group structure: `{ 'gid': 'group ID', 'members': {}, 'name': 'group nam
 
 **Example group:**
 ```
-{ 'gid': '_ZS3sd234h',
+{ '_id': '_ZS3sd234h',
   'members': {
     {'uid': '_5aErt33eB', 'joined': 1416316036},
     {'uid': '_3334dfEEd', 'joined': 1416316516},
@@ -61,6 +61,8 @@ General group structure: `{ 'gid': 'group ID', 'members': {}, 'name': 'group nam
   'name': 'An Example Group',
 }
 ```
+
+The generation of IDs is the responsibility of the database handler module.
 ### Message
 Each message consists of an essential core set of values - author, group reference and timestamp (TODO: decide on whether to use the MongoDB ID for timestamping) followed by a content array that is filled depending on which modules are in use.
 
@@ -68,13 +70,15 @@ Messsage structure: `{ 'author': 'author ID', 'group': 'group ID', 'time': 'time
 
 **Example message:**
 ```
-{ 'author': '_5aErt33eB',
+{ '_id': '_aEfb2c23e3243d',
+  'author': '_5aErt33eB',
   'group': '_ZS3sd234h',
-  'timestamp': 1416316536,
   'content': {},
 }
 ```
-Note that this message contains no content; it is nothing but a base object ready to have data such as a text message or file transfer request added to it by the relevant module. A text message might have content resembling `content: {text: "Example message body"}`.
+Note that this message contains no content; it is nothing but a base object ready to have data such as a text message or file transfer request added to it by the relevant module. A text message might have content resembling `content: {text: "Example message body"}` or `{file-remote: "http://localhost/file.ext"}`.
+
+The generation of IDs is the responsibility of the database handler module.
 
 Files
 -----
@@ -114,6 +118,8 @@ modules_enabled: [
 
 Module System
 -------------
+**NOTE: Very very subject to change**
+
 Modules are .js files stored in the chat_modules/ directory. Modules are loaded by looking for module entries 
 in the config.js file (see config.js section above). A module is a single object returned by setting 
 `module.exports` containing functions and options.
@@ -126,3 +132,20 @@ called by the base system and passed the relevant values.
 The `options` property of the module object is automatically populated from the config.js file during the
 bootstrap process. One can set defaults as an `options` object within the module should the person configuring
 the module not set any values.
+
+Core Modules
+------------
+
+### database (?)
+
+Database abstraction layer. Presents a set of database manipulation methods such as .find, .insert, .update and
+passes these to the database handler module that has been configured.
+
+### mongodb
+
+MongoDB database driver wrapper.
+
+### auth
+
+Handles user authorisation. Presents a REST API endpoint for assigning a randomly generated authorisation token to
+a provided user ID.
