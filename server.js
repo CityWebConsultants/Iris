@@ -6,6 +6,9 @@ var config = require('./config');
 var qs = require('querystring');
 var io = require('socket.io');
 
+//~ var events = require('events');
+//~ var eventEmitter = new events.EventEmitter();
+
 //API functions
 
 var chat = {};
@@ -75,6 +78,20 @@ var socketevents = [];
 
 socketevents.push({event : "hello", callback: function () {console.log("hello world"); }});
 
+var socketUsers = [];
+var authenticatedUsers = [];
+
+console.log(chat.api['/auth']);
+
+// On new auth'd user event being fired, add to array
+chat.api['/auth'].on('authuser', function(uid, token) {
+    authenticatedUsers.push({'uid': uid, 'token': token});
+    console.log('event fires');
+    console.log(authenticatedUsers);
+});
+
+socketevents.push({event: "authenticate", callback: function(data) { }});
+
 var socketapi = function (socket) {
  
     socketevents.forEach(function (element, index) {
@@ -87,9 +104,7 @@ var socketapi = function (socket) {
 
 
 io.on('connection', function (socket) {
-    
     socketapi(socket);
-    
     socket.emit("hello", "hello");
 
 });
