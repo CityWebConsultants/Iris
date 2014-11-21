@@ -1,3 +1,4 @@
+/*jslint node: true */
 "use strict";
 
 var MongoClient = require('mongodb').MongoClient;
@@ -7,12 +8,12 @@ var exports = {
     hook_post_group_add: {
         rank: 0,
         event:
-            function (url, post) {
-                console.log(post);
-                var groupMembers = [];
-                var groupMembersValid = true;
-
-                var currentDate = Date.now();
+            function (data) {
+                var url = data.url,
+                    post = data.post,
+                    groupMembers = [],
+                    groupMembersValid = true,
+                    currentDate = Date.now();
 
                 // Validate POSTed data
 
@@ -37,7 +38,9 @@ var exports = {
 
                 // If invalid, return fail
                 if (groupMembersValid !== true) {
-                    res.end('invalid user id(s)');
+                    data.returns = 'invalid user id(s)';
+                    // Pass on to the next handler in case it can still salvage this :)
+                    process.emit("next", data);
                     return;
                 }
 
@@ -62,16 +65,17 @@ var exports = {
 
                         db.close();
 
-                        res.end('Successfully created group ' + JSON.stringify({members: membersArray, name: post.name}));
+                        data.returns = 'Successfully created group ' + JSON.stringify({members: membersArray, name: post.name});
+                        process.emit("next", data);
 
                     } else {
                         console.log('Database connection error!');
 
-                        res.end('500 Internal Server Error');
-                        return;
+                        data.returns = '500 Internal Server Error';
+                        process.emit("next", data);
                     }
                 });
-        }
+            }
     }
 };
 

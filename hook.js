@@ -94,25 +94,25 @@ var trigger = function (event, value) {
 //When that event has finished by emiting the "next" event to the node.js process, remove the event from the chain and run the next one
 
 process.on("next", function (data) {
+    process.nextTick(function () {
+        queue.shift();
+        if (queue.length > 0) {
 
-    queue.shift();
-    if (queue.length > 0) {
+            run(data);
 
-        run(data);
+        } else {
 
-    } else {
+            //If the queue is finished (no more in the chain) run a complete event on the process object that anything can listen to. Include the data that was returned.
 
-        //If the queue is finished (no more in the chain) run a complete event on the process object that anything can listen to. Include the data that was returned.
+            console.log("Event " + currentevent.name + " complete");
+            process.emit("complete_" + currentevent.name, data, currentevent.name);
 
-        console.log("Event " + currentevent.name + " complete");
-        process.emit("complete_" + currentevent.name, data, currentevent.name);
-
-        if (eventsqueue.length > 0) {
-            trigger(eventsqueue[0].name, eventsqueue[0].value);
-            eventsqueue.shift();
+            if (eventsqueue.length > 0) {
+                trigger(eventsqueue[0].name, eventsqueue[0].value);
+                eventsqueue.shift();
+            }
         }
-    }
-
+    });
 });
 
 //Exports the modules array so that modules can be added to it and the trigger function.
