@@ -4,6 +4,8 @@ Chat Application Core
 API endpoints
 -------------
 
+_Note: POST requests are expected with encoding x-www-form-urlencoded for easy processing of text._
+
 ### /auth
 Handles authorisation requests.
 
@@ -128,14 +130,48 @@ Modules are .js files stored in the chat_modules/ directory. Modules are loaded 
 in the config.js file (see config.js section above). A module is a single object returned by setting 
 `module.exports` containing functions and options.
 
-**API endpoints**   
-To present an API endpoint, a module must implement a `rest` or equivalent method which will automatically be
-called by the base system and passed the relevant values.
-
 **Options**   
 The `options` property of the module object is automatically populated from the config.js file during the
 bootstrap process. One can set defaults as an `options` object within the module should the person configuring
 the module not set any values.
+
+server.js Hooks
+-----------------------------
+### hook_post
+All POST requests sent to the server will generate a hook_post event. For example, sending a request to the URL /example would
+trigger the event `hook_post_example` and pass an object containing the request URL and the parsed POST object.
+
+Hook System
+-----------
+
+### Responding to Hooks
+In order to respond to a hook, a module needs to provide an object named after the hook containing a rank specifying its place 
+in the order of hook processing (i.e. whether it should run before or after another module) and an event function.
+
+See this example.
+
+```
+hook_post_auth: {
+    rank: 2,
+    event:
+        function (data) {
+            var url = data.url;
+            var post = data.post;
+        
+            process.nextTick(function () {
+                process.emit("next", data);
+            });
+        }
+}
+```
+
+### Firing Hook Events
+To fire a hook event, use the `hook` function, specifying a hook name and passing a data object:
+
+```
+hook('hook_name', data)
+```
+
 
 Core Modules
 ------------
