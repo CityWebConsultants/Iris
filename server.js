@@ -5,20 +5,16 @@ var http = require('http');
 var config = require('./config');
 var qs = require('querystring');
 var io = require('socket.io');
-
-//~ var events = require('events');
-//~ var eventEmitter = new events.EventEmitter();
+var hook = require('./hook');
 
 //API functions
-
 var chat = {};
 chat.api = {};
 
 // Automatically load modules
 config.modules_enabled.forEach(function (element, index) {
-    var elementName = element.name.split('_').join('/');
-    chat.api['/' + elementName] = require('./chat_modules/' + element.name);
-    chat.api['/' + elementName].options = element.options;
+    chat.api[element.name] = require('./chat_modules/' + element.name);
+    chat.api[element.name].options = element.options;
     console.log(element.name + " module enabled");
 });
 
@@ -46,17 +42,12 @@ var server = http.createServer(function (req, res) {
 
             req.on('end', function () {
                 var post = qs.parse(body);
-                                
-                if (chat.api[req.url].rest) {
-
-                    chat.api[req.url].rest(res, post);
-
-                } else {
-
-                    res.end("invalid response");
-
-                }
-
+                hook('hook_post' + req.url.replace('/','_'), {'url': req.url, 'post': post, 'res': res});
+                
+                process.on('complete_hook_post' + req.url.replace('/','_'), function (data) {
+                    res.end(data.returns);
+                });
+                
             });
         });
     } else {
@@ -80,15 +71,6 @@ socketevents.push({event : "hello", callback: function () {console.log("hello wo
 
 var socketUsers = [];
 var authenticatedUsers = [];
-
-console.log(chat.api['/auth']);
-
-// On new auth'd user event being fired, add to array
-chat.api['/auth'].on('authuser', function(uid, token) {
-    authenticatedUsers.push({'uid': uid, 'token': token});
-    console.log('event fires');
-    console.log(authenticatedUsers);
-});
 
 socketevents.push({event: "authenticate", callback: function(data) { }});
 

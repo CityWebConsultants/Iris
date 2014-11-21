@@ -84,12 +84,16 @@ Files
 -----
 
 ###server.js
+Server implementation; runs an HTTP server instance to process REST API requests and web socket connections.
 
 ###client.js
 Initial client implementation. This will test all the specified functionality by making API requests.
 
 ###config.js
 The core system configuration file. Includes base settings and an enabled modules object.
+
+###hook.js
+Event-based hook system module.
 
 **System Settings:**   
 
