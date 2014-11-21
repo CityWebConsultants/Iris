@@ -5,10 +5,12 @@
 var crypto = require('crypto');
 
 var exports = {
+    //List of logged in users/access tokens
+    tokens: {},
     // A side effect of declaring this object is that you can have default options!
     options: {token_length: 4},
     hook_post_auth: {
-        rank: 2,
+        rank: 0,
         event:
             function (data) {
                 var url = data.url,
@@ -21,7 +23,21 @@ var exports = {
                     //~ console.log(data.returns);
                     
                     process.nextTick(function () {
-                        process.emit("next", data);
+                        
+                        if (data.post.userid) {
+                            
+                            exports.tokens[data.post.userid] = authToken;
+                            process.emit("next", data);
+                            console.log(exports.tokens);
+                            
+                        } else {
+                            
+                            data.returns = "No userid";
+                        
+                            process.emit("next", data);
+                            
+                        }
+                        
                     });
                 });
             
