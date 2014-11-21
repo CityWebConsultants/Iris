@@ -1,3 +1,7 @@
+/*jslint node: true */
+
+"use strict";
+
 var crypto = require('crypto');
 
 var exports = {
@@ -7,11 +11,10 @@ var exports = {
         rank: 2,
         event:
             function (data) {
-                var url = data.url;
-                var post = data.post;
-                var res = data.res;
-            
-                var authToken;
+                var url = data.url,
+                    post = data.post,
+                    res = data.res,
+                    authToken;
                 crypto.randomBytes(exports.options.token_length, function (ex, buf) {
                     authToken = buf.toString('hex');
                     data.returns = authToken;
@@ -23,7 +26,7 @@ var exports = {
                 });
             
             }
-        }
+    }
 };
 
 module.exports = exports;

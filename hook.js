@@ -30,8 +30,8 @@ var trigger = function (event, value) {
 
     if (queue.length === 0) {
 
-        console.log("\nRunning event: " + event + "\nProcessing value: " + value);
-
+        console.log("Running event: " + event);
+        
         currentevent = {
             name: event,
             value: value
@@ -104,7 +104,7 @@ process.on("next", function (data) {
 
         //If the queue is finished (no more in the chain) run a complete event on the process object that anything can listen to. Include the data that was returned.
 
-        console.log("Event '" + currentevent.name + "' has finished with an output of : " + data);
+        console.log("Event " + currentevent.name + " complete");
         process.emit("complete_" + currentevent.name, data, currentevent.name);
 
         if (eventsqueue.length > 0) {
