@@ -42,9 +42,10 @@ var server = http.createServer(function (req, res) {
 
             req.on('end', function () {
                 var post = qs.parse(body);
-                hook('hook_post' + req.url.replace('/','_'), {'url': req.url, 'post': post, 'res': res});
+                var hookurl = req.url.split('/').join('_');
+                hook('hook_post' + hookurl, {'url': req.url, 'post': post, 'res': res});
                 
-                process.on('complete_hook_post' + req.url.replace('/','_'), function (data) {
+                process.on('complete_hook_post' + hookurl, function (data) {
                     res.end(data.returns);
                 });
                 

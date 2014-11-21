@@ -8,7 +8,7 @@ var exports = {
     // A side effect of declaring this object is that you can have default options!
     options: {token_length: 4},
     hook_post_auth: {
-        rank: 2,
+        rank: 0,
         event:
             function (data) {
                 var url = data.url,
