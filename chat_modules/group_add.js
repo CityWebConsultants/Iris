@@ -1,6 +1,7 @@
 /*jslint node: true */
 "use strict";
 
+var hook = require('../hook');
 var MongoClient = require('mongodb').MongoClient;
 
 var exports = {
@@ -44,8 +45,6 @@ var exports = {
                     return;
                 }
 
-                console.log('Input ok');
-
                 // Create array of members
                 var membersArray = [];
 
@@ -53,28 +52,10 @@ var exports = {
                     membersArray.push({uid: element, joined: currentDate});
                 });
 
-                // Connect and push to database
-                MongoClient.connect('mongodb://localhost:27017/chat-app', function (err, db) {
-                    if (!err) {
-                        console.log('Connected to database.');
-
-                        var collection = db.collection('groups');
-                        collection.insert({'members': membersArray, 'name': post.name}, function (err, result) {
-                            console.log('Inserted group into database.');
-                        });
-
-                        db.close();
-
-                        data.returns = 'Successfully created group ' + JSON.stringify({members: membersArray, name: post.name});
-                        process.emit("next", data);
-
-                    } else {
-                        console.log('Database connection error!');
-
-                        data.returns = '500 Internal Server Error';
-                        process.emit("next", data);
-                    }
-                });
+                // Call database insert hook to insert the new group object
+                hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': membersArray, 'name': post.name}});
+                
+                process.emit("next", data);
             }
     }
 };
