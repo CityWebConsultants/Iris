@@ -136,10 +136,20 @@ bootstrap process. One can set defaults as an `options` object within the module
 the module not set any values.
 
 server.js Hooks
------------------------------
+---------------
 ### hook_post
 All POST requests sent to the server will generate a hook_post event. For example, sending a request to the URL /example would
 trigger the event `hook_post_example` and pass an object containing the request URL and the parsed POST object.
+
+Standard Hooks
+--------------
+### hook_db_insert
+Call this hook and pass an object like the following: `{dbcollection: 'collection-name', dbobject: {object: 'to insert'}}`. The
+database handler(s) will implement this hook.
+
+### hook_db_find
+
+### hook_db_update
 
 Hook System
 -----------
@@ -157,13 +167,14 @@ hook_post_auth: {
         function (data) {
             var url = data.url;
             var post = data.post;
-        
-            process.nextTick(function () {
-                process.emit("next", data);
-            });
+            
+            process.emit("next", data);
         }
 }
 ```
+
+The `process.emit("next", data);` statement indicates that this module has completed its processing and is ready to pass the event
+on to the next handler in the queue.
 
 ### Firing Hook Events
 To fire a hook event, use the `hook` function, specifying a hook name and passing a data object:
@@ -176,14 +187,9 @@ hook('hook_name', data)
 Core Modules
 ------------
 
-### database (?)
-
-Database abstraction layer. Presents a set of database manipulation methods such as .find, .insert, .update and
-passes these to the database handler module that has been configured.
-
 ### mongodb
 
-MongoDB database driver wrapper.
+MongoDB database driver wrapper. Responds to the `hook_db` set of hooks to store and manipulate data in the database.
 
 ### auth
 
