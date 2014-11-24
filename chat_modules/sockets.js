@@ -9,15 +9,7 @@ var exports = {
     
         process.nextTick(function(){
             
-            process.socketio = io(process.server)
-           
-//            Example usage
-//            
-//            process.socketio.on("connection", function(socket){
-//   
-//                socket.emit("hello","world");
-//    
-//            });
+            process.socketio = io(process.server)   
             
         });    
         

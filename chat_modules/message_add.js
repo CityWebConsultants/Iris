@@ -9,6 +9,8 @@ var exports = {
     event: function(data){
     
         process.nextTick(function(){
+            
+            console.log("Message received: " + data.content);
     
             process.emit("next", data);
             
