@@ -37,16 +37,20 @@ Takes a group ID and any group object values and updates the server-side group e
 
 ### /post
 Handles posting of messges to a specified group.
+
 ### /fetch
 Handles requests for message history and group information.
+
 ####_/fetch/group_
 Returns group information.
+
 ####_/fetch/message_
 Returns message(s) matching query.
 
 Data structures
 ---------------
 Group and message relations are stored using a semi-relational reference structure.
+
 ### Group
 A group is essentially a named collection of users. All chats take place in a context of a group; a direct chat between two users takes place in a group which contains only those two users as members.
 
@@ -65,6 +69,7 @@ General group structure: `{ 'gid': 'group ID', 'members': {}, 'name': 'group nam
 ```
 
 The generation of IDs is the responsibility of the database handler module.
+
 ### Message
 Each message consists of an essential core set of values - author, group reference and timestamp (TODO: decide on whether to use the MongoDB ID for timestamping) followed by a content array that is filled depending on which modules are in use.
 
@@ -84,18 +89,17 @@ The generation of IDs is the responsibility of the database handler module.
 
 Files
 -----
-
 ###server.js
 Server implementation; runs an HTTP server instance to process REST API requests and web socket connections.
 
 ###client.js
 Initial client implementation. This will test all the specified functionality by making API requests.
 
-###config.js
-The core system configuration file. Includes base settings and an enabled modules object.
-
 ###hook.js
 Event-based hook system module.
+
+###config.js
+The core system configuration file. Includes base settings and an enabled modules object.
 
 **System Settings:**   
 
@@ -124,8 +128,6 @@ modules_enabled: [
 
 Module System
 -------------
-**NOTE: Very very subject to change**
-
 Modules are .js files stored in the chat_modules/ directory. Modules are loaded by looking for module entries 
 in the config.js file (see config.js section above). A module is a single object returned by setting 
 `module.exports` containing functions and options.
@@ -135,25 +137,27 @@ The `options` property of the module object is automatically populated from the 
 bootstrap process. One can set defaults as an `options` object within the module should the person configuring
 the module not set any values.
 
-server.js Hooks
----------------
+**Init Function**
+A function contained within the `init` property of the module object will be run upon the module being loaded.
+
+Standard Hooks
+--------------
 ### hook_post
 All POST requests sent to the server will generate a hook_post event. For example, sending a request to the URL /example would
 trigger the event `hook_post_example` and pass an object containing the request URL and the parsed POST object.
 
-Standard Hooks
---------------
+_Note: The database handler(s) will implement these `db` hooks._
+
 ### hook_db_insert
-Call this hook and pass an object like the following: `{dbcollection: 'collection-name', dbobject: {object: 'to insert'}}`. The
-database handler(s) will implement this hook.
+Call this hook and pass an object like the following: `{dbcollection: 'collection-name', dbobject: {object: 'to insert'}}`.
 
 ### hook_db_find
+Call this hook and pass an object like the following: `{dbcollection: 'collection-name', dbquery: {some: 'query'}, findOne: false}`.
 
 ### hook_db_update
 
 Hook System
 -----------
-
 ### Responding to Hooks
 In order to respond to a hook, a module needs to provide an object named after the hook containing a rank specifying its place 
 in the order of hook processing (i.e. whether it should run before or after another module) and an event function.
@@ -161,12 +165,12 @@ in the order of hook processing (i.e. whether it should run before or after anot
 See this example.
 
 ```
-hook_post_auth: {
+hook_name: {
     rank: 2,
     event:
         function (data) {
-            var url = data.url;
-            var post = data.post;
+            var url = data.value;
+            var post = data.val2;
             
             process.emit("next", data);
         }
@@ -177,16 +181,28 @@ The `process.emit("next", data);` statement indicates that this module has compl
 on to the next handler in the queue.
 
 ### Firing Hook Events
-To fire a hook event, use the `hook` function, specifying a hook name and passing a data object:
+To fire a hook event, use the `process.hook` function, specifying a hook name and passing a data object:
 
 ```
 process.hook('hook_name', data)
 ```
 
+### Hooks with Callbacks
+See this example of making a hook call and then using data it returns in a callback:
+
+```
+// Call db find hook.
+process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}, callback: function (gotData) {
+    // do things with gotData
+    
+    process.emit("next", data);
+    }
+});
+```
+
 
 Core Modules
 ------------
-
 ### mongodb
 
 MongoDB database driver wrapper. Responds to the `hook_db` set of hooks to store and manipulate data in the database.

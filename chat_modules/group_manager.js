@@ -66,6 +66,9 @@ var exports = {
                 console.log('does this run');
                 process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}, callback: function (gotData) {
                     console.log(gotData);
+                    
+                    
+                    
                     data.returns = gotData.results;
                     process.emit("next", data);
                     }
