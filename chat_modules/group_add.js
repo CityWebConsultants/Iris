@@ -1,7 +1,5 @@
 /*jslint node: true */
 "use strict";
-
-var hook = require('../hook');
 var MongoClient = require('mongodb').MongoClient;
 
 var exports = {
@@ -53,7 +51,7 @@ var exports = {
                 });
 
                 // Call database insert hook to insert the new group object
-                hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': membersArray, 'name': post.name}});
+                process.hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': membersArray, 'name': post.name}});
                 
                 process.emit("next", data);
             }
@@ -66,7 +64,7 @@ var exports = {
                 
                 // Call db find hook.
                 console.log('does this run');
-                hook('hook_db_find', {dbcollection: 'groups', dbquery: {}, callback: function (gotData) {
+                process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}, callback: function (gotData) {
                     console.log(gotData);
                     data.returns = gotData.results;
                     process.emit("next", data);

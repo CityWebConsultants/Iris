@@ -6,7 +6,8 @@ var config = require('./config');
 var qs = require('querystring');
 var url = require('url');
 var io = require('socket.io');
-var hook = require('./hook');
+
+process.hook = require('./hook');
 
 //API functions
 var chat = {};
@@ -43,7 +44,7 @@ var server = http.createServer(function (req, res) {
                 var requestUrl = url.parse(req.url, true),
                     requestPost = qs.parse(body),
                     hookurl = requestUrl.pathname.split('/').join('_');
-                hook('hook_post' + hookurl, {'url': req.url, 'post': requestPost, 'res': res});
+                process.hook('hook_post' + hookurl, {'url': req.url, 'post': requestPost, 'res': res});
                 
                 process.on('complete_hook_post' + hookurl, function (data) {
                     res.end(data.returns);
@@ -56,7 +57,7 @@ var server = http.createServer(function (req, res) {
             requestGet = qs.parse(requestUrl.query),
             hookurl = requestUrl.pathname.split('/').join('_');
 
-        hook('hook_get' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
+        process.hook('hook_get' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
         console.log('a:' + 'complete_hook_get' + hookurl);
         process.on('complete_hook_get' + hookurl, function (data) {
             console.log('Complete hook get');

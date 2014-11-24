@@ -180,7 +180,7 @@ on to the next handler in the queue.
 To fire a hook event, use the `hook` function, specifying a hook name and passing a data object:
 
 ```
-hook('hook_name', data)
+process.hook('hook_name', data)
 ```
 
 
