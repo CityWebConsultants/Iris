@@ -13,10 +13,9 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-                var url = data.url,
-                    post = data.post,
-                    res = data.res,
-                    authToken;
+            
+                var authToken;
+                
                 crypto.randomBytes(exports.options.token_length, function (ex, buf) {
                     authToken = buf.toString('hex');
                     data.returns = authToken;
@@ -28,12 +27,10 @@ var exports = {
                             
                             exports.tokens[data.post.userid] = authToken;
                             process.emit("next", data);
-                            console.log(exports.tokens);
                             
                         } else {
                             
                             data.returns = "No userid";
-                        
                             process.emit("next", data);
                             
                         }
