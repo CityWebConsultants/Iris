@@ -60,9 +60,8 @@ process.server = http.createServer(function (req, res) {
             hookurl = requestUrl.pathname.split('/').join('_');
 
         process.hook('hook_get' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
-        console.log('a:' + 'complete_hook_get' + hookurl);
+
         process.on('complete_hook_get' + hookurl, function (data) {
-            console.log('Complete hook get');
             res.end(data.returns);
         });
         

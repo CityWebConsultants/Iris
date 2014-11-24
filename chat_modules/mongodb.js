@@ -47,25 +47,25 @@ var exports = {
                 
                 MongoClient.connect(exports.options.connection_url + exports.options.database_name, function (err, db) {
                     if (!err) {
-                        console.log('Connected to database.');
                         var collection = db.collection(exports.options.prefix + dbcollection);
                         
                         if (dbfindOne === true) {
-                            collection.findOne(dbquery, function (err, result) {
-                                data.results = result;
+                            collection.findOne(dbquery).toArray(function (err, result) {
+                                console.log(result);
+                                db.close();
+                        
+                                data.callback(result);
+                                process.emit("next", data);
                             });
                         } else {
-                            collection.find(dbquery, function (err, result) {
-                                data.results = result;
+                            collection.find(dbquery).toArray(function (err, result) {
+                                console.log('found:' + result);
+                                db.close();
+                        
+                                data.callback(result);
+                                process.emit("next", data);
                             });
                         }
-                        
-                        db.close();
-                        
-                        data.callback(data.results);
-                        
-                        process.emit("next", data);
-
                     } else {
                         console.log('Database connection error!');
                         process.emit("next", data);

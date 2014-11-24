@@ -52,7 +52,7 @@ var exports = {
 
                 // Call database insert hook to insert the new group object
                 process.hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': membersArray, 'name': post.name}});
-                
+                data.returns = 'Insertion successful.';
                 process.emit("next", data);
             }
     },
@@ -63,13 +63,9 @@ var exports = {
                 var get = data.get;
                 
                 // Call db find hook.
-                console.log('does this run');
                 process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}, callback: function (gotData) {
-                    console.log(gotData);
-                    
-                    
-                    
-                    data.returns = gotData.results;
+                    data.returns = JSON.stringify(gotData.result);
+                    console.log(data.returns);
                     process.emit("next", data);
                     }
                 });
