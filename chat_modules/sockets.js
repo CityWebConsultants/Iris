@@ -5,18 +5,19 @@ var io = require('socket.io');
 "use strict";
 
 var exports = {
-    options: {},
     init: function(){
     
         process.nextTick(function(){
             
-            process.io = io(process.server)
+            process.socketio = io(process.server)
            
-            process.io.on("connection", function(socket){
-   
-                socket.emit("hello","world");
-    
-            });
+//            Example usage
+//            
+//            process.socketio.on("connection", function(socket){
+//   
+//                socket.emit("hello","world");
+//    
+//            });
             
         });    
         

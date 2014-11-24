@@ -24,7 +24,6 @@ var trigger = function (event, value) {
     var eventid = Math.floor(new Date());
 
         console.log("Running event: " + event);
-
         
         //Create a list of active node.js modules (modules are only required once so this will not reinstall them), it just allows them to be accessed here.
 
@@ -38,10 +37,12 @@ var trigger = function (event, value) {
 
         //Add modules to the array if they contain the triggered event
 
+    
+    
         modules.forEach(function (element, index) {
-
+            
             if (element[event]) {
-                
+                                
                 if(!queue[eventid]){
                  
                     queue[eventid] = {};
@@ -90,6 +91,7 @@ process.on("next", function (data) {
 
             //If the queue is finished (no more in the chain) run a complete event on the process object that anything can listen to. Include the data that was returned.
 
+            console.log("completed event: " + data.hookname);
             process.emit("complete_" + data.hookname, data, data.hookname);
 
         }
