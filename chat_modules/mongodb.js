@@ -41,11 +41,36 @@ var exports = {
                     dbquery = data.dbquery,
                     dbfindOne = data.dbfindOne;
                 
+                if (dbfindOne !== true) {
+                    dbfindOne = false;
+                }
                 
-                data.results = "example return data";
-                data.callback(data.results);
-                
-                process.emit("next", data);
+                MongoClient.connect(exports.options.connection_url + exports.options.database_name, function (err, db) {
+                    if (!err) {
+                        console.log('Connected to database.');
+                        var collection = db.collection(exports.options.prefix + dbcollection);
+                        
+                        if (dbfindOne === true) {
+                            collection.findOne(dbquery, function (err, result) {
+                                data.results = result;
+                            });
+                        } else {
+                            collection.find(dbquery, function (err, result) {
+                                data.results = result;
+                            });
+                        }
+                        
+                        db.close();
+                        
+                        data.callback(data.results);
+                        
+                        process.emit("next", data);
+
+                    } else {
+                        console.log('Database connection error!');
+                        process.emit("next", data);
+                    }
+                });
             }
     },
     hook_db_update: {
