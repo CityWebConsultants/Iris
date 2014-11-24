@@ -16,6 +16,9 @@ chat.api = {};
 config.modules_enabled.forEach(function (element, index) {
     chat.api[element.name] = require('./chat_modules/' + element.name);
     chat.api[element.name].options = element.options;
+    if(chat.api[element.name].init){
+    chat.api[element.name].init();
+    }
     console.log(element.name + " module enabled");
 });
 
