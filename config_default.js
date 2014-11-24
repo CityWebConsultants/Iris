@@ -12,12 +12,11 @@ module.exports = {
             options: {
                 connection_url: 'mongodb://localhost:27017/',
                 database_name: 'chat-app',
-                prefix: '',
+                prefix: ''
             }
         },
         {
-            name: 'group_add',
-            options: {}
-        },
+            name: 'group_manager'
+        }
     ]
 };
