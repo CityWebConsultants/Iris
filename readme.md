@@ -20,6 +20,12 @@ The site authorisation API key.
 
 * authorisation token for user
 
+### /message
+
+#### /add
+
+Currently takes a single "content" parameter and responds with "message received"
+
 ### /group
 Handles group creation and manipulation.
 
