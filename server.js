@@ -4,6 +4,7 @@
 var http = require('http');
 var config = require('./config');
 var qs = require('querystring');
+var url = require('url');
 var io = require('socket.io');
 var hook = require('./hook');
 
@@ -25,25 +26,24 @@ var server = http.createServer(function (req, res) {
         'Access-Control-Allow-Origin': '*'
     });
 
+    //Check if request is empty
+    if (req.headers["content-length"] === "0") {
+        res.end("Empty request");
+    }
+    
+    var body = '';
+    
     if (req.method === "POST") {
         
-        //Check if POST request is empty
-        
-        if (req.headers["content-length"] === "0") {
-           
-            res.end("Empty request");
-            
-        }
-        
-        var body = '';
         req.on('data', function (data) {
-
+            
             body += data;
-
+            
             req.on('end', function () {
-                var post = qs.parse(body);
-                var hookurl = req.url.split('/').join('_');
-                hook('hook_post' + hookurl, {'url': req.url, 'post': post, 'res': res});
+                var requestUrl = url.parse(req.url, true),
+                    requestPost = qs.parse(body),
+                    hookurl = requestUrl.pathname.split('/').join('_');
+                hook('hook_post' + hookurl, {'url': req.url, 'post': requestPost, 'res': res});
                 
                 process.on('complete_hook_post' + hookurl, function (data) {
                     res.end(data.returns);
@@ -51,11 +51,24 @@ var server = http.createServer(function (req, res) {
                 
             });
         });
+    } else if (req.method === "GET") {
+        var requestUrl = url.parse(req.url, true),
+            requestGet = qs.parse(requestUrl.query),
+            hookurl = requestUrl.pathname.split('/').join('_');
+        
+        if (requestGet !== '') {
+            hook('hook_get' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
+
+            process.on('complete_hook_get' + hookurl, function (data) {
+                res.end(data.returns);
+            });
+            
+        } else {
+            res.end('Empty request');
+        }
+        
     } else {
-        
-        //GET or other request
-        res.end("GET?");
-        
+        res.end("Unknown action");
     }
 
     //Functions, each get a request argument and paramaters
