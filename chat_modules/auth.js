@@ -21,21 +21,19 @@ var exports = {
                     data.returns = authToken;
                     //~ console.log(data.returns);
                     
-                    process.nextTick(function () {
-                        
-                        if (data.post.userid) {
-                            
-                            exports.tokens[data.post.userid] = authToken;
-                            process.emit("next", data);
-                            
-                        } else {
-                            
-                            data.returns = "No userid";
-                            process.emit("next", data);
-                            
-                        }
-                        
-                    });
+
+                    if (data.post.userid) {
+
+                        exports.tokens[data.post.userid] = authToken;
+                        process.emit("next", data);
+
+                    } else {
+
+                        data.returns = "No userid";
+                        process.emit("next", data);
+
+                    }
+
                 });
             
             }

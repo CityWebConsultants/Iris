@@ -16,7 +16,16 @@ module.exports = {
             }
         },
         {
+            name: 'sockets'
+        },
+        {
+            name: 'socket_message'
+        },
+        {
             name: 'group_manager'
+        },
+        {
+            name: 'message_add'
         }
     ]
 };
