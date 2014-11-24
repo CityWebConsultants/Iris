@@ -45,7 +45,7 @@ var server = http.createServer(function (req, res) {
                     hookurl = requestUrl.pathname.split('/').join('_');
                 hook('hook_post' + hookurl, {'url': req.url, 'post': requestPost, 'res': res});
                 
-                process.on('complete_hook_post' + requestUrl.pathname, function (data) {
+                process.on('complete_hook_post' + hookurl, function (data) {
                     res.end(data.returns);
                 });
                 
@@ -57,8 +57,9 @@ var server = http.createServer(function (req, res) {
             hookurl = requestUrl.pathname.split('/').join('_');
 
         hook('hook_get' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
-
-        process.on('complete_hook_get' + requestUrl.pathname, function (data) {
+        console.log('a:' + 'complete_hook_get' + hookurl);
+        process.on('complete_hook_get' + hookurl, function (data) {
+            console.log('Complete hook get');
             res.end(data.returns);
         });
         
