@@ -37,7 +37,15 @@ var exports = {
         rank: 0,
         event:
             function (data) {
+                var dbcollection = data.dbcollection,
+                    dbquery = data.dbquery,
+                    dbfindOne = data.dbfindOne;
                 
+                
+                data.results = "example return data";
+                data.callback(data.results);
+                
+                process.emit("next", data);
             }
     },
     hook_db_update: {

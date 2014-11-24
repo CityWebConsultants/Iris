@@ -57,6 +57,24 @@ var exports = {
                 
                 process.emit("next", data);
             }
+    },
+    hook_get_fetch_group: {
+        rank: 0,
+        event:
+            function (data) {
+                var get = data.get;
+                
+                // Call db find hook.
+                console.log('does this run');
+                hook('hook_db_find', {dbcollection: 'groups', dbquery: {}, callback: function (gotData) {
+                    console.log(gotData);
+                    data.returns = gotData.results;
+                    process.emit("next", data);
+                    }
+                });
+                
+                process.emit('next', data);
+            }
     }
 };
 
