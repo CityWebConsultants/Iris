@@ -2,40 +2,29 @@
 
 "use strict";
 
-//The current event being run (has a name and a value)
-
-var currentevent = {};
-
 //The queue holds the events of the current type to be processed in the current queue
 
-var queue = [];
-
-//The eventsqueue is the future event types that will be run 
-
-var eventsqueue = [];
+var queue = {};
 
 //The function that runs the next event in the chain
 
-var run = function (value) {
-    if (queue[0]) {
-        queue[0][currentevent.name].event(value);
-    }
+var run = function (eventid,hookname,value) {
+    
+    value.pid = eventid;
+    value.hookname = hookname;
+    
+    queue[eventid].events[0][hookname].event(value);
+
 };
 
 //The trigger function is exposed and called from external modules/files to trigger an event
 
 var trigger = function (event, value) {
-
-    //If the queue is empty start the new event
-
-    if (queue.length === 0) {
+    
+    var eventid = Math.floor(new Date());
 
         console.log("Running event: " + event);
-        
-        currentevent = {
-            name: event,
-            value: value
-        };
+
         
         //Create a list of active node.js modules (modules are only required once so this will not reinstall them), it just allows them to be accessed here.
 
@@ -52,8 +41,15 @@ var trigger = function (event, value) {
         modules.forEach(function (element, index) {
 
             if (element[event]) {
+                
+                if(!queue[eventid]){
+                 
+                    queue[eventid] = {};
+                    queue[eventid].events = [];
+                    
+                }
 
-                queue.push(element);
+                queue[eventid].events.push(element);
 
             }
 
@@ -61,7 +57,7 @@ var trigger = function (event, value) {
 
         //Sort the modules in order of the rank of that event function within them
 
-        queue.sort(function (a, b) {
+        queue[eventid].events.sort(function (a, b) {
 
             if (a[event].rank > b[event].rank) {
                 return 1;
@@ -76,41 +72,26 @@ var trigger = function (event, value) {
         });
 
         //Run the next event in the chain
-
-        run(value);
-
-    } else {
-
-        //Put the event in the event queue if there is already an event being processed 
-
-        eventsqueue.push({
-            name: event,
-            value: value
-        });
-
-    }
+    
+        run(eventid,event,value);
 };
 
 //When that event has finished by emiting the "next" event to the node.js process, remove the event from the chain and run the next one
 
 process.on("next", function (data) {
+    
     process.nextTick(function () {
-        queue.shift();
-        if (queue.length > 0) {
+        queue[data.pid].events.shift();
+        if (queue[data.pid].events.length > 0) {
 
-            run(data);
+            run(data.pid,data.hookname,data);
 
         } else {
 
             //If the queue is finished (no more in the chain) run a complete event on the process object that anything can listen to. Include the data that was returned.
 
-            console.log("Event " + currentevent.name + " complete");
-            process.emit("complete_" + currentevent.name, data, currentevent.name);
+            process.emit("complete_" + data.hookname, data, data.hookname);
 
-            if (eventsqueue.length > 0) {
-                trigger(eventsqueue[0].name, eventsqueue[0].value);
-                eventsqueue.shift();
-            }
         }
     });
 });
