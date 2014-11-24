@@ -45,7 +45,7 @@ var server = http.createServer(function (req, res) {
                     hookurl = requestUrl.pathname.split('/').join('_');
                 hook('hook_post' + hookurl, {'url': req.url, 'post': requestPost, 'res': res});
                 
-                process.on('complete_hook_post' + hookurl, function (data) {
+                process.on('complete_hook_post' + requestUrl.pathname, function (data) {
                     res.end(data.returns);
                 });
                 
@@ -55,17 +55,12 @@ var server = http.createServer(function (req, res) {
         var requestUrl = url.parse(req.url, true),
             requestGet = qs.parse(requestUrl.query),
             hookurl = requestUrl.pathname.split('/').join('_');
-        
-        if (requestGet !== '') {
-            hook('hook_get' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
 
-            process.on('complete_hook_get' + hookurl, function (data) {
-                res.end(data.returns);
-            });
-            
-        } else {
-            res.end('Empty request');
-        }
+        hook('hook_get' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
+
+        process.on('complete_hook_get' + requestUrl.pathname, function (data) {
+            res.end(data.returns);
+        });
         
     } else {
         res.end("Unknown action");
