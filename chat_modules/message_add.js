@@ -9,10 +9,12 @@ var exports = {
         
         data.content = data.post.content;
         
+        data.returns = "message received";
+
         process.emit("next", data);
         
         process.nextTick(function(){
-        
+                    
         process.hook("hook_message_add", data);
         
         });
@@ -25,8 +27,6 @@ var exports = {
     
             
         console.log("Message received: " + data.content);
-
-        data.returns = "message received";
         
         process.emit("next", data);
 
