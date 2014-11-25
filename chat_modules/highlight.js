@@ -1,4 +1,4 @@
-/* jslint: node: true */
+/*jslint node: true */
 "use strict";
 
 /*  Highlight Module
@@ -15,7 +15,6 @@ var exports = {
     hook_highlight: {
         rank: 0,
         event: function (data) {
-            console.log(data.pid);
             data.returns = hl(data.code);
             process.emit("next", data);
         }
@@ -26,12 +25,9 @@ var exports = {
             data.code = data.post.code;
 
             process.hook("hook_highlight", {code: data.code}, function (gotCode) {
-                console.log(gotCode.returns);
                 data.returns = gotCode.returns;
-
             });
 
-            console.log(data.pid);
             process.emit("next", data);
         }
     }
