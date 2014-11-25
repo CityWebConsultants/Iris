@@ -2,6 +2,17 @@
 
 "use strict";
 
+/*  MongoDB Module
+ *
+ *  Provides a set of database hooks for MongoDB.
+ *
+ *  Implements these base hooks:
+ *
+ *  hook_db_insert
+ *  hook_db_find
+ *  hook_db_update
+ */
+
 var MongoClient = require('mongodb').MongoClient;
 
 var exports = {
