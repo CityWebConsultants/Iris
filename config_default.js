@@ -1,10 +1,11 @@
 module.exports = {
     port: 3000,
+    secret_key: 'sdh34HYg40SDF283g40eaSRKAHA8ough0q222LFF39e4h303gAUO4Jt6vvE82UF0',
     modules_enabled: [
         {
             name: 'auth',
             options: {
-                token_length: 16
+                token_length: 16,
             }
         },
         {

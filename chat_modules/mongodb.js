@@ -12,7 +12,7 @@ var exports = {
             function (data) {
                 var dbcollection = data.dbcollection,
                     dbobject = data.dbobject;
-                console.log('got options: connection url ' + exports.options.connection_url);
+                
                 // Connect and push to database
                 MongoClient.connect(exports.options.connection_url + exports.options.database_name, function (err, db) {
                     if (!err) {
@@ -51,15 +51,12 @@ var exports = {
                         
                         if (dbfindOne === true) {
                             collection.findOne(dbquery).toArray(function (err, result) {
-                                console.log('found1:' + result);
                                 data.callback(JSON.stringify(result));
                                 process.emit("next", data);
                             });
                         } else {
                             collection.find(dbquery).toArray(function (err, result) {
-                                console.log('found:' + result);
                                 data.callback(JSON.stringify(result));
-                                console.log(data);
                                 process.emit("next", data);
                             });
                         }
@@ -74,7 +71,33 @@ var exports = {
         rank: 0,
         event:
             function (data) {
+                var dbcollection = data.dbcollection,
+                    dbquery = data.dbquery,
+                    dbupdate = data.dbupdate,
+                    dbmulti = data.dbmulti,
+                    dbupsert = data.dbupsert;
                 
+                if (dbmulti !== true) {
+                    dbmulti = false;
+                }
+                
+                if (dbupsert !== true) {
+                    dbupdate = false;
+                }
+                
+                MongoClient.connect(exports.options.connection_url + exports.options.database_name, function (err, db) {
+                    if (!err) {
+                        var collection = db.collection(exports.options.prefix + dbcollection);
+                        
+                        collection.update(dbquery, dbupdate, {'upsert': dbupsert, 'multi': dbmulti}, function (err, docs) {
+                            data.callback(JSON.stringify(docs));
+                            process.emit("next", data);
+                        });
+                    } else {
+                        console.log('Database connection error!');
+                        process.emit("next", data);
+                    }
+                });
             }
     }
 };
