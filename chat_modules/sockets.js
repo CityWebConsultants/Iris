@@ -8,8 +8,20 @@ var auth = require('../chat_modules/auth');
 var socketapi = function (socket) {
  
     exports.listeners.forEach(function (element, index) {
+        
+        var callback;
+        
+        (function () {
+
+            callback = function (data) {
+              
+                element.callback(data, socket);
+                
+            };
+            
+        }());
        
-        socket.on(element.event, element.callback);
+        socket.on(element.event, callback);
         
     });
     
@@ -36,7 +48,7 @@ var exports = {
                 
                 //Handshake message to trigger a pair callback from client
                 
-                socket.emit("handshake");
+                socket.emit("handshake", "Connection made");
                   
                 socket.on("pair", function (data) {
                     

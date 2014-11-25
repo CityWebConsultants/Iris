@@ -7,9 +7,9 @@ var exports = {
     
         process.nextTick(function () {
             
-            process.addSocketListener("message", function (data) {
+            process.addSocketListener("message", function (data, socket) {
                
-                console.log(data);
+                socket.emit("handshake", data);
                 
             });
             
