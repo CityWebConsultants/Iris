@@ -79,4 +79,6 @@ var exports = {
     }
 };
 
+process.userlist = exports.userlist;
+
 module.exports = exports;

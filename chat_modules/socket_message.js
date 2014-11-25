@@ -9,7 +9,11 @@ var exports = {
             
             process.addSocketListener("message", function (data, socket) {
                
-                socket.emit("handshake", data);
+                if (process.userlist[data.to]) {
+                 
+                    process.userlist[data.to].socket.emit("handshake", data.content);
+                           
+                }
                 
             });
             
