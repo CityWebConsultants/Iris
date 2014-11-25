@@ -5,7 +5,24 @@
 var io = require('socket.io');
 var auth = require('../chat_modules/auth');
 
+var socketapi = function (socket) {
+ 
+    exports.listeners.forEach(function (element, index) {
+       
+        socket.on(element.event, element.callback);
+        
+    });
+    
+};
+
 var exports = {
+    
+    listeners: [],
+    addlistener: function (listener, callback) {
+        
+        exports.listeners.push({event : listener, callback : callback});
+        
+    },
     init: function () {
     
         process.nextTick(function () {
@@ -13,12 +30,15 @@ var exports = {
             process.socketio = io(process.server);
             process.socketio.on("connection", function (socket) {
                 
+                //Add listeners
+                
+                socketapi(socket);
+                
                 //Handshake message to trigger a pair callback from client
                 
                 socket.emit("handshake");
                   
                 socket.on("pair", function (data) {
-                   
                     
                     process.hook("hook_auth_check", data, function (check) {
                                                 
@@ -43,5 +63,7 @@ var exports = {
         
     }
 };
+
+process.addSocketListener = exports.addlistener;
 
 module.exports = exports;
