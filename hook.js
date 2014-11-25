@@ -91,6 +91,7 @@ process.on("next", function (data) {
 
             //If the queue is finished (no more in the chain) run a complete event on the process object that anything can listen to. Include the data that was returned.
 
+            delete queue[data.pid];
             console.log("completed event: " + data.hookname);
             process.emit("complete_" + data.hookname, data, data.hookname);
 
