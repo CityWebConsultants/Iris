@@ -12,6 +12,10 @@ var exports = {
             
             process.socketio = io(process.server);
             process.socketio.on("connection", function (socket) {
+                
+                //Handshake message to trigger a pair callback from client
+                
+                socket.emit("handshake");
                   
                 socket.on("pair", function (data) {
                    
@@ -21,10 +25,10 @@ var exports = {
                             if (auth.userlist[data.userid]) {
                                 // Push socket to userlist
                                 auth.userlist[data.userid].socket = socket;
-                                socket.emit('pair', 'OK.');
+                                socket.emit('pair', true);
                             }
                         } else {
-                            socket.emit('pair', 'Authentication error.');
+                            socket.emit('pair', false);
                         }
                         
                     };

@@ -3,5 +3,11 @@
 <script>
     
 var socket = io('http://localhost:3000');
+    
+socket.on("handshake", function(){
+    
+   console.log("Connection made");
+    
+});
 
 </script>
