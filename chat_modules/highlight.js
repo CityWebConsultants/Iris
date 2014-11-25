@@ -1,6 +1,13 @@
 /* jslint: node: true */
 "use strict";
 
+/*  Highlight Module
+ *  A module wrapper for highlight.js
+ *
+ *  Provides hook_highlight
+ *      - accepts {code: <STRING: CODE TO HIGHLIGHT>}
+ */
+
 var hl = require('highlight').Highlight;
 
 var exports = {

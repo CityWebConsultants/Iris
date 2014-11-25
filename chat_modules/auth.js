@@ -2,6 +2,16 @@
 
 "use strict";
 
+/*  Auth Module
+ *
+ *  Provides an authentication API for integrating with a user management system
+ *  (i.e. Drupal or some other CMS). Accepts the global secret key and a user ID
+ *  and returns an authentication token and saves the user ID and token pair.
+ *
+ *  Implements the base hook hook_auth_check.
+ *  Implements an API endpoint hook_post_auth (/auth)
+ */
+
 var crypto = require('crypto');
 
 var exports = {
