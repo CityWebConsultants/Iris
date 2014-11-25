@@ -16,26 +16,47 @@ var exports = {
             
                 var authToken;
                 
-                crypto.randomBytes(exports.options.token_length, function (ex, buf) {
-                    authToken = buf.toString('hex');
-                    data.returns = authToken;
-                    //~ console.log(data.returns);
-                    
+                if (data.post.secretkey === process.config.secret_key) {
+                    crypto.randomBytes(exports.options.token_length, function (ex, buf) {
+                        authToken = buf.toString('hex');
+                        data.returns = authToken;
+                        //~ console.log(data.returns);
 
-                    if (data.post.userid) {
 
-                        exports.tokens[data.post.userid] = authToken;
-                        process.emit("next", data);
+                        if (data.post.userid) {
 
-                    } else {
+                            exports.tokens[data.post.userid] = authToken;
+                            process.emit("next", data);
 
-                        data.returns = "No userid";
-                        process.emit("next", data);
+                        } else {
 
-                    }
+                            data.returns = "No userid";
+                            process.emit("next", data);
 
-                });
+                        }
+
+                    });
+                } else {
+                    data.returns = "Secret key invalid";
+                    process.emit("next", data);
+                }
             
+            }
+    },
+    hook_auth_check: {
+        rank: 0,
+        event:
+            function (data) {
+                var userid = data.userid,
+                    token = data.token;
+                
+                if (exports.tokens[userid] === token) {
+                    data.authenticated = true;
+                } else {
+                    data.authenticated = false;
+                }
+                
+                process.emit("next", data);
             }
     }
 };

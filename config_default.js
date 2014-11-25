@@ -1,3 +1,12 @@
+/*  Configuration file for the chat application
+ *  
+ *  Global values:
+ *  - port:             port number to run the web server on
+ *  - secret_key:       secret API key to access authentication
+ *  - modules_enabled:  array of enabled module objects
+ *      - name, options{}
+ */
+
 module.exports = {
     port: 3000,
     secret_key: 'sdh34HYg40SDF283g40eaSRKAHA8ough0q222LFF39e4h303gAUO4Jt6vvE82UF0',
@@ -5,7 +14,7 @@ module.exports = {
         {
             name: 'auth',
             options: {
-                token_length: 16,
+                token_length: 16
             }
         },
         {

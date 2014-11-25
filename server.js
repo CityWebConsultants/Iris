@@ -2,18 +2,19 @@
 "use strict";
 
 var http = require('http');
-var config = require('./config');
 var qs = require('querystring');
 var url = require('url');
 
+// Current globals
 process.hook = require('./hook');
+process.config = require('./config');
 
 //API functions
 var chat = {};
 chat.api = {};
 
 // Automatically load modules
-config.modules_enabled.forEach(function (element, index) {
+process.config.modules_enabled.forEach(function (element, index) {
     chat.api[element.name] = require('./chat_modules/' + element.name);
     chat.api[element.name].options = element.options;
     if (chat.api[element.name].init) {
@@ -74,4 +75,4 @@ process.server = http.createServer(function (req, res) {
 
     //Functions, each get a request argument and paramaters
 
-}).listen(config.port);
+}).listen(process.config.port);
