@@ -1,17 +1,34 @@
 /*jslint node: true */
 
-var io = require('socket.io');
-
 "use strict";
 
+var io = require('socket.io');
+var auth = require('../chat_modules/auth');
+
 var exports = {
-    init: function(){
+    init: function () {
     
-        process.nextTick(function(){
+        process.nextTick(function () {
             
-            process.socketio = io(process.server)   
+            process.socketio = io(process.server);
+            process.socketio.on("connection", function (socket) {
+                  
+                socket.on("pair", function (data) {
+                   
+                    data.callback = function (check) {
+                        
+                        console.log(check.authenticated);
+                        
+                    };
+                    
+                    process.hook("hook_auth_check", data);
+                    
+                    
+                });
+                
+            });
             
-        });    
+        });
         
     }
 };
