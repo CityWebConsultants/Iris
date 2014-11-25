@@ -50,6 +50,8 @@ var exports = {
                 var userid = data.userid,
                     token = data.token;
                 
+                console.log(userid + ' ' + token);
+                
                 if (exports.tokens[userid] === token) {
                     data.authenticated = true;
                 } else {

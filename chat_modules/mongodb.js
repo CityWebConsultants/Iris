@@ -51,12 +51,12 @@ var exports = {
                         
                         if (dbfindOne === true) {
                             collection.findOne(dbquery).toArray(function (err, result) {
-                                data.callback(JSON.stringify(result));
+                                data.results = JSON.stringify(result);
                                 process.emit("next", data);
                             });
                         } else {
                             collection.find(dbquery).toArray(function (err, result) {
-                                data.callback(JSON.stringify(result));
+                                data.results = JSON.stringify(result);
                                 process.emit("next", data);
                             });
                         }
@@ -90,7 +90,7 @@ var exports = {
                         var collection = db.collection(exports.options.prefix + dbcollection);
                         
                         collection.update(dbquery, dbupdate, {'upsert': dbupsert, 'multi': dbmulti}, function (err, docs) {
-                            data.callback(JSON.stringify(docs));
+                            data.results = JSON.stringify(docs);
                             process.emit("next", data);
                         });
                     } else {

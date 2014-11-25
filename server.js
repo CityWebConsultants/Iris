@@ -58,9 +58,9 @@ process.server = http.createServer(function (req, res) {
         });
     } else if (req.method === "GET") {
         var requestUrl = url.parse(req.url, true),
-            requestGet = qs.parse(requestUrl.query),
+            requestGet = requestUrl.query,
             hookurl = requestUrl.pathname.split('/').join('_');
-
+        
         process.hook('hook_get' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
 
         process.on('complete_hook_get' + hookurl, function (data) {
