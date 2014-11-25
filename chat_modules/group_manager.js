@@ -84,7 +84,7 @@ var exports = {
                 var userid = data.get.userid,
                     token = data.get.token;
                 
-                console.log(data.get.userid + ' ' + data.get.token);
+                console.log('user: ' + data.get.userid + ' token: ' + data.get.token);
                 
                 // Call auth_check hook
                 process.hook('hook_auth_check',
