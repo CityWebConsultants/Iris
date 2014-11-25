@@ -17,7 +17,15 @@ var exports = {
                    
                     data.callback = function (check) {
                         
-                        console.log(check.authenticated);
+                        if (check.authenticated) {
+                            if (auth.userlist[data.userid]) {
+                                // Push socket to userlist
+                                auth.userlist[data.userid].socket = socket;
+                                socket.emit('pair', 'OK.');
+                            }
+                        } else {
+                            socket.emit('pair', 'Authentication error.');
+                        }
                         
                     };
                     
