@@ -149,18 +149,29 @@ A function contained within the `init` property of the module object will be run
 Standard Hooks
 --------------
 ### hook_post
-All POST requests sent to the server will generate a hook_post event. For example, sending a request to the URL /example would
-trigger the event `hook_post_example` and pass an object containing the request URL and the parsed POST object.
+All POST requests sent to the server will generate a `hook_post` event. For example, sending a request to the URL /example would
+trigger the event `hook_post_example` and pass an object containing the request URL (`url`) and the parsed POST object (`post`).
+
+### hook_get
+All GET requests sent to the server will generate a `hook_get` event in the same manner as `hook_post`. The parsed query string is
+passed as the data object property `get`.
 
 _Note: The database handler(s) will implement these `db` hooks._
 
 ### hook_db_insert
-Call this hook and pass an object like the following: `{dbcollection: 'collection-name', dbobject: {object: 'to insert'}}`.
+Call this hook and pass an object like the following: `{dbcollection: string, dbobject: {}}`.
 
 ### hook_db_find
-Call this hook and pass an object like the following: `{dbcollection: 'collection-name', dbquery: {some: 'query'}, findOne: false}`.
+Call this hook and pass an object like the following: `{dbcollection: string, dbquery: {}, findOne: bool}`.
 
 ### hook_db_update
+Call this hook and pass an object like the following: `{dbcollection: string, dbquery: {}, dbupdate: {}, dbupsert: bool, dbmulti: bool}`.
+
+_Note: The authentication handler(s) will implement these `auth` hooks._
+
+### hook_auth_check
+Call this hook and pass an object of the format `{userid: int, token: string}`. Callback object contains the property `authenticated`
+which will be `true` or `false`.
 
 Hook System
 -----------
