@@ -1,10 +1,10 @@
 /*  Configuration file for the chat application
  *  
  *  Global values:
- *  - port:             port number to run the web server on
- *  - secret_key:       secret API key to access authentication
- *  - modules_enabled:  array of enabled module objects
- *      - name, options{}
+ *  - port:             port number to run the web server on                integer
+ *  - secret_key:       secret API key to access authentication             string
+ *  - modules_enabled:  array of enabled module objects                     array
+ *      - name, options{}                                                   string, object
  */
 
 module.exports = {
