@@ -52,8 +52,14 @@ var exports = {
                 
                 console.log(userid + ' ' + token);
                 
-                if (exports.tokens[userid] === token) {
-                    data.authenticated = true;
+                if (typeof userid !== 'undefined' && typeof token !== 'undefined') {
+                
+                    if (exports.tokens[userid] === token) {
+                        data.authenticated = true;
+                    } else {
+                        data.authenticated = false;
+                    }
+                    
                 } else {
                     data.authenticated = false;
                 }
