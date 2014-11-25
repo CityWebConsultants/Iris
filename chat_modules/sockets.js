@@ -19,8 +19,9 @@ var exports = {
                   
                 socket.on("pair", function (data) {
                    
-                    data.callback = function (check) {
-                        
+                    
+                    process.hook("hook_auth_check", data, function (check) {
+                                                
                         if (check.authenticated) {
                             if (auth.userlist[data.userid]) {
                                 // Push socket to userlist
@@ -31,9 +32,7 @@ var exports = {
                             socket.emit('pair', false);
                         }
                         
-                    };
-                    
-                    process.hook("hook_auth_check", data);
+                    });
                     
                     
                 });

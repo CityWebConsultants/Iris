@@ -10,7 +10,7 @@ var exports = {
         process.socketio.on("connection", function(socket){
             
             socket.on("message", function(data){
-           
+                
                 process.hook("hook_message_add",{content:data});
                 
             });
