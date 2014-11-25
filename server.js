@@ -16,8 +16,8 @@ chat.api = {};
 config.modules_enabled.forEach(function (element, index) {
     chat.api[element.name] = require('./chat_modules/' + element.name);
     chat.api[element.name].options = element.options;
-    if(chat.api[element.name].init){
-    chat.api[element.name].init();
+    if (chat.api[element.name].init) {
+        chat.api[element.name].init();
     }
     console.log(element.name + " module enabled");
 });
@@ -29,14 +29,15 @@ process.server = http.createServer(function (req, res) {
         'Access-Control-Allow-Origin': '*'
     });
 
-    //Check if request is empty
-    if (req.headers["content-length"] === "0") {
-        res.end("Empty request");
-    }
+
     
     var body = '';
     
     if (req.method === "POST") {
+        //Check if request is empty
+        if (req.headers["content-length"] === "0") {
+            res.end("Empty request");
+        }
         
         req.on('data', function (data) {
             
@@ -62,7 +63,9 @@ process.server = http.createServer(function (req, res) {
         process.hook('hook_get' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
 
         process.on('complete_hook_get' + hookurl, function (data) {
-            res.end(data.returns);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.write(data.returns);
+            res.end();
         });
         
     } else {

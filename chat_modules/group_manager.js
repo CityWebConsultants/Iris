@@ -63,14 +63,18 @@ var exports = {
                 var get = data.get;
                 
                 // Call db find hook.
-                process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}, callback: function (gotData) {
-                    data.returns = JSON.stringify(gotData.result);
-                    console.log(data.returns);
-                    process.emit("next", data);
-                    }
-                });
-                
-                process.emit('next', data);
+                process.hook('hook_db_find',
+                    {
+                        dbcollection: 'groups',
+                        dbquery: {},
+                        callback: function (gotData) {
+                            data.returns = gotData;
+                            console.log('r:' + data.returns);
+                            process.nextTick(function () {
+                                process.emit("next", data);
+                            });
+                        }
+                    });
             }
     }
 };

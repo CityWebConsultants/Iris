@@ -51,18 +51,15 @@ var exports = {
                         
                         if (dbfindOne === true) {
                             collection.findOne(dbquery).toArray(function (err, result) {
-                                console.log(result);
-                                db.close();
-                        
-                                data.callback(result);
+                                console.log('found1:' + result);
+                                data.callback(JSON.stringify(result));
                                 process.emit("next", data);
                             });
                         } else {
                             collection.find(dbquery).toArray(function (err, result) {
                                 console.log('found:' + result);
-                                db.close();
-                        
-                                data.callback(result);
+                                data.callback(JSON.stringify(result));
+                                console.log(data);
                                 process.emit("next", data);
                             });
                         }
