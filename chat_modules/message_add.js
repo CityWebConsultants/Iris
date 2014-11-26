@@ -19,7 +19,7 @@ var exports = {
         process.hook("hook_message_add", data);
         
         });
-    }   
+    }
     },
     hook_message_add: {
         

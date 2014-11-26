@@ -168,10 +168,19 @@ var exports = {
                         });
                     break;
                 case 'removemember':
-
+                    process.hook('hook_db_update',
+                        {
+                            dbcollection: 'groups',
+                            dbquery: {'_id': objectID(data.groupid)},
+                            dbupdate: {$pull: {members: {'userid': data.userid}}},
+                            dbmulti: true,
+                            dbupsert: false
+                        }, function (gotData) {
+                            data.returns = gotData.results;
+                            process.emit('next', data);
+                        });
                     break;
                 case 'name':
-                    console.log(data.name);
                     process.hook('hook_db_update',
                         {
                             dbcollection: 'groups',
@@ -198,13 +207,31 @@ var exports = {
             function (data) {
                 var post = data.post;
 
-                if (post.userid && post.groupid && objectID.isValid(post.groupID)) {
+                if (post.userid && post.groupid) {
                     process.hook('hook_group_update', {action: 'addmember', userid: post.userid, groupid: post.groupid}, function (gotData) {
                         data.returns = gotData.returns;
                         process.emit('next', data);
                     });
                 } else {
-                    data.returns("Missing/invalid userid or groupid.");
+                    data.returns = "Missing/invalid userid or groupid.";
+                    process.emit('next', data);
+                }
+            }
+    },
+    // POST /group/update/removemember
+    hook_post_group_update_removemember: {
+        rank: 0,
+        event:
+            function (data) {
+                var post = data.post;
+
+                if (post.userid && post.groupid) {
+                    process.hook('hook_group_update', {action: 'removemember', userid: post.userid, groupid: post.groupid}, function (gotData) {
+                        data.returns = gotData.returns;
+                        process.emit('next', data);
+                    });
+                } else {
+                    data.returns = "Missing/invalid userid or groupid.";
                     process.emit('next', data);
                 }
             }
@@ -216,13 +243,13 @@ var exports = {
             function (data) {
                 var post = data.post;
 
-                if (post.name && post.groupid && objectID.isValid(post.groupid)) {
+                if (post.name && post.groupid) {
                     process.hook('hook_group_update', {action: 'name', name: post.name, groupid: post.groupid}, function (gotData) {
                         data.returns = gotData.returns;
                         process.emit('next', data);
                     });
                 } else {
-                    data.returns("Missing/invalid new name or groupid.");
+                    data.returns = "Missing/invalid new name or groupid.";
                     process.emit('next', data);
                 }
             }
