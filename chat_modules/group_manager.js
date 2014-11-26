@@ -5,6 +5,7 @@ var objectID = require('mongodb').ObjectID;
 
 var exports = {
     options: {},
+    // POST /group/add
     hook_post_group_add: {
         rank: 0,
         event:
@@ -55,6 +56,7 @@ var exports = {
                 process.emit("next", data);
             }
     },
+    // GET /fetch/group
     hook_get_fetch_group: {
         rank: 0,
         event:
@@ -81,6 +83,7 @@ var exports = {
                     });
             }
     },
+    // POST /group/update/addmember
     hook_post_group_update_addmember: {
         rank: 0,
         event:

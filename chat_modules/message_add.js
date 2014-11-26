@@ -3,6 +3,7 @@
 "use strict";
 
 var exports = {
+    // POST /message/add
     hook_post_message_add:{
     rank: 1,
     event: function(data){
