@@ -116,7 +116,7 @@ var exports = {
 
                 // Call database insert hook to insert the new group object
                 process.hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': memberObjects, 'name': post.name}}, function (gotData) {
-                    data.returns = JSON.stringify(gotData.returns[0]._id);
+                    data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // it gets too many quotes from all the stringifying
                     process.emit('next', data);
                 });
             }
