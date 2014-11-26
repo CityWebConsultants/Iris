@@ -9,7 +9,7 @@
 
 module.exports = {
     port: 3000,
-    secret_key: 'sdh34HYg40SDF283g40eaSRKAHA8ough0q222LFF39e4h303gAUO4Jt6vvE82UF0',
+    secret_key: 'letmein',
     modules_enabled: [
         {
             name: 'auth',
