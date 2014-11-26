@@ -27,15 +27,12 @@ var exports = {
                 // Connect and push to database
                 MongoClient.connect(exports.options.connection_url + exports.options.database_name, function (err, db) {
                     if (!err) {
-                        console.log('Connected to database.');
 
                         var collection = db.collection(exports.options.prefix + dbcollection);
                         collection.insert(dbobject, function (err, result) {
-                            console.log('Inserted object into database.');
+                            data.returns = result;
+                            process.emit("next", data);
                         });
-
-                        db.close();
-                        process.emit("next", data);
 
                     } else {
                         console.log('Database connection error!');

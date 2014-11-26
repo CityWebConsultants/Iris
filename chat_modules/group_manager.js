@@ -1,4 +1,4 @@
-/*jslint node: true */
+/*jslint node: true nomen: true*/
 "use strict";
 var mongoClient = require('mongodb').MongoClient;
 var objectID = require('mongodb').ObjectID;
@@ -56,7 +56,7 @@ var exports = {
                 // Validate POSTed data
 
                 // Force it to be an array
-                if (post.members.constructor !== Array) {
+                if (post.members.constructor && post.members.constructor !== Array) {
                     groupMembers[0] = post.members;
                 } else {
                     groupMembers = post.members;
@@ -87,9 +87,10 @@ var exports = {
                 });
 
                 // Call database insert hook to insert the new group object
-                process.hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': memberObjects, 'name': post.name}});
-                data.returns = 'Insertion successful.';
-                process.emit("next", data);
+                process.hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': memberObjects, 'name': post.name}}, function (gotData) {
+                    data.returns = JSON.stringify(gotData.returns[0]._id);
+                    process.emit("next", data);
+                });
             }
     },
     // GET /fetch/group
@@ -142,7 +143,19 @@ var exports = {
 
                     break;
                 case 'name':
-
+                    console.log(data.name);
+                    process.hook('hook_db_update',
+                        {
+                            dbcollection: 'groups',
+                            dbquery: {'_id': objectID(data.groupid)},
+                            dbupdate: {$set: {name: data.name}},
+                            dbmulti: false,
+                            dbupsert: false
+                        }, function (gotData) {
+                            console.log(gotData.results);
+                            data.returns = gotData.results;
+                            process.emit("next", data);
+                        });
                     break;
                 default:
                     data.returns = false;
@@ -155,8 +168,7 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-                var post = data.post,
-                    query = {};
+                var post = data.post;
 
                 if (post.userid && post.groupid) {
                     process.hook('hook_group_update', {action: 'addmember', userid: post.userid, groupid: post.groupid}, function (gotData) {
@@ -165,6 +177,24 @@ var exports = {
                     });
                 } else {
                     data.returns("Missing userid or groupid.");
+                    process.emit("next", data);
+                }
+            }
+    },
+    // POST /group/update/name
+    hook_post_group_update_name: {
+        rank: 0,
+        event:
+            function (data) {
+                var post = data.post;
+
+                if (post.name && post.groupid) {
+                    process.hook('hook_group_update', {action: 'name', name: post.name, groupid: post.groupid}, function (gotData) {
+                        data.returns = gotData.returns;
+                        process.emit("next", data);
+                    });
+                } else {
+                    data.returns("Missing new name or groupid.");
                     process.emit("next", data);
                 }
             }
