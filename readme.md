@@ -189,12 +189,12 @@ hook_name: {
             var url = data.value;
             var post = data.val2;
             
-            process.emit("next", data);
+            process.emit('next', data);
         }
 }
 ```
 
-The `process.emit("next", data);` statement indicates that this module has completed its processing and is ready to pass the event
+The `process.emit('next', data);` statement indicates that this module has completed its processing and is ready to pass the event
 on to the next handler in the queue.
 
 ### Firing Hook Events
@@ -212,7 +212,7 @@ See this example of making a hook call and then using data it returns in a callb
 process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}, callback: function (gotData) {
     // do things with gotData
     
-    process.emit("next", data);
+    process.emit('next', data);
     }
 });
 ```

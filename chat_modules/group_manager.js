@@ -30,15 +30,20 @@ var exports = {
             function (data) {
                 var groupid = data.groupid;
 
-                process.hook('hook_db_find',
-                    {
-                        dbcollection: 'groups',
-                        dbquery: {'_id': objectID(groupid)}
-                    },
-                    function (gotData) {
-                        data.returns = JSON.parse(gotData.results)[0].members;
-                        process.emit('next', data);
-                    });
+                if (objectID.isValid(data.groupid)) {
+                    process.hook('hook_db_find',
+                        {
+                            dbcollection: 'groups',
+                            dbquery: {'_id': objectID(groupid)}
+                        },
+                        function (gotData) {
+                            data.returns = JSON.parse(gotData.results)[0].members;
+                            process.emit('next', data);
+                        });
+                } else {
+                    data.returns = false;
+                    process.emit('next', data);
+                }
             }
     },
     // GET /fetch/group/users
@@ -48,15 +53,20 @@ var exports = {
             function (data) {
                 var groupid = data.get.groupid;
 
-                process.hook('hook_group_list_users',
-                    {
-                        'groupid': groupid
-                    },
-                    function (gotData) {
-                        console.log(gotData.users);
-                        data.returns = JSON.stringify(gotData.returns);
-                        process.emit('next', data);
-                    });
+                if (objectID.isValid(data.get.groupid)) {
+                    process.hook('hook_group_list_users',
+                        {
+                            'groupid': groupid
+                        },
+                        function (gotData) {
+                            console.log(gotData.users);
+                            data.returns = JSON.stringify(gotData.returns);
+                            process.emit('next', data);
+                        });
+                } else {
+                    data.returns = "Invalid group ID";
+                    process.emit('next', data);
+                }
             }
     },
     // POST /group/add
@@ -96,7 +106,7 @@ var exports = {
                 if (groupMembersValid !== true) {
                     data.returns = 'invalid user id(s)';
                     // Pass on to the next handler in case it can still salvage this :)
-                    process.emit("next", data);
+                    process.emit('next', data);
                     return;
                 }
 
@@ -107,7 +117,7 @@ var exports = {
                 // Call database insert hook to insert the new group object
                 process.hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': memberObjects, 'name': post.name}}, function (gotData) {
                     data.returns = JSON.stringify(gotData.returns[0]._id);
-                    process.emit("next", data);
+                    process.emit('next', data);
                 });
             }
     },
@@ -132,7 +142,7 @@ var exports = {
                             data.returns = gotData.results;
                             console.log('r:' + data.returns);
                             process.nextTick(function () {
-                                process.emit("next", data);
+                                process.emit('next', data);
                             });
                         }
                     });
@@ -154,7 +164,7 @@ var exports = {
                             dbupsert: false
                         }, function (gotData) {
                             data.returns = gotData.results;
-                            process.emit("next", data);
+                            process.emit('next', data);
                         });
                     break;
                 case 'removemember':
@@ -172,7 +182,7 @@ var exports = {
                         }, function (gotData) {
                             console.log(gotData.results);
                             data.returns = gotData.results;
-                            process.emit("next", data);
+                            process.emit('next', data);
                         });
                     break;
                 default:
@@ -188,14 +198,14 @@ var exports = {
             function (data) {
                 var post = data.post;
 
-                if (post.userid && post.groupid) {
+                if (post.userid && post.groupid && objectID.isValid(post.groupID)) {
                     process.hook('hook_group_update', {action: 'addmember', userid: post.userid, groupid: post.groupid}, function (gotData) {
                         data.returns = gotData.returns;
-                        process.emit("next", data);
+                        process.emit('next', data);
                     });
                 } else {
-                    data.returns("Missing userid or groupid.");
-                    process.emit("next", data);
+                    data.returns("Missing/invalid userid or groupid.");
+                    process.emit('next', data);
                 }
             }
     },
@@ -206,14 +216,14 @@ var exports = {
             function (data) {
                 var post = data.post;
 
-                if (post.name && post.groupid) {
+                if (post.name && post.groupid && objectID.isValid(post.groupid)) {
                     process.hook('hook_group_update', {action: 'name', name: post.name, groupid: post.groupid}, function (gotData) {
                         data.returns = gotData.returns;
-                        process.emit("next", data);
+                        process.emit('next', data);
                     });
                 } else {
-                    data.returns("Missing new name or groupid.");
-                    process.emit("next", data);
+                    data.returns("Missing/invalid new name or groupid.");
+                    process.emit('next', data);
                 }
             }
     }

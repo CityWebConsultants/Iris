@@ -31,12 +31,12 @@ var exports = {
                         var collection = db.collection(exports.options.prefix + dbcollection);
                         collection.insert(dbobject, function (err, result) {
                             data.returns = result;
-                            process.emit("next", data);
+                            process.emit('next', data);
                         });
 
                     } else {
                         console.log('Database connection error!');
-                        process.emit("next", data);
+                        process.emit('next', data);
                     }
                 });
             }
@@ -60,17 +60,17 @@ var exports = {
                         if (dbfindOne === true) {
                             collection.findOne(dbquery).toArray(function (err, result) {
                                 data.results = JSON.stringify(result);
-                                process.emit("next", data);
+                                process.emit('next', data);
                             });
                         } else {
                             collection.find(dbquery).toArray(function (err, result) {
                                 data.results = JSON.stringify(result);
-                                process.emit("next", data);
+                                process.emit('next', data);
                             });
                         }
                     } else {
                         console.log('Database connection error!');
-                        process.emit("next", data);
+                        process.emit('next', data);
                     }
                 });
             }
@@ -108,11 +108,11 @@ var exports = {
                                 console.log(err);
                                 data.results = undefined;
                             }
-                            process.emit("next", data);
+                            process.emit('next', data);
                         });
                     } else {
                         console.log('Database connection error!');
-                        process.emit("next", data);
+                        process.emit('next', data);
                     }
                 });
             }

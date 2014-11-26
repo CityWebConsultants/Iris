@@ -16,7 +16,7 @@ var exports = {
         rank: 0,
         event: function (data) {
             data.returns = hl(data.code);
-            process.emit("next", data);
+            process.emit('next', data);
         }
     },
     // POST /debug/hl
@@ -29,7 +29,7 @@ var exports = {
                 data.returns = gotCode.returns;
             });
 
-            process.emit("next", data);
+            process.emit('next', data);
         }
     }
 };
