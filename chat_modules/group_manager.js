@@ -37,8 +37,13 @@ var exports = {
                             dbquery: {'_id': objectID(groupid)}
                         },
                         function (gotData) {
-                            data.returns = JSON.parse(gotData.returns)[0].members;
-                            process.emit('next', data);
+                            if (gotData.returns && JSON.parse(gotData.returns)[0]) {
+                                data.returns = JSON.parse(gotData.returns)[0].members;
+                                process.emit('next', data);
+                            } else {
+                                data.returns = "ERROR: Nonexistent group ID.";
+                                process.emit('next', data);
+                            }
                         });
                 } else {
                     data.returns = false;
@@ -59,12 +64,15 @@ var exports = {
                             'groupid': groupid
                         },
                         function (gotData) {
-                            console.log(gotData.users);
-                            data.returns = JSON.stringify(gotData.returns);
+                            if (typeof gotData.returns !== 'string') {
+                                data.returns = JSON.stringify(gotData.returns);
+                            } else {
+                                data.returns = gotData.returns;
+                            }
                             process.emit('next', data);
                         });
                 } else {
-                    data.returns = "ERROR: Invalid group ID";
+                    data.returns = "ERROR: Invalid group ID.";
                     process.emit('next', data);
                 }
             }
@@ -140,7 +148,6 @@ var exports = {
                         dbquery: query,
                         callback: function (gotData) {
                             data.returns = gotData.returns;
-                            console.log('r:' + data.returns);
                             process.nextTick(function () {
                                 process.emit('next', data);
                             });
@@ -189,7 +196,6 @@ var exports = {
                             dbmulti: false,
                             dbupsert: false
                         }, function (gotData) {
-                            console.log(gotData.returns);
                             data.returns = gotData.returns;
                             process.emit('next', data);
                         });

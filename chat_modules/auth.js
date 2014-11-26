@@ -31,8 +31,6 @@ var exports = {
                     crypto.randomBytes(exports.options.token_length, function (ex, buf) {
                         authToken = buf.toString('hex');
                         data.returns = authToken;
-                        //~ console.log(data.returns);
-
 
                         if (data.post.userid) {
                             exports.userlist[data.post.userid] = {};
@@ -40,7 +38,6 @@ var exports = {
                             process.emit('next', data);
 
                         } else {
-
                             data.returns = "ERROR: No userid";
                             process.emit('next', data);
 
@@ -83,8 +80,6 @@ var exports = {
             function (data) {
                 var userid = data.get.userid,
                     token = data.get.token;
-
-                console.log('user: ' + data.get.userid + ' token: ' + data.get.token);
 
                 // Call auth_check hook
                 process.hook('hook_auth_check',

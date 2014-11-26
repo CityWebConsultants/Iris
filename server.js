@@ -7,6 +7,9 @@ var url = require('url');
 var path = require('path');
 var fs = require('fs');
 
+var version = 'alpha1';
+console.log("Chat app " + version);
+
 // Current globals
 process.hook = require('./hook');
 process.config = require('./config');

@@ -24,7 +24,7 @@ var exports = {
                 var dbcollection = data.dbcollection,
                     dbobject = data.dbobject;
                 
-                // Connect and push to database
+                // Connect & do.
                 MongoClient.connect(exports.options.connection_url + exports.options.database_name, function (err, db) {
                     if (!err) {
 
@@ -49,10 +49,12 @@ var exports = {
                     dbquery = data.dbquery,
                     dbfindOne = data.dbfindOne;
                 
+                // Make sure the optional bool values are sane.
                 if (dbfindOne !== true) {
                     dbfindOne = false;
                 }
                 
+                // Connect & do.
                 MongoClient.connect(exports.options.connection_url + exports.options.database_name, function (err, db) {
                     if (!err) {
                         var collection = db.collection(exports.options.prefix + dbcollection);
@@ -85,6 +87,7 @@ var exports = {
                     dbmulti = data.dbmulti,
                     dbupsert = data.dbupsert;
                 
+                // Make sure the optional bool values are sane.
                 if (dbmulti !== true) {
                     dbmulti = false;
                 }
@@ -93,10 +96,7 @@ var exports = {
                     dbupsert = false;
                 }
                 
-                console.log(dbcollection);
-                console.log(dbquery);
-                console.log(dbupdate);
-
+                // Connect & do.
                 MongoClient.connect(exports.options.connection_url + exports.options.database_name, function (err, db) {
                     if (!err) {
                         var collection = db.collection(exports.options.prefix + dbcollection);
