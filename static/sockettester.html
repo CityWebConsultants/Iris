@@ -1,11 +1,9 @@
+<html>
+<head>
+    
 <script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
+<link id="style" rel="stylesheet" href="style.css" />
 
-<form id="login">
-<h2>Authenticate</h2>
-<label>User id</label><input id="userid" name="userid" />
-<label>Secret key</label><input name="secretkey" />
-<input type="submit" />
-</form>
 <script>
     
 var socket = io(document.location.origin);
@@ -15,6 +13,30 @@ socket.on("handshake", function(data){
    console.log(data);
     
 });
+    
+document.getElementById("style").setAttribute("href", document.location.origin + "/" + document.getElementById("style").getAttribute("href"));
+    
+</script>
+    
+</head>
+    
+<body>
+
+<form id="login">
+<h2>Authenticate</h2>
+<label>User id</label><input id="userid" name="userid" />
+<label>Secret key</label><input name="secretkey" />
+<input type="submit" />
+</form>
+
+<form id="sendmessage">
+
+<label>Message</label><textarea id="message"></textarea>
+<label>Group</label><input id="group"/>
+<input type="submit">
+</form>
+
+<script>
     
 document.getElementById("login").onsubmit = function(event){
  
@@ -75,3 +97,7 @@ xhr.send(send);
 };
 
 </script>
+    
+</body>
+    
+</html>

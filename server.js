@@ -86,6 +86,24 @@ process.server = http.createServer(function (req, res) {
                         
                         fs.readFile(staticpath, function read(err, data) {
                             
+                            var extension = path.extname(staticpath).replace(".", ""),
+                                type = "text/plain";
+                                                        
+                            switch (extension) {
+                            case "html":
+                                type = "text/html";
+                                break;
+                            case "js":
+                                type = "text/javascript";
+                                break;
+                            case "css":
+                                type = "text/css";
+                                break;
+                            default:
+                                type = "text/plain";
+                            }
+                            
+                            res.writeHead(200, { 'Content-Type': type });
                             res.end(data);
                             
                         });
