@@ -12,7 +12,7 @@ var exports = {
         
         data.returns = "message received";
 
-        process.emit("next", data);
+        process.emit('next', data);
         
         process.nextTick(function(){
                     
@@ -29,7 +29,7 @@ var exports = {
             
         console.log("Message received: " + data.content);
         
-        process.emit("next", data);
+        process.emit('next', data);
 
    
 }

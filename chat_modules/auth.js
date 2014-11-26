@@ -37,19 +37,19 @@ var exports = {
                         if (data.post.userid) {
                             exports.userlist[data.post.userid] = {};
                             exports.userlist[data.post.userid].token = authToken;
-                            process.emit("next", data);
+                            process.emit('next', data);
 
                         } else {
 
                             data.returns = "No userid";
-                            process.emit("next", data);
+                            process.emit('next', data);
 
                         }
 
                     });
                 } else {
                     data.returns = "Secret key invalid";
-                    process.emit("next", data);
+                    process.emit('next', data);
                 }
             
             }
@@ -73,7 +73,7 @@ var exports = {
                     data.authenticated = false;
                 }
                 
-                process.emit("next", data);
+                process.emit('next', data);
             }
     },
     // GET /debug/isauth
@@ -96,7 +96,7 @@ var exports = {
                         }
                     });
 
-                process.emit("next", data);
+                process.emit('next', data);
             }
     }
 };
