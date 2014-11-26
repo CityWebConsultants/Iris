@@ -93,15 +93,24 @@ var exports = {
                 }
                 
                 if (dbupsert !== true) {
-                    dbupdate = false;
+                    dbupsert = false;
                 }
                 
+                console.log(dbcollection);
+                console.log(dbquery);
+                console.log(dbupdate);
+
                 MongoClient.connect(exports.options.connection_url + exports.options.database_name, function (err, db) {
                     if (!err) {
                         var collection = db.collection(exports.options.prefix + dbcollection);
                         
                         collection.update(dbquery, dbupdate, {'upsert': dbupsert, 'multi': dbmulti}, function (err, docs) {
-                            data.results = JSON.stringify(docs);
+                            if (!err) {
+                                data.results = JSON.stringify(docs);
+                            } else {
+                                console.log(err);
+                                data.results = undefined;
+                            }
                             process.emit("next", data);
                         });
                     } else {

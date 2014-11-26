@@ -1,7 +1,7 @@
 /*jslint node: true */
 "use strict";
-var MongoClient = require('mongodb').MongoClient;
-var ObjectID = require('mongodb').ObjectID;
+var mongoClient = require('mongodb').MongoClient;
+var objectID = require('mongodb').ObjectID;
 
 var exports = {
     options: {},
@@ -88,15 +88,17 @@ var exports = {
                 var post = data.post,
                     query = {};
                 
+                console.log({$push: {members: {'userid': post.userid, 'joined': Date.now()}}});
+
                 if (post.userid && post.groupid) {
                     
                     process.hook('hook_db_update',
                         {
                             dbcollection: 'groups',
-                            dbquery: {'_id': ObjectID(post.groupid)},
+                            dbquery: {'_id': objectID(post.groupid)},
+                            dbupdate: {$push: {members: {'userid': post.userid, 'joined': Date.now()}}},
                             dbmulti: true,
-                            dbupsert: false,
-                            dbupdate: {$push: {members: {'userid': post.userid, 'joined': Date.now()}}}
+                            dbupsert: false
                         }, function (gotData) {
                             data.returns = gotData.results;
                             process.emit("next", data);
