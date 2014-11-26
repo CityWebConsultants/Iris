@@ -59,12 +59,12 @@ var exports = {
                         
                         if (dbfindOne === true) {
                             collection.findOne(dbquery).toArray(function (err, result) {
-                                data.results = JSON.stringify(result);
+                                data.returns = JSON.stringify(result);
                                 process.emit('next', data);
                             });
                         } else {
                             collection.find(dbquery).toArray(function (err, result) {
-                                data.results = JSON.stringify(result);
+                                data.returns = JSON.stringify(result);
                                 process.emit('next', data);
                             });
                         }
@@ -103,10 +103,10 @@ var exports = {
                         
                         collection.update(dbquery, dbupdate, {'upsert': dbupsert, 'multi': dbmulti}, function (err, docs) {
                             if (!err) {
-                                data.results = JSON.stringify(docs);
+                                data.returns = JSON.stringify(docs);
                             } else {
                                 console.log(err);
-                                data.results = undefined;
+                                data.returns = undefined;
                             }
                             process.emit('next', data);
                         });

@@ -37,7 +37,7 @@ var exports = {
                             dbquery: {'_id': objectID(groupid)}
                         },
                         function (gotData) {
-                            data.returns = JSON.parse(gotData.results)[0].members;
+                            data.returns = JSON.parse(gotData.returns)[0].members;
                             process.emit('next', data);
                         });
                 } else {
@@ -139,7 +139,7 @@ var exports = {
                         dbcollection: 'groups',
                         dbquery: query,
                         callback: function (gotData) {
-                            data.returns = gotData.results;
+                            data.returns = gotData.returns;
                             console.log('r:' + data.returns);
                             process.nextTick(function () {
                                 process.emit('next', data);
@@ -163,7 +163,7 @@ var exports = {
                             dbmulti: true,
                             dbupsert: false
                         }, function (gotData) {
-                            data.returns = gotData.results;
+                            data.returns = gotData.returns;
                             process.emit('next', data);
                         });
                     break;
@@ -176,7 +176,7 @@ var exports = {
                             dbmulti: true,
                             dbupsert: false
                         }, function (gotData) {
-                            data.returns = gotData.results;
+                            data.returns = gotData.returns;
                             process.emit('next', data);
                         });
                     break;
@@ -189,8 +189,8 @@ var exports = {
                             dbmulti: false,
                             dbupsert: false
                         }, function (gotData) {
-                            console.log(gotData.results);
-                            data.returns = gotData.results;
+                            console.log(gotData.returns);
+                            data.returns = gotData.returns;
                             process.emit('next', data);
                         });
                     break;
