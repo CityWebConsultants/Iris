@@ -119,6 +119,37 @@ var exports = {
                     });
             }
     },
+    hook_group_update: {
+        rank: 0,
+        event:
+            function (data) {
+
+                switch (data.action) {
+                case 'addmember':
+                    process.hook('hook_db_update',
+                        {
+                            dbcollection: 'groups',
+                            dbquery: {'_id': objectID(data.groupid)},
+                            dbupdate: {$push: {members: {'userid': data.userid, 'joined': Date.now()}}},
+                            dbmulti: true,
+                            dbupsert: false
+                        }, function (gotData) {
+                            data.returns = gotData.results;
+                            process.emit("next", data);
+                        });
+                    break;
+                case 'removemember':
+
+                    break;
+                case 'name':
+
+                    break;
+                default:
+                    data.returns = false;
+                    process.emit('next', data);
+                }
+            }
+    },
     // POST /group/update/addmember
     hook_post_group_update_addmember: {
         rank: 0,
@@ -128,18 +159,10 @@ var exports = {
                     query = {};
 
                 if (post.userid && post.groupid) {
-                    
-                    process.hook('hook_db_update',
-                        {
-                            dbcollection: 'groups',
-                            dbquery: {'_id': objectID(post.groupid)},
-                            dbupdate: {$push: {members: {'userid': post.userid, 'joined': Date.now()}}},
-                            dbmulti: true,
-                            dbupsert: false
-                        }, function (gotData) {
-                            data.returns = gotData.results;
-                            process.emit("next", data);
-                        });
+                    process.hook('hook_group_update', {action: 'addmember', userid: post.userid, groupid: post.groupid}, function (gotData) {
+                        data.returns = gotData.returns;
+                        process.emit("next", data);
+                    });
                 } else {
                     data.returns("Missing userid or groupid.");
                     process.emit("next", data);
