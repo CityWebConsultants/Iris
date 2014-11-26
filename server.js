@@ -22,7 +22,7 @@ process.config.modules_enabled.forEach(function (element, index) {
     if (chat.api[element.name].init) {
         chat.api[element.name].init();
     }
-    console.log(element.name + " module enabled");
+    console.log("[OK] " + element.name + " module enabled");
 });
 
 //Server and request function router
@@ -39,6 +39,7 @@ process.server = http.createServer(function (req, res) {
     if (req.method === "POST") {
         //Check if request is empty
         if (req.headers["content-length"] === "0") {
+            res.writeHead(400);
             res.end("Empty request");
         }
         
@@ -110,7 +111,7 @@ process.server = http.createServer(function (req, res) {
 
                         
                     } else {
-                        
+                        res.writeHead(404);
                         res.end("404");
                         
                     }
@@ -126,6 +127,7 @@ process.server = http.createServer(function (req, res) {
         });
         
     } else {
+        res.writeHead(400);
         res.end("Unknown action");
     }
 

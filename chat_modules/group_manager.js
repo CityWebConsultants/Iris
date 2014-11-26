@@ -64,7 +64,7 @@ var exports = {
                             process.emit('next', data);
                         });
                 } else {
-                    data.returns = "Invalid group ID";
+                    data.returns = "ERROR: Invalid group ID";
                     process.emit('next', data);
                 }
             }
@@ -97,14 +97,14 @@ var exports = {
                     }
                 });
 
-                // If no name supplied, make it blank.
+                // If no name supplied, make sure it's blank.
                 if (!post.name) {
                     post.name = '';
                 }
 
                 // If invalid, return fail
                 if (groupMembersValid !== true) {
-                    data.returns = 'invalid user id(s)';
+                    data.returns = 'ERROR: Invalid user id(s)';
                     // Pass on to the next handler in case it can still salvage this :)
                     process.emit('next', data);
                     return;
@@ -213,7 +213,7 @@ var exports = {
                         process.emit('next', data);
                     });
                 } else {
-                    data.returns = "Missing/invalid userid or groupid.";
+                    data.returns = "ERROR: Invalid userid or groupid.";
                     process.emit('next', data);
                 }
             }
@@ -231,7 +231,7 @@ var exports = {
                         process.emit('next', data);
                     });
                 } else {
-                    data.returns = "Missing/invalid userid or groupid.";
+                    data.returns = "ERROR: Invalid userid or groupid.";
                     process.emit('next', data);
                 }
             }
@@ -249,7 +249,7 @@ var exports = {
                         process.emit('next', data);
                     });
                 } else {
-                    data.returns = "Missing/invalid new name or groupid.";
+                    data.returns = "ERROR: Invalid new name or groupid.";
                     process.emit('next', data);
                 }
             }

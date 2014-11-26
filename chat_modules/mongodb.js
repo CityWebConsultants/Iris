@@ -35,7 +35,7 @@ var exports = {
                         });
 
                     } else {
-                        console.log('Database connection error!');
+                        console.log('[SEVERE] Database connection error!');
                         process.emit('next', data);
                     }
                 });
@@ -69,7 +69,7 @@ var exports = {
                             });
                         }
                     } else {
-                        console.log('Database connection error!');
+                        console.log('[SEVERE] Database connection error!');
                         process.emit('next', data);
                     }
                 });
@@ -111,7 +111,7 @@ var exports = {
                             process.emit('next', data);
                         });
                     } else {
-                        console.log('Database connection error!');
+                        console.log('[SEVERE] Database connection error!');
                         process.emit('next', data);
                     }
                 });

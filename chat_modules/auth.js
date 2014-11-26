@@ -41,14 +41,14 @@ var exports = {
 
                         } else {
 
-                            data.returns = "No userid";
+                            data.returns = "ERROR: No userid";
                             process.emit('next', data);
 
                         }
 
                     });
                 } else {
-                    data.returns = "Secret key invalid";
+                    data.returns = "ERROR: Secret key invalid";
                     process.emit('next', data);
                 }
             

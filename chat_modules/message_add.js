@@ -20,7 +20,7 @@ var exports = {
     hook_message_add: {
         rank: 1,
         event: function (data) {
-            console.log("Message received: " + data.content);
+            console.log("[INFO] Message received: " + data.content);
             process.emit('next', data);
             
         }
