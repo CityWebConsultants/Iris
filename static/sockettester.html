@@ -38,6 +38,8 @@ document.getElementById("style").setAttribute("href", document.location.origin +
 
 <script>
     
+//Login form
+    
 document.getElementById("login").onsubmit = function(event){
  
 event.preventDefault();
@@ -61,6 +63,22 @@ postform("http://localhost:3000/auth",event,function(data){
 });
     
 }
+
+//Send message form
+
+document.getElementById("sendmessage").onsubmit = function(event){
+    
+    event.preventDefault();
+    
+    var message = event.target.elements[0].value;
+    var group = event.target.elements[1].value;
+    
+    console.log(message);
+    console.log(group);
+    
+    socket.emit("message", {to:group,content:message});
+    
+};
 
 //General form posting function
 

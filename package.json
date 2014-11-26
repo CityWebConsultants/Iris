@@ -4,6 +4,7 @@
   "description": "Core server for an extensible, modular chat application",
   "main": "server.js",
   "dependencies": {
+    "highlight": "^0.2.3",
     "mongodb": "^1.4.20",
     "socket.io": "^1.2.0"
   },
