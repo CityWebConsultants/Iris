@@ -64,13 +64,13 @@ var exports = {
                 if (typeof userid !== 'undefined' && typeof token !== 'undefined') {
                 
                     if (exports.userlist[userid] && exports.userlist[userid].token === token) {
-                        data.authenticated = true;
+                        data.returns = true;
                     } else {
-                        data.authenticated = false;
+                        data.returns = false;
                     }
                     
                 } else {
-                    data.authenticated = false;
+                    data.returns = false;
                 }
                 
                 process.emit('next', data);
@@ -92,7 +92,7 @@ var exports = {
                         'userid': userid,
                         'token': token,
                         callback: function (gotData) {
-                            data.returns = JSON.stringify(gotData.authenticated);
+                            data.returns = JSON.stringify(gotData.returns);
                         }
                     });
 

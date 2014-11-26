@@ -54,7 +54,7 @@ var exports = {
                     
                     process.hook("hook_auth_check", data, function (check) {
                                                 
-                        if (check.authenticated) {
+                        if (check.returns) {
                             if (auth.userlist[data.userid]) {
                                 // Push socket to userlist
                                 auth.userlist[data.userid].socket = socket;
