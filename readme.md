@@ -48,7 +48,7 @@ Handles posting of messges to a specified group.
 Handles requests for message history and group information.
 
 ####_/fetch/group_
-Returns group information.
+Returns group information. Takes an optional parameter `userid` which will return the groups that a specific userid belongs to.
 
 ####_/fetch/message_
 Returns message(s) matching query.
@@ -66,9 +66,9 @@ General group structure: `{ 'gid': 'group ID', 'members': {}, 'name': 'group nam
 ```
 { '_id': '_ZS3sd234h',
   'members': {
-    {'userid': '_5aErt33eB', 'joined': 1416316036},
-    {'userid': '_3334dfEEd', 'joined': 1416316516},
-    {'userid': '_EnDEKX34d', 'joined': 1416314536},
+    {'userid': '1', 'joined': 1416316036},
+    {'userid': '2', 'joined': 1416316516},
+    {'userid': '3', 'joined': 1416314536},
   }
   'name': 'An Example Group',
 }
@@ -84,7 +84,7 @@ Messsage structure: `{ 'author': 'author ID', 'group': 'group ID', 'time': 'time
 **Example message:**
 ```
 { '_id': '_aEfb2c23e3243d',
-  'author': '_5aErt33eB',
+  'author': '1',
   'group': '_ZS3sd234h',
   'content': {},
 }
@@ -143,7 +143,7 @@ The `options` property of the module object is automatically populated from the 
 bootstrap process. One can set defaults as an `options` object within the module should the person configuring
 the module not set any values.
 
-**Init Function**
+**Init Function**   
 A function contained within the `init` property of the module object will be run upon the module being loaded.
 
 Standard Hooks
@@ -228,3 +228,13 @@ MongoDB database driver wrapper. Responds to the `hook_db` set of hooks to store
 
 Handles user authorisation. Presents a REST API endpoint for assigning a randomly generated authorisation token to
 a provided user ID.
+
+### group_manager
+
+Presents a basic REST API for group management.
+
+### sockets
+
+Presents an event system for socket.io connections.
+
+### socket_message
