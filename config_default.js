@@ -40,6 +40,9 @@ module.exports = {
         {
             name: 'page_home',
             options: {}
+        },
+        {
+            name: 'highlight'
         }
     ]
 };
