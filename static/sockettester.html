@@ -1,5 +1,11 @@
 <script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
 
+<form id="login">
+<h2>Authenticate</h2>
+<label>User id</label><input id="userid" name="userid" />
+<label>Secret key</label><input name="secretkey" />
+<input type="submit" />
+</form>
 <script>
     
 var socket = io(document.location.origin);
@@ -9,5 +15,63 @@ socket.on("handshake", function(data){
    console.log(data);
     
 });
+    
+document.getElementById("login").onsubmit = function(event){
+ 
+event.preventDefault();
+
+postform("http://localhost:3000/auth",event,function(data){
+    
+    if(data === "Secret key invalid"){
+        
+    console.log(data);
+        
+    } else {
+        
+    var userid = document.getElementById("userid").value;
+      
+    socket.emit("pair", {userid:userid,token:data});
+        
+    console.log("Successfully authenticated and paired");
+        
+    };
+    
+});
+    
+}
+
+//General form posting function
+
+var postform = function(url,event,callback){
+    
+var data = event.target.elements;
+    
+var send = [];
+    
+var i;
+    
+for (i=0; i<data.length; i+=1){
+  
+    if(data[i].getAttribute("name")){
+    
+    var name = data[i].getAttribute("name"),
+        value = data[i].value;
+        
+            send.push(encodeURIComponent(name) + '=' + encodeURIComponent(value));
+    }
+};
+    
+send = send.join('&').replace(/%20/g, '+');
+
+var xhr = new XMLHttpRequest();
+xhr.open('POST', url, true);
+    
+xhr.onload = function () {
+    callback(this.responseText);
+};
+    
+xhr.send(send);
+    
+};
 
 </script>
