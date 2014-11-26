@@ -1,6 +1,7 @@
 /*jslint node: true */
 "use strict";
 var MongoClient = require('mongodb').MongoClient;
+var ObjectID = require('mongodb').ObjectID;
 
 var exports = {
     options: {},
@@ -61,8 +62,8 @@ var exports = {
                 var get = data.get,
                     query = {};
 
-                if (data.get.userid) {
-                    query = {members: {$elemMatch: {'userid': data.get.userid.toString()}}};
+                if (get.userid) {
+                    query = {members: {$elemMatch: {'userid': get.userid.toString()}}};
                 }
                 
                 // Call db find hook.
@@ -78,6 +79,32 @@ var exports = {
                             });
                         }
                     });
+            }
+    },
+    hook_post_group_update_addmember: {
+        rank: 0,
+        event:
+            function (data) {
+                var post = data.post,
+                    query = {};
+                
+                if (post.userid && post.groupid) {
+                    
+                    process.hook('hook_db_update',
+                        {
+                            dbcollection: 'groups',
+                            dbquery: {'_id': ObjectID(post.groupid)},
+                            dbmulti: true,
+                            dbupsert: false,
+                            dbupdate: {$push: {members: {'userid': post.userid, 'joined': Date.now()}}}
+                        }, function (gotData) {
+                            data.returns = gotData.results;
+                            process.emit("next", data);
+                        });
+                } else {
+                    data.returns("Missing userid or groupid.");
+                    process.emit("next", data);
+                }
             }
     }
 };
