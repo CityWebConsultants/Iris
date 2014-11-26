@@ -60,9 +60,7 @@ var exports = {
             function (data) {
                 var userid = data.userid,
                     token = data.token;
-                
-                console.log(userid + ' ' + token);
-                
+                                
                 if (typeof userid !== 'undefined' && typeof token !== 'undefined') {
                 
                     if (exports.userlist[userid] && exports.userlist[userid].token === token) {

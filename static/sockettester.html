@@ -44,7 +44,7 @@ document.getElementById("login").onsubmit = function(event){
  
 event.preventDefault();
 
-postform("http://localhost:3000/auth",event,function(data){
+postform("http://localhost:3000/auth",event,"POST",function(data){
     
     if(data === "Secret key invalid"){
         
@@ -57,6 +57,23 @@ postform("http://localhost:3000/auth",event,function(data){
     socket.emit("pair", {userid:userid,token:data});
         
     console.log("Successfully authenticated and paired");
+    
+    var xhr = new XMLHttpRequest();
+xhr.open("GET", document.location.origin + "/fetch/group?userid=" + userid, true);
+    
+xhr.onload = function () {
+    
+    var groups = JSON.parse(this.responseText);
+    
+    groups.forEach(function(element, index){
+        
+        console.log(element);
+        
+    });
+
+};
+    
+xhr.send();
         
     };
     
@@ -76,10 +93,10 @@ document.getElementById("sendmessage").onsubmit = function(event){
     socket.emit("message", {to:group,content:message});
     
 };
+    
+//General form function
 
-//General form posting function
-
-var postform = function(url,event,callback){
+var postform = function(url,event,method,callback){
     
 var data = event.target.elements;
     
@@ -101,7 +118,7 @@ for (i=0; i<data.length; i+=1){
 send = send.join('&').replace(/%20/g, '+');
 
 var xhr = new XMLHttpRequest();
-xhr.open('POST', url, true);
+xhr.open(method, url, true);
     
 xhr.onload = function () {
     callback(this.responseText);
