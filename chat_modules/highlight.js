@@ -19,6 +19,7 @@ var exports = {
             process.emit("next", data);
         }
     },
+    // POST /debug/hl
     hook_post_debug_hl: {
         rank: 0,
         event: function (data) {
