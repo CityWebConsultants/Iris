@@ -24,7 +24,7 @@ var exports = {
                     groupMembers = post.members;
                 }
 
-                // Foreach item, check for a numeric uid (could make this configurable as to what is a valid uid)
+                // Foreach item, check for a numeric userid (could make this configurable as to what is a valid userid)
                 groupMembers.forEach(function (element, index) {
                     if (isNaN(element) || element === '') {
                         groupMembersValid = false;
@@ -45,7 +45,7 @@ var exports = {
                 }
 
                 groupMembers.forEach(function (element, index) {
-                    memberObjects.push({uid: element, joined: currentDate});
+                    memberObjects.push({userid: element, joined: currentDate});
                 });
 
                 // Call database insert hook to insert the new group object
@@ -58,13 +58,18 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-                var get = data.get;
+                var get = data.get,
+                    query = {};
+
+                if (data.get.userid) {
+                    query = {members: {$elemMatch: {'userid': data.get.userid.toString()}}};
+                }
                 
                 // Call db find hook.
                 process.hook('hook_db_find',
                     {
                         dbcollection: 'groups',
-                        dbquery: {},
+                        dbquery: query,
                         callback: function (gotData) {
                             data.returns = gotData.results;
                             console.log('r:' + data.returns);

@@ -11,7 +11,7 @@ Handles authorisation requests.
 
 **POST parameters:**
 
-* uid (string)   
+* userid (string)   
 The user ID as provided by a site making use of this server. For example, a user ID from Drupal sent from a Drupal chat integration module.
 * key  
 The site authorisation API key.
@@ -66,9 +66,9 @@ General group structure: `{ 'gid': 'group ID', 'members': {}, 'name': 'group nam
 ```
 { '_id': '_ZS3sd234h',
   'members': {
-    {'uid': '_5aErt33eB', 'joined': 1416316036},
-    {'uid': '_3334dfEEd', 'joined': 1416316516},
-    {'uid': '_EnDEKX34d', 'joined': 1416314536},
+    {'userid': '_5aErt33eB', 'joined': 1416316036},
+    {'userid': '_3334dfEEd', 'joined': 1416316516},
+    {'userid': '_EnDEKX34d', 'joined': 1416314536},
   }
   'name': 'An Example Group',
 }
