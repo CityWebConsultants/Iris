@@ -75,9 +75,19 @@ process.server = http.createServer(function (req, res) {
                     
                     if (!data) {
 
-                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.writeHead(404, { 'Content-Type': 'text/plain' });
                         res.write("404");
                         res.end();
+                        
+                    } else {
+                        
+                        process.nextTick(function () {
+                       
+                            res.writeHead(200, { 'Content-Type': 'text/html' });
+                            res.write(data.returns);
+                            res.end();
+                        
+                        });
                         
                     }
                     
