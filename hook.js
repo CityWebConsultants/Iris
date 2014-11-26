@@ -56,7 +56,7 @@ var trigger = function (event, value, callback) {
     //If no hook return false
     
     if (!queue[eventid]) {
-        
+                
         process.nextTick(function () {
             
             process.emit("complete_" + event, false, event);

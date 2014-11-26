@@ -68,10 +68,20 @@ process.server = http.createServer(function (req, res) {
             //Catch empty hooks
 
             if (!data) {
+                
+                process.hook('hook_page' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
+                
+                process.on('complete_hook_page' + hookurl, function (data) {
+                    
+                    if (!data) {
 
-                res.writeHead(404, { 'Content-Type': 'application/json' });
-                res.write("404");
-                res.end();
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.write("404");
+                        res.end();
+                        
+                    }
+                    
+                });
 
             } else {
 
