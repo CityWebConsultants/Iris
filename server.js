@@ -4,6 +4,8 @@
 var http = require('http');
 var qs = require('querystring');
 var url = require('url');
+var path = require('path');
+var fs = require('fs');
 
 // Current globals
 process.hook = require('./hook');
@@ -69,30 +71,33 @@ process.server = http.createServer(function (req, res) {
 
             if (!data) {
                 
-                process.hook('hook_page' + hookurl, {'url': requestUrl.pathname, 'get': requestGet, 'res': res});
+                var staticpath = __dirname + path.normalize("/static/" + url.parse(req.url).pathname);
                 
-                process.on('complete_hook_page' + hookurl, function (data) {
-                    
-                    if (!data) {
+                //Add HTML to path if extension is empty
+                
+                if (!path.extname(staticpath)) {
+                 
+                    staticpath += ".html";
+                   
+                }
+                
+                fs.exists(staticpath, function (exists) {
+                    if (exists) {
+                        
+                        fs.readFile(staticpath, function read(err, data) {
+                            
+                            res.end(data);
+                            
+                        });
 
-                        res.writeHead(404, { 'Content-Type': 'text/plain' });
-                        res.write("404");
-                        res.end();
                         
                     } else {
                         
-                        process.nextTick(function () {
-                       
-                            res.writeHead(200, { 'Content-Type': 'text/html' });
-                            res.write(data.returns);
-                            res.end();
-                        
-                        });
+                        res.end("404");
                         
                     }
-                    
                 });
-
+            
             } else {
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
