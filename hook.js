@@ -26,8 +26,6 @@ var trigger = function (event, value, callback) {
     var eventid = Math.floor(new Date()),
         modules = [];
 
-    console.log("Running event: " + event);
-
     //Create a list of active node.js modules (modules are only required once so this will not reinstall them), it just allows them to be accessed here.
 
     Object.keys(require('module')._cache).forEach(function (element, index) {
@@ -37,8 +35,6 @@ var trigger = function (event, value, callback) {
     });
 
     //Add modules to the array if they contain the triggered event
-
-
 
     modules.forEach(function (element, index) {
 
@@ -56,9 +52,25 @@ var trigger = function (event, value, callback) {
         }
 
     });
+    
+    //If no hook return false
+    
+    if (!queue[eventid]) {
+        
+        process.nextTick(function () {
+            
+            process.emit("complete_" + event, false, event);
+            
+        });
+        
+        return false;
+        
+    }
+    
+    console.log("Running event: " + event);
 
     //Sort the modules in order of the rank of that event function within them
-
+    
     queue[eventid].events.sort(function (a, b) {
 
         if (a[event].rank > b[event].rank) {
@@ -77,6 +89,7 @@ var trigger = function (event, value, callback) {
     //Run the next event in the chain
 
     run(eventid, event, value, callback);
+
 };
 
 //When that event has finished by emiting the "next" event to the node.js process, remove the event from the chain and run the next one
