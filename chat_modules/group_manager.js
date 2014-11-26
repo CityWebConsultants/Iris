@@ -12,7 +12,7 @@
  *
  *  API endpoints:
  *  /fetch/group/users
- *  /fetch/group
+ *  /debug/groups
  *  /group/add
  *  /group/update/addmember
  *  /group/update/name
@@ -121,8 +121,8 @@ var exports = {
                 });
             }
     },
-    // GET /fetch/group
-    hook_get_fetch_group: {
+    // GET /debug/groups
+    hook_get_debug_groups: {
         rank: 0,
         event:
             function (data) {
