@@ -5,6 +5,42 @@ var objectID = require('mongodb').ObjectID;
 
 var exports = {
     options: {},
+    // TODO: Separate out core functions here as their own hooks to reduce duplication.
+    hook_group_list_users: {
+        rank: 0,
+        event:
+            function (data) {
+                var groupid = data.groupid;
+
+                process.hook('hook_db_find',
+                    {
+                        dbcollection: 'groups',
+                        dbquery: {'_id': objectID(groupid)}
+                    },
+                    function (gotData) {
+                        data.users = JSON.parse(gotData.results)[0].members;
+                        process.emit('next', data);
+                    });
+            }
+    },
+    // GET /fetch/group/users
+    hook_get_fetch_group_users: {
+        rank: 0,
+        event:
+            function (data) {
+                var groupid = data.get.groupid;
+
+                process.hook('hook_group_list_users',
+                    {
+                        'groupid': groupid
+                    },
+                    function (gotData) {
+                        console.log(gotData.users);
+                        data.returns = JSON.stringify(gotData.users);
+                        process.emit('next', data);
+                    });
+            }
+    },
     // POST /group/add
     hook_post_group_add: {
         rank: 0,
@@ -90,8 +126,6 @@ var exports = {
             function (data) {
                 var post = data.post,
                     query = {};
-                
-                console.log({$push: {members: {'userid': post.userid, 'joined': Date.now()}}});
 
                 if (post.userid && post.groupid) {
                     
