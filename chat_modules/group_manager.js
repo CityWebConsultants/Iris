@@ -1,5 +1,23 @@
 /*jslint node: true nomen: true*/
 "use strict";
+
+/*  Group Manager Module
+ *
+ *  Provides an essential group management system. Provides hooks for creating and editing groups.
+ *  All user interactions take place in the context of a group.
+ *
+ *  Core hooks:
+ *  hook_group_list_users
+ *  hook_group_update
+ *
+ *  API endpoints:
+ *  /fetch/group/users
+ *  /fetch/group
+ *  /group/add
+ *  /group/update/addmember
+ *  /group/update/name
+ */
+
 var mongoClient = require('mongodb').MongoClient;
 var objectID = require('mongodb').ObjectID;
 
