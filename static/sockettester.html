@@ -2,7 +2,7 @@
 
 <script>
     
-var socket = io('http://localhost:3000');
+var socket = io(document.location.origin);
     
 socket.on("handshake", function(data){
     
