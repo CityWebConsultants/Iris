@@ -36,6 +36,10 @@ module.exports = {
         },
         {
             name: 'message_add'
+        },
+        {
+            name: 'page_home',
+            options: {}
         }
     ]
 };
