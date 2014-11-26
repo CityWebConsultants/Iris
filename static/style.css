@@ -1,3 +1,5 @@
 html {font-family: arial;}
 label {display: block;}
 input {display: block;}
+#sendmessage {display: none;}
+li {cursor: pointer;}

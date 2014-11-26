@@ -20,7 +20,7 @@ var exports = {
                
                             if (process.userlist[user] && process.userlist[user].socket) {
                  
-                                process.userlist[user].socket.emit("handshake", data.content);
+                                process.userlist[user].socket.emit("message", data.content);
                                
                             }
                          

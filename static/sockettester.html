@@ -8,9 +8,9 @@
     
 var socket = io(document.location.origin);
     
-socket.on("handshake", function(data){
+socket.on("message", function(data){
     
-   console.log(data);
+   document.getElementById("messages").insertAdjacentHTML("beforeend","<br/>"+data+"</br>");
     
 });
     
@@ -21,22 +21,53 @@ document.getElementById("style").setAttribute("href", document.location.origin +
 </head>
     
 <body>
-
+<h1>Chat</h1>
 <form id="login">
-<h2>Authenticate</h2>
 <label>User id</label><input id="userid" name="userid" />
 <label>Secret key</label><input name="secretkey" />
 <input type="submit" />
 </form>
+    
+<ul id="grouplist"></ul>
 
 <form id="sendmessage">
 
 <label>Message</label><textarea id="message"></textarea>
-<label>Group</label><input id="group"/>
 <input type="submit">
 </form>
+    
+<div id="messages">
+    
+</div>
 
 <script>
+    
+//Switch group
+    
+var currentgroup = "";
+    
+var switchgroup = function(group) {
+    
+    group = group.getAttribute("data-id");
+    
+    currentgroup = group;
+    
+    document.getElementById("sendmessage").style.display = "block";
+    
+};
+    
+//Send message form
+
+document.getElementById("sendmessage").onsubmit = function(event){
+    
+    event.preventDefault();
+    
+    var message = event.target.elements[0].value;
+    var group = currentgroup;
+    
+    socket.emit("message", {to:group,content:message});
+    
+};
     
 //Login form
     
@@ -48,7 +79,7 @@ postform("http://localhost:3000/auth",event,"POST",function(data){
     
     if(data === "Secret key invalid"){
         
-    console.log(data);
+    alert(data);
         
     } else {
         
@@ -56,7 +87,7 @@ postform("http://localhost:3000/auth",event,"POST",function(data){
       
     socket.emit("pair", {userid:userid,token:data});
         
-    console.log("Successfully authenticated and paired");
+    document.getElementById("login").style.display = "none";
     
     var xhr = new XMLHttpRequest();
 xhr.open("GET", document.location.origin + "/fetch/group?userid=" + userid, true);
@@ -67,7 +98,17 @@ xhr.onload = function () {
     
     groups.forEach(function(element, index){
         
-        console.log(element);
+        var members = [];
+        
+        element.members.forEach(function(user){
+            
+            members.push(user.userid);
+            
+        });
+        
+        members = members.join(",");
+       
+        document.getElementById("grouplist").insertAdjacentHTML("beforeend", "<li onclick=switchgroup(this) data-id="+element._id+">" + "Name: " + element.name + " (members: " + members +  ")</li>");
         
     });
 
@@ -80,19 +121,6 @@ xhr.send();
 });
     
 }
-
-//Send message form
-
-document.getElementById("sendmessage").onsubmit = function(event){
-    
-    event.preventDefault();
-    
-    var message = event.target.elements[0].value;
-    var group = event.target.elements[1].value;
-    
-    socket.emit("message", {to:group,content:message});
-    
-};
     
 //General form function
 
