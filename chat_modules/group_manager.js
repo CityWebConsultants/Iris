@@ -12,7 +12,8 @@ var exports = {
                     post = data.post,
                     groupMembers = [],
                     groupMembersValid = true,
-                    currentDate = Date.now();
+                    currentDate = Date.now(),
+                    memberObjects = [];
 
                 // Validate POSTed data
 
@@ -43,15 +44,12 @@ var exports = {
                     return;
                 }
 
-                // Create array of members
-                var membersArray = [];
-
                 groupMembers.forEach(function (element, index) {
-                    membersArray.push({uid: element, joined: currentDate});
+                    memberObjects.push({uid: element, joined: currentDate});
                 });
 
                 // Call database insert hook to insert the new group object
-                process.hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': membersArray, 'name': post.name}});
+                process.hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': memberObjects, 'name': post.name}});
                 data.returns = 'Insertion successful.';
                 process.emit("next", data);
             }
