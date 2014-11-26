@@ -74,28 +74,6 @@ var exports = {
                         }
                     });
             }
-    },
-    hook_get_debug_isauth: {
-        rank: 0,
-        event:
-            function (data) {
-                var userid = data.get.userid,
-                    token = data.get.token;
-                
-                console.log('user: ' + data.get.userid + ' token: ' + data.get.token);
-                
-                // Call auth_check hook
-                process.hook('hook_auth_check',
-                    {
-                        'userid': userid,
-                        'token': token,
-                        callback: function (gotData) {
-                            data.returns = JSON.stringify(gotData.authenticated);
-                        }
-                    });
-                
-                process.emit("next", data);
-            }
     }
 };
 
