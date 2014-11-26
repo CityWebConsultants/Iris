@@ -73,9 +73,6 @@ document.getElementById("sendmessage").onsubmit = function(event){
     var message = event.target.elements[0].value;
     var group = event.target.elements[1].value;
     
-    console.log(message);
-    console.log(group);
-    
     socket.emit("message", {to:group,content:message});
     
 };
