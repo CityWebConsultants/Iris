@@ -11,15 +11,16 @@ var exports = {
                 
                 process.hook("hook_group_list_users", {groupid : data.to}, function (groupusers) {
                     
-                    if (groupusers) {
+                    if (groupusers.returns) {
                      
-                        groupusers.forEach(function (element, item) {
+                        groupusers.returns.forEach(function (element, item) {
                          
+                            var user = element.userid;
                             //Send message to recipient if logged in
                
-                            if (process.userlist[data.to] && process.userlist[data.to].socket) {
+                            if (process.userlist[user] && process.userlist[user].socket) {
                  
-                                process.userlist[data.to].socket.emit("handshake", data.content);
+                                process.userlist[user].socket.emit("handshake", data.content);
                                
                             }
                          

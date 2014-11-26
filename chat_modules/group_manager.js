@@ -18,7 +18,7 @@ var exports = {
                         dbquery: {'_id': objectID(groupid)}
                     },
                     function (gotData) {
-                        data.users = JSON.parse(gotData.results)[0].members;
+                        data.returns = JSON.parse(gotData.results)[0].members;
                         process.emit('next', data);
                     });
             }
@@ -36,7 +36,7 @@ var exports = {
                     },
                     function (gotData) {
                         console.log(gotData.users);
-                        data.returns = JSON.stringify(gotData.users);
+                        data.returns = JSON.stringify(gotData.returns);
                         process.emit('next', data);
                     });
             }
