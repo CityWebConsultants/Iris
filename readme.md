@@ -22,35 +22,62 @@ The site authorisation API key.
 
 ### /message
 
-#### /add
+#### /message/add
 
 Currently takes a single "content" parameter and responds with "message received"
 
 ### /group
 Handles group creation and manipulation.
 
-#### _/group/add_
+#### /group/add
 Takes a group name and initial list of members; creates a server-side group entry.
 
 **POST parameters:**
 
 * name (string)  
 The desired name of the group being created
-* members (JSON stringified array)  
+* members (int) (may be appended more than once)  
 The desired set of members to be added to the group
-#### _/group/edit_
-Takes a group ID and any group object values and updates the server-side group entry (e.g. to change the title or add a user)
 
-### /post
-Handles posting of messges to a specified group.
+#### /group/update/addmember
+Adds a user to an existing group.
+
+**POST parameters:**
+
+* groupid (string)  
+The unique group ID of the referenced group
+* userid (int)  
+The desired user to be added to the group
+
+#### /group/update/removemember
+Removes a member from an existing group.
+**POST parameters:**
+
+* groupid (string)  
+The unique group ID of the referenced group
+* userid (int)  
+The desired user to be removed from the group
+
+#### /group/update/name
+Changes the name of an existing group.
+
+**POST parameters:**
+
+* groupid (string)  
+The unique group ID of the referenced group
+* name (string)  
+The desired ne name of the group
 
 ### /fetch
 Handles requests for message history and group information.
 
-####_/fetch/group_
-Returns group information. Takes an optional parameter `userid` which will return the groups that a specific userid belongs to.
+#### /fetch/group [<span style="color: red">NOTE: Currently /debug/groups</span>]
+Returns group information. Takes a parameter `userid` which will return the groups that a specific userid belongs to.
 
-####_/fetch/message_
+#### /fetch/group/users
+Returns the set of users that are contained in a provided group.
+
+#### /fetch/message
 Returns message(s) matching query.
 
 Data structures
@@ -107,12 +134,16 @@ Event-based hook system module.
 ###config.js
 The core system configuration file. Includes base settings and an enabled modules object.
 
-**System Settings:**   
+####System Settings:   
 
-* port   
+* `port` (int)   
   Port number to run the server on
+* `secret_key` (string)   
+  Global super secret key. Used for authenticating the user authentication system. _Really secret._
+* `messagetypes_enabled` (array)   
+  Enabled message types.
 
-**Module Settings:**
+####Module Settings:
 
 * `name` (object)   
   Machine name of module to enable. This will be looked for in the filesystem under the chat_modules/ directory.
@@ -138,40 +169,50 @@ Modules are .js files stored in the chat_modules/ directory. Modules are loaded 
 in the config.js file (see config.js section above). A module is a single object returned by setting 
 `module.exports` containing functions and options.
 
-**Options**   
+#### Options
 The `options` property of the module object is automatically populated from the config.js file during the
 bootstrap process. One can set defaults as an `options` object within the module should the person configuring
 the module not set any values.
 
-**Init Function**   
+#### Dependencies
+The proposed `dependencies` property would be an array of modules that this is dependent on.
+
+####Init Function
 A function contained within the `init` property of the module object will be run upon the module being loaded.
 
 Standard Hooks
 --------------
-### hook_post
+### API endpoints
+
+#### hook_post
 All POST requests sent to the server will generate a `hook_post` event. For example, sending a request to the URL /example would
 trigger the event `hook_post_example` and pass an object containing the request URL (`url`) and the parsed POST object (`post`).
 
-### hook_get
+#### hook_get
 All GET requests sent to the server will generate a `hook_get` event in the same manner as `hook_post`. The parsed query string is
 passed as the data object property `get`.
 
-_Note: The database handler(s) will implement these `db` hooks._
+### Database or storage handling
 
-### hook_db_insert
+#### hook_db_insert
 Call this hook and pass an object like the following: `{dbcollection: string, dbobject: {}}`.
 
-### hook_db_find
+#### hook_db_find
 Call this hook and pass an object like the following: `{dbcollection: string, dbquery: {}, findOne: bool}`.
 
-### hook_db_update
+#### hook_db_update
 Call this hook and pass an object like the following: `{dbcollection: string, dbquery: {}, dbupdate: {}, dbupsert: bool, dbmulti: bool}`.
 
-_Note: The authentication handler(s) will implement these `auth` hooks._
+### User management and authentication
 
-### hook_auth_check
-Call this hook and pass an object of the format `{userid: int, token: string}`. Callback object contains the property `authenticated`
-which will be `true` or `false`.
+#### hook_auth_check
+Call this hook and pass an object of the format `{userid: int, token: string}`. Returns a boolean.
+
+### Message preprocessing
+
+#### hook_message_process
+Implementing this hook results in the relevant function being called with the message `content` object as `data.object` each time a message
+is sent. A module can therefore run a type check on every message and modify its contents, e.g. to add HTML.
 
 Hook System
 -----------
@@ -209,7 +250,7 @@ See this example of making a hook call and then using data it returns in a callb
 
 ```
 // Call db find hook.
-process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}, callback: function (gotData) {
+process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}}, function (gotData) {
     // do things with gotData
     
     process.emit('next', data);
