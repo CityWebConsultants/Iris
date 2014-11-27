@@ -72,7 +72,7 @@ The desired ne name of the group
 ### /fetch
 Handles requests for message history and group information.
 
-#### /fetch/group [<span style="color: red">NOTE: Currently /debug/groups</span>]
+#### /fetch/group [NOTE: Currently /debug/groups]
 Returns group information. Takes a parameter `userid` which will return the groups that a specific userid belongs to.
 
 #### /fetch/group/users
