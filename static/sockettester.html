@@ -11,8 +11,13 @@ var socket = io(document.location.origin);
     
 socket.on("message", function(data){
     for (var content in data) {
-        console.log(data[content]);
-        document.getElementById("messages").insertAdjacentHTML("beforeend","<br/>"+data[content]+"</br>");
+        //console.log(data[content]);
+        if (content === "code") {
+            document.getElementById("messages").insertAdjacentHTML("beforeend",'<br/><pre class="hljs">'+data[content]+"</pre></br>");
+        } else {
+            document.getElementById("messages").insertAdjacentHTML("beforeend","<br/>"+data[content]+"</br>");
+        }
+
     }
 });
     

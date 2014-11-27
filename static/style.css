@@ -3,3 +3,6 @@ label {display: block;}
 input {display: block;}
 #sendmessage {display: none;}
 li {cursor: pointer;}
+pre {
+    border: 1px black dotted;
+}
