@@ -9,14 +9,14 @@ _Note: POST requests are expected with encoding x-www-form-urlencoded for easy p
 ### /auth
 Handles authorisation requests.
 
-**POST parameters:**
+**POST parameters:**   
 
 * userid (string)   
 The user ID as provided by a site making use of this server. For example, a user ID from Drupal sent from a Drupal chat integration module.
 * key  
 The site authorisation API key.
 
-**Returns:**
+**Returns:**   
 
 * authorisation token for user
 
@@ -51,6 +51,7 @@ The desired user to be added to the group
 
 #### /group/update/removemember
 Removes a member from an existing group.
+
 **POST parameters:**
 
 * groupid (string)  
