@@ -39,6 +39,9 @@ module.exports = {
         },
         {
             name: 'highlight'
+        },
+        {
+            name: 'message_types'
         }
     ]
 };

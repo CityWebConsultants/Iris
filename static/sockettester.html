@@ -3,18 +3,21 @@
     
 <script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
 <link id="style" rel="stylesheet" href="style.css" />
+<link id="hljs-style" rel="stylesheet" href="vs.css" type="text/css" />
 
 <script>
     
 var socket = io(document.location.origin);
     
 socket.on("message", function(data){
-    
-   document.getElementById("messages").insertAdjacentHTML("beforeend","<br/>"+data+"</br>");
-    
+    for (var content in data) {
+        console.log(data[content]);
+        document.getElementById("messages").insertAdjacentHTML("beforeend","<br/>"+data[content]+"</br>");
+    }
 });
     
 document.getElementById("style").setAttribute("href", document.location.origin + "/" + document.getElementById("style").getAttribute("href"));
+document.getElementById("hljs-style").setAttribute("href", document.location.origin + "/" + document.getElementById("hljs-style").getAttribute("href"));
     
 </script>
     
@@ -23,17 +26,17 @@ document.getElementById("style").setAttribute("href", document.location.origin +
 <body>
 <h1>Chat</h1>
 <form id="login">
-<label>User id</label><input id="userid" name="userid" />
-<label>Secret key</label><input name="secretkey" />
-<input type="submit" />
+    <label>User id</label><input id="userid" name="userid" />
+    <label>Secret key</label><input name="secretkey" />
+    <input type="submit" />
 </form>
     
 <ul id="grouplist"></ul>
 
 <form id="sendmessage">
-
-<label>Message</label><textarea id="message"></textarea>
-<input type="submit">
+    <label>Message</label><textarea id="message"></textarea>
+    <label>Type</label><select id="messagetype"></select>
+    <input type="submit">
 </form>
     
 <div id="messages">
@@ -62,10 +65,15 @@ document.getElementById("sendmessage").onsubmit = function(event){
     
     event.preventDefault();
     
-    var message = event.target.elements[0].value;
-    var group = currentgroup;
+    var message = event.target.elements[0].value,
+        group = currentgroup,
+        messagetype = event.target.elements[1].value,
+        msgobject = {to: group, content: {}};
     
-    socket.emit("message", {to:group,content:message});
+    msgobject.content[messagetype] = message;
+
+//    console.log(JSON.stringify(msgobject));
+    socket.emit("message", msgobject);
     
 };
     
@@ -78,43 +86,40 @@ event.preventDefault();
 postform("http://localhost:3000/auth",event,"POST",function(data){
     
     if(data === "Secret key invalid"){
-        
-    alert(data);
+        alert(data);
         
     } else {
+        var userid = document.getElementById("userid").value;
         
-    var userid = document.getElementById("userid").value;
-      
-    socket.emit("pair", {userid:userid,token:data});
+        socket.emit("pair", {userid:userid,token:data});
         
-    document.getElementById("login").style.display = "none";
+        document.getElementById("login").style.display = "none";
     
-    var xhr = new XMLHttpRequest();
-xhr.open("GET", document.location.origin + "/fetch/group?userid=" + userid, true);
-    
-xhr.onload = function () {
-    
-    var groups = JSON.parse(this.responseText);
-    
-    groups.forEach(function(element, index){
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", document.location.origin + "/debug/groups?userid=" + userid, true);
+        xhr.onload = function () {
         
-        var members = [];
-        
-        element.members.forEach(function(user){
-            
-            members.push(user.userid);
-            
-        });
-        
-        members = members.join(",");
-       
-        document.getElementById("grouplist").insertAdjacentHTML("beforeend", "<li onclick=switchgroup(this) data-id="+element._id+">" + "Name: " + element.name + " (members: " + members +  ")</li>");
-        
-    });
+            var groups = JSON.parse(this.responseText);
 
-};
+            groups.forEach(function(element, index){
+
+                var members = [];
+
+                element.members.forEach(function(user){
+
+                    members.push(user.userid);
+
+                });
+
+                members = members.join(",");
+
+                document.getElementById("grouplist").insertAdjacentHTML("beforeend", "<li onclick=switchgroup(this) data-id="+element._id+">" + "Name: " + element.name + " (members: " + members +  ")</li>");
+
+            });
+
+        };
     
-xhr.send();
+        xhr.send();
         
     };
     
@@ -126,35 +131,56 @@ xhr.send();
 
 var postform = function(url,event,method,callback){
     
-var data = event.target.elements;
-    
-var send = [];
-    
-var i;
-    
-for (i=0; i<data.length; i+=1){
-  
-    if(data[i].getAttribute("name")){
-    
-    var name = data[i].getAttribute("name"),
-        value = data[i].value;
-        
-            send.push(encodeURIComponent(name) + '=' + encodeURIComponent(value));
-    }
-};
-    
-send = send.join('&').replace(/%20/g, '+');
+    var data = event.target.elements;
 
-var xhr = new XMLHttpRequest();
-xhr.open(method, url, true);
-    
-xhr.onload = function () {
-    callback(this.responseText);
+    var send = [];
+
+    var i;
+
+    for (i=0; i<data.length; i+=1){
+
+        if(data[i].getAttribute("name")){
+
+        var name = data[i].getAttribute("name"),
+            value = data[i].value;
+
+                send.push(encodeURIComponent(name) + '=' + encodeURIComponent(value));
+        }
+    };
+
+    send = send.join('&').replace(/%20/g, '+');
+
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+
+    xhr.onload = function () {
+        callback(this.responseText);
+    };
+
+    xhr.send(send);
+
 };
     
-xhr.send(send);
+// Fill available message types
+( function () {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', document.location.origin + '/fetch/messagetypes', true);
     
-};
+    xhr.onload = function () {
+        var returns = JSON.parse(this.responseText),
+            select = document.getElementById('messagetype');
+
+        returns.forEach( function(element, index) {
+            var newoption = document.createElement('option');
+            newoption.text = element;
+            select.add(newoption);
+        });
+
+    };
+    
+    xhr.send();
+    
+}());
 
 </script>
     

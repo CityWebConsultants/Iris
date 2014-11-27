@@ -1,0 +1,91 @@
+/*
+Visual Studio-like style based on original C# coloring by Jason Diamond <jason@diamond.name>
+*/
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: white;
+  color: black;
+  -webkit-text-size-adjust: none;
+}
+
+.comment,
+.annotation,
+.diff .header,
+.chunk,
+.apache .cbracket {
+  color: #008000;
+}
+
+.keyword,
+.id,
+.built_in,.css
+.smalltalk .class,
+.winutils,
+.bash .variable,
+.tex .command,
+.request,
+.status,
+.nginx .title,
+.xml .tag,
+.xml .tag .value {
+  color: #00f;
+}
+
+.string,
+.title,
+.parent,
+.tag .value,
+.rules .value,
+.ruby .symbol,
+.ruby .symbol .string,
+.template_tag,
+.django .variable,
+.addition,
+.flow,
+.stream,
+.apache .tag,
+.date,
+.tex .formula,
+.coffeescript .attribute {
+  color: #a31515;
+}
+
+.ruby .string,
+.decorator,
+.filter .argument,
+.localvars,
+.array,
+.attr_selector,
+.pseudo,
+.pi,
+.doctype,
+.deletion,
+.envvar,
+.shebang,
+.preprocessor,
+.pragma,
+.userType,
+.apache .sqbracket,
+.nginx .built_in,
+.tex .special,
+.prompt {
+  color: #2b91af;
+}
+
+.phpdoc,
+.dartdoc,
+.javadoc,
+.xmlDocTag {
+  color: #808080;
+}
+
+.type,
+.typename { font-weight: bold; }
+
+.vhdl .string { color: #666666; }
+.vhdl .literal { color: #a31515; }
+.vhdl .attribute { color: #00b0e8; }
+
+.xml .attribute { color: #f00; }
