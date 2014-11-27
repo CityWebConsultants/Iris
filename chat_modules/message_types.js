@@ -5,16 +5,14 @@ var exports = {
     messageTypes: [],
     init:
         function () {
-            // Get available message types
-            exports.messageTypes.push('text');
-            exports.messageTypes.push('code');
+            console.log('┎─────> Enabled message types: ' + JSON.stringify(process.config.messagetypes_enabled));
         },
     options: {},
     hook_get_fetch_messagetypes: {
         rank: 0,
         event:
             function (data) {
-                data.returns = JSON.stringify(exports.messageTypes);
+                data.returns = JSON.stringify(process.config.messagetypes_enabled);
                 process.emit('next', data);
             }
     }

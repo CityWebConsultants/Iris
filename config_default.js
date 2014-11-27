@@ -10,6 +10,7 @@
 module.exports = {
     port: 3000,
     secret_key: 'letmein',
+    messagetypes_enabled: ['text', 'code'],
     modules_enabled: [
         {
             name: 'auth',
