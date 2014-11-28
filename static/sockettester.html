@@ -89,57 +89,59 @@ document.getElementById("sendmessage").onsubmit = function(event){
     
 };
     
-//Login form
-    
-document.getElementById("login").onsubmit = function(event){
- 
-event.preventDefault();
-
+// Let's define some evil global variables. *gets flykicked by Douglas Crockford*
 token = '';
 userid = '';
-postform("http://localhost:3000/auth",event,"POST",function(data){
     
-    if(data === "Secret key invalid"){
-        alert(data);
-        
-    } else {
-        userid = document.getElementById("userid").value;
-        
-        socket.emit("pair", {userid:userid,token:data});
-        token = data;
-        
-        document.getElementById("login").style.display = "none";
-    
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", document.location.origin + "/debug/groups?userid=" + userid, true);
-        xhr.onload = function () {
-        
-            var groups = JSON.parse(this.responseText);
+//Login form
 
-            groups.forEach(function(element, index){
+document.getElementById("login").onsubmit = function(event){
 
-                var members = [];
+    event.preventDefault();
 
-                element.members.forEach(function(user){
+    postform("http://localhost:3000/auth",event,"POST",function(data){
 
-                    members.push(user.userid);
+        if(data === "Secret key invalid"){
+            alert(data);
+
+        } else {
+            userid = document.getElementById("userid").value;
+
+            socket.emit("pair", {userid:userid,token:data});
+            token = data;
+
+            document.getElementById("login").style.display = "none";
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", document.location.origin + "/debug/groups?userid=" + userid, true);
+            xhr.onload = function () {
+
+                var groups = JSON.parse(this.responseText);
+
+                groups.forEach(function(element, index){
+
+                    var members = [];
+
+                    element.members.forEach(function(user){
+
+                        members.push(user.userid);
+
+                    });
+
+                    members = members.join(",");
+
+                    document.getElementById("grouplist").insertAdjacentHTML("beforeend", "<li onclick=switchgroup(this) data-id="+element._id+">" + "Name: " + element.name + " (members: " + members +  ")</li>");
 
                 });
 
-                members = members.join(",");
+            };
 
-                document.getElementById("grouplist").insertAdjacentHTML("beforeend", "<li onclick=switchgroup(this) data-id="+element._id+">" + "Name: " + element.name + " (members: " + members +  ")</li>");
-
-            });
+            xhr.send();
 
         };
-    
-        xhr.send();
-        
-    };
-    
-});
-    
+
+    });
+
 }
     
 //General form function
