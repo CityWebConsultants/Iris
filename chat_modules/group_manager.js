@@ -18,6 +18,9 @@
  *  /group/update/name
  */
 
+// TODO: check if users to add already exist in group
+// TODO: one-to-one chat continuation, Skype style
+
 var mongoClient = require('mongodb').MongoClient;
 var objectID = require('mongodb').ObjectID;
 

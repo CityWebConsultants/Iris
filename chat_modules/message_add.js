@@ -1,4 +1,4 @@
-/*jslint node: true */
+/*jslint node: true nomen: true */
 
 "use strict";
 
@@ -21,8 +21,19 @@ var exports = {
         rank: 1,
         event: function (data) {
             console.log("[INFO] Message received: " + data.content);
-            process.emit('next', data);
+
+            var message = {
+                userid: data.userid,
+                groupid: data.groupid,
+                content: data.content
+            };
             
+            console.log(JSON.stringify(message));
+
+            process.hook('hook_db_insert', {dbcollection: 'messages', dbobject: message}, function (gotData) {
+                data.returns = gotData.returns[0]._id;
+                process.emit('next', data);
+            });
         }
     }
 };
