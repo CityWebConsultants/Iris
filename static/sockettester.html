@@ -10,15 +10,7 @@
 var socket = io(document.location.origin);
     
 socket.on("message", function(data){
-    for (var content in data) {
-        //console.log(data[content]);
-        if (content === "code") {
-            document.getElementById("messages").insertAdjacentHTML("beforeend",'<br/><pre class="hljs">'+data[content]+"</pre></br>");
-        } else {
-            document.getElementById("messages").insertAdjacentHTML("beforeend","<br/>"+data[content]+"</br>");
-        }
-
-    }
+    printMessage(data);
 });
     
 document.getElementById("style").setAttribute("href", document.location.origin + "/" + document.getElementById("style").getAttribute("href"));
@@ -62,6 +54,21 @@ var switchgroup = function(group) {
     
     document.getElementById("sendmessage").style.display = "block";
     
+    // Fetch message history
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", document.location.origin + "/fetch/group/messages?userid=" + userid + "&token=" + token + '&groupid=' + group, true);
+    xhr.onload = function () {
+        if (this.responseText.indexOf('ERROR') !== 0) {
+            var messagesList = JSON.parse(this.responseText);
+            for (var messages in messagesList) {
+                printMessage(messagesList[messages].content);
+            }
+        } else {
+            alert(this.responseText);
+        }
+    };
+    xhr.send();
 };
     
 //Send message form
@@ -88,15 +95,18 @@ document.getElementById("login").onsubmit = function(event){
  
 event.preventDefault();
 
+token = '';
+userid = '';
 postform("http://localhost:3000/auth",event,"POST",function(data){
     
     if(data === "Secret key invalid"){
         alert(data);
         
     } else {
-        var userid = document.getElementById("userid").value;
+        userid = document.getElementById("userid").value;
         
         socket.emit("pair", {userid:userid,token:data});
+        token = data;
         
         document.getElementById("login").style.display = "none";
     
@@ -166,6 +176,19 @@ var postform = function(url,event,method,callback){
 
 };
     
+// Message display function
+function printMessage(data) {
+//    console.log(JSON.stringify(data));
+    for (var content in data) {
+        if (content === "code") {
+            document.getElementById("messages").insertAdjacentHTML("beforeend",'<div class="message"><pre class="hljs">' + data[content] + "</pre></div>");
+        } else {
+            document.getElementById("messages").insertAdjacentHTML("beforeend",'<div class ="message">' + data[content] + '</div>');
+        }
+
+    }
+};
+
 // Fill available message types
 ( function () {
     var xhr = new XMLHttpRequest();
