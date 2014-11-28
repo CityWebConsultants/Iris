@@ -20,12 +20,12 @@ var exports = {
     hook_message_add: {
         rank: 1,
         event: function (data) {
-            console.log("[INFO] Message received: " + data.message.content);
+            console.log("[INFO] Message received: " + data.content);
 
             var message = {
-                userid: data.message.userid,
-                groupid: data.message.groupid,
-                content: data.message.content
+                userid: data.userid,
+                groupid: data.groupid,
+                content: data.content
             };
             
             console.log(JSON.stringify(message));

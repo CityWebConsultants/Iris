@@ -15,6 +15,21 @@ var exports = {
                     
                     if (groupusers.returns) {
                         console.log(auth.userlist); //want indexof
+
+                        var key,
+                            userid;
+                        for (key in auth.userlist) {
+                            if (auth.userlist[key].socket && auth.userlist[key].socket === socket) {
+                                console.log('userid: ' + key);
+                                userid = key;
+                                break;
+                            }
+                        }
+
+                        process.hook('hook_message_add', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
+                            console.log(gotData);
+                        });
+
                         process.hook('hook_message_process', {groupid: data.to, content: data.content}, function (gotData) {
                             groupusers.returns.forEach(function (element, item) {
 
