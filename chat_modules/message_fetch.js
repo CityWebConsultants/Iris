@@ -47,21 +47,30 @@ var exports = {
         event: function (data) {
             // expects groupid, userid & token, optional (since)
             if (data.get.groupid && data.get.userid && data.get.token) {
-                var query = {groupid: data.get.groupid};
 
-                if (data.get.since && new Date(data.get.since).getTime() > 0) {
-                    query.since = data.get.since;
-                }
+                process.hook('hook_auth_check', {userid: data.get.userid, token: data.get.token}, function (authorised) {
+                    if (authorised.returns === true) {
+                        var query = {groupid: data.get.groupid};
 
-                process.hook("hook_group_list_messages", query, function (gotData) {
-                    data.returns = gotData.returns;
-                    process.emit('next', data);
+                        if (data.get.since && new Date(data.get.since).getTime() > 0) {
+                            query.since = data.get.since;
+                        }
+
+                        process.hook("hook_group_list_messages", query, function (gotData) {
+                            data.returns = gotData.returns;
+                            process.emit('next', data);
+                        });
+                    } else {
+                        data.returns = "ERROR: Authentication failed.";
+                        process.emit('next', data);
+                    }
                 });
+
+
             } else {
                 data.returns = "ERROR: Missing group id, user id or token";
                 process.emit('next', data);
             }
-
 
         }
     }
