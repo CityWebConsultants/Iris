@@ -43,6 +43,9 @@ module.exports = {
         },
         {
             name: 'message_types'
+        },
+        {
+            name: 'message_fetch'
         }
     ]
 };
