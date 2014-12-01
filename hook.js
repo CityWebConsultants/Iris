@@ -1,9 +1,13 @@
 /*jslint node: true, nomen:true*/
 "use strict";
 
+// Set up eventemitter settings
+process.setMaxListeners(0);
+
 //The queue holds the events of the current type to be processed in the current queue
 
 var queue = {};
+var processId = 0;
 
 //The function that runs the next event in the chain
 
@@ -23,7 +27,8 @@ var run = function (eventid, hookname, value, callback) {
 
 var trigger = function (event, value, callback) {
 
-    var eventid = Math.floor(new Date()),
+    processId += 1;
+    var eventid = processId,
         modules = [];
 
     //Create a list of active node.js modules (modules are only required once so this will not reinstall them), it just allows them to be accessed here.
@@ -68,6 +73,7 @@ var trigger = function (event, value, callback) {
     }
     
     console.log("Running event: " + event);
+    console.log(eventid);
     //console.log(queue[eventid].events); // This line slows down events sufficiently to prevent crashes!
 
     //Sort the modules in order of the rank of that event function within them
