@@ -21,7 +21,8 @@ module.exports = {
         {
             name: 'mongodb',
             options: {
-                connection_url: 'mongodb://localhost:27017/',
+                server: 'localhost',
+                port: 27017,
                 database_name: 'chat-app',
                 prefix: ''
             }
