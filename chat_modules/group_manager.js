@@ -216,8 +216,8 @@ var exports = {
             function (data) {
                 var post = data.post;
 
-                if (post.userid && post.groupid) {
-                    process.hook('hook_group_update', {action: 'addmember', userid: post.userid, groupid: post.groupid}, function (gotData) {
+                if (post.members && post.groupid) {
+                    process.hook('hook_group_update', {action: 'addmember', userid: post.members, groupid: post.groupid}, function (gotData) {
                         data.returns = gotData.returns;
                         process.emit('next', data);
                     });
@@ -234,8 +234,8 @@ var exports = {
             function (data) {
                 var post = data.post;
 
-                if (post.userid && post.groupid) {
-                    process.hook('hook_group_update', {action: 'removemember', userid: post.userid, groupid: post.groupid}, function (gotData) {
+                if (post.members && post.groupid) {
+                    process.hook('hook_group_update', {action: 'removemember', userid: post.members, groupid: post.groupid}, function (gotData) {
                         data.returns = gotData.returns;
                         process.emit('next', data);
                     });

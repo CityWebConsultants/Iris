@@ -30,14 +30,14 @@ var exports = {
                             console.log(gotData);
                         });
 
-                        process.hook('hook_message_process', {groupid: data.to, content: data.content}, function (gotData) {
+                        process.hook('hook_message_process', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
                             groupusers.returns.forEach(function (element, item) {
 
                                 var user = element.userid;
                                 //Send message to recipient if logged in
 
                                 if (process.userlist[user] && process.userlist[user].socket) {
-                                    process.userlist[user].socket.emit("message", gotData.content);
+                                    process.userlist[user].socket.emit("message", {groupid: data.to, 'userid': userid, content: gotData.content});
 
                                     //process.hook('hook_message_add', {gotData.us
 

@@ -6,3 +6,64 @@ li {cursor: pointer;}
 pre {
     border: 1px black dotted;
 }
+
+.sbcontainer {
+    overflow: hidden;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    color: #000;
+    background: #fff;
+}
+
+#settings-pane {
+    position: absolute;
+    top: 0;
+    bottom 0;
+    width: 400px;
+    border-right: 1px solid #000;
+}
+
+#message-display {
+    margin-left: 400px;
+}
+
+#message-form {
+    width: auto;
+    background: #ddd;
+    border-bottom: 1px solid #000;
+    padding-left: 1em;
+}
+
+#message-container {
+    display: inline-block;
+    width: 80%;
+}
+
+#message {
+    width: 100%;
+}
+
+#messageoptions-container {
+    display: inline-block;
+    float: right;
+    width: 200px;
+}
+
+.messageoption {
+    display: inline-block;
+    border-left: 1px solid darkgray;
+}
+
+#messages {
+    padding-left: 1em;
+    padding-top: 0.5em;
+    border-left: 1px solid #000;
+}
+
+.author {
+    text-decoration: underline;
+    color: red;
+}
