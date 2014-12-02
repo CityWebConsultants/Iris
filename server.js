@@ -1,6 +1,19 @@
 /*jslint nomen: true, node:true */
 "use strict";
 
+//Get and store command line paramaters
+
+process.paramaters = {};
+
+process.argv.forEach(function (val, index, array) {
+
+    if (val.indexOf("=") !== -1) {
+        val = val.split("=");
+        process.paramaters[val[0]] = val[1];
+    }
+    
+});
+
 var http = require('http');
 var qs = require('querystring');
 var url = require('url');
@@ -12,7 +25,18 @@ console.log("Chat app " + version);
 
 // Current globals
 process.hook = require('./hook');
-process.config = require('./config');
+
+//Read config file from command line paramaters (for multisites) or use default config file if no paramater is passed through
+
+if (process.paramaters.config) {
+
+    process.config = require('./' + process.paramaters.config);
+
+} else {
+    
+    process.config = require('./config');
+    
+}
 
 //API functions
 var chat = {};
