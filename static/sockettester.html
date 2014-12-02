@@ -222,7 +222,7 @@ document.getElementById("login").onsubmit = function(event){
 
     event.preventDefault();
 
-    postform(document.location.origin + ":3000/auth",event,"POST",function(data){
+    postform(document.location.origin + "/auth",event,"POST",function(data){
 
         if(data === "Secret key invalid"){
             alert(data);
