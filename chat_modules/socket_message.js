@@ -26,7 +26,7 @@ var exports = {
                             }
                         }
 
-                        process.hook('hook_message_add', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
+                        process.hook('hook_message_add', {groupid: data.to, 'userid': userid, content: data.content, strong_auth_check: true}, function (gotData) {
                             console.log(gotData);
                         });
 

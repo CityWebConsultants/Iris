@@ -72,8 +72,7 @@ var trigger = function (event, value, callback) {
         
     }
     
-    console.log("Running event: " + event);
-    console.log(eventid);
+    console.log("Running event: " + event + " (pid: " + eventid + ")");
     //console.log(queue[eventid].events); // This line slows down events sufficiently to prevent crashes!
 
     //Sort the modules in order of the rank of that event function within them
