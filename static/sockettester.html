@@ -250,7 +250,7 @@ var updateGroupsList = function () {
     document.getElementById('grouplist').innerHTML = '';
 
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", document.location.origin + "/debug/groups?userid=" + userid, true);
+    xhr.open("GET", document.location.origin + "/fetch/groups?userid=" + userid + "&token=" + token, true);
     xhr.onload = function () {
 
         var groups = JSON.parse(this.responseText);
