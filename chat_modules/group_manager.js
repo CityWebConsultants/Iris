@@ -246,7 +246,7 @@ var exports = {
                     process.hook('hook_db_update',
                         {
                             dbcollection: 'groups',
-                            dbquery: {'_id': objectID(data.groupid)},
+                            dbquery: query,
                             dbupdate: {$pull: {members: {'userid': data.members}}},
                             dbmulti: true,
                             dbupsert: false
@@ -259,7 +259,7 @@ var exports = {
                     process.hook('hook_db_update',
                         {
                             dbcollection: 'groups',
-                            dbquery: {'_id': objectID(data.groupid)},
+                            dbquery: query,
                             dbupdate: {$set: {name: data.name}},
                             dbmulti: false,
                             dbupsert: false
@@ -280,16 +280,15 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-                var post = data.post;
 
                 if (data.post.members && data.post.groupid) {
                     process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
                         if (gotData.returns === true) {
                             process.hook('hook_group_update', {
                                 action: 'addmember',
-                                userid: post.userid,
-                                members: post.members,
-                                groupid: post.groupid
+                                userid: data.post.userid,
+                                members: data.post.members,
+                                groupid: data.post.groupid
                             },
                                 function (gotData) {
                                     data.returns = gotData.returns;
@@ -311,13 +310,18 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-                var post = data.post;
 
-                if (post.members && post.groupid) {
-                    process.hook('hook_group_update', {action: 'removemember', userid: post.members, groupid: post.groupid}, function (gotData) {
-                        data.returns = gotData.returns;
-                        process.emit('next', data);
-                    });
+                if (data.post.members && data.post.groupid) {
+                    process.hook('hook_group_update', {
+                        action: 'removemember',
+                        members: data.post.members,
+                        userid: data.post.userid,
+                        groupid: data.post.groupid
+                    },
+                        function (gotData) {
+                            data.returns = gotData.returns;
+                            process.emit('next', data);
+                        });
                 } else {
                     data.returns = "ERROR: Invalid userid or groupid.";
                     process.emit('next', data);
@@ -329,10 +333,14 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-                var post = data.post;
 
-                if (post.name && post.groupid) {
-                    process.hook('hook_group_update', {action: 'name', name: post.name, groupid: post.groupid}, function (gotData) {
+                if (data.post.name && data.post.groupid) {
+                    process.hook('hook_group_update', {
+                        action: 'name',
+                        name: data.post.name,
+                        groupid: data.post.groupid,
+                        userid: data.post.userid
+                    }, function (gotData) {
                         data.returns = gotData.returns;
                         process.emit('next', data);
                     });
