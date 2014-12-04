@@ -94,14 +94,7 @@ var exports = {
                 });
             }
         }
-    },
-    hook_message_remove: {
-        rank: 0,
-        event: function (data) {
-
-        }
     }
-
 };
 
 module.exports = exports;

@@ -16,40 +16,66 @@
 var objectID = require('mongodb').ObjectID;
 
 var exports = {
+    hook_message_edit: {
+        rank: 0,
+        event: function (data) {
+            var content = {};
+            content[data.messagetype] = data.content;
+
+            process.hook('hook_db_update', {
+                dbcollection: 'messages',
+                dbquery: {'_id': objectID(data.messageid), userid: data.userid},
+                dbupdate: {$set: {'content': content}},
+                dbupsert: false,
+                dbmulti: false
+            }, function (gotData) {
+                data.returns = gotData.returns;
+                process.emit('next', data);
+
+            });
+        }
+    },
     hook_message_remove: {
         rank: 0,
         event: function (data) {
 
-        }
-    },
-    hook_message_edit: {
-        rank: 0,
-        event: function (data) {
-            // data.messageid, data.userid
+            process.hook('hook_db_remove', {
+                dbcollection: 'messages',
+                dbquery: {'_id': objectID(data.messageid), userid: data.userid}
 
+            }, function (gotData) {
+                data.returns = gotData.returns;
+                process.emit('next', data);
 
-
-            data.returns = data;
-            process.emit('next', data);
+            });
         }
     },
     hook_post_message_remove: {
         rank: 0,
         event: function (data) {
-            if (data.post.userid && data.post.token && data.post.messageid) {
+            if (data.post.userid &&
+                    data.post.token &&
+                    data.post.messageid &&
+                    objectID.isValid(data.post.messageid)
+                    ) {
                 process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
 
                     if (gotData.returns === true) {
 
-                        process.hook('hook_db_update', {
+                        process.hook('hook_message_remove', {
+                            userid: data.post.userid,
+                            messageid: data.post.messageid
 
                         }, function (gotData) {
+                            data.returns = gotData.returns.toString();
+                            process.emit('next', data);
 
                         });
 
                     } else {
                         data.returns = "ERROR: Authentication failed.";
                         process.emit('next', data);
+
                     }
 
                 });
@@ -57,15 +83,15 @@ var exports = {
             } else {
                 data.returns = "ERROR: userid, token or messageid not supplied.";
                 process.emit('next', data);
+
             }
         }
     },
     hook_post_message_edit: {
         rank: 0,
-        event: function (data) { // if required data is there and messagetype is enabled
+        event: function (data) {
 
-            console.log(objectID.isValid(data.post.messageid));
-
+            // Check all data is present and that IDs are valid.
             if (data.post.userid &&
                     data.post.token &&
                     data.post.messageid &&
@@ -77,22 +103,23 @@ var exports = {
                 process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
 
                     if (gotData.returns === true) {
-                        var content = {};
-                        content[data.post.messagetype] = data.post.content;
 
-                        process.hook('hook_db_update', {
-                            dbcollection: 'messages',
-                            dbquery: {'_id': objectID(data.post.messageid), userid: data.post.userid},
-                            dbupdate: {$set: {'content': content}},
-                            dbupsert: false,
-                            dbmulti: false
+                        process.hook('hook_message_edit', {
+                            userid: data.post.userid,
+                            messageid: data.post.messageid,
+                            messagetype: data.post.messagetype,
+                            content: data.post.content
+
                         }, function (gotData) {
+                            data.returns = gotData.returns.toString();
+                            process.emit('next', data);
 
                         });
 
                     } else {
                         data.returns = "ERROR: Authentication failed.";
                         process.emit('next', data);
+
                     }
 
                 });
@@ -101,6 +128,7 @@ var exports = {
             } else {
                 data.returns = "ERROR: userid, token, messageid, messagetype or content not supplied.";
                 process.emit('next', data);
+
             }
         }
     }

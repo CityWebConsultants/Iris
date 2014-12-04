@@ -51,6 +51,9 @@ module.exports = {
         },
         {
             name: 'message_fetch'
+        },
+        {
+            name: 'message_edit'
         }
     ]
 };

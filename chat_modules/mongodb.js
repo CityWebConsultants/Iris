@@ -104,6 +104,23 @@ var exports = {
                 });
 
             }
+    },
+    hook_db_remove: {
+        rank: 0,
+        event: function (data) {
+            var dbquery = data.dbquery,
+                collection = gdb.collection(exports.options.prefix + data.dbcollection);
+
+            collection.remove(dbquery, function (err, docs) {
+                if (!err) {
+                    data.returns = JSON.stringify(docs);
+                } else {
+                    console.log(err);
+                    data.returns = undefined;
+                }
+                process.emit('next', data);
+            });
+        }
     }
 };
 
