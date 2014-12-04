@@ -15,7 +15,8 @@ module.exports = {
         {
             name: 'auth',
             options: {
-                token_length: 16
+                token_length: 16,
+                allowdebug: true
             }
         },
         {
@@ -34,7 +35,10 @@ module.exports = {
             name: 'socket_message'
         },
         {
-            name: 'group_manager'
+            name: 'group_manager',
+            options: {
+                allowdebug: true
+            }
         },
         {
             name: 'message_add'

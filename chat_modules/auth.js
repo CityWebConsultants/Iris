@@ -18,7 +18,7 @@ var exports = {
     //List of logged in users/access tokens
     userlist: {},
     // A side effect of declaring this object is that you can have default options!
-    options: {token_length: 4},
+    options: {token_length: 4, allowdebug: false},
     // POST /auth
     hook_post_auth: {
         rank: 0,
@@ -78,20 +78,26 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-                var userid = data.get.userid,
-                    token = data.get.token;
+                if (exports.options && exports.options.allowdebug) {
+                    var userid = data.get.userid,
+                        token = data.get.token;
 
-                // Call auth_check hook
-                process.hook('hook_auth_check',
-                    {
-                        'userid': userid,
-                        'token': token,
-                        callback: function (gotData) {
-                            data.returns = JSON.stringify(gotData.returns);
-                        }
-                    });
+                    // Call auth_check hook
+                    process.hook('hook_auth_check',
+                        {
+                            'userid': userid,
+                            'token': token,
+                            callback: function (gotData) {
+                                data.returns = JSON.stringify(gotData.returns);
+                            }
+                        });
 
-                process.emit('next', data);
+                    process.emit('next', data);
+
+                } else {
+                    data.returns('ERROR: Feature disabled.');
+                    process.emit('next', data);
+                }
             }
     }
 };

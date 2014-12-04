@@ -23,7 +23,7 @@
 var objectID = require('mongodb').ObjectID;
 
 var exports = {
-    options: {},
+    options: { allowdebug: false },
     // TODO: Separate out core functions here as their own hooks to reduce duplication.
     hook_group_list_users: {
         rank: 0,
@@ -160,25 +160,31 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-                var get = data.get,
-                    query = {};
+                if (exports.options && exports.options.allowdebug) {
+                    var get = data.get,
+                        query = {};
 
-                if (get.userid) {
-                    query = {members: {$elemMatch: {'userid': get.userid.toString()}}};
+                    if (get.userid) {
+                        query = {members: {$elemMatch: {'userid': get.userid.toString()}}};
+                    }
+
+                    // Call db find hook.
+                    process.hook('hook_db_find',
+                        {
+                            dbcollection: 'groups',
+                            dbquery: query,
+                            callback: function (gotData) {
+                                data.returns = gotData.returns;
+                                process.nextTick(function () {
+                                    process.emit('next', data);
+                                });
+                            }
+                        });
+                } else {
+                    data.returns = 'ERROR: Feature disabled.';
+                    process.emit('next', data);
                 }
-                
-                // Call db find hook.
-                process.hook('hook_db_find',
-                    {
-                        dbcollection: 'groups',
-                        dbquery: query,
-                        callback: function (gotData) {
-                            data.returns = gotData.returns;
-                            process.nextTick(function () {
-                                process.emit('next', data);
-                            });
-                        }
-                    });
+
             }
     },
     // GET /fetch/groups
