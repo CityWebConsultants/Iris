@@ -35,7 +35,7 @@ var exports = {
             }
 
             process.hook('hook_db_find', {dbcollection: 'messages', dbquery: query}, function (gotData) {
-                console.log(JSON.stringify(gotData.returns));
+//                console.log(JSON.stringify(gotData.returns));
                 data.returns = gotData.returns;
                 process.emit('next', data);
             });

@@ -14,7 +14,7 @@ var exports = {
                 process.hook("hook_group_list_users", {groupid : data.to}, function (groupusers) {
                     
                     if (groupusers.returns) {
-                        console.log(auth.userlist); //want indexof
+                        console.log(auth.userlist);
 
                         var key,
                             userid;
@@ -38,9 +38,6 @@ var exports = {
 
                                 if (process.userlist[user] && process.userlist[user].socket) {
                                     process.userlist[user].socket.emit("message", {groupid: data.to, 'userid': userid, content: gotData.content});
-
-                                    //process.hook('hook_message_add', {gotData.us
-
                                 }
 
                             });
