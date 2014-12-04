@@ -14,20 +14,20 @@ var exports = {
                 process.hook("hook_group_list_users", {groupid : data.to}, function (groupusers) {
                     
                     if (groupusers.returns) {
-                        console.log(auth.userlist);
+//                        console.log(auth.userlist);
 
                         var key,
                             userid;
                         for (key in auth.userlist) {
                             if (auth.userlist[key].socket && auth.userlist[key].socket === socket) {
-                                console.log('userid: ' + key);
+//                                console.log('userid: ' + key);
                                 userid = key;
                                 break;
                             }
                         }
 
                         process.hook('hook_message_add', {groupid: data.to, 'userid': userid, content: data.content, strong_auth_check: true}, function (gotData) {
-                            console.log(gotData);
+//                            console.log(gotData);
                         });
 
                         process.hook('hook_message_process', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
