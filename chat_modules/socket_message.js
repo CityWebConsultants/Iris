@@ -27,18 +27,26 @@ var exports = {
                         }
 
                         process.hook('hook_message_add', {groupid: data.to, 'userid': userid, content: data.content, strong_auth_check: true}, function (gotData) {
-//                            console.log(gotData);
-                        });
+                            console.log('everything got: ' + JSON.stringify(gotData));
+                            data.messageid = gotData.returns;
+                            console.log(gotData.returns);
 
-                        process.hook('hook_message_process', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
-                            groupusers.returns.forEach(function (element, item) {
+                            process.hook('hook_message_process', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
+                                groupusers.returns.forEach(function (element, item) {
 
-                                var user = element.userid;
-                                //Send message to recipient if logged in
+                                    var user = element.userid;
+                                    //Send message to recipient if logged in
 
-                                if (process.userlist[user] && process.userlist[user].socket) {
-                                    process.userlist[user].socket.emit("message", {groupid: data.to, 'userid': userid, content: gotData.content});
-                                }
+                                    if (process.userlist[user] && process.userlist[user].socket) {
+                                        process.userlist[user].socket.emit("message", {
+                                            messageid: data.messageid,
+                                            groupid: data.to,
+                                            'userid': userid,
+                                            content: gotData.content
+                                        });
+                                    }
+
+                                });
 
                             });
 
