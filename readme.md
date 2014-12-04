@@ -72,8 +72,10 @@ The desired ne name of the group
 ### /fetch
 Handles requests for message history and group information.
 
-#### /fetch/group [NOTE: Currently /debug/groups]
+#### /fetch/groups
 Returns group information. Takes a parameter `userid` which will return the groups that a specific userid belongs to.
+
+See also /debug/groups for which the `userid` parameter is optional and when it is missing all groups in the system will be returned.
 
 #### /fetch/group/users
 Returns the set of users that are contained in a provided group.

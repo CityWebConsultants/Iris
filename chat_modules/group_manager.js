@@ -12,6 +12,7 @@
  *
  *  API endpoints:
  *  /fetch/group/users
+ *  /fetch/groups
  *  /debug/groups
  *  /group/add
  *  /group/update/addmember
