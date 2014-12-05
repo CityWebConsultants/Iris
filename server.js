@@ -147,6 +147,7 @@ process.server = http.createServer(function (req, res) {
             } else {
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.writeHead(200, { 'Access-Control-Allow-Origin': '*' });
                 res.write(data.returns);
                 res.end();
 
