@@ -9,11 +9,15 @@
     
 var socket = io(document.location.origin);
     
-socket.on("message", function(data){
+socket.on("message", function(data) {
     console.log(data);
     printMessage(data);
 });
     
+socket.on("notification_message", function(data) {
+    console.log(data);
+});
+
 document.getElementById("style").setAttribute("href", document.location.origin + "/" + document.getElementById("style").getAttribute("href"));
 document.getElementById("hljs-style").setAttribute("href", document.location.origin + "/" + document.getElementById("hljs-style").getAttribute("href"));
     

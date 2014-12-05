@@ -16,6 +16,7 @@ var exports = {
                     if (groupusers.returns) {
 //                        console.log(auth.userlist);
 
+                        // userid = userid of message sender
                         var key,
                             userid;
                         for (key in auth.userlist) {
@@ -32,6 +33,8 @@ var exports = {
                             console.log(gotData.returns);
 
                             process.hook('hook_message_process', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
+
+                                // For each user in the group
                                 groupusers.returns.forEach(function (element, item) {
 
                                     var user = element.userid;

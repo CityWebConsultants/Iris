@@ -44,6 +44,7 @@ var exports = {
                 dbquery: {'_id': objectID(data.messageid), userid: data.userid}
 
             }, function (gotData) {
+                console.log(gotData.returns);
                 data.returns = gotData.returns;
                 process.emit('next', data);
 

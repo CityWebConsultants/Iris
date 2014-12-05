@@ -113,6 +113,7 @@ var exports = {
 
             collection.remove(dbquery, function (err, docs) {
                 if (!err) {
+                    console.log(JSON.stringify(docs));
                     data.returns = JSON.stringify(docs);
                 } else {
                     console.log(err);

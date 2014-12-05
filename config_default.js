@@ -54,6 +54,12 @@ module.exports = {
         },
         {
             name: 'message_edit'
+        },
+        {
+            name: 'socket_notifications'
+        },
+        {
+            name: 'socket_tools'
         }
     ]
 };
