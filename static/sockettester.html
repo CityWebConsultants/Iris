@@ -86,6 +86,8 @@ var messageEdit = function (messageid) {
             }
         }
         xhr.send(params);
+
+        fetchMessageHistory(currentgroup);
     }
 }
 
@@ -107,6 +109,8 @@ var messageRemove = function (messageid) {
             }
         }
         xhr.send(params);
+
+        fetchMessageHistory(currentgroup);
     }
 }
 
@@ -220,15 +224,24 @@ var switchgroup = function(group) {
     document.getElementById('groupoptions').innerHTML += '<li onclick="groupRemoveMembers(\'' + group + '\')" data-groupid="' + group + '">Remove member</li>';
     document.getElementById('groupoptions').innerHTML += '<li onclick="groupRename(\'' + group + '\')" data-groupid="' + group + '">Rename group</li>';
 
-    // Fetch message history
+    fetchMessageHistory(group);
 
+};
+
+//Fetch message history
+
+var fetchMessageHistory = function (group) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", document.location.origin + "/fetch/group/messages?userid=" + userid + "&token=" + token + '&groupid=' + group, true);
     xhr.onload = function () {
         if (this.responseText.indexOf('ERROR') !== 0) {
             var messagesList = JSON.parse(this.responseText);
+
+            // Clear the existing history
+            document.getElementById('messages').innerHTML = '';
+
             for (var messages in messagesList) {
-//                console.log(messagesList[messages]);
+    //                console.log(messagesList[messages]);
                 messagesList[messages].messageid = messagesList[messages]._id;
                 printMessage(messagesList[messages]);
             }
@@ -237,7 +250,7 @@ var switchgroup = function(group) {
         }
     };
     xhr.send();
-};
+}
     
 //Send message form
 
