@@ -13,7 +13,7 @@ Handles authorisation requests.
 
 * userid (string)   
 The user ID as provided by a site making use of this server. For example, a user ID from Drupal sent from a Drupal chat integration module.
-* key  
+* secretkey  
 The site authorisation API key.
 
 **Returns:**   
