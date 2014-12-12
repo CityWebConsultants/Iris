@@ -30,13 +30,13 @@ Post a message to a group.
 
 * userid (string)   
 The user ID of the sender.
-* token (string)
+* token (string)    
 The corresponding authorisation token.
-* groupid (string)
+* groupid (string)    
 The target group ID
-* content (string)
+* content (string)    
 The message contents
-* messagetype (string)
+* messagetype (string)    
 The messagetype, e.g. `text`
 
 **Returns:**   
