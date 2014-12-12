@@ -7,11 +7,11 @@ var exports = {
     hook_post_message_add: {
         rank: 1,
         event: function (data) {
-            process.hook('hook_auth_check', {userid: data.get.userid, token: data.get.token}, function (gotData) {
-                if (gotData.returns === true) {
-                    if (data.post.userid && data.post.groupid && data.post.content && data.post.messagetype) {
+            if (data.post.userid && data.post.token && data.post.groupid && data.post.content && data.post.messagetype) {
+                process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
+                    if (gotData.returns === true) {
+
                         var content = {};
-                        console.log('test');
 
                         content[data.post.messagetype] = data.post.content;
 
@@ -21,18 +21,19 @@ var exports = {
                             'content': content,
                             strong_auth_check: true
                         }, function (gotData) {
-                            data.returns = gotData.returns.toString();
+                            data.returns = JSON.stringify(gotData.returns);
                             process.emit('next', data);
                         });
+
                     } else {
-                        data.returns('ERROR: Missing userid, groupid, content or messagetype.');
+                        data.returns = "ERROR: Authentication failed.";
                         process.emit('next', data);
                     }
-                } else {
-                    data.returns = "ERROR: Authentication failed.";
-                    process.emit('next', data);
-                }
-            });
+                });
+            } else {
+                data.returns = 'ERROR: Missing userid, token, groupid, content or messagetype.';
+                process.emit('next', data);
+            }
         }
     },
     hook_message_add: {

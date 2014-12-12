@@ -16,6 +16,7 @@
  *  /debug/groups
  *  /group/add
  *  /group/update/addmember
+ *  /group/update/removemember
  *  /group/update/name
  */
 
@@ -29,15 +30,16 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-                var groupid = data.groupid,
+
+                if (objectID.isValid(data.groupid)) {
+                    var groupid = data.groupid,
                     userid = data.userid, // optional: don't return results that don't include this user
                     query = {'_id': objectID(groupid)};
 
-                if (userid) {
-                    query = {'_id': objectID(groupid), members: {$elemMatch: {'userid': data.userid.toString()}}};
-                }
+                    if (userid) {
+                        query = {'_id': objectID(groupid), members: {$elemMatch: {'userid': data.userid.toString()}}};
+                    }
 
-                if (objectID.isValid(data.groupid)) {
                     process.hook('hook_db_find',
                         {
                             dbcollection: 'groups',
@@ -48,11 +50,13 @@ var exports = {
                                 data.returns = JSON.parse(gotData.returns)[0].members;
                                 process.emit('next', data);
                             } else {
-                                data.returns = "ERROR: Nonexistent or inaccessible group ID.";
+                                console.log("[INFO] hook_group_list_users: Request for nonexistent or inaccessible group ID");
+                                data.returns = false;
                                 process.emit('next', data);
                             }
                         });
                 } else {
+                    console.log("[INFO] hook_group_list_users: Request for bad ObjectID");
                     data.returns = false;
                     process.emit('next', data);
                 }
