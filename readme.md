@@ -6,12 +6,14 @@ API endpoints
 
 _Note: POST requests are expected with encoding x-www-form-urlencoded for easy processing of text._
 
-**User authorisation:**
+**User authentication:**
 
 * userid (string)   
 The user ID of the sender.
 * token (string)   
 The corresponding authorisation token.
+
+These parameters need to be sent whenever an endpoint requires user authentication/authorisation.
 
 ### /auth
 Handles authorisation requests.
