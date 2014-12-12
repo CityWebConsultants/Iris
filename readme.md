@@ -6,6 +6,13 @@ API endpoints
 
 _Note: POST requests are expected with encoding x-www-form-urlencoded for easy processing of text._
 
+**User authorisation:**
+
+* userid (string)   
+The user ID of the sender.
+* token (string)   
+The corresponding authorisation token.
+
 ### /auth
 Handles authorisation requests.
 
@@ -22,21 +29,17 @@ The site authorisation API key.
 
 ### /message
 
-#### /message/add
+#### /message/add [requires authentication]
 
 Post a message to a group.
 
 **POST parameters:**   
 
-* userid (string)   
-The user ID of the sender.
-* token (string)    
-The corresponding authorisation token.
-* groupid (string)    
+* groupid (string)   
 The target group ID
-* content (string)    
+* content (string)   
 The message contents
-* messagetype (string)    
+* messagetype (string)   
 The messagetype, e.g. `text`
 
 **Returns:**   
@@ -46,66 +49,62 @@ The messagetype, e.g. `text`
 ### /group
 Handles group creation and manipulation.
 
-#### /group/add
+#### /group/add [requires authentication]
 Takes a group name and initial list of members; creates a server-side group entry.
 
-**POST parameters:**
+**POST parameters:**   
 
-* userid (string)    
-The user ID of the creator.
-* token (string)    
-The corresponding authorisation token.
-* name (string)  
+* name (string)   
 The desired name of the group being created
-* members (string) (may be appended more than once)  
+* members (string) (may be appended more than once)   
 The desired set of members, as userids, to be added to the group
 
 **Returns:**   
 
 * Newly created group ID
 
-#### /group/update/addmember
+#### /group/update/addmember  [requires authentication]
 Adds a user to an existing group.
 
-**POST parameters:**
+**POST parameters:**   
 
-* groupid (string)  
+* groupid (string)   
 The unique group ID of the referenced group
-* userid (int)  
+* userid (int)   
 The desired user to be added to the group
 
-#### /group/update/removemember
+#### /group/update/removemember  [requires authentication]
 Removes a member from an existing group.
 
-**POST parameters:**
+**POST parameters:**   
 
-* groupid (string)  
+* groupid (string)   
 The unique group ID of the referenced group
-* userid (int)  
+* userid (int)   
 The desired user to be removed from the group
 
-#### /group/update/name
+#### /group/update/name  [requires authentication]
 Changes the name of an existing group.
 
-**POST parameters:**
+**POST parameters:**   
 
-* groupid (string)  
+* groupid (string)   
 The unique group ID of the referenced group
-* name (string)  
+* name (string)   
 The desired ne name of the group
 
 ### /fetch
 Handles requests for message history and group information.
 
-#### /fetch/groups
+#### /fetch/groups  [requires authentication]
 Returns group information. Takes a parameter `userid` which will return the groups that a specific userid belongs to.
 
 See also /debug/groups for which the `userid` parameter is optional and when it is missing all groups in the system will be returned.
 
-#### /fetch/group/users
+#### /fetch/group/users [requires authentication]
 Returns the set of users that are contained in a provided group.
 
-#### /fetch/message
+#### /fetch/message [requires authentication]
 Returns message(s) matching query.
 
 Data structures
