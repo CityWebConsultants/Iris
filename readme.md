@@ -24,7 +24,24 @@ The site authorisation API key.
 
 #### /message/add
 
-Currently takes a single "content" parameter and responds with "message received"
+Post a message to a group.
+
+**POST parameters:**   
+
+* userid (string)   
+The user ID of the sender.
+* token (string)    
+The corresponding authorisation token.
+* groupid (string)    
+The target group ID
+* content (string)    
+The message contents
+* messagetype (string)    
+The messagetype, e.g. `text`
+
+**Returns:**   
+
+* newly created message ID
 
 ### /group
 Handles group creation and manipulation.
@@ -34,10 +51,18 @@ Takes a group name and initial list of members; creates a server-side group entr
 
 **POST parameters:**
 
+* userid (string)    
+The user ID of the creator.
+* token (string)    
+The corresponding authorisation token.
 * name (string)  
 The desired name of the group being created
-* members (int) (may be appended more than once)  
-The desired set of members to be added to the group
+* members (string) (may be appended more than once)  
+The desired set of members, as userids, to be added to the group
+
+**Returns:**   
+
+* Newly created group ID
 
 #### /group/update/addmember
 Adds a user to an existing group.
