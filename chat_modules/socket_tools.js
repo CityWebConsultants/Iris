@@ -29,7 +29,7 @@ var exports = {
         event: function (data) {
             // users (array), socketname, messageobject
 
-            console.log(data.users);
+//            console.log(data.users);
 
             data.users.forEach(function (element, item) {
 
@@ -43,8 +43,10 @@ var exports = {
                 }
 
             });
+
+            process.emit('next', data);
         }
     }
-}
+};
 
 module.exports = exports;

@@ -232,7 +232,7 @@ var exports = {
                 var query;
                 if (data.userid) {
                     query = {'_id': objectID(data.groupid), members: {$elemMatch: {'userid': data.userid.toString()}}};
-                    console.log(query);
+//                    console.log(query);
                 } else {
                     query = {'_id': objectID(data.groupid)};
                 }

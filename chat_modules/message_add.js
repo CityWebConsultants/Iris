@@ -61,9 +61,9 @@ var exports = {
 
                         // Ensure user is in group and set flag
                         for (i = 0; i < gotData.returns.length; i++) {
-                            console.log(gotData.returns[i]);
+//                            console.log(gotData.returns[i]);
                             if (gotData.returns[i].userid === data.userid) {
-                                console.log(gotData.returns[i]);
+//                                console.log(gotData.returns[i]);
                                 authorised = true;
                                 // No point in looping through the rest, so break
                                 break;

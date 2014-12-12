@@ -17,7 +17,7 @@ var objectID = require('mongodb').ObjectID;
 
 var exports = {
     hook_message_edit: {
-        rank: 0,
+        rank: 10,
         event: function (data) {
             var content = {};
             content[data.messagetype] = data.content;
@@ -36,15 +36,15 @@ var exports = {
         }
     },
     hook_message_remove: {
-        rank: 0,
+        rank: 10,
         event: function (data) {
-
+//            console.log("attempting to remove message from db...");
             process.hook('hook_db_remove', {
                 dbcollection: 'messages',
                 dbquery: {'_id': objectID(data.messageid), userid: data.userid}
 
             }, function (gotData) {
-                console.log(gotData.returns);
+//                console.log(gotData.returns);
                 data.returns = gotData.returns;
                 process.emit('next', data);
 
@@ -69,6 +69,7 @@ var exports = {
 
                         }, function (gotData) {
                             data.returns = gotData.returns.toString();
+//                            console.log("message remove returned");
                             process.emit('next', data);
 
                         });

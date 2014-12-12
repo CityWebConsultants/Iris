@@ -72,8 +72,7 @@ var trigger = function (event, value, callback) {
         
     }
     
-    console.log("Running event: " + event + " (pid: " + eventid + ")");
-    //console.log(queue[eventid].events); // This line slows down events sufficiently to prevent crashes!
+//    console.log("[*RUN] " + event + " (pid: " + eventid + ")");
 
     //Sort the modules in order of the rank of that event function within them
     
@@ -122,7 +121,7 @@ process.on("next", function (data) {
 
             }
             
-            console.log("completed event: " + data.hookname);
+//            console.log("[*END] " + data.hookname);
             process.emit("complete_" + data.hookname, data, data.hookname);
 
         }

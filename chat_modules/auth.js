@@ -45,10 +45,10 @@ var exports = {
                         }
 
                         exports.userlist[data.post.userid].tokens.push(authToken);
-                        console.log(exports.userlist[data.post.userid].tokens);
+//                        console.log(exports.userlist[data.post.userid].tokens);
                         data.returns = authToken;
                         process.emit('next', data);
-                        });
+                    });
 
                 } else {
                     data.returns = "ERROR: Not all data provided";
