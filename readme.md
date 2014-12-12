@@ -16,7 +16,7 @@ The corresponding authorisation token.
 These parameters need to be sent whenever an endpoint requires user authentication/authorisation.
 
 ### /auth
-Handles authorisation requests.
+Handles authentication requests from the user management application/host CMS.
 
 **POST parameters:**   
 
