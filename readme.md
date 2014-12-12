@@ -41,7 +41,7 @@ The messagetype, e.g. `text`
 
 **Returns:**   
 
-* Message ID
+* newly created message ID
 
 ### /group
 Handles group creation and manipulation.
@@ -51,6 +51,10 @@ Takes a group name and initial list of members; creates a server-side group entr
 
 **POST parameters:**
 
+* userid (string)    
+The user ID of the creator.
+* token (string)    
+The corresponding authorisation token.
 * name (string)  
 The desired name of the group being created
 * members (int) (may be appended more than once)  
