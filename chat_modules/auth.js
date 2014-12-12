@@ -12,13 +12,11 @@
  *  Implements an API endpoint hook_post_auth (/auth)
  */
 
-var crypto = require('crypto');
-
 var exports = {
     //List of logged in users/access tokens
     userlist: {},
     // A side effect of declaring this object is that you can have default options!
-    options: {token_length: 4, allowdebug: false},
+    options: {allowdebug: false},
     // POST /auth
     hook_post_auth: {
         rank: 0,
@@ -27,25 +25,31 @@ var exports = {
             
                 var authToken;
                 
-                if (data.post.secretkey === process.config.secret_key) {
-                    crypto.randomBytes(exports.options.token_length, function (ex, buf) {
-                        authToken = buf.toString('hex');
-                        data.returns = authToken;
+                if (data.post.secretkey === process.config.secret_key && data.post.userid && data.post.token) {
 
-                        if (data.post.userid) {
-                            exports.userlist[data.post.userid] = {};
-                            exports.userlist[data.post.userid].token = authToken;
-                            process.emit('next', data);
+                    authToken = data.post.token;
+                    
+                    //Create new user if not in existence
+                    
+                    if (!exports.userlist[data.post.userid]) {
+                    
+                        exports.userlist[data.post.userid] = {};
+                    
+                    }
+                    
+                    //Check if no tokens already set and create array
+                    
+                    if (!exports.userlist[data.post.userid].tokens) {
+                        exports.userlist[data.post.userid].tokens = [];
+                    }
+                    
+                    exports.userlist[data.post.userid].tokens.push(data.post.token);
+                    console.log(exports.userlist[data.post.userid].tokens);
+                    data.returns = 'true';
+                    process.emit('next', data);
 
-                        } else {
-                            data.returns = "ERROR: No userid";
-                            process.emit('next', data);
-
-                        }
-
-                    });
                 } else {
-                    data.returns = "ERROR: Secret key invalid";
+                    data.returns = "ERROR: Not all data provided";
                     process.emit('next', data);
                 }
             
@@ -55,22 +59,35 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-                var userid = data.userid,
-                    token = data.token;
-                                
-                if (typeof userid !== 'undefined' && typeof token !== 'undefined') {
+                var user = exports.userlist[data.userid],
+                    token = data.token,
+                    authenticated = false;
                 
-                    if (exports.userlist[userid] && exports.userlist[userid].token === token) {
-                        data.returns = true;
-                    } else {
-                        data.returns = false;
-                    }
+                if (user) {
                     
-                } else {
-                    data.returns = false;
-                }
+                    //Loop over tokens
+                    
+                    user.tokens.forEach(function (element) {
+                       
+                        if (token === element) {
+                        
+                            authenticated = true;
+                            
+                        }
+                        
+                    });
+     
+                    data.returns = authenticated;
+                    
+                    process.emit('next', data);
                 
-                process.emit('next', data);
+                } else {
+                 
+                    data.returns = false;
+                    process.emit('next', data);
+                    
+                }
+            
             }
     },
     // GET /debug/isauth
@@ -95,7 +112,7 @@ var exports = {
                     process.emit('next', data);
 
                 } else {
-                    data.returns('ERROR: Feature disabled.');
+                    data.returns = 'ERROR: Feature disabled.';
                     process.emit('next', data);
                 }
             }
