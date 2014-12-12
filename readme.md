@@ -109,6 +109,9 @@ Returns the set of users that are contained in a provided group.
 #### /fetch/message [requires authentication]
 Returns message(s) matching query.
 
+#### /fetch/messagetypes
+Returns all valid messagetypes.
+
 Data structures
 ---------------
 Group and message relations are stored using a semi-relational reference structure.
