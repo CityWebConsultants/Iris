@@ -12,11 +12,13 @@
  *  Implements an API endpoint hook_post_auth (/auth)
  */
 
+var crypto = require('crypto');
+
 var exports = {
     //List of logged in users/access tokens
     userlist: {},
     // A side effect of declaring this object is that you can have default options!
-    options: {allowdebug: false},
+    options: {token_length: 16, allowdebug: false},
     // POST /auth
     hook_post_auth: {
         rank: 0,
@@ -25,28 +27,28 @@ var exports = {
             
                 var authToken;
                 
-                if (data.post.secretkey === process.config.secret_key && data.post.userid && data.post.token) {
+                if (data.post.secretkey === process.config.secret_key && data.post.userid) {
+                    crypto.randomBytes(exports.options.token_length, function (ex, buf) {
+                        authToken = buf.toString('hex');
 
-                    authToken = data.post.token;
-                    
-                    //Create new user if not in existence
-                    
-                    if (!exports.userlist[data.post.userid]) {
-                    
-                        exports.userlist[data.post.userid] = {};
-                    
-                    }
-                    
-                    //Check if no tokens already set and create array
-                    
-                    if (!exports.userlist[data.post.userid].tokens) {
-                        exports.userlist[data.post.userid].tokens = [];
-                    }
-                    
-                    exports.userlist[data.post.userid].tokens.push(data.post.token);
-                    console.log(exports.userlist[data.post.userid].tokens);
-                    data.returns = 'true';
-                    process.emit('next', data);
+                        //Create new user if not in existence
+
+                        if (!exports.userlist[data.post.userid]) {
+                            exports.userlist[data.post.userid] = {};
+
+                        }
+
+                        //Check if no tokens already set and create array
+
+                        if (!exports.userlist[data.post.userid].tokens) {
+                            exports.userlist[data.post.userid].tokens = [];
+                        }
+
+                        exports.userlist[data.post.userid].tokens.push(authToken);
+                        console.log(exports.userlist[data.post.userid].tokens);
+                        data.returns = authToken;
+                        process.emit('next', data);
+                        });
 
                 } else {
                     data.returns = "ERROR: Not all data provided";
