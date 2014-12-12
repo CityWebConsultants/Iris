@@ -57,8 +57,12 @@ The user ID of the creator.
 The corresponding authorisation token.
 * name (string)  
 The desired name of the group being created
-* members (int) (may be appended more than once)  
-The desired set of members to be added to the group
+* members (string) (may be appended more than once)  
+The desired set of members, as userids, to be added to the group
+
+**Returns:**   
+
+* Newly created group ID
 
 #### /group/update/addmember
 Adds a user to an existing group.
