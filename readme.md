@@ -24,7 +24,24 @@ The site authorisation API key.
 
 #### /message/add
 
-Currently takes a single "content" parameter and responds with "message received"
+Post a message to a group.
+
+**POST parameters:**   
+
+* userid (string)   
+The user ID of the sender.
+* token (string)
+The corresponding authorisation token.
+* groupid (string)
+The target group ID
+* content (string)
+The message contents
+* messagetype (string)
+The messagetype, e.g. `text`
+
+**Returns:**   
+
+* Message ID
 
 ### /group
 Handles group creation and manipulation.
