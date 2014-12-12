@@ -23,29 +23,6 @@ var exports = {
                 process.emit('next', data);
             });
         }
-    },
-    hook_socket_users_push: {
-        rank: 0,
-        event: function (data) {
-            // users (array), socketname, messageobject
-
-//            console.log(data.users);
-
-            data.users.forEach(function (element, item) {
-
-                var user = element.userid;
-                //Send message to recipient if logged in
-
-                console.log("Push to " + element.userid + ' on ' + data.socketname + ': ' + data.messageobject);
-
-                if (process.userlist[user] && process.userlist[user].socket) {
-                    process.userlist[user].socket.emit(data.socketname, data.messageobject);
-                }
-
-            });
-
-            process.emit('next', data);
-        }
     }
 };
 

@@ -14,42 +14,36 @@ var exports = {
                 process.hook("hook_group_list_users", {groupid : data.to}, function (groupusers) {
                     
                     if (groupusers.returns) {
-//                        console.log(auth.userlist);
+                        console.log(auth.userlist);
 
                         // userid = userid of message sender
                         var key,
                             userid;
                         for (key in auth.userlist) {
-                            if (auth.userlist[key].socket && auth.userlist[key].socket === socket) {
-//                                console.log('userid: ' + key);
-                                userid = key;
+                            if (auth.userlist[key].sockets) {
+
+                                auth.userlist[key].sockets.forEach(function (element, index) {
+                                    if (element === socket) {
+                                        console.log('userid: ' + key);
+                                        userid = key;
+                                    }
+                                });
+
                                 break;
                             }
                         }
 
+                        // Stop if there's no userid
+                        if (!userid) {
+                            process.emit('next', data);
+                        }
+
                         process.hook('hook_message_add', {groupid: data.to, 'userid': userid, content: data.content, strong_auth_check: true}, function (gotData) {
-                            console.log('everything got: ' + JSON.stringify(gotData));
                             data.messageid = gotData.returns;
-                            console.log(gotData.returns);
 
                             process.hook('hook_message_process', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
 
-                                // For each user in the group
-                                groupusers.returns.forEach(function (element, item) {
-
-                                    var user = element.userid;
-                                    //Send message to recipient if logged in
-
-                                    if (process.userlist[user] && process.userlist[user].socket) {
-                                        process.userlist[user].socket.emit("message", {
-                                            messageid: data.messageid,
-                                            groupid: data.to,
-                                            'userid': userid,
-                                            content: gotData.content
-                                        });
-                                    }
-
-                                });
+                                process.groupBroadcast(data.to, 'message', data);
 
                             });
 

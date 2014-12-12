@@ -35,6 +35,22 @@ var exports = {
         exports.listeners.push({event : listener, callback : callback});
         
     },
+    groupBroadcast: function (groupid, messagename, data) {
+        process.hook('hook_group_list_users', {groupid: groupid}, function (users) {
+            if (users.returns) {
+                users.returns.forEach(function (element, index) {
+                    console.log(element);
+
+                    if (auth.userlist[element.userid] && auth.userlist[element.userid].sockets) {
+                        auth.userlist[element.userid].sockets.forEach(function (element, index) {
+                            element.emit(messagename, data);
+                        });
+                    }
+
+                });
+            }
+        });
+    },
     init: function () {
     
         process.nextTick(function () {
@@ -57,7 +73,14 @@ var exports = {
                         if (check.returns) {
                             if (auth.userlist[data.userid]) {
                                 // Push socket to userlist
-                                auth.userlist[data.userid].socket = socket;
+
+                                // Create if doesn't yet exist
+                                if (!auth.userlist[data.userid].sockets) {
+                                    auth.userlist[data.userid].sockets = [];
+                                }
+
+                                auth.userlist[data.userid].sockets.push(socket);
+
                                 socket.emit('pair', true);
                             }
                         } else {
@@ -77,5 +100,6 @@ var exports = {
 };
 
 process.addSocketListener = exports.addlistener;
+process.groupBroadcast = exports.groupBroadcast;
 
 module.exports = exports;

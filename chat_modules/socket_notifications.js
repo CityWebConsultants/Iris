@@ -23,32 +23,21 @@ var exports = {
 
                     process.hook('hook_groupid_from_messageid', {messageid: data.messageid}, function (groupid) {
 
-                        process.hook('hook_group_list_users', {groupid: groupid.returns}, function (groupusers) {
-
-                            if (groupusers.returns && groupusers.returns[0]) {
-
-                                // Push message to all users
-                                process.hook('hook_socket_users_push', {
-                                    users: groupusers.returns,
-                                    socketname: 'notification_message',
-                                    messageobject: {
-                                        messageid: data.messageid,
-                                        action: 'edit',
-                                        time: Date.now()
-                                    }
-                                });
-
-                            }
-
+                        process.groupBroadcast(groupid.returns, 'notification_message', {
+                            messageid: data.messageid,
+                            action: 'edit',
+                            time: Date.now()
                         });
+
+                        process.emit('next', data);
+
                     });
 
+                } else {
+                    process.emit('next', data);
                 }
 
             });
-
-            // Done & move on
-            process.emit('next', data);
         }
     },
     hook_message_remove: {
@@ -58,42 +47,21 @@ var exports = {
             // Validate.
             process.hook('hook_db_find', {dbcollection: 'messages', dbquery: {userid: data.userid, '_id': objectID(data.messageid)}}, function (query) {
 
-                console.log(query);
-
                 if (query.returns && query.returns !== '[]' && JSON.parse(query.returns)[0]) {
-
-                    console.log("attempting to look at message...");
 
                     process.hook('hook_groupid_from_messageid', {messageid: data.messageid}, function (groupid) {
 
-                        process.hook('hook_group_list_users', {groupid: groupid.returns}, function (groupusers) {
-                            console.log(groupusers.returns);
-
-                            if (groupusers.returns && groupusers.returns[0]) {
-
-                                // Push message to all users
-                                process.hook('hook_socket_users_push', {
-                                    users: groupusers.returns,
-                                    socketname: 'notification_message',
-                                    messageobject: {
-                                        messageid: data.messageid,
-                                        action: 'remove',
-                                        time: Date.now()
-                                    }
-                                }, function (push) {
-                                    process.emit('next', data);
-                                });
-
-                            // No groupusers
-                            } else {
-                                process.emit('next', data);
-                            }
-
+                        process.groupBroadcast(groupid.returns, 'notification_message', {
+                            messageid: data.messageid,
+                            action: 'remove',
+                            time: Date.now()
                         });
+
+                        process.emit('next', data);
+
                     });
 
                 } else {
-                    console.log('Message didn\'t exist');
                     process.emit('next', data);
                 }
 
