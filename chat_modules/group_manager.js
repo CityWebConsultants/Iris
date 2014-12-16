@@ -224,6 +224,39 @@ var exports = {
                 }
             }
     },
+    hook_fetch_groups: {
+        rank: 0,
+        event:
+            function (data) {
+                if (data.userid && data.token) {
+                    process.hook('hook_auth_check', {userid: data.userid, token: data.token}, function (gotData) {
+                        if (gotData.returns === true) {
+
+                            // Call db find hook.
+                            process.hook('hook_db_find',
+                                {
+                                    dbcollection: 'groups',
+                                    dbquery: {members: {$elemMatch: {'userid': data.userid.toString()}}},
+                                    callback: function (gotData) {
+                                        data.returns = gotData.returns;
+                                        process.nextTick(function () {
+                                            process.emit('next', data);
+                                        });
+                                    }
+                                });
+
+                        } else {
+                            data.returns = "ERROR: Authentication failed.";
+                            process.emit('next', data);
+                        }
+                    });
+                } else {
+                    data.returns = "ERROR: Missing userid or token.";
+                    process.emit('next', data);
+                }
+            }
+    },
+    
     hook_group_update: {
         rank: 0,
         event:

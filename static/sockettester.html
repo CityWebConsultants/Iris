@@ -32,6 +32,7 @@ document.getElementById("hljs-style").setAttribute("href", document.location.ori
             <form id="login">
                 <label>User id</label><input id="userid" name="userid" />
                 <label>Secret key</label><input name="secretkey" />
+                <label>Token</label><input name="token" />
                 <input type="submit" />
             </form>
 
@@ -286,10 +287,12 @@ document.getElementById("login").onsubmit = function(event){
 
     postform(document.location.origin + "/auth",event,"POST",function(data){
 
-        if(data === "Secret key invalid"){
-            alert(data);
+        if(data.indexOf("ERROR") !== -1) {
+         
+           alert(data);
 
         } else {
+            
             userid = document.getElementById("userid").value;
 
             socket.emit("pair", {userid:userid,token:data});

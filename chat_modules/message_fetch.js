@@ -25,11 +25,11 @@ var exports = {
         return constructedObjectID;
     },
     hook_group_list_messages: {
+        
         rank: 0,
         event: function (data) {
             // expects groupid, optional (since)
             var query = {groupid: data.groupid};
-
             if (data.since) {
                 query._id = {$gt: exports.objectIDWithTimestamp(data.since)};
             }

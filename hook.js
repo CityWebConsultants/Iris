@@ -26,7 +26,7 @@ var run = function (eventid, hookname, value, callback) {
 //The trigger function is exposed and called from external modules/files to trigger an event
 
 var trigger = function (event, value, callback) {
-
+    
     processId += 1;
     var eventid = processId,
         modules = [];

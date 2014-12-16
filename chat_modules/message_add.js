@@ -46,7 +46,7 @@ var exports = {
                 groupid: data.groupid,
                 content: data.content
             };
-            
+                        
             if (data.strong_auth_check === true) {
 
                 process.hook('hook_group_list_users', {

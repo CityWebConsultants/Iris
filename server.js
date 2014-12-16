@@ -14,6 +14,8 @@ process.argv.forEach(function (val, index, array) {
     
 });
 
+console.log(process.paramaters);
+
 var http = require('http');
 var qs = require('querystring');
 var url = require('url');
