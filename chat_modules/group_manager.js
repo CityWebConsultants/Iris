@@ -33,8 +33,8 @@ var exports = {
 
                 if (objectID.isValid(data.groupid)) {
                     var groupid = data.groupid,
-                    userid = data.userid, // optional: don't return results that don't include this user
-                    query = {'_id': objectID(groupid)};
+                        userid = data.userid, // optional: don't return results that don't include this user
+                        query = {'_id': objectID(groupid)};
 
                     if (userid) {
                         query = {'_id': objectID(groupid), members: {$elemMatch: {'userid': data.userid.toString()}}};
