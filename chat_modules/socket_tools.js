@@ -10,6 +10,15 @@
 var objectID = require('mongodb').ObjectID;
 
 var exports = {
+    init: function () {
+    //Listen out for keepalive
+        
+        process.addSocketListener("alive", function (data, socket) {
+        
+            console.log(data.userid + " is alive");
+            
+        });
+    },
     hook_groupid_from_messageid: {
         rank: 0,
         event: function (data) {
