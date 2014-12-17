@@ -235,6 +235,9 @@ Call this hook and pass an object like the following: `{dbcollection: string, db
 #### hook_db_update
 Call this hook and pass an object like the following: `{dbcollection: string, dbquery: {}, dbupdate: {}, dbupsert: bool, dbmulti: bool}`.
 
+#### hook_db_remove
+Call this hook and pass an object like the following: `{dbcollection: string, dbquery: {}}`.
+
 ### User management and authentication
 
 #### hook_auth_check
@@ -311,3 +314,27 @@ Presents a basic REST API for group management.
 Presents an event system for socket.io connections.
 
 ### socket_message
+
+Handles sending and receiving of messages through web sockets.
+
+### message_add
+
+Presents a hook and API endpoints for saving and sending messages.
+
+### message_edit
+
+Presents hooks and API endpoints for editing and removing messages.
+
+### message_fetch
+
+Presents hooks and API endpoints for getting messages.
+
+### message_types
+
+Presents an API endpoint for showing the list of available message types.
+
+### socket_notifications
+
+Sends messages to clients that are within a group when messages are deleted or edited within that group, so that a
+client application may instantly update or remove those messages.
+

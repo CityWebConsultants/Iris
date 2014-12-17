@@ -60,6 +60,12 @@ module.exports = {
         },
         {
             name: 'socket_tools'
+        },
+        {
+            name: 'socket_groups'
+        },
+        {
+            name: 'logout'
         }
     ]
 };

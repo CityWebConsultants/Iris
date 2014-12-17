@@ -118,6 +118,25 @@ var exports = {
                     process.emit('next', data);
                 }
             }
+    },
+    // GET /debug/userlist
+    hook_get_debug_userlist: {
+        rank: 0,
+        event:
+            function (data) {
+                var index;
+
+                if (exports.options && exports.options.allowdebug) {
+
+                    data.returns = JSON.stringify(Object.keys(exports.userlist));
+
+                    process.emit('next', data);
+
+                } else {
+                    data.returns = 'ERROR: Feature disabled.';
+                    process.emit('next', data);
+                }
+            }
     }
 };
 
