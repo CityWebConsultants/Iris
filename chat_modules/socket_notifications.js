@@ -94,14 +94,14 @@ var exports = {
                 break;
             case 'removemember':
                 process.groupBroadcast(data.groupid, 'notification_message', {
-                    action: 'addmember',
+                    action: 'removemember',
                     groupid: data.groupid,
                     time: Date.now()
                 });
                 break;
             case 'name':
                 process.groupBroadcast(data.groupid, 'notification_message', {
-                    action: 'addmember',
+                    action: 'name',
                     groupid: data.groupid,
                     time: Date.now()
                 });
