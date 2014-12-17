@@ -10,12 +10,18 @@
 var objectID = require('mongodb').ObjectID;
 
 var exports = {
+    alive: [],
+    aliveData: [],
+    recentActivity: [],
+
     init: function () {
     //Listen out for keepalive
         
         process.addSocketListener("alive", function (data, socket) {
         
 //            console.log(data.userid + " is alive");
+            exports.aliveData.push({userid: socket.userid, timestamp: Date.now()});
+
             
         });
     },
