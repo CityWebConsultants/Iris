@@ -43,7 +43,7 @@ var exports = {
     hook_message_remove: {
         rank: 0,
         event: function (data) {
-            console.log('This should run first.');
+
             // Validate.
             process.hook('hook_db_find', {dbcollection: 'messages', dbquery: {userid: data.userid, '_id': objectID(data.messageid)}}, function (query) {
 
@@ -67,6 +67,18 @@ var exports = {
 
             });
 
+        }
+    },
+    hook_post_group_add: {
+        rank: 10,
+        event: function (data) {
+            console.log(data);
+
+            process.groupBroadcast(data.returns, 'notification_message', {
+                action: 'addgroup',
+                groupid: data.returns,
+                time: Date.now()
+            });
         }
     }
 };
