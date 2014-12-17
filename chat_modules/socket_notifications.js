@@ -72,13 +72,41 @@ var exports = {
     hook_post_group_add: {
         rank: 10,
         event: function (data) {
-            console.log(data);
 
             process.groupBroadcast(data.returns, 'notification_message', {
                 action: 'addgroup',
                 groupid: data.returns,
                 time: Date.now()
             });
+        }
+    },
+    hook_group_update: {
+        rank: 10,
+        event: function (data) {
+
+            switch (data.action) {
+            case 'addmember':
+                process.groupBroadcast(data.groupid, 'notification_message', {
+                    action: 'addmember',
+                    groupid: data.groupid,
+                    time: Date.now()
+                });
+                break;
+            case 'removemember':
+                process.groupBroadcast(data.groupid, 'notification_message', {
+                    action: 'addmember',
+                    groupid: data.groupid,
+                    time: Date.now()
+                });
+                break;
+            case 'name':
+                process.groupBroadcast(data.groupid, 'notification_message', {
+                    action: 'addmember',
+                    groupid: data.groupid,
+                    time: Date.now()
+                });
+                break;
+            }
         }
     }
 };
