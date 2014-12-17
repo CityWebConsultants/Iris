@@ -13,45 +13,24 @@ var exports = {
                 // userid, groupid, userid, content
                 
                 if (data.userid && data.to && data.content) {
+                    
+                    //Get user id from socket
+                    
+                    var userid = process.socketio.sockets.connected[socket.id].userid;
 
-                    process.hook("hook_group_list_users", {groupid : data.to}, function (groupusers) {
+                    process.hook('hook_message_add', {groupid: data.to, 'userid': userid, content: data.content, strong_auth_check: true}, function (gotData) {
 
-                        if (groupusers.returns) {
+                        data.messageid = gotData.returns;
 
-                            // userid = userid of message sender
-                            var key,
-                                userid;
-                            for (key in auth.userlist) {
-                                if (auth.userlist[key].sockets) {
+                        process.hook('hook_message_process', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
 
-                                    auth.userlist[key].sockets.forEach(function (element, index) {
-                                        if (element === socket) {
-                                            console.log('userid: ' + key);
-                                            userid = key;
-                                        }
-                                    });
+                            //Clear user token. Shouldn't be sent to all users!
 
-                                    break;
-                                }
-                            }
+                            data.token = "";
 
-                            process.hook('hook_message_add', {groupid: data.to, 'userid': userid, content: data.content, strong_auth_check: true}, function (gotData) {
+                            process.groupBroadcast(data.to, 'message', data);
 
-                                data.messageid = gotData.returns;
-
-                                process.hook('hook_message_process', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
-
-                                    //Clear user token. Shouldn't be sent to all users!
-
-                                    data.token = "";
-
-                                    process.groupBroadcast(data.to, 'message', data);
-
-                                });
-
-                            });
-
-                        }
+                        });
 
                     });
                     
