@@ -28,6 +28,7 @@ var exports = {
             }
         }
     },
+    // POST /logout
     hook_post_logout: {
         rank: 0,
         event: function (data) {
