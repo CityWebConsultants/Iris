@@ -81,6 +81,8 @@ var exports = {
 
                                 auth.userlist[data.userid].sockets.push(socket);
 
+                                socket.userid = data.userid;
+
                                 socket.emit('pair', true);
                             }
                         } else {
@@ -92,6 +94,22 @@ var exports = {
                     
                 });
                 
+                socket.on("disconnect", function (reason) {
+                    console.log('Disconnect from ' + socket.userid);
+
+                    if (socket.userid && auth.userlist[socket.userid] && auth.userlist[socket.userid].sockets) {
+
+                        // for each socket in the userlist registered to this user
+                        auth.userlist[socket.userid].sockets.forEach(function (element, index) {
+                            if (element === socket) {
+                                console.log('Removing socket at index ' + index);
+                                // remove socket from array if it matches the one that's disconnecting
+                                auth.userlist[socket.userid].sockets.splice(index, 1);
+                            }
+                        });
+                    }
+                });
+
             });
             
         });
