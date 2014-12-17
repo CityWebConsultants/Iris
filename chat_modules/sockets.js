@@ -104,7 +104,9 @@ var exports = {
                             if (element === socket) {
                                 console.log('Removing socket at index ' + index);
                                 // remove socket from array if it matches the one that's disconnecting
+//                                console.log(auth.userlist[socket.userid].sockets);
                                 auth.userlist[socket.userid].sockets.splice(index, 1);
+//                                console.log(auth.userlist[socket.userid].sockets);
                             }
                         });
                     }

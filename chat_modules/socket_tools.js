@@ -15,7 +15,7 @@ var exports = {
         
         process.addSocketListener("alive", function (data, socket) {
         
-            console.log(data.userid + " is alive");
+//            console.log(data.userid + " is alive");
             
         });
     },
