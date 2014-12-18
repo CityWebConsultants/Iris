@@ -12,7 +12,31 @@ var objectID = require('mongodb').ObjectID;
 var exports = {
     alive: [],
     aliveData: [],
+    alivePushed: [],
     recentActivity: [],
+
+    arraysEqual: function (a, b) {
+        if (a === b) {
+            return true;
+        }
+        if (a === null || b === null) {
+            return false;
+        }
+        if (a.length !== b.length) {
+            return false;
+        }
+
+        a.sort();
+        b.sort();
+
+        var i;
+        for (i = 0; i < a.length; ++i) {
+            if (a[i] !== b[i]) {
+                return false;
+            }
+        }
+        return true;
+    },
 
     options: {
         awayCleanupTime: 30000
@@ -46,6 +70,15 @@ var exports = {
                     exports.aliveData.length = i;
                     break;
                 }
+            }
+
+            // If the array actually changed since last time...
+            if (!exports.arraysEqual(exports.alivePushed, exports.alive)) {
+                console.log('Alive array updated.');
+                process.socketio.sockets.emit('users_online', {users: exports.alive});
+
+                // Update pushed copy to what we just pushed
+                exports.alivePushed = exports.alive;
             }
 
         }, 10000);
