@@ -1,4 +1,4 @@
-/*jslint node: true */
+/*jslint node: true plusplus: true*/
 "use strict";
 
 /*  Socket Tools Module
@@ -19,28 +19,24 @@ var exports = {
     },
 
     init: function () {
-    //Listen out for keepalive
-        
+        //Listen out for keepalive
         process.addSocketListener("alive", function (data, socket) {
-        
-//            console.log(data.userid + " is alive");
             // Ignore undefined userid
             // Prepend to alive data array
             if (socket.userid) {
                 exports.aliveData.unshift({userid: socket.userid, timestamp: Date.now()});
-            };
-            
-
+            }
         });
 
         // Every whatever interval, run cleanup
         setInterval(function () {
+            var i = 0;
             console.log(exports.aliveData);
             console.log(exports.alive);
             exports.alive = [];
             // fire event for pushing online users?
 
-            for (var i = 0; i < exports.aliveData.length; i++) {
+            for (i = 0; i < exports.aliveData.length; i++) {
                 if (exports.alive.indexOf(exports.aliveData[i].userid) === -1) {
                     exports.alive.push(exports.aliveData[i].userid);
                 }
@@ -50,7 +46,7 @@ var exports = {
                     exports.aliveData.length = i;
                     break;
                 }
-            };
+            }
 
         }, 10000);
     },
