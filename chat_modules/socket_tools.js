@@ -14,16 +14,61 @@ var exports = {
     aliveData: [],
     recentActivity: [],
 
+    options: {
+        awayCleanupTime: 30000
+    },
+
     init: function () {
     //Listen out for keepalive
         
         process.addSocketListener("alive", function (data, socket) {
         
 //            console.log(data.userid + " is alive");
-            exports.aliveData.push({userid: socket.userid, timestamp: Date.now()});
-
+            // Ignore undefined userid
+            // Prepend to alive data array
+            if (socket.userid) {
+                exports.aliveData.unshift({userid: socket.userid, timestamp: Date.now()});
+            };
             
+
         });
+
+        // Every whatever interval, run cleanup
+        setInterval(function () {
+            console.log(exports.aliveData);
+            console.log(exports.alive);
+            exports.alive = [];
+            // fire event for pushing online users?
+
+            for (var i = 0; i < exports.aliveData.length; i++) {
+                if (exports.alive.indexOf(exports.aliveData[i].userid) === -1) {
+                    exports.alive.push(exports.aliveData[i].userid);
+                }
+
+                if (Date.now() - exports.aliveData[i].timestamp > exports.options.awayCleanupTime) {
+                    //console.log('cleanup ' + exports.aliveData[i]);
+                    exports.aliveData.length = i;
+                    break;
+                }
+            };
+
+        }, 10000);
+    },
+    hook_onlineusers: {
+        rank: 0,
+        event: function (data) {
+            data.returns = exports.alive;
+            process.emit('next', data);
+        }
+    },
+    hook_get_onlineusers: {
+        rank: 0,
+        event: function (data) {
+            process.hook('hook_onlineusers', {}, function (users) {
+                data.returns = JSON.stringify(users.returns);
+                process.emit('next', data);
+            });
+        }
     },
     hook_groupid_from_messageid: {
         rank: 0,

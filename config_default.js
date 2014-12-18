@@ -59,7 +59,10 @@ module.exports = {
             name: 'socket_notifications'
         },
         {
-            name: 'socket_tools'
+            name: 'socket_tools',
+            options: {
+                awayCleanupTime: 30000
+            }
         },
         {
             name: 'socket_groups'
