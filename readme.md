@@ -112,6 +112,23 @@ Returns message(s) matching query.
 #### /fetch/messagetypes
 Returns all valid messagetypes.
 
+Socket Events
+-------------
+### message
+This is pushed to a client whenever a new message is posted in one of their groups. Contains a message object.
+
+Example: `{groupid: '5492b9311a4ecc3202c1a1cc', 'userid': 1, content: {'text': 'hello'}}`
+
+### notification_message
+This is pushed to a client whenever the state of a stored message or group changes, e.g. when a message is updated or removed or when a group is renamed or
+created involving that user.
+
+Example: `{action: 'name', groupid: '5492b9311a4ecc3202c1a1cc', time: 1418908303209}`
+
+### online_users
+This is pushed to all clients whenever the list of online users changes. Data is as follows: `{users: ['1', '2', '3']}` - in other words, an array of user IDs
+under key `users`.
+
 Data structures
 ---------------
 Group and message relations are stored using a semi-relational reference structure.
@@ -292,7 +309,21 @@ process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}}, function (go
     }
 });
 ```
+Sockets.js
+----------
+Presents these functions:
 
+### process.addSocketListener
+
+Add listener for a specific socket event.
+
+### process.groupBroadcast
+
+Send socket messages to every client in a given group.
+
+### process.socketio
+
+All socket.io stuff.
 
 Core Modules
 ------------

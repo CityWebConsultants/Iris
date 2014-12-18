@@ -1,10 +1,11 @@
 /*jslint node: true plusplus: true*/
 "use strict";
 
-/*  Socket Tools Module
- *  Provides some useful socket functions not implemented by the base Sockets module.
+/*  Activity Module
  *
- *  Provides hook_groupid_from_messageid and hook_socket_users_push
+ *  Provides tracking of user 'alive' messages. Presents hook hook_onlineusers and a corresponding
+ *  API endpoint, /onlineusers. Pushes socket message online_users.
+ *
  */
 
 var objectID = require('mongodb').ObjectID;
@@ -81,7 +82,7 @@ var exports = {
                 exports.alivePushed = exports.alive;
             }
 
-        }, 10000);
+        }, 2000); // usually 10s
     },
     hook_onlineusers: {
         rank: 0,
