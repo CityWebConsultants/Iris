@@ -61,6 +61,7 @@ var exports = {
             process.emit('next', data);
         }
     },
+    // GET /onlineusers
     hook_get_onlineusers: {
         rank: 0,
         event: function (data) {
