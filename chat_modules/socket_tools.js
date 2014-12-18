@@ -31,8 +31,8 @@ var exports = {
         // Every whatever interval, run cleanup
         setInterval(function () {
             var i = 0;
-            console.log(exports.aliveData);
-            console.log(exports.alive);
+//            console.log(exports.aliveData);
+//            console.log(exports.alive);
             exports.alive = [];
             // fire event for pushing online users?
 
