@@ -393,6 +393,20 @@ var exports = {
                     process.emit('next', data);
                 }
             }
+    },
+    hook_groupid_from_messageid: {
+        rank: 0,
+        event: function (data) {
+            var messageid = objectID(data.messageid);
+
+            process.hook('hook_db_find', {
+                dbcollection: 'messages',
+                dbquery: {'_id': messageid}
+            }, function (gotData) {
+                data.returns = JSON.parse(gotData.returns)[0].groupid;
+                process.emit('next', data);
+            });
+        }
     }
 };
 
