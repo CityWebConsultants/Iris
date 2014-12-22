@@ -101,10 +101,12 @@ var exports = {
         rank: 0,
         event:
             function (data) {
+                // userid, token, name, members[], is121
                 var url = data.url,
                     post = data.post,
                     groupMembers = [],
                     groupMembersValid = true,
+                    is121 = false,
                     currentDate = Date.now(),
                     memberObjects = [];
 
@@ -131,6 +133,11 @@ var exports = {
                                 post.name = '';
                             }
 
+                            // Make sure is121 is sane
+                            if (post.is121 === 'true') {
+                                is121 = true;
+                            }
+
                             // If invalid, return fail
                             if (groupMembersValid !== true) {
                                 data.returns = 'ERROR: Invalid user id(s)';
@@ -143,11 +150,45 @@ var exports = {
                                 memberObjects.push({userid: element, joined: currentDate});
                             });
 
-                            // Call database insert hook to insert the new group object
-                            process.hook('hook_db_insert', {dbcollection: 'groups', dbobject: {'members': memberObjects, 'name': post.name}}, function (gotData) {
-                                data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // it gets too many quotes from all the stringifying
-                                process.emit('next', data);
-                            });
+                            // if group is one-to-one, check if one like that already exists
+                            if (is121 === true) {
+                                // Check number of members
+                                if (memberObjects.length === 2) {
+                                    // Search database for existing 121 chat with those members
+                                    process.hook('hook_db_find', {
+                                        dbcollection: 'groups',
+                                        dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': groupMembers[0]}}}, {'members': {$elemMatch: {'userid': groupMembers[1]}}}]}
+                                    }, function (result) {
+                                        if (result.returns && JSON.parse(result.returns).length === 0) {
+                                            // Call database insert hook to insert the new group object
+                                            process.hook('hook_db_insert', {
+                                                dbcollection: 'groups',
+                                                dbobject: {'members': memberObjects, 'name': post.name, is121: true}
+                                            }, function (gotData) {
+                                                data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
+                                                process.emit('next', data);
+                                            });
+                                        } else {
+                                            data.returns = 'ERROR: One-to-one chat containing these members already exists.';
+                                            process.emit('next', data);
+                                        }
+                                    });
+                                } else {
+                                    data.returns = 'ERROR: One-to-one chat can ony contain two members.';
+                                    process.emit('next', data);
+                                }
+                            } else {
+                                // Insert normally
+
+                                // Call database insert hook to insert the new group object
+                                process.hook('hook_db_insert', {
+                                    dbcollection: 'groups',
+                                    dbobject: {'members': memberObjects, 'name': post.name}
+                                }, function (gotData) {
+                                    data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
+                                    process.emit('next', data);
+                                });
+                            }
                         } else {
                             data.returns = "ERROR: No initial members specified.";
                             process.emit('next', data);

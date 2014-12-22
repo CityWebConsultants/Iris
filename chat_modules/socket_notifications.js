@@ -78,6 +78,9 @@ var exports = {
                 groupid: data.returns,
                 time: Date.now()
             });
+
+            console.log('emitting next');
+            process.emit('next', data);
         }
     },
     hook_group_update: {
