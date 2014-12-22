@@ -60,6 +60,8 @@ Takes a group name and initial list of members; creates a server-side group entr
 The desired name of the group being created
 * members (string) (may be appended more than once)   
 The desired set of members, as userids, to be added to the group
+* is121 (optional; only value is 'true')   
+Whether this group is a one-to-one conversation.
 
 **Returns:**   
 
@@ -136,7 +138,7 @@ Group and message relations are stored using a semi-relational reference structu
 ### Group
 A group is essentially a named collection of users. All chats take place in a context of a group; a direct chat between two users takes place in a group which contains only those two users as members.
 
-General group structure: `{ 'gid': 'group ID', 'members': {}, 'name': 'group name'}`
+General group structure: `{ 'gid': 'group ID', 'members': {}, 'name': 'group name', 'is121': true/false}`
 
 **Example group:**
 ```
@@ -147,10 +149,13 @@ General group structure: `{ 'gid': 'group ID', 'members': {}, 'name': 'group nam
     {'userid': '3', 'joined': 1416314536},
   }
   'name': 'An Example Group',
+  'is121': false
 }
 ```
 
 The generation of IDs is the responsibility of the database handler module.
+
+The `is121` flag, if set to true, defines the group as a one-to-one chat. Such a chat can only contain two users and cannot be duplicated.
 
 ### Message
 Each message consists of an essential core set of values - author, group reference and timestamp (TODO: decide on whether to use the MongoDB ID for timestamping) followed by a content array that is filled depending on which modules are in use.
