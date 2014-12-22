@@ -8,8 +8,6 @@
  *
  */
 
-var objectID = require('mongodb').ObjectID;
-
 var exports = {
     alive: [],
     aliveData: [],
