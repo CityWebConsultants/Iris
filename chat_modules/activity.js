@@ -7,6 +7,7 @@
  *  API endpoint, /onlineusers. Pushes socket message online_users.
  *
  */
+var objectID = require('mongodb').ObjectID;
 
 var exports = {
     alive: [],
@@ -48,6 +49,20 @@ var exports = {
             // Prepend to alive data array
             if (socket.userid) {
                 exports.aliveData.unshift({userid: socket.userid, timestamp: Date.now()});
+            }
+        });
+
+        process.addSocketListener("groupcheckin", function (data, socket) {
+            if (data.userid && data.token && data.groupid) {
+                process.hook("hook_auth_check", {userid: data.userid, token: data.token}, function (auth) {
+                    if (auth.returns === true) {
+                        // Run checkin hook
+                        console.log('running checkin');
+                        process.hook("hook_group_checkin", {userid: data.userid, groupid: data.groupid}, function (returns) {
+                            data.returns = true;
+                        });
+                    }
+                });
             }
         });
 
@@ -95,6 +110,22 @@ var exports = {
         event: function (data) {
             process.hook('hook_onlineusers', {}, function (users) {
                 data.returns = JSON.stringify(users.returns);
+                process.emit('next', data);
+            });
+        }
+    },
+    hook_group_checkin: {
+        rank: 0,
+        event: function (data) {
+            // userid, groupid
+
+            process.hook('hook_db_update', {
+                dbcollection: 'groups',
+                dbquery: {'_id': objectID(data.groupid), 'members.userid': data.userid},
+                dbupdate: {$set: {'members.$.lastviewed': Date.now()}}
+            }, function (result) {
+                console.log(result);
+                data.returns = result.returns;
                 process.emit('next', data);
             });
         }
