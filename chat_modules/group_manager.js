@@ -246,6 +246,7 @@ var exports = {
                                 {
                                     dbcollection: 'groups',
                                     dbquery: {members: {$elemMatch: {'userid': data.get.userid.toString()}}},
+                                    dboptions: {"sort": [['lastviewed','desc'], ['joined','desc']]},
                                     callback: function (gotData) {
                                         data.returns = gotData.returns;
                                         process.nextTick(function () {
