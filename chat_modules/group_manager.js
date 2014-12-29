@@ -25,7 +25,7 @@ var objectID = require('mongodb').ObjectID;
 
 var exports = {
     options: { allowdebug: false },
-    // TODO: Separate out core functions here as their own hooks to reduce duplication.
+    // TODO: this module needs refactoring methinks. but hey, it does work.
     hook_group_list_users: {
         rank: 0,
         event:
@@ -110,94 +110,116 @@ var exports = {
                     currentDate = Date.now(),
                     memberObjects = [];
 
-                process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
-                    if (gotData.returns === true) {
-                        // Validate POSTed data
-                        if (post.members) {
-                            // Force it to be an array
-                            if (post.members.constructor && post.members.constructor !== Array) {
-                                groupMembers[0] = post.members;
-                            } else {
-                                groupMembers = post.members;
-                            }
+                // read only (i.e. CMS controlled) group?
+                if (data.post.readonly === 'true' && data.post.secretkey) {
+                    process.hook('hook_secretkey_check', {secretkey: data.post.secretkey}, function (valid) {
+                        if (valid.returns === true) {
+                            // Secret key OK.
 
-                            // Foreach item, check for a numeric userid (could make this configurable as to what is a valid userid)
-                            groupMembers.forEach(function (element, index) {
-                                if (isNaN(element) || element === '') {
-                                    groupMembersValid = false;
-                                }
-                            });
-
-                            // If no name supplied, make sure it's blank.
-                            if (!post.name) {
-                                post.name = '';
-                            }
-
-                            // Make sure is121 is sane
-                            if (post.is121 === 'true') {
-                                is121 = true;
-                            }
-
-                            // If invalid, return fail
-                            if (groupMembersValid !== true) {
-                                data.returns = 'ERROR: Invalid user id(s)';
-                                // Pass on to the next handler in case it can still salvage this :)
+                            // Call database insert hook to insert the new group object
+                            process.hook('hook_db_insert', {
+                                dbcollection: 'groups',
+                                dbobject: {'members': data.post.members, 'name': data.post.name, 'isReadOnly': true}
+                            }, function (gotData) {
+                                data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
                                 process.emit('next', data);
-                                return;
-                            }
-
-                            groupMembers.forEach(function (element, index) {
-                                memberObjects.push({userid: element, joined: currentDate});
                             });
-
-                            // if group is one-to-one, check if one like that already exists
-                            if (is121 === true) {
-                                // Check number of members
-                                if (memberObjects.length === 2) {
-                                    // Search database for existing 121 chat with those members
-                                    process.hook('hook_db_find', {
-                                        dbcollection: 'groups',
-                                        dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': groupMembers[0]}}}, {'members': {$elemMatch: {'userid': groupMembers[1]}}}]}
-                                    }, function (result) {
-                                        if (result.returns && JSON.parse(result.returns).length === 0) {
-                                            // Call database insert hook to insert the new group object
-                                            process.hook('hook_db_insert', {
-                                                dbcollection: 'groups',
-                                                dbobject: {'members': memberObjects, 'name': post.name, is121: true}
-                                            }, function (gotData) {
-                                                data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
-                                                process.emit('next', data);
-                                            });
-                                        } else {
-                                            data.returns = 'ERROR: One-to-one chat containing these members already exists.';
-                                            process.emit('next', data);
-                                        }
-                                    });
-                                } else {
-                                    data.returns = 'ERROR: One-to-one chat can ony contain two members.';
-                                    process.emit('next', data);
-                                }
-                            } else {
-                                // Insert normally
-
-                                // Call database insert hook to insert the new group object
-                                process.hook('hook_db_insert', {
-                                    dbcollection: 'groups',
-                                    dbobject: {'members': memberObjects, 'name': post.name}
-                                }, function (gotData) {
-                                    data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
-                                    process.emit('next', data);
-                                });
-                            }
                         } else {
-                            data.returns = "ERROR: No initial members specified.";
+                            data.returns = "ERROR: Secret key incorrect";
                             process.emit('next', data);
                         }
-                    } else {
-                        data.returns = "ERROR: Authentication failed.";
-                        process.emit('next', data);
-                    }
-                });
+                    });
+                } else {
+                    // User controlled group
+                    process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
+                        if (gotData.returns === true) {
+                            // Validate POSTed data
+                            if (post.members) {
+                                // Force it to be an array
+                                if (post.members.constructor && post.members.constructor !== Array) {
+                                    groupMembers[0] = post.members;
+                                } else {
+                                    groupMembers = post.members;
+                                }
+
+                                // Foreach item, check for a numeric userid (could make this configurable as to what is a valid userid)
+                                groupMembers.forEach(function (element, index) {
+                                    if (isNaN(element) || element === '') {
+                                        groupMembersValid = false;
+                                    }
+                                });
+
+                                // If no name supplied, make sure it's blank.
+                                if (!post.name) {
+                                    post.name = '';
+                                }
+
+                                // Make sure is121 is sane
+                                if (post.is121 === 'true') {
+                                    is121 = true;
+                                }
+
+                                // If invalid, return fail
+                                if (groupMembersValid !== true) {
+                                    data.returns = 'ERROR: Invalid user id(s)';
+                                    // Pass on to the next handler in case it can still salvage this :)
+                                    process.emit('next', data);
+                                    return;
+                                }
+
+                                groupMembers.forEach(function (element, index) {
+                                    memberObjects.push({userid: element, joined: currentDate});
+                                });
+
+                                // if group is one-to-one, check if one like that already exists
+                                if (is121 === true) {
+                                    // Check number of members
+                                    if (memberObjects.length === 2) {
+                                        // Search database for existing 121 chat with those members
+                                        process.hook('hook_db_find', {
+                                            dbcollection: 'groups',
+                                            dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': groupMembers[0]}}}, {'members': {$elemMatch: {'userid': groupMembers[1]}}}]}
+                                        }, function (result) {
+                                            if (result.returns && JSON.parse(result.returns).length === 0) {
+                                                // Call database insert hook to insert the new group object
+                                                process.hook('hook_db_insert', {
+                                                    dbcollection: 'groups',
+                                                    dbobject: {'members': memberObjects, 'name': post.name, is121: true, 'isReadOnly': false}
+                                                }, function (gotData) {
+                                                    data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
+                                                    process.emit('next', data);
+                                                });
+                                            } else {
+                                                data.returns = 'ERROR: One-to-one chat containing these members already exists.';
+                                                process.emit('next', data);
+                                            }
+                                        });
+                                    } else {
+                                        data.returns = 'ERROR: One-to-one chat can ony contain two members.';
+                                        process.emit('next', data);
+                                    }
+                                } else {
+                                    // Insert normally
+
+                                    // Call database insert hook to insert the new group object
+                                    process.hook('hook_db_insert', {
+                                        dbcollection: 'groups',
+                                        dbobject: {'members': memberObjects, 'name': post.name, 'isReadOnly': false}
+                                    }, function (gotData) {
+                                        data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
+                                        process.emit('next', data);
+                                    });
+                                }
+                            } else {
+                                data.returns = "ERROR: No initial members specified.";
+                                process.emit('next', data);
+                            }
+                        } else {
+                            data.returns = "ERROR: Authentication failed.";
+                            process.emit('next', data);
+                        }
+                    });
+                }
             }
     },
     // GET /debug/groups
@@ -246,7 +268,7 @@ var exports = {
                                 {
                                     dbcollection: 'groups',
                                     dbquery: {members: {$elemMatch: {'userid': data.get.userid.toString()}}},
-                                    dboptions: {"sort": [['lastviewed','desc'], ['joined','desc']]},
+                                    dboptions: {"sort": [['lastviewed', 'desc'], ['joined', 'desc']]},
                                     callback: function (gotData) {
                                         data.returns = gotData.returns;
                                         process.nextTick(function () {
@@ -275,17 +297,16 @@ var exports = {
                         if (gotData.returns === true) {
 
                             // Call db find hook.
-                            process.hook('hook_db_find',
-                                {
-                                    dbcollection: 'groups',
-                                    dbquery: {members: {$elemMatch: {'userid': data.userid.toString()}}},
-                                    callback: function (gotData) {
-                                        data.returns = gotData.returns;
-                                        process.nextTick(function () {
-                                            process.emit('next', data);
-                                        });
-                                    }
-                                });
+                            process.hook('hook_db_find', {
+                                dbcollection: 'groups',
+                                dbquery: {members: {$elemMatch: {'userid': data.userid.toString()}}},
+                                callback: function (gotData) {
+                                    data.returns = gotData.returns;
+                                    process.nextTick(function () {
+                                        process.emit('next', data);
+                                    });
+                                }
+                            });
 
                         } else {
                             data.returns = "ERROR: Authentication failed.";
@@ -312,52 +333,49 @@ var exports = {
                     query = {'_id': objectID(data.groupid)};
                 }
 
-                switch (data.action) {
+                if (data.action === 'addmember') {
 
-                case 'addmember':
-                    process.hook('hook_db_update',
-                        {
-                            dbcollection: 'groups',
-                            dbquery: query,
-                            dbupdate: {$push: {members: {'userid': data.members, 'joined': Date.now()}}},
-                            dbmulti: true,
-                            dbupsert: false
-                        }, function (gotData) {
-                            data.returns = gotData.returns;
-                            process.emit('next', data);
-                        });
-                    break;
+                    console.log('adding member');
+                    process.hook('hook_db_update', {
+                        dbcollection: 'groups',
+                        dbquery: query,
+                        dbupdate: {$push: {members: {'userid': data.members, 'joined': Date.now()}}},
+                        dbmulti: true,
+                        dbupsert: false
+                    }, function (gotData) {
+                        console.log('db update returns');
+                        data.returns = gotData.returns;
+                        process.emit('next', data);
+                    });
 
-                case 'removemember':
-                    process.hook('hook_db_update',
-                        {
-                            dbcollection: 'groups',
-                            dbquery: query,
-                            dbupdate: {$pull: {members: {'userid': data.members}}},
-                            dbmulti: true,
-                            dbupsert: false
-                        }, function (gotData) {
-                            data.returns = gotData.returns;
-                            process.emit('next', data);
-                        });
-                    break;
-                case 'name':
-                    process.hook('hook_db_update',
-                        {
-                            dbcollection: 'groups',
-                            dbquery: query,
-                            dbupdate: {$set: {name: data.name}},
-                            dbmulti: false,
-                            dbupsert: false
-                        }, function (gotData) {
-                            data.returns = gotData.returns;
-                            process.emit('next', data);
-                        });
-                    break;
+                } else if (data.action === 'removemember') {
+                    process.hook('hook_db_update', {
+                        dbcollection: 'groups',
+                        dbquery: query,
+                        dbupdate: {$pull: {members: {'userid': data.members}}},
+                        dbmulti: true,
+                        dbupsert: false
+                    }, function (gotData) {
+                        data.returns = gotData.returns;
+                        process.emit('next', data);
+                    });
 
-                default:
+                } else if (data.action === 'name') {
+                    process.hook('hook_db_update', {
+                        dbcollection: 'groups',
+                        dbquery: query,
+                        dbupdate: {$set: {name: data.name}},
+                        dbmulti: false,
+                        dbupsert: false
+                    }, function (gotData) {
+                        data.returns = gotData.returns;
+                        process.emit('next', data);
+                    });
+
+                } else {
                     data.returns = false;
                     process.emit('next', data);
+
                 }
             }
     },
@@ -368,23 +386,49 @@ var exports = {
             function (data) {
 
                 if (data.post.members && data.post.groupid) {
-                    process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
-                        if (gotData.returns === true) {
-                            process.hook('hook_group_update', {
-                                action: 'addmember',
-                                userid: data.post.userid,
-                                members: data.post.members,
-                                groupid: data.post.groupid
-                            },
-                                function (gotData) {
+
+                    if (data.post.secretkey) {
+                        process.hook('hook_secretkey_check', {secretkey: data.secretkey}, function (valid) {
+                            if (valid.returns === true) {
+
+                                process.hook('hook_group_update', {
+                                    action: 'addmember',
+                                    userid: data.post.userid,
+                                    members: data.post.members,
+                                    groupid: data.post.groupid
+                                }, function (gotData) {
                                     data.returns = gotData.returns;
                                     process.emit('next', data);
                                 });
-                        } else {
-                            data.returns = "ERROR: Authentication failed.";
-                            process.emit('next', data);
-                        }
-                    });
+
+                            } else {
+                                data.returns = "ERROR: Secret key incorrect";
+                                process.emit('next', data);
+                            }
+                        });
+                    } else {
+                        process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
+                            if (gotData.returns === true) {
+
+                                console.log('Running update hook');
+
+                                process.hook('hook_group_update', {
+                                    action: 'addmember',
+                                    userid: data.post.userid,
+                                    members: data.post.members,
+                                    groupid: data.post.groupid
+                                }, function (gotData) {
+                                    console.log("group update returns.");
+                                    data.returns = gotData.returns;
+                                    process.emit('next', data);
+                                });
+
+                            } else {
+                                data.returns = "ERROR: Authentication failed.";
+                                process.emit('next', data);
+                            }
+                        });
+                    }
                 } else {
                     data.returns = "ERROR: Invalid userid or groupid.";
                     process.emit('next', data);
@@ -403,11 +447,10 @@ var exports = {
                         members: data.post.members,
                         userid: data.post.userid,
                         groupid: data.post.groupid
-                    },
-                        function (gotData) {
-                            data.returns = gotData.returns;
-                            process.emit('next', data);
-                        });
+                    }, function (gotData) {
+                        data.returns = gotData.returns;
+                        process.emit('next', data);
+                    });
                 } else {
                     data.returns = "ERROR: Invalid userid or groupid.";
                     process.emit('next', data);

@@ -73,13 +73,14 @@ var exports = {
         rank: 10,
         event: function (data) {
 
-            process.groupBroadcast(data.returns, 'notification_message', {
-                action: 'addgroup',
-                groupid: data.returns,
-                time: Date.now()
-            });
+            if (data.returns) {
+                process.groupBroadcast(data.returns, 'notification_message', {
+                    action: 'addgroup',
+                    groupid: data.returns,
+                    time: Date.now()
+                });
+            }
 
-            console.log('emitting next');
             process.emit('next', data);
         }
     },
@@ -94,6 +95,8 @@ var exports = {
                     groupid: data.groupid,
                     time: Date.now()
                 });
+
+                process.emit('next', data);
                 break;
             case 'removemember':
                 process.groupBroadcast(data.groupid, 'notification_message', {
@@ -101,6 +104,8 @@ var exports = {
                     groupid: data.groupid,
                     time: Date.now()
                 });
+
+                process.emit('next', data);
                 break;
             case 'name':
                 process.groupBroadcast(data.groupid, 'notification_message', {
@@ -108,6 +113,8 @@ var exports = {
                     groupid: data.groupid,
                     time: Date.now()
                 });
+
+                process.emit('next', data);
                 break;
             }
         }

@@ -92,6 +92,22 @@ var exports = {
             
             }
     },
+    hook_secretkey_check: {
+        rank: 0,
+        event:
+            function (data) {
+                // secretkey only
+                console.log(data.secretkey);
+                console.log(process.config.secret_key);
+                if (data.secretkey === process.config.secret_key) {
+                    data.returns = true;
+                    process.emit('next', data);
+                } else {
+                    data.returns = false;
+                    process.emit('next', data);
+                }
+            }
+    },
     // GET /debug/isauth
     hook_get_debug_isauth: {
         rank: 0,
