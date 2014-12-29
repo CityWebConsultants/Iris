@@ -264,18 +264,16 @@ var exports = {
                         if (gotData.returns === true) {
 
                             // Call db find hook.
-                            process.hook('hook_db_find',
-                                {
-                                    dbcollection: 'groups',
-                                    dbquery: {members: {$elemMatch: {'userid': data.get.userid.toString()}}},
-                                    dboptions: {"sort": [['lastviewed', 'desc'], ['joined', 'desc']]},
-                                    callback: function (gotData) {
-                                        data.returns = gotData.returns;
-                                        process.nextTick(function () {
-                                            process.emit('next', data);
-                                        });
-                                    }
+                            process.hook('hook_db_find', {
+                                dbcollection: 'groups',
+                                dbquery: {members: {$elemMatch: {'userid': data.get.userid.toString()}}},
+                                dboptions: {"sort": [['lastviewed', 'desc'], ['joined', 'desc']]}
+                            }, function (gotData) {
+                                data.returns = gotData.returns;
+                                process.nextTick(function () {
+                                    process.emit('next', data);
                                 });
+                            });
 
                         } else {
                             data.returns = "ERROR: Authentication failed.";
@@ -299,13 +297,12 @@ var exports = {
                             // Call db find hook.
                             process.hook('hook_db_find', {
                                 dbcollection: 'groups',
-                                dbquery: {members: {$elemMatch: {'userid': data.userid.toString()}}},
-                                callback: function (gotData) {
-                                    data.returns = gotData.returns;
-                                    process.nextTick(function () {
-                                        process.emit('next', data);
-                                    });
-                                }
+                                dbquery: {members: {$elemMatch: {'userid': data.userid.toString()}}}
+                            }, function (gotData) {
+                                data.returns = gotData.returns;
+                                process.nextTick(function () {
+                                    process.emit('next', data);
+                                });
                             });
 
                         } else {
@@ -327,7 +324,7 @@ var exports = {
 
                 var query;
                 if (data.userid) {
-                    query = {'_id': objectID(data.groupid), members: {$elemMatch: {'userid': data.userid.toString()}}};
+                    query = {'_id': objectID(data.groupid), 'isReadOnly': false, members: {$elemMatch: {'userid': data.userid.toString()}}};
 //                    console.log(query);
                 } else {
                     query = {'_id': objectID(data.groupid)};
@@ -442,15 +439,46 @@ var exports = {
             function (data) {
 
                 if (data.post.members && data.post.groupid) {
-                    process.hook('hook_group_update', {
-                        action: 'removemember',
-                        members: data.post.members,
-                        userid: data.post.userid,
-                        groupid: data.post.groupid
-                    }, function (gotData) {
-                        data.returns = gotData.returns;
-                        process.emit('next', data);
-                    });
+
+                    if (data.post.secretkey) {
+                        process.hook('hook_secretkey_check', {secretkey: data.secretkey}, function (valid) {
+                            if (valid.returns === true) {
+
+                                process.hook('hook_group_update', {
+                                    action: 'removemember',
+                                    members: data.post.members,
+                                    userid: data.post.userid,
+                                    groupid: data.post.groupid
+                                }, function (gotData) {
+                                    data.returns = gotData.returns;
+                                    process.emit('next', data);
+                                });
+
+                            } else {
+                                data.returns = "ERROR: Secret key incorrect";
+                                process.emit('next', data);
+                            }
+                        });
+                    } else {
+                        process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
+                            if (gotData.returns === true) {
+
+                                process.hook('hook_group_update', {
+                                    action: 'removemember',
+                                    members: data.post.members,
+                                    userid: data.post.userid,
+                                    groupid: data.post.groupid
+                                }, function (gotData) {
+                                    data.returns = gotData.returns;
+                                    process.emit('next', data);
+                                });
+
+                            } else {
+                                data.returns = "ERROR: Authentication failed.";
+                                process.emit('next', data);
+                            }
+                        });
+                    }
                 } else {
                     data.returns = "ERROR: Invalid userid or groupid.";
                     process.emit('next', data);
@@ -464,15 +492,47 @@ var exports = {
             function (data) {
 
                 if (data.post.name && data.post.groupid) {
-                    process.hook('hook_group_update', {
-                        action: 'name',
-                        name: data.post.name,
-                        groupid: data.post.groupid,
-                        userid: data.post.userid
-                    }, function (gotData) {
-                        data.returns = gotData.returns;
-                        process.emit('next', data);
-                    });
+
+                    if (data.post.secretkey) {
+                        process.hook('hook_secretkey_check', {secretkey: data.secretkey}, function (valid) {
+                            if (valid.returns === true) {
+
+                                process.hook('hook_group_update', {
+                                    action: 'name',
+                                    name: data.post.name,
+                                    groupid: data.post.groupid,
+                                    userid: data.post.userid
+                                }, function (gotData) {
+                                    data.returns = gotData.returns;
+                                    process.emit('next', data);
+                                });
+
+                            } else {
+                                data.returns = "ERROR: Secret key incorrect";
+                                process.emit('next', data);
+                            }
+                        });
+                    } else {
+                        process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
+                            if (gotData.returns === true) {
+
+                                process.hook('hook_group_update', {
+                                    action: 'name',
+                                    name: data.post.name,
+                                    groupid: data.post.groupid,
+                                    userid: data.post.userid
+                                }, function (gotData) {
+                                    data.returns = gotData.returns;
+                                    process.emit('next', data);
+                                });
+
+                            } else {
+                                data.returns = "ERROR: Authentication failed.";
+                                process.emit('next', data);
+                            }
+                        });
+                    }
+
                 } else {
                     data.returns = "ERROR: Invalid new name or groupid.";
                     process.emit('next', data);
