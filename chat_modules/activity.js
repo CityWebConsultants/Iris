@@ -124,10 +124,24 @@ var exports = {
                 dbquery: {'_id': objectID(data.groupid), 'members.userid': data.userid},
                 dbupdate: {$set: {'members.$.lastviewed': Date.now()}}
             }, function (result) {
-                console.log(result);
                 data.returns = result.returns;
                 process.emit('next', data);
             });
+        }
+    },
+    hook_message_add: {
+        rank: 20,
+        event: function (data) {
+            // If message added successfully, i.e. previous hook actually returned
+            if (data.returns) {
+                process.hook('hook_db_update', {
+                    dbcollection: 'groups',
+                    dbquery: {'_id': objectID(data.groupid)},
+                    dbupdate: {'$set': {'lastupdated': Date.now()}}
+                }, function (result) {
+                    process.emit('next', data);
+                });
+            }
         }
     }
 };
