@@ -53,12 +53,17 @@ var exports = {
         event:
             function (data) {
                 var dbquery = data.dbquery,
+                    dboptions = data.dboptions,
                     dbfindOne = data.dbfindOne,
                     collection = gdb.collection(exports.options.prefix + data.dbcollection);
-                
+               
                 // Make sure the optional bool values are sane.
                 if (dbfindOne !== true) {
                     dbfindOne = false;
+                }
+
+                if (typeof dboptions == 'undefined') {
+                  dboptions = {};
                 }
 
                 if (dbfindOne === true) {
@@ -67,7 +72,7 @@ var exports = {
                         process.emit('next', data);
                     });
                 } else {
-                    collection.find(dbquery).toArray(function (err, result) {
+                    collection.find(dbquery, dboptions).toArray(function (err, result) {
                         data.returns = JSON.stringify(result);
                         process.emit('next', data);
                     });
