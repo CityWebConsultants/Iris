@@ -549,7 +549,11 @@ var exports = {
                 dbcollection: 'messages',
                 dbquery: {'_id': messageid}
             }, function (gotData) {
-                data.returns = JSON.parse(gotData.returns)[0].groupid;
+                try {
+                    data.returns = JSON.parse(gotData.returns)[0].groupid;
+                } catch (err) {
+                    console.log('invalid messageid?');
+                }
                 process.emit('next', data);
             });
         }

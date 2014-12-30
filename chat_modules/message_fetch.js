@@ -68,10 +68,54 @@ var exports = {
 
 
             } else {
-                data.returns = "ERROR: Missing group id, user id or token";
+                data.returns = "ERROR: Missing groupid, userid or token";
                 process.emit('next', data);
             }
 
+        }
+    },
+    hook_get_fetch_message: {
+        rank: 0,
+        event: function (data) {
+            // userid, token, messageid
+            if (data.get.userid && data.get.token && data.get.messageid && objectID.isValid(data.get.messageid)) {
+                process.hook('hook_auth_check', {userid: data.get.userid, token: data.get.token}, function (authorised) {
+                    if (authorised.returns === true) {
+                        process.hook('hook_groupid_from_messageid', {messageid: data.get.messageid}, function (groupid) {
+                            if (groupid.returns) {
+                                process.hook('hook_db_find', {
+                                    dbcollection: 'groups',
+                                    dbquery: {'_id': objectID(groupid.returns), members: {$elemMatch: {'userid': data.get.userid}}}
+                                }, function (groupinfo) {
+                                    if (groupinfo.returns && groupinfo.returns !== '[]') {
+
+                                        process.hook('hook_db_find', {
+                                            dbcollection: 'messages',
+                                            dbquery: {'_id': objectID(data.get.messageid)}
+                                        }, function (message) {
+                                            data.returns = message.returns;
+                                            process.emit('next', data);
+                                        });
+
+                                    } else {
+                                        data.returns = "ERROR: Not authorised to view this message.";
+                                        process.emit('next', data);
+                                    }
+                                });
+                            } else {
+                                data.returns = "ERROR: Could not fetch associated group.";
+                                process.emit('next', data);
+                            }
+                        });
+                    } else {
+                        data.returns = "ERROR: Authentication failed.";
+                        process.emit('next', data);
+                    }
+                });
+            } else {
+                data.returns = "ERROR: Missing messageid, userid or token";
+                process.emit('next', data);
+            }
         }
     }
 };
