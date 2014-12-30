@@ -267,9 +267,10 @@ var exports = {
                             process.hook('hook_db_find', {
                                 dbcollection: 'groups',
                                 dbquery: {members: {$elemMatch: {'userid': data.get.userid.toString()}}},
-                                dboptions: {"sort": [['lastviewed', 'desc'], ['joined', 'desc']]}
+                                dboptions: {"sort": [['lastupdated', 'desc'], ['joined', 'desc']]}
                             }, function (gotData) {
                                 data.returns = gotData.returns;
+                                console.log(gotData.returns);
                                 process.nextTick(function () {
                                     process.emit('next', data);
                                 });
