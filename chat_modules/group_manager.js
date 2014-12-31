@@ -386,7 +386,7 @@ var exports = {
                 if (data.post.members && data.post.groupid) {
 
                     if (data.post.secretkey) {
-                        process.hook('hook_secretkey_check', {secretkey: data.secretkey}, function (valid) {
+                        process.hook('hook_secretkey_check', {secretkey: data.post.secretkey}, function (valid) {
                             if (valid.returns === true) {
 
                                 process.hook('hook_group_update', {
