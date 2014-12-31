@@ -41,7 +41,7 @@ var exports = {
                         
                     var query = {groupid: data.get.groupid};
                         
-                query._id = {$lt: exports.objectIDWithTimestamp(data.get.date)};
+                query._id = {$gt: exports.objectIDWithTimestamp(data.get.date)};
                         
                                     process.hook('hook_db_find', {dbcollection: 'messages', dbquery: query}, function (gotData) {
                                    
