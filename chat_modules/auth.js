@@ -97,8 +97,6 @@ var exports = {
         event:
             function (data) {
                 // secretkey only
-                console.log(data.secretkey);
-                console.log(process.config.secret_key);
                 if (data.secretkey === process.config.secret_key) {
                     data.returns = true;
                     process.emit('next', data);

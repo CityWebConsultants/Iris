@@ -57,7 +57,7 @@ var exports = {
                 process.hook("hook_auth_check", {userid: data.userid, token: data.token}, function (auth) {
                     if (auth.returns === true) {
                         // Run checkin hook
-                        console.log('running checkin');
+//                        console.log('running checkin');
                         process.hook("hook_group_checkin", {userid: data.userid, groupid: data.groupid}, function (returns) {
                             data.returns = true;
                         });
@@ -88,7 +88,7 @@ var exports = {
 
             // If the array actually changed since last time...
             if (!exports.arraysEqual(exports.alivePushed, exports.alive)) {
-                console.log('Alive array updated.');
+//                console.log('Alive array updated.');
                 process.socketio.sockets.emit('users_online', {users: exports.alive});
 
                 // Update pushed copy to what we just pushed

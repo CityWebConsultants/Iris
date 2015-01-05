@@ -39,7 +39,7 @@ var exports = {
         process.hook('hook_group_list_users', {groupid: groupid}, function (users) {
             if (users.returns) {
                 users.returns.forEach(function (element, index) {
-                    console.log(element);
+//                    console.log(element);
 
                     if (auth.userlist[element.userid] && auth.userlist[element.userid].sockets) {
                         auth.userlist[element.userid].sockets.forEach(function (element, index) {
