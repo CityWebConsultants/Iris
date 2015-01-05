@@ -24,6 +24,50 @@ var exports = {
 
         return constructedObjectID;
     },
+    hook_get_group_unread: {
+        
+        rank: 0,
+        event: function (data) {
+            // expects groupid, userid, token
+                        
+            if(data.get.groupid && data.get.userid && data.get.token && data.get.date){
+                
+                data.get.date = parseInt(data.get.date);
+                
+                data.get.date = new Date(data.get.date);
+              
+                process.hook('hook_auth_check', {userid: data.get.userid, token: data.get.token}, function (authorised) {
+                    if (authorised.returns === true) {
+                        
+                    var query = {groupid: data.get.groupid};
+                        
+                query._id = {$gt: exports.objectIDWithTimestamp(data.get.date)};
+                        
+                                    process.hook('hook_db_find', {dbcollection: 'messages', dbquery: query}, function (gotData) {
+                                   
+                data.returns =  JSON.parse(gotData.returns).length.toString();
+                                        
+                process.emit('next', data);
+            });         
+                                  
+                    } else {
+                    
+                    data.returns = "error";
+                     process.emit('next', data);   
+                        
+                    }
+                
+            })
+                
+            } else {
+                
+            data.returns = "error";
+             process.emit("next", data);
+                
+            }
+                
+            },
+    },
     hook_group_list_messages: {
         
         rank: 0,
@@ -35,6 +79,7 @@ var exports = {
             }
 
             process.hook('hook_db_find', {dbcollection: 'messages', dbquery: query}, function (gotData) {
+                
 //                console.log(JSON.stringify(gotData.returns));
                 data.returns = gotData.returns;
                 process.emit('next', data);
