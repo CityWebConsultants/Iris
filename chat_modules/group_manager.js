@@ -562,69 +562,28 @@ var exports = {
         rank: 0,
         event: function (data) {
             // only works for read-only groups
-            // secret key, groupid, nodump?
+            // secret key, groupid
 
             if (data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
                 process.hook('hook_secretkey_check', {secretkey: data.post.secretkey}, function (valid) {
                     if (valid.returns === true) {
-                        var dump = {},
-                            removefromdb = function () {
 
-                                // Delete the group in the database
-                                process.hook('hook_db_remove', {
-                                    dbcollection: 'groups',
-                                    dbquery: {'_id': objectID(data.post.groupid), 'isReadOnly': true}
-                                }, function (deleteReturns) {
-                                    if (deleteReturns.returns === '1') {
-                                        if (data.post.nodump && data.post.nodump === 'true') {
-                                            data.returns = deleteReturns.returns;
-                                            data.success = true;
-                                            process.emit('next', data);
-                                        } else {
-                                            data.returns = JSON.stringify({'status': deleteReturns.returns, 'group': dump.group, 'messages': dump.messages});
-                                            data.success = true;
-                                            process.emit('next', data);
-                                        }
-                                    } else {
-                                        data.returns = "ERROR: Could not delete group. Does it actually exist?";
-                                        process.emit('next', data);
-                                    }
-                                });
-                            };
-
-                        // If a dump of the group contents is wanted, get that from the database
-                        if (data.post.nodump !== 'true') {
-
-                            // Get all the group information
-                            process.hook('hook_db_find', {
-                                dbcollection: 'groups',
-                                dbquery: {'_id': objectID(data.post.groupid), 'isReadOnly': true}
-                            }, function (groupDump) {
-                                dump.group = JSON.parse(groupDump.returns);
-
-                                // Get all the messages
-                                process.hook('hook_db_find', {
-                                    dbcollection: 'messages',
-                                    dbquery: {groupid: data.post.groupid}
-                                }, function (messagesDump) {
-                                    dump.messages = JSON.parse(messagesDump.returns);
-
-                                    // Actually remove
-                                    removefromdb();
-                                });
-
-                            });
-
-                        } else {
-                            // Just remove
-                            removefromdb();
-                        }
+                        // Delete the group in the database
+                        process.hook('hook_db_remove', {
+                            dbcollection: 'groups',
+                            dbquery: {'_id': objectID(data.post.groupid), 'isReadOnly': true}
+                        }, function (deleteReturns) {
+                            data.returns = deleteReturns.returns;
+                            process.emit('next', data);
+                        });
 
                     } else {
                         data.returns = "ERROR: Secret key incorrect";
                         process.emit('next', data);
                     }
+
                 });
+
             } else {
                 data.returns = "ERROR: Missing secret key or groupid.";
                 process.emit('next', data);
