@@ -110,16 +110,34 @@ var exports = {
                     currentDate = Date.now(),
                     memberObjects = [];
 
-                // read only (i.e. CMS controlled) group?
+                // read only (i.e. CMS controlled) group
                 if (data.post.readonly === 'true' && data.post.secretkey) {
                     process.hook('hook_secretkey_check', {secretkey: data.post.secretkey}, function (valid) {
                         if (valid.returns === true) {
                             // Secret key OK.
 
+                            // Avoid awkward null
+                            if (!data.post.members) {
+                                data.post.members = [];
+                            }
+
+                            // Force it to be an array
+                            if (data.post.members.constructor && data.post.members.constructor !== Array) {
+                                groupMembers[0] = data.post.members;
+                            } else {
+                                groupMembers = data.post.members;
+                            }
+
+                            groupMembers.forEach(function (element, index) {
+                                memberObjects.push({userid: element});
+                            });
+
+                            console.log(memberObjects);
+
                             // Call database insert hook to insert the new group object
                             process.hook('hook_db_insert', {
                                 dbcollection: 'groups',
-                                dbobject: {'members': data.post.members, 'name': data.post.name, 'isReadOnly': true}
+                                dbobject: {'members': memberObjects, 'name': data.post.name, 'isReadOnly': true}
                             }, function (gotData) {
                                 data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
                                 process.emit('next', data);
