@@ -279,13 +279,17 @@ var exports = {
         event:
             function (data) {
                 if (data.get.userid && data.get.token) {
+
                     process.hook('hook_auth_check', {userid: data.get.userid, token: data.get.token}, function (gotData) {
                         if (gotData.returns === true) {
+
+                            console.log("The userid:" + data.get.userid);
+                            console.log("The token:" + data.get.token);
 
                             // Call db find hook.
                             process.hook('hook_db_find', {
                                 dbcollection: 'groups',
-                                dbquery: {members: {$elemMatch: {'userid': data.get.userid.toString()}}},
+                                dbquery: {members: {$elemMatch: {'userid': data.get.userid}}},
                                 dboptions: {"sort": [['lastupdated', 'desc'], ['joined', 'desc']]}
                             }, function (gotData) {
                                 data.returns = gotData.returns;
