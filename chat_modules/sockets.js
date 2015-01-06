@@ -79,16 +79,15 @@ var exports = {
                                     auth.userlist[data.userid].sockets = [];
                                 }
 
-                                console.log(socket.id);
-
                                 // Check if socket already added
                                 var socketAlreadyExists = false;
                                 auth.userlist[data.userid].sockets.forEach(function (element, index) {
-                                    if (socket.id !== element.id) {
+                                  
+                                    if (socket.id === element.id) {
                                         socketAlreadyExists = true;
                                     }
                                 });
-
+                              
                                 if (!socketAlreadyExists) {
                                     auth.userlist[data.userid].sockets.push(socket);
                                     socket.userid = data.userid;
