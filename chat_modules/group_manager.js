@@ -332,7 +332,7 @@ var exports = {
                 }
             }
     },
-    
+
     hook_group_update: {
         rank: 0,
         event:
@@ -569,6 +569,39 @@ var exports = {
                         process.hook('hook_db_remove', {
                             dbcollection: 'groups',
                             dbquery: {'_id': objectID(data.post.groupid), 'isReadOnly': true}
+                        }, function (deleteReturns) {
+                            data.returns = deleteReturns.returns;
+                            process.emit('next', data);
+                        });
+
+                    } else {
+                        data.returns = "ERROR: Secret key incorrect";
+                        process.emit('next', data);
+                    }
+
+                });
+
+            } else {
+                data.returns = "ERROR: Missing secret key or groupid.";
+                process.emit('next', data);
+            }
+        }
+    },
+    hook_post_group_resetmembers: {
+        rank: 0,
+        event: function (data) {
+            // only works for read-only groups
+            // secret key, groupid
+
+            if (data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
+                process.hook('hook_secretkey_check', {secretkey: data.post.secretkey}, function (valid) {
+                    if (valid.returns === true) {
+
+                        // Blank members of group in the database
+                        process.hook('hook_db_update', {
+                            dbcollection: 'groups',
+                            dbquery: {'_id': objectID(data.post.groupid), 'isReadOnly': true},
+                            dbupdate: {$set: {'members': []}}
                         }, function (deleteReturns) {
                             data.returns = deleteReturns.returns;
                             process.emit('next', data);
