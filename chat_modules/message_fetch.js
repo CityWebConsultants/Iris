@@ -30,41 +30,71 @@ var exports = {
         event: function (data) {
             // expects groupid, userid, token
 
-            if (data.get.groupid && data.get.userid && data.get.token && data.get.date) {
+            if (data.get.userid && data.get.token) {
 
-                data.get.date = parseInt(data.get.date, 10);
+                if (data.get.date) {
 
-                data.get.date = new Date(data.get.date);
+                    data.get.date = parseInt(data.get.date, 10);
+                    data.get.date = new Date(data.get.date);
+                }
 
                 process.hook('hook_auth_check', {userid: data.get.userid, token: data.get.token}, function (authorised) {
                     if (authorised.returns === true) {
 
-                        var query = {groupid: data.get.groupid};
+                        var groups = [],
+                          query = {};
 
-                        query._id = {$gt: exports.objectIDWithTimestamp(data.get.date)};
-                      
-                      //Don't load own messages if self is set to false
-                      
-                      if (data.get.self === "false"){
-                        query.userid = {$ne:data.get.userid};
-                      }
+                        process.hook('hook_fetch_groups', {userid: data.get.userid, token: data.get.token}, function (group) {
 
-                        process.hook('hook_db_find', {dbcollection: 'messages', dbquery: query}, function (gotData) {
-                          
-                          if(JSON.parse(gotData.returns)){
-                          
-                            data.returns =  JSON.parse(gotData.returns).length.toString();
-                            
-                          } else {
-                            
-                           
-                            data.returns = "0";
-                            
-                          }
+                            JSON.parse(group.returns).forEach(function (element) {
+                                groups.push(element._id);
+                            });
 
-                            process.emit('next', data);
+                            if (data.get.date) {
+                                query._id = {$gt: exports.objectIDWithTimestamp(data.get.date)};
+                            }
+
+                            //Don't load own messages if self is set to false
+
+                            if (data.get.self === "false") {
+                                query.userid = {$ne: data.get.userid};
+                            }
+
+                            query.groupid = {$in: groups};
+
+                            process.hook('hook_db_find', {
+                                dbcollection: 'messages',
+                                dbquery: query
+                            }, function (gotData) {
+
+                                if (gotData.returns !== '[]') {
+
+                                    var messages =  JSON.parse(gotData.returns);
+                                    data.returns = {};
+
+                                    //Loop over all returned messages and create a message counter for each group
+
+                                    messages.forEach(function (element) {
+                                        if (!data.returns[element.groupid]) {
+                                            data.returns[element.groupid] = 1;
+                                        } else {
+                                            data.returns[element.groupid] += 1;
+                                        }
+
+                                    });
+
+                                    data.returns = JSON.stringify(data.returns);
+                                    console.log(JSON.stringify(data.returns));
+
+                                } else {
+
+                                    data.returns = "0";
+
+                                }
+
+                                process.emit('next', data);
+                            });
                         });
-
                     } else {
 
                         data.returns = "error";

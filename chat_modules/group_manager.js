@@ -320,7 +320,7 @@ var exports = {
                             // Call db find hook.
                             process.hook('hook_db_find', {
                                 dbcollection: 'groups',
-                                dbquery: {members: {$elemMatch: {'userid': data.userid.toString()}}}
+                                dbquery: {members: {$elemMatch: {'userid': data.userid}}}
                             }, function (gotData) {
                                 data.returns = gotData.returns;
                                 process.nextTick(function () {
