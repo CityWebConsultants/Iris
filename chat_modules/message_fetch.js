@@ -32,7 +32,7 @@ var exports = {
 
             if (data.get.groupid && data.get.userid && data.get.token && data.get.date) {
 
-                data.get.date = parseInt(data.get.date);
+                data.get.date = parseInt(data.get.date, 10);
 
                 data.get.date = new Date(data.get.date);
 
@@ -42,10 +42,25 @@ var exports = {
                         var query = {groupid: data.get.groupid};
 
                         query._id = {$gt: exports.objectIDWithTimestamp(data.get.date)};
+                      
+                      //Don't load own messages if self is set to false
+                      
+                      if (data.get.self === "false"){
+                        query.userid = {$ne:data.get.userid};
+                      }
 
                         process.hook('hook_db_find', {dbcollection: 'messages', dbquery: query}, function (gotData) {
-
+                          
+                          if(JSON.parse(gotData.returns)){
+                          
                             data.returns =  JSON.parse(gotData.returns).length.toString();
+                            
+                          } else {
+                            
+                           
+                            data.returns = "0";
+                            
+                          }
 
                             process.emit('next', data);
                         });
