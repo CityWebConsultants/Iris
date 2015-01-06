@@ -128,6 +128,9 @@ var exports = {
                                 groupMembers = data.post.members;
                             }
 
+                            // Remove duplicate users
+                            groupMembers = groupMembers.filter(function (v, i, a) { return a.indexOf(v) === i; });
+
                             groupMembers.forEach(function (element, index) {
                                 memberObjects.push({userid: element});
                             });
@@ -348,17 +351,32 @@ var exports = {
 
                 if (data.action === 'addmember') {
 
-                    console.log('adding member');
-                    process.hook('hook_db_update', {
+                    process.hook('hook_db_find', {
                         dbcollection: 'groups',
-                        dbquery: query,
-                        dbupdate: {$push: {members: {'userid': data.members, 'joined': Date.now()}}},
-                        dbmulti: true,
-                        dbupsert: false
-                    }, function (gotData) {
-                        console.log('db update returns');
-                        data.returns = gotData.returns;
-                        process.emit('next', data);
+                        dbquery: {'_id': objectID(data.groupid), members: {$elemMatch: {'userid': data.members}}}
+                    }, function (existing) {
+
+                        console.log(existing.returns);
+
+                        // If this user doesn't yet exist
+                        if (existing.returns && existing.returns === '[]') {
+
+                            process.hook('hook_db_update', {
+                                dbcollection: 'groups',
+                                dbquery: query,
+                                dbupdate: {$push: {members: {'userid': data.members, 'joined': Date.now()}}},
+                                dbmulti: true,
+                                dbupsert: false
+                            }, function (gotData) {
+                                data.returns = gotData.returns;
+                                process.emit('next', data);
+                            });
+
+                        } else {
+                            data.returns = 'ERROR: That user is already present in the group.';
+                            process.emit('next', data);
+                        }
+
                     });
 
                 } else if (data.action === 'removemember') {
