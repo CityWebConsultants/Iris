@@ -128,6 +128,9 @@ var exports = {
                                 groupMembers = data.post.members;
                             }
 
+                            // Remove duplicate users
+                            groupMembers = groupMembers.filter(function (v, i, a) { return a.indexOf(v) === i; });
+
                             groupMembers.forEach(function (element, index) {
                                 memberObjects.push({userid: element});
                             });
