@@ -161,12 +161,21 @@ var exports = {
                                     groupMembers = post.members;
                                 }
 
+                                var containsCreator = false;
+
                                 // Foreach item, check for a numeric userid (could make this configurable as to what is a valid userid)
                                 groupMembers.forEach(function (element, index) {
                                     if (isNaN(element) || element === '') {
                                         groupMembersValid = false;
                                     }
+                                    if (element === data.post.userid) {
+                                        containsCreator = true;
+                                    }
                                 });
+
+                                if (containsCreator === false) {
+                                    groupMembersValid = false;
+                                }
 
                                 // If no name supplied, make sure it's blank.
                                 if (!post.name) {
@@ -347,7 +356,7 @@ var exports = {
 
                 var query;
                 if (data.userid) {
-                    query = {'_id': objectID(data.groupid), 'isReadOnly': false, members: {$elemMatch: {'userid': data.userid.toString()}}};
+                    query = {'_id': objectID(data.groupid), 'isReadOnly': false, $or: [{'is121': false}, {'is121': {$exists: false}}], members: {$elemMatch: {'userid': data.userid.toString()}}};
 //                    console.log(query);
                 } else {
                     query = {'_id': objectID(data.groupid)};
@@ -384,6 +393,8 @@ var exports = {
                     });
 
                 } else if (data.action === 'removemember') {
+                    console.log("attempting to remove member");
+
                     process.hook('hook_db_update', {
                         dbcollection: 'groups',
                         dbquery: query,
