@@ -84,15 +84,18 @@ var exports = {
 
                                     if (socket.id === element.id) {
                                         socketAlreadyExists = true;
+//                                        console.log("socket already exists");
                                     }
                                 });
 
-                                if (!socketAlreadyExists) {
+                                if (socketAlreadyExists !== true) {
                                     auth.userlist[data.userid].sockets.push(socket);
                                     socket.userid = data.userid;
+
+//                                    console.log('Pairing: ' + socket.id);
+                                    socket.emit('pair', true);
                                 }
 
-                                socket.emit('pair', true);
                             }
                         } else {
                             socket.emit('pair', false);
