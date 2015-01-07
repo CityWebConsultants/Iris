@@ -39,7 +39,6 @@ var exports = {
         process.hook('hook_group_list_users', {groupid: groupid}, function (users) {
             if (users.returns) {
                 users.returns.forEach(function (element, index) {
-//                    console.log(element);
 
                     if (auth.userlist[element.userid] && auth.userlist[element.userid].sockets) {
                         auth.userlist[element.userid].sockets.forEach(function (element, index) {
@@ -82,12 +81,12 @@ var exports = {
                                 // Check if socket already added
                                 var socketAlreadyExists = false;
                                 auth.userlist[data.userid].sockets.forEach(function (element, index) {
-                                  
+
                                     if (socket.id === element.id) {
                                         socketAlreadyExists = true;
                                     }
                                 });
-                              
+
                                 if (!socketAlreadyExists) {
                                     auth.userlist[data.userid].sockets.push(socket);
                                     socket.userid = data.userid;
@@ -112,7 +111,7 @@ var exports = {
                         // for each socket in the userlist registered to this user
                         auth.userlist[socket.userid].sockets.forEach(function (element, index) {
                             if (element === socket) {
-                                console.log('Removing socket at index ' + index);
+//                                console.log('Removing socket at index ' + index);
                                 // remove socket from array if it matches the one that's disconnecting
                                 auth.userlist[socket.userid].sockets.splice(index, 1);
                             }

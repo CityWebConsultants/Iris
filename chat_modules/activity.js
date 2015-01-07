@@ -57,7 +57,6 @@ var exports = {
                 process.hook("hook_auth_check", {userid: data.userid, token: data.token}, function (auth) {
                     if (auth.returns === true) {
                         // Run checkin hook
-//                        console.log('running checkin');
                         process.hook("hook_group_checkin", {userid: data.userid, groupid: data.groupid}, function (returns) {
                             data.returns = true;
                         });
@@ -69,8 +68,6 @@ var exports = {
         // Every whatever interval, run cleanup
         setInterval(function () {
             var i = 0;
-//            console.log(exports.aliveData);
-//            console.log(exports.alive);
             exports.alive = [];
             // fire event for pushing online users?
 

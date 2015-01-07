@@ -292,9 +292,6 @@ var exports = {
                     process.hook('hook_auth_check', {userid: data.get.userid, token: data.get.token}, function (gotData) {
                         if (gotData.returns === true) {
 
-                            console.log("The userid:" + data.get.userid);
-                            console.log("The token:" + data.get.token);
-
                             // Call db find hook.
                             process.hook('hook_db_find', {
                                 dbcollection: 'groups',
@@ -357,7 +354,6 @@ var exports = {
                 var query;
                 if (data.userid) {
                     query = {'_id': objectID(data.groupid), 'isReadOnly': false, $or: [{'is121': false}, {'is121': {$exists: false}}], members: {$elemMatch: {'userid': data.userid.toString()}}};
-//                    console.log(query);
                 } else {
                     query = {'_id': objectID(data.groupid)};
                 }
@@ -368,8 +364,6 @@ var exports = {
                         dbcollection: 'groups',
                         dbquery: {'_id': objectID(data.groupid), members: {$elemMatch: {'userid': data.members}}}
                     }, function (existing) {
-
-                        console.log(existing.returns);
 
                         // If this user doesn't yet exist
                         if (existing.returns && existing.returns === '[]') {
@@ -393,7 +387,6 @@ var exports = {
                     });
 
                 } else if (data.action === 'removemember') {
-                    console.log("attempting to remove member");
 
                     process.hook('hook_db_update', {
                         dbcollection: 'groups',
@@ -456,15 +449,12 @@ var exports = {
                         process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
                             if (gotData.returns === true) {
 
-                                console.log('Running update hook');
-
                                 process.hook('hook_group_update', {
                                     action: 'addmember',
                                     userid: data.post.userid,
                                     members: data.post.members,
                                     groupid: data.post.groupid
                                 }, function (gotData) {
-                                    console.log("group update returns.");
                                     data.returns = gotData.returns;
                                     process.emit('next', data);
                                 });

@@ -24,9 +24,9 @@ var exports = {
         rank: 0,
         event:
             function (data) {
-            
+
                 var authToken;
-                
+
                 if (data.post.secretkey === process.config.secret_key && data.post.userid) {
                     crypto.randomBytes(exports.options.token_length, function (ex, buf) {
                         authToken = buf.toString('hex');
@@ -45,7 +45,6 @@ var exports = {
                         }
 
                         exports.userlist[data.post.userid].tokens.push(authToken);
-//                        console.log(exports.userlist[data.post.userid].tokens);
                         data.returns = authToken;
                         process.emit('next', data);
                     });
@@ -54,7 +53,7 @@ var exports = {
                     data.returns = "ERROR: Not all data provided";
                     process.emit('next', data);
                 }
-            
+
             }
     },
     hook_auth_check: {
@@ -64,32 +63,32 @@ var exports = {
                 var user = exports.userlist[data.userid],
                     token = data.token,
                     authenticated = false;
-                
+
                 if (user) {
-                    
+
                     //Loop over tokens
-                    
+
                     user.tokens.forEach(function (element) {
-                       
+
                         if (token === element) {
-                        
+
                             authenticated = true;
-                            
+
                         }
-                        
+
                     });
-     
+
                     data.returns = authenticated;
-                    
+
                     process.emit('next', data);
-                
+
                 } else {
-                 
+
                     data.returns = false;
                     process.emit('next', data);
-                    
+
                 }
-            
+
             }
     },
     hook_secretkey_check: {

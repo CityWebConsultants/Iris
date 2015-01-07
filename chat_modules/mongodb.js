@@ -56,7 +56,7 @@ var exports = {
                     dboptions = data.dboptions,
                     dbfindOne = data.dbfindOne,
                     collection = gdb.collection(exports.options.prefix + data.dbcollection);
-               
+
                 // Make sure the optional bool values are sane.
                 if (dbfindOne !== true) {
                     dbfindOne = false;
@@ -88,12 +88,12 @@ var exports = {
                     dbmulti = data.dbmulti,
                     dbupsert = data.dbupsert,
                     collection = gdb.collection(exports.options.prefix + data.dbcollection);
-                
+
                 // Make sure the optional bool values are sane.
                 if (dbmulti !== true) {
                     dbmulti = false;
                 }
-                
+
                 if (dbupsert !== true) {
                     dbupsert = false;
                 }
@@ -118,7 +118,6 @@ var exports = {
 
             collection.remove(dbquery, function (err, docs) {
                 if (!err) {
-//                    console.log(JSON.stringify(docs));
                     data.returns = JSON.stringify(docs);
                 } else {
                     console.log(err);
