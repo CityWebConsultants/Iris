@@ -395,6 +395,11 @@ var exports = {
                         dbmulti: true,
                         dbupsert: false
                     }, function (gotData) {
+
+                        if (data.members === data.userid) {
+                            data.removedmember = data.userid;
+                        }
+
                         data.returns = gotData.returns;
                         process.emit('next', data);
                     });

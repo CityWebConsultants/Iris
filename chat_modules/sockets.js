@@ -50,6 +50,13 @@ var exports = {
             }
         });
     },
+    userBroadcast: function (userid, messagename, data) {
+        if (auth.userlist[userid] && auth.userlist[userid].sockets) {
+            auth.userlist[userid].sockets.forEach(function (element, index) {
+                element.emit(messagename, data);
+            });
+        }
+    },
     init: function () {
 
         process.nextTick(function () {
@@ -131,5 +138,6 @@ var exports = {
 
 process.addSocketListener = exports.addlistener;
 process.groupBroadcast = exports.groupBroadcast;
+process.userBroadcast = exports.userBroadcast;
 
 module.exports = exports;

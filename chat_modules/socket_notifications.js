@@ -99,11 +99,22 @@ var exports = {
                 process.emit('next', data);
                 break;
             case 'removemember':
-                process.groupBroadcast(data.groupid, 'notification_message', {
-                    action: 'removemember',
-                    groupid: data.groupid,
-                    time: Date.now()
-                });
+                console.log(data.removedmember);
+                if (data.removedmember) {
+                    // Send message-removed to that user's sockets.
+
+                    process.userBroadcast(data.removedmember, 'notification_message', {
+                        action: 'removemember',
+                        member: data.removedmember,
+                        time: Date.now()
+                    });
+                } else {
+                    process.groupBroadcast(data.groupid, 'notification_message', {
+                        action: 'removemember',
+                        groupid: data.groupid,
+                        time: Date.now()
+                    });
+                }
 
                 process.emit('next', data);
                 break;
