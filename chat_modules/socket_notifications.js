@@ -13,12 +13,13 @@ var objectID = require('mongodb').ObjectID;
 var exports = {
     options: {notify_edit: true, notify_delete: true, silent: true},
     init: function () {
-        process.addSocketListener("unread_updated", function (data, socket) {
-          process.hook('hook_auth_check', {userid: data.userid, token: data.token}, function (authorised) {
-            if (authorised.returns === true) {
-              process.userBroadcast(data.userid, "unread_updated", true);
-            }
-          });
+        process.addSocketListener("user_communicate", function (data, socket) {
+            process.hook('hook_auth_check', {userid: data.userid, token: data.token}, function (authorised) {
+                if (authorised.returns === true) {
+                    data.token = undefined;
+                    process.userBroadcast(data.userid, "user_communicate", data);
+                }
+            });
         });
     },
     hook_message_edit: {
