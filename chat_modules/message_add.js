@@ -8,7 +8,10 @@ var exports = {
         rank: 1,
         event: function (data) {
             if (data.post.userid && data.post.token && data.post.groupid && data.post.content && data.post.messagetype) {
-                process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
+                process.hook('hook_auth_check', {
+                    userid: data.post.userid,
+                    token: data.post.token
+                }, function (gotData) {
                     if (gotData.returns === true) {
 
                         var content = {};
@@ -46,7 +49,17 @@ var exports = {
                 groupid: data.groupid,
                 content: data.content
             };
-                        
+
+            // Strip HTML.
+
+            message.content.text = message.content.text
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\//g, '&#47;');
+
             if (data.strong_auth_check === true) {
 
                 process.hook('hook_group_list_users', {
@@ -61,9 +74,9 @@ var exports = {
 
                         // Ensure user is in group and set flag
                         for (i = 0; i < gotData.returns.length; i++) {
-//                            console.log(gotData.returns[i]);
+                            //                            console.log(gotData.returns[i]);
                             if (gotData.returns[i].userid === data.userid) {
-//                                console.log(gotData.returns[i]);
+                                //                                console.log(gotData.returns[i]);
                                 authorised = true;
                                 // No point in looping through the rest, so break
                                 break;
@@ -74,7 +87,10 @@ var exports = {
 
                     // Insert message into database
                     if (authorised === true) {
-                        process.hook('hook_db_insert', {dbcollection: 'messages', dbobject: message}, function (gotData) {
+                        process.hook('hook_db_insert', {
+                            dbcollection: 'messages',
+                            dbobject: message
+                        }, function (gotData) {
                             data.returns = gotData.returns[0]._id;
                             process.emit('next', data);
                         });
@@ -86,10 +102,13 @@ var exports = {
 
                 });
 
-            // No strong auth check; insert whatever
+                // No strong auth check; insert whatever
             } else {
                 console.log('[INFO] Strong authorisation check bypassed.');
-                process.hook('hook_db_insert', {dbcollection: 'messages', dbobject: message}, function (gotData) {
+                process.hook('hook_db_insert', {
+                    dbcollection: 'messages',
+                    dbobject: message
+                }, function (gotData) {
                     data.returns = gotData.returns[0]._id;
                     process.emit('next', data);
                 });
