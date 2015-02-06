@@ -3,6 +3,45 @@
 "use strict";
 
 var exports = {
+    // POST /message/hub
+    hook_post_message_hub: {
+        rank: 1,
+        event: function (data) {
+            if (data.post.secretkey && data.post.groupid && data.post.content) {
+                process.hook('hook_secretkey_check', {secretkey: data.post.secretkey}, function (check) {
+                    if (check.returns === true) {
+
+                        var content = {};
+
+                        content.text = data.post.content;
+
+                        process.hook('hook_message_add', {
+                            userid: 1,
+                            groupid: data.post.groupid,
+                            content: content,
+                            strong_auth_check: false
+                        }, function (gotData) {
+
+                            var message = {
+                                to: data.post.groupid,
+                                userid: 1,
+                                content: {
+                                    text: content.text
+                                }
+                            };
+
+                            process.groupBroadcast(data.post.groupid, 'message', message);
+
+                            console.log('apjdas');
+                            process.emit('next', data);
+                        });
+                    } else {
+                        process.emit('next', data);
+                    }
+                });
+            }
+        }
+    },
     // POST /message/add
     hook_post_message_add: {
         rank: 1,
