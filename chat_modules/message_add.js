@@ -30,8 +30,6 @@ var exports = {
                                 }
                             };
 
-                            process.groupBroadcast(data.post.groupid, 'message', message);
-
                             console.log('apjdas');
                             process.emit('next', data);
                         });
@@ -81,7 +79,7 @@ var exports = {
     hook_message_add: {
         rank: 1,
         event: function (data) {
-            console.log("[INFO] Message received: " + JSON.stringify(data.content));
+            console.log("[INFO] Adding message: " + JSON.stringify(data.content));
 
             var message = {
                 userid: data.userid,
@@ -131,6 +129,10 @@ var exports = {
                             dbobject: message
                         }, function (gotData) {
                             data.returns = gotData.returns[0]._id;
+
+                            // Actually send message
+                            process.groupBroadcast(data.groupid, 'message', message);
+
                             process.emit('next', data);
                         });
 
@@ -149,6 +151,10 @@ var exports = {
                     dbobject: message
                 }, function (gotData) {
                     data.returns = gotData.returns[0]._id;
+
+                    // Actually send message
+                    process.groupBroadcast(data.groupid, 'message', message);
+
                     process.emit('next', data);
                 });
             }
