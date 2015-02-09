@@ -8,7 +8,9 @@ var exports = {
         rank: 1,
         event: function (data) {
             if (data.post.secretkey && data.post.groupid && data.post.content) {
-                process.hook('hook_secretkey_check', {secretkey: data.post.secretkey}, function (check) {
+                process.hook('hook_secretkey_check', {
+                    secretkey: data.post.secretkey
+                }, function (check) {
                     if (check.returns === true) {
 
                         var content = {};
@@ -76,6 +78,22 @@ var exports = {
             }
         }
     },
+    hook_message_preprocess: {
+        rank: 0,
+        event: function (data) {
+            // Strip HTML.
+            data.message.content.text = data.message.content.text
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\//g, '&#47;');
+
+            data.returns = data.message;
+            process.emit('next', data);
+        }
+    },
     hook_message_add: {
         rank: 1,
         event: function (data) {
@@ -87,77 +105,75 @@ var exports = {
                 content: data.content
             };
 
-            // Strip HTML.
+            process.hook('hook_message_preprocess', {message: message}, function (processedMessage) {
 
-            message.content.text = message.content.text
-                .replace(/&/g, '&amp;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#x27;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/\//g, '&#47;');
+                if (processedMessage.returns) {
+                    message = processedMessage.returns;
+                }
 
-            if (data.strong_auth_check === true) {
+                if (data.strong_auth_check === true) {
 
-                process.hook('hook_group_list_users', {
-                    userid: data.userid,
-                    groupid: data.groupid
+                    process.hook('hook_group_list_users', {
+                        userid: data.userid,
+                        groupid: data.groupid
 
-                }, function (gotData) {
-                    var authorised = false,
-                        i;
+                    }, function (gotData) {
+                        var authorised = false,
+                            i;
 
-                    if (typeof gotData.returns !== 'string') {
+                        if (typeof gotData.returns !== 'string') {
 
-                        // Ensure user is in group and set flag
-                        for (i = 0; i < gotData.returns.length; i++) {
-                            //                            console.log(gotData.returns[i]);
-                            if (gotData.returns[i].userid === data.userid) {
-                                //                                console.log(gotData.returns[i]);
-                                authorised = true;
-                                // No point in looping through the rest, so break
-                                break;
+                            // Ensure user is in group and set flag
+                            for (i = 0; i < gotData.returns.length; i++) {
+                                //console.log(gotData.returns[i]);
+                                if (gotData.returns[i].userid === data.userid) {
+                                    //console.log(gotData.returns[i]);
+                                    authorised = true;
+                                    // No point in looping through the rest, so break
+                                    break;
+                                }
                             }
+
                         }
 
-                    }
+                        // Insert message into database
+                        if (authorised === true) {
+                            process.hook('hook_db_insert', {
+                                dbcollection: 'messages',
+                                dbobject: message
+                            }, function (gotData) {
+                                data.returns = gotData.returns[0]._id;
 
-                    // Insert message into database
-                    if (authorised === true) {
-                        process.hook('hook_db_insert', {
-                            dbcollection: 'messages',
-                            dbobject: message
-                        }, function (gotData) {
-                            data.returns = gotData.returns[0]._id;
+                                // Actually send message
+                                process.groupBroadcast(data.groupid, 'message', message);
 
-                            // Actually send message
-                            process.groupBroadcast(data.groupid, 'message', message);
+                                process.emit('next', data);
+                            });
 
+                        } else {
+                            data.returns = false;
                             process.emit('next', data);
-                        });
+                        }
 
-                    } else {
-                        data.returns = false;
+                    });
+
+                    // No strong auth check; insert whatever
+                } else {
+                    console.log('[INFO] Strong authorisation check bypassed.');
+                    process.hook('hook_db_insert', {
+                        dbcollection: 'messages',
+                        dbobject: message
+                    }, function (gotData) {
+                        data.returns = gotData.returns[0]._id;
+
+                        // Actually send message
+                        process.groupBroadcast(data.groupid, 'message', message);
+
                         process.emit('next', data);
-                    }
+                    });
+                }
 
-                });
-
-                // No strong auth check; insert whatever
-            } else {
-                console.log('[INFO] Strong authorisation check bypassed.');
-                process.hook('hook_db_insert', {
-                    dbcollection: 'messages',
-                    dbobject: message
-                }, function (gotData) {
-                    data.returns = gotData.returns[0]._id;
-
-                    // Actually send message
-                    process.groupBroadcast(data.groupid, 'message', message);
-
-                    process.emit('next', data);
-                });
-            }
+            });
         }
     }
 };
