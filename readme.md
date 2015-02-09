@@ -8,9 +8,9 @@ _Note: POST requests are expected with encoding x-www-form-urlencoded for easy p
 
 **User authentication:**
 
-* userid (string)   
+* userid (string)
 The user ID of the sender.
-* token (string)   
+* token (string)
 The corresponding authorisation token.
 
 These parameters need to be sent whenever an endpoint requires user authentication/authorisation.
@@ -18,14 +18,14 @@ These parameters need to be sent whenever an endpoint requires user authenticati
 ### /auth
 Handles authentication requests from the user management application/host CMS.
 
-**POST parameters:**   
+**POST parameters:**
 
-* userid (string)   
+* userid (string)
 The user ID as provided by a site making use of this server. For example, a user ID from Drupal sent from a Drupal chat integration module.
-* secretkey  
+* secretkey
 The site authorisation API key.
 
-**Returns:**   
+**Returns:**
 
 * authorisation token for user
 
@@ -35,16 +35,16 @@ The site authorisation API key.
 
 Post a message to a group.
 
-**POST parameters:**   
+**POST parameters:**
 
-* groupid (string)   
+* groupid (string)
 The target group ID
-* content (string)   
+* content (string)
 The message contents
-* messagetype (string)   
+* messagetype (string)
 The messagetype, e.g. `text`
 
-**Returns:**   
+**Returns:**
 
 * newly created message ID
 
@@ -54,47 +54,47 @@ Handles group creation and manipulation.
 #### /group/add [requires authentication]
 Takes a group name and initial list of members; creates a server-side group entry.
 
-**POST parameters:**   
+**POST parameters:**
 
-* name (string)   
+* name (string)
 The desired name of the group being created
-* members (string) (may be appended more than once)   
+* members (string) (may be appended more than once)
 The desired set of members, as userids, to be added to the group
-* is121 (optional; only value is 'true')   
+* is121 (optional; only value is 'true')
 Whether this group is a one-to-one conversation.
 
-**Returns:**   
+**Returns:**
 
 * Newly created group ID
 
 #### /group/update/addmember  [requires authentication]
 Adds a user to an existing group.
 
-**POST parameters:**   
+**POST parameters:**
 
-* groupid (string)   
+* groupid (string)
 The unique group ID of the referenced group
-* userid (int)   
+* userid (int)
 The desired user to be added to the group
 
 #### /group/update/removemember  [requires authentication]
 Removes a member from an existing group.
 
-**POST parameters:**   
+**POST parameters:**
 
-* groupid (string)   
+* groupid (string)
 The unique group ID of the referenced group
-* userid (int)   
+* userid (int)
 The desired user to be removed from the group
 
 #### /group/update/name  [requires authentication]
 Changes the name of an existing group.
 
-**POST parameters:**   
+**POST parameters:**
 
-* groupid (string)   
+* groupid (string)
 The unique group ID of the referenced group
-* name (string)   
+* name (string)
 The desired ne name of the group
 
 ### /fetch
@@ -188,24 +188,24 @@ Event-based hook system module.
 ###config.js
 The core system configuration file. Includes base settings and an enabled modules object.
 
-####System Settings:   
+####System Settings:
 
-* `port` (int)   
+* `port` (int)
   Port number to run the server on
-* `secret_key` (string)   
+* `secret_key` (string)
   Global super secret key. Used for authenticating the user authentication system. _Really secret._
-* `messagetypes_enabled` (array)   
+* `messagetypes_enabled` (array)
   Enabled message types.
 
 ####Module Settings:
 
-* `name` (object)   
+* `name` (object)
   Machine name of module to enable. This will be looked for in the filesystem under the chat_modules/ directory.
 
-* `options` (object)   
+* `options` (object)
 Object of options that will be parsed by the module itself to determine its behaviour.
 
-**Example modules table:**   
+**Example modules table:**
 ```
 modules_enabled: [
     {
@@ -219,8 +219,8 @@ modules_enabled: [
 
 Module System
 -------------
-Modules are .js files stored in the chat_modules/ directory. Modules are loaded by looking for module entries 
-in the config.js file (see config.js section above). A module is a single object returned by setting 
+Modules are .js files stored in the chat_modules/ directory. Modules are loaded by looking for module entries
+in the config.js file (see config.js section above). A module is a single object returned by setting
 `module.exports` containing functions and options.
 
 #### Options
@@ -267,14 +267,17 @@ Call this hook and pass an object of the format `{userid: int, token: string}`. 
 
 ### Message preprocessing
 
-#### hook_message_process
+#### hook_message_preprocess
+Implementing this hook results in the relevant function being called with the entire message as `data.content` whenever a message is about to be stored in the database and then sent to clients. Making changes to the message will thus result in those changes being carried forwards into the DB and to the client.
+
+#### hook_message_postprocess
 Implementing this hook results in the relevant function being called with the message `content` object as `data.object` each time a message
-is sent. A module can therefore run a type check on every message and modify its contents, e.g. to add HTML.
+is sent to a client. Therefore making changes to the message will affect how it is seen by clients but not how it is stored in the database.
 
 Hook System
 -----------
 ### Responding to Hooks
-In order to respond to a hook, a module needs to provide an object named after the hook containing a rank specifying its place 
+In order to respond to a hook, a module needs to provide an object named after the hook containing a rank specifying its place
 in the order of hook processing (i.e. whether it should run before or after another module) and an event function.
 
 See this example.
@@ -286,7 +289,7 @@ hook_name: {
         function (data) {
             var url = data.value;
             var post = data.val2;
-            
+
             process.emit('next', data);
         }
 }
@@ -309,7 +312,7 @@ See this example of making a hook call and then using data it returns in a callb
 // Call db find hook.
 process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}}, function (gotData) {
     // do things with gotData
-    
+
     process.emit('next', data);
     }
 });

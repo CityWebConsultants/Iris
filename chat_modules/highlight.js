@@ -31,7 +31,7 @@ var exports = {
             });
         }
     },
-    hook_message_process: {
+    hook_message_postprocess: {
         rank: 0,
         event: function (data) {
             if (data.content && data.content.code) {

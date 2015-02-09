@@ -22,7 +22,7 @@ var exports = {
 
 //                        data.messageid = gotData.returns;
 //
-//                        process.hook('hook_message_process', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
+//                        process.hook('hook_message_postprocess', {groupid: data.to, 'userid': userid, content: data.content}, function (gotData) {
 //
 //                        });
 
