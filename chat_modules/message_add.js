@@ -81,14 +81,26 @@ var exports = {
     hook_message_preprocess: {
         rank: 0,
         event: function (data) {
-            // Strip HTML.
-            data.message.content.text = data.message.content.text
-                .replace(/&/g, '&amp;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#x27;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/\//g, '&#47;');
+
+            var skip = false;
+            if (process.config.admins) {
+                process.config.admins.forEach(function (element) {
+                    if (data.message.userid === element) {
+                        skip = true;
+                    }
+                });
+            }
+
+            if (skip == false) {
+                // Strip HTML.
+                data.message.content.text = data.message.content.text
+                    .replace(/&/g, '&amp;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#x27;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\//g, '&#47;');
+            }
 
             data.returns = data.message;
             process.emit('next', data);
