@@ -215,6 +215,7 @@ var exports = {
                                                     dbobject: {'members': memberObjects, 'name': post.name, is121: true, 'isReadOnly': false}
                                                 }, function (gotData) {
                                                     data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
+                                                    data.success = true;
                                                     process.emit('next', data);
                                                 });
                                             } else {
@@ -235,6 +236,7 @@ var exports = {
                                         dbobject: {'members': memberObjects, 'name': post.name, 'isReadOnly': false}
                                     }, function (gotData) {
                                         data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
+                                        data.success = true;
                                         process.emit('next', data);
                                     });
                                 }

@@ -140,6 +140,21 @@ var exports = {
                 });
             }
         }
+    },
+    hook_post_group_add: {
+        rank: 20,
+        event: function (data) {
+            // If group added successfully
+            if (data.success === true) {
+                process.hook('hook_db_update', {
+                    dbcollection: 'groups',
+                    dbquery: {'_id': objectID(data.returns)},
+                    dbupdate: {'$set': {'lastupdated': Date.now()}}
+                }, function (result) {
+                    process.emit('next', data);
+                });
+            }
+        }
     }
 };
 
