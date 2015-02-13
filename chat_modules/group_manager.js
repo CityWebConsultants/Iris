@@ -102,143 +102,108 @@ var exports = {
         event:
             function (data) {
                 // userid, token, name, members[], is121
-                var url = data.url,
-                    post = data.post,
-                    groupMembers = [],
-                    groupMembersValid = true,
-                    is121 = false,
-                    currentDate = Date.now(),
-                    memberObjects = [];
 
-                // read only (i.e. CMS controlled) group
+                var groupdata = {};
+
+                var addgroup = function (group) {
+                    process.hook("hook_group_add", group, function (groupid) {
+                        // check success
+                        if (groupid.success) {
+                            data.returns = groupid.returns.toString();
+                        } else {
+                            data.returns = "ERROR: Could not add group although the request was valid. ¯\\(°_o)/¯";
+                        }
+                        process.emit("next", data);
+                    });
+                };
+
+                // Read only / CMS
                 if (data.post.readonly === 'true' && data.post.secretkey) {
                     process.hook('hook_secretkey_check', {secretkey: data.post.secretkey}, function (valid) {
                         if (valid.returns === true) {
-                            // Secret key OK.
                             // Avoid awkward null
                             if (!data.post.members) {
                                 data.post.members = [];
                             }
 
-                            // Force it to be an array
-                            if (data.post.members.constructor && data.post.members.constructor !== Array) {
-                                groupMembers[0] = data.post.members;
-                            } else {
-                                groupMembers = data.post.members;
-                            }
-
-                            // Remove duplicate users
-                            groupMembers = groupMembers.filter(function (v, i, a) { return a.indexOf(v) === i; });
-
-                            groupMembers.forEach(function (element, index) {
-                                memberObjects.push({userid: element});
+                            // Add group
+                            addgroup({
+                                name: data.post.name,
+                                members: data.post.members,
+                                isReadOnly: true
                             });
 
-                            // Call database insert hook to insert the new group object
-                            process.hook('hook_db_insert', {
-                                dbcollection: 'groups',
-                                dbobject: {'members': memberObjects, 'name': data.post.name, 'isReadOnly': true}
-                            }, function (gotData) {
-                                data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
-                                data.success = true;
-                                process.emit('next', data);
-                            });
                         } else {
                             data.returns = "ERROR: Secret key incorrect";
                             process.emit('next', data);
                         }
                     });
+                // User controlled
                 } else {
-                    // User controlled group
                     process.hook('hook_auth_check', {userid: data.post.userid, token: data.post.token}, function (gotData) {
                         if (gotData.returns === true) {
-                            // Validate POSTed data
-                            if (post.members) {
-                                // Force it to be an array
-                                if (post.members.constructor && post.members.constructor !== Array) {
-                                    groupMembers[0] = post.members;
-                                } else {
-                                    groupMembers = post.members;
-                                }
+                            // Check for valid members
+                            if (data.post.members && data.post.members.constructor && data.post.members.constructor === Array && data.post.members.length > 1) {
 
+                                // Check if it contains its creator
                                 var containsCreator = false;
 
-                                // Foreach item, check for a numeric userid (could make this configurable as to what is a valid userid)
-                                groupMembers.forEach(function (element, index) {
-                                    if (isNaN(element) || element === '') {
-                                        groupMembersValid = false;
-                                    }
+                                data.post.members.forEach(function (element, index) {
                                     if (element === data.post.userid) {
                                         containsCreator = true;
                                     }
                                 });
 
+                                var groupMembersValid = true;
                                 if (containsCreator === false) {
                                     groupMembersValid = false;
                                 }
 
                                 // If no name supplied, make sure it's blank.
-                                if (!post.name) {
-                                    post.name = '';
+                                if (!data.post.name) {
+                                    data.post.name = '';
                                 }
 
                                 // Make sure is121 is sane
-                                if (post.is121 === 'true') {
-                                    is121 = true;
+                                if (data.post.is121 === 'true') {
+                                    data.post.is121 = true;
                                 }
 
                                 // If invalid, return fail
                                 if (groupMembersValid !== true) {
-                                    data.returns = 'ERROR: Invalid user id(s)';
-                                    // Pass on to the next handler in case it can still salvage this :)
+                                    data.returns = 'ERROR: Group does not contain its creator.';
                                     process.emit('next', data);
                                     return;
                                 }
 
-                                groupMembers.forEach(function (element, index) {
-                                    memberObjects.push({userid: element, joined: currentDate});
-                                });
-
                                 // if group is one-to-one, check if one like that already exists
-                                if (is121 === true) {
-                                    // Check number of members
-                                    if (memberObjects.length === 2) {
-                                        // Search database for existing 121 chat with those members
-                                        process.hook('hook_db_find', {
-                                            dbcollection: 'groups',
-                                            dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': groupMembers[0]}}}, {'members': {$elemMatch: {'userid': groupMembers[1]}}}]}
-                                        }, function (result) {
-                                            if (result.returns && JSON.parse(result.returns).length === 0) {
-                                                // Call database insert hook to insert the new group object
-                                                process.hook('hook_db_insert', {
-                                                    dbcollection: 'groups',
-                                                    dbobject: {'members': memberObjects, 'name': post.name, is121: true, 'isReadOnly': false}
-                                                }, function (gotData) {
-                                                    data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
-                                                    data.success = true;
-                                                    process.emit('next', data);
-                                                });
-                                            } else {
-                                                data.returns = 'ERROR: One-to-one chat containing these members already exists.';
-                                                process.emit('next', data);
-                                            }
-                                        });
-                                    } else {
-                                        data.returns = 'ERROR: One-to-one chat can ony contain two members.';
-                                        process.emit('next', data);
-                                    }
-                                } else {
-                                    // Insert normally
-
-                                    // Call database insert hook to insert the new group object
-                                    process.hook('hook_db_insert', {
+                                if (data.post.is121 === true) {
+                                    // Search database for existing 121 chat with those members
+                                    process.hook('hook_db_find', {
                                         dbcollection: 'groups',
-                                        dbobject: {'members': memberObjects, 'name': post.name, 'isReadOnly': false}
-                                    }, function (gotData) {
-                                        data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
-                                        data.success = true;
-                                        process.emit('next', data);
+                                        dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': data.post.members[0]}}}, {'members': {$elemMatch: {'userid': data.post.members[1]}}}]}
+                                    }, function (result) {
+                                        if (result.returns && JSON.parse(result.returns).length === 0) {
+
+                                            addgroup({
+                                                name: data.post.name,
+                                                members: data.post.members,
+                                                is121: true
+                                            });
+
+                                        } else {
+                                            data.returns = 'ERROR: One-to-one chat containing these members already exists.';
+                                            process.emit('next', data);
+                                        }
                                     });
+                                // If not 121, just add it
+                                } else {
+
+                                    addgroup({
+                                        name: data.post.name,
+                                        members: data.post.members
+                                    });
+
                                 }
                             } else {
                                 data.returns = "ERROR: No initial members specified.";
@@ -249,6 +214,75 @@ var exports = {
                             process.emit('next', data);
                         }
                     });
+                }
+            }
+    },
+    hook_group_add: {
+        rank: 0,
+        event:
+            function (data) {
+                // readonly? is121?
+                // members[], name
+
+                // Should check for duplicate members
+                // Should allow only two users in a 121 group
+                // Should allow creation of any groups within rules (i.e. no creator check)
+
+                var ok = true;
+                data.success = false;
+
+                if (data.members && data.name) {
+
+                    // Remove duplicate users
+                    data.members =  data.members.filter(function (v, i, a) { return a.indexOf(v) === i; });
+
+                    // Build base query
+                    var query = {
+                        name: data.name,
+                        members: []
+                    },
+                        members = [],
+                        currentDate = Date.now();
+
+                    data.members.forEach(function (element, index) {
+                        query.members.push({userid: element, joined: currentDate});
+                    });
+
+                    // Set readonly or 121 flags; check if 121 group has two members
+                    query.isReadOnly = false;
+
+                    if (data.isReadOnly) {
+                        query.isReadOnly = true;
+                    } else if (data.is121) {
+                        query.is121 = true;
+
+                        if (data.members.length > 2) {
+                            data.ok = false;
+                        }
+                    }
+
+                    // If things are in order, insert!
+                    if (ok === true) {
+
+                        process.hook('hook_db_insert', {
+                            dbcollection: 'groups',
+                            dbobject: query
+                        }, function (gotData) {
+                            data.returns = gotData.returns[0]._id;
+                            data.success = true;
+                            process.emit('next', data);
+                        });
+
+                    } else {
+                        data.success = false;
+                        data.error = "bad_request";
+                        process.emit('next', data);
+                    }
+
+                } else {
+                    data.success = false;
+                    data.error = "bad_request";
+                    process.emit('next', data);
                 }
             }
     },

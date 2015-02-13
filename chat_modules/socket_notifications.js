@@ -79,12 +79,11 @@ var exports = {
 
         }
     },
-    hook_post_group_add: {
+    hook_group_add: {
         rank: 10,
         event: function (data) {
-
-            if (data.returns) {
-                process.groupBroadcast(data.returns, 'notification_message', {
+            if (data.success) {
+                process.groupBroadcast(data.returns.toString(), 'notification_message', {
                     action: 'addgroup',
                     groupid: data.returns,
                     time: Date.now()
