@@ -115,7 +115,6 @@ var exports = {
                     process.hook('hook_secretkey_check', {secretkey: data.post.secretkey}, function (valid) {
                         if (valid.returns === true) {
                             // Secret key OK.
-
                             // Avoid awkward null
                             if (!data.post.members) {
                                 data.post.members = [];
@@ -141,6 +140,7 @@ var exports = {
                                 dbobject: {'members': memberObjects, 'name': data.post.name, 'isReadOnly': true}
                             }, function (gotData) {
                                 data.returns = JSON.stringify(gotData.returns[0]._id).replace(/"/g, ""); // unescape extra quotes
+                                data.success = true;
                                 process.emit('next', data);
                             });
                         } else {

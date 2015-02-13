@@ -153,6 +153,8 @@ var exports = {
                 }, function (result) {
                     process.emit('next', data);
                 });
+            } else {
+                process.emit('next', data);
             }
         }
     }
