@@ -24,20 +24,84 @@ var exports = {
                             strong_auth_check: false
                         }, function (gotData) {
 
-                            var message = {
-                                to: data.post.groupid,
-                                userid: 1,
-                                content: {
-                                    text: content.text
-                                }
-                            };
+//                            var message = {
+//                                to: data.post.groupid,
+//                                userid: 1,
+//                                content: {
+//                                    text: content.text
+//                                }
+//                            };
 
+                            data.returns = "ok";
                             process.emit('next', data);
                         });
                     } else {
+                        data.returns = "ERROR: Invalid secretkey";
                         process.emit('next', data);
                     }
                 });
+            } else {
+                data.returns = "ERROR: Missing data from request.";
+                process.emit('next', data);
+            }
+        }
+    },
+    hook_post_message_hub_user: {
+        rank: 1,
+        event: function (data) {
+            if (data.post.secretkey && data.post.userid && data.post.content) {
+                process.hook('hook_secretkey_check', {
+                    secretkey: data.post.secretkey
+                }, function (check) {
+                    if (check.returns === true) {
+                        process.hook('hook_db_find', {
+                            dbcollection: 'groups',
+                            dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': data.post.userid.toString()}}}, {'members': {$elemMatch: {'userid': "1"}}}]}
+                        }, function (gotData) {
+
+                            var sendMessage = function(groupid) {
+                                var content = {};
+
+                                content.text = data.post.content;
+
+                                process.hook('hook_message_add', {
+                                    userid: 1,
+                                    groupid: groupid,
+                                    content: content,
+                                    strong_auth_check: false
+                                }, function (gotData) {
+
+                                    data.returns = "ok";
+                                    process.emit('next', data);
+                                });
+                            };
+
+                            if (gotData.returns && JSON.parse(gotData.returns).length === 0) {
+                                // Need to create group
+                                console.log("creating group");
+                                process.hook('hook_group_add', {
+                                    name: 'default',
+                                    members: [1, data.post.userid]
+                                }, function(groupid) {
+                                    if (groupid.success === true) {
+                                        sendMessage(groupid.returns);
+                                    } else {
+                                        data.returns = "ERROR: Could not create group";
+                                    }
+                                });
+                            } else {
+                                // Group already exists
+                                sendMessage( JSON.parse(gotData.returns)[0]._id );
+                            }
+                        });
+                    } else {
+                        data.returns = "ERROR: Invalid secretkey";
+                        process.emit('next', data);
+                    }
+                });
+            } else {
+                data.returns = "ERROR: Missing data from request.";
+                process.emit('next', data);
             }
         }
     },
@@ -90,7 +154,7 @@ var exports = {
                 });
             }
 
-            if (skip == false) {
+            if (skip === false) {
                 // Strip HTML.
                 data.message.content.text = data.message.content.text
                     .replace(/&/g, '&amp;')
