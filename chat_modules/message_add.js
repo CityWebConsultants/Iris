@@ -32,7 +32,6 @@ var exports = {
                                 }
                             };
 
-                            console.log('apjdas');
                             process.emit('next', data);
                         });
                     } else {

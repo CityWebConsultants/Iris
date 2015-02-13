@@ -48,6 +48,16 @@ The messagetype, e.g. `text`
 
 * newly created message ID
 
+#### /message/hub [requires secret key]
+
+Post a message to a group directly from the CMS.
+
+**POST parameters**
+
+* groupid
+* content
+* secretkey
+
 ### /group
 Handles group creation and manipulation.
 

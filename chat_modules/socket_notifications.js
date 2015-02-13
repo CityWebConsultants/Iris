@@ -14,10 +14,10 @@ var exports = {
     options: {notify_edit: true, notify_delete: true, silent: true},
     init: function () {
         process.addSocketListener("user_communicate", function (data, socket) {
+            console.log(data);
             process.hook('hook_auth_check', {userid: data.userid, token: data.token}, function (authorised) {
                 if (authorised.returns === true) {
-                    data.token = undefined;
-                    process.userBroadcast(data.userid, "user_communicate", data);
+                    process.userBroadcast(data.userid, "user_communicate", data.message);
                 }
             });
         });
