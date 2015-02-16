@@ -49,51 +49,100 @@ var exports = {
     hook_post_message_hub_user: {
         rank: 1,
         event: function (data) {
-            if (data.post.secretkey && data.post.userid && data.post.content) {
+            if (data.post.secretkey && data.post.userids && data.post.content) {
                 process.hook('hook_secretkey_check', {
                     secretkey: data.post.secretkey
                 }, function (check) {
+
                     if (check.returns === true) {
-                        process.hook('hook_db_find', {
-                            dbcollection: 'groups',
-                            dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': data.post.userid.toString()}}}, {'members': {$elemMatch: {'userid': "1"}}}]}
-                        }, function (gotData) {
 
-                            var sendMessage = function(groupid) {
-                                var content = {};
+                        var userids = [];
+                        var useridsValid = true;
+                        var useridsSuccess = [];
+                        try {
+                            userids = JSON.parse(data.post.userids);
+                        } catch (e) {
+                            useridsValid = false;
+                        }
 
-                                content.text = data.post.content;
+                        console.log(userids);
 
-                                process.hook('hook_message_add', {
-                                    userid: 1,
-                                    groupid: groupid,
-                                    content: content,
-                                    strong_auth_check: false
-                                }, function (gotData) {
+                        var sendMessage = function (groupid, callback) {
+                            var content = {};
 
-                                    data.returns = "ok";
-                                    process.emit('next', data);
-                                });
-                            };
+                            content.text = data.post.content;
 
-                            if (gotData.returns && JSON.parse(gotData.returns).length === 0) {
-                                // Need to create group
-                                console.log("creating group");
-                                process.hook('hook_group_add', {
-                                    name: 'default',
-                                    members: [1, data.post.userid]
-                                }, function(groupid) {
-                                    if (groupid.success === true) {
-                                        sendMessage(groupid.returns);
-                                    } else {
-                                        data.returns = "ERROR: Could not create group";
-                                    }
-                                });
-                            } else {
-                                // Group already exists
-                                sendMessage( JSON.parse(gotData.returns)[0]._id );
+                            process.hook('hook_message_add', {
+                                userid: 1,
+                                groupid: groupid,
+                                content: content,
+                                strong_auth_check: false
+                            }, function (gotData) {
+                                callback(gotData);
+                            });
+                        };
+
+                        if (useridsValid && userids.length > 0) {
+
+                            var element;
+                            var index = 0;
+                            var recurse = function() {
+
+                                if (index < userids.length) {
+
+                                    element = userids[index];
+
+                                    process.hook('hook_db_find', {
+                                        dbcollection: 'groups',
+                                        dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': element.toString()}}}, {'members': {$elemMatch: {'userid': "1"}}}]}
+                                    }, function (gotData) {
+
+                                        if (gotData.returns && JSON.parse(gotData.returns).length === 0) {
+                                            // Need to create group
+                                            console.log("creating group");
+                                            process.hook('hook_group_add', {
+                                                name: 'default',
+                                                members: ['1', element.toString()],
+                                                is121: true
+                                            }, function (groupid) {
+                                                if (groupid.success === true) {
+                                                    sendMessage(groupid.returns, function () {
+                                                        useridsSuccess.push(element);
+                                                        index++;
+                                                        recurse();
+                                                    });
+                                                } else {
+                                                    index++;
+                                                    recurse();
+                                                }
+                                            });
+                                        } else {
+                                            // Group already exists
+                                            sendMessage( JSON.parse(gotData.returns)[0]._id , function () {
+                                                useridsSuccess.push(element);
+                                                index++;
+                                                recurse();
+                                            });
+
+                                        }
+                                    });
+                                } else {
+                                    data.returns = "OK, messaged the following users: ";
+                                    data.returns += JSON.stringify(useridsSuccess);
+                                    process.emit("next", data);
+
+                                    return;
+                                }
                             }
-                        });
+
+                            recurse();
+
+
+                        } else {
+                            data.returns = "ERROR: No users specified. Invalid JSON?";
+                            process.emit("next", data);
+                        }
+
                     } else {
                         data.returns = "ERROR: Invalid secretkey";
                         process.emit('next', data);
