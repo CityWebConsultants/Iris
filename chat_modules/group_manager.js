@@ -121,6 +121,11 @@ var exports = {
                 if (data.post.readonly === 'true' && data.post.secretkey) {
                     process.hook('hook_secretkey_check', {secretkey: data.post.secretkey}, function (valid) {
                         if (valid.returns === true) {
+
+                            if (data.post.members.constructor && data.post.members.constructor !== Array) {
+                                data.post.members = [data.post.members];
+                            }
+
                             // Avoid awkward null
                             if (!data.post.members) {
                                 data.post.members = [];
@@ -232,6 +237,9 @@ var exports = {
                 data.success = false;
 
                 if (data.members && data.name) {
+
+                    console.log("Members.");
+                    console.log(data.members);
 
                     // Remove duplicate users
                     data.members =  data.members.filter(function (v, i, a) { return a.indexOf(v) === i; });
