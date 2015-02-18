@@ -18,7 +18,7 @@ var exports = {
                         content.text = data.post.content;
 
                         process.hook('hook_message_add', {
-                            userid: 1,
+                            userid: exports.options.systemuser,
                             groupid: data.post.groupid,
                             content: content,
                             strong_auth_check: false
@@ -65,6 +65,8 @@ var exports = {
                             useridsValid = false;
                         }
 
+                        console.log("userids for message:");
+                        console.log(data.post.userids);
                         console.log(userids);
 
                         var sendMessage = function (groupid, callback) {
@@ -73,7 +75,7 @@ var exports = {
                             content.text = data.post.content;
 
                             process.hook('hook_message_add', {
-                                userid: 1,
+                                userid: exports.options.systemuser,
                                 groupid: groupid,
                                 content: content,
                                 strong_auth_check: false
@@ -94,7 +96,7 @@ var exports = {
 
                                     process.hook('hook_db_find', {
                                         dbcollection: 'groups',
-                                        dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': element.toString()}}}, {'members': {$elemMatch: {'userid': "1"}}}]}
+                                        dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': element.toString()}}}, {'members': {$elemMatch: {'userid': exports.options.systemuser.toString()}}}]}
                                     }, function (gotData) {
 
                                         if (gotData.returns && JSON.parse(gotData.returns).length === 0) {
@@ -102,7 +104,7 @@ var exports = {
                                             console.log("creating group");
                                             process.hook('hook_group_add', {
                                                 name: 'default',
-                                                members: ['1', element.toString()],
+                                                members: [exports.options.systemuser.toString(), element.toString()],
                                                 is121: true
                                             }, function (groupid) {
                                                 if (groupid.success === true) {

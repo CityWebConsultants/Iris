@@ -42,7 +42,10 @@ module.exports = {
             }
         },
         {
-            name: 'message_add'
+            name: 'message_add',
+            options: {
+                systemuser: 1 // the user for system messages
+            }
         },
         {
             name: 'highlight'
