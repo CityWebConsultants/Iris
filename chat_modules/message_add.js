@@ -196,6 +196,7 @@ var exports = {
         rank: 0,
         event: function (data) {
 
+          if (data.message.content.text) {
             var skip = false;
             if (process.config.admins) {
                 process.config.admins.forEach(function (element) {
@@ -216,8 +217,11 @@ var exports = {
                     .replace(/\//g, '&#47;');
             }
 
-            data.returns = data.message;
-            process.emit('next', data);
+          }
+
+          data.returns = data.message;
+          process.emit('next', data);
+
         }
     },
     hook_message_add: {
