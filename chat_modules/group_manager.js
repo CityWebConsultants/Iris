@@ -400,6 +400,7 @@ var exports = {
                     query = {'_id': objectID(data.groupid), 'isReadOnly': false, $or: [{'is121': false}, {'is121': {$exists: false}}], members: {$elemMatch: {'userid': data.userid.toString()}}};
                 } else {
                     query = {'_id': objectID(data.groupid)};
+                    data.userid = 0;
                 }
 
                 if (data.action === 'addmember') {
@@ -412,6 +413,9 @@ var exports = {
                         // If this user doesn't yet exist
                         if (existing.returns && existing.returns === '[]') {
 
+//                            existing = JSON.parse(existing);
+                            console.log(existing);
+
                             process.hook('hook_db_update', {
                                 dbcollection: 'groups',
                                 dbquery: query,
@@ -420,7 +424,23 @@ var exports = {
                                 dbupsert: false
                             }, function (gotData) {
                                 data.returns = gotData.returns;
-                                process.emit('next', data);
+
+                                // Put a message into the group directly
+                                process.hook('hook_message_add', {
+                                    userid: process.config.systemuser,
+                                    groupid: data.groupid,
+                                    content: {
+                                        groupupdate: JSON.stringify({
+                                            userid: data.members,
+                                            requester: data.userid,
+                                            action: 'add'
+                                        })
+                                    },
+                                    strong_auth_check: false
+                                }, function (gotData) {
+                                    process.emit('next', data);
+                                });
+
                             });
 
                         } else {

@@ -12,6 +12,7 @@ module.exports = {
     secret_key: 'letmein',
     messagetypes_enabled: ['text', 'code', 'hub_message'],
     admins: [1],
+    systemuser: 1,
     modules_enabled: [
         {
             name: 'auth',
@@ -42,10 +43,7 @@ module.exports = {
             }
         },
         {
-            name: 'message_add',
-            options: {
-                systemuser: 1 // the user for system messages
-            }
+            name: 'message_add'
         },
         {
             name: 'highlight'

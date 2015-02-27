@@ -18,7 +18,7 @@ var exports = {
                         content.text = data.post.content;
 
                         process.hook('hook_message_add', {
-                            userid: exports.options.systemuser,
+                            userid: process.config.systemuser,
                             groupid: data.post.groupid,
                             content: content,
                             strong_auth_check: false
