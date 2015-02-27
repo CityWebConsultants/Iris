@@ -425,21 +425,25 @@ var exports = {
                             }, function (gotData) {
                                 data.returns = gotData.returns;
 
-                                // Put a message into the group directly
-                                process.hook('hook_message_add', {
-                                    userid: process.config.systemuser,
-                                    groupid: data.groupid,
-                                    content: {
-                                        groupupdate: JSON.stringify({
-                                            userid: data.members,
-                                            requester: data.userid,
-                                            action: 'add'
-                                        })
-                                    },
-                                    strong_auth_check: false
-                                }, function (gotData) {
+                                if (data.userid != process.config.systemuser) {
+                                    // Put a message into the group directly
+                                    process.hook('hook_message_add', {
+                                        userid: process.config.systemuser,
+                                        groupid: data.groupid,
+                                        content: {
+                                            groupupdate: JSON.stringify({
+                                                userid: data.members,
+                                                requester: data.userid,
+                                                action: 'add'
+                                            })
+                                        },
+                                        strong_auth_check: false
+                                    }, function (gotData) {
+                                        process.emit('next', data);
+                                    });
+                                } else {
                                     process.emit('next', data);
-                                });
+                                }
 
                             });
 
