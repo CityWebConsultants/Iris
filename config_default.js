@@ -9,6 +9,7 @@
 
 module.exports = {
     port: 3000,
+    peerport: 3001,
     secret_key: 'letmein',
     messagetypes_enabled: ['text', 'code', 'hub_message'],
     admins: [1],
@@ -71,6 +72,11 @@ module.exports = {
         },
         {
             name: 'logout'
+        },
+        {
+         
+            name: 'peerauth'
+            
         }
     ]
 };

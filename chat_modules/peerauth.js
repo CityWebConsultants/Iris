@@ -4,6 +4,8 @@
 
 var auth = require('../chat_modules/auth');
 
+var PeerServer = require('peer').PeerServer({port: process.config.peerport});
+
 var exports = {
     // POST /peer
     hook_post_peer: {
