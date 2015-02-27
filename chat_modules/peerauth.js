@@ -27,15 +27,16 @@ var exports = {
 
                   //Create a unique peerid - userid + date + amount of peer connections already stored for 100% uniqueness. Random number for a bit more security.
 
-                  var peerid = data.post.userid + user.peer.length + (Math.random() * 10000).toFixed(0);
-
+                  var peerid = data.post.userid + "u" + user.peer.length + ((Math.random() * 10000).toFixed(0));
+                  
                   //Add the peer id to the user account
 
                   user.peer.push(peerid);
-
+                  
               }
                 
-            data.returns = peerid;
+            data.returns = JSON.stringify(peerid);
+                
             process.emit('next', data);
                 
             } else {
@@ -86,5 +87,23 @@ var exports = {
     
     
 }
+
+//Remove peerid after disconnect
+
+PeerServer.on("disconnect", function(id){
+    
+    var user = auth.userlist[id.split("u")[0]];
+
+    user.peer.forEach(function(element,index){
+       
+        if(element === id){
+          
+        user.peer.splice(index, 1);
+            
+        };
+        
+    });
+        
+});
 
 module.exports = exports;
