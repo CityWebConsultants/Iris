@@ -74,9 +74,10 @@ module.exports = {
             name: 'logout'
         },
         {
-         
             name: 'peerauth'
-            
+        },
+        {
+            name: 'mediacall'
         }
     ]
 };
