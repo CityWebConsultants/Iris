@@ -8,13 +8,23 @@ var calls = {};
 
 var hangup = function (userid, mediacallid) {
 
-    var groupid = mediacallid.split("u")[0];
+    var groupid = mediacallid.split("g")[0];
 
     var userindex = calls[mediacallid].members.indexOf(userid);
     calls[mediacallid].members.splice(userindex, 1);
 
+    process.groupBroadcast(groupid, 'mediacallhungup', {userid: userid, mediacallid: mediacallid});
+
     if (calls[mediacallid].members.length < 2) {
-        process.groupBroadcast(groupid, 'mediacallend', mediacallid);
+        process.hook('hook_message_add', {
+            userid: process.config.systemuser,
+            groupid: groupid,
+            content: {
+                'mediacall': {action: 'end', timestamp: Date.now() - calls[mediacallid].started}
+            },
+            strong_auth_check: false
+        }, function () {});
+
         delete calls[mediacallid];
     }
 

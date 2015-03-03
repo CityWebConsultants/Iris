@@ -129,6 +129,7 @@ var exports = {
         rank: 20,
         event: function (data) {
             // If message added successfully, i.e. previous hook actually returned
+
             if (data.returns) {
                 process.hook('hook_db_update', {
                     dbcollection: 'groups',
