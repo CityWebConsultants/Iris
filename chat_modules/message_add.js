@@ -14,8 +14,16 @@ var exports = {
                     if (check.returns === true) {
 
                         var content = {};
-
-                        content.text = data.post.content;
+                        if (data.post.text) {
+                            content.text = data.post.content;
+                        } else {
+                            try {
+                                content = JSON.parse(data.post.content);
+                            } catch (ex) {
+                                data.returns = "ERROR: Bad JSON content object.";
+                                process.emit('next', data);
+                            }
+                        }
 
                         process.hook('hook_message_add', {
                             userid: process.config.systemuser,
