@@ -2,11 +2,26 @@
 
 "use strict";
 
-//var auth = require('../chat_modules/auth');
+var auth = require('../chat_modules/auth');
 
 var calls = {};
 
+var hangup = function (userid, mediacallid) {
+
+    var groupid = mediacallid.split("u")[0];
+
+    var userindex = calls[mediacallid].members.indexOf(userid);
+    calls[mediacallid].members.splice(userindex, 1);
+
+    if (calls[mediacallid].members.length < 2) {
+        process.groupBroadcast(groupid, 'mediacallend', mediacallid);
+        delete calls[mediacallid];
+    }
+
+};
+
 var exports = {
+
     init: function () {
 
         process.nextTick(function () {
@@ -36,7 +51,7 @@ var exports = {
 
                             if (calls[mediacallid]) {
 
-                                process.groupBroadcast(data.groupid, 'mediacallheartbeat', calls[mediacallid])
+                                process.groupBroadcast(data.groupid, 'mediacallheartbeat', calls[mediacallid]);
 
                             } else {
 
@@ -65,13 +80,7 @@ var exports = {
 
                             if (calls[data.mediacallid]) {
 
-                                var userindex = calls[data.mediacallid].members.indexOf(data.userid);
-                                calls[data.mediacallid].members.splice(userindex, 1);
-
-                                if (calls[data.mediacallid].members.length < 2) {
-//                                    process.groupBroadcast(data.groupid, 'mediacallend', data.mediacallid);
-                                    delete calls[data.mediacallid];
-                                }
+                                hangup(data.userid, data.mediacallid);
 
                             }
 
@@ -119,7 +128,24 @@ var exports = {
 
 
         });
-    }
+    },
+    hook_peer_disconnect: {
+        rank: 1,
+        event: function (data) {
+
+            var user = data.id.split("u")[0];
+
+            for (var call in calls) {
+                calls[call].members.forEach(function (element) {
+                    if (element === user) {
+                        hangup(user, calls[call].id);
+                    }
+                });
+            }
+
+            process.emit('next', data);
+        }
+    },
 }
 
 module.exports = exports;
