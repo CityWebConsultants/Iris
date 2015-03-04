@@ -49,31 +49,50 @@ var exports = {
         }
     },
 
-    hook_user_fetch: {
+    hook_get_usersearch: {
 
         rank: 0,
         event: function (data) {
             
             //Gets list of filters
             
-            var query = {};
+            var name = data.get.name;
+            
+            name = name.split(" ");
 
-            var filter;
+            var query = [];
+            
+            var and1 = [];
+            var and2 = [];
 
-            for (filter in data) {
-
-                query[filter] = data.get[filter];
-
+            and1.push({'field_name_last': {$regex: new RegExp('^'+name[0], "i")}});
+            and1.push({'field_name_first': {$regex: new RegExp('^'+name[0], "i")}});
+            and2.push({'field_name_last': {$regex: new RegExp('^'+name[1], "i")}});
+            and2.push({'field_name_first': {$regex: new RegExp('^'+name[1], "i")}});
+            
+            query.push({$or: and1});
+            
+            if(name[1]){
+             
+                query.push({$or: and2});
+                
             }
-
+            
+            query = {$and: query};
+            
             process.hook('hook_db_find', {
                 dbcollection: 'users',
                 dbquery: query
             }, function (gotData) {
 
-                var user = 
+                var user = JSON.parse(gotData.returns)[0];
                 
-                data.returns = gotData.returns;
+                var uid = user.uid;
+                var name = user.field_name_first + " " + user.field_name_last;
+                
+                user = {uid: uid, name: name}
+                    
+                data.returns = JSON.stringify(user);
                 process.emit('next', data);
             });
         }
