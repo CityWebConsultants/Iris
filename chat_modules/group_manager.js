@@ -135,7 +135,8 @@ var exports = {
                             addgroup({
                                 name: data.post.name,
                                 members: data.post.members,
-                                isReadOnly: true
+                                isReadOnly: true,
+                                noderef: data.post.noderef
                             });
 
                         } else {
@@ -238,8 +239,7 @@ var exports = {
 
                 if (data.members && data.name) {
 
-                    console.log("Members.");
-                    console.log(data.members);
+                    console.log(data.name);
 
                     // Remove duplicate users
                     data.members =  data.members.filter(function (v, i, a) { return a.indexOf(v) === i; });
@@ -267,6 +267,10 @@ var exports = {
                         if (data.members.length > 2) {
                             data.ok = false;
                         }
+                    }
+
+                    if (data.noderef) {
+                        query.noderef = data.noderef;
                     }
 
                     // If things are in order, insert!
