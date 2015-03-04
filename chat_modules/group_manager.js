@@ -136,7 +136,7 @@ var exports = {
                                 name: data.post.name,
                                 members: data.post.members,
                                 isReadOnly: true,
-                                noderef: data.post.noderef
+                                groupref: data.post.groupref
                             });
 
                         } else {
@@ -269,8 +269,8 @@ var exports = {
                         }
                     }
 
-                    if (data.noderef) {
-                        query.noderef = data.noderef;
+                    if (data.groupref) {
+                        query.groupref = data.groupref;
                     }
 
                     // If things are in order, insert!
