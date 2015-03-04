@@ -1,5 +1,5 @@
 /*  Configuration file for the chat application
- *  
+ *
  *  Global values:
  *  - port:             port number to run the web server on                integer
  *  - secret_key:       secret API key to access authentication             string
@@ -9,8 +9,11 @@
 
 module.exports = {
     port: 3000,
+    peerport: 3001,
     secret_key: 'letmein',
-    messagetypes_enabled: ['text', 'code'],
+    messagetypes_enabled: ['text', 'code', 'hub_message'],
+    admins: [1],
+    systemuser: 1,
     modules_enabled: [
         {
             name: 'auth',
@@ -69,6 +72,12 @@ module.exports = {
         },
         {
             name: 'logout'
+        },
+        {
+            name: 'peerauth'
+        },
+        {
+            name: 'mediacall'
         }
     ]
 };

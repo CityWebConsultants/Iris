@@ -14,10 +14,10 @@ var exports = {
     options: {notify_edit: true, notify_delete: true, silent: true},
     init: function () {
         process.addSocketListener("user_communicate", function (data, socket) {
+            console.log(data);
             process.hook('hook_auth_check', {userid: data.userid, token: data.token}, function (authorised) {
                 if (authorised.returns === true) {
-                    data.token = undefined;
-                    process.userBroadcast(data.userid, "user_communicate", data);
+                    process.userBroadcast(data.userid, "user_communicate", data.message);
                 }
             });
         });
@@ -79,12 +79,11 @@ var exports = {
 
         }
     },
-    hook_post_group_add: {
+    hook_group_add: {
         rank: 10,
         event: function (data) {
-
-            if (data.returns) {
-                process.groupBroadcast(data.returns, 'notification_message', {
+            if (data.success) {
+                process.groupBroadcast(data.returns.toString(), 'notification_message', {
                     action: 'addgroup',
                     groupid: data.returns,
                     time: Date.now()

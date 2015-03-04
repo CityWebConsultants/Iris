@@ -6,6 +6,7 @@
   "dependencies": {
     "highlight": "^0.2.3",
     "mongodb": "^1.4.22",
+    "peer": "^0.2.8",
     "socket.io": "^1.2.1"
   },
   "devDependencies": {},

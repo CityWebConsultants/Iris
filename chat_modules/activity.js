@@ -115,7 +115,6 @@ var exports = {
         rank: 0,
         event: function (data) {
             // userid, groupid
-
             process.hook('hook_db_update', {
                 dbcollection: 'groups',
                 dbquery: {'_id': objectID(data.groupid), 'members.userid': data.userid},
@@ -130,6 +129,7 @@ var exports = {
         rank: 20,
         event: function (data) {
             // If message added successfully, i.e. previous hook actually returned
+
             if (data.returns) {
                 process.hook('hook_db_update', {
                     dbcollection: 'groups',
@@ -138,6 +138,23 @@ var exports = {
                 }, function (result) {
                     process.emit('next', data);
                 });
+            }
+        }
+    },
+    hook_group_add: {
+        rank: 20,
+        event: function (data) {
+            // If group added successfully
+            if (data.success === true) {
+                process.hook('hook_db_update', {
+                    dbcollection: 'groups',
+                    dbquery: {'_id': objectID(data.returns.toString())},
+                    dbupdate: {'$set': {'lastupdated': Date.now()}}
+                }, function (result) {
+                    process.emit('next', data);
+                });
+            } else {
+                process.emit('next', data);
             }
         }
     }

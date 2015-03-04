@@ -14,31 +14,153 @@ var exports = {
                     if (check.returns === true) {
 
                         var content = {};
-
-                        content.text = data.post.content;
+                        if (data.post.text) {
+                            content.text = data.post.content;
+                        } else {
+                            try {
+                                content = JSON.parse(data.post.content);
+                            } catch (ex) {
+                                data.returns = "ERROR: Bad JSON content object.";
+                                process.emit('next', data);
+                            }
+                        }
 
                         process.hook('hook_message_add', {
-                            userid: 1,
+                            userid: process.config.systemuser,
                             groupid: data.post.groupid,
                             content: content,
                             strong_auth_check: false
                         }, function (gotData) {
 
-                            var message = {
-                                to: data.post.groupid,
-                                userid: 1,
-                                content: {
-                                    text: content.text
-                                }
-                            };
+//                            var message = {
+//                                to: data.post.groupid,
+//                                userid: 1,
+//                                content: {
+//                                    text: content.text
+//                                }
+//                            };
 
-                            console.log('apjdas');
+                            data.returns = "ok";
                             process.emit('next', data);
                         });
                     } else {
+                        data.returns = "ERROR: Invalid secretkey";
                         process.emit('next', data);
                     }
                 });
+            } else {
+                data.returns = "ERROR: Missing data from request.";
+                process.emit('next', data);
+            }
+        }
+    },
+    hook_post_message_hub_user: {
+        rank: 1,
+        event: function (data) {
+            if (data.post.secretkey && data.post.userids && data.post.content) {
+                process.hook('hook_secretkey_check', {
+                    secretkey: data.post.secretkey
+                }, function (check) {
+
+                    if (check.returns === true) {
+
+                        var userids = [];
+                        var useridsValid = true;
+                        var useridsSuccess = [];
+                        try {
+                            userids = JSON.parse(data.post.userids);
+                        } catch (e) {
+                            useridsValid = false;
+                        }
+
+                        console.log("userids for message:");
+                        console.log(data.post.userids);
+                        console.log(userids);
+
+                        var sendMessage = function (groupid, callback) {
+                            var content = {};
+
+                            content.text = data.post.content;
+
+                            process.hook('hook_message_add', {
+                                userid: exports.options.systemuser,
+                                groupid: groupid,
+                                content: content,
+                                strong_auth_check: false
+                            }, function (gotData) {
+                                callback(gotData);
+                            });
+                        };
+
+                        if (useridsValid && userids.length > 0) {
+
+                            var element;
+                            var index = 0;
+                            var recurse = function() {
+
+                                if (index < userids.length) {
+
+                                    element = userids[index];
+
+                                    process.hook('hook_db_find', {
+                                        dbcollection: 'groups',
+                                        dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': element.toString()}}}, {'members': {$elemMatch: {'userid': exports.options.systemuser.toString()}}}]}
+                                    }, function (gotData) {
+
+                                        if (gotData.returns && JSON.parse(gotData.returns).length === 0) {
+                                            // Need to create group
+                                            console.log("creating group");
+                                            process.hook('hook_group_add', {
+                                                name: 'default',
+                                                members: [exports.options.systemuser.toString(), element.toString()],
+                                                is121: true
+                                            }, function (groupid) {
+                                                if (groupid.success === true) {
+                                                    sendMessage(groupid.returns, function () {
+                                                        useridsSuccess.push(element);
+                                                        index++;
+                                                        recurse();
+                                                    });
+                                                } else {
+                                                    index++;
+                                                    recurse();
+                                                }
+                                            });
+                                        } else {
+                                            // Group already exists
+                                            sendMessage( JSON.parse(gotData.returns)[0]._id , function () {
+                                                useridsSuccess.push(element);
+                                                index++;
+                                                recurse();
+                                            });
+
+                                        }
+                                    });
+                                } else {
+                                    data.returns = "OK, messaged the following users: ";
+                                    data.returns += JSON.stringify(useridsSuccess);
+                                    process.emit("next", data);
+
+                                    return;
+                                }
+                            }
+
+                            recurse();
+
+
+                        } else {
+                            data.returns = "ERROR: No users specified. Invalid JSON?";
+                            process.emit("next", data);
+                        }
+
+                    } else {
+                        data.returns = "ERROR: Invalid secretkey";
+                        process.emit('next', data);
+                    }
+                });
+            } else {
+                data.returns = "ERROR: Missing data from request.";
+                process.emit('next', data);
             }
         }
     },
@@ -81,17 +203,33 @@ var exports = {
     hook_message_preprocess: {
         rank: 0,
         event: function (data) {
-            // Strip HTML.
-            data.message.content.text = data.message.content.text
-                .replace(/&/g, '&amp;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#x27;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/\//g, '&#47;');
 
-            data.returns = data.message;
-            process.emit('next', data);
+          if (data.message.content.text) {
+            var skip = false;
+            if (process.config.admins) {
+                process.config.admins.forEach(function (element) {
+                    if (data.message.userid === element) {
+                        skip = true;
+                    }
+                });
+            }
+
+            if (skip === false) {
+                // Strip HTML.
+                data.message.content.text = data.message.content.text
+                    .replace(/&/g, '&amp;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#x27;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\//g, '&#47;');
+            }
+
+          }
+
+          data.returns = data.message;
+          process.emit('next', data);
+
         }
     },
     hook_message_add: {

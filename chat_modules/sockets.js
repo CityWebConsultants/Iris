@@ -42,8 +42,6 @@ var exports = {
 
                     if (auth.userlist[element.userid] && auth.userlist[element.userid].sockets) {
                         auth.userlist[element.userid].sockets.forEach(function (element, index) {
-                            console.log("Group broadcasting to " + groupid + ":");
-                            console.log(data);
                             element.emit(messagename, data);
                         });
                     }
