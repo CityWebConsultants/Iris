@@ -84,15 +84,20 @@ var exports = {
                 dbcollection: 'users',
                 dbquery: query
             }, function (gotData) {
+                
+                var userlist = []; 
+                
+                JSON.parse(gotData.returns).forEach(function(element){
+                                        
+                    var uid = element.uid;
+                    var name = element.field_name_first + " " + element.field_name_last;
 
-                var user = JSON.parse(gotData.returns)[0];
-                
-                var uid = user.uid;
-                var name = user.field_name_first + " " + user.field_name_last;
-                
-                user = {uid: uid, name: name}
+                    userlist.push({uid: uid, name: name});
+
                     
-                data.returns = JSON.stringify(user);
+                });
+                    
+                data.returns = JSON.stringify(userlist);
                 process.emit('next', data);
             });
         }
