@@ -13,7 +13,7 @@ var hangup = function (userid, mediacallid) {
     var userindex = calls[mediacallid].members.indexOf(userid);
     calls[mediacallid].members.splice(userindex, 1);
 
-    process.groupBroadcast(groupid, 'mediacallhungup', {userid: userid, mediacallid: mediacallid});
+    process.groupBroadcast(groupid, 'mediacallhungup', {userid: userid, mediacallid: mediacallid, members: calls[mediacallid].members});
 
     if (calls[mediacallid].members.length < 2) {
         process.hook('hook_message_add', {
