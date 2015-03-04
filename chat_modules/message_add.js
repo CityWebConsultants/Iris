@@ -83,7 +83,7 @@ var exports = {
                             content.text = data.post.content;
 
                             process.hook('hook_message_add', {
-                                userid: exports.options.systemuser,
+                                userid: process.config.systemuser,
                                 groupid: groupid,
                                 content: content,
                                 strong_auth_check: false
@@ -104,7 +104,7 @@ var exports = {
 
                                     process.hook('hook_db_find', {
                                         dbcollection: 'groups',
-                                        dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': element.toString()}}}, {'members': {$elemMatch: {'userid': exports.options.systemuser.toString()}}}]}
+                                        dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': element.toString()}}}, {'members': {$elemMatch: {'userid': process.config.systemuser.toString()}}}]}
                                     }, function (gotData) {
 
                                         if (gotData.returns && JSON.parse(gotData.returns).length === 0) {
@@ -112,7 +112,7 @@ var exports = {
                                             console.log("creating group");
                                             process.hook('hook_group_add', {
                                                 name: 'default',
-                                                members: [exports.options.systemuser.toString(), element.toString()],
+                                                members: [process.config.systemuser.toString(), element.toString()],
                                                 is121: true
                                             }, function (groupid) {
                                                 if (groupid.success === true) {
