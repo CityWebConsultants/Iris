@@ -26,6 +26,50 @@ var objectID = require('mongodb').ObjectID;
 var exports = {
     options: { allowdebug: false },
     // TODO: this module needs refactoring methinks. but hey, it does work.
+    hook_get_fetch_group: {
+        rank: 0,
+        event: function (data) {
+            process.hook('hook_fetch_group', {userid: data.get.userid, token: data.get.token, groupid: data.get.groupid}, function(gotData) {
+                data.returns = gotData.returns;
+                process.emit('next', data);
+            });
+        }
+    },
+    hook_fetch_group: {
+        rank: 0,
+        event: function (data) {
+            if (data.userid && data.token && data.groupid) {
+                try {
+                    data.groupid = objectID(data.groupid);
+                } catch (e) {
+                    data.returns = "ERROR: Bad ObjectID";
+                    process.emit("next", data);
+                    return false;
+                }
+
+                process.hook('hook_auth_check', {userid: data.userid, token: data.token}, function (gotData) {
+                    if (gotData.returns === true) {
+
+                        // Call db find hook.
+                        process.hook('hook_db_find', {
+                            dbcollection: 'groups',
+                            dbquery: {members: {$elemMatch: {'userid': data.userid}}, '_id': data.groupid}
+                        }, function (gotData) {
+                            data.returns = gotData.returns;
+                            process.emit('next', data);
+                        });
+
+                    } else {
+                        data.returns = "ERROR: Authentication failed.";
+                        process.emit('next', data);
+                    }
+                });
+            } else {
+                data.returns = "ERROR: Missing userid, token or groupid.";
+                process.emit('next', data);
+            }
+        }
+    },
     hook_group_list_users: {
         rank: 0,
         event:

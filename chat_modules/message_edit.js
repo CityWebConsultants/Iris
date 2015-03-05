@@ -17,7 +17,7 @@ var objectID = require('mongodb').ObjectID;
 
 var exports = {
     hook_message_edit: {
-        rank: 10,
+        rank: 1,
         event: function (data) {
             var content = {};
             content[data.messagetype] = data.content;

@@ -23,7 +23,7 @@ var exports = {
         });
     },
     hook_message_edit: {
-        rank: 0,
+        rank: 10,
         event: function (data) {
 
             // Validate.
@@ -33,9 +33,14 @@ var exports = {
 
                     process.hook('hook_groupid_from_messageid', {messageid: data.messageid}, function (groupid) {
 
+                        var content = {};
+                        content[data.messagetype] = data.content;
+
                         process.groupBroadcast(groupid.returns, 'notification_message', {
                             messageid: data.messageid,
                             action: 'edit',
+                            groupid: groupid.returns,
+                            content: content,
                             time: Date.now()
                         });
 
@@ -63,6 +68,7 @@ var exports = {
 
                         process.groupBroadcast(groupid.returns, 'notification_message', {
                             messageid: data.messageid,
+                            groupid: groupid.returns,
                             action: 'remove',
                             time: Date.now()
                         });
