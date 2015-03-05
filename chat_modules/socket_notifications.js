@@ -37,7 +37,7 @@ var exports = {
                             messageid: data.messageid,
                             action: 'edit',
                             groupid: groupid.returns,
-                            content: data.editedmessage.content,
+                            content: data.content,
                             time: Date.now()
                         });
 
