@@ -33,11 +33,14 @@ var exports = {
 
                     process.hook('hook_groupid_from_messageid', {messageid: data.messageid}, function (groupid) {
 
+                        var content = {};
+                        content[data.messagetype] = data.content;
+
                         process.groupBroadcast(groupid.returns, 'notification_message', {
                             messageid: data.messageid,
                             action: 'edit',
                             groupid: groupid.returns,
-                            content: data.content,
+                            content: content,
                             time: Date.now()
                         });
 
