@@ -23,7 +23,7 @@ var exports = {
         });
     },
     hook_message_edit: {
-        rank: 0,
+        rank: 10,
         event: function (data) {
 
             // Validate.
@@ -37,6 +37,7 @@ var exports = {
                             messageid: data.messageid,
                             action: 'edit',
                             groupid: groupid.returns,
+                            content: data.editedmessage.content,
                             time: Date.now()
                         });
 
