@@ -41,45 +41,49 @@ var exports = {
                         process.hook('hook_fetch_groups', {userid: data.get.userid, token: data.get.token}, function (group) {
 
                             JSON.parse(group.returns).forEach(function (element) {
-                                
+
                               //Loop over all the members of each group and return the last updated time for the current member.
                                 var lastread = "";
-                                
+
                                 element.members.forEach(function (member) {
-                                
+
                                     if (member.userid === data.get.userid) {
-                                 
-                                        lastread = member.lastviewed;
-                                  
+
+                                        if (member.lastviewed) {
+                                            lastread = member.lastviewed;
+                                        } else {
+                                            lastread = '0';
+                                        }
+
                                     }
-                                
+
                                 });
-                            
+
                                 groups.push(element._id);
                                 groupactivity[element._id] = lastread;
-                            
+
                             });
-                            
+
                             //Loop over the last read times to find the earliest time so the database doesn't have to pull too many messages in
-                          
+
                             var earliestmessage = Date.now();
-                            
+
                             groups.forEach(function (element) {
-                                
+
                                 if (groupactivity[element] < earliestmessage) {
-                                 
+
                                     earliestmessage = groupactivity[element];
-                                    
+
                                 }
-                                
+
                             });
-                                
+
                             query._id = {$gt: exports.objectIDWithTimestamp(earliestmessage)};
-                            
+
                             //Don't load user's own messages
-                            
+
                             query.userid = {$ne: data.get.userid};
-                            
+
                             //Only load messages from the groups the user is part of
 
                             query.groupid = {$in: groups};
@@ -97,20 +101,20 @@ var exports = {
                                     //Loop over all returned messages and create a message counter for each group
 
                                     messages.forEach(function (element) {
-                                        
+
                                         //Only add the message if it was received after the group was last checked
-                                        
+
                                         var messagedate = objectID(element._id).getTimestamp(),
                                             groupviewed = new Date(groupactivity[element.groupid]);
-                                        
+
                                         if (messagedate > groupviewed) {
-                                          
+
                                             if (!data.returns[element.groupid]) {
                                                 data.returns[element.groupid] = 1;
                                             } else {
                                                 data.returns[element.groupid] += 1;
                                             }
-                                            
+
                                         }
 
                                     });
