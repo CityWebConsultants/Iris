@@ -36,6 +36,7 @@ var exports = {
                         process.groupBroadcast(groupid.returns, 'notification_message', {
                             messageid: data.messageid,
                             action: 'edit',
+                            groupid: groupid.returns,
                             time: Date.now()
                         });
 
@@ -63,6 +64,7 @@ var exports = {
 
                         process.groupBroadcast(groupid.returns, 'notification_message', {
                             messageid: data.messageid,
+                            groupid: groupid.returns,
                             action: 'remove',
                             time: Date.now()
                         });
