@@ -103,15 +103,25 @@ var exports = {
 
                     if (gotData.returns === true) {
 
-                        process.hook('hook_message_edit', {
-                            userid: data.post.userid,
-                            messageid: data.post.messageid,
-                            messagetype: data.post.messagetype,
-                            content: data.post.content
+                        var sanitisedmessage = {
+                            content: {}
+                        };
 
-                        }, function (gotData) {
-                            data.returns = gotData.returns.toString();
-                            process.emit('next', data);
+                        sanitisedmessage['content'][data.post.messagetype] = data.post.content;
+
+                        process.hook('hook_message_preprocess', {message: sanitisedmessage}, function(sanitisedmessage) {
+
+                            process.hook('hook_message_edit', {
+                                userid: data.post.userid,
+                                messageid: data.post.messageid,
+                                messagetype: data.post.messagetype,
+                                content: sanitisedmessage.returns.content[data.post.messagetype]
+
+                            }, function (gotData) {
+                                data.returns = gotData.returns.toString();
+                                process.emit('next', data);
+
+                            });
 
                         });
 
