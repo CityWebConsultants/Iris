@@ -18,28 +18,22 @@ var exports = {
 
                         var userid = JSON.parse(data.post.content).uid;
 
-                        process.hook('hook_db_remove', {
-
+                        process.hook('hook_db_update', {
                             dbcollection: 'users',
                             dbquery: {
-                                'uid': userid
-                            }
+                                uid: userid
+                            },
+                            dbupdate: JSON.parse(data.post.content),
+                            dbupsert: true
+                        }, function (gotData) {
 
-                        }, function () {
+                            data.returns = "Updated";
 
-                            process.hook('hook_db_insert', {
-                                dbcollection: 'users',
-                                dbobject: JSON.parse(data.post.content)
-                            }, function (gotData) {
-
-                                data.returns = "Updated";
-
-                                process.emit('next', data);
-
-                            })
-
+                            process.emit('next', data);
 
                         })
+
+
 
                     } else {
                         process.emit('next', data);
@@ -138,7 +132,13 @@ var exports = {
 
                 var query = {};
 
-                var users = data.get.users.split("+");
+                var users = JSON.parse(data.get.users);
+
+                users.forEach(function (element, index) {
+
+                    users[index] = element.toString();
+
+                });
 
                 query["uid"] = {
                     $in: users
@@ -150,12 +150,13 @@ var exports = {
                 }, function (gotData) {
 
                     var userlist = gotData.returns;
+
                     var output = [];
 
                     JSON.parse(userlist).forEach(function (element) {
 
                         var name = element.field_name_first + " " + element.field_name_last;
-                        
+
                         output.push({
                             uid: element.uid,
                             username: name
