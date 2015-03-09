@@ -134,6 +134,7 @@ var exports = {
 
                 var users = JSON.parse(data.get.users);
 
+
                 users.forEach(function (element, index) {
 
                     users[index] = element.toString();
@@ -180,7 +181,45 @@ var exports = {
 
 
 
-    }
+    },
+    hook_post_user_fetchall: {
+        rank: 1,
+        event: function (data) {
+            if (data.post.secretkey && data.post.content) {
+
+                process.hook('hook_secretkey_check', {
+                    secretkey: data.post.secretkey
+                }, function (check) {
+                    if (check.returns === true) {
+
+                        process.hook('hook_db_find', {
+                            dbcollection: 'users',
+                            dbquery: {}
+                        }, function (gotData) {
+
+                            var userlist = gotData.returns;
+
+                            var output = [];
+
+                            JSON.parse(userlist).forEach(function (element) {
+
+                                output[element.uid] = true;
+
+                            });
+
+                            data.returns = JSON.stringify(output);
+                            process.emit('next', data);
+
+                        });
+
+                    } else {
+                        process.emit('next', data);
+                    }
+                });
+            }
+        }
+    },
+
 };
 
 module.exports = exports;
