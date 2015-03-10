@@ -3,11 +3,11 @@
 "use strict";
 
 var exports = {
-    init: function () {
-
-
+    debuglog: function (level, message) {
+        console.log(message);
     }
-
 };
+
+process.debuglog = exports.debuglog;
 
 module.exports = exports;
