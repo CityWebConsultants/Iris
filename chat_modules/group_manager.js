@@ -23,6 +23,26 @@
 //var mongoClient = require('mongodb').MongoClient;
 var objectID = require('mongodb').ObjectID;
 
+//Translate default name to list of users (not including current user)
+
+var defaultname = function(members, userid){
+  
+    var name = "";
+    
+    members.forEach(function(element,index){
+        
+        if(element.userid !== userid){
+                   
+            name += process.usercache[element.userid].username + ", ";
+            
+        }
+        
+    });
+    
+    return name;
+    
+};
+
 var exports = {
     options: { allowdebug: false },
     // TODO: this module needs refactoring methinks. but hey, it does work.
