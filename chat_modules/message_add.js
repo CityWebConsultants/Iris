@@ -32,13 +32,13 @@ var exports = {
                             strong_auth_check: false
                         }, function (gotData) {
 
-//                            var message = {
-//                                to: data.post.groupid,
-//                                userid: 1,
-//                                content: {
-//                                    text: content.text
-//                                }
-//                            };
+                            //                            var message = {
+                            //                                to: data.post.groupid,
+                            //                                userid: 1,
+                            //                                content: {
+                            //                                    text: content.text
+                            //                                }
+                            //                            };
 
                             data.returns = "ok";
                             process.emit('next', data);
@@ -96,7 +96,7 @@ var exports = {
 
                             var element;
                             var index = 0;
-                            var recurse = function() {
+                            var recurse = function () {
 
                                 if (index < userids.length) {
 
@@ -104,7 +104,22 @@ var exports = {
 
                                     process.hook('hook_db_find', {
                                         dbcollection: 'groups',
-                                        dbquery: {'is121': true, $and: [{'members': {$elemMatch: {'userid': element.toString()}}}, {'members': {$elemMatch: {'userid': process.config.systemuser.toString()}}}]}
+                                        dbquery: {
+                                            'is121': true,
+                                            $and: [{
+                                                'members': {
+                                                    $elemMatch: {
+                                                        'userid': element.toString()
+                                                    }
+                                                }
+                                            }, {
+                                                'members': {
+                                                    $elemMatch: {
+                                                        'userid': process.config.systemuser.toString()
+                                                    }
+                                                }
+                                            }]
+                                        }
                                     }, function (gotData) {
 
                                         if (gotData.returns && JSON.parse(gotData.returns).length === 0) {
@@ -128,7 +143,7 @@ var exports = {
                                             });
                                         } else {
                                             // Group already exists
-                                            sendMessage( JSON.parse(gotData.returns)[0]._id , function () {
+                                            sendMessage(JSON.parse(gotData.returns)[0]._id, function () {
                                                 useridsSuccess.push(element);
                                                 index++;
                                                 recurse();
@@ -204,31 +219,31 @@ var exports = {
         rank: 0,
         event: function (data) {
 
-          if (data.message.content.text) {
-            var skip = false;
-            if (process.config.admins) {
-                process.config.admins.forEach(function (element) {
-                    if (data.message.userid === element) {
-                        skip = true;
-                    }
-                });
+            if (data.message.content.text) {
+                var skip = false;
+                if (process.config.admins) {
+                    process.config.admins.forEach(function (element) {
+                        if (data.message.userid === element) {
+                            skip = true;
+                        }
+                    });
+                }
+
+                if (skip === false) {
+                    // Strip HTML.
+                    data.message.content.text = data.message.content.text
+                        .replace(/&/g, '&amp;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#x27;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/\//g, '&#47;');
+                }
+
             }
 
-            if (skip === false) {
-                // Strip HTML.
-                data.message.content.text = data.message.content.text
-                    .replace(/&/g, '&amp;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#x27;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/\//g, '&#47;');
-            }
-
-          }
-
-          data.returns = data.message;
-          process.emit('next', data);
+            data.returns = data.message;
+            process.emit('next', data);
 
         }
     },
@@ -243,7 +258,9 @@ var exports = {
                 content: data.content
             };
 
-            process.hook('hook_message_preprocess', {message: message}, function (processedMessage) {
+            process.hook('hook_message_preprocess', {
+                message: message
+            }, function (processedMessage) {
 
                 if (processedMessage.returns) {
                     message = processedMessage.returns;
@@ -282,6 +299,9 @@ var exports = {
                             }, function (gotData) {
                                 data.returns = gotData.returns[0]._id;
 
+                                //Translate username from cache
+                                message.username = process.usercache[message.userid].username;
+                                
                                 // Actually send message
                                 process.groupBroadcast(data.groupid, 'message', message);
 
@@ -304,7 +324,12 @@ var exports = {
                     }, function (gotData) {
                         data.returns = gotData.returns[0]._id;
 
+                        //Translate username from cache
+
+                        message.username = process.usercache[message.userid].username;
+
                         // Actually send message
+
                         process.groupBroadcast(data.groupid, 'message', message);
 
                         process.emit('next', data);
