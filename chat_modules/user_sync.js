@@ -151,7 +151,17 @@ var exports = {
 
                     JSON.parse(userlist).forEach(function (element) {
 
-                        var name = element.field_name_first + " " + element.field_name_last;
+                        var name = '';
+
+                        if (element.field_name_first) {
+
+                            name = element.field_name_first + " " + element.field_name_last;
+
+                        } else {
+
+                            name = element.uid;
+
+                        }
 
                         output[element.uid] = {
                             username: name

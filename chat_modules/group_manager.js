@@ -26,21 +26,29 @@ var objectID = require('mongodb').ObjectID;
 //Translate default name to list of users (not including current user)
 
 var defaultname = function(members, userid){
-  
+
     var name = "";
-    
+
+    if (members.length > 1) {
     members.forEach(function(element,index){
-        
+
         if(element.userid !== userid){
-                   
-            name += process.usercache[element.userid].username + ", ";
-            
+
+            name += process.usercache[element.userid].username;
+
+            if (index < members.length - 1) {
+                name += ", ";
+            }
+
         }
-        
+
     });
-    
+    } else {
+        name = process.usercache[userid].username;
+    }
+
     return name;
-    
+
 };
 
 var exports = {
@@ -490,7 +498,16 @@ var exports = {
                         }
                     }
                 }, function (gotData) {
-                    data.returns = gotData.returns;
+                    var groupdata = JSON.parse(gotData.returns);
+
+                    groupdata.forEach(function (element, index) {
+                        if (element.name === 'default') {
+                            groupdata[index].name = defaultname(element.members, data.userid);
+                        }
+                    });
+
+                    data.returns = JSON.stringify(groupdata);
+
                     process.emit('next', data);
                 });
 
