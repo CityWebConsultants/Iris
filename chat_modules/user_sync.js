@@ -3,16 +3,17 @@
 "use strict";
 
 var exports = {
-    init: function(){
-      
-        setTimeout(function () {
-    process.hook('hook_usercache', {}, function (data) {
+    hook_mongodb_ready: {
+        rank: 1,
+        event: function(){
 
-        console.log("User cache updated with " + Object.keys(process.usercache).length + " users");
+            process.hook('hook_usercache', {}, function (data) {
 
-    });
-}, 500);
+                console.log("User cache updated with " + Object.keys(process.usercache).length + " users");
 
+            });
+
+        }
     },
     // POST /user/sync
     hook_post_user_sync: {
@@ -133,12 +134,12 @@ var exports = {
         }
     },
     hook_usercache: {
-        
+
         rank: 1,
         event: function(data){
 
             //Split data by commas
-        
+
                 process.hook('hook_db_find', {
                     dbcollection: 'users',
                     dbquery: {}
