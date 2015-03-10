@@ -160,7 +160,17 @@ var exports = {
 
             process.hook('hook_db_find', {dbcollection: 'messages', dbquery: query}, function (gotData) {
 
-                data.returns = gotData.returns;
+                var messages = JSON.parse(gotData.returns);
+                
+                messages.forEach(function(element,index){
+                   
+                    var message = messages[index];
+                    
+                    message.username = process.usercache[message.userid].username;
+                    
+                });
+                
+                data.returns = JSON.stringify(messages);
                 process.emit('next', data);
             });
         }
