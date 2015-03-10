@@ -512,9 +512,7 @@ var exports = {
                         dbupsert: false
                     }, function (gotData) {
 
-                        if (data.members === data.userid) {
-                            data.removedmember = data.userid;
-                        }
+                        data.removedmember = data.members;
 
                         data.returns = gotData.returns;
                         process.emit('next', data);

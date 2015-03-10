@@ -26,6 +26,8 @@ var exports = {
         rank: 10,
         event: function (data) {
 
+
+
             // Validate.
             process.hook('hook_db_find', {dbcollection: 'messages', dbquery: {userid: data.userid, '_id': objectID(data.messageid)}}, function (query) {
 
@@ -108,7 +110,7 @@ var exports = {
                 process.groupBroadcast(data.groupid, 'notification_message', {
                     action: 'addmember',
                     groupid: data.groupid,
-                    time: Date.now()
+                     time: Date.now()
                 });
 
                 process.emit('next', data);
@@ -117,19 +119,20 @@ var exports = {
                 console.log(data.removedmember);
                 if (data.removedmember) {
                     // Send message-removed to that user's sockets.
-
                     process.userBroadcast(data.removedmember, 'notification_message', {
                         action: 'removemember',
                         member: data.removedmember,
-                        time: Date.now()
-                    });
-                } else {
-                    process.groupBroadcast(data.groupid, 'notification_message', {
-                        action: 'removemember',
                         groupid: data.groupid,
                         time: Date.now()
                     });
                 }
+
+                // And send to everyone.
+                process.groupBroadcast(data.groupid, 'notification_message', {
+                    action: 'removemember',
+                    groupid: data.groupid,
+                    time: Date.now()
+                });
 
                 process.emit('next', data);
                 break;
