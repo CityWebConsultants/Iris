@@ -120,7 +120,7 @@ var exports = {
                 if (data.removedmember) {
                     // Send message-removed to that user's sockets.
                     process.userBroadcast(data.removedmember, 'notification_message', {
-                        action: 'removemember',
+                        action: 'removedfromgroup',
                         member: data.removedmember,
                         groupid: data.groupid,
                         time: Date.now()
