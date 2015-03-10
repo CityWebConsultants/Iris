@@ -99,7 +99,17 @@ var exports = {
                                 '_id': data.groupid
                             }
                         }, function (gotData) {
-                            data.returns = gotData.returns;
+
+                            var groupdata = JSON.parse(gotData.returns);
+
+                            groupdata.forEach(function (element, index) {
+                                if (element.name === 'default') {
+                                    groupdata[index].name = defaultname(element.members, data.userid);
+                                }
+                            });
+
+                            data.returns = JSON.stringify(groupdata);
+
                             process.emit('next', data);
                         });
 
