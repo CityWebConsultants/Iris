@@ -3,6 +3,17 @@
 "use strict";
 
 var exports = {
+    init: function(){
+      
+        setTimeout(function () {
+    process.hook('hook_usercache', {}, function (data) {
+
+        console.log("User cache updated with " + Object.keys(process.usercache).length + " users");
+
+    });
+}, 500);
+
+    },
     // POST /user/sync
     hook_post_user_sync: {
         rank: 1,
@@ -121,66 +132,39 @@ var exports = {
             });
         }
     },
-    hook_get_userfetch: {
-
-        rank: 0,
-        event: function (data) {
+    hook_usercache: {
+        
+        rank: 1,
+        event: function(data){
 
             //Split data by commas
-
-            if (data.get.users) {
-
-                var query = {};
-
-                var users = JSON.parse(data.get.users);
-
-
-                users.forEach(function (element, index) {
-
-                    users[index] = element.toString();
-
-                });
-
-                query["uid"] = {
-                    $in: users
-                };
-
+        
                 process.hook('hook_db_find', {
                     dbcollection: 'users',
-                    dbquery: query
+                    dbquery: {}
                 }, function (gotData) {
 
                     var userlist = gotData.returns;
 
-                    var output = [];
+                    var output = {};
 
                     JSON.parse(userlist).forEach(function (element) {
 
                         var name = element.field_name_first + " " + element.field_name_last;
 
-                        output.push({
-                            uid: element.uid,
+                        output[element.uid] = {
                             username: name
-                        });
+                        };
 
                     });
 
-                    data.returns = JSON.stringify(output);
-                    process.emit("next", data);
+                    process.usercache = output;
+
+                    process.emit('next', data);
 
                 });
 
-            } else {
-
-                data.returns = "Error";
-                process.emit("next", data);
-
-            };
-
-        }
-
-
-
+            }
     },
     hook_post_user_fetchall: {
         rank: 1,
