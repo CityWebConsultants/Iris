@@ -599,7 +599,9 @@ var exports = {
                                     content: {
                                         groupupdate: JSON.stringify({
                                             userid: data.members,
+                                            username: defaultname(data.members, process.config.systemuser),
                                             requester: data.userid,
+                                            requestername: defaultname(data.userid, process.config.systemuser),
                                             action: 'add'
                                         })
                                     },
