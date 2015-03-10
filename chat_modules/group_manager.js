@@ -32,7 +32,7 @@ var defaultname = function(members, userid){
     if (members.length > 1) {
     members.forEach(function(element,index){
 
-        if(element.userid !== userid){
+        if(process.usercache[element.userid] && element.userid !== userid){
 
             name += process.usercache[element.userid].username;
 
