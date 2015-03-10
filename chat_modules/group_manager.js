@@ -44,7 +44,9 @@ var defaultname = function(members, userid){
 
     });
     } else {
-        name = process.usercache[userid].username;
+        if (process.usercache[userid]) {
+            name = process.usercache[userid].username;
+        }
     }
 
     return name;
