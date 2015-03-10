@@ -16,6 +16,9 @@ module.exports = {
     systemuser: 1,
     modules_enabled: [
         {
+            name: 'debug'
+        },
+        {
             name: 'auth',
             options: {
                 token_length: 16,
@@ -33,9 +36,6 @@ module.exports = {
         },
         {
             name: 'sockets'
-        },
-        {
-            name: 'socket_message'
         },
         {
             name: 'group_manager',
