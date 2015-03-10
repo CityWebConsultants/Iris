@@ -78,6 +78,9 @@ module.exports = {
         },
         {
             name: 'mediacall'
+        },
+        {
+            name: 'user_sync'
         }
     ]
 };
