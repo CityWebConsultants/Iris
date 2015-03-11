@@ -162,6 +162,10 @@ var exports = {
                                     data.returns[index].username = process.usercache[element.userid].username;
 
                                 }
+                                if (process.usercache[element.userid] && process.usercache[element.userid].picture) {
+                                    data.returns[index].picture = process.usercache[element.userid].picture;
+
+                                }
                             });
 
                             process.emit('next', data);

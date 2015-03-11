@@ -124,11 +124,17 @@ var exports = {
                 JSON.parse(gotData.returns).forEach(function (element) {
 
                     var uid = element.uid;
+                    var picture;
+                    if (element.picture) {
+                        picture = element.picture;
+                    }
+
                     var name = element.field_name_first + " " + element.field_name_last;
 
                     userlist.push({
                         uid: uid,
-                        name: name
+                        name: name,
+                        picture: picture
                     });
 
 
