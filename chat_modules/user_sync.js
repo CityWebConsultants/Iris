@@ -41,6 +41,12 @@ var exports = {
 
                             data.returns = "Updated";
 
+                            process.hook('hook_usercache', {}, function (data) {
+
+                                console.log("User cache updated with " + Object.keys(process.usercache).length + " users");
+
+                            });
+
                             process.emit('next', data);
 
                         })
