@@ -30,19 +30,20 @@ var defaultname = function(members, userid){
     var name = "";
 
     if (members.length > 1) {
-    members.forEach(function(element,index){
+        members.forEach(function(element,index){
 
-        if(process.usercache[element.userid] && element.userid !== userid){
+            if (process.usercache[element.userid] && element.userid !== userid) {
 
-            name += process.usercache[element.userid].username;
-
-            if (index < members.length - 1) {
+                name += process.usercache[element.userid].username;
                 name += ", ";
+
             }
 
-        }
+        });
 
-    });
+        // Trim last comma from the end.
+        name = name.slice(0, -2);
+
     } else {
         if (process.usercache[userid]) {
             name = process.usercache[userid].username;
