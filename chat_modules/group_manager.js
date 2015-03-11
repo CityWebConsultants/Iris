@@ -155,6 +155,14 @@ var exports = {
                     function (gotData) {
                         if (gotData.returns && JSON.parse(gotData.returns)[0]) {
                             data.returns = JSON.parse(gotData.returns)[0].members;
+
+                            data.returns.forEach(function(element, index) {
+                                if (process.usercache[element.userid] && process.usercache[element.userid].username) {
+                                    data.returns[index].username = process.usercache[element.userid].username;
+
+                                }
+                            });
+
                             process.emit('next', data);
                         } else {
                             console.log("[INFO] hook_group_list_users: Request for nonexistent or inaccessible group ID");
@@ -593,15 +601,26 @@ var exports = {
 
                             if (data.userid != process.config.systemuser) {
                                 // Put a message into the group directly
+
+                                var username;
+                                if (process.usercache[data.members] && process.usercache[data.members].username) {
+                                    username = process.usercache[data.members].username;
+                                }
+
+                                var requestername;
+                                if (process.usercache[data.userid] && process.usercache[data.userid].username) {
+                                    requestername = process.usercache[data.userid].username;
+                                }
+
                                 process.hook('hook_message_add', {
                                     userid: process.config.systemuser,
                                     groupid: data.groupid,
                                     content: {
                                         groupupdate: JSON.stringify({
                                             userid: data.members,
-                                            username: defaultname(data.members, process.config.systemuser),
+                                            username: username,
                                             requester: data.userid,
-                                            requestername: defaultname(data.userid, process.config.systemuser),
+                                            requestername: requestername,
                                             action: 'add'
                                         })
                                     },
