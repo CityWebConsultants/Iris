@@ -5,7 +5,7 @@
 var exports = {
     hook_mongodb_ready: {
         rank: 1,
-        event: function(){
+        event: function () {
 
             process.hook('hook_usercache', {}, function (data) {
 
@@ -142,46 +142,47 @@ var exports = {
     hook_usercache: {
 
         rank: 1,
-        event: function(data){
+        event: function (data) {
 
             //Split data by commas
 
-                process.hook('hook_db_find', {
-                    dbcollection: 'users',
-                    dbquery: {}
-                }, function (gotData) {
+            process.hook('hook_db_find', {
+                dbcollection: 'users',
+                dbquery: {}
+            }, function (gotData) {
 
-                    var userlist = gotData.returns;
+                var userlist = gotData.returns;
 
-                    var output = {};
+                var output = {};
 
-                    JSON.parse(userlist).forEach(function (element) {
+                JSON.parse(userlist).forEach(function (element) {
 
-                        var name = '';
+                    var name = '';
 
-                        if (element.field_name_first) {
+                    if (element.field_name_first) {
 
-                            name = element.field_name_first + " " + element.field_name_last;
+                        name = element.field_name_first + " " + element.field_name_last;
 
-                        } else {
+                    } else {
 
-                            name = element.uid;
+                        name = element.uid;
 
-                        }
+                    }
 
-                        output[element.uid] = {
-                            username: name
-                        };
-
-                    });
-
-                    process.usercache = output;
-
-                    process.emit('next', data);
+                    output[element.uid] = {
+                        username: name,
+                        picture: element.picture
+                    };
 
                 });
 
-            }
+                process.usercache = output;
+
+                process.emit('next', data);
+
+            });
+
+        }
     },
     hook_post_user_fetchall: {
         rank: 1,
