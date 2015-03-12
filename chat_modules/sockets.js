@@ -114,7 +114,6 @@ var exports = {
                 });
 
                 socket.on("disconnect", function (reason) {
-                    console.log('Disconnect from ' + socket.userid);
 
                     if (socket.userid && auth.userlist[socket.userid] && auth.userlist[socket.userid].sockets) {
 
