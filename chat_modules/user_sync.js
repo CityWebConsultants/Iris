@@ -128,13 +128,18 @@ var exports = {
                     if (element.picture) {
                         picture = element.picture;
                     }
+                    var avatar;
+                    if (element.avatar) {
+                        avatar = element.avatar;
+                    }
 
                     var name = element.field_name_first + " " + element.field_name_last;
 
                     userlist.push({
                         uid: uid,
                         name: name,
-                        picture: picture
+                        picture: picture,
+                        avatar: avatar
                     });
 
 
@@ -177,7 +182,8 @@ var exports = {
 
                     output[element.uid] = {
                         username: name,
-                        picture: element.picture
+                        picture: element.picture,
+                        avatar: element.avatar
                     };
 
                 });

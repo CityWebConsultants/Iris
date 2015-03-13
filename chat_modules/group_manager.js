@@ -158,14 +158,7 @@ var exports = {
                             data.returns = JSON.parse(gotData.returns)[0].members;
 
                             data.returns.forEach(function(element, index) {
-                                if (process.usercache[element.userid] && process.usercache[element.userid].username) {
-                                    data.returns[index].username = process.usercache[element.userid].username;
-
-                                }
-                                if (process.usercache[element.userid] && process.usercache[element.userid].picture) {
-                                    data.returns[index].picture = process.usercache[element.userid].picture;
-
-                                }
+                                data.returns[index] = process.usercache[element.userid];
                             });
 
                             process.emit('next', data);
