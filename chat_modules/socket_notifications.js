@@ -14,7 +14,6 @@ var exports = {
     options: {notify_edit: true, notify_delete: true, silent: true},
     init: function () {
         process.addSocketListener("user_communicate", function (data, socket) {
-            console.log(data);
             process.hook('hook_auth_check', {userid: data.userid, token: data.token}, function (authorised) {
                 if (authorised.returns === true) {
                     process.userBroadcast(data.userid, "user_communicate", data.message);
@@ -116,7 +115,6 @@ var exports = {
                 process.emit('next', data);
                 break;
             case 'removemember':
-                console.log(data.removedmember);
                 if (data.removedmember) {
                     // Send message-removed to that user's sockets.
                     process.userBroadcast(data.removedmember, 'notification_message', {

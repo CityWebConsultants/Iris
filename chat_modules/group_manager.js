@@ -54,6 +54,33 @@ var defaultname = function(members, userid){
 
 };
 
+var getavatar = function (group, userid) {
+    var generic121 = "http://placehold.it/50x50";
+    var genericReadOnly = "http://placehold.it/50x50";
+    var generic = "http://placehold.it/50x50";
+
+    if (group.is121) {
+        var avatar;
+        group.members.forEach(function (element, index) {
+            if (element.userid != userid) {
+                if (process.usercache[element.userid] && process.usercache[element.userid].avatar) {
+                    avatar = process.usercache[element.userid].avatar;
+                }
+            }
+        });
+
+        if (!avatar) {
+            avatar = generic121;
+        }
+
+        return avatar;
+    } else if (group.isReadOnly) {
+        return genericReadOnly;
+    } else {
+        return generic;
+    }
+}
+
 var exports = {
     options: {
         allowdebug: false
@@ -109,9 +136,9 @@ var exports = {
                                 if (element.name === 'default') {
                                     groupdata[index].name = defaultname(element.members, data.userid);
                                 }
-                            });
 
-                            data.returns = JSON.stringify(groupdata);
+                                groupdata[index].avatar = getavatar(element, data.userid);
+                            });
 
                             process.emit('next', data);
                         });
@@ -157,9 +184,11 @@ var exports = {
                         if (gotData.returns && JSON.parse(gotData.returns)[0]) {
                             data.returns = JSON.parse(gotData.returns)[0].members;
 
+
                             data.returns.forEach(function(element, index) {
-                                data.returns[index] = process.usercache[element.userid];
+
                             });
+
 
                             process.emit('next', data);
                         } else {
@@ -224,7 +253,7 @@ var exports = {
                     if (groupid.success) {
                         data.returns = groupid.returns.toString();
                     } else {
-                        data.returns = "ERROR: Could not add group although the request was valid. ¯\\(°_o)/¯";
+                        data.returns = "ERROR: Could not add group although the request was valid.";
                     }
                     process.emit("next", data);
                 });
@@ -370,8 +399,6 @@ var exports = {
             data.success = false;
 
             if (data.members && data.name) {
-
-                console.log(data.name);
 
                 // Remove duplicate users
                 data.members = data.members.filter(function (v, i, a) {
@@ -522,6 +549,8 @@ var exports = {
                         if (element.name === 'default') {
                             groupdata[index].name = defaultname(element.members, data.userid);
                         }
+
+                        groupdata[index].avatar = getavatar(element, data.userid);
                     });
 
                     data.returns = JSON.stringify(groupdata);
@@ -577,9 +606,6 @@ var exports = {
 
                     // If this user doesn't yet exist
                     if (existing.returns && existing.returns === '[]') {
-
-                        //                            existing = JSON.parse(existing);
-                        console.log(existing);
 
                         process.hook('hook_db_update', {
                             dbcollection: 'groups',
