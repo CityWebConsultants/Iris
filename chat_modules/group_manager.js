@@ -25,12 +25,12 @@ var objectID = require('mongodb').ObjectID;
 
 //Translate default name to list of users (not including current user)
 
-var defaultname = function(members, userid){
+var defaultname = function (members, userid) {
 
     var name = "";
 
     if (members.length > 1) {
-        members.forEach(function(element,index){
+        members.forEach(function (element, index) {
 
             if (process.usercache[element.userid] && element.userid !== userid) {
 
@@ -157,8 +157,17 @@ var exports = {
                         if (gotData.returns && JSON.parse(gotData.returns)[0]) {
                             data.returns = JSON.parse(gotData.returns)[0].members;
 
-                            data.returns.forEach(function(element, index) {
-                                data.returns[index] = process.usercache[element.userid];
+                            data.returns.forEach(function (element, index) {
+
+                                var property;
+
+                                for (property in process.usercache[element.userid]) {
+
+
+                                    data.returns[index][property] = process.usercache[element.userid][property];
+
+
+                                }
                             });
 
                             process.emit('next', data);
