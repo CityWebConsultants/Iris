@@ -94,7 +94,7 @@ var exports = {
                 token: data.get.token,
                 groupid: data.get.groupid
             }, function (gotData) {
-                data.returns = gotData.returns;
+                data.returns = JSON.stringify(gotData.returns);
                 process.emit('next', data);
             });
         }
@@ -139,6 +139,8 @@ var exports = {
 
                                 groupdata[index].avatar = getavatar(element, data.userid);
                             });
+
+                            data.returns = groupdata;
 
                             process.emit('next', data);
                         });
