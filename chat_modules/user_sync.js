@@ -181,6 +181,7 @@ var exports = {
                     }
 
                     output[element.uid] = {
+                        uid: element.uid,
                         username: name,
                         picture: element.picture,
                         avatar: element.avatar
