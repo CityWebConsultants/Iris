@@ -24,7 +24,7 @@ var exports = {
                                 process.emit('next', data);
                             }
                         }
-
+                      
                         process.hook("hook_db_find", {
                             dbcollection: 'groups',
                             dbquery: {
@@ -32,26 +32,19 @@ var exports = {
                                 'isReadOnly': true
                             }
                         }, function (groupid) {
-
+                          
                             groupid = JSON.parse(groupid.returns);
-
+                          
                             process.hook('hook_message_add', {
                                 userid: process.config.systemuser,
-                                groupid: groupid.returns[0]._id,
+                                groupid: groupid[0]._id,
                                 content: content,
                                 strong_auth_check: false
                             }, function (gotData) {
 
-                                //                            var message = {
-                                //                                to: data.post.groupid,
-                                //                                userid: 1,
-                                //                                content: {
-                                //                                    text: content.text
-                                //                                }
-                                //                            };
-
                                 data.returns = "ok";
                                 process.emit('next', data);
+                              
                             });
 
                         });
