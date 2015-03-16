@@ -136,7 +136,7 @@ var exports = {
                             dbupdate: {
                                 $push: {
                                     members: {
-                                        'userid': data.members,
+                                        'userid': data.post.members,
                                         'joined': Date.now()
                                     }
                                 }
@@ -181,7 +181,7 @@ var exports = {
                             dbupdate: {
                                 $pull: {
                                     members: {
-                                        'userid': data.members
+                                        'userid': data.post.members
                                     }
                                 }
                             },
