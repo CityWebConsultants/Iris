@@ -74,18 +74,35 @@ var exports = {
                 }, function (check) {
                     if (check.returns === true) {
 
-                        // Delete the group in the database
-                        process.hook('hook_db_remove', {
+                        process.hook("hook_db_find", {
                             dbcollection: 'groups',
                             dbquery: {
                                 'gidref': data.post.gid,
                                 'isReadOnly': true
                             }
-                        }, function (deleteReturns) {
-                            // todo: remove all messages too
+                        }, function (groupid) {
 
-                            data.returns = deleteReturns.returns;
-                            process.emit('next', data);
+                            console.log(groupid.returns);
+
+//                            process.groupBroadcast(groupid.returns, "notification_message", {
+//                                action: "removegroup",
+//                                time: Date.now()
+//                            });
+
+                            // Delete the group in the database
+                            process.hook('hook_db_remove', {
+                                dbcollection: 'groups',
+                                dbquery: {
+                                    'gidref': data.post.gid,
+                                    'isReadOnly': true
+                                }
+                            }, function (deleteReturns) {
+                                // todo: remove all messages too
+
+                                data.returns = deleteReturns.returns;
+                                process.emit('next', data);
+                            });
+
                         });
 
                     } else {
