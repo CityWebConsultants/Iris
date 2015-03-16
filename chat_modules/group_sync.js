@@ -203,6 +203,55 @@ var exports = {
                 process.emit("next", data);
             }
         }
+    },
+    hook_get_group_sync_groupslist: {
+        rank: 1,
+        event: function (data) {
+
+            if (data.post.secretkey) {
+
+                process.hook('hook_secretkey_check', {
+                    secretkey: data.post.secretkey
+                }, function (check) {
+                    if (check.returns === true) {
+
+                        process.hook('hook_db_find', {
+                            dbcollection: "groups",
+                            dbquery: {
+                                gidref: {$exists: true},
+                                isReadOnly: true
+                            }
+                        }, function (groups) {
+
+                            console.log(groups);
+
+                            groups = JSON.parse(groups.returns);
+
+                            data.returns = [];
+
+                            groups.forEach(function (element, index) {
+
+                                var returnobject = {};
+                                returnobject[element.gidref] = true;
+
+                                data.returns.push(returnobject);
+                            });
+
+                            data.returns = JSON.stringify(data.returns);
+
+                            process.emit("next", data);
+
+                        });
+
+                    } else {
+                        process.emit("next", data);
+                    }
+                });
+
+            } else {
+                process.emit("next", data);
+            }
+        }
     }
 };
 
