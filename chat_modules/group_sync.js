@@ -208,10 +208,10 @@ var exports = {
         rank: 1,
         event: function (data) {
 
-            if (data.post.secretkey) {
+            if (data.get.secretkey) {
 
                 process.hook('hook_secretkey_check', {
-                    secretkey: data.post.secretkey
+                    secretkey: data.get.secretkey
                 }, function (check) {
                     if (check.returns === true) {
 
@@ -244,11 +244,13 @@ var exports = {
                         });
 
                     } else {
+                        data.returns = "Bad secretkey.";
                         process.emit("next", data);
                     }
                 });
 
             } else {
+                data.returns = "No secretkey.";
                 process.emit("next", data);
             }
         }
