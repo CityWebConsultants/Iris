@@ -114,6 +114,95 @@ var exports = {
                 process.emit("next", data);
             }
         }
+    },
+    hook_post_group_sync_addmember: {
+        rank: 1,
+        event: function (data) {
+            // expects secretkey, gid, userid
+
+            if (data.post.secretkey) {
+
+                process.hook('hook_secretkey_check', {
+                    secretkey: data.post.secretkey
+                }, function (check) {
+                    if (check.returns === true) {
+
+                        process.hook("hook_db_update", {
+                            dbcollection: 'groups',
+                            dbquery: {
+                                gidref: data.post.gid,
+                                isReadOnly: true
+                            },
+                            dbupdate: {
+                                $push: {
+                                    members: {
+                                        'userid': data.members,
+                                        'joined': Date.now()
+                                    }
+                                }
+                            },
+                            dbmulti: true
+                        }, function (update) {
+
+                            data.returns = update.returns;
+
+                            process.emit("next", data);
+
+                        });
+
+                    } else {
+                        process.emit("next", data);
+                    }
+                });
+
+            } else {
+                process.emit("next", data);
+            }
+        }
+    },
+    hook_post_group_sync_removemember: {
+        rank: 1,
+        event: function (data) {
+            // expects secretkey, gid, userid
+
+            if (data.post.secretkey) {
+
+                process.hook('hook_secretkey_check', {
+                    secretkey: data.post.secretkey
+                }, function (check) {
+                    if (check.returns === true) {
+
+                        process.hook("hook_db_update", {
+                            dbcollection: 'groups',
+                            dbquery: {
+                                gidref: data.post.gid,
+                                isReadOnly: true
+                            },
+                            dbupdate: {
+                                $pull: {
+                                    members: {
+                                        'userid': data.members
+                                    }
+                                }
+                            },
+                            dbmulti: true
+                        }, function (update) {
+
+                            data.returns = update.returns;
+
+                            process.emit("next", data);
+
+                        });
+
+                    } else {
+                        process.emit("next", data);
+                    }
+                });
+
+            } else {
+                process.emit("next", data);
+            }
+        }
     }
 };
 
