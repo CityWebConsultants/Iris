@@ -81,6 +81,9 @@ module.exports = {
         },
         {
             name: 'user_sync'
+        },
+        {
+            name: 'group_sync'
         }
     ]
 };
