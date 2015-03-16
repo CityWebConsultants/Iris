@@ -7,7 +7,7 @@ var exports = {
     hook_post_message_hub: {
         rank: 1,
         event: function (data) {
-            if (data.post.secretkey && data.post.groupid && data.post.content) {
+            if (data.post.secretkey && data.post.gid && data.post.content) {
                 process.hook('hook_secretkey_check', {
                     secretkey: data.post.secretkey
                 }, function (check) {
@@ -25,23 +25,35 @@ var exports = {
                             }
                         }
 
-                        process.hook('hook_message_add', {
-                            userid: process.config.systemuser,
-                            groupid: data.post.groupid,
-                            content: content,
-                            strong_auth_check: false
-                        }, function (gotData) {
+                        process.hook("hook_db_find", {
+                            dbcollection: 'groups',
+                            dbquery: {
+                                'gidref': data.post.gid,
+                                'isReadOnly': true
+                            }
+                        }, function (groupid) {
 
-                            //                            var message = {
-                            //                                to: data.post.groupid,
-                            //                                userid: 1,
-                            //                                content: {
-                            //                                    text: content.text
-                            //                                }
-                            //                            };
+                            groupid = JSON.parse(groupid.returns);
 
-                            data.returns = "ok";
-                            process.emit('next', data);
+                            process.hook('hook_message_add', {
+                                userid: process.config.systemuser,
+                                groupid: groupid.returns[0]._id,
+                                content: content,
+                                strong_auth_check: false
+                            }, function (gotData) {
+
+                                //                            var message = {
+                                //                                to: data.post.groupid,
+                                //                                userid: 1,
+                                //                                content: {
+                                //                                    text: content.text
+                                //                                }
+                                //                            };
+
+                                data.returns = "ok";
+                                process.emit('next', data);
+                            });
+
                         });
                     } else {
                         data.returns = "ERROR: Invalid secretkey";
@@ -301,7 +313,7 @@ var exports = {
 
                                 //Translate username from cache
                                 message.username = process.usercache[message.userid].username;
-                                
+
                                 // Actually send message
                                 process.groupBroadcast(data.groupid, 'message', message);
 
