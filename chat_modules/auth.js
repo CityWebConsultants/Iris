@@ -34,7 +34,7 @@ var exports = {
                         secretkey: data.post.secretkey
                     }, function (check) {
 
-                        if (check) {
+                        if (check.returns) {
                             crypto.randomBytes(exports.options.token_length, function (ex, buf) {
                                 authToken = buf.toString('hex');
 
