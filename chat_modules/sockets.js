@@ -95,7 +95,7 @@ var exports = {
                                 auth.userlist[data.userid].sockets.forEach(function (element, index) {
 
                                     if (socket.id === element.id) {
-                                        socketAlreadyExists = true; =
+                                        socketAlreadyExists = true;
                                     }
                                 });
 
