@@ -27,26 +27,39 @@ var exports = {
 
                 var authToken;
 
-                if (data.post.secretkey === process.config.secretkey && data.post.userid) {
-                    crypto.randomBytes(exports.options.token_length, function (ex, buf) {
-                        authToken = buf.toString('hex');
+                if (data.post.userid && data.post.apikey && data.post.secretkey) {
 
-                        //Create new user if not in existence
+                    process.hook("hook_secretkey_check", {
+                        apikey: data.post.apikey,
+                        secretkey: data.post.secretkey
+                    }, function (check) {
 
-                        if (!exports.userlist[data.post.userid]) {
-                            exports.userlist[data.post.userid] = {};
+                        if (check) {
+                            crypto.randomBytes(exports.options.token_length, function (ex, buf) {
+                                authToken = buf.toString('hex');
 
+                                //Create new user if not in existence
+
+                                if (!exports.userlist[data.post.userid]) {
+                                    exports.userlist[data.post.userid] = {};
+
+                                }
+
+                                //Check if no tokens already set and create array
+
+                                if (!exports.userlist[data.post.userid].tokens) {
+                                    exports.userlist[data.post.userid].tokens = [];
+                                }
+
+                                exports.userlist[data.post.userid].tokens.push(authToken);
+                                data.returns = authToken;
+                                process.emit('next', data);
+                            });
+                        } else {
+                            data.returns = "Secret key pair invalid.";
+                            process.emit("next", data);
                         }
 
-                        //Check if no tokens already set and create array
-
-                        if (!exports.userlist[data.post.userid].tokens) {
-                            exports.userlist[data.post.userid].tokens = [];
-                        }
-
-                        exports.userlist[data.post.userid].tokens.push(authToken);
-                        data.returns = authToken;
-                        process.emit('next', data);
                     });
 
                 } else {
