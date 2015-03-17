@@ -25,8 +25,6 @@ var exports = {
         rank: 10,
         event: function (data) {
 
-
-
             // Validate.
             process.hook('hook_db_find', {dbcollection: 'messages', dbquery: {userid: data.userid, '_id': objectID(data.messageid)}}, function (query) {
 
@@ -144,6 +142,50 @@ var exports = {
                 process.emit('next', data);
                 break;
             }
+        }
+    },
+    hook_send_joined_message: {
+        rank: 1,
+        event: function (data) {
+
+            // expects userid, members, groupid
+
+            var requester;
+
+            // If done with secretkey then it's systemuser
+            if (!data.userid) {
+                requester = process.config.systemuser;
+            } else {
+                requester = data.userid;
+            }
+
+            var username;
+            if (process.usercache[data.members] && process.usercache[data.members].username) {
+                username = process.usercache[data.members].username;
+            }
+
+            var requestername;
+            if (process.usercache[requester] && process.usercache[requester].username) {
+                requestername = process.usercache[requester].username;
+            }
+
+            process.hook('hook_message_add', {
+                userid: process.config.systemuser,
+                groupid: data.groupid,
+                content: {
+                    groupupdate: JSON.stringify({
+                        userid: data.members,
+                        username: username,
+                        requester: requester,
+                        requestername: requestername,
+                        action: 'add'
+                    })
+                },
+                strong_auth_check: false
+            }, function (gotData) {
+                process.emit('next', data);
+            });
+
         }
     }
 };

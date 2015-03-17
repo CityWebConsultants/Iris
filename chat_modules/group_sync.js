@@ -146,7 +146,32 @@ var exports = {
 
                             data.returns = update.returns;
 
-                            process.emit("next", data);
+                            process.hook("hook_db_find", {
+                                dbcollection: 'groups',
+                                dbquery: {
+                                    gidref: data.post.gid,
+                                    isReadOnly: true
+                                }
+                            }, function (gotData) {
+                                gotData = JSON.parse(gotData.returns);
+
+                                if (gotData[0] && gotData[0]._id) {
+
+                                    process.hook("hook_send_joined_message", {
+                                        members: data.post.members,
+                                        groupid: gotData[0]._id
+                                    }, function (gotData) {
+
+                                        process.emit("next", data);
+
+                                    });
+
+                                } else {
+
+                                    process.emit("next", data);
+
+                                }
+                            });
 
                         });
 

@@ -638,38 +638,15 @@ var exports = {
                         }, function (gotData) {
                             data.returns = gotData.returns;
 
-                            if (data.userid != process.config.systemuser) {
-                                // Put a message into the group directly
+                            // Put a message into the group directly
 
-                                var username;
-                                if (process.usercache[data.members] && process.usercache[data.members].username) {
-                                    username = process.usercache[data.members].username;
-                                }
-
-                                var requestername;
-                                if (process.usercache[data.userid] && process.usercache[data.userid].username) {
-                                    requestername = process.usercache[data.userid].username;
-                                }
-
-                                process.hook('hook_message_add', {
-                                    userid: process.config.systemuser,
-                                    groupid: data.groupid,
-                                    content: {
-                                        groupupdate: JSON.stringify({
-                                            userid: data.members,
-                                            username: username,
-                                            requester: data.userid,
-                                            requestername: requestername,
-                                            action: 'add'
-                                        })
-                                    },
-                                    strong_auth_check: false
-                                }, function (gotData) {
-                                    process.emit('next', data);
-                                });
-                            } else {
-                                process.emit('next', data);
-                            }
+                            process.hook("hook_send_joined_message", {
+                                userid: data.userid,
+                                members: data.members,
+                                groupid: data.groupid
+                            }, function (gotData) {
+                                process.emit("next", data);
+                            });
 
                         });
 
