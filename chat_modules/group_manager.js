@@ -55,9 +55,6 @@ var defaultname = function (members, userid) {
 };
 
 var getavatar = function (group, userid) {
-    var generic121 = "http://placehold.it/50x50?g121";
-    var genericReadOnly = "http://placehold.it/50x50?gro";
-    var generic = "http://placehold.it/50x50?g";
 
     if (group.is121) {
         var avatar;
@@ -70,7 +67,7 @@ var getavatar = function (group, userid) {
         });
 
         if (!avatar) {
-            avatar = generic121;
+            avatar = null;
         }
 
         return avatar;
@@ -79,12 +76,12 @@ var getavatar = function (group, userid) {
         if (group.avatar) {
             avatar = group.avatar;
         } else {
-            avatar = genericReadOnly;
+            avatar = null;
         }
 
         return avatar;
     } else {
-        return generic;
+        return null;
     }
 }
 
