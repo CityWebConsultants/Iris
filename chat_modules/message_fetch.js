@@ -31,18 +31,24 @@ var exports = {
 
             if (data.get.userid && data.get.token) {
 
-                process.hook('hook_auth_check', {userid: data.get.userid, token: data.get.token}, function (authorised) {
+                process.hook('hook_auth_check', {
+                    userid: data.get.userid,
+                    token: data.get.token
+                }, function (authorised) {
                     if (authorised.returns === true) {
 
                         var groups = [],
                             groupactivity = {},
                             query = {};
 
-                        process.hook('hook_fetch_groups', {userid: data.get.userid, token: data.get.token}, function (group) {
+                        process.hook('hook_fetch_groups', {
+                            userid: data.get.userid,
+                            token: data.get.token
+                        }, function (group) {
 
                             JSON.parse(group.returns).forEach(function (element) {
 
-                              //Loop over all the members of each group and return the last updated time for the current member.
+                                //Loop over all the members of each group and return the last updated time for the current member.
                                 var lastread = "";
 
                                 element.members.forEach(function (member) {
@@ -78,15 +84,21 @@ var exports = {
 
                             });
 
-                            query._id = {$gt: exports.objectIDWithTimestamp(earliestmessage)};
+                            query._id = {
+                                $gt: exports.objectIDWithTimestamp(earliestmessage)
+                            };
 
                             //Don't load user's own messages
 
-                            query.userid = {$ne: data.get.userid};
+                            query.userid = {
+                                $ne: data.get.userid
+                            };
 
                             //Only load messages from the groups the user is part of
 
-                            query.groupid = {$in: groups};
+                            query.groupid = {
+                                $in: groups
+                            };
 
                             process.hook('hook_db_find', {
                                 dbcollection: 'messages',
@@ -95,10 +107,13 @@ var exports = {
 
                                 if (gotData.returns !== '[]') {
 
-                                    var messages =  JSON.parse(gotData.returns);
+                                    var messages = JSON.parse(gotData.returns);
                                     data.returns = {};
 
                                     //Loop over all returned messages and create a message counter for each group
+
+                                    //Create bundle of unread messages for if user requests all of them
+                                    var unreadbundle = {};
 
                                     messages.forEach(function (element) {
 
@@ -108,6 +123,14 @@ var exports = {
                                             groupviewed = new Date(groupactivity[element.groupid]);
 
                                         if (messagedate > groupviewed) {
+
+                                            if (!unreadbundle[element.groupid]) {
+
+                                                unreadbundle[element.groupid] = [];
+
+                                            }
+
+                                            unreadbundle[element.groupid].push(element);
 
                                             if (!data.returns[element.groupid]) {
                                                 data.returns[element.groupid] = 1;
@@ -119,7 +142,17 @@ var exports = {
 
                                     });
 
-                                    data.returns = JSON.stringify(data.returns);
+                                    if (data.get.messages) {
+
+                                        data.returns = JSON.stringify(unreadbundle);
+
+                                    } else {
+
+                                        data.returns = JSON.stringify(data.returns);
+
+
+                                    }
+
 
                                 } else {
 
@@ -153,23 +186,30 @@ var exports = {
         rank: 0,
         event: function (data) {
             // expects groupid, optional (since)
-            var query = {groupid: data.groupid};
+            var query = {
+                groupid: data.groupid
+            };
             if (data.since) {
-                query._id = {$gt: exports.objectIDWithTimestamp(data.since)};
+                query._id = {
+                    $gt: exports.objectIDWithTimestamp(data.since)
+                };
             }
 
-            process.hook('hook_db_find', {dbcollection: 'messages', dbquery: query}, function (gotData) {
+            process.hook('hook_db_find', {
+                dbcollection: 'messages',
+                dbquery: query
+            }, function (gotData) {
 
                 var messages = JSON.parse(gotData.returns);
-                
-                messages.forEach(function(element,index){
-                   
+
+                messages.forEach(function (element, index) {
+
                     var message = messages[index];
-                    
+
                     message.username = process.usercache[message.userid].username;
-                    
+
                 });
-                
+
                 data.returns = JSON.stringify(messages);
                 process.emit('next', data);
             });
@@ -182,9 +222,14 @@ var exports = {
             // expects groupid, userid & token, optional (since)
             if (data.get.groupid && data.get.userid && data.get.token) {
 
-                process.hook('hook_auth_check', {userid: data.get.userid, token: data.get.token}, function (authorised) {
+                process.hook('hook_auth_check', {
+                    userid: data.get.userid,
+                    token: data.get.token
+                }, function (authorised) {
                     if (authorised.returns === true) {
-                        var query = {groupid: data.get.groupid};
+                        var query = {
+                            groupid: data.get.groupid
+                        };
 
                         if (data.get.since && new Date(data.get.since).getTime() > 0) {
                             query.since = data.get.since;
@@ -213,19 +258,33 @@ var exports = {
         event: function (data) {
             // userid, token, messageid
             if (data.get.userid && data.get.token && data.get.messageid && objectID.isValid(data.get.messageid)) {
-                process.hook('hook_auth_check', {userid: data.get.userid, token: data.get.token}, function (authorised) {
+                process.hook('hook_auth_check', {
+                    userid: data.get.userid,
+                    token: data.get.token
+                }, function (authorised) {
                     if (authorised.returns === true) {
-                        process.hook('hook_groupid_from_messageid', {messageid: data.get.messageid}, function (groupid) {
+                        process.hook('hook_groupid_from_messageid', {
+                            messageid: data.get.messageid
+                        }, function (groupid) {
                             if (groupid.returns) {
                                 process.hook('hook_db_find', {
                                     dbcollection: 'groups',
-                                    dbquery: {'_id': objectID(groupid.returns), members: {$elemMatch: {'userid': data.get.userid}}}
+                                    dbquery: {
+                                        '_id': objectID(groupid.returns),
+                                        members: {
+                                            $elemMatch: {
+                                                'userid': data.get.userid
+                                            }
+                                        }
+                                    }
                                 }, function (groupinfo) {
                                     if (groupinfo.returns && groupinfo.returns !== '[]') {
 
                                         process.hook('hook_db_find', {
                                             dbcollection: 'messages',
-                                            dbquery: {'_id': objectID(data.get.messageid)}
+                                            dbquery: {
+                                                '_id': objectID(data.get.messageid)
+                                            }
                                         }, function (message) {
                                             data.returns = message.returns;
                                             process.emit('next', data);
