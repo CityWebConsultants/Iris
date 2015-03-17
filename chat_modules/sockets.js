@@ -32,11 +32,16 @@ var exports = {
     listeners: [],
     addlistener: function (listener, callback) {
 
-        exports.listeners.push({event : listener, callback : callback});
+        exports.listeners.push({
+            event: listener,
+            callback: callback
+        });
 
     },
     groupBroadcast: function (groupid, messagename, data) {
-        process.hook('hook_group_list_users', {groupid: groupid}, function (users) {
+        process.hook('hook_group_list_users', {
+            groupid: groupid
+        }, function (users) {
             if (users.returns) {
                 users.returns.forEach(function (element, index) {
 
@@ -90,8 +95,7 @@ var exports = {
                                 auth.userlist[data.userid].sockets.forEach(function (element, index) {
 
                                     if (socket.id === element.id) {
-                                        socketAlreadyExists = true;
-//                                        console.log("socket already exists");
+                                        socketAlreadyExists = true; =
                                     }
                                 });
 
@@ -99,7 +103,6 @@ var exports = {
                                     auth.userlist[data.userid].sockets.push(socket);
                                     socket.userid = data.userid;
 
-//                                    console.log('Pairing: ' + socket.id);
                                     socket.emit('pair', true);
                                 }
 
@@ -120,7 +123,6 @@ var exports = {
                         // for each socket in the userlist registered to this user
                         auth.userlist[socket.userid].sockets.forEach(function (element, index) {
                             if (element === socket) {
-//                                console.log('Removing socket at index ' + index);
                                 // remove socket from array if it matches the one that's disconnecting
                                 auth.userlist[socket.userid].sockets.splice(index, 1);
                             }

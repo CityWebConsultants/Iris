@@ -84,12 +84,6 @@ var exports = {
                             }
                         }, function (groupid) {
 
-                            console.log(groupid.returns);
-
-//                            process.groupBroadcast(groupid.returns, "notification_message", {
-//                                action: "removegroup",
-//                                time: Date.now()
-//                            });
 
                             // Delete the group in the database
                             process.hook('hook_db_remove', {
@@ -252,8 +246,6 @@ var exports = {
                                 isReadOnly: true
                             }
                         }, function (groups) {
-
-                            console.log(groups);
 
                             groups = JSON.parse(groups.returns);
 

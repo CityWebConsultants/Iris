@@ -77,7 +77,6 @@ var exports = {
                 }
 
                 if (Date.now() - exports.aliveData[i].timestamp > exports.options.awayCleanupTime) {
-                    //console.log('cleanup ' + exports.aliveData[i]);
                     exports.aliveData.length = i;
                     break;
                 }
@@ -85,7 +84,6 @@ var exports = {
 
             // If the array actually changed since last time...
             if (!exports.arraysEqual(exports.alivePushed, exports.alive)) {
-//                console.log('Alive array updated.');
                 process.socketio.sockets.emit('users_online', {users: exports.alive});
 
                 // Update pushed copy to what we just pushed

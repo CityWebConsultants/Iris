@@ -72,8 +72,6 @@ var trigger = function (event, value, callback) {
         
     }
     
-//    console.log("[*RUN] " + event + " (pid: " + eventid + ")");
-
     //Sort the modules in order of the rank of that event function within them
     
     queue[eventid].events.sort(function (a, b) {
@@ -121,7 +119,6 @@ process.on("next", function (data) {
 
             }
             
-//            console.log("[*END] " + data.hookname);
             process.emit("complete_" + data.hookname, data, data.hookname);
 
         }

@@ -80,10 +80,6 @@ var exports = {
                             useridsValid = false;
                         }
 
-                        console.log("userids for message:");
-                        console.log(data.post.userids);
-                        console.log(userids);
-
                         var sendMessage = function (groupid, callback) {
                             var content = {};
 
@@ -131,7 +127,6 @@ var exports = {
 
                                         if (gotData.returns && JSON.parse(gotData.returns).length === 0) {
                                             // Need to create group
-                                            console.log("creating group");
                                             process.hook('hook_group_add', {
                                                 name: 'default',
                                                 members: [process.config.systemuser.toString(), element.toString()],
@@ -287,9 +282,7 @@ var exports = {
 
                             // Ensure user is in group and set flag
                             for (i = 0; i < gotData.returns.length; i++) {
-                                //console.log(gotData.returns[i]);
                                 if (gotData.returns[i].userid === data.userid) {
-                                    //console.log(gotData.returns[i]);
                                     authorised = true;
                                     // No point in looping through the rest, so break
                                     break;
