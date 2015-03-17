@@ -200,7 +200,7 @@ var exports = {
     hook_post_user_fetchall: {
         rank: 1,
         event: function (data) {
-            if (data.post.secretkey && data.post.content) {
+            if (data.post.secretkey) {
 
                 process.hook('hook_secretkey_check', {
                     secretkey: data.post.secretkey
