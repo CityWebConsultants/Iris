@@ -450,6 +450,8 @@ var exports = {
                     query.groupref = data.groupref;
                 }
 
+                query.lastupdated = Date.now();
+
                 // If things are in order, insert!
                 if (ok === true) {
 
