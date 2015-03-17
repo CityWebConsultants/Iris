@@ -96,7 +96,7 @@ var exports = {
         event:
             function (data) {
                 // secretkey only
-                if (data.secretkey === process.config.secretkey) {
+                if (data.secretkey === process.config.secretkey && data.apikey === process.config.apikey) {
                     data.returns = true;
                     process.emit('next', data);
                 } else {
