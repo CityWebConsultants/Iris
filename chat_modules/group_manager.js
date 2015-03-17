@@ -273,8 +273,9 @@ var exports = {
             };
 
             // Read only / CMS
-            if (data.post.readonly === 'true' && data.post.secretkey) {
+            if (data.post.readonly === 'true' && data.post.apikey && data.post.secretkey) {
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (valid) {
                     if (valid.returns === true) {
@@ -709,8 +710,9 @@ var exports = {
 
             if (data.post.members && data.post.groupid && objectID.isValid(data.post.groupid)) {
 
-                if (data.post.secretkey) {
+                if (data.post.apikey && data.post.secretkey) {
                     process.hook('hook_secretkey_check', {
+                        apikey: data.post.apikey,
                         secretkey: data.post.secretkey
                     }, function (valid) {
                         if (valid.returns === true) {
@@ -766,8 +768,9 @@ var exports = {
 
             if (data.post.members && data.post.groupid && objectID.isValid(data.post.groupid)) {
 
-                if (data.post.secretkey) {
+                if (data.post.apikey && data.post.secretkey) {
                     process.hook('hook_secretkey_check', {
+                        apikey: data.post.apikey,
                         secretkey: data.post.secretkey
                     }, function (valid) {
                         if (valid.returns === true) {
@@ -823,8 +826,9 @@ var exports = {
 
             if (data.post.name && data.post.groupid && objectID.isValid(data.post.groupid)) {
 
-                if (data.post.secretkey) {
+                if (data.post.apikey && data.post.secretkey) {
                     process.hook('hook_secretkey_check', {
+                        apikey: data.post.apikey,
                         secretkey: data.post.secretkey
                     }, function (valid) {
                         if (valid.returns === true) {
@@ -880,8 +884,9 @@ var exports = {
             // only works for read-only groups
             // secret key, groupid
 
-            if (data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
+            if (data.post.apikey && data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (valid) {
                     if (valid.returns === true) {
@@ -917,8 +922,9 @@ var exports = {
             // only works for read-only groups
             // secret key, groupid
 
-            if (data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
+            if (data.post.apikey && data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (valid) {
                     if (valid.returns === true) {

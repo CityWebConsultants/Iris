@@ -19,9 +19,10 @@ var exports = {
     hook_post_user_sync: {
         rank: 1,
         event: function (data) {
-            if (data.post.secretkey && data.post.content) {
+            if (data.post.apikey && data.post.secretkey && data.post.content) {
 
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
@@ -200,9 +201,10 @@ var exports = {
     hook_post_user_fetchall: {
         rank: 1,
         event: function (data) {
-            if (data.post.secretkey) {
+            if (data.post.apikey && data.post.secretkey) {
 
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {

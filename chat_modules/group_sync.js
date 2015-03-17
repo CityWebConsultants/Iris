@@ -9,7 +9,7 @@ var exports = {
     hook_post_group_sync: {
         rank: 1,
         event: function (data) {
-            if (data.post.secretkey) {
+            if (data.post.apikey && data.post.secretkey) {
 
                 /*
                 Expected data:
@@ -19,6 +19,7 @@ var exports = {
                     content.avatar: URL for group image
                 */
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
@@ -67,9 +68,10 @@ var exports = {
         event: function (data) {
             // expects secretkey, gid
 
-            if (data.post.secretkey) {
+            if (data.post.apikey && data.post.secretkey) {
 
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
@@ -120,9 +122,10 @@ var exports = {
         event: function (data) {
             // expects secretkey, gid, userid
 
-            if (data.post.secretkey) {
+            if (data.post.apikey && data.post.secretkey) {
 
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
@@ -190,9 +193,10 @@ var exports = {
         event: function (data) {
             // expects secretkey, gid, userid
 
-            if (data.post.secretkey) {
+            if (data.post.apikey && data.post.secretkey) {
 
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
@@ -233,9 +237,10 @@ var exports = {
         rank: 1,
         event: function (data) {
 
-            if (data.get.secretkey) {
+            if (data.get.apikey && data.get.secretkey) {
 
                 process.hook('hook_secretkey_check', {
+                    apikey: data.get.apikey,
                     secretkey: data.get.secretkey
                 }, function (check) {
                     if (check.returns === true) {

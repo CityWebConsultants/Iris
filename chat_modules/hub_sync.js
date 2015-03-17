@@ -7,17 +7,18 @@ var exports = {
     hook_post_hub_sync: {
         rank: 1,
         event: function (data) {
-            if (data.post.secretkey && data.post.content) {
+            if (data.post.apikey && data.post.secretkey && data.post.content) {
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
 
                         process.hook('hook_db_insert', {
                             dbcollection: 'nodes',
-                            dbobject: JSON.parse(data.post.content) 
+                            dbobject: JSON.parse(data.post.content)
                         }, function (gotData) {
-                            
+
                             data.returns = "Updated";
 
                             process.emit('next', data);
@@ -35,17 +36,17 @@ var exports = {
 
         rank: 0,
         event: function (data) {
-                       
+
             var query = {};
-        
+
             var filter;
-            
+
             for(filter in data.get){
-                
+
             query[filter] = data.get[filter];
-                
+
             }
-            
+
             process.hook('hook_db_find', {dbcollection: 'nodes', dbquery: query}, function (gotData) {
 
                 data.returns = gotData.returns;

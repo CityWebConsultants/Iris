@@ -7,8 +7,9 @@ var exports = {
     hook_post_message_hub: {
         rank: 1,
         event: function (data) {
-            if (data.post.secretkey && data.post.gid && data.post.content) {
+            if (data.post.apikey && data.post.secretkey && data.post.gid && data.post.content) {
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
@@ -24,7 +25,7 @@ var exports = {
                                 process.emit('next', data);
                             }
                         }
-                      
+
                         process.hook("hook_db_find", {
                             dbcollection: 'groups',
                             dbquery: {
@@ -32,9 +33,9 @@ var exports = {
                                 'isReadOnly': true
                             }
                         }, function (groupid) {
-                          
+
                             groupid = JSON.parse(groupid.returns);
-                          
+
                             process.hook('hook_message_add', {
                                 userid: process.config.systemuser,
                                 groupid: groupid[0]._id,
@@ -44,7 +45,7 @@ var exports = {
 
                                 data.returns = "ok";
                                 process.emit('next', data);
-                              
+
                             });
 
                         });
@@ -62,8 +63,9 @@ var exports = {
     hook_post_message_hub_user: {
         rank: 1,
         event: function (data) {
-            if (data.post.secretkey && data.post.userids && data.post.content) {
+            if (data.post.apikey && data.post.secretkey && data.post.userids && data.post.content) {
                 process.hook('hook_secretkey_check', {
+                    apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
 
