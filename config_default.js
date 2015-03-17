@@ -2,7 +2,7 @@
  *
  *  Global values:
  *  - port:             port number to run the web server on                integer
- *  - secret_key:       secret API key to access authentication             string
+ *  - secretkey:       secret API key to access authentication             string
  *  - modules_enabled:  array of enabled module objects                     array
  *      - name, options{}                                                   string, object
  */
@@ -10,7 +10,8 @@
 module.exports = {
     port: 3000,
     peerport: 3001,
-    secret_key: 'letmein',
+    apikey: 'letmein',
+    secretkey: 'letmein',
     messagetypes_enabled: ['text', 'code', 'hub_message'],
     admins: [1],
     systemuser: 1,

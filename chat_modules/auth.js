@@ -27,7 +27,7 @@ var exports = {
 
                 var authToken;
 
-                if (data.post.secretkey === process.config.secret_key && data.post.userid) {
+                if (data.post.secretkey === process.config.secretkey && data.post.userid) {
                     crypto.randomBytes(exports.options.token_length, function (ex, buf) {
                         authToken = buf.toString('hex');
 
@@ -96,7 +96,7 @@ var exports = {
         event:
             function (data) {
                 // secretkey only
-                if (data.secretkey === process.config.secret_key) {
+                if (data.secretkey === process.config.secretkey) {
                     data.returns = true;
                     process.emit('next', data);
                 } else {

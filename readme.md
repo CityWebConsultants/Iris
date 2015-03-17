@@ -202,7 +202,7 @@ The core system configuration file. Includes base settings and an enabled module
 
 * `port` (int)
   Port number to run the server on
-* `secret_key` (string)
+* `secretkey` (string)
   Global super secret key. Used for authenticating the user authentication system. _Really secret._
 * `messagetypes_enabled` (array)
   Enabled message types.
