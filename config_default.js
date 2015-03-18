@@ -12,7 +12,6 @@ module.exports = {
     peerport: 3001,
     apikey: 'letmein',
     secretkey: 'letmein',
-    messagetypes_enabled: ['text', 'code', 'hub_message'],
     admins: [1],
     systemuser: 1,
     modules_enabled: [
@@ -49,9 +48,6 @@ module.exports = {
         },
         {
             name: 'highlight'
-        },
-        {
-            name: 'message_types'
         },
         {
             name: 'message_fetch'
