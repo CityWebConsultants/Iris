@@ -107,13 +107,11 @@ var exports = {
 
                                 if (gotData.returns !== '[]') {
 
-                                    var messages = JSON.parse(gotData.returns);
+                                    var messages = JSON.parse(gotData.returns),
+                                        unreadbundle = {};
                                     data.returns = {};
 
                                     //Loop over all returned messages and create a message counter for each group
-
-                                    //Create bundle of unread messages for if user requests all of them
-                                    var unreadbundle = {};
 
                                     messages.forEach(function (element) {
 
@@ -124,13 +122,23 @@ var exports = {
 
                                         if (messagedate > groupviewed) {
 
-                                            if (!unreadbundle[element.groupid]) {
+                                            //Create bundle of unread messages for if user requests all of them
 
-                                                unreadbundle[element.groupid] = [];
+                                            if (data.get.messages) {
+
+                                                if (!unreadbundle[element.groupid]) {
+
+                                                    unreadbundle[element.groupid] = {
+                                                        groupid: element.groupid,
+                                                        messages: []
+                                                    };
+
+                                                }
+
+                                                unreadbundle[element.groupid].messages.push(element);
 
                                             }
 
-                                            unreadbundle[element.groupid].push(element);
 
                                             if (!data.returns[element.groupid]) {
                                                 data.returns[element.groupid] = 1;
@@ -144,12 +152,59 @@ var exports = {
 
                                     if (data.get.messages) {
 
-                                        data.returns = JSON.stringify(unreadbundle);
+                                        //Make pretty message feed for humans
+
+                                        var groups = Object.keys(unreadbundle);
+
+                                        groups.forEach(function (element, index) {
+
+                                            groups[index] = objectID(element);
+
+                                        });
+
+                                        var query = {};
+
+                                        query._id = {
+                                            $in: groups
+                                        };
+
+                                        process.hook('hook_db_find', {
+                                            dbcollection: 'groups',
+                                            dbquery: query
+                                        }, function (gotData) {
+
+                                            var group;
+
+                                            for (group in unreadbundle) {
+
+                                                JSON.parse(gotData.returns).forEach(function (element, index) {
+
+                                                    if (element._id = group) {
+
+                                                        unreadbundle[group].details = element;
+
+                                                        unreadbundle[group].members = [];
+
+                                                        element.members.forEach(function (user, index) {
+
+                                                            unreadbundle[group].members.push(process.usercache[user.userid]);
+
+                                                        });
+
+                                                    }
+
+                                                });
+
+                                            };
+
+                                            data.returns = JSON.stringify(unreadbundle);
+                                            process.emit('next', data);
+                                        });
 
                                     } else {
 
                                         data.returns = JSON.stringify(data.returns);
-
+                                        process.emit('next', data);
 
                                     }
 
@@ -157,10 +212,11 @@ var exports = {
                                 } else {
 
                                     data.returns = "0";
+                                    process.emit('next', data);
+
 
                                 }
 
-                                process.emit('next', data);
                             });
                         });
                     } else {
