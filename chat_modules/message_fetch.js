@@ -29,23 +29,23 @@ var exports = {
         rank: 0,
         event: function (data) {
 
-            if (data.get.userid && data.get.token) {
+            if ((data.get.userid && data.get.token) || (data.get.secretkey && data.get.apikey)) {
+
+
 
                 process.hook('hook_auth_check', {
                     userid: data.get.userid,
                     token: data.get.token
                 }, function (authorised) {
-                    if (authorised.returns === true) {
+                    if (authorised.returns === true || (data.get.secretkey === process.config.secretkey && data.get.apikey === process.config.apikey)) {
 
                         var groups = [],
                             groupactivity = {},
                             query = {};
 
                         process.hook('hook_fetch_groups', {
-                            userid: data.get.userid,
-                            token: data.get.token
+                            userid: data.get.userid
                         }, function (group) {
-
                             JSON.parse(group.returns).forEach(function (element) {
 
                                 //Loop over all the members of each group and return the last updated time for the current member.
