@@ -299,8 +299,12 @@ var exports = {
                             }, function (gotData) {
                                 data.returns = gotData.returns[0]._id;
 
-                                //Translate username from cache
-                                message.username = process.usercache[message.userid].username;
+                                if (process.usercache[message.userid]) {
+
+                                    //Translate username from cache
+                                    message.username = process.usercache[message.userid].username;
+                                };
+
 
                                 // Actually send message
                                 process.groupBroadcast(data.groupid, 'message', message);
@@ -326,7 +330,11 @@ var exports = {
 
                         //Translate username from cache
 
-                        message.username = process.usercache[message.userid].username;
+                        if (process.usercache[message.userid]) {
+
+                            message.username = process.usercache[message.userid].username;
+
+                        };
 
                         // Actually send message
 

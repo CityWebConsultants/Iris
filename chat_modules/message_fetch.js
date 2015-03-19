@@ -260,8 +260,10 @@ var exports = {
 
                     var message = messages[index];
 
+                    if(process.usercache[message.userid]){
                     message.username = process.usercache[message.userid].username;
-
+                    }
+                    
                 });
 
                 data.returns = JSON.stringify(messages);

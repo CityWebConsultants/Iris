@@ -159,26 +159,14 @@ var exports = {
                 requester = data.userid;
             }
 
-            var username;
-            if (process.usercache[data.members] && process.usercache[data.members].username) {
-                username = process.usercache[data.members].username;
-            }
-
-            var requestername;
-            if (process.usercache[requester] && process.usercache[requester].username) {
-                requestername = process.usercache[requester].username;
-            }
-
             process.hook('hook_message_add', {
-                userid: process.config.systemuser,
+                userid: data.members,
                 groupid: data.groupid,
                 content: {
                     groupupdate: JSON.stringify({
                         userid: data.members,
-                        username: username,
-                        requester: requester,
-                        requestername: requestername,
-                        action: 'add'
+                        action: 'add',
+                        requester: requester
                     })
                 },
                 strong_auth_check: false
