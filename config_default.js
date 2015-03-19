@@ -81,6 +81,9 @@ module.exports = {
         },
         {
             name: 'group_sync'
+        },
+        {
+            name: 'typing'
         }
     ]
 };

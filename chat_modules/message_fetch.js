@@ -31,8 +31,6 @@ var exports = {
 
             if ((data.get.userid && data.get.token) || (data.get.secretkey && data.get.apikey)) {
 
-
-
                 process.hook('hook_auth_check', {
                     userid: data.get.userid,
                     token: data.get.token
