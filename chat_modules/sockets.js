@@ -103,6 +103,12 @@ var exports = {
                                     auth.userlist[data.userid].sockets.push(socket);
                                     socket.userid = data.userid;
 
+                                    var onlineusers = Object.keys(auth.userlist);
+
+                                    process.socketio.sockets.emit('users_online', {
+                                        users: onlineusers
+                                    });
+
                                     socket.emit('pair', true);
                                 }
 
@@ -125,6 +131,19 @@ var exports = {
                             if (element === socket) {
                                 // remove socket from array if it matches the one that's disconnecting
                                 auth.userlist[socket.userid].sockets.splice(index, 1);
+
+                                if (auth.userlist[socket.userid].sockets.length === 0) {
+
+                                    delete auth.userlist[socket.userid];
+
+                                }
+
+                                var onlineusers = Object.keys(auth.userlist);
+
+                                process.socketio.sockets.emit('users_online', {
+                                    users: onlineusers
+                                });
+
                             }
                         });
                     }
