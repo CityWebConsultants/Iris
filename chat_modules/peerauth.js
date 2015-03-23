@@ -105,7 +105,7 @@ var exports = {
 
                 }
 
-                data.returns = JSON.stringify(peerid);
+                data.returns = peerid;
 
                 process.emit('next', data);
 
