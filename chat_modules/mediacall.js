@@ -114,13 +114,13 @@ var exports = {
                         token: data.token
                     }, function (authcheck) {
                         if (authcheck.returns === true) {
-
+                          
                             if (calls[data.mediacallid]) {
 
                                 if (calls[data.mediacallid].members.indexOf(data.userid) === -1) {
-
+                                  
                                     calls[data.mediacallid].members.push(data.userid);
-                                    process.userBroadcast(data.userid, 'mediacallinit', calls[data.mediacallid]);
+                                    process.userBroadcast(data.userid, 'mediacallinit', {call:calls[data.mediacallid], voice:data.voice, video:data.video});
 
                                 }
 
