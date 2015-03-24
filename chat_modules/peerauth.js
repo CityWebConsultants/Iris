@@ -4,6 +4,55 @@
 
 var auth = require('../chat_modules/auth');
 
+// and override the original config object
+var customConfig;
+  
+var querystring = require('querystring');
+var https = require('https');
+
+function post() {
+  // Build the post string from an object
+  var data =  {
+    ident: "adamclarey",
+    secret: "0a3ad990-a758-467b-ae0f-c4a76c0ed9bb",
+    domain: "hub.citywebconsultants.co.uk",
+    application: "default",
+    room: "default",
+    secure: 1
+  };
+
+  data = querystring.stringify(data);
+
+  // An object of options to indicate where to post to
+  var post_options = {
+      host: 'api.xirsys.com',
+      port: '443',
+      path: '/getIceServers',
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': data.length
+      }
+  };
+
+  // Set up the request
+  var post_req = https.request(post_options, function(res) {
+      res.setEncoding('utf8');
+      res.on('data', function (chunk) {
+         data = JSON.parse(chunk);
+        customConfig = data.d;
+        peerinit();
+      });
+  });
+
+  // post the data
+  post_req.write(data);
+  post_req.end();
+
+}
+
+post();
+
 var exports = {
     hook_peer_disconnect: {
         rank: 1,
@@ -108,9 +157,12 @@ var exports = {
 
 
 }
+
+var peerinit = function(){
   
 var PeerServer = require('peer').PeerServer({
     port: process.config.peerport,
+    config: customConfig
 });
 
 //Remove peerid after disconnect
@@ -122,5 +174,7 @@ PeerServer.on("disconnect", function (id) {
     }, function () {});
 
 });
+  
+};
 
 module.exports = exports;
