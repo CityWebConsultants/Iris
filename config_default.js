@@ -1,3 +1,6 @@
+/*jslint nomen: true, node:true */
+"use strict";
+
 /*  Configuration file for the chat application
  *
  *  Global values:
