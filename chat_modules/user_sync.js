@@ -9,7 +9,7 @@ var exports = {
 
             process.hook('hook_usercache', {}, function (data) {
 
-                console.log("User cache updated with " + Object.keys(process.usercache).length + " users");
+                return data;
 
             });
 
@@ -44,13 +44,13 @@ var exports = {
 
                             process.hook('hook_usercache', {}, function (data) {
 
-                                console.log("User cache updated with " + Object.keys(process.usercache).length + " users");
-
+                                return data;
+                                
                             });
 
                             process.emit('next', data);
 
-                        })
+                        });
 
 
 
@@ -235,7 +235,7 @@ var exports = {
                 });
             }
         }
-    },
+    }
 
 };
 
