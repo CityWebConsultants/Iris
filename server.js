@@ -3,6 +3,9 @@
 
 //Takes a config file
 
+var net = require('net');
+var repl = require('repl');
+
 module.exports = function (config, paramaters) {
 
     var version = 'RC1',
@@ -19,6 +22,30 @@ module.exports = function (config, paramaters) {
     console.log("Name: " + config.name);
     console.log("HTTP port: " + config.port);
     console.log("Peer port: " + config.peerport);
+
+    if (config.telnetport) {
+
+        console.log("Telnet port: " + config.telnetport);
+
+        var cli = net.createServer(function (telnet) {
+            telnet.on('exit', function () {
+                telnet.end();
+            });
+
+            repl.start({
+                prompt: "Chat> ",
+                input: telnet,
+                output: telnet,
+                terminal: true
+            });
+
+        });
+
+        cli.listen(config.telnetport);
+
+    }
+
+
     if (Object.keys(paramaters).length > 0) {
         console.log("Command line arguments: ");
         console.log(paramaters);
