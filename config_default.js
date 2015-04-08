@@ -21,6 +21,7 @@ process.argv.forEach(function (val, index, array) {
 });
 
 var config = {
+    server: "./server",
     name: "default",
     port: 3000,
     peerport: 3001,
@@ -102,4 +103,4 @@ var config = {
     ]
 };
 
-var server = require("./server")(config, process.paramaters);
+var server = require(config.server)(config, process.paramaters);
