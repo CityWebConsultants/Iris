@@ -7,7 +7,21 @@
  *      - name, options{}                                                   string, object
  */
 
-module.exports = {
+//Get and store command line paramaters
+
+process.paramaters = {};
+
+process.argv.forEach(function (val, index, array) {
+
+    if (val.indexOf("=") !== -1) {
+        val = val.split("=");
+        process.paramaters[val[0]] = val[1];
+    }
+
+});
+
+var config = {
+    name: "default",
     port: 3000,
     peerport: 3001,
     apikey: 'letmein',
@@ -87,3 +101,5 @@ module.exports = {
         }
     ]
 };
+
+var server = require("./server")(config, process.paramaters);
