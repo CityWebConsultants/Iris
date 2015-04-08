@@ -5,30 +5,31 @@
 
 module.exports = function (config, paramaters) {
 
-    var http = require('http');
-    var qs = require('querystring');
-    var url = require('url');
-    var path = require('path');
-    var fs = require('fs');
+    var version = 'RC1',
+        chat = {
+            api: {}
+        },
+        http = require('http'),
+        qs = require('querystring'),
+        url = require('url'),
+        path = require('path'),
+        fs = require('fs');
 
-    var version = 'RC1';
-    console.log("Running Chat App version " + version);
-    console.log("Name: " + config.name)
+    console.log("\nLaunching Chat App " + version + "\n");
+    console.log("Name: " + config.name);
     console.log("HTTP port: " + config.port);
     console.log("Peer port: " + config.peerport);
-    if(Object.keys(paramaters).length > 0){
-    console.log("Command line arguments: ");
-    console.log(paramaters);
+    if (Object.keys(paramaters).length > 0) {
+        console.log("Command line arguments: ");
+        console.log(paramaters);
     }
-    
+
     // Current globals
     process.hook = require('./hook');
 
     process.config = config;
 
-    //API functions
-    var chat = {};
-    chat.api = {};
+    console.log("\nEnabled modules:\n");
 
     // Automatically load modules
     process.config.modules_enabled.forEach(function (element, index) {
@@ -37,7 +38,7 @@ module.exports = function (config, paramaters) {
         if (chat.api[element.name].init) {
             chat.api[element.name].init();
         }
-        console.log("[OK] " + element.name + " module enabled");
+        console.log(element.name);
     });
 
     //Server and request function router

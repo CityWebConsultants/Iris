@@ -26,8 +26,8 @@ process.argv.forEach(function (val, index, array) {
 var config = {
     server: "./server",
     name: "default",
-    port: 3000,
-    peerport: 3001,
+    port: 3005,
+    peerport: 3007,
     apikey: 'letmein',
     secretkey: 'letmein',
     admins: [1],
