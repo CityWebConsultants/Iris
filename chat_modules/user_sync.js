@@ -180,18 +180,20 @@ var exports = {
                         name = element.uid;
 
                     }
-
+                    
                     output[element.uid] = {
                         uid: element.uid,
                         username: name,
                         picture: element.picture,
-                        avatar: element.avatar
+                        avatar: element.avatar,
+                        email: element.mail,
+                        notifications: element.notification_settings,
                     };
 
                 });
 
                 process.usercache = output;
-
+                
                 process.emit('next', data);
 
             });

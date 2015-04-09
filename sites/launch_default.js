@@ -26,9 +26,10 @@ process.argv.forEach(function (val, index, array) {
 var config = {
     server: "../server",
     name: "default",
-    port: 3005,
-    peerport: 3007,
+    port: 3000,
+    peerport: 3001,
     telnetport: 8124,
+    sendemailto: "hub.wlmg.co.uk",  
     apikey: 'letmein',
     secretkey: 'letmein',
     admins: [1],
@@ -103,6 +104,9 @@ var config = {
         },
         {
             name: 'typing'
+        },
+        {
+            name: 'email_notifications'
         }
     ]
 };
