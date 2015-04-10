@@ -9,7 +9,6 @@ var exports = {
 
             process.hook('hook_usercache', {}, function (data) {
 
-                return data;
 
             });
 
@@ -20,7 +19,6 @@ var exports = {
         rank: 1,
         event: function (data) {
             if (data.post.apikey && data.post.secretkey && data.post.content) {
-
                 process.hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
                     secretkey: data.post.secretkey
@@ -44,7 +42,6 @@ var exports = {
 
                             process.hook('hook_usercache', {}, function (data) {
 
-                                return data;
                                 
                             });
 

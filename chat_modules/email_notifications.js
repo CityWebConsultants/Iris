@@ -3,26 +3,43 @@
 "use strict";
 
 var http = require('http');
-
-var options = {
-    host: process.config.sendemailto,
-    path: '/email',
-    method: 'POST'
-};
+var querystring = require('querystring');
 
 var email = function (content) {
 
     if (Object.keys(content.returns).length > 0) {
 
-        var email = {
-         
-            address:content.email,
-            content: content.returns
-            
-        }
+        content.returns.email = content.email;
         
-        var req = http.request(options);
-        req.write(JSON.stringify(email));
+        var data = JSON.stringify(content.returns);
+
+        var options = {
+            host: process.config.sendemailto,
+            path: '/email',
+            method: 'POST',
+            headers: {
+                'Content-Length': Buffer.byteLength(data)
+            }
+        };
+
+        var callback = function (response) {
+            
+            var str = '';
+
+            response.on('data', function (chunk) {
+                str += chunk;
+            });
+
+            response.on('end', function () {
+
+                console.log(str);
+
+            });
+
+        };
+
+        var req = http.request(options, callback);
+        req.write(data);
         req.end();
 
     }
@@ -80,6 +97,12 @@ var fetchnotifications = function (time) {
     }
 
 };
+
+setTimeout(function () {
+
+    fetchnotifications(1800000);
+
+}, 500);
 
 //30 min notifications
 
