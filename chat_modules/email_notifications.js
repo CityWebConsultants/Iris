@@ -134,7 +134,7 @@ var fetchnotifications = function (time) {
 
                 };
 
-                data.date.setMinutes(data.date.getMinutes() - time);
+                data.date.setMilliseconds(data.date.getMilliseconds() - time);
 
                 var type;
 
