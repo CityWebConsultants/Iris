@@ -28,9 +28,15 @@ var objectID = require('mongodb').ObjectID;
 var defaultname = function (members, userid) {
 
     var name = "";
-
+    
     if (members.length > 1) {
         members.forEach(function (element, index) {
+            
+            if(element.uid){
+                
+             element.userid = element.uid;   
+                
+            }
 
             if (process.usercache[element.userid] && element.userid !== userid) {
 
@@ -53,6 +59,8 @@ var defaultname = function (members, userid) {
     return name;
 
 };
+
+process.defaultname = defaultname;
 
 var getavatar = function (group, userid) {
 

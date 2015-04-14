@@ -27,6 +27,12 @@ var email = function (content) {
             var group = content.returns[group];
 
             groupmessages.groupname = group.details.name;
+            
+            if (group.details.name === "default") {
+                
+                groupmessages.groupname = process.defaultname(group.members, content.userid);
+                
+            }
 
             groupmessages.messages = [];
 
@@ -45,16 +51,16 @@ var email = function (content) {
                 groupmessages.messages.push({
 
                     //Only send relevant author information
-                    
+
                     author: {
-                      
+
                         username: author.username,
                         avatar: author.avatar,
                         uid: author.uid,
                         email: author.email
-                        
+
                     },
-                    
+
                     content: content
 
                 })
@@ -64,9 +70,9 @@ var email = function (content) {
             output.groups.push(groupmessages);
 
         };
-        
+
         var data = JSON.stringify(output);
-        
+
         var options = {
             host: process.config.sendemailto,
             path: '/email',
@@ -141,7 +147,7 @@ var fetchnotifications = function (time) {
                     }
 
                 }
-              
+
                 process.hook("hook_unread", data, email);
 
             }
@@ -156,7 +162,7 @@ setTimeout(function () {
 
     fetchnotifications(1800000);
 
-}, 500);
+}, 2000);
 
 //30 min notifications
 
