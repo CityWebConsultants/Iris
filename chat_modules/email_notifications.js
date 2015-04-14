@@ -9,10 +9,64 @@ var email = function (content) {
 
     if (Object.keys(content.returns).length > 0) {
 
-        content.returns.email = content.email;
-        
-        var data = JSON.stringify(content.returns);
+        var notifications = [];
 
+        //Loop over groups in the unread message array
+
+        var group
+
+        var output = {
+            email: content.email,
+            groups: []
+        };
+
+        for (group in content.returns) {
+
+            var groupmessages = {};
+
+            var group = content.returns[group];
+
+            groupmessages.groupname = group.details.name;
+
+            groupmessages.messages = [];
+
+            group.messages.forEach(function (element, index) {
+
+                var author = process.usercache[element.userid];
+
+                var type;
+
+                for (type in element.content) {
+
+                    var content = element.content[type];
+
+                };
+
+                groupmessages.messages.push({
+
+                    //Only send relevant author information
+                    
+                    author: {
+                      
+                        username: author.username,
+                        avatar: author.avatar,
+                        uid: author.uid,
+                        email: author.email
+                        
+                    },
+                    
+                    content: content
+
+                })
+
+            });
+
+            output.groups.push(groupmessages);
+
+        };
+        
+        var data = JSON.stringify(output);
+        
         var options = {
             host: process.config.sendemailto,
             path: '/email',
@@ -23,7 +77,7 @@ var email = function (content) {
         };
 
         var callback = function (response) {
-            
+
             var str = '';
 
             response.on('data', function (chunk) {
@@ -64,7 +118,7 @@ var fetchnotifications = function (time) {
 
                 var data = {
 
-                    userid: "1",
+                    userid: user,
                     secretkey: process.config.secretkey,
                     apikey: process.config.apikey,
                     messages: 'true',
@@ -87,7 +141,7 @@ var fetchnotifications = function (time) {
                     }
 
                 }
-
+              
                 process.hook("hook_unread", data, email);
 
             }
