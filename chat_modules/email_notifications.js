@@ -134,7 +134,6 @@ var fetchnotifications = function (time) {
 
                 };
 
-                data.date.setMinutes(data.date.getMinutes() - time);
 
                 var type;
 
@@ -157,12 +156,6 @@ var fetchnotifications = function (time) {
     }
 
 };
-
-setTimeout(function () {
-
-    fetchnotifications(1800000);
-
-}, 2000);
 
 //30 min notifications
 
