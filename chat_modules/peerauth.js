@@ -3,7 +3,7 @@
 "use strict";
 
 var auth = require('../chat_modules/auth');
-
+var fs = require('fs');
 var exports = {
     hook_peer_disconnect: {
         rank: 1,
@@ -111,6 +111,10 @@ var exports = {
   
 var PeerServer = require('peer').PeerServer({
     port: process.config.peerport,
+    ssl: {
+      key: fs.readFileSync('/var/www/ssl/hub.wlmg.co.uk.key'),
+      cert: fs.readFileSync('/var/www/ssl/hub_combined.crt')
+    }
 });
 
 //Remove peerid after disconnect

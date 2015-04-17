@@ -10,7 +10,12 @@ module.exports = function (config, paramaters) {
     var url = require('url');
     var path = require('path');
     var fs = require('fs');
+    var https = require('https');
 
+    var tls_options = {
+      key: fs.readFileSync('/var/www/ssl/hub.wlmg.co.uk.key'),
+      cert: fs.readFileSync('/var/www/ssl/hub_combined.crt')
+    };
     var version = 'RC1';
     console.log("Running Chat App version " + version);
     console.log("Name: " + config.name)
@@ -42,7 +47,7 @@ module.exports = function (config, paramaters) {
 
     //Server and request function router
 
-    process.server = http.createServer(function (req, res) {
+    process.server = https.createServer(tls_options, function (req, res) {
         res.writeHead(200, {
             'Access-Control-Allow-Origin': '*'
         });
