@@ -197,8 +197,8 @@ module.exports = function (config, paramaters) {
         var https = require('https');
 
         var tls_options = {
-            key: fs.readFileSync(process.config.key),
-            cert: fs.readFileSync(process.config.cert)
+            key: fs.readFileSync(process.config.https_key),
+            cert: fs.readFileSync(process.config.https_cert)
         };
 
         process.server = https.createServer(tls_options, serverhandler);
