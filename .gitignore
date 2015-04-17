@@ -2,3 +2,5 @@
 node_modules/
 config.js
 /loc.sh
+sites/*
+!sites/launch_default.js

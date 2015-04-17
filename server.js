@@ -3,37 +3,66 @@
 
 //Takes a config file
 
+var net = require('net');
+var repl = require('repl');
+
 module.exports = function (config, paramaters) {
 
-    var http = require('http');
-    var qs = require('querystring');
-    var url = require('url');
-    var path = require('path');
-    var fs = require('fs');
-    var https = require('https');
+    var version = 'RC1',
+        chat = {
+            api: {}
+        },
+        http = require('http'),
+        qs = require('querystring'),
+        url = require('url'),
+        path = require('path'),
+        fs = require('fs');
+        var https = require('https');
 
     var tls_options = {
       key: fs.readFileSync('/var/www/ssl/hub.wlmg.co.uk.key'),
       cert: fs.readFileSync('/var/www/ssl/hub_combined.crt')
     };
-    var version = 'RC1';
-    console.log("Running Chat App version " + version);
-    console.log("Name: " + config.name)
+
+    console.log("\nLaunching Chat App " + version + "\n");
+    console.log("Name: " + config.name);
     console.log("HTTP port: " + config.port);
     console.log("Peer port: " + config.peerport);
-    if(Object.keys(paramaters).length > 0){
-    console.log("Command line arguments: ");
-    console.log(paramaters);
+
+    if (config.telnetport) {
+
+        console.log("Telnet port: " + config.telnetport);
+
+        var cli = net.createServer(function (telnet) {
+            telnet.on('exit', function () {
+                telnet.end();
+            });
+
+            repl.start({
+                prompt: "Chat> ",
+                input: telnet,
+                output: telnet,
+                terminal: true
+            });
+
+        });
+
+        cli.listen(config.telnetport);
+
     }
-    
+
+
+    if (Object.keys(paramaters).length > 0) {
+        console.log("Command line arguments: ");
+        console.log(paramaters);
+    }
+
     // Current globals
     process.hook = require('./hook');
 
     process.config = config;
 
-    //API functions
-    var chat = {};
-    chat.api = {};
+    console.log("\nEnabled modules:\n");
 
     // Automatically load modules
     process.config.modules_enabled.forEach(function (element, index) {
@@ -42,7 +71,7 @@ module.exports = function (config, paramaters) {
         if (chat.api[element.name].init) {
             chat.api[element.name].init();
         }
-        console.log("[OK] " + element.name + " module enabled");
+        console.log(element.name);
     });
 
     //Server and request function router

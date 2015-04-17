@@ -9,7 +9,6 @@ var exports = {
 
             process.hook('hook_usercache', {}, function (data) {
 
-                console.log("User cache updated with " + Object.keys(process.usercache).length + " users");
 
             });
 
@@ -20,7 +19,6 @@ var exports = {
         rank: 1,
         event: function (data) {
             if (data.post.apikey && data.post.secretkey && data.post.content) {
-
                 process.hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
                     secretkey: data.post.secretkey
@@ -44,13 +42,12 @@ var exports = {
 
                             process.hook('hook_usercache', {}, function (data) {
 
-                                console.log("User cache updated with " + Object.keys(process.usercache).length + " users");
-
+                                
                             });
 
                             process.emit('next', data);
 
-                        })
+                        });
 
 
 
@@ -180,18 +177,20 @@ var exports = {
                         name = element.uid;
 
                     }
-
+                    
                     output[element.uid] = {
                         uid: element.uid,
                         username: name,
                         picture: element.picture,
-                        avatar: element.avatar
+                        avatar: element.avatar,
+                        email: element.mail,
+                        notifications: element.notification_settings,
                     };
 
                 });
 
                 process.usercache = output;
-
+                
                 process.emit('next', data);
 
             });
@@ -235,7 +234,7 @@ var exports = {
                 });
             }
         }
-    },
+    }
 
 };
 

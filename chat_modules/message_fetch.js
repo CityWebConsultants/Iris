@@ -28,13 +28,13 @@ var exports = {
 
         rank: 0,
         event: function (data) {
-            
+
             process.hook('hook_auth_check', {
                 userid: data.userid,
                 token: data.token
             }, function (authorised) {
                 if (authorised.returns === true || (data.secretkey === process.config.secretkey && data.apikey === process.config.apikey)) {
-                                        
+
                     var groups = [],
                         groupactivity = {},
                         query = {};
@@ -43,7 +43,7 @@ var exports = {
                         userid: data.userid
                     }, function (group) {
                         JSON.parse(group.returns).forEach(function (element) {
-                            
+
                             //Loop over all the members of each group and return the last updated time for the current member.
                             var lastread = "";
 
@@ -100,7 +100,7 @@ var exports = {
                             dbcollection: 'messages',
                             dbquery: query
                         }, function (gotData) {
-                            
+
                             if (gotData.returns !== '[]') {
 
                                 var messages = JSON.parse(gotData.returns),
@@ -111,12 +111,13 @@ var exports = {
 
                                 messages.forEach(function (element) {
 
-                                    //Only add the message if it was received after the group was last checked
+                                    // Only add the message if it was received after the group was last checked 
+                                    // or if a date is specified, after that date as well
 
                                     var messagedate = objectID(element._id).getTimestamp(),
                                         groupviewed = new Date(groupactivity[element.groupid]);
 
-                                    if (messagedate > groupviewed) {
+                                    if (messagedate > groupviewed && (!data.date || messagedate > data.date)) {
 
                                         //Create bundle of unread messages for if user requests all of them
 
@@ -130,9 +131,38 @@ var exports = {
                                                 };
 
                                             }
+                                            
+                                            var tagmatch;
 
-                                            unreadbundle[element.groupid].messages.push(element);
+                                            if (data.types) {
 
+                                                data.types.forEach(function (type, index) {
+
+                                                    if (element.tags) {
+
+                                                        element.tags.forEach(function (tag, index) {
+
+                                                            if (tag === type) {
+
+                                                                tagmatch = true;
+
+                                                            }
+
+                                                        });
+
+                                                    }
+
+                                                });
+
+                                            }
+                                            
+
+                                            if (!data.types || tagmatch) {
+                                                
+                                                unreadbundle[element.groupid].messages.push(element);
+
+                                            }
+                                            
                                         }
 
 
@@ -175,7 +205,7 @@ var exports = {
 
                                             JSON.parse(gotData.returns).forEach(function (element, index) {
 
-                                                if (element._id = group) {
+                                                if (element._id === group) {
 
                                                     unreadbundle[group].details = element;
 
@@ -191,7 +221,7 @@ var exports = {
 
                                             });
 
-                                        };
+                                        }
 
                                         data.returns = unreadbundle;
                                         process.emit('next', data);
@@ -199,7 +229,6 @@ var exports = {
 
                                 } else {
 
-                                    data.returns = data.returns;
                                     process.emit('next', data);
 
                                 }
@@ -223,7 +252,7 @@ var exports = {
                 }
 
             });
-            
+
         }
 
     },
@@ -236,9 +265,9 @@ var exports = {
             if ((data.get.userid && data.get.token) || (data.get.secretkey && data.get.apikey)) {
 
                 process.hook("hook_unread", data.get, function (unread) {
-                    
+
                     data.returns = JSON.stringify(unread.returns);
-                                                            
+
                     process.emit("next", data);
 
                 });

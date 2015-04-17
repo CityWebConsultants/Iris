@@ -40,6 +40,7 @@ var exports = {
                                 userid: process.config.systemuser,
                                 groupid: groupid[0]._id,
                                 content: content,
+                                tags: ["group_system_message"],
                                 strong_auth_check: false
                             }, function (gotData) {
 
@@ -89,6 +90,7 @@ var exports = {
                                 userid: process.config.systemuser,
                                 groupid: groupid,
                                 content: content,
+                                tags: ["user_system_message"],
                                 strong_auth_check: false
                             }, function (gotData) {
                                 callback(gotData);
@@ -200,6 +202,7 @@ var exports = {
                             'userid': data.post.userid,
                             'groupid': data.post.groupid,
                             'content': content,
+                            'tags': [data.post.messagetype],
                             strong_auth_check: true
                         }, function (gotData) {
                             data.returns = JSON.stringify(gotData.returns);
@@ -257,7 +260,8 @@ var exports = {
             var message = {
                 userid: data.userid,
                 groupid: data.groupid,
-                content: data.content
+                content: data.content,
+                tags: data.tags
             };
 
             process.hook('hook_message_preprocess', {

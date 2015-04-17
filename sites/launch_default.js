@@ -1,3 +1,6 @@
+/*jslint nomen: true, node:true */
+"use strict";
+
 /*  Configuration file for the chat application
  *
  *  Global values:
@@ -21,9 +24,12 @@ process.argv.forEach(function (val, index, array) {
 });
 
 var config = {
+    server: "../server",
     name: "default",
     port: 3000,
     peerport: 3001,
+    telnetport: 8124,
+    sendemailto: "hub.wlmg.co.uk",  
     apikey: 'letmein',
     secretkey: 'letmein',
     admins: [1],
@@ -98,8 +104,11 @@ var config = {
         },
         {
             name: 'typing'
+        },
+        {
+            name: 'email_notifications'
         }
     ]
 };
 
-var server = require("./server")(config, process.paramaters);
+var server = require(config.server)(config, process.paramaters);
