@@ -17,16 +17,10 @@ module.exports = function (config, paramaters) {
         url = require('url'),
         path = require('path'),
         fs = require('fs');
-        var https = require('https');
-
-    var tls_options = {
-      key: fs.readFileSync('/var/www/ssl/hub.wlmg.co.uk.key'),
-      cert: fs.readFileSync('/var/www/ssl/hub_combined.crt')
-    };
 
     console.log("\nLaunching Chat App " + version + "\n");
     console.log("Name: " + config.name);
-    console.log("HTTP port: " + config.port);
+    console.log("Hypertext port: " + config.port);
     console.log("Peer port: " + config.peerport);
 
     if (config.telnetport) {
@@ -76,12 +70,11 @@ module.exports = function (config, paramaters) {
 
     //Server and request function router
 
-    process.server = https.createServer(tls_options, function (req, res) {
+    var serverhandler = function (req, res) {
+
         res.writeHead(200, {
             'Access-Control-Allow-Origin': '*'
         });
-
-
 
         var body = '';
 
@@ -197,6 +190,27 @@ module.exports = function (config, paramaters) {
 
         //Functions, each get a request argument and paramaters
 
-    }).listen(process.config.port);
+    };
+
+    if (process.config.https) {
+
+        var https = require('https');
+
+        var tls_options = {
+            key: fs.readFileSync(process.config.key),
+            cert: fs.readFileSync(process.config.cert)
+        };
+
+        process.server = https.createServer(tls_options, serverhandler);
+
+        process.server.listen(process.config.port);
+
+    } else {
+
+        process.server = http.createServer(serverhandler);
+
+        process.server.listen(process.config.port);
+
+    }
 
 };

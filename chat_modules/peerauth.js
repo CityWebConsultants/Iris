@@ -12,7 +12,7 @@ var exports = {
             var user = auth.userlist[data.id.split("u")[0]];
 
             if (user) {
-                
+
                 user.peer.forEach(function (element, index) {
 
                     if (element === data.id) {
@@ -22,7 +22,7 @@ var exports = {
                     };
 
                 });
-            
+
             }
 
             process.emit('next', data);
@@ -108,14 +108,21 @@ var exports = {
 
 
 }
-  
-var PeerServer = require('peer').PeerServer({
-    port: process.config.peerport,
-    ssl: {
-      key: fs.readFileSync('/var/www/ssl/hub.wlmg.co.uk.key'),
-      cert: fs.readFileSync('/var/www/ssl/hub_combined.crt')
+
+var peeroptions = {};
+
+peeroptions.port = process.config.peerport;
+
+if (process.config.https) {
+
+    peeroptions.ssl = {
+        key: fs.readFileSync(process.config.https_key),
+        cert: fs.readFileSync(process.config.https_cert)
     }
-});
+
+};
+
+var PeerServer = require('peer').PeerServer(peeroptions);
 
 //Remove peerid after disconnect
 
