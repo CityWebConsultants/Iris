@@ -249,14 +249,11 @@ var exports = {
 
                             groups = JSON.parse(groups.returns);
 
-                            data.returns = [];
+                            data.returns = {};
 
                             groups.forEach(function (element, index) {
 
-                                var returnobject = {};
-                                returnobject[element.gidref] = true;
-
-                                data.returns.push(returnobject);
+                                data.returns[element.gidref] = true;
                             });
 
                             data.returns = JSON.stringify(data.returns);
