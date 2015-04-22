@@ -110,6 +110,9 @@ var exports = {
                                     });
 
                                     socket.emit('pair', true);
+
+                                    // Make clients aware that this is the latest socket.
+                                    process.userBroadcast(data.userid, 'latest_socket', socket.id);
                                 }
 
                             }
@@ -146,6 +149,11 @@ var exports = {
 
                             }
                         });
+
+                        var latestSocket = auth.userlist[socket.userid].sockets[auth.userlist[socket.userid].sockets.length - 1].id;
+
+                        process.userBroadcast(socket.userid, 'latest_socket', latestSocket);
+
                     }
                 });
 
