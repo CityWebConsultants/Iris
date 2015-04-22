@@ -8,11 +8,12 @@
  *
  */
 var objectID = require('mongodb').ObjectID;
+var auth = require('../chat_modules/auth');
 
 var exports = {
 
     init: function () {
-     process.addSocketListener("groupcheckin", function (data, socket) {
+        process.addSocketListener("groupcheckin", function (data, socket) {
             if (data.userid && data.token && data.groupid) {
                 process.hook("hook_auth_check", {userid: data.userid, token: data.token}, function (auth) {
                     if (auth.returns === true) {
@@ -23,6 +24,24 @@ var exports = {
                     }
                 });
             }
+        });
+        process.addSocketListener("focuscheckin", function (data, socket) {
+            // todo: need auth?
+
+            if (auth.userlist[socket.userid] && auth.userlist[socket.userid].sockets) {
+                var done = false;
+                auth.userlist[socket.userid].sockets.forEach(function (element, index) {
+                    if (!done && element.id === socket.id) {
+                        var moveSocket = element;
+                        auth.userlist[socket.userid].sockets.splice(index, 1);
+                        auth.userlist[socket.userid].sockets.push(moveSocket);
+                        process.updateLatestSocket(socket.userid);
+
+                        done = true;
+                    }
+                });
+            }
+
         });
     },
     hook_group_checkin: {
