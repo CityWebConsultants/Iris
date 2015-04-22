@@ -150,11 +150,16 @@ var exports = {
                             }
                         });
 
-                        var latestSocket = auth.userlist[socket.userid].sockets[auth.userlist[socket.userid].sockets.length - 1].id;
-
-                        process.userBroadcast(socket.userid, 'latest_socket', latestSocket);
+                        try {
+                            // Update the latest socket
+                            var latestSocket = auth.userlist[socket.userid].sockets[auth.userlist[socket.userid].sockets.length - 1].id;
+                            process.userBroadcast(socket.userid, 'latest_socket', latestSocket);
+                        } catch (e) {
+                            // There wasn't a valid socket available
+                        }
 
                     }
+
                 });
 
             });
