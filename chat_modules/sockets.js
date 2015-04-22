@@ -62,6 +62,15 @@ var exports = {
             });
         }
     },
+    updateLatestSocket: function (userid) {
+        try {
+            // Update the latest socket
+            var latestSocket = auth.userlist[userid].sockets[auth.userlist[userid].sockets.length - 1].id;
+            process.userBroadcast(userid, 'latest_socket', latestSocket);
+        } catch (e) {
+            // There wasn't a valid socket available
+        }
+    },
     init: function () {
 
         process.nextTick(function () {
@@ -150,13 +159,7 @@ var exports = {
                             }
                         });
 
-                        try {
-                            // Update the latest socket
-                            var latestSocket = auth.userlist[socket.userid].sockets[auth.userlist[socket.userid].sockets.length - 1].id;
-                            process.userBroadcast(socket.userid, 'latest_socket', latestSocket);
-                        } catch (e) {
-                            // There wasn't a valid socket available
-                        }
+                        process.updateLatestSocket(socket.userid);
 
                     }
 
@@ -172,5 +175,6 @@ var exports = {
 process.addSocketListener = exports.addlistener;
 process.groupBroadcast = exports.groupBroadcast;
 process.userBroadcast = exports.userBroadcast;
+process.updateLatestSocket = exports.updateLatestSocket;
 
 module.exports = exports;
