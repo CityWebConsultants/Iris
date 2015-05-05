@@ -28,14 +28,14 @@ var objectID = require('mongodb').ObjectID;
 var defaultname = function (members, userid) {
 
     var name = "";
-    
+
     if (members.length > 1) {
         members.forEach(function (element, index) {
-            
+
             if(element.uid){
-                
-             element.userid = element.uid;   
-                
+
+             element.userid = element.uid;
+
             }
 
             if (process.usercache[element.userid] && element.userid !== userid) {
@@ -297,13 +297,23 @@ var exports = {
                             data.post.members = [];
                         }
 
+                        var groupObject = {};
+
+                        groupObject.name = data.post.name;
+                        groupObject.members = data.post.members;
+                        groupObject.isReadOnly = true;
+                        groupObject.reftype = data.post.reftype;
+
+                        if (data.post.reftype === 'og') {
+                            groupObject.entityref = data.post.entityref;
+                        } else if (data.post.reftype === 'event') {
+                            groupObject.entityref = data.post.entityref;
+                            groupObject.starttime = data.post.starttime;
+                            groupObject.endtime = data.post.endtime;
+                        }
+
                         // Add group
-                        addgroup({
-                            name: data.post.name,
-                            members: data.post.members,
-                            isReadOnly: true,
-                            groupref: data.post.groupref
-                        });
+                        addgroup(groupObject);
 
                     } else {
                         data.returns = "ERROR: Secret key incorrect";
@@ -455,8 +465,20 @@ var exports = {
                     }
                 }
 
-                if (data.groupref) {
-                    query.groupref = data.groupref;
+                if (data.reftype) {
+                    query.reftype = data.reftype;
+                }
+
+                // Group reference and info
+                if (data.reftype === 'og') {
+                    query.entityref = data.entityref;
+                }
+
+                // Event reference and info
+                if (data.reftype === 'event') {
+                    query.entityref = data.entityref;
+                    query.starttime = data.starttime;
+                    query.endtime = data.endtime;
                 }
 
                 query.lastupdated = Date.now();
