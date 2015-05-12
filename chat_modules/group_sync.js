@@ -27,6 +27,7 @@ var exports = {
                         entityref: Drupal event node ID reference
                         starttime: Timestamp of event start
                         endtime: Timestamp of event end
+                        agenda: Array of meeting agenda items as field collection entities, JSON
                 */
                 process.hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
@@ -50,7 +51,7 @@ var exports = {
                             avatar: data.post.avatar,
                             members: members,
                             reftype: data.post.reftype
-                        }
+                        };
 
                         if (data.post.reftype === 'og') {
                             update.entityref = data.post.gid;
@@ -59,13 +60,8 @@ var exports = {
 
                             update.starttime = data.post.starttime;
                             update.endtime = data.post.endtime;
+                            update.agenda  = data.post.agenda;
                         }
-
-                        console.log(data.post);
-
-                        console.log(update);
-
-                        console.log(update.entityref);
 
                         if (update.entityref) {
 
@@ -76,11 +72,31 @@ var exports = {
                                 },
                                 dbupdate: update,
                                 dbupsert: true
-                            }, function (update) {
+                            }, function (updateresult) {
 
-                                data.returns = "Updated";
+                                // Get group ID.
+                                process.hook('hook_db_find', {
+                                    dbcollection: 'groups',
+                                    dbquery: {
+                                        reftype: data.post.reftype,
+                                        entityref: update.entityref
+                                    }
+                                }, function (groupdata) {
 
-                                process.emit("next", data);
+                                    groupdata = JSON.parse(groupdata.returns);
+
+                                    // Broadcast sync notifcation message (makes clients reload group)
+                                    process.groupBroadcast(groupdata[0]._id, 'notification_message', {
+                                        groupid: groupdata[0]._id,
+                                        action: 'sync',
+                                        time: Date.now()
+                                    });
+
+                                    data.returns = "Updated";
+
+                                    process.emit("next", data);
+
+                                });
 
                             });
 
@@ -101,7 +117,7 @@ var exports = {
         event: function (data) {
             // expects secretkey, gid
 
-            if (data.post.apikey && data.post.secretkey) {
+            if (data.post.apikey && data.post.secretkey && data.post.reftype && data.post.entityref) {
 
                 process.hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
@@ -112,7 +128,8 @@ var exports = {
                         process.hook("hook_db_find", {
                             dbcollection: 'groups',
                             dbquery: {
-                                'entityref': data.post.gid,
+                                'reftype': data.post.reftype,
+                                'entityref': data.post.entityref,
                                 'isReadOnly': true
                             }
                         }, function (groupid) {
@@ -122,7 +139,8 @@ var exports = {
                             process.hook('hook_db_remove', {
                                 dbcollection: 'groups',
                                 dbquery: {
-                                    'entityref': data.post.gid,
+                                    'reftype': data.post.reftype,
+                                    'entityref': data.post.entityref,
                                     'isReadOnly': true
                                 }
                             }, function (deleteReturns) {
@@ -144,6 +162,7 @@ var exports = {
             }
         }
     },
+    // POST /group/sync/addmember
     hook_post_group_sync_addmember: {
         rank: 1,
         event: function (data) {
@@ -215,6 +234,7 @@ var exports = {
             }
         }
     },
+    // POST /group/sync/removemember
     hook_post_group_sync_removemember: {
         rank: 1,
         event: function (data) {
@@ -260,6 +280,7 @@ var exports = {
             }
         }
     },
+    // GET /group/sync/groupslist
     hook_get_group_sync_groupslist: {
         rank: 1,
         event: function (data) {

@@ -310,6 +310,7 @@ var exports = {
                             groupObject.entityref = data.post.entityref;
                             groupObject.starttime = data.post.starttime;
                             groupObject.endtime = data.post.endtime;
+                            groupObject.agenda = data.post.agenda;
                         }
 
                         // Add group
@@ -479,6 +480,7 @@ var exports = {
                     query.entityref = data.entityref;
                     query.starttime = data.starttime;
                     query.endtime = data.endtime;
+                    query.agenda = data.agenda;
                 }
 
                 query.lastupdated = Date.now();
@@ -630,24 +632,39 @@ var exports = {
                     }
                 };
             } else {
-                query = {
-                    '_id': objectID(data.groupid)
-                };
+                if (data.groupid) {
+                    query = {
+                        '_id': objectID(data.groupid)
+                    };
+                } else if (data.reftype === 'event') {
+                    query = {
+                        'reftype': 'event',
+                        'entityref': data.entityref
+                    };
+                }
                 data.userid = 0;
             }
 
             if (data.action === 'addmember') {
 
-                process.hook('hook_db_find', {
-                    dbcollection: 'groups',
-                    dbquery: {
-                        '_id': objectID(data.groupid),
-                        members: {
-                            $elemMatch: {
-                                'userid': data.members
-                            }
+                var addquery = {
+                    members: {
+                        $elemMatch: {
+                            'userid': data.members
                         }
                     }
+                }
+
+                if (data.groupid) {
+                    addquery['_id'] = objectID(data.groupid);
+                } else {
+                    addquery['reftype'] = data.reftype;
+                    addquery['entityref'] = data.entityref;
+                }
+
+                process.hook('hook_db_find', {
+                    dbcollection: 'groups',
+                    dbquery: addquery
                 }, function (existing) {
 
                     // If this user doesn't yet exist
@@ -738,7 +755,7 @@ var exports = {
         rank: 0,
         event: function (data) {
 
-            if (data.post.members && data.post.groupid && objectID.isValid(data.post.groupid)) {
+            if (data.post.members && (data.post.groupid && objectID.isValid(data.post.groupid)) || (data.post.entityref && data.post.reftype)) {
 
                 if (data.post.apikey && data.post.secretkey) {
                     process.hook('hook_secretkey_check', {
@@ -747,12 +764,22 @@ var exports = {
                     }, function (valid) {
                         if (valid.returns === true) {
 
-                            process.hook('hook_group_update', {
+                            var updatequery = {
                                 action: 'addmember',
                                 userid: data.post.userid,
-                                members: data.post.members,
-                                groupid: data.post.groupid
-                            }, function (gotData) {
+                                members: data.post.members
+                            };
+
+                            if (data.post.reftype === 'event') {
+                                updatequery['reftype'] = data.post.reftype;
+                                updatequery['entityref'] = data.post.entityref;
+                            } else {
+                                updatequery['groupid'] = data.post.groupid;
+                            }
+
+                            process.hook('hook_group_update',
+                            updatequery,
+                            function (gotData) {
                                 data.returns = gotData.returns;
                                 process.emit('next', data);
                             });
