@@ -29,7 +29,7 @@ var config = {
     port: 3000,
     peerport: 3001,
     telnetport: 8124,
-    sendemailto: "hub.wlmg.co.uk",  
+    sendemailto: "hub.wlmg.co.uk",
     apikey: 'letmein',
     secretkey: 'letmein',
     admins: [1],
@@ -110,6 +110,9 @@ var config = {
         },
         {
             name: 'email_notifications'
+        },
+        {
+            name: 'update'
         }
     ]
 };
