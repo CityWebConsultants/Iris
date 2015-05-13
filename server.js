@@ -68,6 +68,12 @@ module.exports = function (config, paramaters) {
         console.log(element.name);
     });
 
+    // Run update hook
+
+    process.hook('hook_update', {}, function (data) {
+        console.log("\nAny update scripts present will now run.\n");
+    });
+
     //Server and request function router
 
     var serverhandler = function (req, res) {

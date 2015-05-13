@@ -29,7 +29,7 @@ var exports = {
                         process.hook("hook_db_find", {
                             dbcollection: 'groups',
                             dbquery: {
-                                'gidref': data.post.gid,
+                                'entityref': data.post.gid,
                                 'isReadOnly': true
                             }
                         }, function (groupid) {
