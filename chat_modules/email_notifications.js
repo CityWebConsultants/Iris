@@ -7,6 +7,12 @@ var querystring = require('querystring');
 
 var email = function (content) {
 
+    if (content.returns == "0") {
+
+        return false;
+
+    }
+
     if (Object.keys(content.returns).length > 0) {
 
         var notifications = [];
@@ -27,11 +33,11 @@ var email = function (content) {
             var group = content.returns[group];
 
             groupmessages.groupname = group.details.name;
-            
+
             if (group.details.name === "default") {
-                
+
                 groupmessages.groupname = process.defaultname(group.members, content.userid);
-                
+
             }
 
             groupmessages.messages = [];
