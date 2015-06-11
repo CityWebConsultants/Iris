@@ -34,7 +34,7 @@ var config = {
     secretkey: 'letmein',
     admins: [1],
     systemuser: 1,
-    https: true,
+    https: false,
     https_key: '/var/www/ssl/hub.wlmg.co.uk.key',
     https_cert: '/var/www/ssl/hub_combined.crt',
     modules_enabled: [

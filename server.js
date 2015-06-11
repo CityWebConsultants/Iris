@@ -183,9 +183,17 @@ module.exports = function (config, paramaters) {
                     res.writeHead(200, {
                         'Access-Control-Allow-Origin': '*'
                     });
-                    res.write(data.returns);
-                    res.end();
 
+                    if (res.finished) {
+                        
+                        console.log(hookurl);
+
+                    } else {
+                                                        
+                        res.write(data.returns);
+                        res.end();
+
+                    }
                 }
             });
 
