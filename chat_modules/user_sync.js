@@ -42,7 +42,7 @@ var exports = {
 
                             process.hook('hook_usercache', {}, function (data) {
 
-                                
+
                             });
 
                             process.emit('next', data);
@@ -177,7 +177,15 @@ var exports = {
                         name = element.uid;
 
                     }
-                    
+
+                    //Change admin name
+
+                    if (parseInt(element.uid, 10) === 1) {
+
+                        name = process.config.admin_name;
+
+                    }
+
                     output[element.uid] = {
                         uid: element.uid,
                         username: name,
@@ -190,7 +198,7 @@ var exports = {
                 });
 
                 process.usercache = output;
-                
+
                 process.emit('next', data);
 
             });

@@ -31,6 +31,7 @@ var config = {
     telnetport: 8124,
     sendemailto: "hub.wlmg.co.uk",
     apikey: 'letmein',
+    admin_name: 'Site administrator',
     secretkey: 'letmein',
     admins: [1],
     systemuser: 1,
