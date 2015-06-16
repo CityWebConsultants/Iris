@@ -95,7 +95,6 @@ var exports = {
                     data.post.token &&
                     data.post.messageid &&
                     data.post.messagetype &&
-                    process.config.messagetypes_enabled.indexOf(data.post.messagetype) > -1 &&
                     objectID.isValid(data.post.messageid)
                     ) {
 
