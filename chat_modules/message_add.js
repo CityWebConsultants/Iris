@@ -37,7 +37,7 @@ var exports = {
                             groupid = JSON.parse(groupid.returns);
 
                             process.hook('hook_message_add', {
-                                userid: process.config.systemuser,
+                                userid: data.post.userid,
                                 groupid: groupid[0]._id,
                                 content: content,
                                 tags: ["group_system_message"],
