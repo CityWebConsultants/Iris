@@ -169,7 +169,7 @@ var exports = {
               process.hook("hook_db_find", {
                 dbcollection: 'groups',
                 dbquery: {
-                  'entityref': data.post.gid,
+                  'entityref': data.post.groupref,
                   'isReadOnly': true
                 }
               }, function (groupid) {
