@@ -3,64 +3,7 @@
 "use strict";
 
 var exports = {
-  // POST /message/hub
-//  hook_post_message_hub: {
-//    rank: 1,
-//    event: function (data) {
-//      if (data.post.apikey && data.post.secretkey && data.post.gid && data.post.content) {
-//        process.hook('hook_secretkey_check', {
-//          apikey: data.post.apikey,
-//          secretkey: data.post.secretkey
-//        }, function (check) {
-//          if (check.returns === true) {
-//
-//            var content = {};
-//            if (data.post.text) {
-//              content.text = data.post.content;
-//            } else {
-//              try {
-//                content = JSON.parse(data.post.content);
-//              } catch (ex) {
-//                data.returns = "ERROR: Bad JSON content object.";
-//                process.emit('next', data);
-//              }
-//            }
-//
-//            process.hook("hook_db_find", {
-//              dbcollection: 'groups',
-//              dbquery: {
-//                'entityref': data.post.gid,
-//                'isReadOnly': true
-//              }
-//            }, function (groupid) {
-//
-//              groupid = JSON.parse(groupid.returns);
-//
-//              process.hook('hook_message_add', {
-//                userid: data.post.userid,
-//                groupid: groupid[0]._id,
-//                content: content,
-//                tags: ["group_system_message"],
-//                strong_auth_check: false
-//              }, function (gotData) {
-//
-//                data.returns = "ok";
-//                process.emit('next', data);
-//
-//              });
-//
-//            });
-//          } else {
-//            data.returns = "ERROR: Invalid secretkey";
-//            process.emit('next', data);
-//          }
-//        });
-//      } else {
-//        data.returns = "ERROR: Missing data from request.";
-//        process.emit('next', data);
-//      }
-//    }
-//  },
+
   hook_post_message_hub_user: {
     rank: 1,
     event: function (data) {
