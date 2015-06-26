@@ -19,9 +19,7 @@ var exports = {
   hook_message_edit: {
     rank: 1,
     event: function (data) {
-      var content = {};
-      content[data.messagetype] = data.content;
-
+      
       process.hook('hook_db_update', {
         dbcollection: 'messages',
         dbquery: {
@@ -30,7 +28,8 @@ var exports = {
         },
         dbupdate: {
           $set: {
-            'content': content
+            'content': data.content,
+            'type': data.type
           }
         },
         dbupsert: false,
@@ -131,7 +130,7 @@ var exports = {
               process.hook('hook_message_edit', {
                 userid: data.post.userid,
                 messageid: data.post.messageid,
-                messagetype: data.post.messagetype,
+                type: data.post.messagetype,
                 content: sanitisedmessage.returns.content
 
               }, function (gotData) {
