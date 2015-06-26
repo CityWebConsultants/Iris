@@ -139,7 +139,7 @@ var exports = {
           'userid': data.post.userid,
           'groupid': data.post.groupid,
           'type': data.post.messagetype,
-          'content': content,
+          'content': data.post.content,
           'tags': [data.post.messagetype],
           strong_auth_check: !admin
         }, function (gotData) {
