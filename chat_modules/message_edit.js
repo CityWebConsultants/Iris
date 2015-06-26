@@ -123,7 +123,7 @@ var exports = {
               message: {
                 content: data.post.content,
                 userid: data.post.userid,
-                type: data.message.type
+                type: data.post.type
               }
             }, function (sanitisedmessage) {
 
