@@ -49,6 +49,8 @@ var exports = {
                 }
               }, function (groupid) {
 
+                //TODO check if group returned, if not return error
+
                 data.post.groupid = JSON.parse(groupid.returns)[0]._id;
 
                 addmessage(true);
