@@ -211,7 +211,7 @@ var exports = {
 
       //Check if user is admin
 
-      if (data.post.apikey && data.post.secretkey && (data.post.groupid || data.post.groupref) && data.post.content) {
+      if (data.post.userid && data.post.apikey && data.post.secretkey && (data.post.groupid || data.post.groupref) && data.post.content) {
         process.hook('hook_secretkey_check', {
           apikey: data.post.apikey,
           secretkey: data.post.secretkey
