@@ -130,7 +130,7 @@ var exports = {
   hook_post_message_add: {
     rank: 1,
     event: function (data) {
-      
+
       //Function for adding all messages (with admin check)
 
       var addmessage = function (admin) {
@@ -174,7 +174,7 @@ var exports = {
                 }
               }, function (groupid) {
 
-                data.post.groupid = JSON.parse(groupid.returns);
+                data.post.groupid = JSON.parse(groupid.returns)[0]._id;
 
                 addmessage(true);
 
