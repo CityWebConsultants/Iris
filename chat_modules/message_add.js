@@ -135,16 +135,10 @@ var exports = {
 
       var addmessage = function (admin) {
 
-        var content = {
-
-          type: data.post.messagetype,
-          content: data.post.content
-
-        }
-
         process.hook('hook_message_add', {
           'userid': data.post.userid,
           'groupid': data.post.groupid,
+          'type': data.post.messagetype,
           'content': content,
           'tags': [data.post.messagetype],
           strong_auth_check: !admin
@@ -222,7 +216,7 @@ var exports = {
     rank: 0,
     event: function (data) {
 
-      if (data.message.content.text) {
+      if (data.message.type === "text") {
         var skip = false;
         if (process.config.admins) {
           process.config.admins.forEach(function (element) {
@@ -234,7 +228,7 @@ var exports = {
 
         if (skip === false) {
           // Strip HTML.
-          data.message.content.text = data.message.content.text
+          data.message.content = data.message.content
             .replace(/&/g, '&amp;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#x27;')
@@ -259,6 +253,7 @@ var exports = {
         userid: data.userid,
         groupid: data.groupid,
         content: data.content,
+        type: data.type,
         tags: data.tags
       };
 
