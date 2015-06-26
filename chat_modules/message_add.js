@@ -135,9 +135,12 @@ var exports = {
 
       var addmessage = function (admin) {
 
-        var content = {};
+        var content = {
 
-        content[data.post.messagetype] = data.post.content;
+          type: data.post.messagetype,
+          content: data.post.content
+
+        }
 
         process.hook('hook_message_add', {
           'userid': data.post.userid,
@@ -154,7 +157,7 @@ var exports = {
 
       //Check if user is admin
 
-      if (data.post.userid && data.post.apikey && data.post.secretkey && (data.post.groupid || data.post.groupref) && data.post.content) {
+      if (data.post.userid && data.post.apikey && data.post.secretkey && (data.post.groupid || data.post.groupref) && data.post.content && data.post.messagetype) {
         process.hook('hook_secretkey_check', {
           apikey: data.post.apikey,
           secretkey: data.post.secretkey
