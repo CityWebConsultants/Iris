@@ -1040,76 +1040,11 @@ var exports = {
     rank: 0,
     event: function (data) {
 
-      var checkuser = function (usertocheck, usertocreatewith) {
-
-        process.hook("hook_db_find", {
-          dbcollection: 'groups',
-          dbquery: {
-            'is121': true,
-            $and: [
-              {
-                'members': {
-                  $elemMatch: {
-                    'userid': currentuserid
-                  }
-                }
-                      }, {
-                'members': {
-                  $elemMatch: {
-                    'userid': data.post.userid
-                  }
-                }
-                      }
-                    ]
-          }
-        }, function (groupid) {
-
-          if (groupid.returns && JSON.parse(groupid.returns).length === 0) {
-
-            // Need to create group
-
-            process.hook('hook_group_add', {
-              name: 'default',
-              members: [currentuserid, data.post.userid],
-              is121: true
-            }, function (newgroupid) {
-
-              if (newgroupid.success === true) {
-
-                return {
-                  userid: currentuserid,
-                  groupid: newgroupid.returns
-                };
-
-              }
-
-            });
-
-          } else {
-
-            // Group already exists
-
-            console.log("Already exists");
-
-            groupids.push({
-              userid: currentuserid,
-              groupid: JSON.parse(groupid.returns)[0]._id
-            });
-
-          }
-
-        });
-
-      };
-
       if (data.post.userids && data.post.userid && data.post.apikey && data.post.secretkey) {
         process.hook('hook_secretkey_check', {
           apikey: data.post.apikey,
           secretkey: data.post.secretkey
         }, function (check) {
-
-
-
 
           if (check.returns === true) {
 
@@ -1122,33 +1057,81 @@ var exports = {
               return;
             }
 
-            var groupstocreate = [];
-            var groupids = [];
-
             process.hook("hook_db_find", {
               dbcollection: 'groups',
               dbquery: {
                 'is121': true,
                 "members": {
-                    "$elemMatch": {
+                  $all: [{
+                    $elemMatch: {
                       "userid": data.post.userid
-                    },
+                    }
+                  }, {
                     $elemMatch: {
                       "userid": {
                         "$in": userids
                       }
                     }
+                  }]
                 }
               }
             }, function (groups) {
-              console.log(groups);
+              groups = JSON.parse(groups.returns);
+
+              var existing121users = [];
+
+              var returngroups = [];
+
+              groups.forEach(function (element, index) {
+
+                element.members.forEach(function (member) {
+
+                  if (member.userid.toString() !== "1") {
+                    existing121users.push(member.userid);
+                    returngroups.push(element._id);
+                  }
+
+                });
+
+              });
+
+              var userstocreate = userids.filter(function (i) {
+                return existing121users.indexOf(i) === -1;
+              });
+
+              if (userstocreate.length > 0) {
+
+                userstocreate.forEach(function (user, index, array) {
+
+                  process.hook('hook_group_add', {
+                    name: 'default',
+                    members: [user, data.post.userid],
+                    is121: true
+                  }, function (newgroupid) {
+
+                    if (newgroupid.success === true) {
+
+                      returngroups.push(newgroupid.returns);
+
+                      if (index === array.length - 1) {
+                        data.returns = JSON.stringify(returngroups);
+                        process.emit("next", data);
+                      }
+
+                    }
+
+                  });
+
+                });
+
+              } else {
+
+                data.returns = JSON.stringify(returngroups);
+                process.emit("next", data);
+
+              }
+
             });
-
-            console.log("end");
-            console.log(groupids);
-
-            data.returns = JSON.stringify(groupids);
-            process.emit("next", data);
 
           } else {
 
