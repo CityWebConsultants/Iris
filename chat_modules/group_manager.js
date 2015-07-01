@@ -299,6 +299,10 @@ var exports = {
 
             var groupObject = {};
 
+            if (data.post.private === 'true') {
+              groupObject.private = true;
+            }
+
             groupObject.name = data.post.name;
             groupObject.members = data.post.members;
             groupObject.isReadOnly = true;
@@ -464,6 +468,10 @@ var exports = {
           if (data.members.length > 2) {
             data.ok = false;
           }
+        }
+
+        if (data.private) {
+          query.private = data.private;
         }
 
         if (data.reftype) {
