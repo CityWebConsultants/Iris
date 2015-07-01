@@ -2,8 +2,10 @@
 
 "use strict";
 
+var sanitizeHtml = require('sanitize-html');
+
 var exports = {
-  
+
   // POST /message/add
   hook_post_message_add: {
     rank: 1,
@@ -97,24 +99,38 @@ var exports = {
     event: function (data) {
 
       if (data.message.type === "text") {
-        var skip = false;
+
+        var admin = false;
         if (process.config.admins) {
           process.config.admins.forEach(function (element) {
-            if (data.message.userid === element) {
-              skip = true;
+            if (data.message.userid.toString() === element.toString()) {
+              admin = true;
             }
           });
         }
 
-        if (skip === false) {
-          // Strip HTML.
-          data.message.content = data.message.content
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#x27;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\//g, '&#47;');
+        if (admin === true) {
+
+          // Currently don't sanitize anything
+
+        } else {
+
+          if (exports.options.textFormats && exports.options.textFormats.default && exports.options.textFormats.default.sanitize === true) {
+            // Sane defaults if undefined
+            if (!exports.options.textFormats.default.allowedTags) {
+              exports.options.textFormats.default.allowedTags = false;
+            }
+            if (!exports.options.textFormats.default.allowedAttributes) {
+              exports.options.textFormats.default.allowedAttributes = false;
+            }
+
+            // SanitizeHtml
+            data.message.content = sanitizeHtml(data.message.content, {
+              allowedTags: exports.options.textFormats.default.allowedTags,
+              allowedAttributes: exports.options.textFormats.default.allowedAttributes
+            });
+          }
+
         }
 
       }

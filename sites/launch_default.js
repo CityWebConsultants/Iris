@@ -68,7 +68,18 @@ var config = {
             }
         },
         {
-            name: 'message_add'
+            name: 'message_add',
+            options: {
+                textFormats: {
+                    default: {
+                        sanitize: true,
+                        allowedTags: ['a'],
+                        allowedAttributes: {
+                            'a': ['href', 'title'],
+                        }
+                    }
+                }
+            }
         },
         {
             name: 'highlight'
