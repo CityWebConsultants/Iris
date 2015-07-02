@@ -197,8 +197,6 @@ var exports = {
                         users: process.onlineUsers
                       });
                       
-                      console.log("timeout");
-
                     }, exports.options.awayTimeout);
 
                   }
