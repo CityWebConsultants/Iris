@@ -16,115 +16,118 @@ process.paramaters = {};
 
 process.argv.forEach(function (val, index, array) {
 
-    if (val.indexOf("=") !== -1) {
-        val = val.split("=");
-        process.paramaters[val[0]] = val[1];
-    }
+  if (val.indexOf("=") !== -1) {
+    val = val.split("=");
+    process.paramaters[val[0]] = val[1];
+  }
 
 });
 
 var config = {
-    server: "../server",
-    name: "default",
-    port: 3000,
-    peerport: 3001,
-    telnetport: 8124,
-    sendemailto: "hub.wlmg.co.uk",
-    apikey: 'letmein',
-    admin_name: 'Site administrator',
-    secretkey: 'letmein',
-    admins: [1],
-    systemuser: 1,
-    https: false,
-    https_key: '/var/www/ssl/hub.wlmg.co.uk.key',
-    https_cert: '/var/www/ssl/hub_combined.crt',
-    modules_enabled: [
-        {
-            name: 'debug'
+  server: "../server",
+  name: "default",
+  port: 3000,
+  peerport: 3001,
+  telnetport: 8124,
+  sendemailto: "hub.wlmg.co.uk",
+  apikey: 'letmein',
+  admin_name: 'Site administrator',
+  secretkey: 'letmein',
+  admins: [1],
+  systemuser: 1,
+  https: false,
+  https_key: '/var/www/ssl/hub.wlmg.co.uk.key',
+  https_cert: '/var/www/ssl/hub_combined.crt',
+  modules_enabled: [
+    {
+      name: 'debug'
         },
-        {
-            name: 'auth',
-            options: {
-                token_length: 16,
-                allowdebug: true
+    {
+      name: 'auth',
+      options: {
+        token_length: 16,
+        allowdebug: true
+      }
+        },
+    {
+      name: 'mongodb',
+      options: {
+        server: 'localhost',
+        port: 27017,
+        database_name: 'chat-app',
+        prefix: ''
+      }
+        },
+    {
+      name: 'sockets',
+      options: {
+        awayTimeout: 60000
+      }
+        },
+    {
+      name: 'group_manager',
+      options: {
+        allowdebug: true
+      }
+        },
+    {
+      name: 'message_add',
+      options: {
+        textFormats: {
+          default: {
+            sanitize: true,
+            allowedTags: ['a'],
+            allowedAttributes: {
+              'a': ['href', 'title'],
             }
+          }
+        }
+      }
         },
-        {
-            name: 'mongodb',
-            options: {
-                server: 'localhost',
-                port: 27017,
-                database_name: 'chat-app',
-                prefix: ''
-            }
+    {
+      name: 'highlight'
         },
-        {
-            name: 'sockets'
+    {
+      name: 'message_fetch'
         },
-        {
-            name: 'group_manager',
-            options: {
-                allowdebug: true
-            }
+    {
+      name: 'message_edit'
         },
-        {
-            name: 'message_add',
-            options: {
-                textFormats: {
-                    default: {
-                        sanitize: true,
-                        allowedTags: ['a'],
-                        allowedAttributes: {
-                            'a': ['href', 'title'],
-                        }
-                    }
-                }
-            }
+    {
+      name: 'socket_notifications'
         },
-        {
-            name: 'highlight'
+    {
+      name: 'activity',
+      options: {
+        awayCleanupTime: 30000
+      }
         },
-        {
-            name: 'message_fetch'
+    {
+      name: 'socket_groups'
         },
-        {
-            name: 'message_edit'
+    {
+      name: 'logout'
         },
-        {
-            name: 'socket_notifications'
+    {
+      name: 'peerauth'
         },
-        {
-            name: 'activity',
-            options: {
-                awayCleanupTime: 30000
-            }
+    {
+      name: 'mediacall'
         },
-        {
-            name: 'socket_groups'
+    {
+      name: 'user_sync'
         },
-        {
-            name: 'logout'
+    {
+      name: 'group_sync'
         },
-        {
-            name: 'peerauth'
+    {
+      name: 'typing'
         },
-        {
-            name: 'mediacall'
+    {
+      name: 'email_notifications'
         },
-        {
-            name: 'user_sync'
-        },
-        {
-            name: 'group_sync'
-        },
-        {
-            name: 'typing'
-        },
-        {
-            name: 'email_notifications'
-        },
-        {
-            name: 'update'
+    {
+      name: 'update'
         }
     ]
 };
