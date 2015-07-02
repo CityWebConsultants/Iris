@@ -186,7 +186,7 @@ module.exports = function (config, paramaters) {
 
                     if (res.finished) {
                         
-                        console.log(hookurl);
+                        console.warn(hookurl + " res.finished FAIL");
 
                     } else {
                                                         
