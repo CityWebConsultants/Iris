@@ -10,409 +10,470 @@
 var objectID = require('mongodb').ObjectID;
 
 var exports = {
-    options: {},
-    // Create objectID from timestamp for use in 'since' queries.
-    objectIDWithTimestamp: function (timestamp) {
-        // Convert string date to Date object (otherwise assume timestamp is a date)
-        if (typeof (timestamp) === 'string') {
-            timestamp = new Date(timestamp);
-        }
+  options: {},
+  // Create objectID from timestamp for use in 'since' queries.
+  objectIDWithTimestamp: function (timestamp) {
+    // Convert string date to Date object (otherwise assume timestamp is a date)
+    if (typeof (timestamp) === 'string') {
+      timestamp = new Date(timestamp);
+    }
 
-        // Convert date object to hex seconds since Unix epoch
-        var hexSeconds = Math.floor(timestamp / 1000).toString(16),
-            constructedObjectID = objectID(hexSeconds + "0000000000000000");
+    // Convert date object to hex seconds since Unix epoch
+    var hexSeconds = Math.floor(timestamp / 1000).toString(16),
+      constructedObjectID = objectID(hexSeconds + "0000000000000000");
 
-        return constructedObjectID;
-    },
-    hook_unread: {
+    return constructedObjectID;
+  },
+  hook_get_fetch_usermessages: {
 
-        rank: 0,
-        event: function (data) {
+    rank: 0,
+    event: function (data) {
 
-            process.hook('hook_auth_check', {
-                userid: data.userid,
-                token: data.token
-            }, function (authorised) {
-                if (authorised.returns === true || (data.secretkey === process.config.secretkey && data.apikey === process.config.apikey)) {
+      process.hook('hook_auth_check', {
+        userid: data.get.userid,
+        token: data.get.token
+      }, function (authorised) {
+        if (authorised.returns === true || (data.get.secretkey === process.config.secretkey && data.get.apikey === process.config.apikey)) {
 
-                    var groups = [],
-                        groupactivity = {},
-                        query = {};
+          //User authorised, can fetch all messages.
 
-                    process.hook('hook_fetch_groups', {
-                        userid: data.userid
-                    }, function (group) {
-                        JSON.parse(group.returns).forEach(function (element) {
+          process.hook('hook_fetch_groups', {
+            userid: data.get.userid
+          }, function (groups) {
 
-                            //Loop over all the members of each group and return the last updated time for the current member.
-                            var lastread = "";
+            var groups = JSON.parse(groups.returns);
 
-                            element.members.forEach(function (member) {
+            var groupids = [];
 
-                                if (member.userid === data.userid) {
 
-                                    if (member.lastviewed) {
-                                        lastread = member.lastviewed;
-                                    } else {
-                                        lastread = '0';
-                                    }
+            //Fetched all groups a user is a member of, now to fetch their messages
 
-                                }
+            Object.keys(groups).forEach(function (element, index) {
 
-                            });
+              groupids.push(groups[index]._id);
 
-                            groups.push(element._id);
-                            groupactivity[element._id] = lastread;
+            });
 
-                        });
+            //Create database query to fetch messages with
 
-                        //Loop over the last read times to find the earliest time so the database doesn't have to pull too many messages in
+            var query = {};
 
-                        var earliestmessage = Date.now();
+            query.groupid = {
+              $in: groupids
+            };
 
-                        groups.forEach(function (element) {
+            process.hook('hook_db_find', {
+              dbcollection: 'messages',
+              dbquery: query
+            }, function (gotData) {
 
-                            if (groupactivity[element] < earliestmessage) {
+              data.returns = gotData.returns;
+              process.emit('next', data);
 
-                                earliestmessage = groupactivity[element];
+            });
 
-                            }
 
-                        });
+          })
+        } else {
 
-                        query._id = {
-                            $gt: exports.objectIDWithTimestamp(earliestmessage)
-                        };
+          data.returns = "error";
+          process.emit('next', data);
 
-                        //Don't load user's own messages
+        };
 
-                        query.userid = {
-                            $ne: data.userid
-                        };
 
-                        //Only load messages from the groups the user is part of
+      })
+    }
+  },
+  hook_unread: {
 
-                        query.groupid = {
-                            $in: groups
-                        };
+    rank: 0,
+    event: function (data) {
 
-                        process.hook('hook_db_find', {
-                            dbcollection: 'messages',
-                            dbquery: query
-                        }, function (gotData) {
+      process.hook('hook_auth_check', {
+        userid: data.userid,
+        token: data.token
+      }, function (authorised) {
+        if (authorised.returns === true || (data.secretkey === process.config.secretkey && data.apikey === process.config.apikey)) {
 
-                            if (gotData.returns !== '[]') {
+          var groups = [],
+            groupactivity = {},
+            query = {};
 
-                                var messages = JSON.parse(gotData.returns),
-                                    unreadbundle = {};
-                                data.returns = {};
+          process.hook('hook_fetch_groups', {
+            userid: data.userid
+          }, function (group) {
+            JSON.parse(group.returns).forEach(function (element) {
 
-                                //Loop over all returned messages and create a message counter for each group
+              //Loop over all the members of each group and return the last updated time for the current member.
+              var lastread = "";
 
-                                messages.forEach(function (element) {
+              element.members.forEach(function (member) {
 
-                                    // Only add the message if it was received after the group was last checked 
-                                    // or if a date is specified, after that date as well
-
-                                    var messagedate = objectID(element._id).getTimestamp(),
-                                        groupviewed = new Date(groupactivity[element.groupid]);
-
-                                    if (messagedate > groupviewed && (!data.date || messagedate > data.date)) {
-
-                                        //Create bundle of unread messages for if user requests all of them
-
-                                        if (data.messages) {
-
-                                            if (!unreadbundle[element.groupid]) {
-
-                                                unreadbundle[element.groupid] = {
-                                                    groupid: element.groupid,
-                                                    messages: []
-                                                };
-
-                                            }
-                                            
-                                            var tagmatch;
-
-                                            if (data.types) {
-
-                                                data.types.forEach(function (type, index) {
-
-                                                    if (element.tags) {
-
-                                                        element.tags.forEach(function (tag, index) {
-
-                                                            if (tag === type) {
-
-                                                                tagmatch = true;
-
-                                                            }
-
-                                                        });
-
-                                                    }
-
-                                                });
-
-                                            }
-                                            
-
-                                            if (!data.types || tagmatch) {
-                                                
-                                                unreadbundle[element.groupid].messages.push(element);
-
-                                            }
-                                            
-                                        }
-
-
-                                        if (!data.returns[element.groupid]) {
-                                            data.returns[element.groupid] = 1;
-                                        } else {
-                                            data.returns[element.groupid] += 1;
-                                        }
-
-                                    }
-
-                                });
-
-                                if (data.messages) {
-
-                                    //Make pretty message feed for humans
-
-                                    var groups = Object.keys(unreadbundle);
-
-                                    groups.forEach(function (element, index) {
-
-                                        groups[index] = objectID(element);
-
-                                    });
-
-                                    var query = {};
-
-                                    query._id = {
-                                        $in: groups
-                                    };
-
-                                    process.hook('hook_db_find', {
-                                        dbcollection: 'groups',
-                                        dbquery: query
-                                    }, function (gotData) {
-
-                                        var group;
-
-                                        for (group in unreadbundle) {
-
-                                            JSON.parse(gotData.returns).forEach(function (element, index) {
-
-                                                if (element._id === group) {
-
-                                                    unreadbundle[group].details = element;
-
-                                                    unreadbundle[group].members = [];
-
-                                                    element.members.forEach(function (user, index) {
-
-                                                        unreadbundle[group].members.push(process.usercache[user.userid]);
-
-                                                    });
-
-                                                }
-
-                                            });
-
-                                        }
-
-                                        data.returns = unreadbundle;
-                                        process.emit('next', data);
-                                    });
-
-                                } else {
-
-                                    process.emit('next', data);
-
-                                }
-
-
-                            } else {
-
-                                data.returns = "0";
-                                process.emit('next', data);
-
-
-                            }
-
-                        });
-                    });
-                } else {
-
-                    data.returns = "error";
-                    process.emit('next', data);
+                if (member.userid === data.userid) {
+
+                  if (member.lastviewed) {
+                    lastread = member.lastviewed;
+                  } else {
+                    lastread = '0';
+                  }
 
                 }
 
+              });
+
+              groups.push(element._id);
+              groupactivity[element._id] = lastread;
+
             });
 
-        }
+            //Loop over the last read times to find the earliest time so the database doesn't have to pull too many messages in
 
-    },
+            var earliestmessage = Date.now();
 
-    hook_get_group_unread: {
+            groups.forEach(function (element) {
 
-        rank: 0,
-        event: function (data) {
+              if (groupactivity[element] < earliestmessage) {
 
-            if ((data.get.userid && data.get.token) || (data.get.secretkey && data.get.apikey)) {
+                earliestmessage = groupactivity[element];
 
-                process.hook("hook_unread", data.get, function (unread) {
+              }
 
-                    data.returns = JSON.stringify(unread.returns);
+            });
 
-                    process.emit("next", data);
-
-                });
-
-            } else {
-
-                data.returns = "error";
-                process.emit("next", data);
-
-            }
-
-        }
-    },
-    hook_group_list_messages: {
-
-        rank: 0,
-        event: function (data) {
-            // expects groupid, optional (since)
-            var query = {
-                groupid: data.groupid
+            query._id = {
+              $gt: exports.objectIDWithTimestamp(earliestmessage)
             };
-            if (data.since) {
-                query._id = {
-                    $gt: exports.objectIDWithTimestamp(data.since)
-                };
-            }
+
+            //Don't load user's own messages
+
+            query.userid = {
+              $ne: data.userid
+            };
+
+            //Only load messages from the groups the user is part of
+
+            query.groupid = {
+              $in: groups
+            };
 
             process.hook('hook_db_find', {
-                dbcollection: 'messages',
-                dbquery: query
+              dbcollection: 'messages',
+              dbquery: query
             }, function (gotData) {
 
-                var messages = JSON.parse(gotData.returns);
+              if (gotData.returns !== '[]') {
 
-                messages.forEach(function (element, index) {
+                var messages = JSON.parse(gotData.returns),
+                  unreadbundle = {};
+                data.returns = {};
 
-                    var message = messages[index];
+                //Loop over all returned messages and create a message counter for each group
 
-                    if (process.usercache[message.userid]) {
-                        message.username = process.usercache[message.userid].username;
-                    }
+                messages.forEach(function (element) {
 
-                });
+                  // Only add the message if it was received after the group was last checked 
+                  // or if a date is specified, after that date as well
 
-                data.returns = JSON.stringify(messages);
-                process.emit('next', data);
-            });
-        }
-    },
-    // GET /fetch/group/messages
-    hook_get_fetch_group_messages: {
-        rank: 0,
-        event: function (data) {
-            // expects groupid, userid & token, optional (since)
-            if (data.get.groupid && data.get.userid && data.get.token) {
+                  var messagedate = objectID(element._id).getTimestamp(),
+                    groupviewed = new Date(groupactivity[element.groupid]);
 
-                process.hook('hook_auth_check', {
-                    userid: data.get.userid,
-                    token: data.get.token
-                }, function (authorised) {
-                    if (authorised.returns === true) {
-                        var query = {
-                            groupid: data.get.groupid
+                  if (messagedate > groupviewed && (!data.date || messagedate > data.date)) {
+
+                    //Create bundle of unread messages for if user requests all of them
+
+                    if (data.messages) {
+
+                      if (!unreadbundle[element.groupid]) {
+
+                        unreadbundle[element.groupid] = {
+                          groupid: element.groupid,
+                          messages: []
                         };
 
-                        if (data.get.since && new Date(data.get.since).getTime() > 0) {
-                            query.since = data.get.since;
+                      }
+
+                      var tagmatch;
+
+                      if (data.types) {
+
+                        data.types.forEach(function (type, index) {
+
+                          if (element.tags) {
+
+                            element.tags.forEach(function (tag, index) {
+
+                              if (tag === type) {
+
+                                tagmatch = true;
+
+                              }
+
+                            });
+
+                          }
+
+                        });
+
+                      }
+
+
+                      if (!data.types || tagmatch) {
+
+                        unreadbundle[element.groupid].messages.push(element);
+
+                      }
+
+                    }
+
+
+                    if (!data.returns[element.groupid]) {
+                      data.returns[element.groupid] = 1;
+                    } else {
+                      data.returns[element.groupid] += 1;
+                    }
+
+                  }
+
+                });
+
+                if (data.messages) {
+
+                  //Make pretty message feed for humans
+
+                  var groups = Object.keys(unreadbundle);
+
+                  groups.forEach(function (element, index) {
+
+                    groups[index] = objectID(element);
+
+                  });
+
+                  var query = {};
+
+                  query._id = {
+                    $in: groups
+                  };
+
+                  process.hook('hook_db_find', {
+                    dbcollection: 'groups',
+                    dbquery: query
+                  }, function (gotData) {
+
+                    var group;
+
+                    for (group in unreadbundle) {
+
+                      JSON.parse(gotData.returns).forEach(function (element, index) {
+
+                        if (element._id === group) {
+
+                          unreadbundle[group].details = element;
+
+                          unreadbundle[group].members = [];
+
+                          element.members.forEach(function (user, index) {
+
+                            unreadbundle[group].members.push(process.usercache[user.userid]);
+
+                          });
+
                         }
 
-                        process.hook("hook_group_list_messages", query, function (gotData) {
-                            data.returns = gotData.returns;
-                            process.emit('next', data);
-                        });
-                    } else {
-                        data.returns = "ERROR: Authentication failed.";
-                        process.emit('next', data);
+                      });
+
                     }
-                });
+
+                    data.returns = unreadbundle;
+                    process.emit('next', data);
+                  });
+
+                } else {
+
+                  process.emit('next', data);
+
+                }
 
 
-            } else {
-                data.returns = "ERROR: Missing groupid, userid or token";
+              } else {
+
+                data.returns = "0";
                 process.emit('next', data);
-            }
+
+
+              }
+
+            });
+          });
+        } else {
+
+          data.returns = "error";
+          process.emit('next', data);
 
         }
-    },
-    hook_get_fetch_message: {
-        rank: 0,
-        event: function (data) {
-            // userid, token, messageid
-            if (data.get.userid && data.get.token && data.get.messageid && objectID.isValid(data.get.messageid)) {
-                process.hook('hook_auth_check', {
-                    userid: data.get.userid,
-                    token: data.get.token
-                }, function (authorised) {
-                    if (authorised.returns === true) {
-                        process.hook('hook_groupid_from_messageid', {
-                            messageid: data.get.messageid
-                        }, function (groupid) {
-                            if (groupid.returns) {
-                                process.hook('hook_db_find', {
-                                    dbcollection: 'groups',
-                                    dbquery: {
-                                        '_id': objectID(groupid.returns),
-                                        members: {
-                                            $elemMatch: {
-                                                'userid': data.get.userid
-                                            }
-                                        }
-                                    }
-                                }, function (groupinfo) {
-                                    if (groupinfo.returns && groupinfo.returns !== '[]') {
 
-                                        process.hook('hook_db_find', {
-                                            dbcollection: 'messages',
-                                            dbquery: {
-                                                '_id': objectID(data.get.messageid)
-                                            }
-                                        }, function (message) {
-                                            data.returns = message.returns;
-                                            process.emit('next', data);
-                                        });
+      });
 
-                                    } else {
-                                        data.returns = "ERROR: Not authorised to view this message.";
-                                        process.emit('next', data);
-                                    }
-                                });
-                            } else {
-                                data.returns = "ERROR: Could not fetch associated group.";
-                                process.emit('next', data);
-                            }
-                        });
-                    } else {
-                        data.returns = "ERROR: Authentication failed.";
-                        process.emit('next', data);
-                    }
-                });
-            } else {
-                data.returns = "ERROR: Missing messageid, userid or token";
-                process.emit('next', data);
-            }
-        }
     }
+
+  },
+
+  hook_get_group_unread: {
+
+    rank: 0,
+    event: function (data) {
+
+      if ((data.get.userid && data.get.token) || (data.get.secretkey && data.get.apikey)) {
+
+        process.hook("hook_unread", data.get, function (unread) {
+
+          data.returns = JSON.stringify(unread.returns);
+
+          process.emit("next", data);
+
+        });
+
+      } else {
+
+        data.returns = "error";
+        process.emit("next", data);
+
+      }
+
+    }
+  },
+  hook_group_list_messages: {
+
+    rank: 0,
+    event: function (data) {
+      // expects groupid, optional (since)
+      var query = {
+        groupid: data.groupid
+      };
+      if (data.since) {
+        query._id = {
+          $gt: exports.objectIDWithTimestamp(data.since)
+        };
+      }
+
+      process.hook('hook_db_find', {
+        dbcollection: 'messages',
+        dbquery: query
+      }, function (gotData) {
+
+        var messages = JSON.parse(gotData.returns);
+
+        messages.forEach(function (element, index) {
+
+          var message = messages[index];
+
+          if (process.usercache[message.userid]) {
+            message.username = process.usercache[message.userid].username;
+          }
+
+        });
+
+        data.returns = JSON.stringify(messages);
+        process.emit('next', data);
+      });
+    }
+  },
+  // GET /fetch/group/messages
+  hook_get_fetch_group_messages: {
+    rank: 0,
+    event: function (data) {
+      // expects groupid, userid & token, optional (since)
+      if (data.get.groupid && data.get.userid && data.get.token) {
+
+        process.hook('hook_auth_check', {
+          userid: data.get.userid,
+          token: data.get.token
+        }, function (authorised) {
+          if (authorised.returns === true) {
+            var query = {
+              groupid: data.get.groupid
+            };
+
+            if (data.get.since && new Date(data.get.since).getTime() > 0) {
+              query.since = data.get.since;
+            }
+
+            process.hook("hook_group_list_messages", query, function (gotData) {
+              data.returns = gotData.returns;
+              process.emit('next', data);
+            });
+          } else {
+            data.returns = "ERROR: Authentication failed.";
+            process.emit('next', data);
+          }
+        });
+
+
+      } else {
+        data.returns = "ERROR: Missing groupid, userid or token";
+        process.emit('next', data);
+      }
+
+    }
+  },
+  hook_get_fetch_message: {
+    rank: 0,
+    event: function (data) {
+      // userid, token, messageid
+      if (data.get.userid && data.get.token && data.get.messageid && objectID.isValid(data.get.messageid)) {
+        process.hook('hook_auth_check', {
+          userid: data.get.userid,
+          token: data.get.token
+        }, function (authorised) {
+          if (authorised.returns === true) {
+            process.hook('hook_groupid_from_messageid', {
+              messageid: data.get.messageid
+            }, function (groupid) {
+              if (groupid.returns) {
+                process.hook('hook_db_find', {
+                  dbcollection: 'groups',
+                  dbquery: {
+                    '_id': objectID(groupid.returns),
+                    members: {
+                      $elemMatch: {
+                        'userid': data.get.userid
+                      }
+                    }
+                  }
+                }, function (groupinfo) {
+                  if (groupinfo.returns && groupinfo.returns !== '[]') {
+
+                    process.hook('hook_db_find', {
+                      dbcollection: 'messages',
+                      dbquery: {
+                        '_id': objectID(data.get.messageid)
+                      }
+                    }, function (message) {
+                      data.returns = message.returns;
+                      process.emit('next', data);
+                    });
+
+                  } else {
+                    data.returns = "ERROR: Not authorised to view this message.";
+                    process.emit('next', data);
+                  }
+                });
+              } else {
+                data.returns = "ERROR: Could not fetch associated group.";
+                process.emit('next', data);
+              }
+            });
+          } else {
+            data.returns = "ERROR: Authentication failed.";
+            process.emit('next', data);
+          }
+        });
+      } else {
+        data.returns = "ERROR: Missing messageid, userid or token";
+        process.emit('next', data);
+      }
+    }
+  }
 };
 
 module.exports = exports;
