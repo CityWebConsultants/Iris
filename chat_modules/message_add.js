@@ -3,6 +3,7 @@
 "use strict";
 
 var sanitizeHtml = require('sanitize-html');
+var objectID = require('mongodb').ObjectID;
 
 var exports = {
 
@@ -15,12 +16,15 @@ var exports = {
 
       var addmessage = function (admin) {
 
+        console.log(data.post.public);
+
         process.hook('hook_message_add', {
           'userid': data.post.userid,
           'groupid': data.post.groupid,
           'type': data.post.messagetype,
           'content': data.post.content,
           'tags': [data.post.messagetype],
+          'public': data.post.public,
           strong_auth_check: !admin
         }, function (gotData) {
           data.returns = JSON.stringify(gotData.returns);
@@ -145,12 +149,35 @@ var exports = {
     event: function (data) {
       console.log("[INFO] Adding message: " + JSON.stringify(data.content));
 
+      var checkprivate = function(groupid, callback) {
+        process.hook('hook_db_find', {
+          dbcollection: 'groups',
+          dbquery: {
+            _id: objectID(groupid)
+          }
+        }, function (group) {
+
+          group = JSON.parse(group.returns);
+
+          // Force messages private when it doesn't make sense for them to be public
+          if (!group.isReadOnly) {
+            callback(true);
+          } else if (group.private) {
+            callback(true);
+          } else {
+            callback(false);
+          }
+
+        });
+      }
+
       var message = {
         userid: data.userid,
         groupid: data.groupid,
         content: data.content,
         type: data.type,
-        tags: data.tags
+        tags: data.tags,
+        public: data.public
       };
 
       process.hook('hook_message_preprocess', {
@@ -186,23 +213,34 @@ var exports = {
 
             // Insert message into database
             if (authorised === true) {
-              process.hook('hook_db_insert', {
-                dbcollection: 'messages',
-                dbobject: message
-              }, function (gotData) {
-                data.returns = gotData.returns[0]._id;
 
-                if (process.usercache[message.userid]) {
+              checkprivate(data.groupid, function (isPrivate) {
 
-                  //Translate username from cache
-                  message.username = process.usercache[message.userid].username;
-                };
+                if (data.public && isPrivate) {
+                  message.public = false;
+                }
+
+                console.log(message);
+
+                process.hook('hook_db_insert', {
+                  dbcollection: 'messages',
+                  dbobject: message
+                }, function (gotData) {
+                  data.returns = gotData.returns[0]._id;
+
+                  if (process.usercache[message.userid]) {
+
+                    //Translate username from cache
+                    message.username = process.usercache[message.userid].username;
+                  };
 
 
-                // Actually send message
-                process.groupBroadcast(data.groupid, 'message', message);
+                  // Actually send message
+                  process.groupBroadcast(data.groupid, 'message', message);
 
-                process.emit('next', data);
+                  process.emit('next', data);
+                });
+
               });
 
             } else {
@@ -214,29 +252,39 @@ var exports = {
 
           // No strong auth check; insert whatever
         } else {
-          console.log('[INFO] Strong authorisation check bypassed.');
-          process.hook('hook_db_insert', {
-            dbcollection: 'messages',
-            dbobject: message
-          }, function (gotData) {
-            data.returns = gotData.returns[0]._id;
 
-            //Translate username from cache
+          checkprivate(data.groupid, function (isPrivate) {
 
-            if (process.usercache[message.userid]) {
+            if (data.public && isPrivate) {
+              message.public = false;
+            }
 
-              message.username = process.usercache[message.userid].username;
+            console.log(message);
 
-            };
+            console.log('[INFO] Strong authorisation check bypassed.');
+            process.hook('hook_db_insert', {
+              dbcollection: 'messages',
+              dbobject: message
+            }, function (gotData) {
+              data.returns = gotData.returns[0]._id;
 
-            // Actually send message
+              //Translate username from cache
 
-            process.groupBroadcast(data.groupid, 'message', message);
+              if (process.usercache[message.userid]) {
 
-            process.emit('next', data);
+                message.username = process.usercache[message.userid].username;
+
+              };
+
+              // Actually send message
+
+              process.groupBroadcast(data.groupid, 'message', message);
+
+              process.emit('next', data);
+            });
+
           });
         }
-
       });
     }
   }
