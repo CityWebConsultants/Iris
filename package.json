@@ -4,6 +4,7 @@
   "description": "Core server for an extensible, modular chat application",
   "main": "server.js",
   "dependencies": {
+    "es6-promise": "^2.3.0",
     "highlight": "^0.2.3",
     "mongodb": "^1.4.22",
     "peer": "^0.2.8",
