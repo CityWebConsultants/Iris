@@ -67,7 +67,23 @@ var exports = {
               dbquery: query
             }, function (gotData) {
 
-              data.returns = gotData.returns;
+              var messages = JSON.parse(gotData.returns);
+              var processedmessages = [];
+
+              messages.forEach(function (element, index) {
+
+                var message = messages[index];
+
+                if (process.usercache[message.userid]) {
+                  message.usercache = process.usercache[message.userid];
+                }
+
+                processedmessages.push(message);
+
+              });
+
+              data.returns = JSON.stringify(messages);
+
               process.emit('next', data);
 
             });
@@ -172,7 +188,7 @@ var exports = {
 
                 messages.forEach(function (element) {
 
-                  // Only add the message if it was received after the group was last checked 
+                  // Only add the message if it was received after the group was last checked
                   // or if a date is specified, after that date as well
 
                   var messagedate = objectID(element._id).getTimestamp(),
