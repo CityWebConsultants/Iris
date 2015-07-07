@@ -2,7 +2,7 @@
   "name": "chat-app",
   "version": "0.0.1",
   "description": "Core server for an extensible, modular chat application",
-  "main": "server.js",
+  "main": "sites/launch_default.js",
   "dependencies": {
     "highlight": "^0.2.3",
     "mongodb": "^1.4.22",
