@@ -56,14 +56,32 @@ module.exports = function (config, paramaters) {
 
   process.config = config;
 
+  // Global functions as defined in modules
+  process.globals = {};
+
   console.log("\nEnabled modules:\n");
 
   // Automatically load modules
   process.config.modules_enabled.forEach(function (element, index) {
     chat.api[element.name] = require('./chat_modules/' + element.name);
     chat.api[element.name].options = element.options;
+
     if (chat.api[element.name].init) {
+
       chat.api[element.name].init();
+
+    }
+
+    if (chat.api[element.name].globals) {
+
+      process.globals[element.name] = {};
+
+      var globals = chat.api[element.name].globals;
+
+      Object.keys(globals).forEach(function (global) {
+        process.globals[element.name][global] = globals[global];
+      });
+
     }
     console.log(element.name);
   });

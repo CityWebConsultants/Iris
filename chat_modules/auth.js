@@ -19,6 +19,12 @@ var exports = {
     userlist: {},
     // A side effect of declaring this object is that you can have default options!
     options: {token_length: 16, allowdebug: false},
+    // Global functions
+    globals: {
+      testGlobal: function (data) {
+        console.log("Hello world");
+      }
+    },
     // POST /auth
     hook_post_auth: {
         rank: 0,

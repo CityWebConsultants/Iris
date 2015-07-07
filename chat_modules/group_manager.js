@@ -115,6 +115,8 @@ var exports = {
     rank: 0,
     event: function (data) {
       if (data.userid && data.token && data.groupid) {
+
+        // Check objectID valid
         try {
           data.groupid = objectID(data.groupid);
         } catch (e) {
@@ -123,11 +125,29 @@ var exports = {
           return false;
         }
 
-        process.hook('hook_auth_check', {
-          userid: data.userid,
-          token: data.token
-        }, function (gotData) {
-          if (gotData.returns === true) {
+        // Promise functions
+        var authCheck = function (data) {
+          return new Promise(function (yes, no) {
+
+            process.hook('hook_auth_check', {
+              userid: data.userid,
+              token: data.token
+            }, function (gotData) {
+              if (gotData.returns === true) {
+
+                yes(data);
+
+              } else {
+                data.returns = "ERROR: Authentication failed.";
+                no(data);
+              }
+            });
+
+          });
+        };
+
+        var dbFind = function (data) {
+          return new Promise(function (yes, no) {
 
             // Call db find hook.
             process.hook('hook_db_find', {
@@ -154,14 +174,33 @@ var exports = {
 
               data.returns = groupdata;
 
-              process.emit('next', data);
+              yes(data);
+
             });
 
-          } else {
-            data.returns = "ERROR: Authentication failed.";
-            process.emit('next', data);
-          }
-        });
+          });
+        };
+
+        var fail = function (data) {
+
+          data.returns = "Error";
+          process.emit('next', data);
+
+        };
+
+        var finish = function (data) {
+
+          process.emit('next', data);
+
+        };
+
+        // Promises Flow
+
+        authCheck(data)
+          .then(dbFind, fail)
+          .then(finish, fail);
+
+
       } else {
         data.returns = "ERROR: Missing userid, token or groupid.";
         process.emit('next', data);
