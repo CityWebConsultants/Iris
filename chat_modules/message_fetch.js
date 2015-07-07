@@ -67,7 +67,7 @@ var exports = {
     event: function (data) {
 
       //Placeholder array for a user's groups
-      var groupids = [];
+      var groupids = {};
 
       //Auth check function
 
@@ -111,7 +111,7 @@ var exports = {
 
             Object.keys(groups).forEach(function (element, index) {
 
-              groupids.push(groups[index]._id);
+              groupids[groups[element]._id] = groups[element];
 
             });
 
@@ -134,7 +134,7 @@ var exports = {
           var query = {};
 
           query.groupid = {
-            $in: groupids
+            $in: Object.keys(groupids)
           };
 
           hook('hook_db_find', {
@@ -151,6 +151,18 @@ var exports = {
 
               if (process.usercache[message.userid]) {
                 message.usercache = process.usercache[message.userid];
+              }
+
+              if (groupids[message.groupid]) {
+
+                var group = groupids[message.groupid];
+
+                message.groupdetails = {
+
+                  name: group.name
+
+                }
+
               }
 
               processedmessages.push(message);
