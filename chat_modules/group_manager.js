@@ -101,7 +101,7 @@ var exports = {
   hook_get_fetch_group: {
     rank: 0,
     event: function (data) {
-      process.hook('hook_fetch_group', {
+      hook('hook_fetch_group', {
         userid: data.get.userid,
         token: data.get.token,
         groupid: data.get.groupid
@@ -132,7 +132,7 @@ var exports = {
             console.log("Test:");
             console.log(data.test);
             // Call db find hook.
-            process.hook('hook_db_find', {
+            hook('hook_db_find', {
               dbcollection: 'groups',
               dbquery: {
                 members: {
@@ -163,7 +163,7 @@ var exports = {
           });
         };
 
-        process.hookPromiseChain([process.globals.auth.authCheck, dbFind],data);
+        hookPromiseChain([process.globals.auth.authCheck, dbFind],data);
 
       } else {
         data.returns = "ERROR: Missing userid, token or groupid.";
@@ -193,7 +193,7 @@ var exports = {
           };
         }
 
-        process.hook('hook_db_find', {
+        hook('hook_db_find', {
             dbcollection: 'groups',
             dbquery: query
           },
@@ -232,7 +232,7 @@ var exports = {
   hook_get_fetch_group_users: {
     rank: 0,
     event: function (data) {
-      process.hook('hook_auth_check', {
+      hook('hook_auth_check', {
         userid: data.get.userid,
         token: data.get.token
       }, function (gotData) {
@@ -240,7 +240,7 @@ var exports = {
           var groupid = data.get.groupid;
 
           if (objectID.isValid(data.get.groupid)) {
-            process.hook('hook_group_list_users', {
+            hook('hook_group_list_users', {
                 'groupid': groupid,
                 'userid': data.get.userid
               },
@@ -272,7 +272,7 @@ var exports = {
       var groupdata = {};
 
       var addgroup = function (group) {
-        process.hook("hook_group_add", group, function (groupid) {
+        hook("hook_group_add", group, function (groupid) {
           // check success
           if (groupid.success) {
             data.returns = groupid.returns.toString();
@@ -285,7 +285,7 @@ var exports = {
 
       // Read only / CMS
       if (data.post.readonly === 'true' && data.post.apikey && data.post.secretkey) {
-        process.hook('hook_secretkey_check', {
+        hook('hook_secretkey_check', {
           apikey: data.post.apikey,
           secretkey: data.post.secretkey
         }, function (valid) {
@@ -330,7 +330,7 @@ var exports = {
         });
         // User controlled
       } else {
-        process.hook('hook_auth_check', {
+        hook('hook_auth_check', {
           userid: data.post.userid,
           token: data.post.token
         }, function (gotData) {
@@ -372,7 +372,7 @@ var exports = {
               // if group is one-to-one, check if one like that already exists
               if (data.post.is121 === true) {
                 // Search database for existing 121 chat with those members
-                process.hook('hook_db_find', {
+                hook('hook_db_find', {
                   dbcollection: 'groups',
                   dbquery: {
                     'is121': true,
@@ -499,7 +499,7 @@ var exports = {
         // If things are in order, insert!
         if (ok === true) {
 
-          process.hook('hook_db_insert', {
+          hook('hook_db_insert', {
             dbcollection: 'groups',
             dbobject: query
           }, function (gotData) {
@@ -540,7 +540,7 @@ var exports = {
         }
 
         // Call db find hook.
-        process.hook('hook_db_find', {
+        hook('hook_db_find', {
           dbcollection: 'groups',
           dbquery: query,
           callback: function (gotData) {
@@ -563,12 +563,12 @@ var exports = {
     event: function (data) {
       if (data.get.userid && data.get.token) {
 
-        process.hook('hook_auth_check', {
+        hook('hook_auth_check', {
           userid: data.get.userid,
           token: data.get.token
         }, function (auth) {
           if (auth.returns === true) {
-            process.hook('hook_fetch_groups', {
+            hook('hook_fetch_groups', {
               userid: data.get.userid
             }, function (groups) {
               data.returns = groups.returns;
@@ -592,7 +592,7 @@ var exports = {
       if (data.userid) {
 
         // Call db find hook.
-        process.hook('hook_db_find', {
+        hook('hook_db_find', {
           dbcollection: 'groups',
           dbquery: {
             members: {
@@ -673,7 +673,7 @@ var exports = {
           addquery['entityref'] = data.entityref;
         }
 
-        process.hook('hook_db_find', {
+        hook('hook_db_find', {
           dbcollection: 'groups',
           dbquery: addquery
         }, function (existing) {
@@ -681,7 +681,7 @@ var exports = {
           // If this user doesn't yet exist
           if (existing.returns && existing.returns === '[]') {
 
-            process.hook('hook_db_update', {
+            hook('hook_db_update', {
               dbcollection: 'groups',
               dbquery: query,
               dbupdate: {
@@ -699,7 +699,7 @@ var exports = {
 
               // Put a message into the group directly
 
-              process.hook("hook_send_joined_message", {
+              hook("hook_send_joined_message", {
                 userid: data.userid,
                 members: data.members,
                 groupid: data.groupid
@@ -718,7 +718,7 @@ var exports = {
 
       } else if (data.action === 'removemember') {
 
-        process.hook('hook_db_update', {
+        hook('hook_db_update', {
           dbcollection: 'groups',
           dbquery: query,
           dbupdate: {
@@ -739,7 +739,7 @@ var exports = {
         });
 
       } else if (data.action === 'name') {
-        process.hook('hook_db_update', {
+        hook('hook_db_update', {
           dbcollection: 'groups',
           dbquery: query,
           dbupdate: {
@@ -769,7 +769,7 @@ var exports = {
       if (data.post.members && (data.post.groupid && objectID.isValid(data.post.groupid)) || (data.post.entityref && data.post.reftype)) {
 
         if (data.post.apikey && data.post.secretkey) {
-          process.hook('hook_secretkey_check', {
+          hook('hook_secretkey_check', {
             apikey: data.post.apikey,
             secretkey: data.post.secretkey
           }, function (valid) {
@@ -788,7 +788,7 @@ var exports = {
                 updatequery['groupid'] = data.post.groupid;
               }
 
-              process.hook('hook_group_update',
+              hook('hook_group_update',
                 updatequery,
                 function (gotData) {
                   data.returns = gotData.returns;
@@ -801,13 +801,13 @@ var exports = {
             }
           });
         } else {
-          process.hook('hook_auth_check', {
+          hook('hook_auth_check', {
             userid: data.post.userid,
             token: data.post.token
           }, function (gotData) {
             if (gotData.returns === true) {
 
-              process.hook('hook_group_update', {
+              hook('hook_group_update', {
                 action: 'addmember',
                 userid: data.post.userid,
                 members: data.post.members,
@@ -837,13 +837,13 @@ var exports = {
       if (data.post.members && data.post.groupid && objectID.isValid(data.post.groupid)) {
 
         if (data.post.apikey && data.post.secretkey) {
-          process.hook('hook_secretkey_check', {
+          hook('hook_secretkey_check', {
             apikey: data.post.apikey,
             secretkey: data.post.secretkey
           }, function (valid) {
             if (valid.returns === true) {
 
-              process.hook('hook_group_update', {
+              hook('hook_group_update', {
                 action: 'removemember',
                 members: data.post.members,
                 userid: data.post.userid,
@@ -859,13 +859,13 @@ var exports = {
             }
           });
         } else {
-          process.hook('hook_auth_check', {
+          hook('hook_auth_check', {
             userid: data.post.userid,
             token: data.post.token
           }, function (gotData) {
             if (gotData.returns === true) {
 
-              process.hook('hook_group_update', {
+              hook('hook_group_update', {
                 action: 'removemember',
                 members: data.post.members,
                 userid: data.post.userid,
@@ -895,13 +895,13 @@ var exports = {
       if (data.post.name && data.post.groupid && objectID.isValid(data.post.groupid)) {
 
         if (data.post.apikey && data.post.secretkey) {
-          process.hook('hook_secretkey_check', {
+          hook('hook_secretkey_check', {
             apikey: data.post.apikey,
             secretkey: data.post.secretkey
           }, function (valid) {
             if (valid.returns === true) {
 
-              process.hook('hook_group_update', {
+              hook('hook_group_update', {
                 action: 'name',
                 name: data.post.name,
                 groupid: data.post.groupid,
@@ -917,13 +917,13 @@ var exports = {
             }
           });
         } else {
-          process.hook('hook_auth_check', {
+          hook('hook_auth_check', {
             userid: data.post.userid,
             token: data.post.token
           }, function (gotData) {
             if (gotData.returns === true) {
 
-              process.hook('hook_group_update', {
+              hook('hook_group_update', {
                 action: 'name',
                 name: data.post.name,
                 groupid: data.post.groupid,
@@ -953,14 +953,14 @@ var exports = {
       // secret key, groupid
 
       if (data.post.apikey && data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
-        process.hook('hook_secretkey_check', {
+        hook('hook_secretkey_check', {
           apikey: data.post.apikey,
           secretkey: data.post.secretkey
         }, function (valid) {
           if (valid.returns === true) {
 
             // Delete the group in the database
-            process.hook('hook_db_remove', {
+            hook('hook_db_remove', {
               dbcollection: 'groups',
               dbquery: {
                 '_id': objectID(data.post.groupid),
@@ -991,14 +991,14 @@ var exports = {
       // secret key, groupid
 
       if (data.post.apikey && data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
-        process.hook('hook_secretkey_check', {
+        hook('hook_secretkey_check', {
           apikey: data.post.apikey,
           secretkey: data.post.secretkey
         }, function (valid) {
           if (valid.returns === true) {
 
             // Blank members of group in the database
-            process.hook('hook_db_update', {
+            hook('hook_db_update', {
               dbcollection: 'groups',
               dbquery: {
                 '_id': objectID(data.post.groupid),
@@ -1032,7 +1032,7 @@ var exports = {
     event: function (data) {
       var messageid = objectID(data.messageid);
 
-      process.hook('hook_db_find', {
+      hook('hook_db_find', {
         dbcollection: 'messages',
         dbquery: {
           '_id': messageid
@@ -1052,7 +1052,7 @@ var exports = {
     event: function (data) {
 
       if (data.post.userids && data.post.userid && data.post.apikey && data.post.secretkey) {
-        process.hook('hook_secretkey_check', {
+        hook('hook_secretkey_check', {
           apikey: data.post.apikey,
           secretkey: data.post.secretkey
         }, function (check) {
@@ -1068,7 +1068,7 @@ var exports = {
               return;
             }
 
-            process.hook("hook_db_find", {
+            hook("hook_db_find", {
               dbcollection: 'groups',
               dbquery: {
                 'is121': true,
@@ -1114,7 +1114,7 @@ var exports = {
 
                 userstocreate.forEach(function (user, index, array) {
 
-                  process.hook('hook_group_add', {
+                  hook('hook_group_add', {
                     name: 'default',
                     members: [user, data.post.userid],
                     is121: true

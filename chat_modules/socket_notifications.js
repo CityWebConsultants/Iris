@@ -18,7 +18,7 @@ var exports = {
   },
   init: function () {
     process.addSocketListener("user_communicate", function (data, socket) {
-      process.hook('hook_auth_check', {
+      hook('hook_auth_check', {
         userid: data.userid,
         token: data.token
       }, function (authorised) {
@@ -33,7 +33,7 @@ var exports = {
     event: function (data) {
 
       // Validate.
-      process.hook('hook_db_find', {
+      hook('hook_db_find', {
         dbcollection: 'messages',
         dbquery: {
           userid: data.userid,
@@ -43,7 +43,7 @@ var exports = {
 
         if (query.returns && query.returns !== '[]' && JSON.parse(query.returns)[0]) {
 
-          process.hook('hook_groupid_from_messageid', {
+          hook('hook_groupid_from_messageid', {
             messageid: data.messageid
           }, function (groupid) {
 
@@ -72,7 +72,7 @@ var exports = {
     event: function (data) {
 
       // Validate.
-      process.hook('hook_db_find', {
+      hook('hook_db_find', {
         dbcollection: 'messages',
         dbquery: {
           userid: data.userid,
@@ -82,7 +82,7 @@ var exports = {
 
         if (query.returns && query.returns !== '[]' && JSON.parse(query.returns)[0]) {
 
-          process.hook('hook_groupid_from_messageid', {
+          hook('hook_groupid_from_messageid', {
             messageid: data.messageid
           }, function (groupid) {
 
@@ -180,7 +180,7 @@ var exports = {
         requester = data.userid;
       }
 
-      process.hook('hook_message_add', {
+      hook('hook_message_add', {
         userid: data.members,
         groupid: data.groupid,
         content: {

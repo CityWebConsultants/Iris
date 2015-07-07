@@ -12,7 +12,7 @@ var exports = {
         rank: 0,
         event: function (data) {
 
-//                process.hook('hook_update_2015_05_12', {}, function (data) {});
+//                hook('hook_update_2015_05_12', {}, function (data) {});
 
                 process.emit("next", data);
 
@@ -24,7 +24,7 @@ var exports = {
             function (data) {
 
                 setTimeout(function() {
-                    process.hook('hook_db_update', {
+                    hook('hook_db_update', {
                         dbcollection: 'groups',
                         dbquery: {
                             gidref: {$exists: true}

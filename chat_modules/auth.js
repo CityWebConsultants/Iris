@@ -25,7 +25,7 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          process.hook('hook_auth_check', {
+          hook('hook_auth_check', {
             userid: data.userid,
             token: data.token
           }, function (gotData) {
@@ -61,7 +61,7 @@ var exports = {
 
                 if (data.post.userid && data.post.apikey && data.post.secretkey) {
 
-                    process.hook("hook_secretkey_check", {
+                    hook("hook_secretkey_check", {
                         apikey: data.post.apikey,
                         secretkey: data.post.secretkey
                     }, function (check) {
@@ -160,7 +160,7 @@ var exports = {
                         token = data.get.token;
 
                     // Call auth_check hook
-                    process.hook('hook_auth_check',
+                    hook('hook_auth_check',
                         {
                             'userid': userid,
                             'token': token,
