@@ -32,8 +32,6 @@ var exports = {
       //Placeholder array for a user's groups
       var groupids = [];
 
-      //Async functions (returning promises)
-
       //Auth check function
 
       var authCheck = function (data) {
@@ -53,7 +51,6 @@ var exports = {
               no(data);
 
             }
-
 
           });
 

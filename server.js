@@ -1,10 +1,6 @@
 /*jslint nomen: true, node:true */
 "use strict";
 
-//Enable promises across whole application!
-
-require('es6-promise').polyfill();
-
 //Takes a config file
 
 var net = require('net');
