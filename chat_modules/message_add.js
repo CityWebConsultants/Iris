@@ -263,8 +263,6 @@ var exports = {
               message.public = false;
             }
 
-            console.log(message);
-
             hook('hook_db_insert', {
               dbcollection: 'messages',
               dbobject: message
