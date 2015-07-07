@@ -52,7 +52,7 @@ module.exports = function (config, paramaters) {
   }
 
   // Current globals
-  process.hook = require('./hook');
+  global.hook = require('./hook');
   require('./promises');
 
   process.config = config;
@@ -89,7 +89,7 @@ module.exports = function (config, paramaters) {
 
   // Run update hook
 
-  process.hook('hook_update', {}, function (data) {
+  hook('hook_update', {}, function (data) {
     console.log("\nAny update scripts present will now run.\n");
   });
 
@@ -118,7 +118,7 @@ module.exports = function (config, paramaters) {
           var requestUrl = url.parse(req.url, true),
             requestPost = qs.parse(body),
             hookurl = requestUrl.pathname.split('/').join('_');
-          process.hook('hook_post' + hookurl, {
+          hook('hook_post' + hookurl, {
             'url': req.url,
             'post': requestPost,
             'res': res
@@ -135,7 +135,7 @@ module.exports = function (config, paramaters) {
         requestGet = requestUrl.query,
         hookurl = requestUrl.pathname.split('/').join('_');
 
-      process.hook('hook_get' + hookurl, {
+      hook('hook_get' + hookurl, {
         'url': requestUrl.pathname,
         'get': requestGet,
         'res': res

@@ -14,13 +14,13 @@ var exports = {
   init: function () {
     process.addSocketListener("groupcheckin", function (data, socket) {
       if (data.userid && data.token && data.groupid) {
-        process.hook("hook_auth_check", {
+        hook("hook_auth_check", {
           userid: data.userid,
           token: data.token
         }, function (auth) {
           if (auth.returns === true) {
             // Run checkin hook
-            process.hook("hook_group_checkin", {
+            hook("hook_group_checkin", {
               userid: data.userid,
               groupid: data.groupid
             }, function (returns) {
@@ -53,7 +53,7 @@ var exports = {
     rank: 0,
     event: function (data) {
       // userid, groupid
-      process.hook('hook_db_update', {
+      hook('hook_db_update', {
         dbcollection: 'groups',
         dbquery: {
           '_id': objectID(data.groupid),
@@ -76,7 +76,7 @@ var exports = {
       // If message added successfully, i.e. previous hook actually returned
 
       if (data.returns) {
-        process.hook('hook_db_update', {
+        hook('hook_db_update', {
           dbcollection: 'groups',
           dbquery: {
             '_id': objectID(data.groupid)
@@ -97,7 +97,7 @@ var exports = {
     event: function (data) {
       // If group added successfully
       if (data.success === true) {
-        process.hook('hook_db_update', {
+        hook('hook_db_update', {
           dbcollection: 'groups',
           dbquery: {
             '_id': objectID(data.returns.toString())

@@ -16,7 +16,7 @@ var hangup = function (userid, mediacallid) {
     process.groupBroadcast(groupid, 'mediacallhungup', {userid: userid, mediacallid: mediacallid, members: calls[mediacallid].members});
 
     if (calls[mediacallid].members.length < 2) {
-        process.hook('hook_message_add', {
+        hook('hook_message_add', {
             userid: process.config.systemuser,
             groupid: groupid,
             content: {
@@ -40,7 +40,7 @@ var exports = {
                 // takes userid, token, groupid
                 // sends to all members notification of call starting
 
-                process.hook('hook_auth_check', {
+                hook('hook_auth_check', {
                     userid: data.userid,
                     token: data.token
                 }, function (authcheck) {
@@ -82,7 +82,7 @@ var exports = {
                 // end call if less than 2 members
 
                 if (data.userid && data.token && data.mediacallid) {
-                    process.hook('hook_auth_check', {
+                    hook('hook_auth_check', {
                         userid: data.userid,
                         token: data.token
                     }, function (authcheck) {
@@ -109,7 +109,7 @@ var exports = {
                 // sends to others the userid of caller
 
                 if (data.userid && data.token && data.mediacallid) {
-                    process.hook('hook_auth_check', {
+                    hook('hook_auth_check', {
                         userid: data.userid,
                         token: data.token
                     }, function (authcheck) {

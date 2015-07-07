@@ -29,7 +29,7 @@ var exports = {
                         endtime: Timestamp of event end
                         agenda: Array of meeting agenda items as field collection entities, JSON
                 */
-                process.hook('hook_secretkey_check', {
+                hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
@@ -65,7 +65,7 @@ var exports = {
 
                         if (update.entityref) {
 
-                            process.hook('hook_db_update', {
+                            hook('hook_db_update', {
                                 dbcollection: 'groups',
                                 dbquery: {
                                     entityref: update.entityref
@@ -75,7 +75,7 @@ var exports = {
                             }, function (updateresult) {
 
                                 // Get group ID.
-                                process.hook('hook_db_find', {
+                                hook('hook_db_find', {
                                     dbcollection: 'groups',
                                     dbquery: {
                                         reftype: data.post.reftype,
@@ -119,13 +119,13 @@ var exports = {
 
             if (data.post.apikey && data.post.secretkey && data.post.reftype && data.post.entityref) {
 
-                process.hook('hook_secretkey_check', {
+                hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
 
-                        process.hook("hook_db_find", {
+                        hook("hook_db_find", {
                             dbcollection: 'groups',
                             dbquery: {
                                 'reftype': data.post.reftype,
@@ -136,7 +136,7 @@ var exports = {
 
 
                             // Delete the group in the database
-                            process.hook('hook_db_remove', {
+                            hook('hook_db_remove', {
                                 dbcollection: 'groups',
                                 dbquery: {
                                     'reftype': data.post.reftype,
@@ -170,13 +170,13 @@ var exports = {
 
             if (data.post.apikey && data.post.secretkey) {
 
-                process.hook('hook_secretkey_check', {
+                hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
 
-                        process.hook("hook_db_update", {
+                        hook("hook_db_update", {
                             dbcollection: 'groups',
                             dbquery: {
                                 entityref: data.post.gid,
@@ -195,7 +195,7 @@ var exports = {
 
                             data.returns = update.returns;
 
-                            process.hook("hook_db_find", {
+                            hook("hook_db_find", {
                                 dbcollection: 'groups',
                                 dbquery: {
                                     entityref: data.post.gid,
@@ -206,7 +206,7 @@ var exports = {
 
                                 if (gotData[0] && gotData[0]._id) {
 
-                                    process.hook("hook_send_joined_message", {
+                                    hook("hook_send_joined_message", {
                                         members: data.post.members,
                                         groupid: gotData[0]._id
                                     }, function (gotData) {
@@ -242,13 +242,13 @@ var exports = {
 
             if (data.post.apikey && data.post.secretkey) {
 
-                process.hook('hook_secretkey_check', {
+                hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
 
-                        process.hook("hook_db_update", {
+                        hook("hook_db_update", {
                             dbcollection: 'groups',
                             dbquery: {
                                 entityref: data.post.gid,
@@ -287,13 +287,13 @@ var exports = {
 
             if (data.get.apikey && data.get.secretkey) {
 
-                process.hook('hook_secretkey_check', {
+                hook('hook_secretkey_check', {
                     apikey: data.get.apikey,
                     secretkey: data.get.secretkey
                 }, function (check) {
                     if (check.returns === true) {
 
-                        process.hook('hook_db_find', {
+                        hook('hook_db_find', {
                             dbcollection: "groups",
                             dbquery: {
                                 entityref: {$exists: true},

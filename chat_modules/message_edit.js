@@ -20,7 +20,7 @@ var exports = {
     rank: 1,
     event: function (data) {
       
-      process.hook('hook_db_update', {
+      hook('hook_db_update', {
         dbcollection: 'messages',
         dbquery: {
           '_id': objectID(data.messageid),
@@ -44,7 +44,7 @@ var exports = {
   hook_message_remove: {
     rank: 10,
     event: function (data) {
-      process.hook('hook_db_remove', {
+      hook('hook_db_remove', {
         dbcollection: 'messages',
         dbquery: {
           '_id': objectID(data.messageid),
@@ -66,14 +66,14 @@ var exports = {
         data.post.messageid &&
         objectID.isValid(data.post.messageid)
       ) {
-        process.hook('hook_auth_check', {
+        hook('hook_auth_check', {
           userid: data.post.userid,
           token: data.post.token
         }, function (gotData) {
 
           if (gotData.returns === true) {
 
-            process.hook('hook_message_remove', {
+            hook('hook_message_remove', {
               userid: data.post.userid,
               messageid: data.post.messageid
 
@@ -112,14 +112,14 @@ var exports = {
         objectID.isValid(data.post.messageid)
       ) {
 
-        process.hook('hook_auth_check', {
+        hook('hook_auth_check', {
           userid: data.post.userid,
           token: data.post.token
         }, function (gotData) {
 
           if (gotData.returns === true) {
 
-            process.hook('hook_message_preprocess', {
+            hook('hook_message_preprocess', {
               message: {
                 content: data.post.content,
                 userid: data.post.userid,
@@ -127,7 +127,7 @@ var exports = {
               }
             }, function (sanitisedmessage) {
 
-              process.hook('hook_message_edit', {
+              hook('hook_message_edit', {
                 userid: data.post.userid,
                 messageid: data.post.messageid,
                 type: data.post.messagetype,

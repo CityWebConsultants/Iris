@@ -154,7 +154,7 @@ var fetchnotifications = function (time) {
 
                 }
 
-                process.hook("hook_unread", data, email);
+                hook("hook_unread", data, email);
 
             }
 

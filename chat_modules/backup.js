@@ -18,14 +18,14 @@ var exports = {
             var dump = {};
 
             // Get all the group information
-            process.hook('hook_db_find', {
+            hook('hook_db_find', {
                 dbcollection: 'groups',
                 dbquery: {'_id': objectID(data.post.groupid), 'isReadOnly': true}
             }, function (groupDump) {
                 dump.group = JSON.parse(groupDump.returns);
 
                 // Get all the messages
-                process.hook('hook_db_find', {
+                hook('hook_db_find', {
                     dbcollection: 'messages',
                     dbquery: {groupid: data.post.groupid}
                 }, function (messagesDump) {

@@ -7,7 +7,7 @@ var exports = {
         rank: 1,
         event: function () {
 
-            process.hook('hook_usercache', {}, function (data) {
+            hook('hook_usercache', {}, function (data) {
 
 
             });
@@ -19,7 +19,7 @@ var exports = {
         rank: 1,
         event: function (data) {
             if (data.post.apikey && data.post.secretkey && data.post.content) {
-                process.hook('hook_secretkey_check', {
+                hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
@@ -29,7 +29,7 @@ var exports = {
 
                         var userid = JSON.parse(data.post.content).uid;
 
-                        process.hook('hook_db_update', {
+                        hook('hook_db_update', {
                             dbcollection: 'users',
                             dbquery: {
                                 uid: userid
@@ -40,7 +40,7 @@ var exports = {
 
                             data.returns = "Updated";
 
-                            process.hook('hook_usercache', {}, function (data) {
+                            hook('hook_usercache', {}, function (data) {
 
 
                             });
@@ -112,7 +112,7 @@ var exports = {
                 $and: query
             };
 
-            process.hook('hook_db_find', {
+            hook('hook_db_find', {
                 dbcollection: 'users',
                 dbquery: query
             }, function (gotData) {
@@ -155,7 +155,7 @@ var exports = {
 
             //Split data by commas
 
-            process.hook('hook_db_find', {
+            hook('hook_db_find', {
                 dbcollection: 'users',
                 dbquery: {}
             }, function (gotData) {
@@ -210,13 +210,13 @@ var exports = {
         event: function (data) {
             if (data.post.apikey && data.post.secretkey) {
 
-                process.hook('hook_secretkey_check', {
+                hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
 
-                        process.hook('hook_db_find', {
+                        hook('hook_db_find', {
                             dbcollection: 'users',
                             dbquery: {}
                         }, function (gotData) {

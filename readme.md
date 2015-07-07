@@ -309,10 +309,10 @@ The `process.emit('next', data);` statement indicates that this module has compl
 on to the next handler in the queue.
 
 ### Firing Hook Events
-To fire a hook event, use the `process.hook` function, specifying a hook name and passing a data object:
+To fire a hook event, use the `hook` function, specifying a hook name and passing a data object:
 
 ```
-process.hook('hook_name', data)
+hook('hook_name', data)
 ```
 
 ### Hooks with Callbacks
@@ -320,7 +320,7 @@ See this example of making a hook call and then using data it returns in a callb
 
 ```
 // Call db find hook.
-process.hook('hook_db_find', {dbcollection: 'groups', dbquery: {}}, function (gotData) {
+hook('hook_db_find', {dbcollection: 'groups', dbquery: {}}, function (gotData) {
     // do things with gotData
 
     process.emit('next', data);

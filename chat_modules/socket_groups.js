@@ -11,11 +11,11 @@ var exports = {
         
         process.addSocketListener("mygroups", function (data, socket) {
 
-            process.hook("hook_auth_check",data,function(auth){
+            hook("hook_auth_check",data,function(auth){
                 
                 if(auth.returns){
                     
-                    process.hook("hook_fetch_groups", data, function(groups) {
+                    hook("hook_fetch_groups", data, function(groups) {
                         
                         socket.emit("mygroups", groups.returns);
                         
@@ -35,11 +35,11 @@ var exports = {
         
         process.addSocketListener("fetchmessages", function (data, socket) {
 
-            process.hook("hook_auth_check",data,function(auth){
+            hook("hook_auth_check",data,function(auth){
                 
                 if(auth.returns){
                     
-                    process.hook("hook_group_list_messages", data, function(messages) {
+                    hook("hook_group_list_messages", data, function(messages) {
                         
                         socket.emit("fetchmessages", messages.returns);
                         

@@ -39,7 +39,7 @@ var exports = {
 
   },
   groupBroadcast: function (groupid, messagename, data) {
-    process.hook('hook_group_list_users', {
+    hook('hook_group_list_users', {
       groupid: groupid
     }, function (users) {
       if (users.returns) {
@@ -94,7 +94,7 @@ var exports = {
 
         socket.on("pair", function (data) {
 
-          process.hook("hook_auth_check", data, function (check) {
+          hook("hook_auth_check", data, function (check) {
 
             if (check.returns) {
               if (auth.userlist[data.userid]) {

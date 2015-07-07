@@ -8,13 +8,13 @@ var exports = {
         rank: 1,
         event: function (data) {
             if (data.post.apikey && data.post.secretkey && data.post.content) {
-                process.hook('hook_secretkey_check', {
+                hook('hook_secretkey_check', {
                     apikey: data.post.apikey,
                     secretkey: data.post.secretkey
                 }, function (check) {
                     if (check.returns === true) {
 
-                        process.hook('hook_db_insert', {
+                        hook('hook_db_insert', {
                             dbcollection: 'nodes',
                             dbobject: JSON.parse(data.post.content)
                         }, function (gotData) {
@@ -47,7 +47,7 @@ var exports = {
 
             }
 
-            process.hook('hook_db_find', {dbcollection: 'nodes', dbquery: query}, function (gotData) {
+            hook('hook_db_find', {dbcollection: 'nodes', dbquery: query}, function (gotData) {
 
                 data.returns = gotData.returns;
                 process.emit('next', data);

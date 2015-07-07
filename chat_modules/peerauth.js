@@ -128,7 +128,7 @@ var PeerServer = require('peer').PeerServer(peeroptions);
 
 PeerServer.on("disconnect", function (id) {
 
-    process.hook('hook_peer_disconnect', {
+    hook('hook_peer_disconnect', {
         id: id
     }, function () {});
 

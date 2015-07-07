@@ -35,7 +35,7 @@ var exports = {
             // userid, token
 
             if (data.post.userid && data.post.token) {
-                process.hook('hook_user_logout', {userid: data.post.userid, token: data.post.token}, function (gotData) {
+                hook('hook_user_logout', {userid: data.post.userid, token: data.post.token}, function (gotData) {
                     if (gotData.returns === true) {
                         data.returns = 'true';
                         process.emit('next', data);

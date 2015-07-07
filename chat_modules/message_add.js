@@ -18,7 +18,7 @@ var exports = {
 
         console.log(data.post.public);
 
-        process.hook('hook_message_add', {
+        hook('hook_message_add', {
           'userid': data.post.userid,
           'groupid': data.post.groupid,
           'type': data.post.messagetype,
@@ -36,7 +36,7 @@ var exports = {
       //Check if user is admin
 
       if (data.post.userid && data.post.apikey && data.post.secretkey && (data.post.groupid || data.post.groupref) && data.post.content && data.post.messagetype) {
-        process.hook('hook_secretkey_check', {
+        hook('hook_secretkey_check', {
           apikey: data.post.apikey,
           secretkey: data.post.secretkey
         }, function (check) {
@@ -47,7 +47,7 @@ var exports = {
 
             if (data.post.groupref) {
 
-              process.hook("hook_db_find", {
+              hook("hook_db_find", {
                 dbcollection: 'groups',
                 dbquery: {
                   'entityref': data.post.groupref,
@@ -79,7 +79,7 @@ var exports = {
         });
 
       } else if (data.post.userid && data.post.token && data.post.groupid && data.post.content && data.post.messagetype) {
-        process.hook('hook_auth_check', {
+        hook('hook_auth_check', {
           userid: data.post.userid,
           token: data.post.token
         }, function (gotData) {
@@ -162,7 +162,7 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          process.hook('hook_message_preprocess', {
+          hook('hook_message_preprocess', {
             message: message
           }, function (processedMessage) {
 
@@ -183,7 +183,7 @@ var exports = {
         return new Promise(function (yes, no) {
           if (data.strong_auth_check === true) {
 
-            process.hook('hook_group_list_users', {
+            hook('hook_group_list_users', {
               userid: data.userid,
               groupid: data.groupid
 
@@ -236,7 +236,7 @@ var exports = {
         return new Promise(function (yes, no) {
 
           var checkprivate = function(groupid, callback) {
-            process.hook('hook_db_find', {
+            hook('hook_db_find', {
               dbcollection: 'groups',
               dbquery: {
                 _id: objectID(groupid)
@@ -265,7 +265,7 @@ var exports = {
 
             console.log(message);
 
-            process.hook('hook_db_insert', {
+            hook('hook_db_insert', {
               dbcollection: 'messages',
               dbobject: message
             }, function (gotData) {
@@ -291,7 +291,7 @@ var exports = {
 
       };
 
-      process.hookPromiseChain([preprocessMessage, strongAuthCheck, insertMessageDB], data);
+      hookPromiseChain([preprocessMessage, strongAuthCheck, insertMessageDB], data);
 
     }
   }

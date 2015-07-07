@@ -38,7 +38,7 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          process.hook('hook_auth_check', {
+          hook('hook_auth_check', {
             userid: data.get.userid,
             token: data.get.token
           }, function (authorised) {
@@ -64,7 +64,7 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          process.hook('hook_fetch_groups', {
+          hook('hook_fetch_groups', {
             userid: data.get.userid
           }, function (groups) {
 
@@ -100,7 +100,7 @@ var exports = {
             $in: groupids
           };
 
-          process.hook('hook_db_find', {
+          hook('hook_db_find', {
             dbcollection: 'messages',
             dbquery: query
           }, function (gotData) {
@@ -158,7 +158,7 @@ var exports = {
     rank: 0,
     event: function (data) {
 
-      process.hook('hook_auth_check', {
+      hook('hook_auth_check', {
         userid: data.userid,
         token: data.token
       }, function (authorised) {
@@ -168,7 +168,7 @@ var exports = {
             groupactivity = {},
             query = {};
 
-          process.hook('hook_fetch_groups', {
+          hook('hook_fetch_groups', {
             userid: data.userid
           }, function (group) {
             JSON.parse(group.returns).forEach(function (element) {
@@ -225,7 +225,7 @@ var exports = {
               $in: groups
             };
 
-            process.hook('hook_db_find', {
+            hook('hook_db_find', {
               dbcollection: 'messages',
               dbquery: query
             }, function (gotData) {
@@ -323,7 +323,7 @@ var exports = {
                     $in: groups
                   };
 
-                  process.hook('hook_db_find', {
+                  hook('hook_db_find', {
                     dbcollection: 'groups',
                     dbquery: query
                   }, function (gotData) {
@@ -393,7 +393,7 @@ var exports = {
 
       if ((data.get.userid && data.get.token) || (data.get.secretkey && data.get.apikey)) {
 
-        process.hook("hook_unread", data.get, function (unread) {
+        hook("hook_unread", data.get, function (unread) {
 
           data.returns = JSON.stringify(unread.returns);
 
@@ -424,7 +424,7 @@ var exports = {
         };
       }
 
-      process.hook('hook_db_find', {
+      hook('hook_db_find', {
         dbcollection: 'messages',
         dbquery: query
       }, function (gotData) {
@@ -453,7 +453,7 @@ var exports = {
       // expects groupid, userid & token, optional (since)
       if (data.get.groupid && data.get.userid && data.get.token) {
 
-        process.hook('hook_auth_check', {
+        hook('hook_auth_check', {
           userid: data.get.userid,
           token: data.get.token
         }, function (authorised) {
@@ -466,7 +466,7 @@ var exports = {
               query.since = data.get.since;
             }
 
-            process.hook("hook_group_list_messages", query, function (gotData) {
+            hook("hook_group_list_messages", query, function (gotData) {
               data.returns = gotData.returns;
               process.emit('next', data);
             });
@@ -489,16 +489,16 @@ var exports = {
     event: function (data) {
       // userid, token, messageid
       if (data.get.userid && data.get.token && data.get.messageid && objectID.isValid(data.get.messageid)) {
-        process.hook('hook_auth_check', {
+        hook('hook_auth_check', {
           userid: data.get.userid,
           token: data.get.token
         }, function (authorised) {
           if (authorised.returns === true) {
-            process.hook('hook_groupid_from_messageid', {
+            hook('hook_groupid_from_messageid', {
               messageid: data.get.messageid
             }, function (groupid) {
               if (groupid.returns) {
-                process.hook('hook_db_find', {
+                hook('hook_db_find', {
                   dbcollection: 'groups',
                   dbquery: {
                     '_id': objectID(groupid.returns),
@@ -511,7 +511,7 @@ var exports = {
                 }, function (groupinfo) {
                   if (groupinfo.returns && groupinfo.returns !== '[]') {
 
-                    process.hook('hook_db_find', {
+                    hook('hook_db_find', {
                       dbcollection: 'messages',
                       dbquery: {
                         '_id': objectID(data.get.messageid)

@@ -25,7 +25,7 @@ var exports = {
         event: function (data) {
             data.code = data.post.code;
 
-            process.hook("hook_highlight", {code: data.code}, function (gotData) {
+            hook("hook_highlight", {code: data.code}, function (gotData) {
                 data.returns = gotData.returns;
                 process.emit('next', data);
             });
@@ -35,7 +35,7 @@ var exports = {
         rank: 0,
         event: function (data) {
             if (data.content && data.content.code) {
-                process.hook("hook_highlight", {code: data.content.code}, function (gotData) {
+                hook("hook_highlight", {code: data.content.code}, function (gotData) {
                     data.content.code = gotData.returns;
                     process.emit('next', data);
                 });

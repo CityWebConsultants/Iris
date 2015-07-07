@@ -33,7 +33,7 @@ var exports = {
             dbClient.open(function (err, dbClient) {
                 gdb = dbClient.db(exports.options.database_name);
 
-                process.hook('hook_mongodb_ready', {}, function() {});
+                hook('hook_mongodb_ready', {}, function() {});
             });
 
         },

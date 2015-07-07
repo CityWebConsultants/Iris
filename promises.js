@@ -27,5 +27,5 @@ var promiseChain = function (tasks, parameters, success, fail) {
 
 };
 
-process.hookPromiseChain = hookPromiseChain;
-process.promiseChain = promiseChain;
+global.hookPromiseChain = hookPromiseChain;
+global.promiseChain = promiseChain;
