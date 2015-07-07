@@ -12,6 +12,9 @@ var hookPromiseChain = function (tasks, parameters) {
     } else {
       data.returns = {errors: "Unspecified error"};
     }
+
+    data.returns = JSON.stringify(data.returns);
+
     process.emit("next", data);
 
   };

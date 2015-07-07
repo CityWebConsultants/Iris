@@ -6,7 +6,31 @@ var sanitizeHtml = require('sanitize-html');
 var objectID = require('mongodb').ObjectID;
 
 var exports = {
+  globals: {
+    checkPrivate: function(groupid, callback) {
+      hook('hook_db_find', {
+        dbcollection: 'groups',
+        dbquery: {
+          _id: objectID(groupid)
+        }
+      }, function (group) {
 
+        group = JSON.parse(group.returns)[0];
+
+        console.log(group);
+
+        // Force messages private when it doesn't make sense for them to be public
+        if (!group.isReadOnly) {
+          callback(true);
+        } else if (group.private) {
+          callback(true);
+        } else {
+          callback(false);
+        }
+
+      });
+    }
+  },
   // POST /message/add
   hook_post_message_add: {
     rank: 1,
@@ -241,43 +265,11 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          var checkprivate = function(groupid, callback) {
-            hook('hook_db_find', {
-              dbcollection: 'groups',
-              dbquery: {
-                _id: objectID(groupid)
-              }
-            }, function (group) {
-
-              group = JSON.parse(group.returns)[0];
-
-              console.log(group);
-
-              // Force messages private when it doesn't make sense for them to be public
-              if (!group.isReadOnly) {
-                console.log("Group not RO");
-                callback(true);
-              } else if (group.private) {
-                console.log("Group is private");
-                callback(true);
-              } else {
-                console.log("Leaving it");
-                callback(false);
-              }
-
-            });
-          };
-
-          console.log(data.groupid);
-
-          checkprivate(data.groupid, function (isPrivate) {
-
-            console.log(data.public);
+          process.globals.message_add.checkPrivate(data.groupid, function (isPrivate) {
 
             if (data.public && isPrivate) {
               message.public = false;
 
-              console.log("Message was made private.");
             }
 
             hook('hook_db_insert', {

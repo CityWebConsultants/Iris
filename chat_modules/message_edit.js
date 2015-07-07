@@ -19,7 +19,7 @@ var exports = {
   hook_message_edit: {
     rank: 1,
     event: function (data) {
-      
+
       hook('hook_db_update', {
         dbcollection: 'messages',
         dbquery: {
@@ -29,7 +29,8 @@ var exports = {
         dbupdate: {
           $set: {
             'content': data.content,
-            'type': data.type
+            'type': data.type,
+            'public': data.public
           }
         },
         dbupsert: false,
@@ -108,16 +109,57 @@ var exports = {
         data.post.token &&
         data.post.content &&
         data.post.messageid &&
-        data.post.messagetype &&
+        data.post.type &&
         objectID.isValid(data.post.messageid)
       ) {
 
-        hook('hook_auth_check', {
-          userid: data.post.userid,
-          token: data.post.token
-        }, function (gotData) {
+        data.userid = data.post.userid;
+        data.token = data.post.token;
 
-          if (gotData.returns === true) {
+        if (data.post.public === "true") {
+          data.post.public = true;
+        } else {
+          data.post.public = false;
+        }
+
+        var checkMessagePrivate = function (data) {
+
+          return new Promise(function (yes, no) {
+
+            if (data.post.public) {
+
+              hook('hook_db_find', {
+                dbcollection: 'messages',
+                dbquery: {
+                  _id: objectID(data.post.messageid)
+                }
+              }, function (message) {
+
+                message = JSON.parse(message.returns)[0];
+
+                process.globals.message_add.checkPrivate(message.groupid, function (isPrivate) {
+
+                  if (data.post.public && isPrivate) {
+                    data.post.public = false;
+                  }
+
+                  yes(data);
+
+                });
+
+              });
+
+            } else {
+              yes(data);
+            }
+
+          });
+
+        };
+
+        var editMessage = function (data) {
+
+          return new Promise(function (yes, no) {
 
             hook('hook_message_preprocess', {
               message: {
@@ -130,28 +172,28 @@ var exports = {
               hook('hook_message_edit', {
                 userid: data.post.userid,
                 messageid: data.post.messageid,
-                type: data.post.messagetype,
-                content: sanitisedmessage.returns.content
+                type: data.post.type,
+                content: sanitisedmessage.returns.content,
+                public: data.post.public
 
               }, function (gotData) {
+
                 data.returns = gotData.returns.toString();
-                process.emit('next', data);
+                yes(data);
 
               });
 
             });
 
-          } else {
-            data.returns = "ERROR: Authentication failed.";
-            process.emit('next', data);
+          });
 
-          }
+        };
 
-        });
+        hookPromiseChain([process.globals.auth.authCheck, checkMessagePrivate, editMessage], data);
 
         // Missing required data
       } else {
-        data.returns = "ERROR: userid, token, messageid, messagetype or content not supplied.";
+        data.returns = "ERROR: userid, token, messageid, type or content not supplied.";
         process.emit('next', data);
 
       }
