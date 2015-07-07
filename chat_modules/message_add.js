@@ -148,6 +148,12 @@ var exports = {
     rank: 1,
     event: function (data) {
       console.log("[INFO] Adding message: " + JSON.stringify(data.content));
+      if (data.public != true) {
+        data.public = false;
+        console.log("made false");
+      } else {
+        data.public = true;
+      }
 
       var message = {
         userid: data.userid,
@@ -243,24 +249,35 @@ var exports = {
               }
             }, function (group) {
 
-              group = JSON.parse(group.returns);
+              group = JSON.parse(group.returns)[0];
+
+              console.log(group);
 
               // Force messages private when it doesn't make sense for them to be public
               if (!group.isReadOnly) {
+                console.log("Group not RO");
                 callback(true);
               } else if (group.private) {
+                console.log("Group is private");
                 callback(true);
               } else {
+                console.log("Leaving it");
                 callback(false);
               }
 
             });
           };
 
+          console.log(data.groupid);
+
           checkprivate(data.groupid, function (isPrivate) {
+
+            console.log(data.public);
 
             if (data.public && isPrivate) {
               message.public = false;
+
+              console.log("Message was made private.");
             }
 
             hook('hook_db_insert', {
