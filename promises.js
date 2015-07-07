@@ -1,47 +1,31 @@
-var async1 = function (input) {
+var hookPromiseChain = function (tasks, parameters) {
+  var success = function (data) {
 
-  return new Promise(function (yes, no) {
-    
-    console.log("Waiting for first promise...");
+    process.emit("next", data);
 
-    setTimeout(function () {
+  };
 
-      yes(input.toUpperCase());
+  var fail = function (data) {
 
-    }, 1000);
+    if (data.errors) {
+      data.returns = {errors: data.errors};
+    } else {
+      data.returns = {errors: "Unspecified error"};
+    }
+    process.emit("next", data);
 
-  });
+  };
 
-};
+  promiseChain(tasks, parameters, success, fail);
+}
 
-var async2 = function (input) {
-  
-  console.log("Waiting for second promise...");
+var promiseChain = function (tasks, parameters, success, fail) {
 
-  return new Promise(function (yes, no) {
-
-    setTimeout(function () {
-
-     no(input + "!");
-
-    }, 500);
-
-  });
+  tasks.reduce(function (cur, next) {
+    return cur.then(next);
+  }, Promise.resolve(parameters)).then(success, fail);
 
 };
 
-var async3 = function(input){
-  
-  console.log("Done! Output is "+input);
-  
-};
-
-var fail = function(input){
-  
-  console.log(Error("failed on "+ input));
-  
-};
-
-async1("hello")
-  .then(async2,fail)
-  .then(async3, fail);
+process.hookPromiseChain = hookPromiseChain;
+process.promiseChain = promiseChain;

@@ -126,29 +126,11 @@ var exports = {
         }
 
         // Promise functions
-        var authCheck = function (data) {
-          return new Promise(function (yes, no) {
-
-            process.hook('hook_auth_check', {
-              userid: data.userid,
-              token: data.token
-            }, function (gotData) {
-              if (gotData.returns === true) {
-
-                yes(data);
-
-              } else {
-                data.returns = "ERROR: Authentication failed.";
-                no(data);
-              }
-            });
-
-          });
-        };
 
         var dbFind = function (data) {
           return new Promise(function (yes, no) {
-
+            console.log("Test:");
+            console.log(data.test);
             // Call db find hook.
             process.hook('hook_db_find', {
               dbcollection: 'groups',
@@ -181,25 +163,7 @@ var exports = {
           });
         };
 
-        var fail = function (data) {
-
-          data.returns = "Error";
-          process.emit('next', data);
-
-        };
-
-        var finish = function (data) {
-
-          process.emit('next', data);
-
-        };
-
-        // Promises Flow
-
-        authCheck(data)
-          .then(dbFind, fail)
-          .then(finish, fail);
-
+        process.hookPromiseChain([process.globals.auth.authCheck, dbFind],data);
 
       } else {
         data.returns = "ERROR: Missing userid, token or groupid.";

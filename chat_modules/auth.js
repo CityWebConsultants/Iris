@@ -21,8 +21,34 @@ var exports = {
     options: {token_length: 16, allowdebug: false},
     // Global functions
     globals: {
-      testGlobal: function (data) {
-        console.log("Hello world");
+      authCheck: function (data) {
+
+        return new Promise(function (yes, no) {
+
+          process.hook('hook_auth_check', {
+            userid: data.userid,
+            token: data.token
+          }, function (gotData) {
+            if (gotData.returns === true) {
+
+              console.log("auth ok");
+
+              data.test = "Test message";
+
+              yes(data);
+
+            } else {
+
+              console.log("auth fails");
+
+              data.returns = "ERROR: Authentication failed.";
+              no(data);
+
+            }
+          });
+
+        });
+
       }
     },
     // POST /auth

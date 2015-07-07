@@ -53,6 +53,7 @@ module.exports = function (config, paramaters) {
 
   // Current globals
   process.hook = require('./hook');
+  require('./promises');
 
   process.config = config;
 
