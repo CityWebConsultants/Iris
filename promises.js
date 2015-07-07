@@ -22,7 +22,7 @@ var async2 = function (input) {
 
     setTimeout(function () {
 
-     yes(input + "!");
+     no(input + "!");
 
     }, 500);
 
@@ -36,6 +36,12 @@ var async3 = function(input){
   
 };
 
+var fail = function(input){
+  
+  console.log(Error("failed on "+ input));
+  
+};
+
 async1("hello")
-  .then(async2)
-  .then(async3);
+  .then(async2,fail)
+  .then(async3, fail);

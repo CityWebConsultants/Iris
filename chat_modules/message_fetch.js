@@ -29,22 +29,49 @@ var exports = {
     rank: 0,
     event: function (data) {
 
-      process.hook('hook_auth_check', {
-        userid: data.get.userid,
-        token: data.get.token
-      }, function (authorised) {
-        if (authorised.returns === true || (data.get.secretkey === process.config.secretkey && data.get.apikey === process.config.apikey)) {
+      //Placeholder array for a user's groups
+      var groupids = [];
 
-          //User authorised, can fetch all messages.
+      //Async functions (returning promises)
+
+      //Auth check function
+
+      var authCheck = function (data) {
+
+        return new Promise(function (yes, no) {
+
+          process.hook('hook_auth_check', {
+            userid: data.get.userid,
+            token: data.get.token
+          }, function (authorised) {
+            if (authorised.returns === true || (data.get.secretkey === process.config.secretkey && data.get.apikey === process.config.apikey)) {
+
+              yes(data);
+
+            } else {
+
+              no(data);
+
+            }
+
+
+          });
+
+        })
+
+      };
+
+      //Fetch groups function
+
+      var fetchUserGroups = function (data) {
+
+        return new Promise(function (yes, no) {
 
           process.hook('hook_fetch_groups', {
             userid: data.get.userid
           }, function (groups) {
 
             var groups = JSON.parse(groups.returns);
-
-            var groupids = [];
-
 
             //Fetched all groups a user is a member of, now to fetch their messages
 
@@ -54,52 +81,80 @@ var exports = {
 
             });
 
-            //Create database query to fetch messages with
+            yes(data);
 
-            var query = {};
+          });
 
-            query.groupid = {
-              $in: groupids
-            };
+        });
 
-            process.hook('hook_db_find', {
-              dbcollection: 'messages',
-              dbquery: query
-            }, function (gotData) {
+      };
 
-              var messages = JSON.parse(gotData.returns);
-              var processedmessages = [];
+      //Fetch messages from groups (needs array of groupids)
 
-              messages.forEach(function (element, index) {
+      var fetchMessages = function (data) {
 
-                var message = messages[index];
+        return new Promise(function (yes, no) {
 
-                if (process.usercache[message.userid]) {
-                  message.usercache = process.usercache[message.userid];
-                }
+          //Create database query to fetch messages with
 
-                processedmessages.push(message);
+          var query = {};
 
-              });
+          query.groupid = {
+            $in: groupids
+          };
 
-              data.returns = JSON.stringify(messages);
+          process.hook('hook_db_find', {
+            dbcollection: 'messages',
+            dbquery: query
+          }, function (gotData) {
 
-              process.emit('next', data);
+            var messages = JSON.parse(gotData.returns);
+            var processedmessages = [];
+
+            messages.forEach(function (element, index) {
+
+              var message = messages[index];
+
+              if (process.usercache[message.userid]) {
+                message.usercache = process.usercache[message.userid];
+              }
+
+              processedmessages.push(message);
 
             });
 
+            data.returns = JSON.stringify(messages);
 
-          })
-        } else {
+            yes(data);
 
-          data.returns = "error";
-          process.emit('next', data);
+          });
 
-        };
+        });
 
+      };
 
-      })
+      var fail = function (data) {
+
+        data.returns = "Error";
+        process.emit('next', data);
+
+      };
+
+      var finish = function (data) {
+
+        process.emit('next', data);
+
+      };
+
+      //GO GO GO!
+
+      authCheck(data)
+        .then(fetchUserGroups, fail)
+        .then(fetchMessages, fail)
+        .then(finish, fail);
+
     }
+
   },
   hook_unread: {
 

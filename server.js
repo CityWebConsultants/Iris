@@ -1,7 +1,7 @@
 /*jslint nomen: true, node:true */
 "use strict";
 
-//Enable promises!
+//Enable promises across whole application!
 
 require('es6-promise').polyfill();
 
