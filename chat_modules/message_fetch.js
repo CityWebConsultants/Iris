@@ -24,6 +24,43 @@ var exports = {
 
     return constructedObjectID;
   },
+  hook_get_fetch_publicmessages: {
+    rank: 0,
+    event: function (data) {
+
+      var query = {
+        public: true
+      };
+
+      hook('hook_db_find', {
+        dbcollection: 'messages',
+        dbquery: query
+      }, function (gotData) {
+
+        var messages = JSON.parse(gotData.returns);
+        var processedmessages = [];
+
+        messages.forEach(function (element, index) {
+
+          var message = messages[index];
+
+          if (process.usercache[message.userid]) {
+            message.usercache = process.usercache[message.userid];
+          }
+
+          processedmessages.push(message);
+
+        });
+
+        data.returns = JSON.stringify(messages);
+
+        process.emit("next", data);
+
+      });
+
+    }
+
+  },
   hook_get_fetch_usermessages: {
 
     rank: 0,
