@@ -28,35 +28,100 @@ var exports = {
     rank: 0,
     event: function (data) {
 
-      var query = {
-        public: true
-      };
+      var groupids = [];
+      var messages = [];
+      var groups = {};
 
-      hook('hook_db_find', {
-        dbcollection: 'messages',
-        dbquery: query
-      }, function (gotData) {
+      var findMessages = function (data) {
 
-        var messages = JSON.parse(gotData.returns);
-        var processedmessages = [];
+        return new Promise(function(yes, no) {
 
-        messages.forEach(function (element, index) {
+          var query = {
+            public: true
+          };
 
-          var message = messages[index];
+          hook('hook_db_find', {
+            dbcollection: 'messages',
+            dbquery: query
+          }, function (gotData) {
 
-          if (process.usercache[message.userid]) {
-            message.usercache = process.usercache[message.userid];
-          }
+            messages = JSON.parse(gotData.returns);
 
-          processedmessages.push(message);
+            messages.forEach(function (element, index) {
+
+              var message = messages[index];
+
+              groupids.push(objectID(message.groupid));
+
+              if (process.usercache[message.userid]) {
+                message.usercache = process.usercache[message.userid];
+              }
+
+            });
+
+            data.returns = JSON.stringify(messages);
+
+            yes(data);
+
+          });
 
         });
 
-        data.returns = JSON.stringify(messages);
+      };
 
-        process.emit("next", data);
+      var groupDetails = function (data) {
 
-      });
+        return new Promise(function(yes, no) {
+
+          hook('hook_db_find', {
+            dbcollection: 'groups',
+            dbquery: {
+              _id: {
+                $in: groupids
+              }
+            }
+          }, function (groups) {
+
+            groups = JSON.parse(groups.returns);
+
+            groupids = {};
+
+            groups.forEach(function (element) {
+              groupids[element._id] = element;
+            });
+
+            yes(data);
+
+          });
+
+        });
+
+      };
+
+      var generateOutput = function (data) {
+
+        return new Promise(function (yes, no) {
+
+          messages.forEach(function (element) {
+
+            var group = groupids[element.groupid];
+
+            element.groupdetails = {
+              name: group.name,
+              avatar: group.avatar
+            };
+
+          });
+
+          data.returns = JSON.stringify(messages);
+
+          yes(data);
+
+        });
+
+      };
+
+      hookPromiseChain([findMessages, groupDetails, generateOutput], data);
 
     }
 
@@ -143,7 +208,6 @@ var exports = {
           }, function (gotData) {
 
             var messages = JSON.parse(gotData.returns);
-            var processedmessages = [];
 
             messages.forEach(function (element, index) {
 
@@ -164,8 +228,6 @@ var exports = {
                 }
 
               }
-
-              processedmessages.push(message);
 
             });
 
