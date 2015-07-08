@@ -17,8 +17,6 @@ var exports = {
 
         group = JSON.parse(group.returns)[0];
 
-        console.log(group);
-
         // Force messages private when it doesn't make sense for them to be public
         if (!group.isReadOnly) {
           callback(true);
@@ -39,8 +37,6 @@ var exports = {
       //Function for adding all messages (with admin check)
 
       var addmessage = function (admin) {
-
-        console.log(data.post.public);
 
         hook('hook_message_add', {
           'userid': data.post.userid,
@@ -172,7 +168,10 @@ var exports = {
     rank: 1,
     event: function (data) {
       console.log("[INFO] Adding message: " + JSON.stringify(data.content));
-      if (data.public != true) {
+
+      console.log(data.public);
+
+      if (data.public !== true && data.public !== 'true') {
         data.public = false;
         console.log("made false");
       } else {
