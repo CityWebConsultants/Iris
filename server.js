@@ -141,80 +141,79 @@ module.exports = function (config, paramaters) {
         'res': res
       });
 
-      process.on('complete_hook_get' + hookurl, function (data) {
+      if (!process.getInit) {
 
-        //Catch empty hooks
+        process.on('complete_hook_get' + hookurl, function (data) {
 
-        if (!data) {
+          process.getInit = true;
 
-          var staticpath = __dirname + path.normalize("/static/" + url.parse(req.url).pathname);
+          //Catch empty hooks
 
-          //Add HTML to path if extension is empty
+          if (!data) {
 
-          if (!path.extname(staticpath)) {
+            var staticpath = __dirname + path.normalize("/static/" + url.parse(req.url).pathname);
 
-            staticpath += ".html";
+            //Add HTML to path if extension is empty
 
-          }
+            if (!path.extname(staticpath)) {
 
-          fs.exists(staticpath, function (exists) {
-            if (exists) {
-
-              fs.readFile(staticpath, function read(err, data) {
-
-                var extension = path.extname(staticpath).replace(".", ""),
-                  type = "text/plain";
-
-                switch (extension) {
-                  case "html":
-                    type = "text/html";
-                    break;
-                  case "js":
-                    type = "text/javascript";
-                    break;
-                  case "css":
-                    type = "text/css";
-                    break;
-                  default:
-                    type = "text/plain";
-                }
-
-                res.writeHead(200, {
-                  'Content-Type': type
-                });
-                res.end(data);
-
-              });
-
-
-            } else {
-              res.writeHead(404);
-              res.end("404");
+              staticpath += ".html";
 
             }
-          });
 
-        } else {
+            fs.exists(staticpath, function (exists) {
+              if (exists) {
 
-          res.writeHead(200, {
-            'Content-Type': 'application/json'
-          });
-          res.writeHead(200, {
-            'Access-Control-Allow-Origin': '*'
-          });
+                fs.readFile(staticpath, function read(err, data) {
 
-          if (res.finished) {
+                  var extension = path.extname(staticpath).replace(".", ""),
+                    type = "text/plain";
 
-            console.warn(hookurl + " res.finished FAIL");
+                  switch (extension) {
+                    case "html":
+                      type = "text/html";
+                      break;
+                    case "js":
+                      type = "text/javascript";
+                      break;
+                    case "css":
+                      type = "text/css";
+                      break;
+                    default:
+                      type = "text/plain";
+                  }
+
+                  data.res.writeHead(200, {
+                    'Content-Type': type
+                  });
+                  data.res.end(data);
+
+                });
+
+
+              } else {
+                data.res.writeHead(404);
+                data.res.end("404");
+
+              }
+            });
 
           } else {
 
-            res.write(data.returns);
-            res.end();
+            data.res.writeHead(200, {
+              'Content-Type': 'application/json'
+            });
+            data.res.writeHead(200, {
+              'Access-Control-Allow-Origin': '*'
+            });
+
+            data.res.end(data.returns);
+
 
           }
-        }
-      });
+        });
+
+      }
 
     } else {
       res.writeHead(400);
