@@ -45,6 +45,7 @@ var exports = {
           'content': data.post.content,
           'tags': [data.post.messagetype],
           'public': data.post.public,
+          'replyTo': data.post.replyTo,
           strong_auth_check: !admin
         }, function (gotData) {
           data.returns = JSON.stringify(gotData.returns);
@@ -187,6 +188,10 @@ var exports = {
         public: data.public
       };
 
+      if (data.replyTo && data.replyTo.length === 24) {
+        message.replyTo = data.replyTo;
+      }
+
       var preprocessMessage = function (data) {
 
         return new Promise(function (yes, no) {
@@ -240,7 +245,6 @@ var exports = {
 
               } else {
 
-                data.returns = false;
                 data.errors.push("Not authorised to post to that group.");
                 no(data);
 
@@ -251,6 +255,62 @@ var exports = {
           } else {
 
             console.log("[INFO] Strong auth check bypassed.");
+
+            yes(data);
+
+          }
+
+        });
+
+      };
+
+      var makeReply = function (data) {
+
+        return new Promise(function (yes, no) {
+
+          if (message.replyTo) {
+
+
+            data.testing = true;
+
+            if (objectID.isValid(data.replyTo)) {
+
+              // Get parent message
+              hook('hook_db_find', {
+                dbcollection: 'messages',
+                dbquery: {
+                  _id: objectID(data.replyTo)
+                }
+              }, function (parentMessage) {
+
+                console.log("Ran the callback");
+
+                parentMessage = JSON.parse(parentMessage.returns)[0];
+
+                var replyString;
+
+                if (parentMessage.replyTo) {
+                  // Append to existing reply string
+                  replyString = parentMessage.replyTo + parentMessage._id + ',';
+                } else {
+                  // Start a new reply string
+                  replyString = ',' + parentMessage._id + ',';
+                }
+
+                message.replyTo = replyString;
+
+                yes(data);
+
+              });
+
+            } else {
+
+              data.errors.push("Invalid objectID for replyTo");
+              no(data);
+
+            }
+
+          } else {
 
             yes(data);
 
@@ -279,9 +339,14 @@ var exports = {
 
               if (process.usercache[message.userid]) {
 
+                var usercache = {
+                  username: process.usercache[message.userid].username,
+                  avatar: process.usercache[message.userid].avatar
+                };
+
                 //Translate username from cache
-                message.username = process.usercache[message.userid].username;
-              };
+                message.usercache = usercache;
+              }
 
 
               // Actually send message via sockets
@@ -297,7 +362,7 @@ var exports = {
 
       };
 
-      hookPromiseChain([preprocessMessage, strongAuthCheck, insertMessageDB], data);
+      hookPromiseChain([preprocessMessage, strongAuthCheck, makeReply, insertMessageDB], data);
 
     }
   }

@@ -36,11 +36,19 @@ var exports = {
                     if (check.returns === true) {
 
                         var members = [];
+                        var userids = [];
                         JSON.parse(data.post.members).forEach(function (user, index) {
+
+                          // Filter out duplicates
+                          if (userids.indexOf(user) === -1) {
 
                             members.push({
                                 userid: user
                             });
+
+                          }
+
+                          userids.push(user);
 
                         });
 

@@ -196,7 +196,7 @@ var exports = {
                       process.socketio.sockets.emit('users_online', {
                         users: process.onlineUsers
                       });
-                      
+
                     }, exports.options.awayTimeout);
 
                   }

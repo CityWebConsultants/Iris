@@ -547,7 +547,12 @@ var exports = {
           var message = messages[index];
 
           if (process.usercache[message.userid]) {
-            message.username = process.usercache[message.userid].username;
+            var usercache = {
+              username: process.usercache[message.userid].username,
+              avatar: process.usercache[message.userid].avatar
+            };
+
+            message.usercache = usercache;
           }
 
         });

@@ -18,7 +18,7 @@ var run = function (eventid, hookname, value, callback) {
     if (callback) {
         value.callback = callback;
     }
-    
+
     queue[eventid].events[0][hookname].event(value);
 
 };
@@ -26,7 +26,7 @@ var run = function (eventid, hookname, value, callback) {
 //The trigger function is exposed and called from external modules/files to trigger an event
 
 var trigger = function (event, value, callback) {
-    
+
     processId += 1;
     var eventid = processId,
         modules = [];
@@ -57,23 +57,23 @@ var trigger = function (event, value, callback) {
         }
 
     });
-    
+
     //If no hook return false
-    
+
     if (!queue[eventid]) {
-                
+
         process.nextTick(function () {
-            
+
             process.emit("complete_" + event, false, event);
-            
+
         });
-        
+
         return false;
-        
+
     }
-    
+
     //Sort the modules in order of the rank of that event function within them
-    
+
     queue[eventid].events.sort(function (a, b) {
 
         if (a[event].rank > b[event].rank) {
@@ -112,13 +112,13 @@ process.on("next", function (data) {
             delete queue[data.pid];
 
             //Run a callback if one is set
-            
+
             if (data.callback) {
 
                 data.callback(data);
 
             }
-            
+
             process.emit("complete_" + data.hookname, data, data.hookname);
 
         }
