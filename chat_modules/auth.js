@@ -31,15 +31,9 @@ var exports = {
           }, function (gotData) {
             if (gotData.returns === true) {
 
-              console.log("auth ok");
-
-              data.test = "Test message";
-
               yes(data);
 
             } else {
-
-              console.log("auth fails");
 
               data.returns = "ERROR: Authentication failed.";
               no(data);

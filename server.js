@@ -139,81 +139,20 @@ module.exports = function (config, paramaters) {
         'url': requestUrl.pathname,
         'get': requestGet,
         'res': res
-      });
+      }, function (data) {
 
-      if (!process.getInit) {
-
-        process.on('complete_hook_get' + hookurl, function (data) {
-
-          process.getInit = true;
-
-          //Catch empty hooks
-
-          if (!data) {
-
-            var staticpath = __dirname + path.normalize("/static/" + url.parse(req.url).pathname);
-
-            //Add HTML to path if extension is empty
-
-            if (!path.extname(staticpath)) {
-
-              staticpath += ".html";
-
-            }
-
-            fs.exists(staticpath, function (exists) {
-              if (exists) {
-
-                fs.readFile(staticpath, function read(err, data) {
-
-                  var extension = path.extname(staticpath).replace(".", ""),
-                    type = "text/plain";
-
-                  switch (extension) {
-                    case "html":
-                      type = "text/html";
-                      break;
-                    case "js":
-                      type = "text/javascript";
-                      break;
-                    case "css":
-                      type = "text/css";
-                      break;
-                    default:
-                      type = "text/plain";
-                  }
-
-                  data.res.writeHead(200, {
-                    'Content-Type': type
-                  });
-                  data.res.end(data);
-
-                });
-
-
-              } else {
-                data.res.writeHead(404);
-                data.res.end("404");
-
-              }
-            });
-
-          } else {
-
-            data.res.writeHead(200, {
-              'Content-Type': 'application/json'
-            });
-            data.res.writeHead(200, {
-              'Access-Control-Allow-Origin': '*'
-            });
-
-            data.res.end(data.returns);
-
-
-          }
+        data.res.writeHead(200, {
+          'Content-Type': 'application/json'
+        });
+        data.res.writeHead(200, {
+          'Access-Control-Allow-Origin': '*'
         });
 
-      }
+        data.res.write(data.returns);
+
+        data.res.end();
+
+      });
 
     } else {
       res.writeHead(400);

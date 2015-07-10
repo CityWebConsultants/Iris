@@ -283,8 +283,6 @@ var exports = {
                 }
               }, function (parentMessage) {
 
-                console.log("Ran the callback");
-
                 parentMessage = JSON.parse(parentMessage.returns)[0];
 
                 var replyString;
