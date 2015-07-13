@@ -185,12 +185,9 @@ var exports = {
         content: data.content,
         type: data.type,
         tags: data.tags,
-        public: data.public
+        public: data.public,
+        parents: ''
       };
-
-      if (data.replyTo && data.replyTo.length === 24) {
-        message.replyTo = data.replyTo;
-      }
 
       var preprocessMessage = function (data) {
 
@@ -268,8 +265,7 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          if (message.replyTo) {
-
+          if (data.replyTo) {
 
             data.testing = true;
 
@@ -287,15 +283,16 @@ var exports = {
 
                 var replyString;
 
-                if (parentMessage.replyTo) {
+                var id = new objectID();
+
+                if (parentMessage.parents) {
                   // Append to existing reply string
-                  replyString = parentMessage.replyTo + parentMessage._id + ',';
-                } else {
-                  // Start a new reply string
-                  replyString = ',' + parentMessage._id + ',';
+                  replyString = parentMessage.parents + id + ',';
                 }
 
-                message.replyTo = replyString;
+                message._id = id;
+
+                message.parents = replyString;
 
                 yes(data);
 
@@ -309,6 +306,12 @@ var exports = {
             }
 
           } else {
+
+            var id = new objectID();
+
+            message.parents = ',' + id + ',';
+
+            message._id = id;
 
             yes(data);
 

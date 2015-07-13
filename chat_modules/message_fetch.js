@@ -9,6 +9,100 @@
 
 var objectID = require('mongodb').ObjectID;
 
+// Prepare threaded message
+
+var prepareThreads = function (messages) {
+
+  var rootMessages = [];
+
+  var output = [];
+
+  var sort = function (a, b) {
+    if (a.parents.length < b.parents.length) {
+      return 1;
+    }
+    if (a.parents.length > b.parents.length) {
+      return -1;
+    }
+    // a must be equal to b
+    return 0;
+  };
+
+  messages.forEach(function (element, index) {
+
+    var current = element.parents.split(',');
+    current.shift();
+    current.pop();
+
+    if (current.length === 1) {
+      rootMessages.push(element);
+    }
+
+  });
+
+  rootMessages.forEach(function (message, index) {
+    var thread = [];
+
+    messages.forEach(function (element, messageIndex) {
+      var current = element.parents.split(',');
+      current.shift();
+      current.pop();
+
+      element.parents = current;
+
+      if (current.indexOf(message._id) !== -1) {
+        thread.push(element);
+      }
+
+    });
+
+    thread.sort(sort);
+
+    var getMessageById = function (id) {
+      var returns;
+
+      messages.forEach(function(element) {
+        if (element._id === id) {
+          returns = element;
+        }
+      });
+
+      return returns;
+    };
+
+    thread.forEach(function (flatMessage, messageIndex) {
+
+      // Ignore root
+      if (flatMessage.parents.length > 1) {
+
+        var parentMessage = getMessageById(flatMessage.parents[flatMessage.parents.length - 2]);
+
+        if(parentMessage) {
+
+          if (!parentMessage.replies) {
+            parentMessage.replies = [];
+          }
+
+        parentMessage.replies.push(flatMessage);
+
+        } else {
+
+          console.log("Broken reply chain.");
+
+        }
+
+      }
+
+    });
+
+    output.push(thread[thread.length - 1]);
+
+  });
+
+  return output;
+
+};
+
 var exports = {
   options: {},
   // Create objectID from timestamp for use in 'since' queries.
@@ -230,6 +324,8 @@ var exports = {
               }
 
             });
+
+            messages = prepareThreads(messages);
 
             data.returns = JSON.stringify(messages);
 
@@ -556,6 +652,10 @@ var exports = {
           }
 
         });
+
+        if (data.nested) {
+          messages = prepareThreads(messages);
+        }
 
         data.returns = JSON.stringify(messages);
         process.emit('next', data);
