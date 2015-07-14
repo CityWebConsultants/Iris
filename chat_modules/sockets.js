@@ -180,7 +180,7 @@ var exports = {
         socket.on("disconnect", function (reason) {
 
           if (socket.userid && auth.userlist[socket.userid] && auth.userlist[socket.userid].sockets) {
-
+console.log(socket.userid + ' disconnected.');
             // for each socket in the userlist registered to this user
             auth.userlist[socket.userid].sockets.forEach(function (element, index) {
               if (element === socket) {
@@ -197,11 +197,13 @@ var exports = {
 
                       process.onlineUsers[index].status = "away";
 
-                      //Clear any existing timeouts
-
                       process.userTimeouts[element.uid] = setTimeout(function () {
 
-                        process.onlineUsers.splice(index, 1);
+                        process.onlineUsers.forEach(function (user, userIndex) {
+                          if (user.uid === element.uid) {
+                            process.onlineUsers.splice(userIndex, 1);
+                          }
+                        });
 
                         process.socketio.sockets.emit('users_online', {
                           users: process.onlineUsers
