@@ -170,11 +170,8 @@ var exports = {
     event: function (data) {
       console.log("[INFO] Adding message: " + JSON.stringify(data.content));
 
-      console.log(data.public);
-
       if (data.public !== true && data.public !== 'true') {
         data.public = false;
-        console.log("made false");
       } else {
         data.public = true;
       }

@@ -129,8 +129,6 @@ var exports = {
 
         var dbFind = function (data) {
           return new Promise(function (yes, no) {
-            console.log("Test:");
-            console.log(data.test);
             // Call db find hook.
             hook('hook_db_find', {
               dbcollection: 'groups',
