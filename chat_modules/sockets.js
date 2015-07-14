@@ -191,29 +191,29 @@ var exports = {
 
                   delete auth.userlist[socket.userid];
 
-                  process.onlineUsers.forEach(function (element, index) {
-
-                    if (element.uid === socket.userid) {
-
-                      process.onlineUsers[index].status = "away";
-
-                      //Clear any existing timeouts
-
-                      process.userTimeouts[element.uid] = setTimeout(function () {
-
-                        process.onlineUsers.splice(index, 1);
-
-                        process.socketio.sockets.emit('users_online', {
-                          users: process.onlineUsers
-                        });
-
-                      }, exports.options.awayTimeout);
-
-                    }
-
-                  });
-
                 }
+
+                process.onlineUsers.forEach(function (element, index) {
+
+                  if (element.uid === socket.userid) {
+
+                    process.onlineUsers[index].status = "away";
+
+                    //Clear any existing timeouts
+
+                    process.userTimeouts[element.uid] = setTimeout(function () {
+
+                      process.onlineUsers.splice(index, 1);
+
+                      process.socketio.sockets.emit('users_online', {
+                        users: process.onlineUsers
+                      });
+
+                    }, exports.options.awayTimeout);
+
+                  }
+
+                });
 
                 process.publicBroadcast('users_online', {
                   users: process.onlineUsers
