@@ -129,8 +129,8 @@ var exports = {
                     if (element.uid === socket.userid) {
 
                       //Clear timeout if present
-
-                      clearTimeout(process.userTimeouts[element]);
+                      
+                      clearTimeout(process.userTimeouts[element.uid]);
 
                       process.onlineUsers.splice(index, 1);
 
@@ -192,7 +192,10 @@ var exports = {
                   if (element.uid === socket.userid) {
 
                     process.onlineUsers[index].status = "away";
-                    process.userTimeouts[index] = setTimeout(function () {
+
+                    //Clear any existing timeouts
+
+                    process.userTimeouts[element.uid] = setTimeout(function () {
 
                       process.onlineUsers.splice(index, 1);
 
