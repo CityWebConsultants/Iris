@@ -87,6 +87,12 @@ var exports = {
       process.socketio = io(process.server);
       process.socketio.on("connection", function (socket) {
 
+        //Send online users array if it exists
+
+        process.publicBroadcast('users_online', {
+          users: process.onlineUsers
+        });
+
         //Add listeners
 
         socketapi(socket);
@@ -129,7 +135,7 @@ var exports = {
                     if (element.uid === socket.userid) {
 
                       //Clear timeout if present
-                      
+
                       clearTimeout(process.userTimeouts[element.uid]);
 
                       process.onlineUsers.splice(index, 1);
