@@ -30,9 +30,7 @@ var prepareThreads = function (messages) {
 
   messages.forEach(function (element, index) {
 
-    var current = element.parents.split(',');
-    current.shift();
-    current.pop();
+    var current = element.parents;
 
     if (current.length === 1) {
       rootMessages.push(element);
@@ -44,9 +42,11 @@ var prepareThreads = function (messages) {
     var thread = [];
 
     messages.forEach(function (element, messageIndex) {
-      var current = element.parents.split(',');
-      current.shift();
-      current.pop();
+
+      var current;
+
+      current = element.parents;
+
 
       element.parents = current;
 

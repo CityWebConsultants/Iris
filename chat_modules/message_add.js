@@ -265,12 +265,11 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          if (data.replyTo) {
+          if (data.replyTo && data.replyTo !== 'null') {
 
             data.testing = true;
 
             if (objectID.isValid(data.replyTo)) {
-
               // Get parent message
               hook('hook_db_find', {
                 dbcollection: 'messages',
@@ -281,18 +280,14 @@ var exports = {
 
                 parentMessage = JSON.parse(parentMessage.returns)[0];
 
-                var replyString;
-
                 var id = new objectID();
 
                 if (parentMessage.parents) {
-                  // Append to existing reply string
-                  replyString = parentMessage.parents + id + ',';
+                  parentMessage.parents.push(id);
+                  message.parents = parentMessage.parents;
                 }
 
                 message._id = id;
-
-                message.parents = replyString;
 
                 yes(data);
 
@@ -309,7 +304,7 @@ var exports = {
 
             var id = new objectID();
 
-            message.parents = ',' + id + ',';
+            message.parents = [id];
 
             message._id = id;
 
