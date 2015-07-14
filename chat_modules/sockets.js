@@ -62,6 +62,9 @@ var exports = {
       });
     }
   },
+  publicBroadcast: function (name, data) {
+    process.socketio.emit(name, data);
+  },
   updateLatestSocket: function (userid) {
     try {
       // Update the latest socket
@@ -148,7 +151,7 @@ var exports = {
 
                   });
 
-                  process.socketio.sockets.emit('users_online', {
+                  process.publicBroadcast('users_online', {
                     users: process.onlineUsers
                   });
 
@@ -203,7 +206,7 @@ var exports = {
 
                 });
 
-                process.socketio.sockets.emit('users_online', {
+                process.publicBroadcast('users_online', {
                   users: process.onlineUsers
                 });
 
@@ -225,6 +228,7 @@ var exports = {
 
 process.addSocketListener = exports.addlistener;
 process.groupBroadcast = exports.groupBroadcast;
+process.publicBroadcast = exports.publicBroadcast;
 process.userBroadcast = exports.userBroadcast;
 process.updateLatestSocket = exports.updateLatestSocket;
 
