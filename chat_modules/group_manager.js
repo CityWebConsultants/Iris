@@ -293,7 +293,7 @@ var exports = {
           }
           process.emit("next", data);
         });
-      };
+      }();
     }
 
   },
