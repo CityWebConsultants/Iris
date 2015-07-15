@@ -276,10 +276,10 @@ var exports = {
 
         var group = {
 
-          "name": data.name,
-          "members": data.members,
-          "entityRef": data.entityRef,
-          "permissions": data.permissions
+          "name": data.post.name,
+          "members": data.post.members,
+          "entityRef": data.post.entityRef,
+          "permissions": data.post.permissions
 
         }
 
