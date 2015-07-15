@@ -279,7 +279,8 @@ var exports = {
         "name": data.post.name,
         "members": data.post.members,
         "entityRef": data.post.entityRef,
-        "permissions": data.post.permissions
+        "permissions": data.post.permissions,
+        "is121": data.post.is121
 
       }
 
