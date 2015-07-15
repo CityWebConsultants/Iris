@@ -161,7 +161,7 @@ var exports = {
           });
         };
 
-        hookPromiseChain([process.globals.auth.authCheck, dbFind],data);
+        hookPromiseChain([process.globals.auth.authCheck, dbFind], data);
 
       } else {
         data.returns = "ERROR: Missing userid, token or groupid.";
@@ -300,18 +300,9 @@ var exports = {
 
             var groupObject = {};
 
-            //Default group permissions
-            
-            groupObject.permissions = {
-              
-              read: 0,
-              write: 2,
-              update: 3
-              
-            };
-            
+
             if (data.post.private === 'true') {
-              groupObject.permissions.read = 2;
+              groupObject.private = true;
             }
 
             groupObject.name = data.post.name;
@@ -452,6 +443,28 @@ var exports = {
         data.members = data.members.filter(function (v, i, a) {
           return a.indexOf(v) === i;
         });
+
+        //Default group permissions
+
+        var permissions = {
+
+          read: 0,
+          write: 2,
+          update: 3
+
+        };
+
+        if (!data.isReadOnly) {
+
+          permissions.read = 0;
+
+        };
+
+        if (data.private) {
+
+          permissions.read = 2;
+
+        };
 
         // Build base query
         var query = {
