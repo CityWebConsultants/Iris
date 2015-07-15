@@ -300,8 +300,18 @@ var exports = {
 
             var groupObject = {};
 
+            //Default group permissions
+            
+            groupObject.permissions = {
+              
+              read: 0,
+              write: 2,
+              update: 3
+              
+            };
+            
             if (data.post.private === 'true') {
-              groupObject.private = true;
+              groupObject.permissions.read = 2;
             }
 
             groupObject.name = data.post.name;
@@ -446,7 +456,8 @@ var exports = {
         // Build base query
         var query = {
             name: data.name,
-            members: []
+            members: [],
+            permissions: data.permissions
           },
           members = [],
           currentDate = Date.now();
@@ -469,10 +480,6 @@ var exports = {
           if (data.members.length > 2) {
             data.ok = false;
           }
-        }
-
-        if (data.private) {
-          query.private = data.private;
         }
 
         if (data.reftype) {
