@@ -267,7 +267,21 @@ var exports = {
       event: function (data) {
         // userid, token, name, members[], is121
 
-        var groupdata = {};
+        if (!data.post.apikey && !data.post.secretkey) {
+
+          data.returns = "ABORT ABORT";
+          process.emit("next", data);
+
+        }
+
+        var group = {
+
+          "name": data.name,
+          "members": data.members,
+          "entityRef": data.entityRef,
+          "permissions": data.permissions
+
+        }
 
         var addgroup = function (group) {
           hook("hook_group_add", group, function (groupid) {
@@ -280,149 +294,8 @@ var exports = {
             process.emit("next", data);
           });
         };
-
-        // Read only / CMS
-        if (data.post.readonly === 'true' && data.post.apikey && data.post.secretkey) {
-          hook('hook_secretkey_check', {
-            apikey: data.post.apikey,
-            secretkey: data.post.secretkey
-          }, function (valid) {
-            if (valid.returns === true) {
-
-              if (data.post.members.constructor && data.post.members.constructor !== Array) {
-                data.post.members = [data.post.members];
-              }
-
-              // Avoid awkward null
-              if (!data.post.members) {
-                data.post.members = [];
-              }
-
-              var groupObject = {};
-
-
-              if (data.post.private === 'true') {
-                groupObject.private = true;
-              }
-
-              groupObject.name = data.post.name;
-              groupObject.members = data.post.members;
-              groupObject.isReadOnly = true;
-              groupObject.reftype = data.post.reftype;
-
-              if (data.post.reftype === 'og') {
-                groupObject.entityref = data.post.entityref;
-              } else if (data.post.reftype === 'event') {
-                groupObject.entityref = data.post.entityref;
-                groupObject.starttime = data.post.starttime;
-                groupObject.endtime = data.post.endtime;
-                groupObject.agenda = data.post.agenda;
-              }
-
-              // Add group
-              addgroup(groupObject);
-
-            } else {
-              data.returns = "ERROR: Secret key incorrect";
-              process.emit('next', data);
-            }
-          });
-          // User controlled
-        } else {
-          hook('hook_auth_check', {
-            userid: data.post.userid,
-            token: data.post.token
-          }, function (gotData) {
-            if (gotData.returns === true) {
-              // Check for valid members
-              if (data.post.members && data.post.members.constructor && data.post.members.constructor === Array && data.post.members.length > 1) {
-
-                // Check if it contains its creator
-                var containsCreator = false;
-
-                data.post.members.forEach(function (element, index) {
-                  if (element === data.post.userid) {
-                    containsCreator = true;
-                  }
-                });
-
-                var groupMembersValid = true;
-                if (containsCreator === false) {
-                  groupMembersValid = false;
-                }
-
-                // If no name supplied, make sure it's blank.
-                if (!data.post.name) {
-                  data.post.name = '';
-                }
-
-                // Make sure is121 is sane
-                if (data.post.is121 === 'true') {
-                  data.post.is121 = true;
-                }
-
-                // If invalid, return fail
-                if (groupMembersValid !== true) {
-                  data.returns = 'ERROR: Group does not contain its creator.';
-                  process.emit('next', data);
-                  return;
-                }
-
-                // if group is one-to-one, check if one like that already exists
-                if (data.post.is121 === true) {
-                  // Search database for existing 121 chat with those members
-                  hook('hook_db_find', {
-                    dbcollection: 'groups',
-                    dbquery: {
-                      'is121': true,
-                      $and: [{
-                        'members': {
-                          $elemMatch: {
-                            'userid': data.post.members[0]
-                          }
-                        }
-                                        }, {
-                        'members': {
-                          $elemMatch: {
-                            'userid': data.post.members[1]
-                          }
-                        }
-                                        }]
-                    }
-                  }, function (result) {
-                    if (result.returns && JSON.parse(result.returns).length === 0) {
-
-                      addgroup({
-                        name: data.post.name,
-                        members: data.post.members,
-                        is121: true
-                      });
-
-                    } else {
-                      data.returns = 'ERROR: One-to-one chat containing these members already exists.';
-                      process.emit('next', data);
-                    }
-                  });
-                  // If not 121, just add it
-                } else {
-
-                  addgroup({
-                    name: data.post.name,
-                    members: data.post.members
-                  });
-
-                }
-              } else {
-                data.returns = "ERROR: No initial members specified.";
-                process.emit('next', data);
-              }
-            } else {
-              data.returns = "ERROR: Authentication failed.";
-              process.emit('next', data);
-            }
-          });
-        }
       }
+
     },
     hook_group_add: {
       rank: 0,
