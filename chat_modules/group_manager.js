@@ -371,7 +371,7 @@ var exports = {
         return new Promise(function (yes, no) {
 
           hook('hook_db_insert', {
-            dbcollection: 'messages',
+            dbcollection: 'groups',
             dbobject: group
           }, function (gotData) {
 
