@@ -94,369 +94,41 @@ var getavatar = function (group, userid) {
 }
 
 var exports = {
-    options: {
-      allowdebug: false
-    },
-    // TODO: this module needs refactoring methinks. but hey, it does work.
-    hook_get_fetch_group: {
-      rank: 0,
-      event: function (data) {
-        hook('hook_fetch_group', {
-          userid: data.get.userid,
-          token: data.get.token,
-          groupid: data.get.groupid
-        }, function (gotData) {
-          data.returns = JSON.stringify(gotData.returns);
-          process.emit('next', data);
-        });
-      }
-    },
-    hook_fetch_group: {
-      rank: 0,
-      event: function (data) {
-        if (data.userid && data.token && data.groupid) {
+  options: {
+    allowdebug: false
+  },
+  // TODO: this module needs refactoring methinks. but hey, it does work.
+  hook_get_fetch_group: {
+    rank: 0,
+    event: function (data) {
+      hook('hook_fetch_group', {
+        userid: data.get.userid,
+        token: data.get.token,
+        groupid: data.get.groupid
+      }, function (gotData) {
+        data.returns = JSON.stringify(gotData.returns);
+        process.emit('next', data);
+      });
+    }
+  },
+  hook_fetch_group: {
+    rank: 0,
+    event: function (data) {
+      if (data.userid && data.token && data.groupid) {
 
-          // Check objectID valid
-          try {
-            data.groupid = objectID(data.groupid);
-          } catch (e) {
-            data.returns = "ERROR: Bad ObjectID";
-            process.emit("next", data);
-            return false;
-          }
-
-          // Promise functions
-
-          var dbFind = function (data) {
-            return new Promise(function (yes, no) {
-              // Call db find hook.
-              hook('hook_db_find', {
-                dbcollection: 'groups',
-                dbquery: {
-                  members: {
-                    $elemMatch: {
-                      'userid': data.userid
-                    }
-                  },
-                  '_id': data.groupid
-                }
-              }, function (gotData) {
-
-                var groupdata = JSON.parse(gotData.returns);
-
-                groupdata.forEach(function (element, index) {
-                  if (element.name === 'default') {
-                    groupdata[index].name = defaultname(element.members, data.userid);
-                  }
-
-                  groupdata[index].avatar = getavatar(element, data.userid);
-                });
-
-                data.returns = groupdata;
-
-                yes(data);
-
-              });
-
-            });
-          };
-
-          hookPromiseChain([process.globals.auth.authCheck, dbFind], data);
-
-        } else {
-          data.returns = "ERROR: Missing userid, token or groupid.";
-          process.emit('next', data);
-        }
-      }
-    },
-    hook_group_list_users: {
-      rank: 0,
-      event: function (data) {
-
-        if (objectID.isValid(data.groupid)) {
-          var groupid = data.groupid,
-            userid = data.userid, // optional: only return results that include this user
-            query = {
-              '_id': objectID(groupid)
-            };
-
-          if (userid) {
-            query = {
-              '_id': objectID(groupid),
-              members: {
-                $elemMatch: {
-                  'userid': data.userid.toString()
-                }
-              }
-            };
-          }
-
-          hook('hook_db_find', {
-              dbcollection: 'groups',
-              dbquery: query
-            },
-            function (gotData) {
-              if (gotData.returns && JSON.parse(gotData.returns)[0]) {
-                data.returns = JSON.parse(gotData.returns)[0].members;
-
-                data.returns.forEach(function (element, index) {
-
-                  var property;
-
-                  for (property in process.usercache[element.userid]) {
-
-
-                    data.returns[index][property] = process.usercache[element.userid][property];
-
-
-                  }
-                });
-
-                process.emit('next', data);
-              } else {
-                console.log("[INFO] hook_group_list_users: Request for nonexistent or inaccessible group ID");
-                data.returns = false;
-                process.emit('next', data);
-              }
-            });
-        } else {
-          console.log("[INFO] hook_group_list_users: Request for bad ObjectID");
-          data.returns = false;
-          process.emit('next', data);
-        }
-      }
-    },
-    // GET /fetch/group/users
-    hook_get_fetch_group_users: {
-      rank: 0,
-      event: function (data) {
-        hook('hook_auth_check', {
-          userid: data.get.userid,
-          token: data.get.token
-        }, function (gotData) {
-          if (gotData.returns === true) {
-            var groupid = data.get.groupid;
-
-            if (objectID.isValid(data.get.groupid)) {
-              hook('hook_group_list_users', {
-                  'groupid': groupid,
-                  'userid': data.get.userid
-                },
-                function (gotData) {
-                  if (typeof gotData.returns !== 'string') {
-                    data.returns = JSON.stringify(gotData.returns);
-                  } else {
-                    data.returns = gotData.returns;
-                  }
-                  process.emit('next', data);
-                });
-            } else {
-              data.returns = "ERROR: Invalid group ID.";
-              process.emit('next', data);
-            }
-          } else {
-            data.returns = "ERROR: Authentication failed.";
-            process.emit('next', data);
-          }
-        });
-      }
-    },
-    // POST /group/add
-    hook_post_group_add: {
-      rank: 0,
-      event: function (data) {
-        // userid, token, name, members[], is121
-
-        if (!data.post.apikey && !data.post.secretkey) {
-
-          data.returns = "ABORT ABORT";
+        // Check objectID valid
+        try {
+          data.groupid = objectID(data.groupid);
+        } catch (e) {
+          data.returns = "ERROR: Bad ObjectID";
           process.emit("next", data);
-
+          return false;
         }
 
-        var group = {
+        // Promise functions
 
-          "name": data.post.name,
-          "members": data.post.members,
-          "entityRef": data.post.entityRef,
-          "permissions": data.post.permissions
-
-        }
-
-        var addgroup = function (group) {
-          hook("hook_group_add", group, function (groupid) {
-            // check success
-            if (groupid.success) {
-              data.returns = groupid.returns.toString();
-            } else {
-              data.returns = "ERROR: Could not add group although the request was valid.";
-            }
-            process.emit("next", data);
-          });
-        };
-      }
-
-    },
-    hook_group_add: {
-      rank: 0,
-      event: function (data) {
-
-        //      // Should check for duplicate members (move to database schema)
-        //      // Should allow only two users in a 121 group
-
-        //Create basic group object
-
-        var group = {
-
-          "name": data.name,
-          "members": data.members,
-          "entityRef": data.entityRef,
-          "permissions": data.permissions
-
-        }
-
-        //Check if 1to1 group and, if so, check if it doesn't already exist. If it does already exist, return it
-
-        var check1to1 = function (data) {
-
+        var dbFind = function (data) {
           return new Promise(function (yes, no) {
-
-            if (data.is121 === true) {
-
-              hook('hook_db_find', {
-                dbcollection: 'groups',
-                dbquery: {
-                  'is121': true,
-                  $and: [{
-                    'members': {
-                      $elemMatch: {
-                        'userid': data.members[0]
-                      }
-                    }
-                                        }, {
-                    'members': {
-                      $elemMatch: {
-                        'userid': data.members[1]
-                      }
-                    }
-                                        }]
-                }
-              }, function (result) {
-                if (result.returns && JSON.parse(result.returns).length === 0) {
-
-                  //121 doesn't already exist
-                  yes(data);
-
-                } else {
-
-                  data.errors.push("Group already exists");
-                  no(data):
-
-                }
-              });
-
-            } else {
-
-              yes(data);
-
-            }
-
-          });
-
-        };
-
-
-        var addGroup = function (data) {
-
-          return new Promise(function (yes, no) {
-
-            hook('hook_db_insert', {
-              dbcollection: 'messages',
-              dbobject: group
-            }, function (gotData) {
-
-              data.returns = JSON.stringify(gotData);
-              yes(data);
-
-            })
-
-
-          })
-
-        };
-
-        hookPromiseChain([check1to1, addGroup], data);
-
-      },
-      // GET /debug/groups
-      hook_get_debug_groups: {
-        rank: 0,
-        event: function (data) {
-          if (exports.options && exports.options.allowdebug) {
-            var get = data.get,
-              query = {};
-
-            if (get.userid) {
-              query = {
-                members: {
-                  $elemMatch: {
-                    'userid': get.userid.toString()
-                  }
-                }
-              };
-            }
-
-            // Call db find hook.
-            hook('hook_db_find', {
-              dbcollection: 'groups',
-              dbquery: query,
-              callback: function (gotData) {
-                data.returns = gotData.returns;
-                process.nextTick(function () {
-                  process.emit('next', data);
-                });
-              }
-            });
-          } else {
-            data.returns = 'ERROR: Feature disabled.';
-            process.emit('next', data);
-          }
-
-        }
-      },
-      hook_get_fetch_groups: {
-        rank: 0,
-        event: function (data) {
-          if (data.get.userid && data.get.token) {
-
-            hook('hook_auth_check', {
-              userid: data.get.userid,
-              token: data.get.token
-            }, function (auth) {
-              if (auth.returns === true) {
-                hook('hook_fetch_groups', {
-                  userid: data.get.userid
-                }, function (groups) {
-                  data.returns = groups.returns;
-                  process.emit('next', data);
-                });
-              } else {
-                data.returns = "ERROR: Authentication failed.";
-                process.emit('next', data);
-              }
-            });
-
-          } else {
-            data.returns = "ERROR: Missing userid or token.";
-            process.emit('next', data);
-          }
-        }
-      },
-      hook_fetch_groups: {
-        rank: 0,
-        event: function (data) {
-          if (data.userid) {
-
             // Call db find hook.
             hook('hook_db_find', {
               dbcollection: 'groups',
@@ -465,9 +137,11 @@ var exports = {
                   $elemMatch: {
                     'userid': data.userid
                   }
-                }
+                },
+                '_id': data.groupid
               }
             }, function (gotData) {
+
               var groupdata = JSON.parse(gotData.returns);
 
               groupdata.forEach(function (element, index) {
@@ -478,542 +152,860 @@ var exports = {
                 groupdata[index].avatar = getavatar(element, data.userid);
               });
 
-              data.returns = JSON.stringify(groupdata);
+              data.returns = groupdata;
 
-              process.emit('next', data);
+              yes(data);
+
             });
 
-          }
+          });
+        };
+
+        hookPromiseChain([process.globals.auth.authCheck, dbFind], data);
+
+      } else {
+        data.returns = "ERROR: Missing userid, token or groupid.";
+        process.emit('next', data);
+      }
+    }
+  },
+  hook_group_list_users: {
+    rank: 0,
+    event: function (data) {
+
+      if (objectID.isValid(data.groupid)) {
+        var groupid = data.groupid,
+          userid = data.userid, // optional: only return results that include this user
+          query = {
+            '_id': objectID(groupid)
+          };
+
+        if (userid) {
+          query = {
+            '_id': objectID(groupid),
+            members: {
+              $elemMatch: {
+                'userid': data.userid.toString()
+              }
+            }
+          };
         }
-      },
-      hook_group_update: {
-        rank: 0,
-        event: function (data) {
 
-          var query;
-          if (data.userid) {
-            query = {
-              '_id': objectID(data.groupid),
-              'isReadOnly': false,
-              $or: [{
-                'is121': false
-                    }, {
-                'is121': {
-                  $exists: false
+        hook('hook_db_find', {
+            dbcollection: 'groups',
+            dbquery: query
+          },
+          function (gotData) {
+            if (gotData.returns && JSON.parse(gotData.returns)[0]) {
+              data.returns = JSON.parse(gotData.returns)[0].members;
+
+              data.returns.forEach(function (element, index) {
+
+                var property;
+
+                for (property in process.usercache[element.userid]) {
+
+
+                  data.returns[index][property] = process.usercache[element.userid][property];
+
+
                 }
-                    }],
-              members: {
-                $elemMatch: {
-                  'userid': data.userid.toString()
-                }
-              }
-            };
-          } else {
-            if (data.groupid) {
-              query = {
-                '_id': objectID(data.groupid)
-              };
-            } else if (data.reftype === 'event') {
-              query = {
-                'reftype': 'event',
-                'entityref': data.entityref
-              };
-            }
-            data.userid = 0;
-          }
+              });
 
-          if (data.action === 'addmember') {
-
-            var addquery = {
-              members: {
-                $elemMatch: {
-                  'userid': data.members
-                }
-              }
-            }
-
-            if (data.groupid) {
-              addquery['_id'] = objectID(data.groupid);
+              process.emit('next', data);
             } else {
-              addquery['reftype'] = data.reftype;
-              addquery['entityref'] = data.entityref;
+              console.log("[INFO] hook_group_list_users: Request for nonexistent or inaccessible group ID");
+              data.returns = false;
+              process.emit('next', data);
             }
+          });
+      } else {
+        console.log("[INFO] hook_group_list_users: Request for bad ObjectID");
+        data.returns = false;
+        process.emit('next', data);
+      }
+    }
+  },
+  // GET /fetch/group/users
+  hook_get_fetch_group_users: {
+    rank: 0,
+    event: function (data) {
+      hook('hook_auth_check', {
+        userid: data.get.userid,
+        token: data.get.token
+      }, function (gotData) {
+        if (gotData.returns === true) {
+          var groupid = data.get.groupid;
+
+          if (objectID.isValid(data.get.groupid)) {
+            hook('hook_group_list_users', {
+                'groupid': groupid,
+                'userid': data.get.userid
+              },
+              function (gotData) {
+                if (typeof gotData.returns !== 'string') {
+                  data.returns = JSON.stringify(gotData.returns);
+                } else {
+                  data.returns = gotData.returns;
+                }
+                process.emit('next', data);
+              });
+          } else {
+            data.returns = "ERROR: Invalid group ID.";
+            process.emit('next', data);
+          }
+        } else {
+          data.returns = "ERROR: Authentication failed.";
+          process.emit('next', data);
+        }
+      });
+    }
+  },
+  // POST /group/add
+  hook_post_group_add: {
+    rank: 0,
+    event: function (data) {
+      // userid, token, name, members[], is121
+
+      if (!data.post.apikey && !data.post.secretkey) {
+
+        data.returns = "ABORT ABORT";
+        process.emit("next", data);
+
+      }
+
+      var group = {
+
+        "name": data.post.name,
+        "members": data.post.members,
+        "entityRef": data.post.entityRef,
+        "permissions": data.post.permissions
+
+      }
+
+      var addgroup = function (group) {
+        hook("hook_group_add", group, function (groupid) {
+          // check success
+          if (groupid.success) {
+            data.returns = groupid.returns.toString();
+          } else {
+            data.returns = "ERROR: Could not add group although the request was valid.";
+          }
+          process.emit("next", data);
+        });
+      };
+    }
+
+  },
+  hook_group_add: {
+    rank: 0,
+    event: function (data) {
+
+      //      // Should check for duplicate members (move to database schema)
+      //      // Should allow only two users in a 121 group
+
+      //Create basic group object
+
+      var group = {
+
+        "name": data.name,
+        "members": data.members,
+        "entityRef": data.entityRef,
+        "permissions": data.permissions
+
+      }
+
+      //Check if 1to1 group and, if so, check if it doesn't already exist. If it does already exist, return it
+
+      var check1to1 = function (data) {
+
+        return new Promise(function (yes, no) {
+
+          if (data.is121 === true) {
 
             hook('hook_db_find', {
               dbcollection: 'groups',
-              dbquery: addquery
-            }, function (existing) {
-
-              // If this user doesn't yet exist
-              if (existing.returns && existing.returns === '[]') {
-
-                hook('hook_db_update', {
-                  dbcollection: 'groups',
-                  dbquery: query,
-                  dbupdate: {
-                    $push: {
-                      members: {
-                        'userid': data.members,
-                        'joined': Date.now()
-                      }
+              dbquery: {
+                'is121': true,
+                $and: [{
+                  'members': {
+                    $elemMatch: {
+                      'userid': data.members[0]
                     }
-                  },
-                  dbmulti: true,
-                  dbupsert: false
-                }, function (gotData) {
-                  data.returns = gotData.returns;
+                  }
+                                        }, {
+                  'members': {
+                    $elemMatch: {
+                      'userid': data.members[1]
+                    }
+                  }
+                                        }]
+              }
+            }, function (result) {
+              if (result.returns && JSON.parse(result.returns).length === 0) {
 
-                  // Put a message into the group directly
-
-                  hook("hook_send_joined_message", {
-                    userid: data.userid,
-                    members: data.members,
-                    groupid: data.groupid
-                  }, function (gotData) {
-                    process.emit("next", data);
-                  });
-
-                });
+                //121 doesn't already exist
+                yes(data);
 
               } else {
-                data.returns = 'ERROR: That user is already present in the group.';
-                process.emit('next', data);
-              }
 
+                data.errors.push("Group already exists");
+                no(data);
+
+              }
             });
 
-          } else if (data.action === 'removemember') {
+          } else {
+
+            yes(data);
+
+          }
+
+        });
+
+      };
+
+
+      var addGroup = function (data) {
+
+        return new Promise(function (yes, no) {
+
+          hook('hook_db_insert', {
+            dbcollection: 'messages',
+            dbobject: group
+          }, function (gotData) {
+
+            data.returns = JSON.stringify(gotData);
+            yes(data);
+
+          })
+
+
+        })
+
+      };
+
+      hookPromiseChain([check1to1, addGroup], data);
+
+    }
+
+  },
+  // GET /debug/groups
+  hook_get_debug_groups: {
+    rank: 0,
+    event: function (data) {
+      if (exports.options && exports.options.allowdebug) {
+        var get = data.get,
+          query = {};
+
+        if (get.userid) {
+          query = {
+            members: {
+              $elemMatch: {
+                'userid': get.userid.toString()
+              }
+            }
+          };
+        }
+
+        // Call db find hook.
+        hook('hook_db_find', {
+          dbcollection: 'groups',
+          dbquery: query,
+          callback: function (gotData) {
+            data.returns = gotData.returns;
+            process.nextTick(function () {
+              process.emit('next', data);
+            });
+          }
+        });
+      } else {
+        data.returns = 'ERROR: Feature disabled.';
+        process.emit('next', data);
+      }
+
+    }
+  },
+  hook_get_fetch_groups: {
+    rank: 0,
+    event: function (data) {
+      if (data.get.userid && data.get.token) {
+
+        hook('hook_auth_check', {
+          userid: data.get.userid,
+          token: data.get.token
+        }, function (auth) {
+          if (auth.returns === true) {
+            hook('hook_fetch_groups', {
+              userid: data.get.userid
+            }, function (groups) {
+              data.returns = groups.returns;
+              process.emit('next', data);
+            });
+          } else {
+            data.returns = "ERROR: Authentication failed.";
+            process.emit('next', data);
+          }
+        });
+
+      } else {
+        data.returns = "ERROR: Missing userid or token.";
+        process.emit('next', data);
+      }
+    }
+  },
+  hook_fetch_groups: {
+    rank: 0,
+    event: function (data) {
+      if (data.userid) {
+
+        // Call db find hook.
+        hook('hook_db_find', {
+          dbcollection: 'groups',
+          dbquery: {
+            members: {
+              $elemMatch: {
+                'userid': data.userid
+              }
+            }
+          }
+        }, function (gotData) {
+          var groupdata = JSON.parse(gotData.returns);
+
+          groupdata.forEach(function (element, index) {
+            if (element.name === 'default') {
+              groupdata[index].name = defaultname(element.members, data.userid);
+            }
+
+            groupdata[index].avatar = getavatar(element, data.userid);
+          });
+
+          data.returns = JSON.stringify(groupdata);
+
+          process.emit('next', data);
+        });
+
+      }
+    }
+  },
+  hook_group_update: {
+    rank: 0,
+    event: function (data) {
+
+      var query;
+      if (data.userid) {
+        query = {
+          '_id': objectID(data.groupid),
+          'isReadOnly': false,
+          $or: [{
+            'is121': false
+                    }, {
+            'is121': {
+              $exists: false
+            }
+                    }],
+          members: {
+            $elemMatch: {
+              'userid': data.userid.toString()
+            }
+          }
+        };
+      } else {
+        if (data.groupid) {
+          query = {
+            '_id': objectID(data.groupid)
+          };
+        } else if (data.reftype === 'event') {
+          query = {
+            'reftype': 'event',
+            'entityref': data.entityref
+          };
+        }
+        data.userid = 0;
+      }
+
+      if (data.action === 'addmember') {
+
+        var addquery = {
+          members: {
+            $elemMatch: {
+              'userid': data.members
+            }
+          }
+        }
+
+        if (data.groupid) {
+          addquery['_id'] = objectID(data.groupid);
+        } else {
+          addquery['reftype'] = data.reftype;
+          addquery['entityref'] = data.entityref;
+        }
+
+        hook('hook_db_find', {
+          dbcollection: 'groups',
+          dbquery: addquery
+        }, function (existing) {
+
+          // If this user doesn't yet exist
+          if (existing.returns && existing.returns === '[]') {
 
             hook('hook_db_update', {
               dbcollection: 'groups',
               dbquery: query,
               dbupdate: {
-                $pull: {
+                $push: {
                   members: {
-                    'userid': data.members
+                    'userid': data.members,
+                    'joined': Date.now()
                   }
                 }
               },
               dbmulti: true,
               dbupsert: false
             }, function (gotData) {
-
-              data.removedmember = data.members;
-
               data.returns = gotData.returns;
-              process.emit('next', data);
-            });
 
-          } else if (data.action === 'name') {
-            hook('hook_db_update', {
-              dbcollection: 'groups',
-              dbquery: query,
-              dbupdate: {
-                $set: {
-                  name: data.name
-                }
-              },
-              dbmulti: false,
-              dbupsert: false
-            }, function (gotData) {
-              data.returns = gotData.returns;
-              process.emit('next', data);
+              // Put a message into the group directly
+
+              hook("hook_send_joined_message", {
+                userid: data.userid,
+                members: data.members,
+                groupid: data.groupid
+              }, function (gotData) {
+                process.emit("next", data);
+              });
+
             });
 
           } else {
-            data.returns = false;
+            data.returns = 'ERROR: That user is already present in the group.';
             process.emit('next', data);
-
           }
-        }
-      },
-      // POST /group/update/addmember
-      hook_post_group_update_addmember: {
-        rank: 0,
-        event: function (data) {
 
-          if (data.post.members && (data.post.groupid && objectID.isValid(data.post.groupid)) || (data.post.entityref && data.post.reftype)) {
+        });
 
-            if (data.post.apikey && data.post.secretkey) {
-              hook('hook_secretkey_check', {
-                apikey: data.post.apikey,
-                secretkey: data.post.secretkey
-              }, function (valid) {
-                if (valid.returns === true) {
+      } else if (data.action === 'removemember') {
 
-                  var updatequery = {
-                    action: 'addmember',
-                    userid: data.post.userid,
-                    members: data.post.members
-                  };
-
-                  if (data.post.reftype === 'event') {
-                    updatequery['reftype'] = data.post.reftype;
-                    updatequery['entityref'] = data.post.entityref;
-                  } else {
-                    updatequery['groupid'] = data.post.groupid;
-                  }
-
-                  hook('hook_group_update',
-                    updatequery,
-                    function (gotData) {
-                      data.returns = gotData.returns;
-                      process.emit('next', data);
-                    });
-
-                } else {
-                  data.returns = "ERROR: Secret key incorrect";
-                  process.emit('next', data);
-                }
-              });
-            } else {
-              hook('hook_auth_check', {
-                userid: data.post.userid,
-                token: data.post.token
-              }, function (gotData) {
-                if (gotData.returns === true) {
-
-                  hook('hook_group_update', {
-                    action: 'addmember',
-                    userid: data.post.userid,
-                    members: data.post.members,
-                    groupid: data.post.groupid
-                  }, function (gotData) {
-                    data.returns = gotData.returns;
-                    process.emit('next', data);
-                  });
-
-                } else {
-                  data.returns = "ERROR: Authentication failed.";
-                  process.emit('next', data);
-                }
-              });
+        hook('hook_db_update', {
+          dbcollection: 'groups',
+          dbquery: query,
+          dbupdate: {
+            $pull: {
+              members: {
+                'userid': data.members
+              }
             }
-          } else {
-            data.returns = "ERROR: Invalid userid or groupid.";
-            process.emit('next', data);
-          }
-        }
-      },
-      // POST /group/update/removemember
-      hook_post_group_update_removemember: {
-        rank: 0,
-        event: function (data) {
+          },
+          dbmulti: true,
+          dbupsert: false
+        }, function (gotData) {
 
-          if (data.post.members && data.post.groupid && objectID.isValid(data.post.groupid)) {
+          data.removedmember = data.members;
 
-            if (data.post.apikey && data.post.secretkey) {
-              hook('hook_secretkey_check', {
-                apikey: data.post.apikey,
-                secretkey: data.post.secretkey
-              }, function (valid) {
-                if (valid.returns === true) {
+          data.returns = gotData.returns;
+          process.emit('next', data);
+        });
 
-                  hook('hook_group_update', {
-                    action: 'removemember',
-                    members: data.post.members,
-                    userid: data.post.userid,
-                    groupid: data.post.groupid
-                  }, function (gotData) {
-                    data.returns = gotData.returns;
-                    process.emit('next', data);
-                  });
-
-                } else {
-                  data.returns = "ERROR: Secret key incorrect";
-                  process.emit('next', data);
-                }
-              });
-            } else {
-              hook('hook_auth_check', {
-                userid: data.post.userid,
-                token: data.post.token
-              }, function (gotData) {
-                if (gotData.returns === true) {
-
-                  hook('hook_group_update', {
-                    action: 'removemember',
-                    members: data.post.members,
-                    userid: data.post.userid,
-                    groupid: data.post.groupid
-                  }, function (gotData) {
-                    data.returns = gotData.returns;
-                    process.emit('next', data);
-                  });
-
-                } else {
-                  data.returns = "ERROR: Authentication failed.";
-                  process.emit('next', data);
-                }
-              });
+      } else if (data.action === 'name') {
+        hook('hook_db_update', {
+          dbcollection: 'groups',
+          dbquery: query,
+          dbupdate: {
+            $set: {
+              name: data.name
             }
-          } else {
-            data.returns = "ERROR: Invalid userid or groupid.";
-            process.emit('next', data);
-          }
-        }
-      },
-      // POST /group/update/name
-      hook_post_group_update_name: {
-        rank: 0,
-        event: function (data) {
+          },
+          dbmulti: false,
+          dbupsert: false
+        }, function (gotData) {
+          data.returns = gotData.returns;
+          process.emit('next', data);
+        });
 
-          if (data.post.name && data.post.groupid && objectID.isValid(data.post.groupid)) {
+      } else {
+        data.returns = false;
+        process.emit('next', data);
 
-            if (data.post.apikey && data.post.secretkey) {
-              hook('hook_secretkey_check', {
-                apikey: data.post.apikey,
-                secretkey: data.post.secretkey
-              }, function (valid) {
-                if (valid.returns === true) {
+      }
+    }
+  },
+  // POST /group/update/addmember
+  hook_post_group_update_addmember: {
+    rank: 0,
+    event: function (data) {
 
-                  hook('hook_group_update', {
-                    action: 'name',
-                    name: data.post.name,
-                    groupid: data.post.groupid,
-                    userid: data.post.userid
-                  }, function (gotData) {
-                    data.returns = gotData.returns;
-                    process.emit('next', data);
-                  });
+      if (data.post.members && (data.post.groupid && objectID.isValid(data.post.groupid)) || (data.post.entityref && data.post.reftype)) {
 
-                } else {
-                  data.returns = "ERROR: Secret key incorrect";
-                  process.emit('next', data);
-                }
-              });
-            } else {
-              hook('hook_auth_check', {
+        if (data.post.apikey && data.post.secretkey) {
+          hook('hook_secretkey_check', {
+            apikey: data.post.apikey,
+            secretkey: data.post.secretkey
+          }, function (valid) {
+            if (valid.returns === true) {
+
+              var updatequery = {
+                action: 'addmember',
                 userid: data.post.userid,
-                token: data.post.token
-              }, function (gotData) {
-                if (gotData.returns === true) {
+                members: data.post.members
+              };
 
-                  hook('hook_group_update', {
-                    action: 'name',
-                    name: data.post.name,
-                    groupid: data.post.groupid,
-                    userid: data.post.userid
-                  }, function (gotData) {
-                    data.returns = gotData.returns;
-                    process.emit('next', data);
-                  });
+              if (data.post.reftype === 'event') {
+                updatequery['reftype'] = data.post.reftype;
+                updatequery['entityref'] = data.post.entityref;
+              } else {
+                updatequery['groupid'] = data.post.groupid;
+              }
 
-                } else {
-                  data.returns = "ERROR: Authentication failed.";
-                  process.emit('next', data);
-                }
-              });
-            }
-
-          } else {
-            data.returns = "ERROR: Invalid new name or groupid.";
-            process.emit('next', data);
-          }
-        }
-      },
-      hook_post_group_remove: {
-        rank: 0,
-        event: function (data) {
-          // only works for read-only groups
-          // secret key, groupid
-
-          if (data.post.apikey && data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
-            hook('hook_secretkey_check', {
-              apikey: data.post.apikey,
-              secretkey: data.post.secretkey
-            }, function (valid) {
-              if (valid.returns === true) {
-
-                // Delete the group in the database
-                hook('hook_db_remove', {
-                  dbcollection: 'groups',
-                  dbquery: {
-                    '_id': objectID(data.post.groupid),
-                    'isReadOnly': true
-                  }
-                }, function (deleteReturns) {
-                  data.returns = deleteReturns.returns;
+              hook('hook_group_update',
+                updatequery,
+                function (gotData) {
+                  data.returns = gotData.returns;
                   process.emit('next', data);
                 });
 
-              } else {
-                data.returns = "ERROR: Secret key incorrect";
-                process.emit('next', data);
-              }
-
-            });
-
-          } else {
-            data.returns = "ERROR: Missing secret key or groupid.";
-            process.emit('next', data);
-          }
-        }
-      },
-      hook_post_group_resetmembers: {
-        rank: 0,
-        event: function (data) {
-          // only works for read-only groups
-          // secret key, groupid
-
-          if (data.post.apikey && data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
-            hook('hook_secretkey_check', {
-              apikey: data.post.apikey,
-              secretkey: data.post.secretkey
-            }, function (valid) {
-              if (valid.returns === true) {
-
-                // Blank members of group in the database
-                hook('hook_db_update', {
-                  dbcollection: 'groups',
-                  dbquery: {
-                    '_id': objectID(data.post.groupid),
-                    'isReadOnly': true
-                  },
-                  dbupdate: {
-                    $set: {
-                      'members': []
-                    }
-                  }
-                }, function (deleteReturns) {
-                  data.returns = deleteReturns.returns;
-                  process.emit('next', data);
-                });
-
-              } else {
-                data.returns = "ERROR: Secret key incorrect";
-                process.emit('next', data);
-              }
-
-            });
-
-          } else {
-            data.returns = "ERROR: Missing secret key or groupid.";
-            process.emit('next', data);
-          }
-        }
-      },
-      hook_groupid_from_messageid: {
-        rank: 0,
-        event: function (data) {
-          var messageid = objectID(data.messageid);
-
-          hook('hook_db_find', {
-            dbcollection: 'messages',
-            dbquery: {
-              '_id': messageid
+            } else {
+              data.returns = "ERROR: Secret key incorrect";
+              process.emit('next', data);
             }
+          });
+        } else {
+          hook('hook_auth_check', {
+            userid: data.post.userid,
+            token: data.post.token
           }, function (gotData) {
-            try {
-              data.returns = JSON.parse(gotData.returns)[0].groupid;
-            } catch (err) {
-              console.log('invalid messageid?');
+            if (gotData.returns === true) {
+
+              hook('hook_group_update', {
+                action: 'addmember',
+                userid: data.post.userid,
+                members: data.post.members,
+                groupid: data.post.groupid
+              }, function (gotData) {
+                data.returns = gotData.returns;
+                process.emit('next', data);
+              });
+
+            } else {
+              data.returns = "ERROR: Authentication failed.";
+              process.emit('next', data);
             }
-            process.emit('next', data);
           });
         }
-      },
-      hook_post_group_121upsert: {
-        rank: 0,
-        event: function (data) {
+      } else {
+        data.returns = "ERROR: Invalid userid or groupid.";
+        process.emit('next', data);
+      }
+    }
+  },
+  // POST /group/update/removemember
+  hook_post_group_update_removemember: {
+    rank: 0,
+    event: function (data) {
 
-          if (data.post.userids && data.post.userid && data.post.apikey && data.post.secretkey) {
-            hook('hook_secretkey_check', {
-              apikey: data.post.apikey,
-              secretkey: data.post.secretkey
-            }, function (check) {
+      if (data.post.members && data.post.groupid && objectID.isValid(data.post.groupid)) {
 
-              if (check.returns === true) {
+        if (data.post.apikey && data.post.secretkey) {
+          hook('hook_secretkey_check', {
+            apikey: data.post.apikey,
+            secretkey: data.post.secretkey
+          }, function (valid) {
+            if (valid.returns === true) {
 
-                var userids;
-                try {
-                  userids = JSON.parse(data.post.userids);
-                } catch (err) {
-                  data.returns = "ERROR: Bad list of userids.";
-                  process.emit("next", data);
-                  return;
+              hook('hook_group_update', {
+                action: 'removemember',
+                members: data.post.members,
+                userid: data.post.userid,
+                groupid: data.post.groupid
+              }, function (gotData) {
+                data.returns = gotData.returns;
+                process.emit('next', data);
+              });
+
+            } else {
+              data.returns = "ERROR: Secret key incorrect";
+              process.emit('next', data);
+            }
+          });
+        } else {
+          hook('hook_auth_check', {
+            userid: data.post.userid,
+            token: data.post.token
+          }, function (gotData) {
+            if (gotData.returns === true) {
+
+              hook('hook_group_update', {
+                action: 'removemember',
+                members: data.post.members,
+                userid: data.post.userid,
+                groupid: data.post.groupid
+              }, function (gotData) {
+                data.returns = gotData.returns;
+                process.emit('next', data);
+              });
+
+            } else {
+              data.returns = "ERROR: Authentication failed.";
+              process.emit('next', data);
+            }
+          });
+        }
+      } else {
+        data.returns = "ERROR: Invalid userid or groupid.";
+        process.emit('next', data);
+      }
+    }
+  },
+  // POST /group/update/name
+  hook_post_group_update_name: {
+    rank: 0,
+    event: function (data) {
+
+      if (data.post.name && data.post.groupid && objectID.isValid(data.post.groupid)) {
+
+        if (data.post.apikey && data.post.secretkey) {
+          hook('hook_secretkey_check', {
+            apikey: data.post.apikey,
+            secretkey: data.post.secretkey
+          }, function (valid) {
+            if (valid.returns === true) {
+
+              hook('hook_group_update', {
+                action: 'name',
+                name: data.post.name,
+                groupid: data.post.groupid,
+                userid: data.post.userid
+              }, function (gotData) {
+                data.returns = gotData.returns;
+                process.emit('next', data);
+              });
+
+            } else {
+              data.returns = "ERROR: Secret key incorrect";
+              process.emit('next', data);
+            }
+          });
+        } else {
+          hook('hook_auth_check', {
+            userid: data.post.userid,
+            token: data.post.token
+          }, function (gotData) {
+            if (gotData.returns === true) {
+
+              hook('hook_group_update', {
+                action: 'name',
+                name: data.post.name,
+                groupid: data.post.groupid,
+                userid: data.post.userid
+              }, function (gotData) {
+                data.returns = gotData.returns;
+                process.emit('next', data);
+              });
+
+            } else {
+              data.returns = "ERROR: Authentication failed.";
+              process.emit('next', data);
+            }
+          });
+        }
+
+      } else {
+        data.returns = "ERROR: Invalid new name or groupid.";
+        process.emit('next', data);
+      }
+    }
+  },
+  hook_post_group_remove: {
+    rank: 0,
+    event: function (data) {
+      // only works for read-only groups
+      // secret key, groupid
+
+      if (data.post.apikey && data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
+        hook('hook_secretkey_check', {
+          apikey: data.post.apikey,
+          secretkey: data.post.secretkey
+        }, function (valid) {
+          if (valid.returns === true) {
+
+            // Delete the group in the database
+            hook('hook_db_remove', {
+              dbcollection: 'groups',
+              dbquery: {
+                '_id': objectID(data.post.groupid),
+                'isReadOnly': true
+              }
+            }, function (deleteReturns) {
+              data.returns = deleteReturns.returns;
+              process.emit('next', data);
+            });
+
+          } else {
+            data.returns = "ERROR: Secret key incorrect";
+            process.emit('next', data);
+          }
+
+        });
+
+      } else {
+        data.returns = "ERROR: Missing secret key or groupid.";
+        process.emit('next', data);
+      }
+    }
+  },
+  hook_post_group_resetmembers: {
+    rank: 0,
+    event: function (data) {
+      // only works for read-only groups
+      // secret key, groupid
+
+      if (data.post.apikey && data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
+        hook('hook_secretkey_check', {
+          apikey: data.post.apikey,
+          secretkey: data.post.secretkey
+        }, function (valid) {
+          if (valid.returns === true) {
+
+            // Blank members of group in the database
+            hook('hook_db_update', {
+              dbcollection: 'groups',
+              dbquery: {
+                '_id': objectID(data.post.groupid),
+                'isReadOnly': true
+              },
+              dbupdate: {
+                $set: {
+                  'members': []
                 }
+              }
+            }, function (deleteReturns) {
+              data.returns = deleteReturns.returns;
+              process.emit('next', data);
+            });
 
-                hook("hook_db_find", {
-                  dbcollection: 'groups',
-                  dbquery: {
-                    'is121': true,
-                    "members": {
-                      $all: [{
-                        $elemMatch: {
-                          "userid": data.post.userid
-                        }
-                  }, {
-                        $elemMatch: {
-                          "userid": {
-                            "$in": userids
-                          }
-                        }
-                  }]
+          } else {
+            data.returns = "ERROR: Secret key incorrect";
+            process.emit('next', data);
+          }
+
+        });
+
+      } else {
+        data.returns = "ERROR: Missing secret key or groupid.";
+        process.emit('next', data);
+      }
+    }
+  },
+  hook_groupid_from_messageid: {
+    rank: 0,
+    event: function (data) {
+      var messageid = objectID(data.messageid);
+
+      hook('hook_db_find', {
+        dbcollection: 'messages',
+        dbquery: {
+          '_id': messageid
+        }
+      }, function (gotData) {
+        try {
+          data.returns = JSON.parse(gotData.returns)[0].groupid;
+        } catch (err) {
+          console.log('invalid messageid?');
+        }
+        process.emit('next', data);
+      });
+    }
+  },
+  hook_post_group_121upsert: {
+    rank: 0,
+    event: function (data) {
+
+      if (data.post.userids && data.post.userid && data.post.apikey && data.post.secretkey) {
+        hook('hook_secretkey_check', {
+          apikey: data.post.apikey,
+          secretkey: data.post.secretkey
+        }, function (check) {
+
+          if (check.returns === true) {
+
+            var userids;
+            try {
+              userids = JSON.parse(data.post.userids);
+            } catch (err) {
+              data.returns = "ERROR: Bad list of userids.";
+              process.emit("next", data);
+              return;
+            }
+
+            hook("hook_db_find", {
+              dbcollection: 'groups',
+              dbquery: {
+                'is121': true,
+                "members": {
+                  $all: [{
+                    $elemMatch: {
+                      "userid": data.post.userid
                     }
+                  }, {
+                    $elemMatch: {
+                      "userid": {
+                        "$in": userids
+                      }
+                    }
+                  }]
+                }
+              }
+            }, function (groups) {
+              groups = JSON.parse(groups.returns);
+
+              var existing121users = [];
+
+              var returngroups = [];
+
+              groups.forEach(function (element, index) {
+
+                element.members.forEach(function (member) {
+
+                  if (member.userid.toString() !== "1") {
+                    existing121users.push(member.userid);
+                    returngroups.push(element._id);
                   }
-                }, function (groups) {
-                  groups = JSON.parse(groups.returns);
 
-                  var existing121users = [];
+                });
 
-                  var returngroups = [];
+              });
 
-                  groups.forEach(function (element, index) {
+              var userstocreate = userids.filter(function (i) {
+                return existing121users.indexOf(i) === -1;
+              });
 
-                    element.members.forEach(function (member) {
+              if (userstocreate.length > 0) {
 
-                      if (member.userid.toString() !== "1") {
-                        existing121users.push(member.userid);
-                        returngroups.push(element._id);
+                userstocreate.forEach(function (user, index, array) {
+
+                  hook('hook_group_add', {
+                    name: 'default',
+                    members: [user, data.post.userid],
+                    is121: true
+                  }, function (newgroupid) {
+
+                    if (newgroupid.success === true) {
+
+                      returngroups.push(newgroupid.returns);
+
+                      if (index === array.length - 1) {
+                        data.returns = JSON.stringify(returngroups);
+                        process.emit("next", data);
                       }
 
-                    });
+                    }
 
                   });
-
-                  var userstocreate = userids.filter(function (i) {
-                    return existing121users.indexOf(i) === -1;
-                  });
-
-                  if (userstocreate.length > 0) {
-
-                    userstocreate.forEach(function (user, index, array) {
-
-                      hook('hook_group_add', {
-                        name: 'default',
-                        members: [user, data.post.userid],
-                        is121: true
-                      }, function (newgroupid) {
-
-                        if (newgroupid.success === true) {
-
-                          returngroups.push(newgroupid.returns);
-
-                          if (index === array.length - 1) {
-                            data.returns = JSON.stringify(returngroups);
-                            process.emit("next", data);
-                          }
-
-                        }
-
-                      });
-
-                    });
-
-                  } else {
-
-                    data.returns = JSON.stringify(returngroups);
-                    process.emit("next", data);
-
-                  }
 
                 });
 
               } else {
 
-                //Authentication failed
-                data.returns = "ERROR: Invalid secretkey.";
+                data.returns = JSON.stringify(returngroups);
                 process.emit("next", data);
 
               }
@@ -1022,16 +1014,26 @@ var exports = {
 
           } else {
 
-            //Wrong details sent
-            data.returns = "ERROR: Missing parameters.";
+            //Authentication failed
+            data.returns = "ERROR: Invalid secretkey.";
             process.emit("next", data);
 
           }
 
-        }
+        });
+
+      } else {
+
+        //Wrong details sent
+        data.returns = "ERROR: Missing parameters.";
+        process.emit("next", data);
 
       }
 
-    };
+    }
 
-    module.exports = exports;
+  }
+
+};
+
+module.exports = exports;
