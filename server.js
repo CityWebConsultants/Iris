@@ -58,7 +58,7 @@ module.exports = function (config, paramaters) {
   process.config = config;
 
   // Global functions as defined in modules
-  process.globals = {};
+  global.C = {};
 
   console.log("\nEnabled modules:\n");
 
@@ -75,12 +75,12 @@ module.exports = function (config, paramaters) {
 
     if (chat.api[element.name].globals) {
 
-      process.globals[element.name] = {};
+      C[element.name] = {};
 
       var globals = chat.api[element.name].globals;
 
       Object.keys(globals).forEach(function (global) {
-        process.globals[element.name][global] = globals[global];
+        C[element.name][global] = globals[global];
       });
 
     }

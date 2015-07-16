@@ -317,7 +317,7 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          process.globals.message_add.checkPrivate(data.groupid, function (isPrivate) {
+          C.message_add.checkPrivate(data.groupid, function (isPrivate) {
 
             if (data.public && isPrivate) {
               message.public = false;

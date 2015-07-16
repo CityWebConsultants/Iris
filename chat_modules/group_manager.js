@@ -161,7 +161,7 @@ var exports = {
           });
         };
 
-        hookPromiseChain([process.globals.auth.authCheck, dbFind], data);
+        hookPromiseChain([C.auth.authCheck, dbFind], data);
 
       } else {
         data.returns = "ERROR: Missing userid, token or groupid.";

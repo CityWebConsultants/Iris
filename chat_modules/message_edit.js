@@ -137,7 +137,7 @@ var exports = {
 
                 message = JSON.parse(message.returns)[0];
 
-                process.globals.message_add.checkPrivate(message.groupid, function (isPrivate) {
+                C.message_add.checkPrivate(message.groupid, function (isPrivate) {
 
                   if (data.post.public && isPrivate) {
                     data.post.public = false;
@@ -189,7 +189,7 @@ var exports = {
 
         };
 
-        hookPromiseChain([process.globals.auth.authCheck, checkMessagePrivate, editMessage], data);
+        hookPromiseChain([C.auth.authCheck, checkMessagePrivate, editMessage], data);
 
         // Missing required data
       } else {
