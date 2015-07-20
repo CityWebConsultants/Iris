@@ -241,17 +241,6 @@ var exports = {
 
     }
   },
-  hook_get_authtest: {
-    rank: 0,
-    event: function (data) {
-      C.group_manager.checkGroupPermissions({_id: data.get.groupid}, data.get.action, data.get.level, function(isAuthd) {
-
-        data.returns = JSON.stringify(isAuthd);
-        process.emit('next', data);
-
-      });
-    }
-  },
   // TODO: this module needs refactoring methinks. but hey, it does work.
   hook_get_fetch_group: {
     rank: 0,
@@ -545,42 +534,6 @@ var exports = {
 
     }
 
-  },
-  // GET /debug/groups
-  hook_get_debug_groups: {
-    rank: 0,
-    event: function (data) {
-      if (exports.options && exports.options.allowdebug) {
-        var get = data.get,
-          query = {};
-
-        if (get.userid) {
-          query = {
-            members: {
-              $elemMatch: {
-                'userid': get.userid.toString()
-              }
-            }
-          };
-        }
-
-        // Call db find hook.
-        hook('hook_db_find', {
-          dbcollection: 'groups',
-          dbquery: query,
-          callback: function (gotData) {
-            data.returns = gotData.returns;
-            process.nextTick(function () {
-              process.emit('next', data);
-            });
-          }
-        });
-      } else {
-        data.returns = 'ERROR: Feature disabled.';
-        process.emit('next', data);
-      }
-
-    }
   },
   hook_get_fetch_groups: {
     rank: 0,
@@ -989,49 +942,6 @@ var exports = {
               dbquery: {
                 '_id': objectID(data.post.groupid),
                 'isReadOnly': true
-              }
-            }, function (deleteReturns) {
-              data.returns = deleteReturns.returns;
-              process.emit('next', data);
-            });
-
-          } else {
-            data.returns = "ERROR: Secret key incorrect";
-            process.emit('next', data);
-          }
-
-        });
-
-      } else {
-        data.returns = "ERROR: Missing secret key or groupid.";
-        process.emit('next', data);
-      }
-    }
-  },
-  hook_post_group_resetmembers: {
-    rank: 0,
-    event: function (data) {
-      // only works for read-only groups
-      // secret key, groupid
-
-      if (data.post.apikey && data.post.secretkey && data.post.groupid && objectID.isValid(data.post.groupid)) {
-        hook('hook_secretkey_check', {
-          apikey: data.post.apikey,
-          secretkey: data.post.secretkey
-        }, function (valid) {
-          if (valid.returns === true) {
-
-            // Blank members of group in the database
-            hook('hook_db_update', {
-              dbcollection: 'groups',
-              dbquery: {
-                '_id': objectID(data.post.groupid),
-                'isReadOnly': true
-              },
-              dbupdate: {
-                $set: {
-                  'members': []
-                }
               }
             }, function (deleteReturns) {
               data.returns = deleteReturns.returns;
