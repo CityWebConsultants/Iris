@@ -97,6 +97,106 @@ var exports = {
   options: {
     allowdebug: false
   },
+  globals: {
+    checkPermissions: function (user, groupid, callback) {
+
+      if (user.secretkey && user.apikey) {
+
+        hook('hook_secretkey_check', {
+          apikey: user.apikey,
+          secretkey: user.secretkey
+        }, function (check) {
+
+          if (check.returns === true) {
+
+            // User is admin
+            callback(3);
+
+          } else {
+
+            // Authentication failed
+            callback(0);
+
+          }
+
+        });
+
+      }
+      else if (user.userid && user.token) {
+        if (C.auth.authCheck2(user.userid, user.token) === true) {
+
+          if (groupid) {
+
+            hook('hook_group_list_users', {
+              userid: user.userid,
+              groupid: groupid
+
+            }, function (groupUsers) {
+
+              groupUsers = groupUsers.returns;
+
+              var inGroup = false;
+
+              if (groupUsers) {
+
+                groupUsers.forEach(function (element) {
+                  if (element.userid === user.userid) {
+                    inGroup = true;
+                  }
+                });
+
+              }
+
+              if (inGroup) {
+
+                // User is member of group
+                callback(2);
+
+              } else {
+
+                // Not in group, just authenticated
+                callback(1);
+
+              }
+
+            });
+
+          } else {
+
+            // Group not provided, user authenticated
+            callback(1);
+
+          }
+
+
+
+        }
+        else {
+
+          // Userid and token fail
+          callback(0);
+
+        }
+
+      }
+      else {
+
+        // User has no authentication method
+        callback(0);
+
+      }
+    }
+  },
+  hook_get_authtest: {
+    rank: 0,
+    event: function (data) {
+      C.group_manager.checkPermissions({userid: data.get.userid, token: data.get.token, apikey: data.get.apikey, secretkey: data.get.secretkey}, data.get.groupid, function (test) {
+        data.returns = JSON.stringify(test);
+
+        process.emit('next', data);
+      });
+    }
+  },
   // TODO: this module needs refactoring methinks. but hey, it does work.
   hook_get_fetch_group: {
     rank: 0,
