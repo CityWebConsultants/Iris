@@ -206,53 +206,35 @@ var exports = {
 
       };
 
-      var strongAuthCheck = function (data) {
+      var permissionsCheck = function (data) {
 
         return new Promise(function (yes, no) {
-          if (data.strong_auth_check === true) {
 
-            hook('hook_group_list_users', {
-              userid: data.userid,
-              groupid: data.groupid
+          C.group_manager.getPermissionsLevel(
+            {userid: data.userid},
+            data.groupid,
+            false,
+            function (permissionsLevel) {
 
-            }, function (gotData) {
-              var authorised = false,
-                i;
+              C.group_manager.checkGroupPermissions(
+                {_id: data.groupid},
+                'write',
+                permissionsLevel,
+                function (isAuthorised) {
 
-              if (typeof gotData.returns !== 'string') {
-
-                // Ensure user is in group and set flag
-                for (i = 0; i < gotData.returns.length; i++) {
-                  if (gotData.returns[i].userid === data.userid) {
-                    authorised = true;
-                    // No point in looping through the rest, so break
-                    break;
+                  if (isAuthorised) {
+                    yes(data);
                   }
+                  else {
+//                    data.errors.push("Not authorised to post in this group.");
+                    no(data);
+                  }
+
                 }
+              );
 
-              }
-
-              // Insert message into database
-              if (authorised === true) {
-
-                yes(data);
-
-              } else {
-
-                data.errors.push("Not authorised to post to that group.");
-                no(data);
-
-              }
-
-            });
-
-          } else {
-
-            console.log("[INFO] Strong auth check bypassed.");
-
-            yes(data);
-
-          }
+            }
+          );
 
         });
 
@@ -355,7 +337,7 @@ var exports = {
 
       };
 
-      hookPromiseChain([preprocessMessage, strongAuthCheck, makeReply, insertMessageDB], data);
+      hookPromiseChain([preprocessMessage, permissionsCheck, makeReply, insertMessageDB], data);
 
     }
   }

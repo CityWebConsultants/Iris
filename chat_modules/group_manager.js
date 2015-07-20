@@ -100,7 +100,11 @@ var exports = {
   globals: {
     getPermissionsLevel: function (user, groupid, authenticate, callback) {
 
-      if (user.secretkey && user.apikey) {
+      if (user.userid && (user.userid === process.config.systemuser || process.config.admins.indexOf(user.userid) > -1)) {
+        // Admins are admins globally
+        callback(3);
+      }
+      else if (user.secretkey && user.apikey) {
 
         hook('hook_secretkey_check', {
           apikey: user.apikey,
@@ -122,7 +126,7 @@ var exports = {
         });
 
       }
-      else if (user.userid && user.token) {
+      else if (user.userid) {
 
         var groupIdCheck = function() {
           if (groupid) {
@@ -170,7 +174,7 @@ var exports = {
 
         };
 
-        if (authenticate) {
+        if (authenticate && user.token) {
 
           if (C.auth.authCheck2(user.userid, user.token) === true) {
 
@@ -201,9 +205,6 @@ var exports = {
     checkGroupPermissions: function (group, action, level, callback) {
 
       var checkGroup = function() {
-
-        console.log(group.permissions);
-        console.log(level);
 
         if (group.permissions && level >= group.permissions[action]) {
           callback(true);
