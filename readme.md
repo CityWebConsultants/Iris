@@ -244,6 +244,21 @@ The proposed `dependencies` property would be an array of modules that this is d
 ####Init Function
 A function contained within the `init` property of the module object will be run upon the module being loaded.
 
+Global Functions
+----------------
+
+#### getPermissionsLevel _(user, groupid, authenticate?, callback)_
+Returns Permissions Level for the user. Runs auth checks/secretkey checks based on the contents of the _user_ parameter as an object, e.g.
+
+`user = {userid: 1, token: '2af3b3f}`
+
+Group ID is optional and enables returning '2' if the user is a member of that group. This is a groupid reference and a query for that group will run.
+
+#### checkGroupPermissions _(group, action, level, callback)_
+Returns `true` or `false` depending on whether the user has the permissions to perform a given action on a group.
+
+Group must be an object, but if it contains only an `_id` key the rest of the group object will be queried for.
+
 Standard Hooks
 --------------
 ### API endpoints

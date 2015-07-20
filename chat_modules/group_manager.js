@@ -98,7 +98,7 @@ var exports = {
     allowdebug: false
   },
   globals: {
-    checkPermissions: function (user, groupid, callback) {
+    getPermissionsLevel: function (user, groupid, authenticate, callback) {
 
       if (user.secretkey && user.apikey) {
 
@@ -123,8 +123,8 @@ var exports = {
 
       }
       else if (user.userid && user.token) {
-        if (C.auth.authCheck2(user.userid, user.token) === true) {
 
+        var groupIdCheck = function() {
           if (groupid) {
 
             hook('hook_group_list_users', {
@@ -168,13 +168,25 @@ var exports = {
 
           }
 
+        };
 
+        if (authenticate) {
 
-        }
-        else {
+          if (C.auth.authCheck2(user.userid, user.token) === true) {
 
-          // Userid and token fail
-          callback(0);
+            groupIdCheck();
+
+          }
+          else {
+
+            // Userid and token fail
+            callback(0);
+
+          }
+
+        } else {
+
+          groupIdCheck();
 
         }
 
@@ -185,15 +197,57 @@ var exports = {
         callback(0);
 
       }
+    },
+    checkGroupPermissions: function (group, action, level, callback) {
+
+      var checkGroup = function() {
+
+        console.log(group.permissions);
+        console.log(level);
+
+        if (group.permissions && level >= group.permissions[action]) {
+          callback(true);
+        }
+        else {
+          callback(false);
+        }
+
+      };
+
+      if (Object.keys(group).length === 1 && group._id) {
+
+        // Fetch group
+
+        hook('hook_db_find', {
+          dbcollection: 'groups',
+          dbquery: {
+            _id: objectID(group._id)
+          }
+        }, function (fetchedGroup) {
+
+          fetchedGroup = JSON.parse(fetchedGroup.returns)[0];
+
+          group = fetchedGroup;
+
+          checkGroup();
+
+        });
+      } else {
+
+        checkGroup();
+
+      }
+
     }
   },
   hook_get_authtest: {
     rank: 0,
     event: function (data) {
-      C.group_manager.checkPermissions({userid: data.get.userid, token: data.get.token, apikey: data.get.apikey, secretkey: data.get.secretkey}, data.get.groupid, function (test) {
-        data.returns = JSON.stringify(test);
+      C.group_manager.checkGroupPermissions({_id: data.get.groupid}, data.get.action, data.get.level, function(isAuthd) {
 
+        data.returns = JSON.stringify(isAuthd);
         process.emit('next', data);
+
       });
     }
   },
