@@ -79,7 +79,7 @@ var getavatar = function (group, userid) {
     }
 
     return avatar;
-  } else if (group.isReadOnly) {
+  } else if (group.entityref) {
     var avatar;
     if (group.avatar) {
       avatar = group.avatar;
@@ -625,7 +625,6 @@ console.log("in group add");
       if (data.userid) {
         query = {
           '_id': objectID(data.groupid),
-          'isReadOnly': false,
           $or: [{
             'is121': false
                     }, {
@@ -961,7 +960,6 @@ console.log("in group add");
               dbcollection: 'groups',
               dbquery: {
                 '_id': objectID(data.post.groupid),
-                'isReadOnly': true
               }
             }, function (deleteReturns) {
               data.returns = deleteReturns.returns;

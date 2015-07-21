@@ -53,7 +53,7 @@ var exports = {
             });
 
             //Default permissions
-            
+
             var permissions = {
 
               read: 0,
@@ -68,7 +68,6 @@ var exports = {
 
             var update = {
               name: data.post.name,
-              isReadOnly: true,
               permissions: permissions,
               lastupdated: Date.now(),
               avatar: data.post.avatar,
@@ -152,8 +151,7 @@ var exports = {
               dbcollection: 'groups',
               dbquery: {
                 'reftype': data.post.reftype,
-                'entityref': data.post.entityref,
-                'isReadOnly': true
+                'entityref': data.post.entityref
               }
             }, function (groupid) {
 
@@ -163,8 +161,7 @@ var exports = {
                 dbcollection: 'groups',
                 dbquery: {
                   'reftype': data.post.reftype,
-                  'entityref': data.post.entityref,
-                  'isReadOnly': true
+                  'entityref': data.post.entityref
                 }
               }, function (deleteReturns) {
                 // todo: remove all messages too
@@ -203,7 +200,6 @@ var exports = {
               dbcollection: 'groups',
               dbquery: {
                 entityref: data.post.gid,
-                isReadOnly: true
               },
               dbupdate: {
                 $push: {
@@ -221,8 +217,7 @@ var exports = {
               hook("hook_db_find", {
                 dbcollection: 'groups',
                 dbquery: {
-                  entityref: data.post.gid,
-                  isReadOnly: true
+                  entityref: data.post.gid
                 }
               }, function (gotData) {
                 gotData = JSON.parse(gotData.returns);
@@ -275,7 +270,6 @@ var exports = {
               dbcollection: 'groups',
               dbquery: {
                 entityref: data.post.gid,
-                isReadOnly: true
               },
               dbupdate: {
                 $pull: {
@@ -322,7 +316,6 @@ var exports = {
                 entityref: {
                   $exists: true
                 },
-                isReadOnly: true
               }
             }, function (groups) {
 

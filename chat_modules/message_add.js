@@ -85,7 +85,6 @@ var exports = {
                 dbcollection: 'groups',
                 dbquery: {
                   'entityref': data.post.groupref,
-                  'isReadOnly': true
                 }
               }, function (groupid) {
 
