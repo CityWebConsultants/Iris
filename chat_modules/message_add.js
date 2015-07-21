@@ -7,7 +7,7 @@ var objectID = require('mongodb').ObjectID;
 
 var exports = {
   globals: {
-    shouldMessageBePrivate: function(groupid, callback) {
+    shouldMessageBePrivate: function (groupid, callback) {
       hook('hook_db_find', {
         dbcollection: 'groups',
         dbquery: {
@@ -33,8 +33,7 @@ var exports = {
     event: function (data) {
 
       //Function for adding all messages (with admin check)
-      console.log("post:");
-console.log(data.post);
+
       var addmessage = function (admin) {
 
         var permissions;
@@ -43,7 +42,7 @@ console.log(data.post);
         } catch (e) {
           // Don't process
         }
-console.log("adding mesage");
+
         hook('hook_message_add', {
           'userid': data.post.userid,
           'groupid': data.post.groupid,
@@ -62,7 +61,15 @@ console.log("adding mesage");
 
       //Check if user is admin
 
-      if (data.post.userid && data.post.apikey && data.post.secretkey && (data.post.groupid || data.post.groupref) && data.post.content && data.post.messagetype) {
+      if (
+        data.post.userid &&
+        data.post.apikey &&
+        data.post.secretkey &&
+        (data.post.groupid || data.post.groupref) &&
+        data.post.content &&
+        data.post.messagetype
+      ) {
+
         hook('hook_secretkey_check', {
           apikey: data.post.apikey,
           secretkey: data.post.secretkey
@@ -216,23 +223,24 @@ console.log("adding mesage");
 
         return new Promise(function (yes, no) {
 
-          C.group_manager.getPermissionsLevel(
-            {userid: data.userid},
+          C.group_manager.getPermissionsLevel({
+              userid: data.userid
+            },
             data.groupid,
             false,
             function (permissionsLevel) {
 
-              C.group_manager.checkGroupPermissions(
-                {_id: data.groupid},
+              C.group_manager.checkGroupPermissions({
+                  _id: data.groupid
+                },
                 'write',
                 permissionsLevel,
                 function (isAuthorised) {
 
                   if (isAuthorised) {
                     yes(data);
-                  }
-                  else {
-//                    data.errors.push("Not authorised to post in this group.");
+                  } else {
+                    //                    data.errors.push("Not authorised to post in this group.");
                     no(data);
                   }
 
@@ -301,7 +309,7 @@ console.log("adding mesage");
 
       };
 
-      var insertMessageDB = function(data) {
+      var insertMessageDB = function (data) {
 
         return new Promise(function (yes, no) {
 
