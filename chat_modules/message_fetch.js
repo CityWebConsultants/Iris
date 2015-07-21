@@ -131,7 +131,7 @@ var exports = {
         return new Promise(function(yes, no) {
 
           var query = {
-            'permissions.read': 0
+            $or: [{'permissions.read': '0'}, {'permissions.read': 0}]
           };
 
           hook('hook_db_find', {

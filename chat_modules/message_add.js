@@ -17,8 +17,8 @@ var exports = {
 
         group = JSON.parse(group.returns)[0];
 
-        // Force messages private when it doesn't make sense for them to be public
-        if (group.permissions.read !== 0) {
+        // Return true when the parent group is private
+        if (!(group.permissions.read === 0 || group.permissions.read === '0')) {
           callback(true);
         } else {
           callback(false);
