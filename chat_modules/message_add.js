@@ -7,7 +7,7 @@ var objectID = require('mongodb').ObjectID;
 
 var exports = {
   globals: {
-    checkPrivate: function(groupid, callback) {
+    shouldMessageBePrivate: function(groupid, callback) {
       hook('hook_db_find', {
         dbcollection: 'groups',
         dbquery: {
@@ -18,9 +18,7 @@ var exports = {
         group = JSON.parse(group.returns)[0];
 
         // Force messages private when it doesn't make sense for them to be public
-        if (!group.isReadOnly) {
-          callback(true);
-        } else if (group.private) {
+        if (group.permissions.read !== 0) {
           callback(true);
         } else {
           callback(false);
@@ -35,16 +33,24 @@ var exports = {
     event: function (data) {
 
       //Function for adding all messages (with admin check)
-
+      console.log("post:");
+console.log(data.post);
       var addmessage = function (admin) {
 
+        var permissions;
+        try {
+          permissions = JSON.parse(data.post.permissions);
+        } catch (e) {
+          // Don't process
+        }
+console.log("adding mesage");
         hook('hook_message_add', {
           'userid': data.post.userid,
           'groupid': data.post.groupid,
           'type': data.post.messagetype,
           'content': data.post.content,
           'tags': [data.post.messagetype],
-          'public': data.post.public,
+          'permissions': permissions,
           'replyTo': data.post.replyTo,
           strong_auth_check: !admin
         }, function (gotData) {
@@ -99,7 +105,7 @@ var exports = {
 
         });
 
-      } else if (data.post.userid && data.post.token && data.post.groupid && data.post.content && data.post.messagetype) {
+      } else if (data.post.userid && data.post.token && data.post.groupid && data.post.content && data.post.type) {
         hook('hook_auth_check', {
           userid: data.post.userid,
           token: data.post.token
@@ -170,10 +176,10 @@ var exports = {
     event: function (data) {
       console.log("[INFO] Adding message: " + JSON.stringify(data.content));
 
-      if (data.public !== true && data.public !== 'true') {
-        data.public = false;
-      } else {
-        data.public = true;
+      if (!data.permissions) {
+        data.permissons = {
+          read: 2
+        }
       }
 
       var message = {
@@ -182,7 +188,7 @@ var exports = {
         content: data.content,
         type: data.type,
         tags: data.tags,
-        public: data.public,
+        permissions: data.permissions,
         parents: ''
       };
 
@@ -299,10 +305,11 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          C.message_add.checkPrivate(data.groupid, function (isPrivate) {
+          C.message_add.shouldMessageBePrivate(data.groupid, function (shouldBePrivate) {
 
-            if (data.public && isPrivate) {
-              message.public = false;
+            if (shouldBePrivate) {
+              message.permissions['read'] = 2;
+              console.log("made it private");
 
             }
 
