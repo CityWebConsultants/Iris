@@ -206,7 +206,7 @@ var exports = {
 
       var checkGroup = function() {
 
-        if (group.permissions && level >= group.permissions[action]) {
+        if (group.permissions && parseInt(level, 10) >= parseInt(group.permissions[action],10)) {
           callback(true);
         }
         else {

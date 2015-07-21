@@ -112,6 +112,7 @@ var exports = {
         });
 
       } else if (data.post.userid && data.post.token && data.post.groupid && data.post.content && data.post.type) {
+
         hook('hook_auth_check', {
           userid: data.post.userid,
           token: data.post.token
@@ -228,18 +229,19 @@ var exports = {
             data.groupid,
             false,
             function (permissionsLevel) {
-
+console.log(permissionsLevel);
               C.group_manager.checkGroupPermissions({
                   _id: data.groupid
                 },
                 'write',
                 permissionsLevel,
                 function (isAuthorised) {
-
+console.log(isAuthorised);
                   if (isAuthorised) {
                     yes(data);
                   } else {
                     //                    data.errors.push("Not authorised to post in this group.");
+                    console.log("User is not authorised to post this message.");
                     no(data);
                   }
 
