@@ -30,7 +30,7 @@ var exports = {
           $set: {
             'content': data.content,
             'type': data.type,
-            'public': data.public
+            'permissions': data.permissions
           }
         },
         dbupsert: false,
@@ -116,17 +116,30 @@ var exports = {
         data.userid = data.post.userid;
         data.token = data.post.token;
 
-        if (data.post.public === "true") {
-          data.post.public = true;
+        // Ensure permissions are sane. If not specified, assume private to group.
+        if (data.post.permissions) {
+
+          try {
+
+            data.post.permissions = JSON.parse(data.post.permissions);
+
+          } catch (e) {
+
+            data.post.permissions = { read: 2 };
+
+          }
+
         } else {
-          data.post.public = false;
+
+          data.post.permissions = { read: 2 };
+
         }
 
         var checkMessagePrivate = function (data) {
 
           return new Promise(function (yes, no) {
 
-            if (data.post.public) {
+            if (data.post.permissions.read < 2) {
 
               hook('hook_db_find', {
                 dbcollection: 'messages',
@@ -137,10 +150,10 @@ var exports = {
 
                 message = JSON.parse(message.returns)[0];
 
-                C.message_add.checkPrivate(message.groupid, function (isPrivate) {
+                C.message_add.shouldMessageBePrivate(data.groupid, function (shouldBePrivate) {
 
-                  if (data.post.public && isPrivate) {
-                    data.post.public = false;
+                  if (shouldBePrivate) {
+                    message.permissions['read'] = 2;
                   }
 
                   yes(data);
@@ -174,7 +187,7 @@ var exports = {
                 messageid: data.post.messageid,
                 type: data.post.type,
                 content: sanitisedmessage.returns.content,
-                public: data.post.public
+                permissions: data.post.permissions
 
               }, function (gotData) {
 
