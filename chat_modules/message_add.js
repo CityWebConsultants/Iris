@@ -46,9 +46,9 @@ var exports = {
         hook('hook_message_add', {
           'userid': data.post.userid,
           'groupid': data.post.groupid,
-          'type': data.post.messagetype,
+          'type': data.post.type,
           'content': data.post.content,
-          'tags': [data.post.messagetype],
+//          'tags': [data.post.messagetype],
           'permissions': permissions,
           'replyTo': data.post.replyTo,
           strong_auth_check: !admin
@@ -67,7 +67,7 @@ var exports = {
         data.post.secretkey &&
         (data.post.groupid || data.post.groupref) &&
         data.post.content &&
-        data.post.messagetype
+        data.post.type
       ) {
 
         hook('hook_secretkey_check', {

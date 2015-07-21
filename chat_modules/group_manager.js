@@ -418,6 +418,26 @@ var exports = {
 
       }
 
+      // Parse, if possible, the members and permissions
+      try {
+        data.post.members = JSON.parse(data.post.members);
+
+        data.post.members.forEach(function (element, index) {
+          // Convert userid to string. Put userid and joined time into members object.
+          data.post.members[index] = {userid: element.toString(), joined: Date.now()};
+        });
+      } catch (e) {
+        data.returns = "Members are not valid.";
+        process.emit("next", data);
+      }
+
+      try {
+        data.post.permissions = JSON.parse(data.post.permissions);
+      } catch (e) {
+        data.returns = "Permissions are not valid.";
+        process.emit("next", data);
+      }
+
       var group = {
 
         "name": data.post.name,
@@ -438,16 +458,16 @@ var exports = {
           }
           process.emit("next", data);
         });
-      }();
+      }(group);
     }
 
   },
   hook_group_add: {
     rank: 0,
     event: function (data) {
-
-      //      // Should check for duplicate members (move to database schema)
-      //      // Should allow only two users in a 121 group
+console.log("in group add");
+      // Should check for duplicate members (move to database schema)
+      // Should allow only two users in a 121 group
 
       //Create basic group object
 

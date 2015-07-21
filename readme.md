@@ -246,6 +246,7 @@ A function contained within the `init` property of the module object will be run
 
 Global Functions
 ----------------
+Global functions can be defined as properties each module's exports.globals object. Call them with `c.module_name.functionName();`
 
 #### getPermissionsLevel _(user, groupid, authenticate?, callback)_
 Returns Permissions Level for the user. Runs auth checks/secretkey checks based on the contents of the _user_ parameter as an object, e.g.

@@ -52,7 +52,7 @@ var exports = {
               action: 'edit',
               groupid: groupid.returns,
               content: data.content,
-              type: data.messagetype,
+              type: data.type,
               time: Date.now()
             });
 
