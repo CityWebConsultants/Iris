@@ -411,61 +411,83 @@ var exports = {
     event: function (data) {
       // userid, token, name, members[], is121
 
-      if (!data.post.apikey && !data.post.secretkey) {
+      data.group = {};
 
-        data.returns = "ABORT ABORT";
-        process.emit("next", data);
+      var errorCheck = function () {
 
-      }
+        return new Promise(function (yes, no) {
 
-      // Parse, if possible, the members and permissions
-      try {
-        data.post.members = JSON.parse(data.post.members);
+          if (!((data.post.apikey && !data.post.secretkey) || (data.post.userid && data.post.token))) {
 
-        data.post.members.forEach(function (element, index) {
-          // Convert userid to string. Put userid and joined time into members object.
-          data.post.members[index] = {userid: element.toString(), joined: Date.now()};
-        });
-      } catch (e) {
-        data.returns = "Members are not valid.";
-        process.emit("next", data);
-      }
+            data.errors.push("No valid authentication.");
+            no(data);
 
-      try {
-        data.post.permissions = JSON.parse(data.post.permissions);
-      } catch (e) {
-        data.returns = "Permissions are not valid.";
-        process.emit("next", data);
-      }
-
-      var group = {
-
-        "name": data.post.name,
-        "members": data.post.members,
-        "entityRef": data.post.entityRef,
-        "permissions": data.post.permissions,
-        "is121": data.post.is121
-
-      }
-
-      var addgroup = function (group) {
-        hook("hook_group_add", group, function (groupid) {
-          // check success
-          if (groupid.success) {
-            data.returns = groupid.returns.toString();
-          } else {
-            data.returns = "ERROR: Could not add group although the request was valid.";
           }
-          process.emit("next", data);
+
+          // Parse, if possible, the members and permissions
+          try {
+            data.post.members = JSON.parse(data.post.members);
+
+            data.post.members.forEach(function (element, index) {
+              // Convert userid to string. Put userid and joined time into members object.
+              data.post.members[index] = {userid: element.toString(), joined: Date.now()};
+            });
+          } catch (e) {
+            data.errors.push("Members are not valid.");
+            no(data);
+          }
+
+          try {
+            data.post.permissions = JSON.parse(data.post.permissions);
+          } catch (e) {
+            data.errors.push("Permissions are not valid.");
+            no(data);
+          }
+
+          if (data.post.is121) {
+            data.post.is121 = true;
+          }
+
+          data.group = {
+
+            "name": data.post.name,
+            "members": data.post.members,
+            "entityRef": data.post.entityRef,
+            "permissions": data.post.permissions,
+            "is121": data.post.is121
+
+          }
+
+          yes(data);
+
         });
-      }(group);
+
+      };
+
+      var addGroup = function () {
+
+        return new Promise(function (yes, no) {
+
+          hook("hook_group_add", data.group, function (groupid) {
+
+            data.returns = groupid.returns.toString();
+            yes(data);
+
+          });
+
+        });
+
+      };
+
+      hookPromiseChain([errorCheck, addGroup], data);
+
     }
 
   },
   hook_group_add: {
     rank: 0,
     event: function (data) {
-console.log("in group add");
+
       // Should check for duplicate members (move to database schema)
       // Should allow only two users in a 121 group
 
@@ -475,8 +497,13 @@ console.log("in group add");
 
         "name": data.name,
         "members": data.members,
-        "entityRef": data.entityRef,
         "permissions": data.permissions
+
+      }
+
+      if (data.entityRef) {
+
+        group.entityRef = data.entityRef;
 
       }
 
@@ -486,27 +513,28 @@ console.log("in group add");
 
         return new Promise(function (yes, no) {
 
-          if (data.is121 === true) {
+          if (data.is121) {
 
             hook('hook_db_find', {
               dbcollection: 'groups',
               dbquery: {
                 'is121': true,
-                $and: [{
+                '$and': [{
                   'members': {
-                    $elemMatch: {
+                    '$elemMatch': {
                       'userid': data.members[0]
                     }
                   }
-                                        }, {
+                }, {
                   'members': {
-                    $elemMatch: {
+                    '$elemMatch': {
                       'userid': data.members[1]
                     }
                   }
-                                        }]
+                }]
               }
             }, function (result) {
+
               if (result.returns && JSON.parse(result.returns).length === 0) {
 
                 //121 doesn't already exist
@@ -534,13 +562,15 @@ console.log("in group add");
       var addGroup = function (data) {
 
         return new Promise(function (yes, no) {
-
           hook('hook_db_insert', {
             dbcollection: 'groups',
             dbobject: group
           }, function (gotData) {
 
-            data.returns = JSON.stringify(gotData);
+            gotData = gotData.returns[0];
+
+            data.returns = gotData._id;
+
             yes(data);
 
           })
