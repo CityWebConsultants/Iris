@@ -19,6 +19,9 @@ var run = function (eventid, hookname, value, callback) {
         value.callback = callback;
     }
 
+    // Standard method for returning errors.
+    value.errors = [];
+
     queue[eventid].events[0][hookname].event(value);
 
 };

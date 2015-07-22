@@ -13,6 +13,11 @@ var hookPromiseChain = function (tasks, parameters) {
       data.returns = {errors: "Unspecified error"};
     }
 
+    console.log("[ERROR] Promise chain in " + data.hookname + " terminated with these errors:");
+    data.returns.errors.forEach(function (element) {
+      console.log("      - " + element);
+    });
+
     data.returns = JSON.stringify(data.returns);
 
     process.emit("next", data);
