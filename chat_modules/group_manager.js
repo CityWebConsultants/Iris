@@ -413,13 +413,29 @@ var exports = {
 
       data.group = {};
 
+      // check to see if group already exists.
+
       var errorCheck = function () {
 
         return new Promise(function (yes, no) {
 
-          if (!((data.post.apikey && !data.post.secretkey) || (data.post.userid && data.post.token))) {
+          if (!((data.post.apikey && data.post.secretkey) || (data.post.userid && data.post.token))) {
 
             data.errors.push("No valid authentication.");
+            no(data);
+
+          }
+
+          if (!((data.post.groupid && !data.post.entityRef) || (data.post.entityRef && !data.post.groupid))) {
+
+            data.errors.push("Need a groupid or entityRef (not both!)");
+            no(data);
+
+          }
+
+          if (data.post.is121 && data.post.entityRef) {
+
+            data.errors.push("Group cannot have an entity reference if it is a one-to-one conversation");
             no(data);
 
           }
@@ -444,7 +460,7 @@ var exports = {
             no(data);
           }
 
-          if (data.post.is121) {
+          if (data.post.is121 && data.post.is121 !== "false") {
             data.post.is121 = true;
           }
 
@@ -454,7 +470,8 @@ var exports = {
             "members": data.post.members,
             "entityRef": data.post.entityRef,
             "permissions": data.post.permissions,
-            "is121": data.post.is121
+            "is121": data.post.is121,
+            "groupid": data.post.groupid
 
           }
 
@@ -507,7 +524,7 @@ var exports = {
 
       }
 
-      //Check if 1to1 group and, if so, check if it doesn't already exist. If it does already exist, return it
+      //Check if 1to1 group and, if so, check if it doesn't already exist. If it does already exist, error out
 
       var check1to1 = function (data) {
 
@@ -558,29 +575,84 @@ var exports = {
 
       };
 
+      // Upsert the groups
 
-      var addGroup = function (data) {
+      var upsertGroups = function (data) {
 
         return new Promise(function (yes, no) {
-          hook('hook_db_insert', {
-            dbcollection: 'groups',
-            dbobject: group
-          }, function (gotData) {
 
-            gotData = gotData.returns[0];
+          if (data.entityRef) {
 
-            data.returns = gotData._id;
+            hook('hook_db_update', {
+              dbcollection: 'groups',
+              dbquery: {
+                entityRef: data.entityRef
+              },
+              dbupdate: group,
+              dbupsert: true
+            }, function (newGroup) {
 
-            yes(data);
+              newGroup = newGroup.returns[0];
 
-          })
+              data.returns = newGroup._id;
 
+              yes(data);
 
-        })
+            });
+
+          } else if (data.groupid) {
+
+            hook('hook_db_update', {
+              dbcollection: 'groups',
+              dbquery: {
+                _id: objectID(data.groupid)
+              },
+              dbupdate: group,
+              dbupsert: true
+            }, function (newGroup) {
+
+              newGroup = newGroup.returns[0];
+
+              data.returns = newGroup._id;
+
+              yes(data);
+
+            });
+
+          } else {
+
+            hook('hook_db_insert', {
+              dbcollection: 'groups',
+              dbobject: group
+            }, function (newGroup) {
+
+              newGroup = newGroup.returns[0];
+
+              data.returns = newGroup._id;
+
+              yes(data);
+
+            });
+
+          };
+
+        });
 
       };
 
-      hookPromiseChain([check1to1, addGroup], data);
+
+//
+//      var addGroup = function (data) {
+//
+//        return new Promise(function (yes, no) {
+//
+//
+//
+//        })
+//
+//      };
+
+      hookPromiseChain([check1to1, upsertGroups], data);
 
     }
 
