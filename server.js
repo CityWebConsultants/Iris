@@ -118,10 +118,12 @@ module.exports = function (config, paramaters) {
           var requestUrl = url.parse(req.url, true),
             requestPost = qs.parse(body),
             hookurl = requestUrl.pathname.split('/').join('_');
+                    
           hook('hook_post' + hookurl, {
             'url': req.url,
             'post': requestPost,
-            'res': res
+            'res': res,
+            'auth': C.auth.getPermissionsLevel(requestPost)
           });
 
           process.on('complete_hook_post' + hookurl, function (data) {
@@ -134,11 +136,12 @@ module.exports = function (config, paramaters) {
       var requestUrl = url.parse(req.url, true),
         requestGet = requestUrl.query,
         hookurl = requestUrl.pathname.split('/').join('_');
-
-      hook('hook_get' + hookurl, {
+      
+      hook('hook_' + req.method.toLowerCase() + hookurl, {
         'url': requestUrl.pathname,
         'get': requestGet,
-        'res': res
+        'res': res,
+        'auth': C.auth.getPermissionsLevel(requestGet)
       }, function (data) {
 
         data.res.writeHead(200, {
