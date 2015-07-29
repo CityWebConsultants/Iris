@@ -103,8 +103,7 @@ var exports = {
       if (user.userid && (user.userid === process.config.systemuser || process.config.admins.indexOf(user.userid) > -1)) {
         // Admins are admins globally
         callback(3);
-      }
-      else if (user.secretkey && user.apikey) {
+      } else if (user.secretkey && user.apikey) {
 
         hook('hook_secretkey_check', {
           apikey: user.apikey,
@@ -125,10 +124,9 @@ var exports = {
 
         });
 
-      }
-      else if (user.userid) {
+      } else if (user.userid) {
 
-        var groupIdCheck = function() {
+        var groupIdCheck = function () {
           if (groupid) {
 
             hook('hook_group_list_users', {
@@ -180,8 +178,7 @@ var exports = {
 
             groupIdCheck();
 
-          }
-          else {
+          } else {
 
             // Userid and token fail
             callback(0);
@@ -194,8 +191,7 @@ var exports = {
 
         }
 
-      }
-      else {
+      } else {
 
         // User has no authentication method
         callback(0);
@@ -204,12 +200,11 @@ var exports = {
     },
     checkGroupPermissions: function (group, action, level, callback) {
 
-      var checkGroup = function() {
+      var checkGroup = function () {
 
-        if (group.permissions && parseInt(level, 10) >= parseInt(group.permissions[action],10)) {
+        if (group.permissions && parseInt(level, 10) >= parseInt(group.permissions[action], 10)) {
           callback(true);
-        }
-        else {
+        } else {
           callback(false);
         }
 
@@ -374,35 +369,30 @@ var exports = {
   hook_get_fetch_group_users: {
     rank: 0,
     event: function (data) {
-      hook('hook_auth_check', {
-        userid: data.get.userid,
-        token: data.get.token
-      }, function (gotData) {
-        if (gotData.returns === true) {
-          var groupid = data.get.groupid;
+      if (data.auth > 0) {
+        var groupid = data.get.groupid;
 
-          if (objectID.isValid(data.get.groupid)) {
-            hook('hook_group_list_users', {
-                'groupid': groupid,
-                'userid': data.get.userid
-              },
-              function (gotData) {
-                if (typeof gotData.returns !== 'string') {
-                  data.returns = JSON.stringify(gotData.returns);
-                } else {
-                  data.returns = gotData.returns;
-                }
-                process.emit('next', data);
-              });
-          } else {
-            data.returns = "ERROR: Invalid group ID.";
-            process.emit('next', data);
-          }
+        if (objectID.isValid(data.get.groupid)) {
+          hook('hook_group_list_users', {
+              'groupid': groupid,
+              'userid': data.get.userid
+            },
+            function (gotData) {
+              if (typeof gotData.returns !== 'string') {
+                data.returns = JSON.stringify(gotData.returns);
+              } else {
+                data.returns = gotData.returns;
+              }
+              process.emit('next', data);
+            });
         } else {
-          data.returns = "ERROR: Authentication failed.";
+          data.returns = "ERROR: Invalid group ID.";
           process.emit('next', data);
         }
-      });
+      } else {
+        data.returns = "ERROR: Authentication failed.";
+        process.emit('next', data);
+      }
     }
   },
   // POST /group/add
@@ -446,7 +436,10 @@ var exports = {
 
             data.post.members.forEach(function (element, index) {
               // Convert userid to string. Put userid and joined time into members object.
-              data.post.members[index] = {userid: element.toString(), joined: Date.now()};
+              data.post.members[index] = {
+                userid: element.toString(),
+                joined: Date.now()
+              };
             });
           } catch (e) {
             data.errors.push("Members are not valid.");
@@ -641,16 +634,16 @@ var exports = {
       };
 
 
-//
-//      var addGroup = function (data) {
-//
-//        return new Promise(function (yes, no) {
-//
-//
-//
-//        })
-//
-//      };
+      //
+      //      var addGroup = function (data) {
+      //
+      //        return new Promise(function (yes, no) {
+      //
+      //
+      //
+      //        })
+      //
+      //      };
 
       hookPromiseChain([check1to1, upsertGroups], data);
 
@@ -662,22 +655,17 @@ var exports = {
     event: function (data) {
       if (data.get.userid && data.get.token) {
 
-        hook('hook_auth_check', {
-          userid: data.get.userid,
-          token: data.get.token
-        }, function (auth) {
-          if (auth.returns === true) {
-            hook('hook_fetch_groups', {
-              userid: data.get.userid
-            }, function (groups) {
-              data.returns = groups.returns;
-              process.emit('next', data);
-            });
-          } else {
-            data.returns = "ERROR: Authentication failed.";
+        if (data.auth > 0) {
+          hook('hook_fetch_groups', {
+            userid: data.get.userid
+          }, function (groups) {
+            data.returns = groups.returns;
             process.emit('next', data);
-          }
-        });
+          });
+        } else {
+          data.returns = "ERROR: Authentication failed.";
+          process.emit('next', data);
+        }
 
       } else {
         data.returns = "ERROR: Missing userid or token.";
@@ -899,27 +887,23 @@ var exports = {
             }
           });
         } else {
-          hook('hook_auth_check', {
-            userid: data.post.userid,
-            token: data.post.token
-          }, function (gotData) {
-            if (gotData.returns === true) {
+          if (data.auth > 0) {
 
-              hook('hook_group_update', {
-                action: 'addmember',
-                userid: data.post.userid,
-                members: data.post.members,
-                groupid: data.post.groupid
-              }, function (gotData) {
-                data.returns = gotData.returns;
-                process.emit('next', data);
-              });
-
-            } else {
-              data.returns = "ERROR: Authentication failed.";
+            hook('hook_group_update', {
+              action: 'addmember',
+              userid: data.post.userid,
+              members: data.post.members,
+              groupid: data.post.groupid
+            }, function (gotData) {
+              data.returns = gotData.returns;
               process.emit('next', data);
-            }
-          });
+            });
+
+          } else {
+            data.returns = "ERROR: Authentication failed.";
+            process.emit('next', data);
+          }
+
         }
       } else {
         data.returns = "ERROR: Invalid userid or groupid.";
@@ -957,27 +941,22 @@ var exports = {
             }
           });
         } else {
-          hook('hook_auth_check', {
-            userid: data.post.userid,
-            token: data.post.token
-          }, function (gotData) {
-            if (gotData.returns === true) {
+          if (data.auth > 0) {
 
-              hook('hook_group_update', {
-                action: 'removemember',
-                members: data.post.members,
-                userid: data.post.userid,
-                groupid: data.post.groupid
-              }, function (gotData) {
-                data.returns = gotData.returns;
-                process.emit('next', data);
-              });
-
-            } else {
-              data.returns = "ERROR: Authentication failed.";
+            hook('hook_group_update', {
+              action: 'removemember',
+              members: data.post.members,
+              userid: data.post.userid,
+              groupid: data.post.groupid
+            }, function (gotData) {
+              data.returns = gotData.returns;
               process.emit('next', data);
-            }
-          });
+            });
+          } else {
+            data.returns = "ERROR: Authentication failed.";
+            process.emit('next', data);
+          }
+
         }
       } else {
         data.returns = "ERROR: Invalid userid or groupid.";
@@ -1015,27 +994,23 @@ var exports = {
             }
           });
         } else {
-          hook('hook_auth_check', {
-            userid: data.post.userid,
-            token: data.post.token
-          }, function (gotData) {
-            if (gotData.returns === true) {
+          if (data.auth > 0) {
 
-              hook('hook_group_update', {
-                action: 'name',
-                name: data.post.name,
-                groupid: data.post.groupid,
-                userid: data.post.userid
-              }, function (gotData) {
-                data.returns = gotData.returns;
-                process.emit('next', data);
-              });
-
-            } else {
-              data.returns = "ERROR: Authentication failed.";
+            hook('hook_group_update', {
+              action: 'name',
+              name: data.post.name,
+              groupid: data.post.groupid,
+              userid: data.post.userid
+            }, function (gotData) {
+              data.returns = gotData.returns;
               process.emit('next', data);
-            }
-          });
+            });
+
+          } else {
+            data.returns = "ERROR: Authentication failed.";
+            process.emit('next', data);
+          }
+
         }
 
       } else {

@@ -48,7 +48,7 @@ var exports = {
           'groupid': data.post.groupid,
           'type': data.post.type,
           'content': data.post.content,
-//          'tags': [data.post.messagetype],
+          //          'tags': [data.post.messagetype],
           'permissions': permissions,
           'replyTo': data.post.replyTo,
           strong_auth_check: !admin
@@ -113,19 +113,15 @@ var exports = {
 
       } else if (data.post.userid && data.post.token && data.post.groupid && data.post.content && data.post.type) {
 
-        hook('hook_auth_check', {
-          userid: data.post.userid,
-          token: data.post.token
-        }, function (gotData) {
-          if (gotData.returns === true) {
+        if (data.auth > 0) {
 
-            addmessage(false);
+          addmessage(false);
 
-          } else {
-            data.returns = "ERROR: Authentication failed.";
-            process.emit('next', data);
-          }
-        });
+        } else {
+          data.returns = "ERROR: Authentication failed.";
+          process.emit('next', data);
+        }
+
       } else {
         data.returns = 'ERROR: Missing userid, token, groupid, content or messagetype.';
         process.emit('next', data);
@@ -229,14 +225,14 @@ var exports = {
             data.groupid,
             false,
             function (permissionsLevel) {
-console.log(permissionsLevel);
+
               C.group_manager.checkGroupPermissions({
                   _id: data.groupid
                 },
                 'write',
                 permissionsLevel,
                 function (isAuthorised) {
-console.log(isAuthorised);
+
                   if (isAuthorised) {
                     yes(data);
                   } else {
