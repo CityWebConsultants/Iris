@@ -640,18 +640,6 @@ var exports = {
 
       };
 
-
-//
-//      var addGroup = function (data) {
-//
-//        return new Promise(function (yes, no) {
-//
-//
-//
-//        })
-//
-//      };
-
       hookPromiseChain([check1to1, upsertGroups], data);
 
     }
