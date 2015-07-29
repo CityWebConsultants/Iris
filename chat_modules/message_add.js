@@ -31,27 +31,26 @@ var exports = {
   hook_post_message_add: {
     rank: 1,
     event: function (data) {
+      
+      if (data.auth < 1) {
+
+        data.returns = "ERROR: Authentication failed.";
+        process.emit('next', data);
+        return false;
+
+      };
 
       //Function for adding all messages (with admin check)
 
-      var addmessage = function (admin) {
-
-        var permissions;
-        try {
-          permissions = JSON.parse(data.post.permissions);
-        } catch (e) {
-          // Don't process
-        }
+      var addmessage = function () {
 
         hook('hook_message_add', {
           'userid': data.post.userid,
           'groupid': data.post.groupid,
           'type': data.post.type,
           'content': data.post.content,
-          //          'tags': [data.post.messagetype],
-          'permissions': permissions,
-          'replyTo': data.post.replyTo,
-          strong_auth_check: !admin
+          'hideFromPublicGroup': data.post.hideFromPublicGroup,
+          'replyTo': data.post.replyTo
         }, function (gotData) {
           data.returns = JSON.stringify(gotData.returns);
           process.emit('next', data);
@@ -59,72 +58,41 @@ var exports = {
 
       };
 
-      //Check if user is admin
+      //Check paramaters are valid
 
-      if (
-        data.post.userid &&
-        data.post.apikey &&
-        data.post.secretkey &&
-        (data.post.groupid || data.post.groupref) &&
+      if ((data.post.groupid || data.post.entityRef) &&
         data.post.content &&
-        data.post.type
-      ) {
+        data.post.type && data.post.hideFromPublicGroup) {
 
-        hook('hook_secretkey_check', {
-          apikey: data.post.apikey,
-          secretkey: data.post.secretkey
-        }, function (check) {
+        //Convert group ref to group id
 
-          if (check.returns === true) {
+        if (data.post.groupref) {
 
-            //Convert group ref to group id
-
-            if (data.post.groupref) {
-
-              hook("hook_db_find", {
-                dbcollection: 'groups',
-                dbquery: {
-                  'entityref': data.post.groupref,
-                }
-              }, function (groupid) {
-
-                //TODO check if group returned, if not return error
-
-                data.post.groupid = JSON.parse(groupid.returns)[0]._id;
-
-                addmessage(true);
-
-              });
-
-            } else {
-
-              addmessage(true);
-
+          hook("hook_db_find", {
+            dbcollection: 'groups',
+            dbquery: {
+              'entityref': data.post.groupref,
             }
+          }, function (groupid) {
 
-          } else {
+            //TODO check if group returned, if not return error
 
-            data.returns = "ERROR: Invalid secretkey";
-            process.emit('next', data);
+            data.post.groupid = JSON.parse(groupid.returns)[0]._id;
 
-          }
+            addmessage();
 
-        });
-
-      } else if (data.post.userid && data.post.token && data.post.groupid && data.post.content && data.post.type) {
-
-        if (data.auth > 0) {
-
-          addmessage(false);
+          });
 
         } else {
-          data.returns = "ERROR: Authentication failed.";
-          process.emit('next', data);
-        }
 
+          addmessage();
+
+        }
       } else {
-        data.returns = 'ERROR: Missing userid, token, groupid, content or messagetype.';
+
+        data.returns = "ERROR: Wrong paramaters supplied.";
         process.emit('next', data);
+
       }
     }
   },
@@ -179,22 +147,16 @@ var exports = {
     event: function (data) {
       console.log("[INFO] Adding message: " + JSON.stringify(data.content));
 
-      if (!data.permissions) {
-        data.permissons = {
-          read: 2
-        }
-      }
 
       var message = {
         userid: data.userid,
         groupid: data.groupid,
         content: data.content,
         type: data.type,
-        tags: data.tags,
-        permissions: data.permissions,
+        hideFromPublicGroup: data.hideFromPublicGroup,
         parents: ''
       };
-
+      
       var preprocessMessage = function (data) {
 
         return new Promise(function (yes, no) {
@@ -216,39 +178,23 @@ var exports = {
       };
 
       var permissionsCheck = function (data) {
-
+        
         return new Promise(function (yes, no) {
+          
+          C.group_manager.isGroupMember(data.userid, data.groupid, function (result) {
+                        
+            if (result) {
 
-          C.group_manager.getPermissionsLevel({
-              userid: data.userid
-            },
-            data.groupid,
-            false,
-            function (permissionsLevel) {
+              yes(data);
 
-              C.group_manager.checkGroupPermissions({
-                  _id: data.groupid
-                },
-                'write',
-                permissionsLevel,
-                function (isAuthorised) {
+            } else {
 
-                  if (isAuthorised) {
-                    yes(data);
-                  } else {
-                    //                    data.errors.push("Not authorised to post in this group.");
-                    console.log("User is not authorised to post this message.");
-                    no(data);
-                  }
-
-                }
-              );
+              no(data);
 
             }
-          );
 
+          })
         });
-
       };
 
       var makeReply = function (data) {
