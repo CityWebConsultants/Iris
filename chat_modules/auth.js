@@ -24,6 +24,62 @@ var exports = {
   },
   // Global functions
   globals: {
+    getPermissionsLevel: function (data) {
+
+      if (data.secretkey && data.apikey) {
+
+        if(data.secretkey === process.config.secretkey && data.apikey === process.config.apikey){
+
+          return 2;
+
+        }
+
+      }
+
+      if (data.userid && data.token) {
+
+        if(C.auth.checkAccessToken(data.userid, data.token)){
+
+          return 1;
+
+        }
+
+      }
+
+      return 0;
+
+    },
+
+    checkAccessToken: function (userid, token) {
+
+      var user = exports.userlist[userid],
+        token = token,
+        authenticated = false;
+
+      if (user) {
+
+        //Loop over tokens
+
+        user.tokens.forEach(function (element) {
+
+          if (token === element) {
+
+            authenticated = true;
+
+          }
+
+        });
+
+      } else {
+
+        authenticated = false;
+
+      }
+
+      return authenticated;
+
+    },
+
     authCheck2: function (userid, token) {
 
       var user = exports.userlist[userid],

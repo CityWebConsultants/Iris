@@ -633,18 +633,6 @@ var exports = {
 
       };
 
-
-      //
-      //      var addGroup = function (data) {
-      //
-      //        return new Promise(function (yes, no) {
-      //
-      //
-      //
-      //        })
-      //
-      //      };
-
       hookPromiseChain([check1to1, upsertGroups], data);
 
     }
@@ -653,6 +641,7 @@ var exports = {
   hook_get_fetch_groups: {
     rank: 0,
     event: function (data) {
+
       if (data.get.userid && data.get.token) {
 
         if (data.auth > 0) {
