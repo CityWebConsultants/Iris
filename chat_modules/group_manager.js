@@ -399,6 +399,7 @@ var exports = {
   hook_post_group_add: {
     rank: 0,
     event: function (data) {
+      
       // userid, token, name, members[], is121
 
       data.group = {};
@@ -409,7 +410,7 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          if (!((data.post.apikey && data.post.secretkey) || (data.post.userid && data.post.token))) {
+          if (data.auth < 1) {
 
             data.errors.push("No valid authentication.");
             no(data);
