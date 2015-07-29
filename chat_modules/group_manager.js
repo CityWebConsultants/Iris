@@ -416,9 +416,9 @@ var exports = {
 
           }
 
-          if (!((data.post.groupid && !data.post.entityRef) || (data.post.entityRef && !data.post.groupid))) {
+          if (data.post.groupid && data.post.entityRef) {
 
-            data.errors.push("Need a groupid or entityRef (not both!)");
+            data.errors.push("Not possible to use groupid and entityRef at the same time.");
             no(data);
 
           }
