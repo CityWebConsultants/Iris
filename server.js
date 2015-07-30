@@ -1,8 +1,6 @@
 /*jslint nomen: true, node:true */
 "use strict";
 
-//Takes a config file
-
 var net = require('net');
 var repl = require('repl');
 
@@ -45,146 +43,184 @@ module.exports = function (config, paramaters) {
 
   }
 
-
   if (Object.keys(paramaters).length > 0) {
     console.log("Command line arguments: ");
     console.log(paramaters);
   }
 
-  // Current globals
-  global.hook = require('./hook');
-  require('./promises');
+  //Connect to database
 
-  process.config = config;
+  global.mongoose = require('mongoose');
+  mongoose.connect('mongodb://' + config.db_server + ':' + config.db_port + '/' + config.db_name);
 
-  // Global functions as defined in modules
-  global.C = {};
+  var db = mongoose.connection;
 
-  console.log("\nEnabled modules:\n");
+  //Wait until database is open
 
-  // Automatically load modules
-  process.config.modules_enabled.forEach(function (element, index) {
-    chat.api[element.name] = require('./chat_modules/' + element.name);
-    chat.api[element.name].options = element.options;
+  db.on('error', function (error) {
 
-    if (chat.api[element.name].init) {
+    console.log(error);
 
-      chat.api[element.name].init();
-
-    }
-
-    if (chat.api[element.name].globals) {
-
-      C[element.name] = {};
-
-      var globals = chat.api[element.name].globals;
-
-      Object.keys(globals).forEach(function (global) {
-        C[element.name][global] = globals[global];
-      });
-
-    }
-    console.log(element.name);
   });
 
-  // Run update hook
+  //Check database is loaded
 
-  hook('hook_update', {}, function (data) {
-    console.log("\nAny update scripts present will now run.\n");
-  });
+  db.once('open', function () {
 
-  //Server and request function router
+    console.log("Database running");
 
-  var serverhandler = function (req, res) {
+    // Current globals
+    global.hook = require('./hook');
+    require('./promises');
 
-    res.writeHead(200, {
-      'Access-Control-Allow-Origin': '*'
-    });
+    process.config = config;
 
-    var body = '';
+    // Global functions as defined in modules
+    global.C = {};
 
-    if (req.method === "POST") {
-      //Check if request is empty
-      if (req.headers["content-length"] === "0") {
-        res.writeHead(400);
-        res.end("Empty request");
+    console.log("\nEnabled modules:\n");
+
+    C.schemas = {};
+
+    // Automatically load modules
+    process.config.modules_enabled.forEach(function (element, index) {
+      chat.api[element.name] = require('./chat_modules/' + element.name);
+      chat.api[element.name].options = element.options;
+
+      if (chat.api[element.name].init) {
+
+        chat.api[element.name].init();
+
       }
 
-      req.on('data', function (data) {
+      if (chat.api[element.name].globals) {
 
-        body += data;
+        C[element.name] = {};
 
-        req.on('end', function () {
-          var requestUrl = url.parse(req.url, true),
-            requestPost = qs.parse(body),
-            hookurl = requestUrl.pathname.split('/').join('_');
+        var globals = chat.api[element.name].globals;
 
-          hook('hook_post' + hookurl, {
-            'url': req.url,
-            'post': requestPost,
-            'res': res,
-            'auth': C.auth.getPermissionsLevel(requestPost)
-          });
-
-          process.on('complete_hook_post' + hookurl, function (data) {
-            res.end(data.returns);
-          });
-
-        });
-      });
-    } else if (req.method === "GET") {
-      var requestUrl = url.parse(req.url, true),
-        requestGet = requestUrl.query,
-        hookurl = requestUrl.pathname.split('/').join('_');
-
-      hook('hook_' + req.method.toLowerCase() + hookurl, {
-        'url': requestUrl.pathname,
-        'get': requestGet,
-        'res': res,
-        'auth': C.auth.getPermissionsLevel(requestGet)
-      }, function (data) {
-
-        data.res.writeHead(200, {
-          'Content-Type': 'application/json'
-        });
-        data.res.writeHead(200, {
-          'Access-Control-Allow-Origin': '*'
+        Object.keys(globals).forEach(function (global) {
+          C[element.name][global] = globals[global];
         });
 
-        data.res.write(data.returns);
+      }
 
-        data.res.end();
+      if (chat.api[element.name].schemas) {
 
+        C.schemas[element.name] = {};
+
+        var moduleSchemas = chat.api[element.name].schemas;
+        
+        Object.keys(moduleSchemas).forEach(function (schema) {
+          C.schemas[element.name][schema] = moduleSchemas[schema];
+        });
+
+      }
+
+      console.log(element.name);
+      
+    });
+
+    // Run update hook
+
+    hook('hook_update', {}, function (data) {
+      console.log("\nAny update scripts present will now run.\n");
+    });
+
+    //Server and request function router
+
+    var serverhandler = function (req, res) {
+
+      res.writeHead(200, {
+        'Access-Control-Allow-Origin': '*'
       });
 
-    } else {
-      res.writeHead(400);
-      res.end("Unknown action");
-    }
+      var body = '';
 
-    //Functions, each get a request argument and paramaters
+      if (req.method === "POST") {
+        //Check if request is empty
+        if (req.headers["content-length"] === "0") {
+          res.writeHead(400);
+          res.end("Empty request");
+        }
 
-  };
+        req.on('data', function (data) {
 
-  if (process.config.https) {
+          body += data;
 
-    var https = require('https');
+          req.on('end', function () {
+            var requestUrl = url.parse(req.url, true),
+              requestPost = qs.parse(body),
+              hookurl = requestUrl.pathname.split('/').join('_');
 
-    var tls_options = {
-      key: fs.readFileSync(process.config.https_key),
-      cert: fs.readFileSync(process.config.https_cert)
+            hook('hook_post' + hookurl, {
+              'url': req.url,
+              'post': requestPost,
+              'res': res,
+              'auth': C.auth.getPermissionsLevel(requestPost)
+            });
+
+            process.on('complete_hook_post' + hookurl, function (data) {
+              res.end(data.returns);
+            });
+
+          });
+        });
+      } else if (req.method === "GET") {
+        var requestUrl = url.parse(req.url, true),
+          requestGet = requestUrl.query,
+          hookurl = requestUrl.pathname.split('/').join('_');
+
+        hook('hook_' + req.method.toLowerCase() + hookurl, {
+          'url': requestUrl.pathname,
+          'get': requestGet,
+          'res': res,
+          'auth': C.auth.getPermissionsLevel(requestGet)
+        }, function (data) {
+
+          data.res.writeHead(200, {
+            'Content-Type': 'application/json'
+          });
+          data.res.writeHead(200, {
+            'Access-Control-Allow-Origin': '*'
+          });
+
+          data.res.write(data.returns);
+
+          data.res.end();
+
+        });
+
+      } else {
+        res.writeHead(400);
+        res.end("Unknown action");
+      }
+
+      //Functions, each get a request argument and paramaters
+
     };
 
-    process.server = https.createServer(tls_options, serverhandler);
+    if (process.config.https) {
 
-    process.server.listen(process.config.port);
+      var https = require('https');
 
-  } else {
+      var tls_options = {
+        key: fs.readFileSync(process.config.https_key),
+        cert: fs.readFileSync(process.config.https_cert)
+      };
 
-    process.server = http.createServer(serverhandler);
+      process.server = https.createServer(tls_options, serverhandler);
 
-    process.server.listen(process.config.port);
+      process.server.listen(process.config.port);
 
-  }
+    } else {
+
+      process.server = http.createServer(serverhandler);
+
+      process.server.listen(process.config.port);
+
+    }
+
+  });
 
 };

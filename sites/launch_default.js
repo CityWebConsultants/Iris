@@ -63,15 +63,6 @@ var config = {
       }
         },
     {
-      name: 'mongodb',
-      options: {
-        server: 'localhost',
-        port: 27017,
-        database_name: 'chat-app',
-        prefix: ''
-      }
-        },
-    {
       name: 'sockets',
       options: {
         awayTimeout: 60000

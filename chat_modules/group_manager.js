@@ -97,6 +97,15 @@ var exports = {
   options: {
     allowdebug: false
   },
+  schemas: {
+    
+    group: mongoose.Schema({
+    
+      name: String
+    
+    })
+    
+  },
   globals: {
     isGroupMember: function (userid, groupid, callback) {
      
