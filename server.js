@@ -209,6 +209,22 @@ module.exports = function (config, paramaters) {
               requestPost = qs.parse(body),
               hookurl = requestUrl.pathname.split('/').join('_');
 
+            //Unstringify pars and validate input
+
+            try {
+              
+              Object.keys(requestPost).forEach(function (element) {
+                
+                requestPost[element] = JSON.parse(requestPost[element]);
+
+              });
+              
+            } catch (e) {
+
+              res.end("Paramaters must be JSON encoded");
+
+            }
+
             hook('hook_post' + hookurl, {
               'url': req.url,
               'post': requestPost,
