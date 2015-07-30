@@ -365,46 +365,16 @@ var exports = {
 
           }
 
-          if (data.post.groupid && data.post.entityRef) {
-
-            data.errors.push("Not possible to use groupid and entityRef at the same time.");
-            no(data);
-
-          }
-
-          if (data.post.is121 && data.post.entityRef) {
-
-            data.errors.push("Group cannot have an entity reference if it is a one-to-one conversation");
-            no(data);
-
-          }
-
           // Parse, if possible, the members and permissions
-          try {
-            data.post.members = JSON.parse(data.post.members);
 
-            data.post.members.forEach(function (element, index) {
-              // Convert userid to string. Put userid and joined time into members object.
-              data.post.members[index] = {
-                userid: element.toString(),
-                joined: Date.now()
-              };
-            });
-          } catch (e) {
-            data.errors.push("Members are not valid.");
-            no(data);
-          }
+          //            data.post.members.forEach(function (element, index) {
+          //              // Convert userid to string. Put userid and joined time into members object.
+          //              data.post.members[index] = {
+          //                userid: element.toString(),
+          //                joined: Date.now()
+          //              };
+          //            });
 
-          try {
-            data.post.permissions = JSON.parse(data.post.permissions);
-          } catch (e) {
-            data.errors.push("Permissions are not valid.");
-            no(data);
-          }
-
-          if (data.post.is121 && data.post.is121 !== "false") {
-            data.post.is121 = true;
-          }
 
           data.group = {
 
@@ -452,17 +422,20 @@ var exports = {
 
       //Create basic group object
 
-      var group = {
+      if (data.groupid && data.entityRef) {
 
-        "name": data.name,
-        "members": data.members,
-        "permissions": data.permissions
-
+        data.errors.push("Not possible to use groupid and entityRef at the same time.");
+        data.returns = "ERROR!";
+        process.emit("next", data);
+        return false;
       }
 
-      if (data.entityRef) {
+      if (data.is121 && data.entityRef) {
 
-        group.entityRef = data.entityRef;
+        data.errors.push("Group cannot have an entity reference if it is a one-to-one conversation");
+        data.returns = "ERROR!";
+        process.emit("next", data);
+        return false;
 
       }
 
@@ -474,42 +447,49 @@ var exports = {
 
           if (data.is121) {
 
-            hook('hook_db_find', {
-              dbcollection: 'groups',
-              dbquery: {
-                'is121': true,
-                '$and': [{
-                  'members': {
-                    '$elemMatch': {
-                      'userid': data.members[0]
-                    }
+            var groupsModel = C.dbModels.group_manager.group;
+
+            groupsModel.find({
+              'is121': true,
+              '$and': [{
+                'members': {
+                  '$elemMatch': {
+                    'userid': data.members[0]
                   }
+                }
                 }, {
-                  'members': {
-                    '$elemMatch': {
-                      'userid': data.members[1]
-                    }
+                'members': {
+                  '$elemMatch': {
+                    'userid': data.members[1]
                   }
+                }
                 }]
+            }, "_id", function (err, doc) {
+
+              if (err) {
+
+                data.errors.push("Database error");
+                no(data);
+
               }
-            }, function (result) {
 
-              if (result.returns && JSON.parse(result.returns).length === 0) {
-
-                //121 doesn't already exist
-                yes(data);
-
-              } else {
+              if (doc.length) {
 
                 data.errors.push("Group already exists");
                 no(data);
 
+              } else {
+
+                yes(data);
+
               }
-            });
+
+            })
 
           } else {
 
             yes(data);
+
 
           }
 
@@ -523,64 +503,47 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          if (data.entityRef) {
+          var groupModel = C.dbModels.group_manager.group;
 
-            hook('hook_db_update', {
-              dbcollection: 'groups',
-              dbquery: {
-                entityRef: data.entityRef
-              },
-              dbupdate: group,
-              dbupsert: true
-            }, function (newGroup) {
+          //Create group object
 
-              newGroup = newGroup.returns[0];
+          var group = {
+            name: data.name,
+            members: data.members,
+            permissions: data.permissions,
+            is121: data.is121,
+            entityRef: data.entityRef
+          }
 
-              data.returns = newGroup._id;
+          //Update if a group with that entity ref already exists, insert new group otherwise
 
-              yes(data);
+          groupModel.findOneAndUpdate({
+              entityRef: group.entityRef
+            },
+            group, {
+              upsert: true,
+              new: true
+            },
+            function (err, doc) {
 
-            });
+              if (err) {
 
-          } else if (data.groupid) {
+                data.errors.push(err);
+                no(data);
 
-            hook('hook_db_update', {
-              dbcollection: 'groups',
-              dbquery: {
-                _id: objectID(data.groupid)
-              },
-              dbupdate: group,
-              dbupsert: true
-            }, function (newGroup) {
+              } else {
 
-              newGroup = newGroup.returns[0];
+                data.returns = doc;
+                yes(data);
 
-              data.returns = newGroup._id;
+              }
 
-              yes(data);
-
-            });
-
-          } else {
-
-            hook('hook_db_insert', {
-              dbcollection: 'groups',
-              dbobject: group
-            }, function (newGroup) {
-
-              newGroup = newGroup.returns[0];
-
-              data.returns = newGroup._id;
-
-              yes(data);
-
-            });
-
-          };
+            }
+          );
 
         });
 
-      };
+      }
 
       hookPromiseChain([check1to1, upsertGroups], data);
 
