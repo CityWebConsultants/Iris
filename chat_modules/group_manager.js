@@ -98,142 +98,32 @@ var exports = {
     allowdebug: false
   },
   globals: {
-    getPermissionsLevel: function (user, groupid, authenticate, callback) {
-
-      if (user.userid && (user.userid === process.config.systemuser || process.config.admins.indexOf(user.userid) > -1)) {
-        // Admins are admins globally
-        callback(3);
-      } else if (user.secretkey && user.apikey) {
-
-        hook('hook_secretkey_check', {
-          apikey: user.apikey,
-          secretkey: user.secretkey
-        }, function (check) {
-
-          if (check.returns === true) {
-
-            // User is admin
-            callback(3);
-
-          } else {
-
-            // Authentication failed
-            callback(0);
-
-          }
-
-        });
-
-      } else if (user.userid) {
-
-        var groupIdCheck = function () {
-          if (groupid) {
-
-            hook('hook_group_list_users', {
-              userid: user.userid,
-              groupid: groupid
-
-            }, function (groupUsers) {
-
-              groupUsers = groupUsers.returns;
-
-              var inGroup = false;
-
-              if (groupUsers) {
-
-                groupUsers.forEach(function (element) {
-                  if (element.userid === user.userid) {
-                    inGroup = true;
-                  }
-                });
-
-              }
-
-              if (inGroup) {
-
-                // User is member of group
-                callback(2);
-
-              } else {
-
-                // Not in group, just authenticated
-                callback(1);
-
-              }
-
-            });
-
-          } else {
-
-            // Group not provided, user authenticated
-            callback(1);
-
-          }
-
-        };
-
-        if (authenticate && user.token) {
-
-          if (C.auth.authCheck2(user.userid, user.token) === true) {
-
-            groupIdCheck();
-
-          } else {
-
-            // Userid and token fail
-            callback(0);
-
-          }
-
-        } else {
-
-          groupIdCheck();
-
+    isGroupMember: function (userid, groupid, callback) {
+     
+      // Call db find hook.
+      hook('hook_db_find', {
+        dbcollection: 'groups',
+        dbquery: {
+          'members': {
+            '$elemMatch': {
+              'userid': userid
+            }
+          },
+          '_id': objectID(groupid)
         }
-
-      } else {
-
-        // User has no authentication method
-        callback(0);
-
-      }
-    },
-    checkGroupPermissions: function (group, action, level, callback) {
-
-      var checkGroup = function () {
-
-        if (group.permissions && parseInt(level, 10) >= parseInt(group.permissions[action], 10)) {
+      }, function (gotData) {
+        
+        if(gotData.returns){
+         
           callback(true);
+          
         } else {
+          
           callback(false);
+          
         }
 
-      };
-
-      if (Object.keys(group).length === 1 && group._id) {
-
-        // Fetch group
-
-        hook('hook_db_find', {
-          dbcollection: 'groups',
-          dbquery: {
-            _id: objectID(group._id)
-          }
-        }, function (fetchedGroup) {
-
-          fetchedGroup = JSON.parse(fetchedGroup.returns)[0];
-
-          group = fetchedGroup;
-
-          checkGroup();
-
-        });
-      } else {
-
-        checkGroup();
-
-      }
-
+      })
     }
   },
   // TODO: this module needs refactoring methinks. but hey, it does work.
@@ -399,6 +289,7 @@ var exports = {
   hook_post_group_add: {
     rank: 0,
     event: function (data) {
+
       // userid, token, name, members[], is121
 
       data.group = {};
@@ -409,7 +300,7 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          if (!((data.post.apikey && data.post.secretkey) || (data.post.userid && data.post.token))) {
+          if (data.auth < 1) {
 
             data.errors.push("No valid authentication.");
             no(data);
