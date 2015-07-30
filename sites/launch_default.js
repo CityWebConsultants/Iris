@@ -24,20 +24,33 @@ process.argv.forEach(function (val, index, array) {
 });
 
 var config = {
+  // Server
   server: "../server",
   name: "default",
   port: 3000,
   peerport: 3001,
   telnetport: 8124,
   sendemailto: "hub.wlmg.co.uk",
+
+  // CMS integration
   apikey: 'letmein',
   admin_name: 'Site administrator',
   secretkey: 'letmein',
   admins: [1],
   systemuser: 1,
+
+  // HTTPS
   https: false,
   https_key: '/var/www/ssl/hub.wlmg.co.uk.key',
   https_cert: '/var/www/ssl/hub_combined.crt',
+
+  // Database
+  db_server: 'localhost',
+  db_port: 27017,
+  db_name: 'chat-app',
+
+
+  // Enabled modules and per-module settings
   modules_enabled: [
     {
       name: 'debug'
