@@ -80,7 +80,8 @@ module.exports = function (config, paramaters) {
 
     console.log("\nEnabled modules:\n");
 
-    C.schemas = {};
+    var dbModels = {};
+    var dbSchema = {};
 
     // Automatically load modules
     process.config.modules_enabled.forEach(function (element, index) {
@@ -105,20 +106,75 @@ module.exports = function (config, paramaters) {
 
       }
 
-      if (chat.api[element.name].models) {
+      //Initialise dbModels if any set in module
 
-        C.models[element.name] = {};
+      if (chat.api[element.name].dbModels) {
 
-        var moduleModels = chat.api[element.name].models;
-        
-        Object.keys(moduleModels).forEach(function (model) {
-          C.models[element.name][model] = moduleModels[model];
+        var models = chat.api[element.name].dbModels;
+
+        Object.keys(models).forEach(function (model) {
+
+          dbModels[model] = {
+            options: models[model],
+            moduleName: element.name,
+            model: {}
+          };
+
+        });
+
+      }
+
+      if (chat.api[element.name].dbSchemaFields) {
+
+        var schemaSets = chat.api[element.name].dbSchemaFields;
+
+        Object.keys(schemaSets).forEach(function (model) {
+
+          if (dbModels[model]) {
+
+            //dbModel exists
+
+            var schemaFields = schemaSets[model];
+
+            Object.keys(schemaFields).forEach(function (field) {
+
+              //Add or overwrite a field in a schema model
+
+              dbModels[model].model[field] = schemaFields[field];
+
+            })
+
+          } else {
+
+            console.log(model + " is not a valid dbModel");
+
+          }
+
         });
 
       }
 
       console.log(element.name);
-      
+
+    });
+
+
+    C.dbModels = {};
+
+    //Create dbModels
+
+    Object.keys(dbModels).forEach(function (model) {
+
+      var schema = new mongoose.Schema(dbModels[model].model);
+
+      if (!C.dbModels[dbModels[model].moduleName]) {
+
+        C.dbModels[dbModels[model].moduleName] = {};
+
+      }
+
+      C.dbModels[dbModels[model].moduleName][model] = mongoose.model(model, schema);
+
     });
 
     // Run update hook

@@ -97,18 +97,27 @@ var exports = {
   options: {
     allowdebug: false
   },
-  models: {
 
-    group: mongoose.model('group', mongoose.Schema({
+
+  dbModels: {
+
+    group: {}
+
+  },
+
+  dbSchemaFields: {
+
+    group: {
 
       name: {
         type: String,
         required: true
       },
       members: [{
+        _id: false,
         userid: {
-          type: Date,
-          required: true
+          type: String,
+          required: true,
         },
         lastUpdated: {
           type: Date,
@@ -119,7 +128,11 @@ var exports = {
           required: false
         }
       }],
-      entityRef: String,
+      entityRef: {
+        type: String,
+        required: false,
+        unique: true
+      },
       permissions: {
 
         read: {
@@ -137,11 +150,10 @@ var exports = {
 
       },
       is121: {
-          type: Boolean,
-          required: true
-        }
-    })
-
+        type: Boolean,
+        required: true
+      }
+    }
   },
   globals: {
     isGroupMember: function (userid, groupid, callback) {
