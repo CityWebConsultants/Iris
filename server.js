@@ -105,14 +105,14 @@ module.exports = function (config, paramaters) {
 
       }
 
-      if (chat.api[element.name].schemas) {
+      if (chat.api[element.name].models) {
 
-        C.schemas[element.name] = {};
+        C.models[element.name] = {};
 
-        var moduleSchemas = chat.api[element.name].schemas;
+        var moduleModels = chat.api[element.name].models;
         
-        Object.keys(moduleSchemas).forEach(function (schema) {
-          C.schemas[element.name][schema] = moduleSchemas[schema];
+        Object.keys(moduleModels).forEach(function (model) {
+          C.models[element.name][model] = moduleModels[model];
         });
 
       }

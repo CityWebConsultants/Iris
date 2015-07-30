@@ -97,18 +97,55 @@ var exports = {
   options: {
     allowdebug: false
   },
-  schemas: {
-    
-    group: mongoose.Schema({
-    
-      name: String
-    
+  models: {
+
+    group: mongoose.model('group', mongoose.Schema({
+
+      name: {
+        type: String,
+        required: true
+      },
+      members: [{
+        userid: {
+          type: Date,
+          required: true
+        },
+        lastUpdated: {
+          type: Date,
+          required: false
+        },
+        joined: {
+          type: Date,
+          required: false
+        }
+      }],
+      entityRef: String,
+      permissions: {
+
+        read: {
+          type: Number,
+          required: true
+        },
+        write: {
+          type: Number,
+          required: true
+        },
+        update: {
+          type: Number,
+          required: true
+        }
+
+      },
+      is121: {
+          type: Boolean,
+          required: true
+        }
     })
-    
+
   },
   globals: {
     isGroupMember: function (userid, groupid, callback) {
-     
+
       // Call db find hook.
       hook('hook_db_find', {
         dbcollection: 'groups',
@@ -121,15 +158,15 @@ var exports = {
           '_id': objectID(groupid)
         }
       }, function (gotData) {
-        
-        if(gotData.returns){
-         
+
+        if (gotData.returns) {
+
           callback(true);
-          
+
         } else {
-          
+
           callback(false);
-          
+
         }
 
       })
