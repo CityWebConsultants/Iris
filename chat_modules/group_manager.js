@@ -348,10 +348,9 @@ var exports = {
     rank: 0,
     event: function (data) {
 
-
       var allowed = ["name", "entityRef", "_id", "permissions", "members", "is121"];
 
-      var group = {};
+      var send = {};
 
       //Add allowed properties to group object if present
 
@@ -359,7 +358,7 @@ var exports = {
 
         if (allowed.indexOf(element) !== -1) {
 
-          group[element] = data.post[element];
+          send[element] = data.post[element];
 
         }
 
@@ -367,11 +366,11 @@ var exports = {
 
       //Add auth value to object to check permissions
 
-      group.auth = data.auth;
+      send.auth = data.auth;
 
       //Add userid value if present to check permissions
 
-      group.upserterID = data.post.userid;
+      send.upserterID = data.post.userid;
 
       var errorCheck = function () {
 
@@ -394,7 +393,7 @@ var exports = {
 
         return new Promise(function (yes, no) {
 
-          hook("hook_group_add", group, function (groupid) {
+          hook("hook_group_add", send, function (groupid) {
 
             data.returns = groupid.returns.toString();
             yes(data);
@@ -414,18 +413,8 @@ var exports = {
     rank: 0,
     event: function (data) {
 
-      // Should check for duplicate members (move to database schema)
-      // Should allow only two users in a 121 group
 
-      //Create basic group object
-
-      if (data.groupid && data.entityRef) {
-
-        data.errors.push("Not possible to use groupid and entityRef at the same time.");
-        data.returns = "ERROR!";
-        process.emit("next", data);
-        return false;
-      }
+      //Error checking on submitted data
 
       if (data.is121 && data.entityRef) {
 
@@ -436,7 +425,7 @@ var exports = {
 
       }
 
-      //Check if 1to1 group and, if so, check if it doesn't already exist. If it does already exist, error out
+      //Check if 1to1 group and, if so, check if it doesn't already exist.
 
       var check1to1 = function (data) {
 
@@ -444,7 +433,7 @@ var exports = {
 
           if (data.is121) {
 
-            if (!data.members || data.members.length < 2) {
+            if (!data.members || data.members.length !== 2) {
 
               //Can't do a check for a 121 as no members were supplied. Must be a new group or an update.
 
@@ -495,7 +484,6 @@ var exports = {
           } else {
 
             yes(data);
-
 
           }
 
@@ -554,16 +542,43 @@ var exports = {
 
             groupModel.findOne({
               _id: data._id
-            }, function (err, doc) {
+            }, function (err, foundGroup) {
 
               if (err) {
 
                 data.errors.push("Database error");
                 no(err);
 
-              } else if (doc) {
+              } else if (foundGroup) {
 
                 //Group already exists with that ID
+                
+                //Check user is actually a member of this 121 group or is an admin
+
+                if (!data.auth || data.auth < 1) {
+
+                  var valid = false;
+
+                  foundGroup.members.forEach(function (element) {
+
+                    if (data.userid === element.userid) {
+
+                      valid = true;
+
+                    }
+
+                  });
+
+                  if (!valid) {
+
+                    data.errors.push("Not allowed to update the group");
+                    no(data);
+                    return false;
+
+                  };
+
+                }
+                
                 yes(data);
 
               } else {
@@ -606,19 +621,55 @@ var exports = {
 
             });
 
-            if (data.auth && data.auth > 1) {
-
-              var admin = true;
-
-            } else {
-
-              var admin = false;
-
-            }
-
             var groupModel = C.dbModels.group_manager.group;
 
             if (!group._id) {
+
+              //Adding a new group
+
+              if (group.is121) {
+
+                if (group.members && group.members.length === 2 && group.members[0].userid !== group.members[1].userid) {
+
+                  //Valid 121 group
+
+                } else {
+
+                  //Not a valid 121 group
+
+                  data.errors.push("Not a valid 121 group");
+                  no(data);
+                  return false;
+
+                }
+
+                //Check user is actually a member of this 121 group or is an admin
+
+                if (!data.auth || data.auth < 1) {
+
+                  var valid = false;
+
+                  group.members.forEach(function (element) {
+
+                    if (data.userid === element.userid) {
+
+                      valid = true;
+
+                    }
+
+                  });
+
+                  if (!valid) {
+
+                    data.errors.push("Not a member of the 121 group or an admin");
+                    no(data);
+                    return false;
+
+                  };
+
+                }
+
+              }
 
               var group = new groupModel(group);
 
@@ -626,7 +677,6 @@ var exports = {
 
                 if (err) {
 
-                  console.log(err);
                   data.errors.push("Database error");
                   no(data);
 
@@ -640,6 +690,18 @@ var exports = {
               });
 
             } else {
+
+              if (group.is121) {
+
+                if (group.members) {
+
+                  //Can't update members in 121 group
+
+                  delete group.members;
+
+                }
+
+              }
 
               groupModel.findOneAndUpdate({
                   _id: data._id
