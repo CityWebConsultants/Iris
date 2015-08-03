@@ -347,7 +347,7 @@ var exports = {
   hook_post_group_add: {
     rank: 0,
     event: function (data) {
-
+      
       var allowed = ["name", "entityRef", "_id", "permissions", "members", "is121"];
 
       var send = {};
