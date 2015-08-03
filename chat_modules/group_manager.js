@@ -372,23 +372,6 @@ var exports = {
 
       send.userid = data.post.userid;
 
-      var errorCheck = function () {
-
-        return new Promise(function (yes, no) {
-
-          if (data.auth < 1) {
-
-            data.errors.push("No valid authentication.");
-            no(data);
-
-          }
-
-          yes(data);
-
-        });
-
-      };
-
       var addGroup = function () {
 
         return new Promise(function (yes, no) {
@@ -404,7 +387,7 @@ var exports = {
 
       };
 
-      hookPromiseChain([errorCheck, addGroup], data);
+      hookPromiseChain([addGroup], data);
 
     }
 
@@ -412,7 +395,6 @@ var exports = {
   hook_group_add: {
     rank: 0,
     event: function (data) {
-
 
       //Error checking on submitted data
 
@@ -559,10 +541,10 @@ var exports = {
                   return true
 
                 }
-                
+
                 //Check group permissions object for update property
-                
-                var update = foundGroup.permissions; 
+
+                var update = foundGroup.permissions;
 
                 //Group already exists with that ID
 
@@ -642,7 +624,25 @@ var exports = {
 
               //Adding a new group
 
+              //Check if user can add a new group
+
+              if (!C.auth.checkPermissions(["can create group"], data.auth)) {
+
+                data.errors.push("Can't create group");
+                no(data);
+                return false;
+
+              }
+
               if (group.is121) {
+
+                if (!C.auth.checkPermissions(["can create 121 group"], data.auth)) {
+
+                  data.errors.push("Can't create 121 group");
+                  no(data);
+                  return false;
+
+                }
 
                 if (group.members && group.members.length === 2 && group.members[0].userid !== group.members[1].userid) {
 
