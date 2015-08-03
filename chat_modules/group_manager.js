@@ -534,10 +534,10 @@ var exports = {
                 no(err);
 
               } else if (foundGroup) {
-
+                
                 //Check if admin and allow pass through if yes
 
-                if (data.auth > 2) {
+                if (C.auth.checkPermissions("can bypass group permissions", data.auth)) {
 
                   yes(data);
                   return true
