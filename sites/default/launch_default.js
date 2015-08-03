@@ -25,7 +25,7 @@ process.argv.forEach(function (val, index, array) {
 
 var config = {
   // Server
-  server: "../server",
+  server: "../../server",
   name: "default",
   port: 3000,
   peerport: 3001,
