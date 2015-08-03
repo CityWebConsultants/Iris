@@ -347,7 +347,7 @@ var exports = {
   hook_post_group_add: {
     rank: 0,
     event: function (data) {
-      
+
       var allowed = ["name", "entityRef", "_id", "permissions", "members", "is121"];
 
       var send = {};
@@ -370,7 +370,7 @@ var exports = {
 
       //Add userid value if present to check permissions
 
-      send.upserterID = data.post.userid;
+      send.userid = data.post.userid;
 
       var errorCheck = function () {
 
@@ -551,11 +551,24 @@ var exports = {
 
               } else if (foundGroup) {
 
-                //Group already exists with that ID
-                
-                //Check user is actually a member of this 121 group or is an admin
+                //Check if admin and allow pass through if yes
 
-                if (!data.auth || data.auth < 1) {
+                if (data.auth > 2) {
+
+                  yes(data);
+                  return true
+
+                }
+                
+                //Check group permissions object for update property
+                
+                var update = foundGroup.permissions; 
+
+                //Group already exists with that ID
+
+                //Check user is actually a member of this group or is an admin
+
+                if (!data.auth || data.auth < 2) {
 
                   var valid = false;
 
@@ -569,6 +582,8 @@ var exports = {
 
                   });
 
+                  //Check permissions of group add up to member
+
                   if (!valid) {
 
                     data.errors.push("Not allowed to update the group");
@@ -578,7 +593,7 @@ var exports = {
                   };
 
                 }
-                
+
                 yes(data);
 
               } else {
