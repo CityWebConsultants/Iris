@@ -4,7 +4,7 @@
 var net = require('net');
 var repl = require('repl');
 
-module.exports = function (config, paramaters) {
+module.exports = function (config, paramaters, roles) {
 
   var version = 'RC1',
     chat = {
@@ -212,13 +212,13 @@ module.exports = function (config, paramaters) {
             //Unstringify pars and validate input
 
             try {
-              
+
               Object.keys(requestPost).forEach(function (element) {
-                
+
                 requestPost[element] = JSON.parse(requestPost[element]);
 
               });
-              
+
             } catch (e) {
 
               res.end("Paramaters must be JSON encoded");
