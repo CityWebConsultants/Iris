@@ -23,7 +23,7 @@ var roles = {
     permissions: [
       "can do anything",
     ]
-  }
+  },
 };
 
 module.exports = roles;
