@@ -119,6 +119,7 @@ var exports = {
           type: String,
           required: true,
         },
+        permissions: [String],
         lastUpdated: {
           type: Date,
           required: false
