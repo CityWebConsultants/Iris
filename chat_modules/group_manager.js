@@ -400,8 +400,7 @@ var exports = {
 
       if (data.is121 && data.entityRef) {
 
-        data.errors.push("Group cannot have an entity reference if it is a one-to-one conversation");
-        data.returns = "ERROR!";
+        data.returns = "Group cannot have an entity reference if it is a one-to-one conversation";
         process.emit("next", data);
         return false;
 
@@ -631,6 +630,20 @@ var exports = {
                 data.errors.push("Can't create group");
                 no(data);
                 return false;
+
+              }
+
+              //Check if new group has an entity ref. If yes, check if user has permission to access it
+
+              if (group.entityRef) {
+
+                if (!C.auth.checkPermissions(["can create group with entityRef"], data.auth)) {
+
+                  data.errors.push("Can't create group with entitiyRef");
+                  no(data);
+                  return false;
+
+                }
 
               }
 
