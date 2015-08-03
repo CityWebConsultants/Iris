@@ -20,6 +20,10 @@
  *  /group/update/name
  */
 
+var groupTypes = require(process.config.moduleConfigPath + 'group_manager' + '/group_types.js');
+
+console.log(groupTypes);
+
 //var mongoClient = require('mongodb').MongoClient;
 var objectID = require('mongodb').ObjectID;
 
