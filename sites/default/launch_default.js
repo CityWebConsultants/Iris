@@ -136,4 +136,6 @@ var config = {
     ]
 };
 
-var server = require(config.server)(config, process.paramaters);
+var roles = require('./roles.js');
+
+var server = require(config.server)(config, process.paramaters, roles);
