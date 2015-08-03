@@ -22,9 +22,9 @@ module.exports = function (config, paramaters, roles) {
   console.log("Peer port: " + config.peerport);
   
   //Import roles
-  
+    
   global.roles = roles;
-
+  
   if (config.telnetport) {
 
     console.log("Telnet port: " + config.telnetport);

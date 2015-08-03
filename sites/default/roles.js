@@ -11,7 +11,9 @@ var roles = {
   // admin user: anyone authenticated with userid defined as admin
   // OR anyone authenticating with secretkey and apikey
   'admin': {
-    permissions: ["can do anything"]
+    permissions: [
+      "can do anything",
+    ]
   }
 };
 

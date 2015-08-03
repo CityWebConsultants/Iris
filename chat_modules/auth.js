@@ -26,27 +26,32 @@ var exports = {
   globals: {
     getPermissionsLevel: function (data) {
 
+      var permissionsLevel = [];
+
       if (data.secretkey && data.apikey) {
 
         if (data.secretkey === process.config.secretkey && data.apikey === process.config.apikey) {
 
-          return 2;
+          permissionsLevel.push("authenticated");
+          permissionsLevel.push("admin");
 
         }
 
-      }
-
-      if (data.userid && data.token) {
+      } else if (data.userid && data.token) {
 
         if (C.auth.checkAccessToken(data.userid, data.token)) {
 
-          return 1;
+          permissionsLevel.push("authenticated");
 
         }
 
-      }
+      } else {
 
-      return 0;
+        permissionsLevel.push("anonymous");
+
+      }
+      
+      return permissionsLevel;
 
     },
 
@@ -79,41 +84,43 @@ var exports = {
       return authenticated;
 
     },
-  },
-  checkPermissions: function (permissionsArray, rolesArray) {
+    checkPermissions: function (permissionsArray, rolesArray) {
 
-    var rolePermissions = [];
+      var rolePermissions = [];
 
-    Object.keys(roles).forEach(function (role) {
-      if (rolesArray.indexOf(role) !== -1) {
+      Object.keys(roles).forEach(function (role) {
 
-        roles.permissions.forEach(function (permission) {
+        if (rolesArray.indexOf(role) !== -1) {
 
-          rolePermissions.push(permission);
+          roles[role].permissions.forEach(function (permission) {
 
-        });
+            rolePermissions.push(permission);
 
-      };
+          });
 
-    });
-
-    //Special case for can do anything
-
-    if (rolePermissions.indexOf("can do anything") !== -1) {
-
-      return true;
-
-    } else {
-
-      return permissionsArray.every(function (element) {
-
-        return rolePermissions.indexOf(element) !== -1;
+        };
 
       });
 
-    }
+      //Special case for can do anything
 
+      if (rolePermissions.indexOf("can do anything") !== -1) {
+
+        return true;
+
+      } else {
+
+        return permissionsArray.every(function (element) {
+
+          return rolePermissions.indexOf(element) !== -1;
+
+        });
+
+      }
+
+    },
   },
+
   // POST /auth
   hook_post_auth_maketoken: {
     rank: 0,
@@ -128,8 +135,8 @@ var exports = {
       }
 
       var authToken;
-
-      if (data.auth > 1) {
+      
+      if (C.auth.checkPermissions(["can make access token"], data.auth)) {
 
         crypto.randomBytes(exports.options.token_length, function (ex, buf) {
           authToken = buf.toString('hex');
@@ -152,7 +159,7 @@ var exports = {
         });
       } else {
 
-        data.returns = "Secret key pair invalid.";
+        data.returns = "Access denied";
         process.emit("next", data);
 
       }
