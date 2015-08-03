@@ -20,6 +20,10 @@ module.exports = function (config, paramaters, roles) {
   console.log("Name: " + config.name);
   console.log("Hypertext port: " + config.port);
   console.log("Peer port: " + config.peerport);
+  
+  //Import roles
+  
+  global.roles = roles;
 
   if (config.telnetport) {
 

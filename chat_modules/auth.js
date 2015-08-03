@@ -80,23 +80,57 @@ var exports = {
 
     },
   },
+  checkPermissions: function (permissionsArray, rolesArray) {
+
+    var rolePermissions = [];
+
+    Object.keys(roles).forEach(function (role) {
+      if (rolesArray.indexOf(role) !== -1) {
+
+        roles.permissions.forEach(function (permission) {
+
+          rolePermissions.push(permission);
+
+        });
+
+      };
+
+    });
+
+    //Special case for can do anything
+
+    if (rolePermissions.indexOf("can do anything") !== -1) {
+
+      return true;
+
+    } else {
+
+      return permissionsArray.every(function (element) {
+
+        return rolePermissions.indexOf(element) !== -1;
+
+      });
+
+    }
+
+  },
   // POST /auth
   hook_post_auth_maketoken: {
     rank: 0,
     event: function (data) {
 
-      if(!data.post.userid){
-        
-      data.returns = "No userid supplied";
-      process.emit("next", data);
-      return false;
-        
+      if (!data.post.userid) {
+
+        data.returns = "No userid supplied";
+        process.emit("next", data);
+        return false;
+
       }
 
       var authToken;
 
       if (data.auth > 1) {
-        
+
         crypto.randomBytes(exports.options.token_length, function (ex, buf) {
           authToken = buf.toString('hex');
 
