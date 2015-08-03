@@ -119,7 +119,7 @@ var exports = {
           type: String,
           required: true,
         },
-        permissions: [String],
+        roles: [String],
         lastUpdated: {
           type: Date,
           required: false
