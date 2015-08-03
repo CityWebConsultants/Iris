@@ -14,7 +14,7 @@ var roles = {
 
     permissions: [
       "can make access token",
-      "can bypass group permissions",
+//      "can bypass group permissions",
       "can create group with entityRef",
       "can create group without self"
     ]

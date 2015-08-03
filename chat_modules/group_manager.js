@@ -137,28 +137,39 @@ var exports = {
         unique: true
       },
       permissions: {
-
-        read: {
-          type: Number,
-          required: true
-        },
-        write: {
-          type: Number,
-          required: true
-        },
-        update: {
-          type: Number,
-          required: true
-        }
-
+        type: String,
+        required: false,
+        unique: true
       },
-      is121: {
-        type: Boolean,
-        required: true
-      }
     }
+
   },
   globals: {
+    checkGroupPermission: function (groupPermissionType, permissionsArray, GroupRolesArray) {
+
+      var rolePermissions = [];
+
+      GroupRolesArray.forEach(function (role) {
+
+        if (groupTypes[groupPermissionType] && groupTypes[groupPermissionType].permissions[role]) {
+
+          groupTypes[groupPermissionType].permissions[role].forEach(function (permission) {
+
+            rolePermissions.push(permission);
+
+          });
+
+        }
+
+      });
+
+      return permissionsArray.every(function (element) {
+
+        return rolePermissions.indexOf(element) !== -1;
+
+      });
+
+    },
     isGroupMember: function (userid, groupid, callback) {
 
       // Call db find hook.
@@ -534,49 +545,60 @@ var exports = {
                 no(err);
 
               } else if (foundGroup) {
-                
+
                 //Check if admin and allow pass through if yes
 
-                if (C.auth.checkPermissions("can bypass group permissions", data.auth)) {
+                if (C.auth.checkPermissions(["can bypass group permissions"], data.auth)) {
 
                   yes(data);
                   return true
 
                 }
 
-                //Check group permissions object for update property
-
-                var update = foundGroup.permissions;
-
                 //Group already exists with that ID
 
                 //Check user is actually a member of this group or is an admin
 
-                if (!data.auth || data.auth < 2) {
+                var updatingMember;
 
-                  var valid = false;
+                //Find the member in the group
 
-                  foundGroup.members.forEach(function (element) {
+                foundGroup.members.forEach(function (member, index) {
 
-                    if (data.userid === element.userid) {
+                  if (data.userid === member.userid) {
 
-                      valid = true;
+                    updatingMember = member;
 
-                    }
+                  }
 
-                  });
+                });
 
-                  //Check permissions of group add up to member
+                if (!updatingMember) {
 
-                  if (!valid) {
+                  data.errors.push("Not a member of the group you are trying to update");
+                  no(data);
+                  return false;
 
-                    data.errors.push("Not allowed to update the group");
-                    no(data);
-                    return false;
+                };
 
-                  };
+                //Check if user has top level update group permission
+
+                if (C.auth.checkPermissions(["can update group"], data.auth)) {
+
+                  yes(data);
+                  return true;
 
                 }
+
+                //If not, check user's roles within a group for the update group permission
+
+                if (!C.group_manager.checkGroupPermission(foundGroup.permissions, ["can update group"], updatingMember.roles)) {
+
+                  data.errors.push("Not allowed to update this group");
+                  no(data);
+                  return false;
+
+                };
 
                 yes(data);
 
@@ -708,6 +730,7 @@ var exports = {
 
                 if (err) {
 
+                  console.log(err);
                   data.errors.push("Database error");
                   no(data);
 
