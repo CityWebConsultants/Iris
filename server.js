@@ -20,11 +20,11 @@ module.exports = function (config, paramaters, roles) {
   console.log("Name: " + config.name);
   console.log("Hypertext port: " + config.port);
   console.log("Peer port: " + config.peerport);
-  
+
   //Import roles
-    
+
   global.roles = roles;
-  
+
   if (config.telnetport) {
 
     console.log("Telnet port: " + config.telnetport);
@@ -228,13 +228,18 @@ module.exports = function (config, paramaters, roles) {
               res.end("Paramaters must be JSON encoded");
 
             }
+            
+            hook('hook_post' + hookurl, requestPost, C.auth.getPermissionsLevel(requestPost))
+              .then(function (data) {
 
-            hook('hook_post' + hookurl, {
-              'url': req.url,
-              'post': requestPost,
-              'res': res,
-              'auth': C.auth.getPermissionsLevel(requestPost)
-            });
+                res.end(JSON.stringify(data));
+
+              }, function (error) {
+
+                console.log(error);
+                res.end(JSON.stringify(error));
+
+              });
 
             process.on('complete_hook_post' + hookurl, function (data) {
               res.end(data.returns);

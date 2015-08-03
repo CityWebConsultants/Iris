@@ -1,133 +1,96 @@
-/*jslint node: true, nomen:true*/
-"use strict";
+var hook = function (hookname, data, auth) {
 
-// Set up eventemitter settings
-process.setMaxListeners(0);
+  return new Promise(function (yes, no) {
 
-//The queue holds the events of the current type to be processed in the current queue
+    var modules = [];
+    var hookcalls = [];
 
-var queue = {};
-var processId = 0;
-
-//The function that runs the next event in the chain
-
-var run = function (eventid, hookname, value, callback) {
-
-    value.pid = eventid;
-    value.hookname = hookname;
-    if (callback) {
-        value.callback = callback;
-    }
-
-    // Standard method for returning errors.
-    value.errors = [];
-
-    queue[eventid].events[0][hookname].event(value);
-
-};
-
-//The trigger function is exposed and called from external modules/files to trigger an event
-
-var trigger = function (event, value, callback) {
-
-    processId += 1;
-    var eventid = processId,
-        modules = [];
-
-    //Create a list of active node.js modules (modules are only required once so this will not reinstall them), it just allows them to be accessed here.
-
+    // Loop over all installed node.js modules 
     Object.keys(require('module')._cache).forEach(function (element, index) {
 
-        modules.push(require(element));
+      modules.push(require(element));
 
     });
 
     //Add modules to the array if they contain the triggered event
 
-    modules.forEach(function (element, index) {
+    modules.forEach(function (hookcall, index) {
 
-        if (element[event]) {
+      if (hookcall[hookname]) {
 
-            if (!queue[eventid]) {
+        hookcalls.push(hookcall[hookname]);
 
-                queue[eventid] = {};
-                queue[eventid].events = [];
-
-            }
-
-            queue[eventid].events.push(element);
-
-        }
+      }
 
     });
 
-    //If no hook return false
 
-    if (!queue[eventid]) {
+    //If no hook fail promise
 
-        process.nextTick(function () {
+    if (!hookcalls.length) {
 
-            process.emit("complete_" + event, false, event);
-
-        });
-
-        return false;
+      no(data);
 
     }
 
     //Sort the modules in order of the rank of that event function within them
 
-    queue[eventid].events.sort(function (a, b) {
+    hookcalls.sort(function (a, b) {
 
-        if (a[event].rank > b[event].rank) {
-            return 1;
-        }
+      if (a.rank > b.rank) {
+        return 1;
+      }
 
-        if (a[event].rank < b[event].rank) {
-            return -1;
-        }
+      if (a.rank < b.rank) {
+        return -1;
+      }
 
-        return 0;
+      return 0;
 
     });
 
+    //Create a promise for each of the hooks with a finishing function for success and failure, pass in auth parameters
 
-    //Run the next event in the chain
+    hookCallPromises = [];
 
-    run(eventid, event, value, callback);
+    hookcalls.forEach(function (hookcall) {
 
-};
+      hookCallPromises.push(function (vars) {
 
-//When that event has finished by emiting the "next" event to the node.js process, remove the event from the chain and run the next one
+        return new Promise(function (yes, no) {
 
-process.on("next", function (data) {
+          var self = {};
 
-    process.nextTick(function () {
-        queue[data.pid].events.shift();
-        if (queue[data.pid].events.length > 0) {
+          self.finish = function (outcome, output) {
 
-            run(data.pid, data.hookname, data);
+            if (outcome) {
 
-        } else {
+              yes(output);
 
-            //If the queue is finished (no more in the chain) run a complete event on the process object that anything can listen to. Include the data that was returned.
+            } else {
 
-            delete queue[data.pid];
-
-            //Run a callback if one is set
-
-            if (data.callback) {
-
-                data.callback(data);
+              no(output);
 
             }
 
-            process.emit("complete_" + data.hookname, data, data.hookname);
+          };
 
-        }
+          self.auth = auth;
+
+          hookcall.event.call(self, vars);
+
+        });
+
+      });
+
     });
-});
 
-//Exports the modules array so that modules can be added to it and the trigger function.
+    //Hookcalls are now sorted, ready to be run
 
-module.exports = trigger;
+    promiseChain(hookCallPromises, data, yes, no);
+
+  });
+
+};
+
+module.exports = hook;

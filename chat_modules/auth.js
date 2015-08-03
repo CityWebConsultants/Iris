@@ -50,7 +50,7 @@ var exports = {
         permissionsLevel.push("anonymous");
 
       }
-      
+
       return permissionsLevel;
 
     },
@@ -126,41 +126,42 @@ var exports = {
     rank: 0,
     event: function (data) {
 
-      if (!data.post.userid) {
+      var self = this;
+      
+      if (!data.userid) {
 
-        data.returns = "No userid supplied";
-        process.emit("next", data);
+        this.finish(false, "No user ID");
         return false;
 
       }
 
       var authToken;
-      
-      if (C.auth.checkPermissions(["can make access token"], data.auth)) {
+
+      if (C.auth.checkPermissions(["can make access token"], self.auth)) {
 
         crypto.randomBytes(exports.options.token_length, function (ex, buf) {
           authToken = buf.toString('hex');
 
           //Create new user if not in existence
 
-          if (!exports.userlist[data.post.userid]) {
-            exports.userlist[data.post.userid] = {};
+          if (!exports.userlist[data.userid]) {
+            exports.userlist[data.userid] = {};
           }
 
           //Check if no tokens already set and create array
 
-          if (!exports.userlist[data.post.userid].tokens) {
-            exports.userlist[data.post.userid].tokens = [];
+          if (!exports.userlist[data.userid].tokens) {
+            exports.userlist[data.userid].tokens = [];
           }
 
-          exports.userlist[data.post.userid].tokens.push(authToken);
-          data.returns = authToken;
-          process.emit('next', data);
+          exports.userlist[data.userid].tokens.push(authToken);
+          self.finish(true, authToken);
+
         });
+
       } else {
 
-        data.returns = "Access denied";
-        process.emit("next", data);
+        self.finish(false, "Access Denied");
 
       }
 
