@@ -647,6 +647,32 @@ var exports = {
 
               }
 
+              //Check if userid is in members
+
+              if (!C.auth.checkPermissions(["can create group without self"], data.auth)) {
+
+                var valid = false;
+
+                group.members.forEach(function (element) {
+
+                  if (data.userid === element.userid) {
+
+                    valid = true;
+
+                  }
+
+                });
+
+                if (!valid) {
+
+                  data.errors.push("Can't create a group you're not a member of");
+                  no(data);
+                  return false;
+
+                };
+
+              }
+
               if (group.is121) {
 
                 if (!C.auth.checkPermissions(["can create 121 group"], data.auth)) {
@@ -668,32 +694,6 @@ var exports = {
                   data.errors.push("Not a valid 121 group");
                   no(data);
                   return false;
-
-                }
-
-                //Check user is actually a member of this 121 group or is an admin
-
-                if (!data.auth || data.auth < 1) {
-
-                  var valid = false;
-
-                  group.members.forEach(function (element) {
-
-                    if (data.userid === element.userid) {
-
-                      valid = true;
-
-                    }
-
-                  });
-
-                  if (!valid) {
-
-                    data.errors.push("Not a member of the 121 group or an admin");
-                    no(data);
-                    return false;
-
-                  };
 
                 }
 

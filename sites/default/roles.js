@@ -13,8 +13,9 @@ var roles = {
   'admin': {
 
     permissions: [
-      "can create access token",
+      "can make access token",
       "can create group with entityRef",
+      "can create group without self"
     ]
 
   },
