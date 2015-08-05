@@ -4,6 +4,8 @@
   "description": "Core server for an extensible, modular chat application",
   "main": "sites/launch_default.js",
   "dependencies": {
+    "body-parser": "^1.13.3",
+    "express": "^4.13.3",
     "highlight": "^0.2.3",
     "mongodb": "^1.4.22",
     "mongoose": "^4.1.0",

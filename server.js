@@ -1,56 +1,59 @@
 /*jslint nomen: true, node:true */
 "use strict";
 
-var net = require('net');
-var repl = require('repl');
+var version = "RC1";
 
 module.exports = function (config, paramaters, roles) {
 
-  var version = 'RC1',
-    chat = {
-      api: {}
-    },
-    http = require('http'),
-    qs = require('querystring'),
-    url = require('url'),
-    path = require('path'),
-    fs = require('fs');
-
-  console.log("\nLaunching Chat App " + version + "\n");
-  console.log("Name: " + config.name);
-  console.log("Hypertext port: " + config.port);
-  console.log("Peer port: " + config.peerport);
-
-  //Import roles
-
-  global.roles = roles;
-
-  if (config.telnetport) {
-
-    console.log("Telnet port: " + config.telnetport);
-
-    var cli = net.createServer(function (telnet) {
-      telnet.on('exit', function () {
-        telnet.end();
-      });
-
-      repl.start({
-        prompt: "Chat> ",
-        input: telnet,
-        output: telnet,
-        terminal: true
-      });
-
-    });
-
-    cli.listen(config.telnetport);
-
-  }
+  //Get any config paramaters passed through via the command line and set them.
 
   if (Object.keys(paramaters).length > 0) {
     console.log("Command line arguments: ");
     console.log(paramaters);
+
+    Object.keys(paramaters).forEach(function (paramater) {
+
+      config[paramater] = paramaters[paramater];
+
+    })
+
   }
+
+  //Create global object for the application
+
+  global.C = {};
+
+  //Store config object for global use (this has now been updated with the additional paramaters.
+
+  C.config = config;
+
+  //Store the roles and permissions object from the lanched site
+
+  C.roles = roles;
+
+  //Load required modules
+
+  var http = require('http'),
+    express = require('express'),
+    bodyParser = require('body-parser');
+
+  console.log("\nLaunching Chat App " + version + "\n");
+  console.log("Name: " + config.name);
+  console.log("Hypertext port: " + config.port);
+
+  //Hook system
+
+  C.hook = require('./hook');
+
+  //Promisechains
+
+  C.promiseChain = function (tasks, parameters, success, fail) {
+
+    tasks.reduce(function (cur, next) {
+      return cur.then(next);
+    }, Promise.resolve(parameters)).then(success, fail);
+
+  };
 
   //Connect to database
 
@@ -59,7 +62,7 @@ module.exports = function (config, paramaters, roles) {
 
   var db = mongoose.connection;
 
-  //Wait until database is open
+  //Wait until database is open and fail on error
 
   db.on('error', function (error) {
 
@@ -73,46 +76,118 @@ module.exports = function (config, paramaters, roles) {
 
     console.log("Database running");
 
-    // Current globals
-    global.hook = require('./hook');
-    require('./promises');
+    //Set up express HTTP server
 
-    process.config = config;
+    C.app = express();
 
-    // Global functions as defined in modules
-    global.C = {};
+    //Set up bodyParser
+
+    C.app.use(bodyParser.json());
+
+    C.app.use(bodyParser.urlencoded({
+      extended: true
+    }));
+
+    //Set up CORS
+
+    C.app.use(function (req, res, next) {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      next();
+    });
+
+    C.app.use(function (req, res, next) {
+
+      Object.keys(req.body).forEach(function (element) {
+
+        try {
+
+          req.body[element] = JSON.parse(req.body[element]);
+
+        } catch (e) {
+
+          console.log("Not JSON stringified");
+
+        }
+
+      });
+
+      var authCredentials = {
+
+        userid: req.body.userid,
+        token: req.body.token,
+        secretkey: req.body.secretkey,
+        apikey: req.body.apikey
+
+      }
+      
+      C.auth.credentialsToPass(authCredentials).then(function (authPass) {
+
+        req.authPass = authPass;
+        next();
+
+      }, function (error) {
+
+        res.end(JSON.stringify(error));
+
+      });
+
+    });
+
+    //Authentication module
+
+    C.auth = require('./core_modules/auth').globals;
+
+    //Server and request function router
+
+    if (config.https) {
+
+      var https = require('https');
+
+      var tls_options = {
+        key: fs.readFileSync(config.https_key),
+        cert: fs.readFileSync(config.https_cert)
+      };
+
+      C.server = https.createServer(tls_options, C.app);
+
+      C.server.listen(process.config.port);
+
+    } else {
+
+      C.server = http.createServer(C.app);
+
+      C.server.listen(config.port);
+
+    }
+
+    //Load all additional modules and related database schema
 
     console.log("\nEnabled modules:\n");
 
     var dbModels = {};
     var dbSchema = {};
 
-    //Core modules
 
-    C.auth = require('./core_modules/auth').globals;
-
-    console.log("\nCore modules:\n");
-
-    console.log("Auth");
-
-    console.log("\nAdditional modules:\n");
 
     // Automatically load modules
-    process.config.modules_enabled.forEach(function (element, index) {
-      chat.api[element.name] = require('./chat_modules/' + element.name);
-      chat.api[element.name].options = element.options;
+    config.modules_enabled.forEach(function (element, index) {
 
-      if (chat.api[element.name].init) {
+      var thisModule = require('./chat_modules/' + element.name);
 
-        chat.api[element.name].init();
+      if (thisModule.init) {
+
+        thisModule.init();
 
       }
 
-      if (chat.api[element.name].globals) {
+      //Add and namespace global functions
+
+      if (thisModule.globals) {
 
         C[element.name] = {};
 
-        var globals = chat.api[element.name].globals;
+        var globals = thisModule.globals;
 
         Object.keys(globals).forEach(function (global) {
           C[element.name][global] = globals[global];
@@ -122,9 +197,9 @@ module.exports = function (config, paramaters, roles) {
 
       //Initialise dbModels if any set in module
 
-      if (chat.api[element.name].dbModels) {
+      if (thisModule.dbModels) {
 
-        var models = chat.api[element.name].dbModels;
+        var models = thisModule.dbModels;
 
         Object.keys(models).forEach(function (model) {
 
@@ -138,9 +213,9 @@ module.exports = function (config, paramaters, roles) {
 
       }
 
-      if (chat.api[element.name].dbSchemaFields) {
+      if (thisModule.dbSchemaFields) {
 
-        var schemaSets = chat.api[element.name].dbSchemaFields;
+        var schemaSets = thisModule.dbSchemaFields;
 
         Object.keys(schemaSets).forEach(function (model) {
 
@@ -172,6 +247,7 @@ module.exports = function (config, paramaters, roles) {
 
     });
 
+    //Great store for global database models 
 
     C.dbModels = {};
 
@@ -190,133 +266,6 @@ module.exports = function (config, paramaters, roles) {
       C.dbModels[dbModels[model].moduleName][model] = mongoose.model(model, schema);
 
     });
-
-    //Server and request function router
-
-    var serverhandler = function (req, res) {
-
-      res.writeHead(200, {
-        'Access-Control-Allow-Origin': '*'
-      });
-
-      var body = '';
-
-      if (req.method === "POST") {
-        //Check if request is empty
-        if (req.headers["content-length"] === "0") {
-          res.writeHead(400);
-          res.end("Empty request");
-        }
-
-        req.on('data', function (data) {
-
-          body += data;
-
-          req.on('end', function () {
-            var requestUrl = url.parse(req.url, true),
-              requestPost = qs.parse(body),
-              hookurl = requestUrl.pathname.split('/').join('_');
-
-            //Unstringify pars and validate input
-
-            try {
-
-              Object.keys(requestPost).forEach(function (element) {
-
-                requestPost[element] = JSON.parse(requestPost[element]);
-
-              });
-
-            } catch (e) {
-
-              res.end("Paramaters must be JSON encoded");
-
-            }
-
-            var authCredentials = {
-
-              userid: requestPost.userid,
-              token: requestPost.token,
-              secretkey: requestPost.secretkey,
-              apikey: requestPost.apikey
-
-            }
-            C.auth.credentialsToPass(authCredentials).then(function (authPass) {
-
-              hook('hook_post' + hookurl, requestPost, authPass)
-                .then(function (data) {
-
-                  res.end(JSON.stringify(data));
-
-                }, function (error) {
-
-                  res.end(JSON.stringify(error));
-
-                });
-
-            }, function (error) {
-
-              res.end(JSON.stringify(error));
-
-            });
-
-          });
-
-        });
-      } else if (req.method === "GET") {
-        var requestUrl = url.parse(req.url, true),
-          requestGet = requestUrl.query,
-          hookurl = requestUrl.pathname.split('/').join('_');
-
-        hook('hook_' + req.method.toLowerCase() + hookurl, {
-          'url': requestUrl.pathname,
-          'get': requestGet,
-          'res': res,
-          'auth': C.auth.getPermissionsLevel(requestGet)
-        }, function (data) {
-
-          data.res.writeHead(200, {
-            'Content-Type': 'application/json'
-          });
-          data.res.writeHead(200, {
-            'Access-Control-Allow-Origin': '*'
-          });
-
-          data.res.write(data.returns);
-
-          data.res.end();
-
-        });
-
-      } else {
-        res.writeHead(400);
-        res.end("Unknown action");
-      }
-
-      //Functions, each get a request argument and paramaters
-
-    };
-
-    if (process.config.https) {
-
-      var https = require('https');
-
-      var tls_options = {
-        key: fs.readFileSync(process.config.https_key),
-        cert: fs.readFileSync(process.config.https_cert)
-      };
-
-      process.server = https.createServer(tls_options, serverhandler);
-
-      process.server.listen(process.config.port);
-
-    } else {
-
-      process.server = http.createServer(serverhandler);
-
-      process.server.listen(process.config.port);
-
-    }
 
   });
 

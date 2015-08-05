@@ -20,7 +20,7 @@ var exports = {
   // Global functions
   globals: {
     credentialsToPass: function (authCredentials) {
-
+      
       return new Promise(function (yes, no) {
 
         var authPass = {
@@ -32,8 +32,8 @@ var exports = {
 
         if (authCredentials.secretkey && authCredentials.apikey) {
 
-          if (authCredentials.secretkey === process.config.secretkey && authCredentials.apikey === process.config.apikey) {
-
+          if (authCredentials.secretkey === C.config.secretkey && authCredentials.apikey === C.config.apikey) {
+            
             if (authCredentials.userid) {
               authPass.userid = authCredentials.userid;
             }
@@ -70,7 +70,7 @@ var exports = {
 
         //Run any hooks that latch onto this one to extend the authpass
 
-        hook('hook_auth_authpass', authPass, authPass)
+        C.hook('hook_auth_authpass', authPass, authPass)
           .then(function (authPass) {
 
             //Complete access pass received.
@@ -126,11 +126,11 @@ var exports = {
       var rolesArray = authPass.roles;
       var rolePermissions = [];
 
-      Object.keys(roles).forEach(function (role) {
+      Object.keys(C.roles).forEach(function (role) {
 
         if (rolesArray.indexOf(role) !== -1) {
 
-          roles[role].permissions.forEach(function (permission) {
+          C.roles[role].permissions.forEach(function (permission) {
 
             rolePermissions.push(permission);
 
@@ -161,7 +161,7 @@ var exports = {
   hook_auth_authpass: {
     rank: 0,
     event: function (thisHook, data) {
-
+            
       //Check if a lone userid was passed and convert it to an authenticated authPass
 
       if (typeof data === 'string') {
@@ -187,7 +187,7 @@ var exports = {
   hook_auth_maketoken: {
     rank: 0,
     event: function (thisHook, data) {
-
+      
       if (!data.userid || typeof data.userid !== "string") {
 
         thisHook.finish(false, "No user ID");
@@ -199,7 +199,7 @@ var exports = {
 
       if (C.auth.checkPermissions(["can make access token"], thisHook.authPass)) {
 
-        crypto.randomBytes(process.config.authTokenLength, function (ex, buf) {
+        crypto.randomBytes(C.config.authTokenLength, function (ex, buf) {
           authToken = buf.toString('hex');
 
           //Create new user if not in existence
@@ -227,24 +227,21 @@ var exports = {
 
     }
   },
-  // POST /auth
-  hook_post_auth_maketoken: {
-    rank: 0,
-    event: function (thisHook, data) {
-
-      hook("hook_auth_maketoken", data, thisHook.authPass).then(function (success) {
-
-        thisHook.finish(true, success);
-
-      }, function (fail) {
-
-        thisHook.finish(false, fail);
-
-      });
-
-    }
-  }
 }
+
+C.app.post('/auth/maketoken', function (req, res) {
+    
+  C.hook("hook_auth_maketoken", req.body, req.authPass).then(function (success) {
+
+    res.send(success);
+
+  }, function (fail) {
+
+    res.send(fail);
+
+  });
+
+});
 
 process.userlist = exports.userlist;
 

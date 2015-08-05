@@ -12,13 +12,13 @@
 
 //Get and store command line paramaters
 
-process.paramaters = {};
+var paramaters = {};
 
 process.argv.forEach(function (val, index, array) {
 
   if (val.indexOf("=") !== -1) {
     val = val.split("=");
-    process.paramaters[val[0]] = val[1];
+    paramaters[val[0]] = val[1];
   }
 
 });
@@ -30,7 +30,6 @@ var config = {
   name: "default",
   port: 3000,
   peerport: 3001,
-  telnetport: 8124,
   sendemailto: "hub.wlmg.co.uk",
 
   // CMS integration
@@ -59,6 +58,4 @@ var config = {
 
 };
 
-var roles = require('./roles.js');
-
-var server = require(config.server)(config, process.paramaters, roles);
+var server = require(config.server)(config, paramaters, require('./roles.js'));

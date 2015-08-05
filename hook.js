@@ -1,7 +1,7 @@
 var hook = function (hookname, data, authPass) {
     
   var auth = authPass;
-
+  
   return new Promise(function (yes, no) {
 
     //Check auth
@@ -117,6 +117,7 @@ var hook = function (hookname, data, authPass) {
           } catch (e) {
             console.log("***********");
             console.log("Hook error");
+            console.log("hook: " + hookname);
             console.log("path: " + thisHook.path);
             console.log("rank: " + thisHook.rank);
             console.log("index: " + thisHook.index);
@@ -136,7 +137,7 @@ var hook = function (hookname, data, authPass) {
 
     //Hookcalls are now sorted, ready to be run
 
-    promiseChain(hookCallPromises, data, yes, no);
+    C.promiseChain(hookCallPromises, data, yes, no);
 
   });
 
