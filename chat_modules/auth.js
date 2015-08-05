@@ -68,16 +68,13 @@ var exports = {
 
         } else {
 
+          authPass.userid = "anonymous";
           authPass.roles = ["anonymous"];
-          yes(authPass);
-          return true;
 
         }
 
-        //If function gets to this point the user is either admin or an ordinary authenticated user.
-
         //Run any hooks that latch onto this one to extend the authpass
-        
+
         hook('hook_authpass', authPass, authPass)
           .then(function (authPass) {
 
@@ -169,7 +166,7 @@ var exports = {
   hook_authpass: {
     rank: 0,
     event: function (thisHook, data) {
-
+            
       //Check if a lone userid was passed and convert it to an authenticated authPass
 
       if (typeof data === 'string' || data instanceof String) {
@@ -187,7 +184,7 @@ var exports = {
         return false;
 
       }
-      
+
       thisHook.finish(true, data);
 
     }
@@ -196,7 +193,7 @@ var exports = {
   hook_post_auth_maketoken: {
     rank: 0,
     event: function (thisHook, data) {
-            
+
       if (!data.userid) {
 
         thisHook.finish(false, "No user ID");

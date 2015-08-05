@@ -1,5 +1,5 @@
 var hook = function (hookname, data, authPass) {
-
+  
   var auth = authPass;
 
   return new Promise(function (yes, no) {
@@ -60,11 +60,11 @@ var hook = function (hookname, data, authPass) {
 
     if (!hookcalls.length) {
 
-      no(data);
+      no("No such hook exists");
 
     }
 
-    //Sort the modules in order of the rank of that event function within them
+    //Sort the hooks in order of rank
 
     hookcalls.sort(function (a, b) {
 
