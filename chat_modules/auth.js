@@ -24,36 +24,81 @@ var exports = {
   },
   // Global functions
   globals: {
-    getPermissionsLevel: function (data) {
+    credentialsToPass: function (authCredentials) {
 
-      var permissionsLevel = [];
+      return new Promise(function (yes, no) {
 
-      if (data.secretkey && data.apikey) {
+        var authPass = {
 
-        if (data.secretkey === process.config.secretkey && data.apikey === process.config.apikey) {
+          roles: [],
+          userid: null,
 
-          permissionsLevel.push("authenticated");
-          permissionsLevel.push("admin");
+        };
+
+        if (authCredentials.secretkey && authCredentials.apikey) {
+
+          if (authCredentials.secretkey === process.config.secretkey && authCredentials.apikey === process.config.apikey) {
+
+            if (authCredentials.userid) {
+              authPass.userid = authCredentials.userid;
+            }
+            authPass.roles.push("admin");
+            authPass.roles.push("authenticated");
+
+          } else {
+
+            no("Attempt at API key login with wrong credentials");
+            return false;
+
+          }
+
+        } else if (authCredentials.userid && authCredentials.token) {
+
+          if (C.auth.checkAccessToken(authCredentials.userid, authCredentials.token)) {
+
+            authPass.userid = authCredentials.userid;
+            authPass.roles.push("authenticated");
+
+          } else {
+
+            no("Attempt at token and userid login with wrong credentials");
+            return false;
+
+          }
+
+        } else {
+
+          authPass.roles = ["anonymous"];
+          yes(authPass);
+          return true;
 
         }
 
-      } else if (data.userid && data.token) {
+        //If function gets to this point the user is either admin or an ordinary authenticated user.
 
-        if (C.auth.checkAccessToken(data.userid, data.token)) {
+        //Run any hooks that latch onto this one to extend the authpass
+        
+        hook('hook_authpass', authPass, authPass)
+          .then(function (authPass) {
 
-          permissionsLevel.push("authenticated");
+            //Complete access pass received.
 
-        }
+            yes(authPass);
+            return true;
 
-      } else {
+          }, function (error) {
 
-        permissionsLevel.push("anonymous");
+            //Complete access pass received.
 
-      }
+            no(error);
+            return false;
 
-      return permissionsLevel;
+          });
+
+      });
 
     },
+
 
     checkAccessToken: function (userid, token) {
 
@@ -84,8 +129,9 @@ var exports = {
       return authenticated;
 
     },
-    checkPermissions: function (permissionsArray, rolesArray) {
+    checkPermissions: function (permissionsArray, authPass) {
 
+      var rolesArray = authPass.roles;
       var rolePermissions = [];
 
       Object.keys(roles).forEach(function (role) {
@@ -120,24 +166,47 @@ var exports = {
 
     },
   },
+  hook_authpass: {
+    rank: 0,
+    event: function (thisHook, data) {
 
+      //Check if a lone userid was passed and convert it to an authenticated authPass
+
+      if (typeof data === 'string' || data instanceof String) {
+
+        var data = {
+
+          userid: data,
+          roles: ["authenticated"]
+
+        }
+
+      } else if (!data.roles || !data.userid) {
+
+        thisHook.finish(false, "invalid authPass");
+        return false;
+
+      }
+      
+      thisHook.finish(true, data);
+
+    }
+  },
   // POST /auth
   hook_post_auth_maketoken: {
     rank: 0,
-    event: function (data) {
-
-      var self = this;
-      
+    event: function (thisHook, data) {
+            
       if (!data.userid) {
 
-        this.finish(false, "No user ID");
+        thisHook.finish(false, "No user ID");
         return false;
 
       }
 
       var authToken;
 
-      if (C.auth.checkPermissions(["can make access token"], self.auth)) {
+      if (C.auth.checkPermissions(["can make access token"], thisHook.authPass)) {
 
         crypto.randomBytes(exports.options.token_length, function (ex, buf) {
           authToken = buf.toString('hex');
@@ -155,13 +224,13 @@ var exports = {
           }
 
           exports.userlist[data.userid].tokens.push(authToken);
-          self.finish(true, authToken);
+          thisHook.finish(true, authToken);
 
         });
 
       } else {
 
-        self.finish(false, "Access Denied");
+        thisHook.finish(false, "Access Denied");
 
       }
 

@@ -1,29 +1,60 @@
-var hook = function (hookname, data, auth) {
+var hook = function (hookname, data, authPass) {
+
+  var auth = authPass;
 
   return new Promise(function (yes, no) {
+
+    //Check auth
+
+    if (typeof auth === 'string' || auth instanceof String) {
+
+      if (auth === "root") {
+
+        auth = {
+
+          userid: "root",
+          roles: ["authenticated"]
+
+        }
+
+      } else {
+
+        no("invalid authPass");
+        return false;
+
+      }
+
+    } else if (!auth || !auth.roles || !auth.userid) {
+
+      no("invalid authPass");
+      return false;
+
+    }
 
     var modules = [];
     var hookcalls = [];
 
-    // Loop over all installed node.js modules 
+    // Loop over all installed node.js modules and check if hook is present
+
     Object.keys(require('module')._cache).forEach(function (element, index) {
 
-      modules.push(require(element));
+      var moduleContents = require(element);
 
-    });
+      if (moduleContents[hookname]) {
 
-    //Add modules to the array if they contain the triggered event
+        var hookcall = {
 
-    modules.forEach(function (hookcall, index) {
+          event: moduleContents[hookname].event,
+          parentModule: element,
+          rank: moduleContents[hookname].rank
 
-      if (hookcall[hookname]) {
+        };
 
-        hookcalls.push(hookcall[hookname]);
+        hookcalls.push(hookcall);
 
       }
 
     });
-
 
     //If no hook fail promise
 
@@ -53,15 +84,15 @@ var hook = function (hookname, data, auth) {
 
     hookCallPromises = [];
 
-    hookcalls.forEach(function (hookcall) {
+    hookcalls.forEach(function (hookcall, index) {
 
       hookCallPromises.push(function (vars) {
 
         return new Promise(function (yes, no) {
 
-          var self = {};
+          thisHook = {};
 
-          self.finish = function (outcome, output) {
+          thisHook.finish = function (outcome, output) {
 
             if (outcome) {
 
@@ -75,9 +106,27 @@ var hook = function (hookname, data, auth) {
 
           };
 
-          self.auth = auth;
+          thisHook.authPass = auth;
 
-          hookcall.event.call(self, vars);
+          thisHook.path = hookcall.parentModule;
+          thisHook.rank = hookcall.rank;
+          thisHook.index = index;
+
+          try {
+            hookcall.event(thisHook, vars);
+          } catch (e) {
+            console.log("***********");
+            console.log("Hook error");
+            console.log("path: " + thisHook.path);
+            console.log("rank: " + thisHook.rank);
+            console.log("index: " + thisHook.index);
+            console.log("authPass:");
+            console.log(thisHook.authPass);
+            console.log("message:");
+            console.log(e);
+            console.log("***********");
+            no("ERROR");
+          }
 
         });
 

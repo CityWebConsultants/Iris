@@ -181,12 +181,6 @@ module.exports = function (config, paramaters, roles) {
 
     });
 
-    // Run update hook
-
-    hook('hook_update', {}, function (data) {
-      console.log("\nAny update scripts present will now run.\n");
-    });
-
     //Server and request function router
 
     var serverhandler = function (req, res) {
@@ -228,24 +222,36 @@ module.exports = function (config, paramaters, roles) {
               res.end("Paramaters must be JSON encoded");
 
             }
-            
-            hook('hook_post' + hookurl, requestPost, C.auth.getPermissionsLevel(requestPost))
-              .then(function (data) {
 
-                res.end(JSON.stringify(data));
+            var authCredentials = {
 
-              }, function (error) {
+              userid: requestPost.userid,
+              token: requestPost.token,
+              secretkey: requestPost.secretkey,
+              apikey: requestPost.apikey
 
-                console.log(error);
-                res.end(JSON.stringify(error));
+            }
+            C.auth.credentialsToPass(authCredentials).then(function (authPass) {
+              
+              hook('hook_post' + hookurl, requestPost, authPass)
+                .then(function (data) {
 
-              });
+                  res.end(JSON.stringify(data));
 
-            process.on('complete_hook_post' + hookurl, function (data) {
-              res.end(data.returns);
+                }, function (error) {
+
+                  res.end(JSON.stringify(error));
+
+                });
+
+            }, function (error) {
+
+              res.end(JSON.stringify(error));
+
             });
 
           });
+
         });
       } else if (req.method === "GET") {
         var requestUrl = url.parse(req.url, true),
