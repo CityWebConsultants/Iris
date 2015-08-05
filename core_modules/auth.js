@@ -17,11 +17,6 @@ var crypto = require('crypto');
 var exports = {
   //List of logged in users/access tokens
   userlist: {},
-  // A side effect of declaring this object is that you can have default options!
-  options: {
-    token_length: 16,
-    allowdebug: false
-  },
   // Global functions
   globals: {
     credentialsToPass: function (authCredentials) {
@@ -75,7 +70,7 @@ var exports = {
 
         //Run any hooks that latch onto this one to extend the authpass
 
-        hook('hook_authpass', authPass, authPass)
+        hook('hook_auth_authpass', authPass, authPass)
           .then(function (authPass) {
 
             //Complete access pass received.
@@ -163,13 +158,13 @@ var exports = {
 
     },
   },
-  hook_authpass: {
+  hook_auth_authpass: {
     rank: 0,
     event: function (thisHook, data) {
-            
+
       //Check if a lone userid was passed and convert it to an authenticated authPass
 
-      if (typeof data === 'string' || data instanceof String) {
+      if (typeof data === 'string') {
 
         var data = {
 
@@ -189,12 +184,11 @@ var exports = {
 
     }
   },
-  // POST /auth
-  hook_post_auth_maketoken: {
+  hook_auth_maketoken: {
     rank: 0,
     event: function (thisHook, data) {
 
-      if (!data.userid) {
+      if (!data.userid || typeof data.userid !== "string") {
 
         thisHook.finish(false, "No user ID");
         return false;
@@ -205,7 +199,7 @@ var exports = {
 
       if (C.auth.checkPermissions(["can make access token"], thisHook.authPass)) {
 
-        crypto.randomBytes(exports.options.token_length, function (ex, buf) {
+        crypto.randomBytes(process.config.authTokenLength, function (ex, buf) {
           authToken = buf.toString('hex');
 
           //Create new user if not in existence
@@ -230,6 +224,23 @@ var exports = {
         thisHook.finish(false, "Access Denied");
 
       }
+
+    }
+  },
+  // POST /auth
+  hook_post_auth_maketoken: {
+    rank: 0,
+    event: function (thisHook, data) {
+
+      hook("hook_auth_maketoken", data, thisHook.authPass).then(function (success) {
+
+        thisHook.finish(true, success);
+
+      }, function (fail) {
+
+        thisHook.finish(false, fail);
+
+      });
 
     }
   }

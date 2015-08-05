@@ -87,6 +87,16 @@ module.exports = function (config, paramaters, roles) {
     var dbModels = {};
     var dbSchema = {};
 
+    //Core modules
+
+    C.auth = require('./core_modules/auth').globals;
+
+    console.log("\nCore modules:\n");
+
+    console.log("Auth");
+
+    console.log("\nAdditional modules:\n");
+
     // Automatically load modules
     process.config.modules_enabled.forEach(function (element, index) {
       chat.api[element.name] = require('./chat_modules/' + element.name);
@@ -232,7 +242,7 @@ module.exports = function (config, paramaters, roles) {
 
             }
             C.auth.credentialsToPass(authCredentials).then(function (authPass) {
-              
+
               hook('hook_post' + hookurl, requestPost, authPass)
                 .then(function (data) {
 

@@ -1,5 +1,5 @@
 var hook = function (hookname, data, authPass) {
-  
+    
   var auth = authPass;
 
   return new Promise(function (yes, no) {
@@ -37,7 +37,7 @@ var hook = function (hookname, data, authPass) {
     // Loop over all installed node.js modules and check if hook is present
 
     Object.keys(require('module')._cache).forEach(function (element, index) {
-
+      
       var moduleContents = require(element);
 
       if (moduleContents[hookname]) {

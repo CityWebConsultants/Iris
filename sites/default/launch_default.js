@@ -50,91 +50,13 @@ var config = {
   db_port: 27017,
   db_name: 'chat-app',
 
+  //Auth
+
+  authTokenLength: 16,
 
   // Enabled modules and per-module settings
-  modules_enabled: [
-    {
-      name: 'debug'
-        },
-    {
-      name: 'auth',
-      options: {
-        token_length: 16,
-        allowdebug: true
-      }
-        },
-    {
-      name: 'sockets',
-      options: {
-        awayTimeout: 60000
-      }
-        },
-    {
-      name: 'group_manager',
-      options: {
-        allowdebug: true
-      }
-        },
-    {
-      name: 'message_add',
-      options: {
-        textFormats: {
-          default: {
-            sanitize: true,
-            allowedTags: ['a'],
-            allowedAttributes: {
-              'a': ['href', 'title'],
-            }
-          }
-        }
-      }
-        },
-    {
-      name: 'highlight'
-        },
-    {
-      name: 'message_fetch'
-        },
-    {
-      name: 'message_edit'
-        },
-    {
-      name: 'socket_notifications'
-        },
-    {
-      name: 'activity',
-      options: {
-        awayCleanupTime: 30000
-      }
-        },
-    {
-      name: 'socket_groups'
-        },
-    {
-      name: 'logout'
-        },
-    {
-      name: 'peerauth'
-        },
-    {
-      name: 'mediacall'
-        },
-    {
-      name: 'user_sync'
-        },
-    {
-      name: 'group_sync'
-        },
-    {
-      name: 'typing'
-        },
-    {
-      name: 'email_notifications'
-        },
-    {
-      name: 'update'
-        }
-    ]
+  modules_enabled: []
+
 };
 
 var roles = require('./roles.js');

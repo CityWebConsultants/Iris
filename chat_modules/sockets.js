@@ -3,7 +3,7 @@
 "use strict";
 
 var io = require('socket.io');
-var auth = require('../chat_modules/auth');
+var auth = C.auth;
 
 var socketapi = function (socket) {
 
@@ -180,7 +180,7 @@ var exports = {
         socket.on("disconnect", function (reason) {
 
           if (socket.userid && auth.userlist[socket.userid] && auth.userlist[socket.userid].sockets) {
-console.log(socket.userid + ' disconnected.');
+            console.log(socket.userid + ' disconnected.');
             // for each socket in the userlist registered to this user
             auth.userlist[socket.userid].sockets.forEach(function (element, index) {
               if (element === socket) {
