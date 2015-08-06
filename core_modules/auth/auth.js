@@ -6,10 +6,12 @@ var crypto = require('crypto');
 
 C.registerModule("auth");
 
-C.m.auth.globals = {
+CM.auth.globals = {
+
+  roles: C.include(__dirname + "/roles.js", C.configPath + "/auth/roles.js"),
 
   //List of logged in users/access tokens
-  userlist: {},
+  userList: {},
 
   credentialsToPass: function (authCredentials) {
 
@@ -41,7 +43,7 @@ C.m.auth.globals = {
 
       } else if (authCredentials.userid && authCredentials.token) {
 
-        if (C.m.auth.globals.checkAccessToken(authCredentials.userid, authCredentials.token)) {
+        if (CM.auth.globals.checkAccessToken(authCredentials.userid, authCredentials.token)) {
 
           authPass.userid = authCredentials.userid;
           authPass.roles.push("authenticated");
@@ -85,7 +87,7 @@ C.m.auth.globals = {
 
   checkAccessToken: function (userid, token) {
 
-    var user = C.m.auth.globals.userlist[userid],
+    var user = CM.auth.globals.userlist[userid],
       token = token,
       authenticated = false;
 
@@ -118,11 +120,11 @@ C.m.auth.globals = {
     var rolesArray = authPass.roles;
     var rolePermissions = [];
 
-    Object.keys(C.roles).forEach(function (role) {
+    Object.keys(CM.auth.globals.roles).forEach(function (role) {
 
       if (rolesArray.indexOf(role) !== -1) {
 
-        C.roles[role].permissions.forEach(function (permission) {
+        CM.auth.globals.roles[role].permissions.forEach(function (permission) {
 
           rolePermissions.push(permission);
 
@@ -151,7 +153,7 @@ C.m.auth.globals = {
   },
 };
 
-C.m.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data) {
+CM.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data) {
 
   //Check if a lone userid was passed and convert it to an authenticated authPass
 
@@ -176,7 +178,7 @@ C.m.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data) {
 });
 
 
-C.m.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
+CM.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
   if (!data.userid || typeof data.userid !== "string") {
 

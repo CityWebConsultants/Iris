@@ -5,6 +5,16 @@ var version = "RC1";
 
 module.exports = function (config) {
 
+  //Create global object for the application
+
+  global.C = {};
+
+  var path = require('path');
+
+  C.sitePath = process.cwd();
+
+  C.configPath = path.join(C.sitePath, config.configurations_path);
+  
   //Fetch command line paramaters
 
   var paramaters = {};
@@ -32,19 +42,11 @@ module.exports = function (config) {
 
   }
 
-  //Create global object for the application
-
-  global.C = {};
-
-  //Store config object for global use (this has now been updated with the additional paramaters.
+  //Store config object for global use 
 
   C.config = config;
 
   config.version = version;
-
-  //Store the roles and permissions object from the lanched site
-
-  C.roles = config.roles;
 
   console.log("\nLaunching server: " + config.version + "\n");
 
@@ -74,18 +76,32 @@ module.exports = function (config) {
 
   require('./db');
 
+  //Free C object, no longer extensible
+
+  Object.freeze(C);
+
   //Core modules
 
-  require('./core_modules/auth/auth');
+  var coreModules = [
+
+    {
+      name: 'auth',
+      path: './core_modules',
+      enabled: true
+    },
+
+  ];
+
+  C.config.allModules = coreModules.concat(config.modules);
 
   //Loop over enabled modules in site config
 
-  config.modules.forEach(function (item) {
+  C.config.allModules.forEach(function (item) {
 
     if (item.enabled) {
       require(item.path + '/' + item.name + '/' + item.name);
     }
 
   });
-
+  
 };

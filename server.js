@@ -54,7 +54,7 @@ C.app.use(function (req, res, next) {
 
   }
 
-  C.m.auth.globals.credentialsToPass(authCredentials).then(function (authPass) {
+  CM.auth.globals.credentialsToPass(authCredentials).then(function (authPass) {
 
     req.authPass = authPass;
     next();

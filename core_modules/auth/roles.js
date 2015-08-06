@@ -6,26 +6,15 @@ var roles = {
   // authenticated user: anyone who has successfuly authenticated
   // with a userid/token pair
   'authenticated': {
-    permissions: ["can create group", "can create 121 group"]
+    permissions: []
   },
   // admin user: anyone authenticated with userid defined as admin
   // OR anyone authenticating with secretkey and apikey
   'admin': {
 
-    permissions: [
-      "can make access token",
-      "can bypass group permissions",
-      "can update group",
-      "can create group with entityRef",
-      "can create group without self"
-    ]
+    permissions: ["can do anything"]
 
-  },
-  'superadmin': {
-    permissions: [
-      "can do anything",
-    ]
-  },
+  }
 };
 
 module.exports = roles;

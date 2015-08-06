@@ -1,4 +1,4 @@
-C.m = {};
+CM = {};
 
 var moduleTemplate = (function () {
 
@@ -8,7 +8,7 @@ var moduleTemplate = (function () {
   return {
 
     set path(value) {
-      
+
       if (!path) {
 
         path = value;
@@ -61,44 +61,54 @@ var moduleTemplate = (function () {
 
 })
 
-var getCallerFile = function() {
-    var originalFunc = Error.prepareStackTrace;
-
-    var callerfile;
-    try {
-        var err = new Error();
-        var currentfile;
-
-        Error.prepareStackTrace = function (err, stack) { return stack; };
-
-        currentfile = err.stack.shift().getFileName();
-
-        while (err.stack.length) {
-            callerfile = err.stack.shift().getFileName();
-
-            if(currentfile !== callerfile) break;
-        }
-    } catch (e) {}
-
-    Error.prepareStackTrace = originalFunc; 
-
-    return callerfile;
-}
-
 C.registerModule = function (name) {
-  
-  if (C.m[name]) {
+
+  if (CM[name]) {
 
     console.log("Module already exists");
 
   } else {
 
-    C.m[name] = new moduleTemplate;
-    C.m[name].path = getCallerFile();
-    Object.seal(C.m[name]);
+    CM[name] = new moduleTemplate;
+    CM[name].path = C.getModulePath(name);
+    Object.seal(CM[name]);
 
   }
 
-  return C.m[name];
+  return CM[name];
+
+};
+
+C.getModulePath = function (name) {
+
+  var path = require('path');
+
+  var found = "";
+
+  C.config.allModules.forEach(function (enabledModule) {
+
+    if (enabledModule.enabled && enabledModule.name === name) {
+
+      found = path.parse(enabledModule.path + '/' + enabledModule.name + '/' + enabledModule.name);
+
+    }
+
+  });
+
+  return found;
+
+};
+
+C.include = function (defaultLocation, customLocation) {
+
+  var customLocation = customLocation;
+
+  //  Check file exists
+
+  try {
+    return require(customLocation);
+  } catch (e) {
+    return require(defaultLocation);
+  }
 
 };

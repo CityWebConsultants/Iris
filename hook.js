@@ -35,9 +35,9 @@ var hook = function (hookname, data, authPass) {
 
     // Loop over all installed node.js modules and check if hook is present
 
-    Object.keys(C.m).forEach(function (element) {
+    Object.keys(CM).forEach(function (element) {
 
-      var moduleHooks = C.m[element].hooks;
+      var moduleHooks = CM[element].hooks;
 
       if (moduleHooks[hookname]) {
 

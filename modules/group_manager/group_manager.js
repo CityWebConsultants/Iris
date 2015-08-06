@@ -7,37 +7,37 @@ C.registerModule("group_manager");
 C.registerDbModel("group");
 
 C.registerDbSchema("group", {
-  
+
   name: {
-        type: String,
-        required: true
-      },
-      members: [{
-        _id: false,
-        userid: {
-          type: String,
-          required: true,
-        },
-        roles: [String],
-        lastUpdated: {
-          type: Date,
-          required: false
-        },
-        joined: {
-          type: Date,
-          required: false
-        }
+    type: String,
+    required: true
+  },
+  members: [{
+    _id: false,
+    userid: {
+      type: String,
+      required: true,
+    },
+    roles: [String],
+    lastUpdated: {
+      type: Date,
+      required: false
+    },
+    joined: {
+      type: Date,
+      required: false
+    }
       }],
-      entityRef: {
-        type: String,
-        required: false,
-        unique: true
-      },
-      permissions: {
-        type: String,
-        required: false,
-        unique: true
-      }
+  entityRef: {
+    type: String,
+    required: false,
+    unique: true
+  },
+  permissions: {
+    type: String,
+    required: false,
+    unique: true
+  }
 });
 
 //

@@ -6,7 +6,7 @@ var config = {
   // Server
 
   boot_location: "../../boot",
-  configurations_path: "./configurations",
+  configurations_path: "/configurations",
   port: 3000,
   peerport: 3001,
 
@@ -19,10 +19,6 @@ var config = {
   https: false,
   https_key: '/var/www/ssl/hub.wlmg.co.uk.key',
   https_cert: '/var/www/ssl/hub_combined.crt',
-
-  //Location of roles file
-
-  roles: require('./roles.js'),
 
   // Database
   db_server: 'localhost',
