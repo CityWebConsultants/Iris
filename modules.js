@@ -2,11 +2,30 @@ C.m = {};
 
 var moduleTemplate = (function () {
 
-  var hooks = {};
+  var hooks = {},
+    path;
 
   return {
 
+    set path(value) {
+      
+      if (!path) {
+
+        path = value;
+
+      } else {
+
+        console.log("path already set");
+
+      }
+
+    },
     globals: {},
+    get path() {
+
+      return path;
+
+    },
     registerHook: function (hookname, rank, callback) {
 
       if (typeof hookname === "string" && typeof rank === "number" && typeof callback === "function") {
@@ -42,8 +61,32 @@ var moduleTemplate = (function () {
 
 })
 
-C.registerModule = function (name) {
+var getCallerFile = function() {
+    var originalFunc = Error.prepareStackTrace;
 
+    var callerfile;
+    try {
+        var err = new Error();
+        var currentfile;
+
+        Error.prepareStackTrace = function (err, stack) { return stack; };
+
+        currentfile = err.stack.shift().getFileName();
+
+        while (err.stack.length) {
+            callerfile = err.stack.shift().getFileName();
+
+            if(currentfile !== callerfile) break;
+        }
+    } catch (e) {}
+
+    Error.prepareStackTrace = originalFunc; 
+
+    return callerfile;
+}
+
+C.registerModule = function (name) {
+  
   if (C.m[name]) {
 
     console.log("Module already exists");
@@ -51,6 +94,7 @@ C.registerModule = function (name) {
   } else {
 
     C.m[name] = new moduleTemplate;
+    C.m[name].path = getCallerFile();
     Object.seal(C.m[name]);
 
   }
@@ -58,60 +102,3 @@ C.registerModule = function (name) {
   return C.m[name];
 
 };
-
-
-
-//    // Automatically load modules
-//    config.modules_enabled.forEach(function (element, index) {
-//
-//      //Initialise dbModels if any set in module
-//
-//      if (thisModule.dbModels) {
-//
-//        var models = thisModule.dbModels;
-//
-//        Object.keys(models).forEach(function (model) {
-//
-//          dbModels[model] = {
-//            options: models[model],
-//            moduleName: element.name,
-//            model: {}
-//          };
-//
-//        });
-//
-//      }
-//
-//      if (thisModule.dbSchemaFields) {
-//
-//        var schemaSets = thisModule.dbSchemaFields;
-//
-//        Object.keys(schemaSets).forEach(function (model) {
-//
-//          if (dbModels[model]) {
-//
-//            //dbModel exists
-//
-//            var schemaFields = schemaSets[model];
-//
-//            Object.keys(schemaFields).forEach(function (field) {
-//
-//              //Add or overwrite a field in a schema model
-//
-//              dbModels[model].model[field] = schemaFields[field];
-//
-//            })
-//
-//          } else {
-//
-//            console.log(model + " is not a valid dbModel");
-//
-//          }
-//
-//        });
-//
-//      }
-//
-//      console.log(element.name);
-//
-//    });

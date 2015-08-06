@@ -1,13 +1,12 @@
 //Connect to database
 
 global.mongoose = require('mongoose');
-mongoose.connect('mongodb://' + C.config.db_server + ':' + C.config.db_port + '/' + C.config.db_name);
 
-var db = mongoose.connection;
+mongoose.connect('mongodb://' + C.config.db_server + ':' + C.config.db_port + '/' + C.config.db_name);
 
 //Wait until database is open and fail on error
 
-db.on('error', function (error) {
+mongoose.connection.on('error', function (error) {
 
   console.log(error);
 
@@ -15,14 +14,14 @@ db.on('error', function (error) {
 
 //Set placeholder objects for DB models and DB schema
 
-C.dbModels = {};
-C.dbSchemaFields = {};
+var dbModels = {};
+var dbSchemaFields = {};
 
 C.registerDbModel = function (name) {
 
-  if (!C.dbModels[name]) {
+  if (!dbModels[name]) {
 
-    C.dbModels[name] = {};
+    dbModels[name] = {};
 
   } else {
 
@@ -40,13 +39,13 @@ C.registerDbSchema = function (model, schema) {
 
     Object.keys(schema).forEach(function (field) {
 
-      if (!C.dbSchemaFields[model]) {
+      if (!dbSchemaFields[model]) {
 
-        C.dbSchemaFields[model] = {};
+        dbSchemaFields[model] = {};
 
       }
 
-      C.dbSchemaFields[model][field] = schema[field];
+      dbSchemaFields[model][field] = schema[field];
 
     });
 
@@ -60,14 +59,14 @@ C.registerDbSchema = function (model, schema) {
 
 C.dbCollections = {};
 
-db.once('open', function () {
+mongoose.connection.once('open', function () {
 
   //Loop over all the db models that have been initialised and slot in any schema attached to them
 
-  Object.keys(C.dbModels).forEach(function (model) {
+  Object.keys(dbModels).forEach(function (model) {
 
-    if (C.dbSchemaFields[model]) {
-      var schema = new mongoose.Schema(C.dbSchemaFields[model]);
+    if (dbSchemaFields[model]) {
+      var schema = new mongoose.Schema(dbSchemaFields[model]);
 
       C.dbCollections[model] = mongoose.model(model, schema);
 
@@ -78,7 +77,7 @@ db.once('open', function () {
     }
 
   });
-
+  
   console.log("Database running");
 
 });

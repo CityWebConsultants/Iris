@@ -6,6 +6,7 @@ var config = {
   // Server
 
   boot_location: "../../boot",
+  configurations_path: "./configurations",
   port: 3000,
   peerport: 3001,
 
@@ -37,9 +38,8 @@ var config = {
 
     {
       name: 'group_manager',
-      path: 'modules',
+      path: './modules',
       enabled: true
-
     },
 
   ]

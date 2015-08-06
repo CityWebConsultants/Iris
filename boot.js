@@ -39,7 +39,7 @@ module.exports = function (config) {
   //Store config object for global use (this has now been updated with the additional paramaters.
 
   C.config = config;
-  
+
   config.version = version;
 
   //Store the roles and permissions object from the lanched site
@@ -47,7 +47,7 @@ module.exports = function (config) {
   C.roles = config.roles;
 
   console.log("\nLaunching server: " + config.version + "\n");
-  
+
   //Hook system
 
   C.hook = require('./hook');
@@ -76,14 +76,14 @@ module.exports = function (config) {
 
   //Core modules
 
-  require('./core_modules/auth');
+  require('./core_modules/auth/auth');
 
   //Loop over enabled modules in site config
 
   config.modules.forEach(function (item) {
 
     if (item.enabled) {
-      require('./' + item.path + '/' + item.name);
+      require(item.path + '/' + item.name + '/' + item.name);
     }
 
   });
