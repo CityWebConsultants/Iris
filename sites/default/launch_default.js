@@ -54,7 +54,16 @@ var config = {
   authTokenLength: 16,
 
   // Enabled modules and per-module settings
-  modules_enabled: []
+  modules: [
+  
+    {
+      name: 'group_manager',
+      path: 'modules',
+      enabled: true
+      
+    },
+    
+  ]
 
 };
 

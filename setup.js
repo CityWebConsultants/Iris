@@ -53,7 +53,7 @@ module.exports = function (config, paramaters, roles) {
 
   require('./server');
 
-  //Directory of enabled modules
+  //Load in module system
 
   require('./modules');
 
@@ -61,10 +61,18 @@ module.exports = function (config, paramaters, roles) {
 
   require('./db');
 
-  //Authentication module
+  //Core modules
 
   require('./core_modules/auth');
 
-  require('./modules/group_manager');
+  //Loop over enabled modules in site config
+
+  config.modules.forEach(function (item) {
+
+    if (item.enabled) {
+      require('./' + item.path + '/' + item.name);
+    }
+    
+  });
 
 };
