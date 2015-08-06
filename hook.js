@@ -1,7 +1,7 @@
 var hook = function (hookname, data, authPass) {
-    
+
   var auth = authPass;
-  
+
   return new Promise(function (yes, no) {
 
     //Check auth
@@ -31,22 +31,22 @@ var hook = function (hookname, data, authPass) {
 
     }
 
-    var modules = [];
     var hookcalls = [];
 
     // Loop over all installed node.js modules and check if hook is present
 
-    Object.keys(require('module')._cache).forEach(function (element, index) {
-      
-      var moduleContents = require(element);
+    Object.keys(C.m).forEach(function (element) {
 
-      if (moduleContents[hookname]) {
+      var moduleHooks = C.m[element].hooks;
+
+      if (moduleHooks[hookname]) {
 
         var hookcall = {
 
-          event: moduleContents[hookname].event,
+          event: moduleHooks[hookname].event,
           parentModule: element,
-          rank: moduleContents[hookname].rank
+          name: hookname,
+          rank: moduleHooks[hookname].rank
 
         };
 
@@ -108,6 +108,7 @@ var hook = function (hookname, data, authPass) {
 
           thisHook.authPass = auth;
 
+          thisHook.name = hookcall.name;
           thisHook.path = hookcall.parentModule;
           thisHook.rank = hookcall.rank;
           thisHook.index = index;
@@ -117,7 +118,7 @@ var hook = function (hookname, data, authPass) {
           } catch (e) {
             console.log("***********");
             console.log("Hook error");
-            console.log("hook: " + hookname);
+            console.log("hook: " + thisHook.name);
             console.log("path: " + thisHook.path);
             console.log("rank: " + thisHook.rank);
             console.log("index: " + thisHook.index);
