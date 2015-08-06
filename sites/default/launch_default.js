@@ -8,7 +8,6 @@ var config = {
   boot_location: "../../boot",
   configurations_path: "/configurations",
   port: 3000,
-  peerport: 3001,
 
   // CMS integration
   admin_name: 'Site administrator',

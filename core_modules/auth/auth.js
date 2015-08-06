@@ -189,24 +189,24 @@ CM.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
   var authToken;
 
-  if (C.auth.checkPermissions(["can make access token"], thisHook.authPass)) {
+  if (CM.auth.globals.checkPermissions(["can make access token"], thisHook.authPass)) {
 
     crypto.randomBytes(C.config.authTokenLength, function (ex, buf) {
       authToken = buf.toString('hex');
 
       //Create new user if not in existence
 
-      if (!exports.userlist[data.userid]) {
-        exports.userlist[data.userid] = {};
+      if (!CM.auth.globals.userList[data.userid]) {
+        CM.auth.globals.userList[data.userid] = {};
       }
 
       //Check if no tokens already set and create array
 
-      if (!exports.userlist[data.userid].tokens) {
-        exports.userlist[data.userid].tokens = [];
+      if (!CM.auth.globals.userList[data.userid].tokens) {
+        CM.auth.globals.userList[data.userid].tokens = [];
       }
 
-      exports.userlist[data.userid].tokens.push(authToken);
+      CM.auth.globals.userList[data.userid].tokens.push(authToken);
       thisHook.finish(true, authToken);
 
     });
@@ -219,7 +219,64 @@ CM.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
 });
 
-//var exports = {
+CM.auth.registerHook("hook_auth_deletetoken", 0, function (thisHook, data) {
+
+  if (CM.auth.globals.checkPermissions(["can delete access token"], thisHook.authPass)) {
+
+    if (CM.auth.globals.userList[data.userid] && CM.auth.globals.userList[data.userid].tokens) {
+
+      var tokenIndex;
+
+      CM.auth.globals.userList[data.userid].tokens.forEach(function (item, index) {
+
+        if (item === data.token) {
+
+          tokenIndex = index;
+
+        }
+
+      });
+
+      //Remove the token if present
+
+      if (tokenIndex) {
+
+        CM.auth.globals.userList[data.userid].tokens.splice(tokenIndex, 1);
+        thisHook.finish(true, data.token);
+
+      } else {
+
+        thisHook.finish(false, "No such token present");
+
+      }
+
+    } else {
+
+      thisHook.finish(false, "No tokens present");
+
+    }
+
+  } else {
+
+    thisHook.finish(false, "Access Denied");
+
+  }
+
+});
+
+C.app.post('/auth/deletetoken', function (req, res) {
+
+  C.hook("hook_auth_deletetoken", req.body, req.authPass).then(function (success) {
+
+    res.send(success);
+
+  }, function (fail) {
+
+    res.send(fail);
+
+  });
+
+});
 
 C.app.post('/auth/maketoken', function (req, res) {
 
