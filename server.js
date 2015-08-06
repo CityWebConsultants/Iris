@@ -45,16 +45,7 @@ C.app.use(function (req, res, next) {
 
   });
 
-  var authCredentials = {
-
-    userid: req.body.userid,
-    token: req.body.token,
-    secretkey: req.body.secretkey,
-    apikey: req.body.apikey
-
-  }
-
-  CM.auth.globals.credentialsToPass(authCredentials).then(function (authPass) {
+  CM.auth.globals.credentialsToPass(req.body.credentials).then(function (authPass) {
 
     req.authPass = authPass;
     next();
