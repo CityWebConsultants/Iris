@@ -4,6 +4,10 @@
 
 C.registerModule("group_manager");
 
+//Additional includes
+
+require('./group_add');
+
 C.registerDbModel("group");
 
 C.registerDbSchema("group", {
@@ -33,19 +37,45 @@ C.registerDbSchema("group", {
     required: false,
     unique: true
   },
-  permissions: {
+  type: {
     type: String,
     required: false,
-    unique: true
   }
 });
 
-//
-//var groupTypes = require(process.config.moduleConfigPath + 'group_manager' + '/group_types.js');
-//
-////var mongoClient = require('mongodb').MongoClient;
-//var objectID = require('mongodb').ObjectID;
-//
+CM.group_manager.globals = {
+
+  groupTypes: C.include(__dirname + "/group_types.js", C.configPath + "/group_manager/group_types.js"),
+
+  checkGroupPermission: function (groupPermissionType, permissionsArray, GroupRolesArray) {
+
+    var rolePermissions = [];
+
+    GroupRolesArray.forEach(function (role) {
+
+      if (groupTypes[groupPermissionType] && groupTypes[groupPermissionType].permissions[role]) {
+        groupTypes[groupPermissionType].permissions[role].forEach(function (permission) {
+
+          rolePermissions.push(permission);
+
+        });
+
+      }
+
+    });
+
+    return permissionsArray.every(function (element) {
+
+      return rolePermissions.indexOf(element) !== -1;
+
+    });
+
+  }
+
+}
+
+
+
 ////Translate default name to list of users (not including current user)
 //
 //var defaultname = function (members, userid) {
@@ -129,31 +159,7 @@ C.registerDbSchema("group", {
 //  },
 //
 //  globals: {
-//    checkGroupPermission: function (groupPermissionType, permissionsArray, GroupRolesArray) {
-//
-//      var rolePermissions = [];
-//
-//      GroupRolesArray.forEach(function (role) {
-//
-//        if (groupTypes[groupPermissionType] && groupTypes[groupPermissionType].permissions[role]) {
-//
-//          groupTypes[groupPermissionType].permissions[role].forEach(function (permission) {
-//
-//            rolePermissions.push(permission);
-//
-//          });
-//
-//        }
-//
-//      });
-//
-//      return permissionsArray.every(function (element) {
-//
-//        return rolePermissions.indexOf(element) !== -1;
-//
-//      });
-//
-//    },
+
 //    isGroupMember: function (userid, groupid, callback) {
 //
 //      // Call db find hook.
@@ -340,441 +346,6 @@ C.registerDbSchema("group", {
 //        process.emit('next', data);
 //      }
 //    }
-//  },
-//  // POST /group/add
-//  hook_post_group_add: {
-//    rank: 0,
-//    event: function (data) {
-//
-//      var allowed = ["name", "entityRef", "_id", "permissions", "members", "is121"];
-//
-//      var send = {};
-//
-//      //Add allowed properties to group object if present
-//
-//      Object.keys(data.post).forEach(function (element) {
-//
-//        if (allowed.indexOf(element) !== -1) {
-//
-//          send[element] = data.post[element];
-//
-//        }
-//
-//      });
-//
-//      //Add auth value to object to check permissions
-//
-//      send.auth = data.auth;
-//
-//      //Add userid value if present to check permissions
-//
-//      send.userid = data.post.userid;
-//
-//      var addGroup = function () {
-//
-//        return new Promise(function (yes, no) {
-//
-//          hook("hook_group_add", send, function (groupid) {
-//
-//            data.returns = groupid.returns.toString();
-//            yes(data);
-//
-//          });
-//
-//        });
-//
-//      };
-//
-//      hookPromiseChain([addGroup], data);
-//
-//    }
-//
-//  },
-//  hook_group_add: {
-//    rank: 0,
-//    event: function (data) {
-//
-//      //Error checking on submitted data
-//
-//      if (data.is121 && data.entityRef) {
-//
-//        data.returns = "Group cannot have an entity reference if it is a one-to-one conversation";
-//        process.emit("next", data);
-//        return false;
-//
-//      }
-//
-//      //Check if 1to1 group and, if so, check if it doesn't already exist.
-//
-//      var check1to1 = function (data) {
-//
-//        return new Promise(function (yes, no) {
-//
-//          if (data.is121) {
-//
-//            if (!data.members || data.members.length !== 2) {
-//
-//              //Can't do a check for a 121 as no members were supplied. Must be a new group or an update.
-//
-//              yes(data);
-//              return false;
-//
-//            };
-//
-//            var groupsModel = C.dbModels.group_manager.group;
-//
-//            groupsModel.findOne({
-//              'is121': true,
-//              '$and': [{
-//                'members': {
-//                  '$elemMatch': {
-//                    'userid': data.members[0].userid
-//                  }
-//                }
-//                }, {
-//                'members': {
-//                  '$elemMatch': {
-//                    'userid': data.members[1].userid
-//                  }
-//                }
-//                }]
-//            }, "_id", function (err, doc) {
-//
-//              if (err) {
-//
-//                data.errors.push("Database error");
-//                no(data);
-//
-//              }
-//
-//              if (doc) {
-//
-//                data._id = doc._id;
-//                yes(data);
-//
-//              } else {
-//
-//                yes(data);
-//
-//              }
-//
-//            })
-//
-//          } else {
-//
-//            yes(data);
-//
-//          }
-//
-//        });
-//
-//      };
-//
-//      var checkEntityRef = function (data) {
-//
-//        return new Promise(function (yes, no) {
-//
-//          var groupModel = C.dbModels.group_manager.group;
-//
-//          if (data.entityRef) {
-//            //Update if a group with that entity ref already exists, insert new group otherwise
-//
-//            groupModel.findOne({
-//              entityRef: data.entityRef
-//            }, function (err, doc) {
-//
-//              if (err) {
-//
-//                data.errors.push(err);
-//                no(data);
-//
-//              } else if (doc) {
-//
-//                data._id = doc._id;
-//                yes(data);
-//
-//              } else {
-//
-//                yes(data);
-//
-//              }
-//
-//            });
-//
-//          } else {
-//
-//            yes(data);
-//
-//          }
-//
-//        });
-//
-//      }
-//
-//      var checkId = function (data) {
-//
-//        var groupModel = C.dbModels.group_manager.group;
-//
-//        return new Promise(function (yes, no) {
-//
-//          if (data._id) {
-//
-//            groupModel.findOne({
-//              _id: data._id
-//            }, function (err, foundGroup) {
-//
-//              if (err) {
-//
-//                data.errors.push("Database error");
-//                no(err);
-//
-//              } else if (foundGroup) {
-//
-//                //Check if admin and allow pass through if yes
-//
-//                if (C.auth.checkPermissions(["can bypass group permissions"], data.auth)) {
-//
-//                  yes(data);
-//                  return true
-//
-//                }
-//
-//                //Group already exists with that ID
-//
-//                //Check user is actually a member of this group or is an admin
-//
-//                var updatingMember;
-//
-//                //Find the member in the group
-//
-//                foundGroup.members.forEach(function (member, index) {
-//
-//                  if (data.userid === member.userid) {
-//
-//                    updatingMember = member;
-//
-//                  }
-//
-//                });
-//
-//                if (!updatingMember) {
-//
-//                  data.errors.push("Not a member of the group you are trying to update");
-//                  no(data);
-//                  return false;
-//
-//                };
-//
-//                //Check if user has top level update group permission
-//
-//                if (C.auth.checkPermissions(["can update group"], data.auth)) {
-//
-//                  yes(data);
-//                  return true;
-//
-//                }
-//
-//                //If not, check user's roles within a group for the update group permission
-//
-//                if (!C.group_manager.checkGroupPermission(foundGroup.permissions, ["can update group"], updatingMember.roles)) {
-//
-//                  data.errors.push("Not allowed to update this group");
-//                  no(data);
-//                  return false;
-//
-//                };
-//
-//                yes(data);
-//
-//              } else {
-//
-//                data.errors.push("Group doesn't exist yet _ID was supplied");
-//                no(data);
-//
-//              }
-//
-//            });
-//
-//          } else {
-//
-//            yes(data);
-//
-//          }
-//
-//
-//        });
-//
-//      }
-//
-//      var dbWrite = function (data) {
-//
-//        return new Promise(function (yes, no) {
-//
-//            var allowed = ["name", "entityRef", "_id", "permissions", "members", "is121"];
-//
-//            var group = {};
-//
-//            //Add allowed properties to group object if present
-//
-//            Object.keys(data).forEach(function (element) {
-//
-//              if (allowed.indexOf(element) !== -1) {
-//
-//                group[element] = data[element];
-//
-//              }
-//
-//            });
-//
-//            var groupModel = C.dbModels.group_manager.group;
-//
-//            if (!group._id) {
-//
-//              //Adding a new group
-//
-//              //Check if user can add a new group
-//
-//              if (!C.auth.checkPermissions(["can create group"], data.auth)) {
-//
-//                data.errors.push("Can't create group");
-//                no(data);
-//                return false;
-//
-//              }
-//
-//              //Check if new group has an entity ref. If yes, check if user has permission to access it
-//
-//              if (group.entityRef) {
-//
-//                if (!C.auth.checkPermissions(["can create group with entityRef"], data.auth)) {
-//
-//                  data.errors.push("Can't create group with entitiyRef");
-//                  no(data);
-//                  return false;
-//
-//                }
-//
-//              }
-//
-//              //Check if userid is in members
-//
-//              if (!C.auth.checkPermissions(["can create group without self"], data.auth)) {
-//
-//                var valid = false;
-//
-//                group.members.forEach(function (element) {
-//
-//                  if (data.userid === element.userid) {
-//
-//                    valid = true;
-//
-//                  }
-//
-//                });
-//
-//                if (!valid) {
-//
-//                  data.errors.push("Can't create a group you're not a member of");
-//                  no(data);
-//                  return false;
-//
-//                };
-//
-//              }
-//
-//              if (group.is121) {
-//
-//                if (!C.auth.checkPermissions(["can create 121 group"], data.auth)) {
-//
-//                  data.errors.push("Can't create 121 group");
-//                  no(data);
-//                  return false;
-//
-//                }
-//
-//                if (group.members && group.members.length === 2 && group.members[0].userid !== group.members[1].userid) {
-//
-//                  //Valid 121 group
-//
-//                } else {
-//
-//                  //Not a valid 121 group
-//
-//                  data.errors.push("Not a valid 121 group");
-//                  no(data);
-//                  return false;
-//
-//                }
-//
-//              }
-//
-//              var group = new groupModel(group);
-//
-//              group.save(function (err, doc) {
-//
-//                if (err) {
-//
-//                  console.log(err);
-//                  data.errors.push("Database error");
-//                  no(data);
-//
-//                } else if (doc) {
-//
-//                  data.returns = doc;
-//                  yes(data);
-//
-//                }
-//
-//              });
-//
-//            } else {
-//
-//              if (group.is121) {
-//
-//                if (group.members) {
-//
-//                  //Can't update members in 121 group
-//
-//                  delete group.members;
-//
-//                }
-//
-//              }
-//
-//              groupModel.findOneAndUpdate({
-//                  _id: data._id
-//                },
-//                group, {
-//                  upsert: true,
-//                  new: true
-//                },
-//                function (err, doc) {
-//
-//                  if (err) {
-//
-//                    data.errors.push(err);
-//                    no(data);
-//
-//                  } else {
-//
-//                    data.returns = doc;
-//                    yes(data);
-//
-//                  }
-//
-//                })
-//
-//            }
-//
-//          }
-//
-//        )
-//      };
-//
-//      hookPromiseChain([check1to1, checkEntityRef, checkId, dbWrite], data);
-//
-//    }
-//
 //  },
 //  hook_get_fetch_groups: {
 //    rank: 0,

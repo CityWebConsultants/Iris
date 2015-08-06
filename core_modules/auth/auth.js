@@ -114,14 +114,14 @@ CM.auth.globals = {
   },
 
   checkPermissions: function (permissionsArray, authPass) {
-
+    
     var rolesArray = authPass.roles;
     var rolePermissions = [];
-
+    
     Object.keys(CM.auth.globals.roles).forEach(function (role) {
-
+      
       if (rolesArray.indexOf(role) !== -1) {
-
+        
         CM.auth.globals.roles[role].permissions.forEach(function (permission) {
 
           rolePermissions.push(permission);
@@ -131,7 +131,7 @@ CM.auth.globals = {
       };
 
     });
-
+    
     //Special case for can do anything
 
     if (rolePermissions.indexOf("can do anything") !== -1) {
@@ -139,13 +139,13 @@ CM.auth.globals = {
       return true;
 
     } else {
-
+      
       return permissionsArray.every(function (element) {
 
         return rolePermissions.indexOf(element) !== -1;
 
       });
-
+      
     }
 
   },
