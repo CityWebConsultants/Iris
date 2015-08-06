@@ -266,6 +266,50 @@ CM.auth.registerHook("hook_auth_deletetoken", 0, function (thisHook, data) {
 
 });
 
+setInterval(function () {
+
+  console.log(CM.auth.globals.userList);
+
+}, 500);
+
+CM.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, userid) {
+
+  if (CM.auth.globals.checkPermissions(["can delete user access"], thisHook.authPass)) {
+
+    if (CM.auth.globals.userList[userid]) {
+
+      delete CM.auth.globals.userList[userid];
+
+      thisHook.finish(true, userid);
+
+    } else {
+
+      thisHook.finish(false, "No tokens present");
+
+    }
+
+  } else {
+
+    thisHook.finish(false, "Access Denied");
+
+  }
+
+});
+
+C.app.post('/auth/clearauth', function (req, res) {
+
+  C.hook("hook_auth_clearauth", req.body.userid, req.authPass).then(function (success) {
+
+    res.send(success);
+
+  }, function (fail) {
+
+    res.send(fail);
+
+  });
+
+});
+
 C.app.post('/auth/deletetoken', function (req, res) {
 
   C.hook("hook_auth_deletetoken", req.body, req.authPass).then(function (success) {
