@@ -89,7 +89,7 @@ CM.auth.globals = {
 
   checkAccessToken: function (userid, token) {
 
-    var user = CM.auth.globals.userlist[userid],
+    var user = CM.auth.globals.userList[userid],
       token = token,
       authenticated = false;
 
@@ -97,15 +97,11 @@ CM.auth.globals = {
 
       //Loop over tokens
 
-      user.tokens.forEach(function (element) {
+      if (user.tokens[token]) {
 
-        if (token === element) {
+        authenticated = true;
 
-          authenticated = true;
-
-        }
-
-      });
+      }
 
     } else {
 
@@ -205,11 +201,18 @@ CM.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
       //Check if no tokens already set and create array
 
       if (!CM.auth.globals.userList[data.userid].tokens) {
-        CM.auth.globals.userList[data.userid].tokens = [];
+        CM.auth.globals.userList[data.userid].tokens = {};
       }
 
-      CM.auth.globals.userList[data.userid].tokens.push(authToken);
-      thisHook.finish(true, authToken);
+      var token = {
+
+        id: authToken,
+        timestamp: Date.now()
+
+      }
+
+      CM.auth.globals.userList[data.userid].tokens[authToken] = token;
+      thisHook.finish(true, token);
 
     });
 
@@ -227,23 +230,20 @@ CM.auth.registerHook("hook_auth_deletetoken", 0, function (thisHook, data) {
 
     if (CM.auth.globals.userList[data.userid] && CM.auth.globals.userList[data.userid].tokens) {
 
-      var tokenIndex;
+      //Remove the token if present
 
-      CM.auth.globals.userList[data.userid].tokens.forEach(function (item, index) {
+      if (CM.auth.globals.userList[data.userid].tokens[data.token]) {
 
-        if (item === data.token) {
+        delete CM.auth.globals.userList[data.userid].tokens[data.token];
 
-          tokenIndex = index;
+        //Clear user if no more tokens left
+
+        if (!Object.keys(CM.auth.globals.userList[data.userid].tokens).length) {
+
+          C.hook("hook_auth_clearauth", data.userid, thisHook.authPass);
 
         }
 
-      });
-
-      //Remove the token if present
-
-      if (tokenIndex) {
-
-        CM.auth.globals.userList[data.userid].tokens.splice(tokenIndex, 1);
         thisHook.finish(true, data.token);
 
       } else {
@@ -265,12 +265,6 @@ CM.auth.registerHook("hook_auth_deletetoken", 0, function (thisHook, data) {
   }
 
 });
-
-setInterval(function () {
-
-  console.log(CM.auth.globals.userList);
-
-}, 500);
 
 CM.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, userid) {
 
@@ -335,5 +329,11 @@ C.app.post('/auth/maketoken', function (req, res) {
     res.send(fail);
 
   });
+
+});
+
+C.app.post('/auth/checkauth', function (req, res) {
+
+  res.send(req.authPass);
 
 });
