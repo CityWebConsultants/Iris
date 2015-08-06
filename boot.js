@@ -3,7 +3,20 @@
 
 var version = "RC1";
 
-module.exports = function (config, paramaters, roles) {
+module.exports = function (config) {
+
+  //Fetch command line paramaters
+
+  var paramaters = {};
+
+  process.argv.forEach(function (val, index, array) {
+
+    if (val.indexOf("=") !== -1) {
+      val = val.split("=");
+      paramaters[val[0]] = val[1];
+    }
+
+  });
 
   //Get any config paramaters passed through via the command line and set them.
 
@@ -26,15 +39,15 @@ module.exports = function (config, paramaters, roles) {
   //Store config object for global use (this has now been updated with the additional paramaters.
 
   C.config = config;
+  
+  config.version = version;
 
   //Store the roles and permissions object from the lanched site
 
-  C.roles = roles;
+  C.roles = config.roles;
 
-  console.log("\nLaunching Chat App " + version + "\n");
-  console.log("Name: " + config.name);
-  console.log("Hypertext port: " + config.port);
-
+  console.log("\nLaunching server: " + config.version + "\n");
+  
   //Hook system
 
   C.hook = require('./hook');
@@ -72,7 +85,7 @@ module.exports = function (config, paramaters, roles) {
     if (item.enabled) {
       require('./' + item.path + '/' + item.name);
     }
-    
+
   });
 
 };
