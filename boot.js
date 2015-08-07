@@ -14,7 +14,7 @@ module.exports = function (config) {
   C.sitePath = process.cwd();
 
   C.configPath = path.join(C.sitePath, config.configurations_path);
-  
+
   //Fetch command line paramaters
 
   var paramaters = {};
@@ -54,15 +54,9 @@ module.exports = function (config) {
 
   C.hook = require('./hook');
 
-  //Promisechains
+  //Load in helper utilities
 
-  C.promiseChain = function (tasks, parameters, success, fail) {
-
-    tasks.reduce(function (cur, next) {
-      return cur.then(next);
-    }, Promise.resolve(parameters)).then(success, fail);
-
-  };
+  require('./utils');
 
   //Require HTTP sever
 
@@ -75,6 +69,10 @@ module.exports = function (config) {
   //Set up database
 
   require('./db');
+
+  //Load testing module
+
+  require('./testing');
 
   //Free C object, no longer extensible
 
@@ -103,5 +101,5 @@ module.exports = function (config) {
     }
 
   });
-  
+
 };
