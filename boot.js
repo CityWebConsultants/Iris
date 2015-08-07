@@ -9,16 +9,6 @@ module.exports = function (config) {
 
   global.C = {};
 
-  //Load in testing stuff
-
-  if (config.run_tests) {
-
-    require("./test_helpers.js");
-
-    config.db_name = config.test_db_name;
-
-  }
-
   //Load logging module
 
   require('./log');
@@ -53,6 +43,16 @@ module.exports = function (config) {
       config[paramater] = paramaters[paramater];
 
     })
+
+  }
+
+  //Load in testing stuff
+
+  if (config.run_tests) {
+
+    require("./test_helpers.js");
+
+    config.db_name = config.test_db_name;
 
   }
 
@@ -113,7 +113,7 @@ module.exports = function (config) {
       }
 
     });
-    
+
     if (C.config.run_tests) {
 
       require("./tests/main.js");
