@@ -1,5 +1,3 @@
-//Promisechains
-
 C.promiseChain = function (tasks, parameters, success, fail) {
 
   tasks.reduce(function (cur, next) {
@@ -30,3 +28,25 @@ C.promise = function (callback) {
   }
 
 };
+
+var util = require('util');
+
+C.translations = {};
+
+C.registerTranslation = function (string, output) {
+
+  C.translations[string] = output;
+
+};
+
+C.translate = function (translationString, arguments) {
+
+  if (C.translations[translationString]) {
+
+    translationString = C.translations[translationString];
+
+  }
+
+  return util.format(translationString, arguments)
+
+}
