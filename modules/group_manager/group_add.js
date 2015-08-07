@@ -13,7 +13,7 @@ CM.group_manager.registerHook("hook_group_add", 0, function (thisHook, data) {
   //Check if 1to1 group and, if so, check if it doesn't already exist.
 
   var check1to1 = C.promise(function (data, yes, no) {
-
+    
     if (data.is121) {
 
       if (!data.members || data.members.length !== 2) {

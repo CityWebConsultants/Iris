@@ -20,7 +20,7 @@ C.promise = function (callback) {
 
       } catch (e) {
 
-        console.log(e);
+        C.log.warn(e);
         no("error");
 
       }

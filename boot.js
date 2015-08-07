@@ -8,6 +8,10 @@ module.exports = function (config) {
   //Create global object for the application
 
   global.C = {};
+  
+  //Load logging module
+
+  require('./log');
 
   var path = require('path');
 
