@@ -332,7 +332,7 @@ C.app.post('/auth/maketoken', function (req, res) {
 
 });
 
-C.app.post('/auth/checkauth', function (req, res) {
+C.app.get('/auth/checkauth', function (req, res) {
 
   res.send(req.authPass);
 

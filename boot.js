@@ -8,7 +8,17 @@ module.exports = function (config) {
   //Create global object for the application
 
   global.C = {};
-  
+
+  //Load in testing stuff
+
+  if (config.run_tests) {
+
+    require("./test_helpers.js");
+
+    config.db_name = config.test_db_name;
+
+  }
+
   //Load logging module
 
   require('./log');
@@ -74,34 +84,40 @@ module.exports = function (config) {
 
   require('./db');
 
-  //Load testing module
-
-  require('./testing');
-
   //Free C object, no longer extensible
 
   Object.freeze(C);
 
-  //Core modules
+  mongoose.connection.once("open", function () {
 
-  var coreModules = [
+    //Core modules
 
-    {
-      name: 'auth',
-      path: './core_modules',
-      enabled: true
+    var coreModules = [
+
+      {
+        name: 'auth',
+        path: './core_modules',
+        enabled: true
     },
 
   ];
 
-  C.config.allModules = coreModules.concat(config.modules);
+    C.config.allModules = coreModules.concat(config.modules);
 
-  //Loop over enabled modules in site config
+    //Loop over enabled modules in site config
 
-  C.config.allModules.forEach(function (item) {
+    C.config.allModules.forEach(function (item) {
 
-    if (item.enabled) {
-      require(item.path + '/' + item.name + '/' + item.name);
+      if (item.enabled) {
+        require(item.path + '/' + item.name + '/' + item.name);
+      }
+
+    });
+    
+    if (C.config.run_tests) {
+
+      require("./tests/main.js");
+
     }
 
   });

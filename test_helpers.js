@@ -9,15 +9,7 @@ C.testing.post = function (path, data) {
 
     Object.keys(data).forEach(function (element) {
 
-      try {
-
-        data[element] = JSON.stringify(data[element]);
-
-      } catch (e) {
-
-        console.log("Not JSON stringified");
-
-      }
+      data[element] = JSON.stringify(data[element]);
 
     });
 
@@ -61,22 +53,20 @@ C.testing.get = function (path, data) {
 
     Object.keys(data).forEach(function (element) {
 
-      try {
-
-        data[element] = JSON.stringify(data[element]);
-
-      } catch (e) {
-
-        console.log("Not JSON stringified");
-
-      }
+      data[element] = JSON.stringify(data[element]);
 
     });
 
     data = qs.stringify(data);
 
     http.get("http://localhost:" + C.config.port + path + "?" + data, function (res) {
-      console.log("Got response: " + res.statusCode);
+      var body = "";
+      res.on('data', function (chunk) {
+        body += chunk;
+      });
+      res.on('end', function () {
+        yes(body);
+      });
     })
 
   });

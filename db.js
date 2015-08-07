@@ -4,6 +4,14 @@ global.mongoose = require('mongoose');
 
 mongoose.connect('mongodb://' + C.config.db_server + ':' + C.config.db_port + '/' + C.config.db_name);
 
+//Drop database if testing mode is on
+
+if (C.config.run_tests) {
+
+  mongoose.connection.db.dropDatabase();
+
+}
+
 //Wait until database is open and fail on error
 
 mongoose.connection.on('error', function (error) {
@@ -77,7 +85,7 @@ mongoose.connection.once('open', function () {
     }
 
   });
-  
+
   console.log("Database running");
 
 });
