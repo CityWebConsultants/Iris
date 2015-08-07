@@ -89,7 +89,7 @@ C.getModulePath = function (name) {
 
     if (enabledModule.enabled && enabledModule.name === name) {
 
-      found = path.parse(enabledModule.path + '/' + enabledModule.name + '/' + enabledModule.name);
+      found = enabledModule.path + '/' + enabledModule.name + '/' + enabledModule.name;
 
     }
 
