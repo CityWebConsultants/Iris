@@ -12,66 +12,62 @@ CM.group_manager.registerHook("hook_group_add", 0, function (thisHook, data) {
 
   //Check if 1to1 group and, if so, check if it doesn't already exist.
 
-  var check1to1 = function (data) {
+  var check1to1 = C.promise(function (data, yes, no) {
 
-    return new Promise(function (yes, no) {
+    if (data.is121) {
 
-      if (data.is121) {
+      if (!data.members || data.members.length !== 2) {
 
-        if (!data.members || data.members.length !== 2) {
-
-          //Can't do a check for a 121 as no members were supplied. Must be a new group or an update.
-
-          yes(data);
-          return false;
-
-        };
-
-        C.dbCollections.group.findOne({
-          'is121': true,
-          '$and': [{
-            'members': {
-              '$elemMatch': {
-                'userid': data.members[0].userid
-              }
-            }
-                }, {
-            'members': {
-              '$elemMatch': {
-                'userid': data.members[1].userid
-              }
-            }
-                }]
-        }, "_id", function (err, doc) {
-
-          if (err) {
-
-            no("Database error");
-
-          }
-
-          if (doc) {
-
-            data._id = doc._id;
-            yes(data);
-
-          } else {
-
-            yes(data);
-
-          }
-
-        })
-
-      } else {
+        //Can't do a check for a 121 as no members were supplied. Must be a new group or an update.
 
         yes(data);
+        return false;
 
-      }
+      };
 
-    });
+      C.dbCollections.group.findOne({
+        'is121': true,
+        '$and': [{
+          'members': {
+            '$elemMatch': {
+              'userid': data.members[0].userid
+            }
+          }
+                }, {
+          'members': {
+            '$elemMatch': {
+              'userid': data.members[1].userid
+            }
+          }
+                }]
+      }, "_id", function (err, doc) {
 
-  };
+        if (err) {
+
+          no("Database error");
+
+        }
+
+        if (doc) {
+
+          data._id = doc._id;
+          yes(data);
+
+        } else {
+
+          yes(data);
+
+        }
+
+      })
+
+    } else {
+
+      yes(data);
+
+    }
+
+  });
 
   var checkEntityRef = function (data) {
 
