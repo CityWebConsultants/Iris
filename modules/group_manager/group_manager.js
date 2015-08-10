@@ -35,12 +35,16 @@ C.registerDbSchema("group", {
   entityRef: {
     type: String,
     required: false,
-    unique: true
+    unique: true,
   },
   type: {
     type: String,
     required: false,
     default: "default",
+  },
+  is121: {
+    type: Boolean,
+    required: false,
   }
 });
 

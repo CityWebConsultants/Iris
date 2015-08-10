@@ -42,7 +42,7 @@ C.app.post("/entity/create/:type", function (req, res) {
   var create = function (validatedEntity) {
 
     var entity = new C.dbCollections[req.params.type](validatedEntity);
-
+        
     entity.save(function (err, doc) {
 
       if (err) {
@@ -51,7 +51,7 @@ C.app.post("/entity/create/:type", function (req, res) {
         res.send("Database error");
 
       } else if (doc) {
-
+        
         res.send(doc);
 
       }
