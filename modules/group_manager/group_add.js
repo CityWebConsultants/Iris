@@ -18,38 +18,53 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
 
   var entity = data.body;
 
-  //Required
+  var typeChecking = C.promise(function (data, yes, no) {
+    
+    //Field type checking
 
-  var allowed = {
-    "name": "string",
-    "entityRef": "string",
-    "_id": "string",
-    "type": "string",
-    "members": "array",
-    "is121": "boolean"
-  };
-  var group = {};
+    var allowed = {
+      "name": "string",
+      "entityRef": "string",
+      "_id": "string",
+      "type": "string",
+      "members": "array",
+      "is121": "boolean"
+    };
 
-  //Add allowed properties to group object if present
+    Object.keys(data).forEach(function (property) {
 
-  Object.keys(data.body).forEach(function (property) {
+      if (allowed[property]) {
 
-    if (allowed[property]) {
-
-      if (allowed[property] && (typeof entity[property] === allowed[property] || allowed[property] === "array" && Array.isArray(entity[property]))) {
+        if (allowed[property] && (typeof entity[property] === allowed[property] || allowed[property] === "array" && Array.isArray(entity[property]))) {
 
 
-      } else {
+        } else {
 
-        thisHook.finish(false, "Validation failed for field " + property);
+          no("Validation failed for field " + property);
+
+        }
 
       }
-    
-    }
+
+    });
+
+    yes(data);
 
   });
 
-  thisHook.finish(true, data);
+  var pass = function (data) {
+
+    thisHook.finish(true, data);
+
+  }
+
+  var fail = function (data) {
+
+    thisHook.finish(false, data);
+
+  }
+
+  C.promiseChain([typeChecking], entity, pass, fail);
 
 });
 
