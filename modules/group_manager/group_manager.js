@@ -7,6 +7,7 @@ C.registerModule("group_manager");
 //Additional includes
 
 require('./group_add');
+require('./group_edit');
 
 C.registerDbModel("group");
 
