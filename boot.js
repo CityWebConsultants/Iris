@@ -100,6 +100,12 @@ module.exports = function (config) {
         enabled: true
     },
 
+      {
+        name: 'entity',
+        path: './core_modules',
+        enabled: true
+    },
+
   ];
 
     C.config.allModules = coreModules.concat(config.modules);
@@ -119,6 +125,8 @@ module.exports = function (config) {
       require("./tests/main.js");
 
     }
+    
+    C.dbPopulate();
 
   });
 

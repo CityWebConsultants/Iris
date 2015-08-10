@@ -30,3 +30,38 @@ C.registerTranslation(string, translation);
 C.translate(stringWithPlaceHolders, variables);
 
 C.log.info();
+
+C.registerPermission(name);
+
+Hooks
+=====
+
+## Create entity
+  
+Hook_entity_access_create
+Hook_entity_access_create_type
+
+Variables: AuthPass and type to be created
+
+Pass: Return YES and/or schema. Can optionally pass onto creating entity hook.
+Fail: Return "access denied"
+
+## Creating entity
+
+Hook_entity_create
+Hook_entity_create_type
+
+Variables: AuthPass and entity fields (including type)
+
+Pass: Create entity, run created entity hooks.
+Fail: Return validation errors.
+
+## Created entity
+
+Hook_entity_created
+Hook_entity_created_type
+
+Variables: AuthPass and created entity
+
+Pass: Return created entity.
+Database error: Return error.

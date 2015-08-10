@@ -67,7 +67,7 @@ C.registerDbSchema = function (model, schema) {
 
 C.dbCollections = {};
 
-mongoose.connection.once('open', function () {
+C.dbPopulate = function () {
 
   //Loop over all the db models that have been initialised and slot in any schema attached to them
 
@@ -88,4 +88,4 @@ mongoose.connection.once('open', function () {
 
   console.log("Database running");
 
-});
+};
