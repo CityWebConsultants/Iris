@@ -48,8 +48,35 @@ var createGroup = function () {
     "credentials": credentials
 
   }
-      
+
   C.testing.post("/entity/create/group", group).then(function (data) {
+
+    var group = JSON.parse(data);
+
+    updateGroup(group._id);
+
+  });
+
+};
+
+var updateGroup = function (id) {
+
+  var group = {
+
+    "name": "test",
+    "_id": id,
+    "members": [{
+      "userid": "1"
+    }, {
+      "userid": "1"
+    }],
+    "type": "soandso",
+    "is121": true,
+    "credentials": credentials
+
+  }
+
+  C.testing.post("/entity/edit/group", group).then(function (data) {
 
     console.log(data);
 

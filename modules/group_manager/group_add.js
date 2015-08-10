@@ -77,7 +77,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
   var check121Duplicates = C.promise(function (data, yes, no) {
 
     if (data.is121) {
-      
+
       if (!data.members || data.members.length !== 2) {
 
         //Can't do a check for a 121 as no members were supplied. Must be a new group or an update.
@@ -86,7 +86,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
         return false;
 
       };
-      
+
       C.dbCollections.group.findOne({
         'is121': true,
         '$and': [{
@@ -109,10 +109,19 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
           no("Database error");
 
         }
-        
+
         if (doc) {
 
-          no("Group already exists");
+          if (!data._id) {
+
+            no("Group already exists");
+
+          } else {
+
+            yes(data);
+
+          }
+
 
         } else {
 
@@ -167,7 +176,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
   });
 
   var pass = function (data) {
-        
+
     thisHook.finish(true, data);
 
   }
