@@ -12,7 +12,7 @@ C.app.get("/entity/access/create/:type", function (req, res) {
 
     C.hook("hook_entity_access_create_" + req.params.type, req.params.type, req.authPass).then(function (success) {
 
-      console.log("Success");
+      res.send(success);
 
     }, function (fail) {
 
@@ -22,7 +22,6 @@ C.app.get("/entity/access/create/:type", function (req, res) {
 
       } else {
 
-        console.log(fail);
         res.send(fail);
 
       }
