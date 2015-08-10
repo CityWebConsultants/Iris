@@ -14,7 +14,7 @@ C.registerDbSchema("group", {
 
   name: {
     type: String,
-    required: true
+    required: false
   },
   members: [{
     _id: false,
@@ -40,6 +40,7 @@ C.registerDbSchema("group", {
   type: {
     type: String,
     required: false,
+    default: "default",
   }
 });
 

@@ -1,7 +1,7 @@
 CM.group_manager.registerHook("hook_entity_access_create_group", 0, function (thisHook, data) {
-  
+
   if (CM.auth.globals.checkPermissions(["can create group"], thisHook.authPass)) {
-    
+
     thisHook.finish(true, data);
 
   } else {
@@ -11,6 +11,48 @@ CM.group_manager.registerHook("hook_entity_access_create_group", 0, function (th
   }
 
 });
+
+//Validate creation of group
+
+CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHook, data) {
+
+  var entity = data.body;
+
+  //Required
+
+  var allowed = {
+    "name": "string",
+    "entityRef": "string",
+    "_id": "string",
+    "type": "string",
+    "members": "array",
+    "is121": "boolean"
+  };
+  var group = {};
+
+  //Add allowed properties to group object if present
+
+  Object.keys(data.body).forEach(function (property) {
+
+    if (allowed[property]) {
+
+      if (allowed[property] && (typeof entity[property] === allowed[property] || allowed[property] === "array" && Array.isArray(entity[property]))) {
+
+
+      } else {
+
+        thisHook.finish(false, "Validation failed for field " + property);
+
+      }
+    
+    }
+
+  });
+
+  thisHook.finish(true, data);
+
+});
+
 
 
 //CM.group_manager.registerHook("hook_group_add", 0, function (thisHook, data) {
