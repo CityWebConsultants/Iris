@@ -8,6 +8,7 @@ C.registerModule("group_manager");
 
 require('./group_add');
 require('./group_edit');
+require('./group_validate');
 
 C.registerDbModel("group");
 
