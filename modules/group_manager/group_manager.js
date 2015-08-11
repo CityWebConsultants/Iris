@@ -9,6 +9,7 @@ C.registerModule("group_manager");
 require('./group_add');
 require('./group_edit');
 require('./group_validate');
+require('./group_membership');
 
 C.registerDbModel("group");
 
@@ -52,6 +53,30 @@ C.registerDbSchema("group", {
 
 CM.group_manager.globals = {
 
+  findGroupByID: C.promise(function (_id, yes, no) {
+    C.dbCollections.group.findOne({
+      '_id': _id
+    }, "_id", function (err, doc) {
+
+      if (err) {
+
+        no("Database error");
+
+      }
+
+      if (doc) {
+
+        yes(doc);
+
+      } else {
+
+        no(false);
+
+      }
+
+
+    })
+  }),
   groupTypes: C.include(__dirname + "/group_types.js", C.configPath + "/group_manager/group_types.js"),
 
   checkGroupPermission: function (groupPermissionType, permissionsArray, GroupRolesArray) {
