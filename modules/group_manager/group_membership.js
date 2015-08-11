@@ -3,6 +3,7 @@
 CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisHook, data) {
 
   //First check if group exists
+
   CM.group_manager.globals.findGroupByID(data._id).then(function (found) {
 
     thisHook.finish(true, "Group found");
@@ -12,6 +13,37 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
     thisHook.finish(false, "No such group");
 
   });
+
+  var checkPermission = C.promise(function (data, yes, no) {
+
+    CM.group_manager.globals.checkGroupMembership({
+      _id: data._id,
+      userid: thisHook.authPass.userid
+    }, thisHook.authPass.userid).then(function (member) {
+
+      console.log(member);
+
+    }, function (fail) {
+
+      console.log(fail);
+
+    });
+
+  });
+
+  var fail = function (fail) {
+
+    thisHook.finish(fail);
+
+  };
+
+  var pass = function (success) {
+
+    thisHook.finish(success);
+
+  };
+
+  C.promiseChain([checkPermission], data, pass, fail);
 
 });
 

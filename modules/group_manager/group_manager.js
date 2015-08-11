@@ -77,6 +77,45 @@ CM.group_manager.globals = {
 
     })
   }),
+  checkGroupMembership: C.promise(function (data, yes, no) {
+    C.dbCollections.group.findOne({
+      '_id': data._id,
+      'members': {
+        '$elemMatch': {
+          'userid': data.userid
+        }
+      }
+    }, "members", function (err, doc) {
+
+      if (err) {
+
+        no("Database error");
+
+      }
+
+      if (doc) {
+
+        //Return member and their roles
+
+        doc.members.forEach(function (member) {
+
+          if (member.userid = data.userid) {
+
+            yes(member);
+
+          };
+
+        });
+
+      } else {
+
+        no(false);
+
+      }
+
+
+    })
+  }),
   groupTypes: C.include(__dirname + "/group_types.js", C.configPath + "/group_manager/group_types.js"),
 
   checkGroupPermission: function (groupPermissionType, permissionsArray, GroupRolesArray) {
