@@ -39,6 +39,7 @@ C.registerDbSchema("group", {
     type: String,
     required: false,
     unique: true,
+    sparse: true
   },
   type: {
     type: String,
@@ -53,10 +54,11 @@ C.registerDbSchema("group", {
 
 CM.group_manager.globals = {
 
-  findGroupByID: C.promise(function (_id, yes, no) {
+  fetchGroupByID: C.promise(function (_id, yes, no) {
+
     C.dbCollections.group.findOne({
       '_id': _id
-    }, "_id", function (err, doc) {
+    }, function (err, doc) {
 
       if (err) {
 
@@ -124,8 +126,9 @@ CM.group_manager.globals = {
 
     GroupRolesArray.forEach(function (role) {
 
-      if (groupTypes[groupPermissionType] && groupTypes[groupPermissionType].permissions[role]) {
-        groupTypes[groupPermissionType].permissions[role].forEach(function (permission) {
+      if (CM.group_manager.globals.groupTypes[groupPermissionType] && CM.group_manager.globals.groupTypes[groupPermissionType].permissions[role]) {
+
+        CM.group_manager.globals.groupTypes[groupPermissionType].permissions[role].forEach(function (permission) {
 
           rolePermissions.push(permission);
 

@@ -39,12 +39,10 @@ var createGroup = function () {
 
     "name": "test",
     "members": [{
-      "userid": "1"
-    }, {
-      "userid": "1"
+      "userid": "1",
+      "roles": ["group member"]
     }],
     "type": "public",
-    "is121": true,
     "credentials": credentials
 
   }

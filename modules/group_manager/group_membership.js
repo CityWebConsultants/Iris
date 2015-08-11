@@ -4,9 +4,12 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
   //First check if group exists
 
-  CM.group_manager.globals.findGroupByID(data._id).then(function (found) {
+  //Placeholder for group
 
-    thisHook.finish(true, "Group found");
+  var group = {}
+  CM.group_manager.globals.fetchGroupByID(data._id).then(function (found) {
+
+    group = found;
 
   }, function (fail) {
 
@@ -21,11 +24,72 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
       userid: thisHook.authPass.userid
     }, thisHook.authPass.userid).then(function (member) {
 
-      console.log(member);
+      if (!CM.group_manager.globals.checkGroupPermission(group.type, ["can add member"], member.roles)) {
+
+        no("Not allowed to add group member");
+
+      } else {
+
+        //Allowed to add to group (should also check general user roles here
+
+        yes(data);
+
+      }
 
     }, function (fail) {
 
-      console.log(fail);
+      //Check if user can add members to a group they aren't a member of
+
+      if (CM.auth.globals.checkPermissions(["can add member to group without membership"], thisHook.authPass)) {
+
+        yes(data);
+
+      } else {
+
+        no("Cannot add member to group you aren't a member of");
+
+      };
+
+    });
+
+  });
+
+  var checkDuplicates = C.promise(function (data, yes, no) {
+
+    CM.group_manager.globals.checkGroupMembership({
+      _id: data._id,
+      userid: data.member.userid
+    }, thisHook.authPass.userid).then(function (member) {
+
+      no("Member already exists");
+
+    }, function (nomember) {
+
+      yes(data);
+
+    });
+
+  });
+
+  var addMember = C.promise(function (data, yes, no) {
+
+    C.dbCollections.group.update({
+      "_id": data._id
+    }, {
+      $addToSet: {
+        members: data.member
+      }
+    }, function (err, doc) {
+
+      if (err) {
+
+        no("database error");
+
+      } else if (doc) {
+
+        yes("member added");
+
+      }
 
     });
 
@@ -33,17 +97,17 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
   var fail = function (fail) {
 
-    thisHook.finish(fail);
+    thisHook.finish(false, fail);
 
   };
 
   var pass = function (success) {
 
-    thisHook.finish(success);
+    thisHook.finish(true, success);
 
   };
 
-  C.promiseChain([checkPermission], data, pass, fail);
+  C.promiseChain([checkPermission, checkDuplicates, addMember], data, pass, fail);
 
 });
 
