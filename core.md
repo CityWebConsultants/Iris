@@ -9,6 +9,8 @@ C.registerDbSchema(collectionName, schemaFieldsObject);
 
 CM[modulename].registerHook(hookName, rank, callback(thisHook, data){});
 
+CM[modulename].registerSocketListener(event,function(socket,data){});
+
 C.app
 
 C.hook(hookname,data,authPass)
