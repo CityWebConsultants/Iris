@@ -21,6 +21,24 @@ C.app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+//Set up response sending
+
+C.app.use(function (req, res, next) {
+
+  res.respond = function (code, msg, errors) {
+
+    res.status(code);
+
+    res.send({
+      response: msg,
+      errors: errors,
+    });
+  }
+
+  next();
+
+});
+
 //Set up CORS
 
 C.app.use(function (req, res, next) {
@@ -50,7 +68,6 @@ C.app.use(function (req, res, next) {
     }
 
   });
-
   CM.auth.globals.credentialsToPass(req.body.credentials).then(function (authPass) {
 
     req.authPass = authPass;
