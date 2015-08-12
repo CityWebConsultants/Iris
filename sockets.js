@@ -50,8 +50,6 @@ C.socketServer.on("connection", function (socket) {
 
       delete socket.user.sockets[socket.id]
 
-      console.log(socket.user);
-
     }
 
   });
