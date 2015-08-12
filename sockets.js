@@ -36,7 +36,10 @@ C.socketServer.on("connection", function (socket) {
 
         }
 
-        CM.auth.globals.userList[authPass.userid].sockets[socket.id] = socket;
+        CM.auth.globals.userList[authPass.userid].sockets[socket.id] = {
+          socket: socket,
+          timestamp: Date.now()
+        };
 
       };
 
@@ -59,6 +62,10 @@ C.socketServer.on("connection", function (socket) {
       delete socket.user.sockets[socket.id]
 
     }
+
+    //Run hook for disconnected socket
+
+    C.hook("hook_socket_disconnected", Date.now(), socket.authPass)
 
   });
 
