@@ -36,6 +36,11 @@ var config = {
       path: './modules',
       enabled: true
     },
+    {
+      name: 'messages',
+      path: './modules',
+      enabled: true
+    }
 
   ]
 
