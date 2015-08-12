@@ -87,7 +87,7 @@ var createGroup_valid = function (data) {
   .inspectBody()
   .expectJSON({
     name: function (val) {
-      expect(val).toBe(group.name);
+      expect(val).toBe(group_normal_public_base.name);
     },
     members: function (val) {
 
@@ -95,7 +95,7 @@ var createGroup_valid = function (data) {
 
     },
     type: function (val) {
-      expect(val).toBe(group.type);
+      expect(val).toBe(group_normal_public_base.type);
     }
   })
   .afterJSON(function (json) {
