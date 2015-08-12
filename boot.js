@@ -46,16 +46,6 @@ module.exports = function (config) {
 
   }
 
-  //Load in testing stuff
-
-  if (config.run_tests) {
-
-    require("./test_helpers.js");
-
-    config.db_name = config.test_db_name;
-
-  }
-
   //Store config object for global use 
 
   C.config = config;
@@ -120,12 +110,6 @@ module.exports = function (config) {
 
     });
 
-    if (C.config.run_tests) {
-
-      require("./tests/main.js");
-
-    }
-    
     C.dbPopulate();
 
   });
