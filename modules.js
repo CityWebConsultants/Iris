@@ -3,6 +3,7 @@ CM = {};
 var moduleTemplate = (function () {
 
   var hooks = {},
+    socketListeners = {},
     path;
 
   return {
@@ -24,6 +25,27 @@ var moduleTemplate = (function () {
     get path() {
 
       return path;
+
+    },
+    registerSocketListener: function (name, callback) {
+
+      if (!socketListeners[name]) {
+
+        socketListeners[name] = callback;
+
+        if (!C.socketListeners[name]) {
+
+          C.socketListeners[name] = [];
+
+        }
+
+        C.socketListeners[name].push(callback);
+
+      } else {
+
+        console.log("This socket listener has already been defined in this module");
+
+      }
 
     },
     registerHook: function (hookname, rank, callback) {
@@ -55,6 +77,9 @@ var moduleTemplate = (function () {
     },
     get hooks() {
       return hooks;
+    },
+    get socketListeners() {
+      return socketListeners;
     },
 
   }
