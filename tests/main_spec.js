@@ -17,7 +17,7 @@ var data = {
   userCredentials: { userid: 1 }
 };
 
-var makeAuth = function () {
+var makeAuth_valid = function () {
 
   frisby.create("Make auth token")
   .post(apiUrl + "/auth/maketoken", {
@@ -33,18 +33,18 @@ var makeAuth = function () {
 
     data.userCredentials.token = json.id;
 
-    checkAuth(data);
+    checkAuth_valid(data);
 
   })
   .toss();
 
 };
 
-makeAuth();
+makeAuth_valid();
 
 // CHECK AUTH
 
-var checkAuth = function (data) {
+var checkAuth_valid = function (data) {
 
   frisby.create("Check auth token is valid")
   .get(apiUrl + '/auth/checkauth?credentials=' + JSON.stringify(data.userCredentials))
@@ -58,7 +58,7 @@ var checkAuth = function (data) {
     }
   })
   .afterJSON(function (json) {
-    createGroup(data);
+    createGroup_valid(data);
   })
   .toss();
 
@@ -66,7 +66,7 @@ var checkAuth = function (data) {
 
 // CREATE GROUP - normal, 1 member (VALID)
 
-var group = {
+var group_normal_public_base = {
 
   "name": "test",
   "members": [{
@@ -77,13 +77,14 @@ var group = {
 
 }
 
-var createGroup = function (data) {
+var createGroup_valid = function (data) {
 
-  group.credentials = data.userCredentials;
+  group_normal_public_base.credentials = data.userCredentials;
 
   frisby.create("Create group (standard)")
-  .post(apiUrl + '/entity/create/group', group)
+  .post(apiUrl + '/entity/create/group', group_normal_public_base)
   .expectStatus(200)
+  .inspectBody()
   .expectJSON({
     name: function (val) {
       expect(val).toBe(group.name);
@@ -121,7 +122,7 @@ var createGroup = function (data) {
     "type": "soandso",
     "is121": true,
 
-  }
+  };
 
 var updateGroup = function (data) {
 
@@ -131,6 +132,79 @@ var updateGroup = function (data) {
   frisby.create("Update group")
   .post(apiUrl + "/entity/edit/group", group)
   .inspectBody()
+  .after(function () {
+
+    create121Group_inv_notEnoughMembers(data);
+
+  })
   .toss();
 
-}
+};
+
+// 121 GROUPS
+
+// CREATE
+
+var group_121_base = {
+  name: 'default',
+  members: [{
+    userid: 1
+  }],
+  type: 'private',
+  is121: true
+};
+
+var create121Group_inv_notEnoughMembers = function (data) {
+
+  group_121_base.credentials = data.userCredentials;
+
+  frisby.create("Fail creation of 121 group with not enough members")
+  .post(apiUrl + '/entity/create/group', group_121_base)
+  .expectStatus(200)
+  .inspectBody()
+  .after(function () {
+
+    data.group_121_base = group_121_base;
+
+    create121Group_inv_tooManyMembers(data);
+
+  })
+  .toss();
+
+};
+
+var create121Group_inv_tooManyMembers = function (data) {
+
+  var group = data.group_121_base;
+
+  group.members.push({userid: 25});
+  group.members.push({userid: 99});
+
+  frisby.create("Fail creation of 121 group with too many members")
+  .post(apiUrl + '/entity/create/group', group)
+  .expectStatus(200)
+  .inspectBody()
+  .after(function (json) {
+
+    create121Group_inv_hasEntityRef(data);
+
+  })
+  .toss();
+
+};
+
+var create121Group_inv_hasEntityRef = function (data) {
+
+  var group = data.group_121_base;
+
+  group.members.push({userid: 25});
+
+  group.entityRef = "1";
+
+  frisby.create("Fail creation of 121 group with an entityRef")
+  .post(apiUrl + '/entity/create/group', group)
+  .expectStatus(200)
+  .inspectBody()
+  .toss();
+
+};
