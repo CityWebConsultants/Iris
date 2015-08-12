@@ -1,7 +1,7 @@
 var groupTypes = {
   'public': {
     permissions: {
-      'group member': ['can update group', 'can add member']
+      'group member': ['can update group', 'can add member', 'can post message']
     }
   },
   'private': {

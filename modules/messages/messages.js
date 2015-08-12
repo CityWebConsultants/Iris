@@ -6,6 +6,7 @@ C.registerModule("messages");
 
 //Additional includes
 
+require('./message_validate');
 require('./message_add');
 
 C.registerDbModel("message");
@@ -40,7 +41,3 @@ C.registerDbSchema("message", {
   },
 
 });
-
-CM.group_manager.globals = {
-
-};
