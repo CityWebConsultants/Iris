@@ -23,6 +23,9 @@ C.registerDbSchema("message", {
     type: Array,
     required: false
   },
+  content: {
+
+  },
   type: {
     type: String,
     required: true
