@@ -2,8 +2,6 @@
 
 C.app.get("/entity/access/edit/:type", function (req, res) {
 
-  console.log(req.params.type);
-
   C.hook("hook_entity_access_edit", {
     type: req.params.type,
     _id: req.body._id
@@ -131,11 +129,23 @@ C.app.post("/entity/edit/:type", function (req, res) {
 
 });
 
-//Checking access and if entity exists
+//Checking access and if entity type and entity exist
 
 CM.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, data) {
 
   if (C.dbCollections[data.type]) {
+
+    C.dbcollections[data.type].find({
+      _id: data._id
+    }, function (success) {
+
+      thisHook.finish(true, data);
+
+    }, function (fail) {
+      
+      thisHook.finish(false, "entity doesn't exist");
+
+    })
 
     thisHook.finish(true, data);
 
