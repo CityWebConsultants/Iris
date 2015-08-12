@@ -116,7 +116,7 @@ C.app.get("/fetch", function (req, res) {
 
       C.promiseChain(viewHooks, null, function (success) {
 
-        res.send(entities);
+        res.respond(200, entities, "Something went a bit odd");
 
       }, function (fail) {
 
@@ -126,8 +126,9 @@ C.app.get("/fetch", function (req, res) {
 
     };
 
-    var fail = function () {
+    var fail = function (fail) {
 
+      console.log(fail);
       res.send("Database error");
 
     };

@@ -33,6 +33,8 @@ C.log.info();
 
 C.registerPermission(name);
 
+res.respond(code, response, errors);
+
 Hooks
 =====
 

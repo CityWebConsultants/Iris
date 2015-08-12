@@ -66,6 +66,10 @@ module.exports = function (config) {
 
   require('./server');
 
+  //Require sockets
+
+  require('./sockets');
+
   //Load in module system
 
   require('./modules');
