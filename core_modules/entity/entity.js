@@ -7,3 +7,5 @@ C.registerModule("entity");
 require('./entity_create');
 
 require('./entity_edit');
+
+require('./entity_fetch');

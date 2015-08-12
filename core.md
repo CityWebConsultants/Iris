@@ -65,3 +65,4 @@ Variables: AuthPass and created entity
 
 Pass: Return created entity.
 Database error: Return error.
+

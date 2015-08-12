@@ -10,6 +10,7 @@ require('./group_add');
 require('./group_edit');
 require('./group_validate');
 require('./group_membership');
+require('./group_view');
 
 C.registerDbModel("group");
 
