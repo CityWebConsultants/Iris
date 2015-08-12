@@ -23,8 +23,6 @@ var config = {
   db_server: 'localhost',
   db_port: 27017,
   db_name: 'chat-app',
-  run_tests: false,
-  test_db_name: 'test',
 
   //Auth
 
