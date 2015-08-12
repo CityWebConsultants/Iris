@@ -1,6 +1,6 @@
 var frisby = require('frisby');
 
-var config = requre('/test_config');
+var config = require('./test_config');
 
 var apiUrl = config.apiUrl;
 
