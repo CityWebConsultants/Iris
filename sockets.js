@@ -12,6 +12,25 @@ C.socketListeners = {};
 
 C.socketServer = io(C.server);
 
+C.sendSocketMessage = function (userids, message, data) {
+
+  userids.forEach(function (userid) {
+
+    var user = CM.auth.globals.userList[userid];
+
+    if (user && user.sockets) {
+      Object.keys(user.sockets).forEach(function (socket) {
+
+        user.sockets[socket].socket.emit(message, data);
+
+      })
+
+    }
+
+  });
+
+};
+
 C.socketServer.on("connection", function (socket) {
 
   //Register pair listener
