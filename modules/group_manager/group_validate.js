@@ -17,24 +17,13 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
       "is121": "boolean"
     };
 
-    Object.keys(data).forEach(function (property) {
+    var typeCheck = C.typeCheck(allowed, entity, data);
 
-      if (allowed[property]) {
-
-        if (allowed[property] && (typeof entity[property] === allowed[property] || allowed[property] === "array" && Array.isArray(entity[property]))) {
-
-
-        } else {
-
-          no("Validation failed for field " + property);
-
-        }
-
-      }
-
-    });
-
-    yes(data);
+    if (typeCheck.valid) {
+      yes(data);
+    } else {
+      no("Validation failed for fields: " + JSON.stringify(typeCheck.invalidFields));
+    }
 
   });
 

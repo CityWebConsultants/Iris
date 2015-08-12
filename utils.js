@@ -50,3 +50,39 @@ C.translate = function (translationString, arguments) {
   return util.format(translationString, arguments)
 
 }
+
+C.typeCheck = function (allowed, entity, data) {
+
+  //Field type checking
+
+  var invalidFields = [];
+
+  Object.keys(data).forEach(function (property) {
+
+    if (allowed[property]) {
+
+      if (allowed[property] && (typeof entity[property] === allowed[property] || allowed[property] === "array" && Array.isArray(entity[property]))) {
+
+
+      } else {
+
+        invalidFields.push(property);
+
+      }
+
+    }
+
+  });
+
+  if (invalidFields.length > 0) {
+    return {
+      valid: false,
+      invalidFields: invalidFields
+    };
+  } else {
+    return {
+      valid: true
+    }
+  }
+
+};
