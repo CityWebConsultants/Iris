@@ -37,6 +37,8 @@ C.registerPermission(name);
 
 res.respond(code, response, errors);
 
+C.sendSocketMessage(userids, message, data)
+
 Hooks
 =====
 

@@ -32,7 +32,7 @@ var hook = function (hookname, data, authPass) {
     }
 
     var hookcalls = [];
-    
+
     // Loop over all installed node.js modules and check if hook is present
 
     Object.keys(CM).forEach(function (element) {
@@ -55,11 +55,11 @@ var hook = function (hookname, data, authPass) {
       }
 
     });
-    
+
     //If no hook fail promise
 
     if (!hookcalls.length) {
-      
+
       no("No such hook exists");
 
     }
