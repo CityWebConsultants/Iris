@@ -40,6 +40,11 @@ var config = {
       name: 'messages',
       path: './modules',
       enabled: true
+    },
+    {
+      name: 'messages_replies',
+      path: './modules',
+      enabled: true
     }
 
   ]

@@ -15,7 +15,7 @@ CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, 
 
   var checkGroupExists = C.promise(function (data, yes, no) {
 
-    CM.group_manager.globals.fetchGroupByID(entity.groupid).then(function (fetchedGroup) {
+    CM.group_manager.globals.fetchGroupById(entity.groupid).then(function (fetchedGroup) {
 
       group = fetchedGroup;
 

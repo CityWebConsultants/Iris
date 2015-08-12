@@ -55,7 +55,7 @@ C.registerDbSchema("group", {
 
 CM.group_manager.globals = {
 
-  fetchGroupByID: C.promise(function (_id, yes, no) {
+  fetchGroupById: C.promise(function (_id, yes, no) {
 
     C.dbCollections.group.findOne({
       '_id': _id

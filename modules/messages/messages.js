@@ -34,10 +34,36 @@ C.registerDbSchema("message", {
   hideFromPublicGroup: {
     type: Boolean,
     required: false
-  },
-  parents: {
-    type: Array,
-    required: false
-  },
+  }
 
 });
+
+CM.messages.globals = {
+
+  fetchMessageById: C.promise(function (_id, yes, no) {
+
+    C.dbCollections.message.findOne({
+      '_id': _id
+    }, function (err, doc) {
+
+      if (err) {
+
+        no("Database error");
+
+      }
+
+      if (doc) {
+console.log(doc);
+        yes(doc);
+
+      } else {
+
+        no(false);
+
+      }
+
+
+    })
+  })
+
+}

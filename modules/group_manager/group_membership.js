@@ -7,7 +7,7 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
   //Placeholder for group
 
   var group = {}
-  CM.group_manager.globals.fetchGroupByID(data._id).then(function (found) {
+  CM.group_manager.globals.fetchGroupById(data._id).then(function (found) {
 
     group = found;
 
