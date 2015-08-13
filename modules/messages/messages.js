@@ -53,7 +53,7 @@ CM.messages.globals = {
       }
 
       if (doc) {
-console.log(doc);
+
         yes(doc);
 
       } else {

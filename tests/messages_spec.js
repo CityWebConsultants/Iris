@@ -17,7 +17,7 @@ var message_normal_base = {
   userid: "1",
   content: "Test message.",
   type: "text",
-//  hideFromPublicGroup: false;
+  //  hideFromPublicGroup: false;
 
 
 }
@@ -50,6 +50,49 @@ exports.createMessage_val = function (data) {
     })
     .afterJSON(function (json) {
 
+      data.messageid = json._id;
+
+      exports.createMessageReply_val(data);
+
+    })
+    .toss();
+
+};
+
+exports.createMessageReply_val = function (data) {
+
+  message_normal_base.credentials = data.userCredentials;
+
+  var message = message_normal_base;
+
+  message.groupid = data.groupid;
+
+  message.replyTo = data.messageid;
+
+  frisby.create("Create reply to message (standard)")
+    .post(apiUrl + '/entity/create/message', message)
+    .expectStatus(200)
+    .inspectBody()
+    .expectJSON({
+      userid: function (val) {
+        expect(val).toBe(message.userid);
+      },
+      type: function (val) {
+        expect(val).toBe(message.type);
+      },
+      content: function (val) {
+        expect(val).toBe(message.content);
+      },
+      groupid: function (val) {
+        expect(val).toBe(message.groupid);
+      },
+      parents: function (val) {
+        expect(val).toBe([message.replyTo]);
+      }
+    })
+    .afterJSON(function (json) {
+
+      data.replyMessageid = json._id;
 
     })
     .toss();

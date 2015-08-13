@@ -2,7 +2,7 @@
 
 CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, data) {
 
-  var entity = data.body;
+  var entity = data;
 
   var group;
   var member;

@@ -18,6 +18,10 @@ C.promise = function (callback) {
 
       } catch (e) {
 
+        console.log("--- Error in Promise ---");
+        console.log(e);
+        console.log("---       END        ---");
+
         C.log.warn(e);
         no("error");
 
