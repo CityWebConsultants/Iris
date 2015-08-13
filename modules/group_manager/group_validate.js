@@ -2,7 +2,8 @@
 
 CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHook, data) {
 
-  var entity = data;
+  var entity = data.new;
+  var past = data.old;
 
   var typeChecking = C.promise(function (data, yes, no) {
 

@@ -2,7 +2,7 @@
 
 CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, data) {
 
-  var entity = data;
+  var entity = data.new;
 
   var group;
   var member;
@@ -74,13 +74,13 @@ CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, 
 
   });
 
-  var pass = function (data) {
+  var pass = function (response) {
 
     thisHook.finish(true, data);
 
   }
 
-  var fail = function (data) {
+  var fail = function (response) {
 
     thisHook.finish(false, data);
 

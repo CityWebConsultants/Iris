@@ -125,8 +125,8 @@ CM.messages_replies.registerHook("hook_entity_view_message", 1, function (thisHo
 
 
 CM.messages_replies.registerHook("hook_entity_validate_message", 1, function (thisHook, data) {
-
-  var entity = data;
+  
+  var entity = data.new;
 
   var pass = function (data) {
 

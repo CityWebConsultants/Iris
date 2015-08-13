@@ -110,10 +110,16 @@ C.app.post("/entity/create/:type", function (req, res) {
 
     C.hook("hook_entity_validate", {
       type: req.params.type,
-      body: dummyBody
+      body: {
+        new: dummyBody,
+        old: null
+      }
     }, req.authPass).then(function (successData) {
 
-      C.hook("hook_entity_validate_" + req.params.type, dummyBody, req.authPass).then(function (pass) {
+      C.hook("hook_entity_validate_" + req.params.type, {
+        new: dummyBody,
+        old: null
+      }, req.authPass).then(function (pass) {
 
         preSave(req.body);
 
