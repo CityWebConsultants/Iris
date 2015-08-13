@@ -6,7 +6,7 @@ CM.group_manager.registerHook("hook_entity_access_edit_group", 0, function (this
 
   } else {
 
-    thisHook.finish(false, "Cannot edit groups");
+    thisHook.finish(false, C.error(403, "Cannot edit groups"));
 
   }
 

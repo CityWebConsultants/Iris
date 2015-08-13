@@ -39,6 +39,13 @@ CM.entity.registerHook("hook_entity_presave", 0, function (thisHook, data) {
 
 C.app.post("/entity/create/:type", function (req, res) {
 
+  if (req.body._id) {
+
+    res.respond(400, "Can't send an ID or current entity when creating an entity. Try update");
+    return false;
+
+  };
+
   var create = function (preparedEntity) {
 
     var entity = new C.dbCollections[req.params.type](preparedEntity);
@@ -161,9 +168,6 @@ C.app.post("/entity/create/:type", function (req, res) {
 });
 
 CM.entity.registerHook("hook_entity_validate", 0, function (thisHook, data) {
-
-  var type = data.type;
-  var entity = data.body;
 
   thisHook.finish(true, data);
 
