@@ -60,7 +60,7 @@ C.app.post("/entity/create/:type", function (req, res) {
 
     var dummyBody = JSON.parse(JSON.stringify(req.body));
 
-    Object.freeze(dummyBody);
+//    Object.freeze(dummyBody);
 
     C.hook("hook_entity_validate", {
       type: req.params.type,
