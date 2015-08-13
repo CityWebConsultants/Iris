@@ -33,9 +33,9 @@ C.app.get("/entity/access/create/:type", function (req, res) {
 
 C.app.post("/entity/create/:type", function (req, res) {
 
-  var create = function (validatedEntity) {
+  var create = function (preparedEntity) {
 
-    var entity = new C.dbCollections[req.params.type](validatedEntity);
+    var entity = new C.dbCollections[req.params.type](preparedEntity);
 
     entity.save(function (err, doc) {
 
@@ -54,13 +54,46 @@ C.app.post("/entity/create/:type", function (req, res) {
 
   }
 
+  var preSave = function (entity) {
+
+    C.hook("hook_entity_presave", {
+      type: req.params.type,
+      body: entity
+    }, req.authPass).then(function (successData) {
+
+      C.hook("hook_entity_presave_" + req.params.type, entity, req.authPass).then(function (pass) {
+
+        create(req.body);
+
+      }, function (fail) {
+
+        if (fail === "No such hook exists") {
+
+          create(req.body);
+
+        } else {
+
+          res.send(fail);
+
+        }
+
+      })
+
+    }, function (fail) {
+
+      res.send(fail);
+
+    });
+
+  };
+
   //Reusable function for passing to validate
 
   var validate = function (entity) {
 
     var dummyBody = JSON.parse(JSON.stringify(req.body));
 
-//    Object.freeze(dummyBody);
+    //    Object.freeze(dummyBody);
 
     C.hook("hook_entity_validate", {
       type: req.params.type,
@@ -75,7 +108,7 @@ C.app.post("/entity/create/:type", function (req, res) {
 
         if (fail === "No such hook exists") {
 
-          create(req.body);
+          preSave(req.body);
 
         } else {
 
