@@ -152,7 +152,7 @@ C.app.post("/entity/edit/:type", function (req, res) {
 
       } else {
 
-        res.send(fail);
+        res.respond(fail.code, fail.message);
 
       }
 
@@ -160,7 +160,7 @@ C.app.post("/entity/edit/:type", function (req, res) {
 
   }, function (fail) {
 
-    res.send(fail);
+    res.respond(fail.code, fail.message);
 
   });
 
