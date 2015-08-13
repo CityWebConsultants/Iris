@@ -95,6 +95,7 @@ C.app.use(function (req, res, next) {
   });
   CM.auth.globals.credentialsToPass(req.body.credentials).then(function (authPass) {
 
+    req.body.credentials = undefined;
     req.authPass = authPass;
     next();
 

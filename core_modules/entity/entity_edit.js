@@ -56,24 +56,61 @@ C.app.post("/entity/edit/:type", function (req, res) {
 
   }
 
-  //Reusable function for passing to validate
+  var preSave = function (entity) {
 
-  var validate = function () {
-
-    C.hook("hook_entity_validate", {
+    C.hook("hook_entity_presave", {
       type: req.params.type,
-      body: req.body
+      body: entity
     }, req.authPass).then(function (successData) {
 
-      C.hook("hook_entity_validate_" + req.params.type, successData, req.authPass).then(function (pass) {
+      C.hook("hook_entity_presave_" + req.params.type, entity, req.authPass).then(function (pass) {
 
-        update(req.body);
+        create(successData.body);
 
       }, function (fail) {
 
         if (fail === "No such hook exists") {
 
-          create(req.body);
+          create(successData.body);
+
+        } else {
+
+          res.send(fail);
+
+        }
+
+      })
+
+    }, function (fail) {
+
+      res.send(fail);
+
+    });
+
+  };
+
+  //Reusable function for passing to validate
+
+  var validate = function () {
+
+    var dummyBody = JSON.parse(JSON.stringify(req.body));
+
+    //    Object.freeze(dummyBody);
+
+    C.hook("hook_entity_validate", {
+      type: req.params.type,
+      body: dummyBody
+    }, req.authPass).then(function (successData) {
+
+      C.hook("hook_entity_validate_" + req.params.type, dummyBody, req.authPass).then(function (pass) {
+
+        preSave(req.body);
+
+      }, function (fail) {
+
+        if (fail === "No such hook exists") {
+
+          preSave(req.body);
 
         } else {
 
@@ -137,17 +174,23 @@ CM.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, data) {
 
     C.dbCollections[data.type].find({
       _id: data._id
-    }, function (success) {
+    }, function (err, doc) {
+
+      if (err) {
+
+        thisHook.finish(false, C.errors(500, "Database error"));
+
+      }
+
+      if (!doc) {
+
+        thisHook.finish(false, "entity doesn't exist");
+
+      }
 
       thisHook.finish(true, data);
 
-    }, function (fail) {
-
-      thisHook.finish(false, "entity doesn't exist");
-
     })
-
-    thisHook.finish(true, data);
 
   } else {
 

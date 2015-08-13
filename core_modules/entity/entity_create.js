@@ -95,7 +95,7 @@ C.app.post("/entity/create/:type", function (req, res) {
 
   //Reusable function for passing to validate
 
-  var validate = function (entity) {
+  var validate = function () {
 
     var dummyBody = JSON.parse(JSON.stringify(req.body));
 
