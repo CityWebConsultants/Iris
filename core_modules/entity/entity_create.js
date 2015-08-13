@@ -58,12 +58,14 @@ C.app.post("/entity/create/:type", function (req, res) {
 
   var validate = function (entity) {
 
+    var dummyBody = JSON.parse(JSON.stringify(req.body));
+
     C.hook("hook_entity_validate", {
       type: req.params.type,
-      body: req.body
+      body: dummyBody
     }, req.authPass).then(function (successData) {
 
-      C.hook("hook_entity_validate_" + req.params.type, successData, req.authPass).then(function (pass) {
+      C.hook("hook_entity_validate_" + req.params.type, dummyBody, req.authPass).then(function (pass) {
 
         create(req.body);
 
@@ -84,7 +86,6 @@ C.app.post("/entity/create/:type", function (req, res) {
     }, function (fail) {
 
       res.send(fail);
-
 
     });
 
