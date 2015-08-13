@@ -63,7 +63,7 @@ C.app.use(function (req, res, next) {
 
     } catch (e) {
 
-      console.log("Not JSON stringified");
+      res.respond(401, "Data is not valid JSON", "Data is not valid JSON");
 
     }
 
