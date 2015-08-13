@@ -36,7 +36,6 @@ var makeAuth_valid = function () {
       credentials: adminAuth,
       userid: "1"
     }))
-    .inspectBody()
     .expectStatus(200)
     .expectJSONTypes({
 

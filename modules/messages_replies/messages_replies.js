@@ -44,23 +44,11 @@ CM.messages_replies.registerHook("hook_entity_validate_message", 1, function (th
 
       CM.messages.globals.fetchMessageById(entity.replyTo).then(function (fetchedMessage) {
 
-        if (fetchedMessage.parents.length > 0) {
-
-          fetchedMessage.parents.push(fetchedMessage._id.toString());
-
-          entity.parents = fetchedMessage.parents;
-
-        } else {
-
-          entity.parents = [fetchedMessage._id.toString()];
-
-        }
-
         yes(data);
 
       }, function (fail) {
 
-        no("Cannot reply to a message that does not exist");
+        no(C.error(400, "Cannot reply to a message that does not exist"));
 
       });
 
@@ -70,6 +58,42 @@ CM.messages_replies.registerHook("hook_entity_validate_message", 1, function (th
 
   } else {
     pass(data);
+  }
+
+});
+
+CM.messages_replies.registerHook("hook_entity_presave_message", 1, function (thisHook, data) {
+
+  var entity = data;
+
+  if (entity.replyTo) {
+
+    CM.messages.globals.fetchMessageById(entity.replyTo).then(function (fetchedMessage) {
+
+      if (fetchedMessage.parents.length > 0) {
+
+        fetchedMessage.parents.push(fetchedMessage._id.toString());
+
+        entity.parents = fetchedMessage.parents;
+
+      } else {
+
+        entity.parents = [fetchedMessage._id.toString()];
+
+      }
+
+      thisHook.finish(true, data);
+
+    }, function (fail) {
+
+      thisHook.finish(false, C.error(400, "Cannot reply to a message that does not exist"));
+
+    });
+
+  } else {
+
+    thisHook.finish(true, data);
+
   }
 
 });

@@ -31,6 +31,12 @@ C.app.get("/entity/access/create/:type", function (req, res) {
 
 });
 
+CM.entity.registerHook("hook_entity_presave", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
+
+});
+
 C.app.post("/entity/create/:type", function (req, res) {
 
   var create = function (preparedEntity) {
@@ -63,13 +69,13 @@ C.app.post("/entity/create/:type", function (req, res) {
 
       C.hook("hook_entity_presave_" + req.params.type, entity, req.authPass).then(function (pass) {
 
-        create(req.body);
+        create(successData.body);
 
       }, function (fail) {
 
         if (fail === "No such hook exists") {
 
-          create(req.body);
+          create(successData.body);
 
         } else {
 
@@ -102,7 +108,7 @@ C.app.post("/entity/create/:type", function (req, res) {
 
       C.hook("hook_entity_validate_" + req.params.type, dummyBody, req.authPass).then(function (pass) {
 
-        create(req.body);
+        preSave(req.body);
 
       }, function (fail) {
 

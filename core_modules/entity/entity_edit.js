@@ -135,14 +135,14 @@ CM.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, data) {
 
   if (C.dbCollections[data.type]) {
 
-    C.dbcollections[data.type].find({
+    C.dbCollections[data.type].find({
       _id: data._id
     }, function (success) {
 
       thisHook.finish(true, data);
 
     }, function (fail) {
-      
+
       thisHook.finish(false, "entity doesn't exist");
 
     })

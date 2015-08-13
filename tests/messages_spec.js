@@ -87,7 +87,7 @@ exports.createMessageReply_val = function (data) {
         expect(val).toBe(message.groupid);
       },
       parents: function (val) {
-        expect(val).toBe([message.replyTo]);
+        expect(val[0]).toBe(message.replyTo);
       }
     })
     .afterJSON(function (json) {
