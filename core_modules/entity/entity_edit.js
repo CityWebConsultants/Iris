@@ -50,7 +50,7 @@ C.app.post("/entity/edit/:type", function (req, res) {
         type: req.params.type,
         _id: doc._id
       }, req.authPass).then(function (success) {
-
+        
         validate()
 
       }, function (fail) {
@@ -60,7 +60,7 @@ C.app.post("/entity/edit/:type", function (req, res) {
           validate()
 
         } else {
-          
+
           res.send(fail);
 
         }
@@ -94,7 +94,7 @@ C.app.post("/entity/edit/:type", function (req, res) {
           new: dummyBody,
           old: doc
         }, req.authPass).then(function (pass) {
-
+          
           preSave(req.body);
 
         }, function (fail) {
@@ -121,7 +121,9 @@ C.app.post("/entity/edit/:type", function (req, res) {
 
     var preSave = function () {
 
-      req.body.type = req.params.type;
+      //Reserved word
+      
+      req.body.entityType = req.params.type;
 
       C.hook("hook_entity_presave", req.body, req.authPass).then(function (successData) {
 
