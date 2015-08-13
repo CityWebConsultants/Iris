@@ -45,6 +45,11 @@ var config = {
       name: 'messages_replies',
       path: './modules',
       enabled: true
+    },
+    {
+      name: 'admin',
+      path: './modules',
+      enabled: true
     }
 
   ]
