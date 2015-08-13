@@ -36,14 +36,18 @@ var makeAuth_valid = function () {
       credentials: adminAuth,
       userid: "1"
     }))
+    .inspectBody()
     .expectStatus(200)
     .expectJSONTypes({
-      id: String,
-      timestamp: Number
+
+      response: {
+        id: String,
+        timestamp: Number
+      }
     })
     .afterJSON(function (json) {
 
-      data.userCredentials.token = json.id;
+      data.userCredentials.token = json.response.id;
 
       checkAuth_valid(data);
 
@@ -75,5 +79,3 @@ var checkAuth_valid = function (data) {
     .toss();
 
 };
-
-

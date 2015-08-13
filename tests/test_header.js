@@ -1,18 +1,16 @@
 var exports;
 
 exports.stringifyParameters = function (object) {
+  
+  var newObject = {};
 
-//  Object.keys(object).forEach(function (element) {
-//
-//    if (element !== 'credentials') {
-//
-//      object[element] = JSON.stringify(object[element]);
-//
-//    };
-//
-//  });
-//
-//  return object;
+  Object.keys(object).forEach(function (element) {
+
+    newObject[element] = JSON.stringify(object[element]);
+
+  });
+
+  return newObject;
 
 }
 

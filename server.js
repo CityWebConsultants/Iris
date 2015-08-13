@@ -42,14 +42,19 @@ C.app.use(function (req, res, next) {
     var response = {};
 
     response.status = code;
-    response.response = message;
-    response.notes = notes;
+    response.response = msg;
+
+    if (notes) {
+      response.notes = notes;
+    }
 
     if (code.toString()[0] !== 2) {
 
       response.error = true;
 
     }
+
+    res.status(code);
 
     res.send(response);
 
@@ -83,7 +88,7 @@ C.app.use(function (req, res, next) {
 
     } catch (e) {
 
-      res.respond(401, "Data is not valid JSON", "Data is not valid JSON");
+      res.respond(400, "Data is not valid JSON", "Data is not valid JSON");
 
     }
 

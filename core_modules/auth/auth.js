@@ -180,7 +180,7 @@ CM.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
   if (!data.userid || typeof data.userid !== "string") {
 
-    thisHook.finish(false, "No user ID");
+    thisHook.finish(false, C.error(400, "No user ID"));
     return false;
 
   }
@@ -322,11 +322,11 @@ C.app.post('/auth/maketoken', function (req, res) {
 
   C.hook("hook_auth_maketoken", req.body, req.authPass).then(function (success) {
 
-    res.send(success);
+    res.respond(200, success);
 
   }, function (fail) {
 
-    res.send(fail);
+    res.respond(fail.code, fail.message);
 
   });
 
