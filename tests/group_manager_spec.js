@@ -62,7 +62,6 @@ var group = {
 
   "name": "test2",
 
-
 };
 
 exports.updateGroup = function (data) {
@@ -88,7 +87,26 @@ exports.updateGroupAddMember = function (data) {
   frisby.create("Update group - add member")
     .post(apiUrl + '/group/addmember', utils.stringifyParameters({
       credentials: data.userCredentials,
-      member: {userid: "2", roles: ["group_member"]},
+      member: {userid: "2", roles: ["group member"]},
+      _id: data.groupid
+    }))
+    .inspectBody()
+    .expectStatus(200)
+    .afterJSON(function (json) {
+
+      exports.updateGroupRemoveMember(data);
+
+    })
+    .toss();
+
+};
+
+exports.updateGroupRemoveMember = function (data) {
+
+  frisby.create("Update group - remove member")
+    .post(apiUrl + '/group/removemember', utils.stringifyParameters({
+      credentials: data.userCredentials,
+      member: "2",
       _id: data.groupid
     }))
     .inspectBody()
@@ -101,10 +119,6 @@ exports.updateGroupAddMember = function (data) {
     .toss();
 
 };
-
-//exports.updateGroupAddMember = function (data) {
-//
-//};
 
 // 121 GROUPS
 
