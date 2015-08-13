@@ -21,18 +21,38 @@ C.app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+//Error helper function
+
+C.error = function (code, message, notes) {
+
+  return {
+    code: code,
+    message: message,
+    notes: notes
+  }
+
+};
+
 //Set up response sending
 
 C.app.use(function (req, res, next) {
 
-  res.respond = function (code, msg, errors) {
+  res.respond = function (code, msg, notes) {
 
-    res.status(code);
+    var response = {};
 
-    res.send({
-      response: msg,
-      errors: errors,
-    });
+    response.status = code;
+    response.response = message;
+    response.notes = notes;
+
+    if (code.toString()[0] !== 2) {
+
+      response.error = true;
+
+    }
+
+    res.send(response);
+
   }
 
   next();
