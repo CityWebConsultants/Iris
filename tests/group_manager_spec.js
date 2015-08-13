@@ -4,6 +4,8 @@ var frisby = require('frisby');
 
 var config = require('./test_config');
 
+var utils = require('./test_header');
+
 var apiUrl = config.apiUrl;
 
 // Import dependent specs
@@ -28,9 +30,8 @@ exports.createGroup_valid = function (data) {
   group_normal_public_base.credentials = data.userCredentials;
 
   frisby.create("Create group (standard)")
-    .post(apiUrl + '/entity/create/group', group_normal_public_base)
+    .post(apiUrl + '/entity/create/group', utils.stringifyParameters(group_normal_public_base))
     .expectStatus(200)
-    .inspectBody()
     .expectJSON({
       name: function (val) {
         expect(val).toBe(group_normal_public_base.name);
@@ -76,8 +77,7 @@ exports.updateGroup = function (data) {
   group._id = data.groupid;
 
   frisby.create("Update group")
-    .post(apiUrl + "/entity/edit/group", group)
-    .inspectBody()
+    .post(apiUrl + "/entity/edit/group", utils.stringifyParameters(group))
     .after(function () {
 
       exports.create121Group_inv_notEnoughMembers(data);
@@ -105,9 +105,8 @@ exports.create121Group_inv_notEnoughMembers = function (data) {
   group_121_base.credentials = data.userCredentials;
 
   frisby.create("Fail creation of 121 group with not enough members")
-    .post(apiUrl + '/entity/create/group', group_121_base)
+    .post(apiUrl + '/entity/create/group', utils.stringifyParameters(group_121_base))
     .expectStatus(200)
-    .inspectBody()
     .after(function () {
 
       data.group_121_base = group_121_base;
@@ -131,9 +130,8 @@ exports.create121Group_inv_tooManyMembers = function (data) {
   });
 
   frisby.create("Fail creation of 121 group with too many members")
-    .post(apiUrl + '/entity/create/group', group)
+    .post(apiUrl + '/entity/create/group', utils.stringifyParameters(group))
     .expectStatus(200)
-    .inspectBody()
     .after(function (json) {
 
       exports.create121Group_inv_hasEntityRef(data);
@@ -154,9 +152,8 @@ exports.create121Group_inv_hasEntityRef = function (data) {
   group.entityRef = "1";
 
   frisby.create("Fail creation of 121 group with an entityRef")
-    .post(apiUrl + '/entity/create/group', group)
+    .post(apiUrl + '/entity/create/group', utils.stringifyParameters(group))
     .expectStatus(200)
-    .inspectBody()
   .after(function () {
     messages_spec.createMessage_val(data);
   })

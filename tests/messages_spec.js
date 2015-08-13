@@ -4,6 +4,8 @@ var frisby = require('frisby');
 
 var config = require('./test_config');
 
+var utils = require('./test_header');
+
 var apiUrl = config.apiUrl;
 
 // Import dependent specs
@@ -31,9 +33,8 @@ exports.createMessage_val = function (data) {
   message.groupid = data.groupid;
 
   frisby.create("Create message (standard)")
-    .post(apiUrl + '/entity/create/message', message)
+    .post(apiUrl + '/entity/create/message', utils.stringifyParameters(message))
     .expectStatus(200)
-    .inspectBody()
     .expectJSON({
       userid: function (val) {
         expect(val).toBe(message.userid);
@@ -70,9 +71,8 @@ exports.createMessageReply_val = function (data) {
   message.replyTo = data.messageid;
 
   frisby.create("Create reply to message (standard)")
-    .post(apiUrl + '/entity/create/message', message)
+    .post(apiUrl + '/entity/create/message', utils.stringifyParameters(message))
     .expectStatus(200)
-    .inspectBody()
     .expectJSON({
       userid: function (val) {
         expect(val).toBe(message.userid);

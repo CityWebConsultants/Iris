@@ -2,6 +2,8 @@ var frisby = require('frisby');
 
 var config = require('./test_config');
 
+var utils = require('./test_header');
+
 var apiUrl = config.apiUrl;
 
 // Import dependent specs
