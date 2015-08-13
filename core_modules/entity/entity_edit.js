@@ -51,7 +51,7 @@ C.app.post("/entity/edit/:type", function (req, res) {
     C.dbCollections[req.params.type].update(conditions, update, callback);
 
     function callback(err, numAffected) {
-      res.send("updated");
+      res.respond(200, "updated");
     }
 
   }
@@ -65,13 +65,13 @@ C.app.post("/entity/edit/:type", function (req, res) {
 
       C.hook("hook_entity_presave_" + req.params.type, entity, req.authPass).then(function (pass) {
 
-        create(successData.body);
+        update(successData.body);
 
       }, function (fail) {
 
         if (fail === "No such hook exists") {
 
-          create(successData.body);
+          update(successData.body);
 
         } else {
 
