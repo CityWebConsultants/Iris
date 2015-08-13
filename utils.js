@@ -27,6 +27,10 @@ C.promise = function (callback) {
 
       }
 
+    }).catch(function (e) {
+
+      console.log(e.name);
+
     });
 
   }
