@@ -60,14 +60,8 @@ exports.createGroup_valid = function (data) {
 
 var group = {
 
-  "name": "test",
-  "members": [{
-    "userid": "1"
-    }, {
-    "userid": "1"
-    }],
-  "type": "soandso",
-  "is121": true,
+  "name": "test2",
+
 
 };
 
@@ -78,7 +72,9 @@ exports.updateGroup = function (data) {
 
   frisby.create("Update group")
     .post(apiUrl + "/entity/edit/group", utils.stringifyParameters(group))
-    .after(function () {
+    .inspectBody()
+    .expectStatus(200)
+    .afterJSON(function (json) {
 
       exports.create121Group_inv_notEnoughMembers(data);
 

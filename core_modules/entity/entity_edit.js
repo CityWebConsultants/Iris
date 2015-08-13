@@ -48,10 +48,16 @@ C.app.post("/entity/edit/:type", function (req, res) {
     };
     var update = validatedEntity;
 
+    delete validatedEntity._id;
+
     C.dbCollections[req.params.type].update(conditions, update, callback);
 
     function callback(err, numAffected) {
-      res.respond(200, "updated");
+      if (err) {
+        res.respond(500, "Database error");
+      } else {
+        res.respond(200, "updated");
+      }
     }
 
   }
