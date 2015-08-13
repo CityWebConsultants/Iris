@@ -17,6 +17,20 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
   });
 
+  var checkInput = C.promise(function (data, yes, no) {
+
+    if (!(data.member && data.member.userid && typeof data.member.userid === "string")) {
+
+      no(C.error(400, "Member must have a userid, and it must be a string"));
+
+    } else {
+
+      yes(data);
+
+    }
+
+  });
+
   var checkPermission = C.promise(function (data, yes, no) {
 
     CM.group_manager.globals.checkGroupMembership({
@@ -26,7 +40,7 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
       if (!CM.group_manager.globals.checkGroupPermission(group.type, ["can add member"], member.roles)) {
 
-        no("Not allowed to add group member");
+        no(C.error(403, "Not allowed to add group member"));
 
       } else {
 
@@ -46,7 +60,7 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
       } else {
 
-        no("Cannot add member to group you aren't a member of");
+        no(C.error(403, "Cannot add member to group you aren't a member of"));
 
       };
 
@@ -61,7 +75,7 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
       userid: data.member.userid
     }, thisHook.authPass.userid).then(function (member) {
 
-      no("Member already exists");
+      no(C.error(400, "Member already exists"));
 
     }, function (nomember) {
 
@@ -83,11 +97,11 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
       if (err) {
 
-        no("database error");
+        no(C.error(500, "Database error"));
 
       } else if (doc) {
 
-        yes("member added");
+        yes("Member added");
 
       }
 
@@ -107,7 +121,7 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
   };
 
-  C.promiseChain([checkPermission, checkDuplicates, addMember], data, pass, fail);
+  C.promiseChain([checkInput, checkPermission, checkDuplicates, addMember], data, pass, fail);
 
 });
 
@@ -115,11 +129,11 @@ C.app.post("/group/addmember", function (req, res) {
 
   C.hook("hook_group_manager_addmember", req.body, req.authPass).then(function (pass) {
 
-    res.send(pass);
+    res.respond(200, pass);
 
   }, function (fail) {
 
-    res.send(fail);
+    res.respond(fail.code, fail.message);
 
   });
 

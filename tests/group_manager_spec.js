@@ -76,12 +76,35 @@ exports.updateGroup = function (data) {
     .expectStatus(200)
     .afterJSON(function (json) {
 
+      exports.updateGroupAddMember(data);
+
+    })
+    .toss();
+
+};
+
+exports.updateGroupAddMember = function (data) {
+
+  frisby.create("Update group - add member")
+    .post(apiUrl + '/group/addmember', utils.stringifyParameters({
+      credentials: data.userCredentials,
+      member: {userid: "2", roles: ["group_member"]},
+      _id: data.groupid
+    }))
+    .inspectBody()
+    .expectStatus(200)
+    .afterJSON(function (json) {
+
       exports.create121Group_inv_notEnoughMembers(data);
 
     })
     .toss();
 
 };
+
+//exports.updateGroupAddMember = function (data) {
+//
+//};
 
 // 121 GROUPS
 
@@ -150,11 +173,11 @@ exports.create121Group_inv_hasEntityRef = function (data) {
   frisby.create("Fail creation of 121 group with an entityRef")
     .post(apiUrl + '/entity/create/group', utils.stringifyParameters(group))
     .expectStatus(200)
-  .after(function () {
-    messages_spec.createMessage_val(data);
-  })
+    .after(function () {
+      messages_spec.createMessage_val(data);
+    })
     .toss();
 
-}
+};
 
 module.exports = exports;
