@@ -32,10 +32,10 @@ var data = {
 var makeAuth_valid = function () {
 
   frisby.create("Make auth token")
-    .post(apiUrl + "/auth/maketoken", {
-      credentials: JSON.stringify(adminAuth),
-      userid: JSON.stringify("1")
-    })
+    .post(apiUrl + "/auth/maketoken", utils.stringifyParameters({
+      credentials: adminAuth,
+      userid: "1"
+    }))
     .expectStatus(200)
     .expectJSONTypes({
       id: String,
