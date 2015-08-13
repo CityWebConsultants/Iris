@@ -48,7 +48,7 @@ C.app.use(function (req, res, next) {
       response.notes = notes;
     }
 
-    if (code.toString()[0] !== 2) {
+    if (code.toString()[0] !== "2") {
 
       response.error = true;
 
@@ -93,6 +93,7 @@ C.app.use(function (req, res, next) {
     }
 
   });
+  
   CM.auth.globals.credentialsToPass(req.body.credentials).then(function (authPass) {
 
     req.body.credentials = undefined;

@@ -57,7 +57,7 @@ C.app.get("/fetch", function (req, res) {
       entities[type] = [];
 
       dbActions.push(C.promise(function (data, yes, no) {
-          C.dbCollections[type].find(query, function (err, doc) {
+          C.dbCollections[type].find(query).lean().exec(function (err, doc) {
 
             if (err) {
 
@@ -116,7 +116,7 @@ C.app.get("/fetch", function (req, res) {
 
       C.promiseChain(viewHooks, null, function (success) {
 
-        res.respond(200, entities, "Something went a bit odd");
+        res.respond(200, entities);
 
       }, function (fail) {
 
