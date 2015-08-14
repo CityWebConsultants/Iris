@@ -11,22 +11,38 @@ function C($scope, $attrs, $http) {
 
   }
 
-  var queries = [];
+  var finalQueries = [];
 
-  queries.push({
-    "comparison": "IS",
-    "compare": "adventure",
-    "field": "type"
-  });
+  if ($attrs.queries) {
 
+    var queries = $attrs.queries.split(",");
+
+    queries.forEach(function (query) {
+
+      var query = query.split(":");
+
+      var query = {
+
+        "comparison": query[1],
+        "field": query[0],
+        "compare": query[2]
+
+      }
+
+      finalQueries.push(query);
+
+    });
+
+  }
+  
   $http({
     url: "/fetch",
     method: "GET",
     params: {
       "entities[]": entities,
-      "queries[]": queries
+      "queries[]": finalQueries
     },
-      paramSerializer: '$httpParamSerializerJQLike'
+    paramSerializer: '$httpParamSerializerJQLike'
   }).then(function (response) {
 
     $scope.data = response.data.response;
