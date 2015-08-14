@@ -36,9 +36,9 @@ C.error = function (code, message, notes) {
 //Set up CORS
 
 C.app.use(function (req, res, next) {
-  
+
   if (!C.status.ready) {
-    
+
     res.end("Starting up");
     return false;
 
@@ -97,15 +97,15 @@ C.app.use(function (req, res, next) {
 
     } catch (e) {
 
-      res.respond(400, "Data is not valid JSON", "Data is not valid JSON");
+      // Allowing non-JSON encoded data
 
     }
 
   });
-
   CM.auth.globals.credentialsToPass(req.body.credentials).then(function (authPass) {
 
-    req.body.credentials = undefined;
+    delete req.body.credentials;
+
     req.authPass = authPass;
     next();
 
