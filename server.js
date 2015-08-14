@@ -33,6 +33,22 @@ C.error = function (code, message, notes) {
 
 };
 
+//Set up CORS
+
+C.app.use(function (req, res, next) {
+  
+  if (!C.status.ready) {
+    
+    res.end("Starting up");
+    return false;
+
+  }
+
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 //Set up response sending
 
 C.app.use(function (req, res, next) {
@@ -56,7 +72,7 @@ C.app.use(function (req, res, next) {
 
     res.status(code);
 
-    res.send(response);
+    res.end(JSON.stringify(response));
 
   }
 
@@ -64,13 +80,6 @@ C.app.use(function (req, res, next) {
 
 });
 
-//Set up CORS
-
-C.app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
 
 C.app.use(function (req, res, next) {
 
@@ -93,7 +102,7 @@ C.app.use(function (req, res, next) {
     }
 
   });
-  
+
   CM.auth.globals.credentialsToPass(req.body.credentials).then(function (authPass) {
 
     req.body.credentials = undefined;

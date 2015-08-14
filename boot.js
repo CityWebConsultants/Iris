@@ -80,6 +80,12 @@ module.exports = function (config) {
 
   //Free C object, no longer extensible
 
+  C.status = {
+
+    ready: false
+
+  };
+
   Object.freeze(C);
 
   mongoose.connection.once("open", function () {
@@ -114,6 +120,7 @@ module.exports = function (config) {
 
     });
 
+    C.status.ready = true;
     C.dbPopulate();
 
   });

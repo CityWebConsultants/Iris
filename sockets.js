@@ -33,6 +33,13 @@ C.sendSocketMessage = function (userids, message, data) {
 
 C.socketServer.on("connection", function (socket) {
 
+  if (!C.status.ready) {
+
+    socket.emit("Error","Starting up");
+    return false;
+
+  }
+
   //Register pair listener
 
   socket.on("pair", function (credentials) {

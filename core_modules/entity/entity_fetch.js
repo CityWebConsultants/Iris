@@ -1,5 +1,5 @@
 C.app.get("/fetch", function (req, res) {
-
+  
   var entityTypes = [];
 
   //Populate list of targetted DB entities
@@ -18,8 +18,9 @@ C.app.get("/fetch", function (req, res) {
 
   } else {
 
-    res.send("Not a valid query");
-
+    res.respond(400, "Not a valid query");
+    return false;
+  
   }
 
   //Assemble query
