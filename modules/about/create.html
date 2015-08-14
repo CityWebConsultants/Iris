@@ -38,14 +38,9 @@
               "secretkey": "letmein"
             };
 
-            var path = document.location.pathname.split("/");
+            var type = document.location.pathname.split("/")[document.location.pathname.split("/").length - 1];
 
-            var type = path[path.length - 2];
-            var id = path[path.length - 1]
-
-            values._id = id;
-
-            $.post("/entity/edit/" + type, values, function(err, data) {
+            $.post("/entity/create/" + type, values, function(err, data) {
 
               console.log(data);
 
