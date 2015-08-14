@@ -18,36 +18,44 @@ C.registerDbSchema("group", {
 
   name: {
     type: String,
+    description: "Group name goes here",
+    title: "Name",
     required: false
   },
   members: [{
     _id: false,
     userid: {
+      title: "UserID",
       type: String,
       required: true,
     },
     roles: [String],
     lastUpdated: {
+      title: "Last updated",
       type: Date,
       required: false
     },
     joined: {
+      title: "Joined",
       type: Date,
       required: false
     }
       }],
   entityRef: {
+    title: "Entity reference",
     type: String,
     required: false,
     unique: true,
     sparse: true
   },
   type: {
+    title: "Group type",
     type: String,
     required: false,
     default: "default",
   },
   is121: {
+    title: "Is one to one group?",
     type: Boolean,
     required: false,
   }

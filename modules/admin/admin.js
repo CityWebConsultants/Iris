@@ -1,7 +1,7 @@
 var express = require('express');
 var cookieParser = require('cookie-parser')
 C.app.use(cookieParser());
-var path = require('path');
+var path = require('path');res.sendFile(path.join(__dirname, '/templates/', 'admin.html'));
 
 C.registerModule("admin");
 

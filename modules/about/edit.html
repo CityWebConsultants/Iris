@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <script type="text/javascript" src="/jsonform/deps/jquery.min.js"></script>
+  <script type="text/javascript" src="/jsonform/deps/underscore.js"></script>
+  <script type="text/javascript" src="/jsonform/deps/opt/jquery.ui.core.js"></script>
+  <script type="text/javascript" src="/jsonform/deps/opt/jquery.ui.widget.js"></script>
+  <script type="text/javascript" src="/jsonform/deps/opt/jquery.ui.mouse.js"></script>
+  <script type="text/javascript" src="/jsonform/deps/opt/jquery.ui.sortable.js"></script>
+  <script type="text/javascript" src="/jsonform/lib/jsonform.js"></script>
+  <link rel="stylesheet" style="text/css" href="/jsonform/deps/opt/bootstrap.css" />
+
+
+
+</head>
+
+
+<body>
+
+  <form></form>
+
+
+  <script>
+    $(document).ready(function() {
+
+      $.get(document.location.pathname + "/form").done(function(data) {
+
+        data.onSubmit = function(errors, values) {
+
+          if (errors) {
+            $('#res').html('<p>I beg your pardon?</p>');
+          } else {
+
+            values.credentials = {
+              "apikey": "letmein",
+              "secretkey": "letmein"
+            };
+
+            var type = document.location.pathname.split("/")[document.location.pathname.split("/").length - 1];
+
+            $.post("/entity/create/" + type, values, function(err, data) {
+
+              console.log(data);
+
+            })
+
+          }
+        };
+
+        $('form').jsonForm(data);
+
+      });
+
+    });
+
+  </script>
+
+</body>
+
+</html>

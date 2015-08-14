@@ -25,7 +25,8 @@ C.registerDbSchema("message", {
     required: false
   },
   content: {
-
+    type: String,
+    required: true
   },
   type: {
     type: String,

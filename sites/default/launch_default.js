@@ -47,7 +47,7 @@ var config = {
       enabled: true
     },
     {
-      name: 'admin',
+      name: 'about',
       path: './modules',
       enabled: true
     }

@@ -13,7 +13,7 @@ var hook = function (hookname, data, authPass) {
         auth = {
 
           userid: "root",
-          roles: ["authenticated"]
+          roles: ["admin"]
 
         }
 
