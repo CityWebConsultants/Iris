@@ -45,6 +45,11 @@ C.app.post("/entity/create/:type", function (req, res) {
     return false;
 
   };
+  
+  //Set author and entity type
+  
+  req.body.entityType = req.params.type;
+  req.body.entityAuthor = req.authPass.userid; 
 
   var create = function (preparedEntity) {
 
@@ -60,6 +65,10 @@ C.app.post("/entity/create/:type", function (req, res) {
       } else if (doc) {
 
         res.send(doc);
+
+        C.hook("entity_created", doc, req.authPass);
+
+        C.hook("entity_created_" + req.params.type, doc, req.authPass);
 
       }
 

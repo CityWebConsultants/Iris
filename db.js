@@ -66,6 +66,23 @@ C.dbPopulate = function () {
   Object.keys(dbModels).forEach(function (model) {
 
     if (dbSchemaFields[model]) {
+
+      //Push in author and entity type fields
+
+      dbSchemaFields[model].entityType = {
+        type: String,
+        description: "The type of entity this is",
+        title: "Entity type",
+        required: true
+      }
+
+      dbSchemaFields[model].entityAuthor = {
+        type: String,
+        description: "The name of the author",
+        title: "Author",
+        required: true
+      }
+
       var schema = new mongoose.Schema(dbSchemaFields[model]);
 
       C.dbCollections[model] = mongoose.model(model, schema);
