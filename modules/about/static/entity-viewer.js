@@ -36,7 +36,7 @@ function C($scope, $attrs, $http) {
   }
   
   $http({
-    url: "/fetch",
+    url: "http://localhost:3000/fetch",
     method: "GET",
     params: {
       "entities[]": entities,

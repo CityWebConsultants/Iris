@@ -8,6 +8,52 @@ C.registerModule("auth");
 
 CM.auth.globals = {
 
+  permissions: {},
+
+  registerRole: function (name) {
+
+    if (C.auth.globals.permissions.roles[name]) {
+
+      console.log("Role already exists");
+      return false;
+
+    } else {
+
+      C.auth.globals.permissions.roles[name] = {
+
+        name: name;
+
+      }
+
+    }
+
+  },
+
+  registerPermission: function (permission, category) {
+
+    if (!C.auth.globals.permissions[category]) {
+
+      C.auth.globals.permissions[category] = {};
+
+    }
+
+    if (C.auth.globals.permissions[category][permission]) {
+
+      console.log("Permission alreay exists");
+      return false;
+
+    } else {
+
+      C.auth.globals.permissions[category][permission] = {
+
+        name: permission;
+
+      }
+
+    }
+
+  },
+
   roles: C.include(__dirname + "/roles.js", C.configPath + "/auth/roles.js"),
 
   //List of logged in users/access tokens

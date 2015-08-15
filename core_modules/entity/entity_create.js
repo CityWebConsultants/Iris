@@ -45,13 +45,15 @@ C.app.post("/entity/create/:type", function (req, res) {
     return false;
 
   };
-  
+
   //Set author and entity type
-  
+
   req.body.entityType = req.params.type;
-  req.body.entityAuthor = req.authPass.userid; 
+  req.body.entityAuthor = req.authPass.userid;
 
   var create = function (preparedEntity) {
+
+    preparedEntity.entityType = req.params.type;
 
     var entity = new C.dbCollections[req.params.type](preparedEntity);
 
