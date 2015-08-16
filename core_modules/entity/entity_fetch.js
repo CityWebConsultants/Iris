@@ -99,24 +99,43 @@ C.app.get("/fetch", function (req, res) {
 
         viewHooks.push(C.promise(function (data, yes, no) {
 
-          C.hook("hook_entity_view_" + entityBundle, entities[entityBundle], req.authPass).then(function (validated) {
+          //General entity view hook 
 
-            entities[entityBundle] = validated;
-            yes();
+          C.hook("hook_entity_view", entities, req.authPass).then(function (viewChecked) {
 
-          }, function (fail) {
+            entities = viewChecked;
 
-            if (fail === "No such hook exists") {
-
-              yes();
-
-            } else {
+            if (!entities[entityBundle]) {
 
               no();
+              return false;
 
             }
 
-          })
+            C.hook("hook_entity_view_" + entityBundle, entities[entityBundle], req.authPass).then(function (validated) {
+
+              entities[entityBundle] = validated;
+              yes();
+
+            }, function (fail) {
+
+              if (fail === "No such hook exists") {
+
+                yes();
+
+              } else {
+
+                no();
+
+              }
+
+            })
+
+          }, function (fail) {
+
+            no();
+
+          });
 
         }));
 
@@ -148,5 +167,44 @@ C.app.get("/fetch", function (req, res) {
     res.send("not a valid query");
 
   }
+
+});
+
+CM.entity.registerHook("hook_entity_view", 0, function (thisHook, data) {
+
+  //Loop over entity types and check if user can see them
+
+  Object.keys(data).forEach(function (type) {
+
+    if (!CM.auth.globals.checkPermissions(["can view any " + type], thisHook.authPass)) {
+
+      if (!CM.auth.globals.checkPermissions(["can view own " + type], thisHook.authPass)) {
+
+        //Can't view any of this type, delete them
+
+        delete data[type];
+
+      } else {
+
+        //Loop over all entities to check if any are owned by the user, remove others
+
+        data[type].forEach(function (item, index) {
+
+          if (item.entityAuthor !== thisHook.authPass.userid) {
+
+            data[type] = data[type].splice[index, 1];
+
+          }
+
+        });
+
+      }
+
+
+    }
+
+  });
+
+  thisHook.finish(true, data);
 
 });

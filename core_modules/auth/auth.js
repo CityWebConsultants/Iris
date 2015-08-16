@@ -200,7 +200,7 @@ CM.auth.globals = {
 
       authPass.roles.forEach(function (role) {
 
-        if (permissions[permission] && permissions[permission].indexOf(role) !== "-1") {
+        if (permissions[permission] && permissions[permission].indexOf(role) !== -1) {
 
           access = true;
 
