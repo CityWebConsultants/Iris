@@ -39,6 +39,10 @@ res.respond(code, response, errors);
 
 C.sendSocketMessage(userids, message, data)
 
+CM.auth.globals.registerPermission(name, category)
+CM.auth.globals.registerRole(name)
+
+
 Hooks
 =====
 

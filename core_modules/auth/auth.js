@@ -12,16 +12,16 @@ CM.auth.globals = {
 
   registerRole: function (name) {
 
-    if (C.auth.globals.permissions.roles[name]) {
+    if (CM.auth.globals.roles[name]) {
 
       console.log("Role already exists");
       return false;
 
     } else {
 
-      C.auth.globals.permissions.roles[name] = {
+      CM.auth.globals.roles[name] = {
 
-        name: name;
+        name: name
 
       }
 
@@ -31,22 +31,29 @@ CM.auth.globals = {
 
   registerPermission: function (permission, category) {
 
-    if (!C.auth.globals.permissions[category]) {
+    if (!category || !permission) {
 
-      C.auth.globals.permissions[category] = {};
+      console.log("Invalid paramaters");
+      return false;
 
     }
 
-    if (C.auth.globals.permissions[category][permission]) {
+    if (!CM.auth.globals.permissions[category]) {
+
+      CM.auth.globals.permissions[category] = {};
+
+    }
+
+    if (CM.auth.globals.permissions[category][permission]) {
 
       console.log("Permission alreay exists");
       return false;
 
     } else {
 
-      C.auth.globals.permissions[category][permission] = {
+      CM.auth.globals.permissions[category][permission] = {
 
-        name: permission;
+        name: permission
 
       }
 
@@ -54,8 +61,17 @@ CM.auth.globals = {
 
   },
 
-  roles: C.include(__dirname + "/roles.js", C.configPath + "/auth/roles.js"),
-
+  roles: {
+    admin: {
+      name: "admin"
+    },
+    anonymous: {
+      name: "anonymous"
+    },
+    authenticated: {
+      name: "authenticated"
+    },
+  },
   //List of logged in users/access tokens
   userList: {},
 
@@ -161,41 +177,47 @@ CM.auth.globals = {
 
   checkPermissions: function (permissionsArray, authPass) {
 
-    var rolesArray = authPass.roles;
-    var rolePermissions = [];
+    var fs = require('fs');
 
-    Object.keys(CM.auth.globals.roles).forEach(function (role) {
+    //Load in permissions
 
-      if (rolesArray.indexOf(role) !== -1) {
+    var permissions = {};
 
-        CM.auth.globals.roles[role].permissions.forEach(function (permission) {
+    try {
+      var currentPermissions = fs.readFileSync(CM.auth.configPath + "/permissions.JSON", "utf8");
 
-          rolePermissions.push(permission);
+      permissions = JSON.parse(currentPermissions);
 
-        });
+    } catch (e) {
 
-      };
-
-    });
-
-    //Special case for can do anything
-
-    if (rolePermissions.indexOf("can do anything") !== -1) {
-
-      return true;
-
-    } else {
-
-      return permissionsArray.every(function (element) {
-
-        return rolePermissions.indexOf(element) !== -1;
-
-      });
+      console.log(e);
 
     }
 
+    var access = false;
+
+    permissionsArray.forEach(function (permission) {
+
+      authPass.roles.forEach(function (role) {
+
+        if (permissions[permission] && permissions[permission].indexOf(role) !== "-1") {
+
+          access = true;
+
+        }
+
+      });
+
+    });
+
+    return access;
+
   },
 };
+
+CM.auth.globals.registerPermission("can make access token", "auth")
+CM.auth.globals.registerPermission("can delete access token", "auth")
+CM.auth.globals.registerPermission("can delete user access", "auth")
 
 CM.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data) {
 
@@ -264,7 +286,7 @@ CM.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
   } else {
 
-    thisHook.finish(false, "Access Denied");
+    thisHook.finish(false, C.error(403, "Access denied"));
 
   }
 

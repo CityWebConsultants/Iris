@@ -87,6 +87,16 @@ C.dbPopulate = function () {
 
       C.dbCollections[model] = mongoose.model(model, schema);
 
+      //Create permissions for this entity type
+
+      CM.auth.globals.registerPermission("can create " + model, "entity")
+      CM.auth.globals.registerPermission("can edit any " + model, "entity")
+      CM.auth.globals.registerPermission("can edit own " + model, "entity")
+      CM.auth.globals.registerPermission("can view any " + model, "entity")
+      CM.auth.globals.registerPermission("can view own " + model, "entity")
+      CM.auth.globals.registerPermission("can delete any " + model, "entity")
+      CM.auth.globals.registerPermission("can delete own " + model, "entity")
+
     } else {
 
       console.log("No schema fields set for this model");

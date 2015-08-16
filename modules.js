@@ -4,7 +4,8 @@ var moduleTemplate = (function () {
 
   var hooks = {},
     socketListeners = {},
-    path;
+    path,
+    configPath;
 
   return {
 
@@ -91,11 +92,30 @@ C.registerModule = function (name) {
   if (CM[name]) {
 
     console.log("Module already exists");
+    return false;
 
   } else {
 
     CM[name] = new moduleTemplate;
     CM[name].path = C.getModulePath(name);
+
+
+    //Create config directory
+
+    var fs = require('fs');
+
+    var mkdirSync = function (path) {
+      try {
+        fs.mkdirSync(path);
+      } catch (e) {
+        if (e.code != 'EEXIST') throw e;
+      }
+    }
+
+    mkdirSync(C.configPath + "/" + name);
+
+    CM[name].configPath = C.configPath + "/" + name;
+
     Object.seal(CM[name]);
 
   }
