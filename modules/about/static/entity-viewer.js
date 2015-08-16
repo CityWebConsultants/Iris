@@ -3,6 +3,13 @@ angular.element(document).ready(function () {
   angular.bootstrap(document, ['app']);
 });
 
+//get location of node.js server
+
+var scripts = document.getElementsByTagName('script'),
+  script = scripts[scripts.length - 1].src;
+
+var root = script.replace("entity-viewer.js","");
+
 function C($scope, $attrs, $http) {
 
   if ($attrs.entities) {
@@ -34,9 +41,9 @@ function C($scope, $attrs, $http) {
     });
 
   }
-  
+
   $http({
-    url: "http://localhost:3000/fetch",
+    url: root+"fetch",
     method: "GET",
     params: {
       "entities[]": entities,
