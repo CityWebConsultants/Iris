@@ -3,7 +3,7 @@
 
 <head>
 
-   <script type="text/javascript" src="/admin/jsonform/deps/jquery.min.js"></script>
+  <script type="text/javascript" src="/admin/jsonform/deps/jquery.min.js"></script>
   <script type="text/javascript" src="/admin/jsonform/deps/underscore.js"></script>
   <script type="text/javascript" src="/admin/jsonform/deps/opt/jquery.ui.core.js"></script>
   <script type="text/javascript" src="/admin/jsonform/deps/opt/jquery.ui.widget.js"></script>
@@ -11,11 +11,14 @@
   <script type="text/javascript" src="/admin/jsonform/deps/opt/jquery.ui.sortable.js"></script>
   <script type="text/javascript" src="/admin/jsonform/lib/jsonform.js"></script>
   <link rel="stylesheet" style="text/css" href="/admin/jsonform/deps/opt/bootstrap.css" />
+  <link rel="stylesheet" href="/admin/admin.css" />
 
 </head>
 
 
 <body>
+
+  <h1></h1>
 
   <form></form>
 
@@ -23,12 +26,18 @@
   <script>
     $(document).ready(function() {
 
+      var type = document.location.pathname.split("/")[document.location.pathname.split("/").length - 1];
+
+      $("h1").text("Create " + type);
+
       $.get(document.location.pathname + "/form").done(function(data) {
 
         data.onSubmit = function(errors, values) {
 
           if (errors) {
-            $('#res').html('<p>I beg your pardon?</p>');
+
+            console.error(errors);
+
           } else {
 
             values.credentials = {
@@ -36,9 +45,7 @@
               "secretkey": "letmein"
             };
 
-            var type = document.location.pathname.split("/")[document.location.pathname.split("/").length - 1];
-
-            $.post("/entity/create/" + type, values, function(err, data) {
+            $.post("/entity/create/" + type, values, function(data, err) {
 
               console.log(data);
 

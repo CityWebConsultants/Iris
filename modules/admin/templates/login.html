@@ -1,7 +1,12 @@
 <title>Admin</title>
 
+<link rel="stylesheet" style="text/css" href="/admin/jsonform/deps/opt/bootstrap.css" />
+<link rel="stylesheet" href="/admin/admin.css" />
+
 <form method='POST' action='/admin/login'>
-<label for='apikey'>API key</label><input name='apikey'/>
-<label for='secretkey'>API key</label><input name='secretkey' />
+  <label for='apikey'>API key</label>
+  <input name='apikey' />
+  <label for='secretkey'>API key</label>
+  <input name='secretkey' />
   <input type="submit" value='login' />
 </form>

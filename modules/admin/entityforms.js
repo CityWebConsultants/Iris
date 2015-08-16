@@ -35,7 +35,7 @@ C.app.get("/admin/create/:type/form/", function (req, res) {
 
     Object.keys(tree).forEach(function (item) {
 
-      if (item === "id" || item === "__v") {
+      if (item === "id" || item === "__v" || item === "entityType") {
 
         return false;
 
@@ -124,7 +124,7 @@ C.app.get("/admin/edit/:type/:_id/form", function (req, res) {
 
       Object.keys(tree).forEach(function (item) {
 
-        if (item === "id" || item === "__v") {
+             if (item === "id" || item === "__v" || item === "entityType") {
 
           return false;
 
@@ -180,7 +180,7 @@ C.app.get("/admin/create/:type/form/", function (req, res) {
 
     Object.keys(tree).forEach(function (item) {
 
-      if (item === "id" || item === "__v") {
+      if (item === "id" || item === "__v" || item === "entityType") {
 
         return false;
 

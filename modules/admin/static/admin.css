@@ -1,0 +1,5 @@
+html, body {margin:10px; background-color:deepskyblue; color:white; font-size:15px;}
+table {background-color: transparent;}
+
+#permissions td {width:300px; text-align: center;}
+#permissions td.permission {text-align: left;}
