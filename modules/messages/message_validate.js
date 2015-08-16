@@ -1,8 +1,6 @@
 //Validate creation of message
 
-CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, data) {
-
-  var entity = data.new;
+CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, entity) {
 
   var group;
   var member;
@@ -76,13 +74,13 @@ CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, 
 
   var pass = function (response) {
 
-    thisHook.finish(true, data);
+    thisHook.finish(true, response);
 
   }
 
   var fail = function (response) {
 
-    thisHook.finish(false, data);
+    thisHook.finish(false, response);
 
   }
 

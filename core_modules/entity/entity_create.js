@@ -66,7 +66,7 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
     //Create dummy body so it can't be edited during validation
 
     var dummyBody = JSON.parse(JSON.stringify(data));
-
+  
     //    Object.freeze(dummyBody);
 
     C.hook("hook_entity_validate", dummyBody, thisHook.authPass).then(function (successData) {

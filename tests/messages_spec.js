@@ -32,7 +32,7 @@ exports.createMessage_val = function (data) {
 
   message.groupid = data.groupid;
 
-  frisby.create("Create message (standard)")
+  frisby.create("Create message (Standard)")
     .post(apiUrl + '/entity/create/message', utils.stringifyParameters(message))
     .expectStatus(200)
     .expectJSON({

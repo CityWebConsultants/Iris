@@ -70,8 +70,7 @@ exports.updateGroup = function (data) {
   group._id = data.groupid;
 
   frisby.create("Update group")
-    .post(apiUrl + "/entity/edit/group", utils.stringifyParameters(group))
-    .inspectBody()
+    .post(apiUrl + "/entity/edit/group" + "/" + data.groupid, utils.stringifyParameters(group))
     .expectStatus(200)
     .afterJSON(function (json) {
 
@@ -87,10 +86,12 @@ exports.updateGroupAddMember = function (data) {
   frisby.create("Update group - add member")
     .post(apiUrl + '/group/addmember', utils.stringifyParameters({
       credentials: data.userCredentials,
-      member: {userid: "2", roles: ["group member"]},
+      member: {
+        userid: "2",
+        roles: ["group member"]
+      },
       _id: data.groupid
     }))
-    .inspectBody()
     .expectStatus(200)
     .afterJSON(function (json) {
 
@@ -109,7 +110,6 @@ exports.updateGroupRemoveMember = function (data) {
       member: "2",
       _id: data.groupid
     }))
-    .inspectBody()
     .expectStatus(200)
     .afterJSON(function (json) {
 

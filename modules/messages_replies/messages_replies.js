@@ -124,9 +124,7 @@ CM.messages_replies.registerHook("hook_entity_view_message", 1, function (thisHo
 });
 
 
-CM.messages_replies.registerHook("hook_entity_validate_message", 1, function (thisHook, data) {
-  
-  var entity = data.new;
+CM.messages_replies.registerHook("hook_entity_validate_message", 1, function (thisHook, entity) {
 
   var pass = function (data) {
 
@@ -159,14 +157,12 @@ CM.messages_replies.registerHook("hook_entity_validate_message", 1, function (th
     C.promiseChain([prepareReplies], entity, pass, fail);
 
   } else {
-    pass(data);
+    pass(entity);
   }
 
 });
 
-CM.messages_replies.registerHook("hook_entity_presave_message", 1, function (thisHook, data) {
-
-  var entity = data;
+CM.messages_replies.registerHook("hook_entity_presave_message", 1, function (thisHook, entity) {
 
   if (entity.replyTo) {
 
@@ -184,7 +180,7 @@ CM.messages_replies.registerHook("hook_entity_presave_message", 1, function (thi
 
       }
 
-      thisHook.finish(true, data);
+      thisHook.finish(true, entity);
 
     }, function (fail) {
 
@@ -194,7 +190,7 @@ CM.messages_replies.registerHook("hook_entity_presave_message", 1, function (thi
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.finish(true, entity);
 
   }
 
