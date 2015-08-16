@@ -1,9 +1,6 @@
 //Validate creation of group
 
-CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHook, data) {
-
-  var entity = data.new;
-  var past = data.old;
+CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHook, entity) {
 
   var typeChecking = C.promise(function (data, yes, no) {
 
@@ -27,9 +24,9 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
     }
 
   });
-
+  
   var check121Permission = C.promise(function (data, yes, no) {
-
+    
     if (!data.is121) {
 
       yes(data);
@@ -116,7 +113,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
   })
 
   var checkEntityRefPermission = C.promise(function (data, yes, no) {
-
+        
     if (!data.entityRef) {
 
       yes(data);
@@ -138,7 +135,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
   });
 
   var noEntityRefand121 = C.promise(function (data, yes, no) {
-
+    
     if (data.is121 && data.entityRef) {
 
       no("Cannot have both entityRef and 121");
@@ -152,13 +149,13 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
   });
 
   var pass = function (data) {
-
+    
     thisHook.finish(true, data);
 
   }
 
   var fail = function (data) {
-
+    
     thisHook.finish(false, data);
 
   }

@@ -1,22 +1,52 @@
 //Checking if a user can create an entity of a particular type
 
-C.app.get("/entity/access/create/:type", function (req, res) {
 
-  C.hook("hook_entity_access_create", req.params.type, req.authPass).then(function (success) {
+CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
-    C.hook("hook_entity_access_create_" + req.params.type, req.params.type, req.authPass).then(function (success) {
+  //Not allowed to send _id when creating as it is set automatically
 
-      res.send(success);
+  if (data._id) {
+
+    thisHook.finish(false, C.error(400, "Can't send an ID or current entity when creating an entity. Try update"));
+    return false;
+
+  };
+
+  //Set author and entity type
+
+  if (!data.entityType || !C.dbCollections[data.entityType]) {
+
+    thisHook.finish(false, C.error(400, "Needs to have a valid entityType"));
+    return false;
+
+  }
+
+  //Set author if not set already
+
+  if (!data.entityAuthor) {
+
+    data.entityAuthor = thisHook.authPass.userid;
+
+  }
+
+  //Check if user has access to create entities
+
+  C.hook("hook_entity_access_create", data, thisHook.authPass).then(function (success) {
+
+    C.hook("hook_entity_access_create_" + data.entityType, data, thisHook.authPass).then(function (successData) {
+
+      validate(data);
 
     }, function (fail) {
 
       if (fail === "No such hook exists") {
 
-        res.send(success);
+        validate(data);
 
       } else {
 
-        res.send(fail);
+        thisHook.finish(false, C.error(403, "Access denied"));
+        return false;
 
       }
 
@@ -24,53 +54,105 @@ C.app.get("/entity/access/create/:type", function (req, res) {
 
   }, function (fail) {
 
-    console.log(fail);
-    res.send(fail);
+    thisHook.finish(false, C.error(403, "Access denied"));
+    return false;
 
   });
 
-});
+  //Validate function before passing to presave
 
-CM.entity.registerHook("hook_entity_presave", 0, function (thisHook, data) {
+  var validate = function (data) {
 
-  thisHook.finish(true, data);
+    //Create dummy body so it can't be edited during validation
 
-});
+    var dummyBody = JSON.parse(JSON.stringify(data));
 
-C.app.post("/entity/create/:type", function (req, res) {
+    //    Object.freeze(dummyBody);
 
-  if (req.body._id) {
+    C.hook("hook_entity_validate", dummyBody, thisHook.authPass).then(function (successData) {
 
-    res.respond(400, "Can't send an ID or current entity when creating an entity. Try update");
-    return false;
+      C.hook("hook_entity_validate_" + data.entityType, dummyBody, thisHook.authPass).then(function (pass) {
+
+        preSave(data);
+
+      }, function (fail) {
+
+        if (fail === "No such hook exists") {
+
+          preSave(data);
+
+        } else {
+
+          thisHook.finish(false, fail);
+          return false;
+
+        }
+
+      })
+
+    }, function (fail) {
+
+      thisHook.finish(false, fail);
+      return false;
+
+    });
 
   };
 
-  //Set author and entity type
+  //Presave function
 
-  req.body.entityType = req.params.type;
-  req.body.entityAuthor = req.authPass.userid;
+  var preSave = function (entity) {
+
+    C.hook("hook_entity_presave", entity, thisHook.authPass).then(function (successData) {
+
+      C.hook("hook_entity_presave_" + data.entityType, entity, thisHook.authPass).then(function (pass) {
+
+        create(successData);
+
+      }, function (fail) {
+
+        if (fail === "No such hook exists") {
+
+          create(successData);
+
+        } else {
+
+          thisHook.finish(false, fail);
+          return false;
+
+        }
+
+      })
+
+    }, function (fail) {
+
+      thisHook.finish(false, fail);
+      return false;
+
+    });
+
+  };
+
+  //Create function and related hooks
 
   var create = function (preparedEntity) {
 
-    preparedEntity.entityType = req.params.type;
-
-    var entity = new C.dbCollections[req.params.type](preparedEntity);
+    var entity = new C.dbCollections[preparedEntity.entityType](preparedEntity);
 
     entity.save(function (err, doc) {
 
       if (err) {
 
         console.log(err);
-        res.send("Database error");
+        thisHook.finish(false, "Database error");
 
       } else if (doc) {
 
-        res.send(doc);
+        thisHook.finish(true, doc);
 
-        C.hook("entity_created", doc, req.authPass);
+        C.hook("entity_created", doc, thisHook.authPass);
 
-        C.hook("entity_created_" + req.params.type, doc, req.authPass);
+        C.hook("entity_created_" + data.entityType, doc, thisHook.authPass);
 
       }
 
@@ -78,103 +160,15 @@ C.app.post("/entity/create/:type", function (req, res) {
 
   }
 
-  var preSave = function (entity) {
+});
 
-    C.hook("hook_entity_presave", {
-      type: req.params.type,
-      body: entity
-    }, req.authPass).then(function (successData) {
+C.app.post("/entity/create/:type", function (req, res) {
 
-      C.hook("hook_entity_presave_" + req.params.type, entity, req.authPass).then(function (pass) {
+  req.body.entityType = req.params.type;
 
-        create(successData.body);
+  C.hook("hook_entity_create", req.body, req.authPass).then(function (success) {
 
-      }, function (fail) {
-
-        if (fail === "No such hook exists") {
-
-          create(successData.body);
-
-        } else {
-
-          res.send(fail);
-
-        }
-
-      })
-
-    }, function (fail) {
-
-      res.send(fail);
-
-    });
-
-  };
-
-  //Reusable function for passing to validate
-
-  var validate = function () {
-
-    var dummyBody = JSON.parse(JSON.stringify(req.body));
-
-    //    Object.freeze(dummyBody);
-
-    C.hook("hook_entity_validate", {
-      type: req.params.type,
-      body: {
-        new: dummyBody,
-        old: null
-      }
-    }, req.authPass).then(function (successData) {
-
-      C.hook("hook_entity_validate_" + req.params.type, {
-        new: dummyBody,
-        old: null
-      }, req.authPass).then(function (pass) {
-
-        preSave(req.body);
-
-      }, function (fail) {
-
-        if (fail === "No such hook exists") {
-
-          preSave(req.body);
-
-        } else {
-
-          res.send(fail);
-
-        }
-
-      })
-
-    }, function (fail) {
-
-      res.send(fail);
-
-    });
-
-  };
-
-  C.hook("hook_entity_access_create", req.params.type, req.authPass).then(function (success) {
-
-    C.hook("hook_entity_access_create_" + req.params.type, req.params.type, req.authPass).then(function (successData) {
-
-      validate(successData);
-
-    }, function (fail) {
-
-      if (fail === "No such hook exists") {
-
-        validate(success);
-
-      } else {
-
-        res.send(fail);
-
-      }
-
-    })
+    res.send(success);
 
   }, function (fail) {
 
@@ -192,16 +186,14 @@ CM.entity.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
 //Checking access and if entity exists
 
-CM.entity.registerHook("hook_entity_access_create", 0, function (thisHook, entityType) {
+CM.entity.registerHook("hook_entity_access_create", 0, function (thisHook, data) {
 
-  if (C.dbCollections[entityType]) {
+  thisHook.finish(true, data);
 
-    thisHook.finish(true, entityType);
+});
 
-  } else {
+CM.entity.registerHook("hook_entity_presave", 0, function (thisHook, data) {
 
-    thisHook.finish(false, "Entity type doesn't exist");
-
-  }
+  thisHook.finish(true, data);
 
 });
