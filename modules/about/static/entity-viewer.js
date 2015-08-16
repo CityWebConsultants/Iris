@@ -1,16 +1,23 @@
 // Angular bootstrap app
+
 angular.element(document).ready(function () {
   angular.bootstrap(document, ['app']);
 });
 
-//get location of node.js server
+var C = {};
 
-var scripts = document.getElementsByTagName('script'),
-  script = scripts[scripts.length - 1].src;
+C.entityFetch = function ($scope, $attrs, $http) {
 
-var root = script.replace("entity-viewer.js","");
+  //get location of node.js server
 
-function C($scope, $attrs, $http) {
+  var scripts = document.getElementsByTagName('script'),
+    script = scripts[scripts.length - 1].src;
+
+  var root = script.replace("entity-viewer.js", "");
+
+  //Set up socket.io listener
+
+  C.receiver = io(root);
 
   if ($attrs.entities) {
 
@@ -42,41 +49,36 @@ function C($scope, $attrs, $http) {
 
   }
 
-  $http({
-    url: root+"fetch",
-    method: "GET",
-    params: {
-      "entities[]": entities,
-      "queries[]": finalQueries
-    },
-    paramSerializer: '$httpParamSerializerJQLike'
-  }).then(function (response) {
-
-    $scope.data = response.data.response;
-
-  }, function (response) {
-
-    console.error(response);
-
+  C.receiver.on('entityUpdate', function (data) {
+    fetch()
   });
 
+  var fetch = function () {
+
+    $http({
+      url: root + "fetch",
+      method: "GET",
+      params: {
+        "entities[]": entities,
+        "queries[]": finalQueries
+      },
+      paramSerializer: '$httpParamSerializerJQLike'
+    }).then(function (response) {
+
+      $scope.data = response.data.response;
+
+    }, function (response) {
+
+      console.log(response);
+
+    });
+
+  }
+
+  fetch();
 
 };
 
 var app = angular.module("app", []);
 
-app.controller("C", ["$scope", "$attrs", "$http", C])
-
-app.directive('entity', function () {
-  return {
-    scope: {
-      datasource: '=',
-    },
-    controller: function ($scope) {
-
-
-
-    }
-
-  };
-});
+app.controller("C", ["$scope", "$attrs", "$http", C.entityFetch])

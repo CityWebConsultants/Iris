@@ -150,9 +150,9 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
         thisHook.finish(true, doc);
 
-        C.hook("entity_created", doc, thisHook.authPass);
+        C.hook("hook_entity_created", doc, thisHook.authPass);
 
-        C.hook("entity_created_" + data.entityType, doc, thisHook.authPass);
+        C.hook("hook_entity_created_" + data.entityType, doc, thisHook.authPass);
 
       }
 

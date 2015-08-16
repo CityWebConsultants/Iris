@@ -14,6 +14,13 @@ C.socketServer = io(C.server);
 
 C.sendSocketMessage = function (userids, message, data) {
 
+  if (userids.indexOf("*") !== -1) {
+
+    C.socketServer.emit(message, data);
+    return false;
+
+  }
+
   userids.forEach(function (userid) {
 
     var user = CM.auth.globals.userList[userid];
@@ -35,7 +42,7 @@ C.socketServer.on("connection", function (socket) {
 
   if (!C.status.ready) {
 
-    socket.emit("Error","Starting up");
+    socket.emit("Error", "Starting up");
     return false;
 
   }

@@ -171,7 +171,7 @@ C.app.get("/fetch", function (req, res) {
 });
 
 CM.entity.registerHook("hook_entity_view", 0, function (thisHook, data) {
-
+  
   //Loop over entity types and check if user can see them
 
   Object.keys(data).forEach(function (type) {
@@ -192,8 +192,10 @@ CM.entity.registerHook("hook_entity_view", 0, function (thisHook, data) {
 
           if (item.entityAuthor !== thisHook.authPass.userid) {
 
-            data[type] = data[type].splice[index, 1];
+            if (data[type]) {
+              data[type] = data[type].splice[index, 1];
 
+            }
           }
 
         });
