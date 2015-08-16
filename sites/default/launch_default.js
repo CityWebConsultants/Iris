@@ -47,7 +47,12 @@ var config = {
       enabled: true
     },
     {
-      name: 'about',
+      name: 'entity_views',
+      path: './modules',
+      enabled: true
+    },
+    {
+      name: 'admin',
       path: './modules',
       enabled: true
     }

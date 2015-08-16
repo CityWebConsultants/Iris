@@ -13,7 +13,7 @@ C.entityFetch = function ($scope, $attrs, $http) {
   var scripts = document.getElementsByTagName('script'),
     script = scripts[scripts.length - 1].src;
 
-  var root = script.replace("entity-viewer.js", "");
+  var root = script.replace("entity_views/entity-viewer.js", "");
 
   //Set up socket.io listener
 

@@ -1,39 +1,62 @@
-var express = require('express');
-var cookieParser = require('cookie-parser')
-C.app.use(cookieParser());
-var path = require('path');res.sendFile(path.join(__dirname, '/templates/', 'admin.html'));
-
 C.registerModule("admin");
 
-CM.admin.globals.auth;
+var express = require('express');
 
-C.app.post("/admin/login", function (req, res) {
+//Register static directory
 
-  if (req.body.secretkey === C.config.secretkey && req.body.apikey === C.config.apikey) {
+C.app.use("/admin", express.static(__dirname + '/static'));
 
-    CM.admin.globals.auth = Math.random();
+require("./entityforms.js");
 
-    res.cookie('auth', auth, {
-      maxAge: 20000
-    });
+require("./permissions.js");
 
-  } else {
+//var path = require('path');res.sendFile(path.join(__dirname, '/templates/', 'admin.html'));
 
-    res.redirect("/admin");
+CM.admin.globals = {
+
+  adminToken: "",
+  checkAdmin: function (req) {
+
+    if (req.cookies) {
+      return req.cookies.auth == CM.admin.globals.adminToken;
+    }
 
   }
 
-});
+}
+
+var path = require('path');
 
 C.app.get("/admin", function (req, res) {
-
-  if (CM.admin.globals.auth && req.cookies.auth == CM.admin.globals.auth) {
+  
+  if (CM.admin.globals.checkAdmin(req)) {
 
     res.sendFile(path.join(__dirname, '/templates/', 'admin.html'));
 
   } else {
 
-    res.respond(400, "Access Denied", "No access to admin");
+    res.sendFile(path.join(__dirname, '/templates/', 'login.html'));
+
+  }
+
+
+});
+
+C.app.post("/admin/login", function (req, res) {
+  
+  if (req.body.secretkey === C.config.secretkey && req.body.apikey === C.config.apikey) {
+    
+    CM.admin.globals.adminToken = Math.random();
+
+    res.cookie('auth', CM.admin.globals.adminToken, {
+      maxAge: 200000
+    });
+
+    res.redirect("/admin");
+
+  } else {
+
+    res.redirect("/admin/login");
 
   }
 

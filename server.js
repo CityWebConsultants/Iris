@@ -11,7 +11,8 @@ C.app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-C.app = express();
+var cookieParser = require('cookie-parser')
+C.app.use(cookieParser());
 
 //Set up bodyParser
 
