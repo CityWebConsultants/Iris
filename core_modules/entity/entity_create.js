@@ -66,7 +66,7 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
     //Create dummy body so it can't be edited during validation
 
     var dummyBody = JSON.parse(JSON.stringify(data));
-  
+
     //    Object.freeze(dummyBody);
 
     C.hook("hook_entity_validate", dummyBody, thisHook.authPass).then(function (successData) {
@@ -187,6 +187,13 @@ CM.entity.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 //Checking access and if entity exists
 
 CM.entity.registerHook("hook_entity_access_create", 0, function (thisHook, data) {
+
+  if (!CM.auth.globals.checkPermissions(["can create " + data.entityType], thisHook.authPass)) {
+
+    thisHook.finish(false, "Access denied");
+    return false;
+
+  }
 
   thisHook.finish(true, data);
 

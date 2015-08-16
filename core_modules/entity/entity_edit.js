@@ -201,6 +201,26 @@ C.app.post("/entity/edit/:type/:_id", function (req, res) {
 //Checking access and if entity type and entity exist
 
 CM.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, data) {
+  
+  if (!CM.auth.globals.checkPermissions(["can edit any " + data.entityType], thisHook.authPass)) {
+
+    if (!CM.auth.globals.checkPermissions(["can edit own " + data.entityType], thisHook.authPass)) {
+
+      thisHook.finish(false, "Access denied");
+      return false;
+
+    } else {
+
+      if (data.entityAuthor !== thisHook.authPass.userid) {
+
+        thisHook.finish(false, "Access denied");
+        return false;
+
+      }
+
+    }
+
+  }
 
   thisHook.finish(true, data);
 
