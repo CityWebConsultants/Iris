@@ -52,6 +52,14 @@ C.app.get("/fetch", function (req, res) {
 
       };
 
+      if (fieldQuery.comparison === 'CONTAINS') {
+
+        query[fieldQuery.field] = {
+          '$regex': fieldQuery.compare
+        }
+        
+      }
+
     });
 
     var entities = {};
@@ -171,7 +179,7 @@ C.app.get("/fetch", function (req, res) {
 });
 
 CM.entity.registerHook("hook_entity_view", 0, function (thisHook, data) {
-  
+
   //Loop over entity types and check if user can see them
 
   Object.keys(data).forEach(function (type) {
