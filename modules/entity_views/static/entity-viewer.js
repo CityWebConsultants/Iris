@@ -19,48 +19,88 @@ C.entityFetch = function ($scope, $attrs, $http) {
 
   C.receiver = io(root);
 
-  if ($attrs.entities) {
-
-    var entities = $attrs.entities.split(",");
-
-  }
-
-  var finalQueries = [];
-
-  if ($attrs.queries) {
-
-    var queries = $attrs.queries.split(",");
-
-    queries.forEach(function (query) {
-
-      var query = query.split(":");
-
-      var query = {
-
-        "comparison": query[1],
-        "field": query[0],
-        "compare": query[2]
-
-      }
-
-      finalQueries.push(query);
-
-    });
-
-  }
-
   C.receiver.on('entityUpdate', function (data) {
     fetch()
   });
 
+  var watchers = {};
+
   var fetch = function () {
+
+    var finalQueries = [];
+
+    if ($attrs.entities) {
+
+      var entities = $attrs.entities.split(",");
+
+    }
+
+    if ($attrs.queries) {
+
+      var queries = $attrs.queries.split(",");
+
+      queries.forEach(function (query) {
+
+        var query = query.split(":");
+
+        var query = {
+
+          "comparison": query[1],
+          "field": query[0],
+          "compare": query[2]
+
+        }
+
+        //Set up watch event for wildcards
+
+        if (query.compare === "*") {
+
+          if (!watchers['search_' + query.field]) {
+            $scope.$watch('search_' + query.field, function () {
+              fetch();
+            });
+            watchers['search_' + query.field] = true;
+          }
+
+        };
+
+        finalQueries.push(query);
+
+      });
+
+    }
+
+    var processedQueries = [];
+
+    //Generate any search queries
+
+    finalQueries.forEach(function (currentQuery, index) {
+
+      if (currentQuery.compare === "*") {
+
+        if ($scope["search_" + currentQuery.field] && $scope["search_" + currentQuery.field].length > 1) {
+
+          currentQuery.compare = $scope["search_" + currentQuery.field];
+          processedQueries.push(currentQuery);
+
+        } else {
+
+        }
+
+      } else {
+
+        processedQueries.push(currentQuery);
+
+      }
+
+    });
 
     $http({
       url: root + "fetch",
       method: "GET",
       params: {
         "entities[]": entities,
-        "queries[]": finalQueries
+        "queries[]": processedQueries
       },
       paramSerializer: '$httpParamSerializerJQLike'
     }).then(function (response) {
