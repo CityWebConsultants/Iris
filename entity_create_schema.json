@@ -1,70 +1,29 @@
 {
-  "schema": {
-    "text": {
-      "type": "object",
-      "title": "Text",
-      "properties": {
-
-        "name": {
-
-          type: "string",
-          title: "Name of field"
-
-
-        },
-        "type": {
-
-          type: "string",
-          enum: ["text", "longtext", "number"]
-
-        }
-
-      }
-
-    },
-    "select": {
-      "type": "object",
-      "title": "options",
-      "properties": {
-        "label": {
-          "type": "string",
-          "title": "Name of field"
-        },
-        "options": {
-          "type": "array",
-          "title": "Options",
-          "items": {
-            "option": {
-              "type": "string",
-              "title": "option",
-            }
-          }
-        },
-      }
-    },
+  "text": {
+    "name": "Title",
+    "fieldType": "text",
+    "description": "This is the main title for your text",
+    "required": true,
+    "multifield": false
   },
-  "form": [
-    {
-      "type": "array",
-      "title": "Fields",
-      "items": {
-        "type": "selectfieldset",
-        "title": "Choose a field type",
-        "items": [
-          {
-            "key": "text",
-            "legend": "Simple text field"
-               },
-          {
-            "key": "select",
-            "legend": "A select field"
-               }
-            ]
-      }
-      },
-    {
-      "type": "submit",
-      "title": "Submit"
-      }
-   ]
+  "select": {
+    "label": "Options field",
+    "options": [null, "Option three"],
+    "description": "This is where your options go",
+    "required": false
+  },
+  "boolean": {
+    "name": "Yes?",
+    "description": "Yes or no?"
+  },
+  "date": {
+    "name": "Date",
+    "description": "What date is this?",
+    "multifield": true,
+    "required": false
+  },
+  "credentials": {
+    "apikey": "letmein",
+    "secretkey": "letmein"
+  }
 }

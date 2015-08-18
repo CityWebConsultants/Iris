@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+  <script src="/admin/jsonform/deps/jquery.min.js"></script>
+  <script src="/admin/jsonform/deps/underscore-min.js"></script>
+  <script src="/admin/jsonform/deps/opt/jquery.ui.custom.js"></script>
+  <script src="/admin/jsonform/deps/opt/bootstrap-dropdown.js"></script>
+  <script src="/admin/jsonform/deps/opt/bootstrap-typeahead.js"></script>
+  <script src="/admin/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script>
+  <script src="/admin/jsonform/deps/opt/spectrum.js"></script>
+  <script src="/admin/jsonform/deps/opt/jquery.transloadit2.js"></script>
+
+  <script src="/admin/jsonform/lib/jsonform.js"></script>
+
+  <link rel="stylesheet" href="/admin/admin.css" />
+
+</head>
+
+
+<body>
+
+  <h1></h1>
+
+  <form></form>
+
+
+  <script>
+    $(document).ready(function() {
+
+      $('form').jsonForm(schema);
+
+    });
+
+  </script>
+
+  <script>
+    var schema = {
+      "schema": {
+        "text": {
+          "type": "object",
+          "title": "Text",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Label"
+            },
+            "fieldType": {
+              "type": "string",
+              "title": "Type of value",
+              "enum": ["text", "number", "rich text"]
+            },
+            "description": {
+              "type": "textarea",
+              "title": "Description"
+            },
+            "multifield": {
+              "type": "boolean",
+              "title": "Can this field have multiple entries?"
+            },
+            "required": {
+              "type": "boolean",
+              "title": "Is this field required?"
+            },
+          }
+        },
+        "date": {
+          "type": "object",
+          "title": "Text",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Label"
+            },
+            "description": {
+              "type": "textarea",
+              "title": "Description"
+            },
+            "multifield": {
+              "type": "boolean",
+              "title": "Can this field have multiple entries?"
+            },
+            "required": {
+              "type": "boolean",
+              "title": "Is this field required?"
+            },
+          }
+        },
+        "boolean": {
+          "type": "object",
+          "title": "Boolean",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Label"
+            },
+            "description": {
+              "type": "textarea",
+              "title": "Description"
+            }
+          }
+        },
+        "select": {
+          "type": "object",
+          "title": "options",
+          "properties": {
+            "label": {
+              "type": "string",
+              "title": "Name of field"
+            },
+            "options": {
+              "type": "array",
+              "title": "Options",
+              "items": {
+                "option": {
+                  "type": "string",
+                  "title": "option",
+                }
+              }
+            },
+            "required": {
+              "type": "boolean",
+              "title": "Is this field required?"
+            },
+            "description": {
+              "type": "textarea",
+              "title": "Description"
+            }
+          }
+        },
+      },
+      "form": [{
+        "type": "array",
+        "title": "Fields",
+        "items": {
+          "type": "selectfieldset",
+          "title": "Choose a field type",
+          "items": [{
+            "key": "text",
+            "legend": "Simple text field"
+          }, {
+            "key": "select",
+            "legend": "A select field"
+          }, {
+            "key": "boolean",
+            "legend": "A yes/no checkbox"
+          }, {
+            "key": "date",
+            "legend": "A date field"
+          }, ]
+        }
+      }, {
+        "type": "submit",
+        "title": "Submit"
+      }],
+      onSubmit: function(errors, values) {
+
+        if (errors) {
+          console.error(errors);
+        } else {
+
+          values.credentials = {
+            "apikey": "letmein",
+            "secretkey": "letmein"
+          };
+
+          console.log(JSON.stringify(values));
+
+        }
+      }
+    }
+
+  </script>
+
+</body>
+
+</html>
