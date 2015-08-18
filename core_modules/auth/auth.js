@@ -257,7 +257,7 @@ CM.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
   if (CM.auth.globals.checkPermissions(["can make access token"], thisHook.authPass)) {
 
-    crypto.randomBytes(C.config.authTokenLength, function (ex, buf) {
+    crypto.randomBytes(16, function (ex, buf) {
       authToken = buf.toString('hex');
 
       //Create new user if not in existence

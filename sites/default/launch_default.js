@@ -1,6 +1,3 @@
-/*jslint nomen: true, node:true */
-"use strict";
-
 var config = {
 
   // Server
@@ -9,7 +6,6 @@ var config = {
   port: 3000,
 
   // CMS integration
-  admin_name: 'Site administrator',
   apikey: 'letmein',
   secretkey: 'letmein',
 
@@ -22,10 +18,6 @@ var config = {
   db_server: 'localhost',
   db_port: 27017,
   db_name: 'chat-app',
-
-  //Auth
-
-  authTokenLength: 16,
 
 };
 
