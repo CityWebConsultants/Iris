@@ -40,11 +40,14 @@
   <script>
     var schema = {
       "schema": {
+        "help": {
+          "type": "hidden"
+        },
         "text": {
           "type": "object",
           "title": "Text",
           "properties": {
-            "name": {
+            "label": {
               "type": "string",
               "title": "Label"
             },
@@ -109,7 +112,7 @@
           "properties": {
             "label": {
               "type": "string",
-              "title": "Name of field"
+              "title": "Label"
             },
             "options": {
               "type": "array",
@@ -138,9 +141,30 @@
         "items": {
           "type": "selectfieldset",
           "title": "Choose a field type",
+          "onChange": function(evt) {
+            var value = $(evt.target).val();
+            var inputs = $(evt.target).closest("li").find("[name]");
+
+            var number = $(evt.target).closest("li").index();
+
+            $.each(inputs, function(index, element) {
+              
+              if ($(element).attr("name").indexOf("_") === -1) {
+
+                $(element).attr("name", $(element).attr("name") + "_" + number);
+
+              }
+
+            });
+
+          },
+          "items": ["help", "text", "select", "boolean", "date"],
           "items": [{
+            "key": "help",
+            "legend": "Pick a field"
+          }, {
             "key": "text",
-            "legend": "Simple text field"
+            "legend": "A text field"
           }, {
             "key": "select",
             "legend": "A select field"
@@ -150,7 +174,7 @@
           }, {
             "key": "date",
             "legend": "A date field"
-          }, ]
+          }],
         }
       }, {
         "type": "submit",
@@ -167,8 +191,14 @@
             "secretkey": "letmein"
           };
 
-          console.log(JSON.stringify(values));
+          var form = $('form').serialize();
 
+          $.post("/schema/create/test", form, function(data, errors){
+            
+            console.log(errors);
+            
+          });
+          
         }
       }
     }

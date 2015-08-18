@@ -3,7 +3,7 @@
 var path = require('path');
 
 C.app.get("/admin/create/:type", function (req, res) {
-    
+
   if (CM.admin.globals.checkAdmin(req)) {
 
     res.sendFile(path.join(__dirname, 'create.html'));
@@ -13,6 +13,60 @@ C.app.get("/admin/create/:type", function (req, res) {
     res.redirect("/admin");
 
   }
+
+});
+
+C.app.post("/schema/create/:model", function (req, res) {
+
+  var form = req.body;
+  var schema = {};
+
+  var values = {};
+  var currentvalue = {};
+  Object.keys(req.body).forEach(function (key) {
+
+    if (key.indexOf("label") !== -1) {
+
+      values[key] = {};
+      currentvalue = values[key];
+
+    }
+
+    currentvalue[key] = req.body[key];
+
+  });
+
+  //Now all the fields have been split into their fieldsets, turn them into a schema (deep breath)
+
+  Object.keys(values).forEach(function (item) {
+
+    schema[values[item][item]] = {};
+    
+    var current = schema[values[item][item]];
+    
+    current.title = values[item][item];
+
+    //Get field type
+
+    if (item.split(".")[0] === "text") {
+
+      current.type = String;
+
+      Object.keys(values[item]).forEach(function (subfield) {
+
+        var type = subfield.split("_")[0].split(".")[1];
+
+        if (type === "description") {
+          current.description = values[item][subfield];
+        }
+
+      });
+
+    };
+
+  });
+
+  console.log(schema);
 
 });
 
@@ -124,7 +178,7 @@ C.app.get("/admin/edit/:type/:_id/form", function (req, res) {
 
       Object.keys(tree).forEach(function (item) {
 
-             if (item === "id" || item === "__v" || item === "entityType") {
+        if (item === "id" || item === "__v" || item === "entityType") {
 
           return false;
 
