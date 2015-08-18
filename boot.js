@@ -1,28 +1,20 @@
 /*jslint nomen: true, node:true */
 "use strict";
 
-var version = "RC1";
-
 module.exports = function (config) {
 
   //Create global object for the application, remove existing
 
-  if (global.C) {
-
-    delete global.C;
-
-  }
-
   global.C = {};
-  
+
   //Load logging module
 
   require('./log');
-  
+
   var path = require('path');
-  
+
   //Store helper paths
-  
+
   C.rootPath = __dirname;
   C.sitePath = process.cwd();
 
@@ -59,9 +51,7 @@ module.exports = function (config) {
 
   C.config = config;
 
-  config.version = version;
-
-  console.log("\nLaunching server: " + config.version + "\n");
+  console.log("\nLaunching server");
 
   //Hook system
 

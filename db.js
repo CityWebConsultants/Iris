@@ -14,14 +14,14 @@ mongoose.connection.on('error', function (error) {
 
 //Set placeholder objects for DB models and DB schema
 
-var dbModels = {};
-var dbSchemaFields = {};
+C.dbModels = {};
+C.dbSchemaFields = {};
 
 C.registerDbModel = function (name) {
 
-  if (!dbModels[name]) {
+  if (!C.dbModels[name]) {
 
-    dbModels[name] = {};
+    C.dbModels[name] = {};
 
   } else {
 
@@ -39,13 +39,13 @@ C.registerDbSchema = function (model, schema) {
 
     Object.keys(schema).forEach(function (field) {
 
-      if (!dbSchemaFields[model]) {
+      if (!C.dbSchemaFields[model]) {
 
-        dbSchemaFields[model] = {};
+        C.dbSchemaFields[model] = {};
 
       }
 
-      dbSchemaFields[model][field] = schema[field];
+      C.dbSchemaFields[model][field] = schema[field];
 
     });
 
@@ -63,27 +63,27 @@ C.dbPopulate = function () {
 
   //Loop over all the db models that have been initialised and slot in any schema attached to them
 
-  Object.keys(dbModels).forEach(function (model) {
+  Object.keys(C.dbModels).forEach(function (model) {
 
-    if (dbSchemaFields[model]) {
+    if (C.dbSchemaFields[model]) {
 
       //Push in author and entity type fields
 
-      dbSchemaFields[model].entityType = {
+      C.dbSchemaFields[model].entityType = {
         type: String,
         description: "The type of entity this is",
         title: "Entity type",
         required: true
       }
 
-      dbSchemaFields[model].entityAuthor = {
+      C.dbSchemaFields[model].entityAuthor = {
         type: String,
         description: "The name of the author",
         title: "Author",
         required: true
       }
 
-      var schema = new mongoose.Schema(dbSchemaFields[model]);
+      var schema = new mongoose.Schema(C.dbSchemaFields[model]);
 
       C.dbCollections[model] = mongoose.model(model, schema);
 

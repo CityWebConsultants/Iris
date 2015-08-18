@@ -1,0 +1,70 @@
+{
+  "schema": {
+    "text": {
+      "type": "object",
+      "title": "Text",
+      "properties": {
+
+        "name": {
+
+          type: "string",
+          title: "Name of field"
+
+
+        },
+        "type": {
+
+          type: "string",
+          enum: ["text", "longtext", "number"]
+
+        }
+
+      }
+
+    },
+    "select": {
+      "type": "object",
+      "title": "options",
+      "properties": {
+        "label": {
+          "type": "string",
+          "title": "Name of field"
+        },
+        "options": {
+          "type": "array",
+          "title": "Options",
+          "items": {
+            "option": {
+              "type": "string",
+              "title": "option",
+            }
+          }
+        },
+      }
+    },
+  },
+  "form": [
+    {
+      "type": "array",
+      "title": "Fields",
+      "items": {
+        "type": "selectfieldset",
+        "title": "Choose a field type",
+        "items": [
+          {
+            "key": "text",
+            "legend": "Simple text field"
+               },
+          {
+            "key": "select",
+            "legend": "A select field"
+               }
+            ]
+      }
+      },
+    {
+      "type": "submit",
+      "title": "Submit"
+      }
+   ]
+}
