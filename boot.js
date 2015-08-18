@@ -5,16 +5,25 @@ var version = "RC1";
 
 module.exports = function (config) {
 
-  //Create global object for the application
+  //Create global object for the application, remove existing
+
+  if (global.C) {
+
+    delete global.C;
+
+  }
 
   global.C = {};
-
+  
   //Load logging module
 
   require('./log');
-
+  
   var path = require('path');
-
+  
+  //Store helper paths
+  
+  C.rootPath = __dirname;
   C.sitePath = process.cwd();
 
   C.configPath = path.join(C.sitePath, config.configurations_path);
@@ -92,40 +101,17 @@ module.exports = function (config) {
 
     //Core modules
 
-    var coreModules = [
+    require('./core_modules/auth/auth.js');
+    require('./core_modules/entity/entity.js');
 
-      {
-        name: 'auth',
-        path: './core_modules',
-        enabled: true
-    },
-
-      {
-        name: 'entity',
-        path: './core_modules',
-        enabled: true
-    },
-
-  ];
-
-    C.config.allModules = coreModules.concat(config.modules);
-
-    //Loop over enabled modules in site config
-
-    C.config.allModules.forEach(function (item) {
-
-      if (item.enabled) {
-        require(item.path + '/' + item.name + '/' + item.name);
-      }
-
-    });
+    require(process.cwd() + '/enabled_modules');
 
     C.status.ready = true;
 
     C.app.use(function (req, res, next) {
       res.status(404).send('Sorry cant find that!');
     });
-  
+
     C.dbPopulate();
 
   });

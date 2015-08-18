@@ -5,7 +5,6 @@ var config = {
 
   // Server
 
-  boot_location: "../../boot",
   configurations_path: "/configurations",
   port: 3000,
 
@@ -28,37 +27,6 @@ var config = {
 
   authTokenLength: 16,
 
-  // Enabled modules and per-module settings
-  modules: [
-
-    {
-      name: 'group_manager',
-      path: './modules',
-      enabled: true
-    },
-    {
-      name: 'messages',
-      path: './modules',
-      enabled: true
-    },
-    {
-      name: 'messages_replies',
-      path: './modules',
-      enabled: true
-    },
-    {
-      name: 'entity_views',
-      path: './modules',
-      enabled: true
-    },
-    {
-      name: 'admin',
-      path: './modules',
-      enabled: true
-    }
-
-  ]
-
 };
 
-var server = require(config.boot_location)(config);
+var server = require('../../boot')(config);

@@ -97,8 +97,7 @@ C.registerModule = function (name) {
   } else {
 
     CM[name] = new moduleTemplate;
-    CM[name].path = C.getModulePath(name);
-
+//    CM[name].path = C.getModulePath(name);
 
     //Create config directory
 
@@ -121,26 +120,6 @@ C.registerModule = function (name) {
   }
 
   return CM[name];
-
-};
-
-C.getModulePath = function (name) {
-
-  var path = require('path');
-
-  var found = "";
-
-  C.config.allModules.forEach(function (enabledModule) {
-
-    if (enabledModule.enabled && enabledModule.name === name) {
-
-      found = enabledModule.path + '/' + enabledModule.name + '/' + enabledModule.name;
-
-    }
-
-  });
-
-  return found;
 
 };
 
