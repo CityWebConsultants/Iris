@@ -18,6 +18,7 @@ C.app.get("/admin/create/:type", function (req, res) {
 
 C.app.post("/schema/create/:model", function (req, res) {
 
+  var model = req.params.model;
   var form = req.body;
   var schema = {};
 
@@ -25,7 +26,7 @@ C.app.post("/schema/create/:model", function (req, res) {
   var currentvalue = {};
   Object.keys(req.body).forEach(function (key) {
 
-    if (key.indexOf("label") !== -1) {
+    if (key.indexOf("system-name") !== -1) {
 
       values[key] = {};
       currentvalue = values[key];
@@ -41,10 +42,32 @@ C.app.post("/schema/create/:model", function (req, res) {
   Object.keys(values).forEach(function (item) {
 
     schema[values[item][item]] = {};
-    
+
     var current = schema[values[item][item]];
-    
-    current.title = values[item][item];
+
+    //Add fields that are on every type
+
+    Object.keys(values[item]).forEach(function (subfield) {
+
+      var type = subfield.split("_")[0].split(".")[1];
+
+      if (type === "label") {
+        current.title = values[item][subfield];
+      }
+
+      if (type === "description") {
+
+        current.description = values[item][subfield];
+
+      }
+
+      if (type === "required" && values[item][subfield] === 1) {
+
+        current.required = true;
+
+      }
+
+    });
 
     //Get field type
 
@@ -52,21 +75,43 @@ C.app.post("/schema/create/:model", function (req, res) {
 
       current.type = String;
 
+    };
+
+    if (item.split(".")[0] === "select") {
+
+      current.type = String;
+
       Object.keys(values[item]).forEach(function (subfield) {
 
         var type = subfield.split("_")[0].split(".")[1];
 
-        if (type === "description") {
-          current.description = values[item][subfield];
+        if (type === "options") {
+
+          current.enum = values[item][subfield][0];
+
         }
 
       });
 
     };
 
+    if (item.split(".")[0] === "date") {
+
+      current.type = Date;
+
+    };
+
+    if (item.split(".")[0] === "boolean") {
+
+      current.type = Boolean;
+
+    };
+
   });
 
-  console.log(schema);
+  C.registerDbModel(model);
+  C.registerDbSchema(model, schema);
+  C.dbPopulate();
 
 });
 
@@ -267,20 +312,36 @@ C.app.get("/admin/create/:type/form/", function (req, res) {
 });
 
 var checkField = function (key, item) {
+  
+  var type = item.type;
+  
+  if (type === String) {
 
-  if (item === String) {
+    if (item.enum) {
 
-    return {
+      return {
 
-      "title": key,
-      "type": "string",
-      "required": item.required
+        "title": key,
+        "type": "string",
+        "required": item.required,
+        "enum": item.enum
 
-    };
+      };
+
+    } else {
+
+      return {
+
+        "title": key,
+        "type": "string",
+        "required": item.required,
+        "enum": item.enum
+
+      };
+
+    }
 
   }
-
-  var type = item.type;
 
   if (type === Date) {
 

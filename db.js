@@ -85,6 +85,12 @@ C.dbPopulate = function () {
 
       var schema = new mongoose.Schema(C.dbSchemaFields[model]);
 
+      if (mongoose.models[model]) {
+
+        delete mongoose.models[model];
+
+      }
+
       C.dbCollections[model] = mongoose.model(model, schema);
 
       //Create permissions for this entity type
@@ -104,7 +110,5 @@ C.dbPopulate = function () {
     }
 
   });
-
-  console.log("Database running");
 
 };
