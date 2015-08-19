@@ -7,16 +7,16 @@ module.exports = function (config) {
 
   global.C = {};
 
-  //Load logging module
-
-  require('./log');
-
   var path = require('path');
 
   //Store helper paths
 
   C.rootPath = __dirname;
   C.sitePath = process.cwd();
+
+  //Load logging module
+
+  require('./log');
 
   C.configPath = path.join(C.sitePath, config.configurations_path);
 
