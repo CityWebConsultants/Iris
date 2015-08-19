@@ -47,6 +47,12 @@
           "type": "object",
           "title": "Text",
           "properties": {
+            "system name": {
+              "type": "string",
+              "title": "System name",
+              "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+              "required": true
+            },
             "label": {
               "type": "string",
               "title": "Label"
@@ -74,6 +80,12 @@
           "type": "object",
           "title": "Text",
           "properties": {
+            "system name": {
+              "type": "string",
+              "title": "System name",
+              "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+              "required": true
+            },
             "name": {
               "type": "string",
               "title": "Label"
@@ -96,6 +108,12 @@
           "type": "object",
           "title": "Boolean",
           "properties": {
+            "system name": {
+              "type": "string",
+              "title": "System name",
+              "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+              "required": true
+            },
             "name": {
               "type": "string",
               "title": "Label"
@@ -110,6 +128,12 @@
           "type": "object",
           "title": "options",
           "properties": {
+            "system name": {
+              "type": "string",
+              "title": "System name",
+              "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+              "required": true
+            },
             "label": {
               "type": "string",
               "title": "Label"
@@ -148,8 +172,10 @@
             var number = $(evt.target).closest("li").index();
 
             $.each(inputs, function(index, element) {
-              
+
               if ($(element).attr("name").indexOf("_") === -1) {
+
+                $(element).attr("name", $(element).attr("name").replace(" ", "-"));
 
                 $(element).attr("name", $(element).attr("name") + "_" + number);
 
@@ -193,12 +219,12 @@
 
           var form = $('form').serialize();
 
-          $.post("/schema/create/test", form, function(data, errors){
-            
+          $.post("/schema/create/test", form, function(data, errors) {
+
             console.log(errors);
-            
+
           });
-          
+
         }
       }
     }
