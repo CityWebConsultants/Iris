@@ -2,7 +2,6 @@ var config = {
 
   // Server
 
-  configurations_path: "/configurations",
   port: 3000,
 
   // CMS integration

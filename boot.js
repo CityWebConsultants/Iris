@@ -18,7 +18,21 @@ module.exports = function (config) {
 
   require('./log');
 
-  C.configPath = path.join(C.sitePath, config.configurations_path);
+  //Make config folder
+
+  var fs = require('fs');
+
+  var mkdirSync = function (path) {
+    try {
+      fs.mkdirSync(path);
+    } catch (e) {
+      if (e.code != 'EEXIST') throw e;
+    }
+  }
+
+  mkdirSync(C.sitePath + "/" + "configurations");
+
+  C.configPath = path.join(C.sitePath, "/configurations");
 
   //Fetch command line paramaters
 
