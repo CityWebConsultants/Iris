@@ -77,6 +77,13 @@ C.app.post("/schema/create/:model", function (req, res) {
 
     };
 
+    if (item.split(".")[0] === "longtext") {
+
+      current.type = String;
+      current.long = true;
+
+    };
+
     if (item.split(".")[0] === "select") {
 
       current.type = String;
@@ -312,9 +319,9 @@ C.app.get("/admin/create/:type/form/", function (req, res) {
 });
 
 var checkField = function (key, item) {
-  
+
   var type = item.type;
-  
+
   if (type === String) {
 
     if (item.enum) {
@@ -328,6 +335,16 @@ var checkField = function (key, item) {
 
       };
 
+    } else if (item.long) {
+
+      return {
+
+        "title": key,
+        "type": "textarea",
+        "required": item.required,
+
+      };
+
     } else {
 
       return {
@@ -335,7 +352,6 @@ var checkField = function (key, item) {
         "title": key,
         "type": "string",
         "required": item.required,
-        "enum": item.enum
 
       };
 

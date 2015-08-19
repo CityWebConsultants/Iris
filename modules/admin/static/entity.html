@@ -76,6 +76,39 @@
             },
           }
         },
+        "longtext": {
+          "type": "object",
+          "title": "Long text",
+          "properties": {
+            "system name": {
+              "type": "string",
+              "title": "System name",
+              "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+              "required": true
+            },
+            "label": {
+              "type": "string",
+              "title": "Label"
+            },
+            "fieldType": {
+              "type": "string",
+              "title": "Type of value",
+              "enum": ["text", "number", "rich text"]
+            },
+            "description": {
+              "type": "textarea",
+              "title": "Description"
+            },
+            "multifield": {
+              "type": "boolean",
+              "title": "Can this field have multiple entries?"
+            },
+            "required": {
+              "type": "boolean",
+              "title": "Is this field required?"
+            },
+          }
+        },
         "date": {
           "type": "object",
           "title": "Text",
@@ -191,6 +224,9 @@
           }, {
             "key": "text",
             "legend": "A text field"
+          }, {
+            "key": "longtext",
+            "legend": "A long text field"
           }, {
             "key": "select",
             "legend": "A select field"
