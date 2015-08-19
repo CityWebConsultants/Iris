@@ -320,7 +320,33 @@ C.app.get("/admin/create/:type/form/", function (req, res) {
 
 var checkField = function (key, item) {
 
+  if (item === String) {
+
+    return {
+
+      "title": key,
+      "type": "string",
+      "required": item.required
+
+    };
+
+  }
+
   var type = item.type;
+
+  if (type === Date) {
+
+    return {
+
+      "title": item.title,
+      "description": item.description,
+      "type": "date",
+      "required": item.required
+
+    };
+
+
+  }
 
   if (type === String) {
 
@@ -356,33 +382,6 @@ var checkField = function (key, item) {
       };
 
     }
-
-  }
-
-  if (type === Date) {
-
-    return {
-
-      "title": item.title,
-      "description": item.description,
-      "type": "date",
-      "required": item.required
-
-    };
-
-
-  }
-
-  if (type === String) {
-
-    return {
-
-      "title": item.title,
-      "description": item.description,
-      "type": "string",
-      "required": item.required
-
-    };
 
   }
 
