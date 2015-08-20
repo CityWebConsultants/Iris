@@ -122,57 +122,6 @@ C.app.post("/schema/create/:model", function (req, res) {
 
 });
 
-C.app.get("/admin/create/:type/form/", function (req, res) {
-
-  if (CM.admin.globals.checkAdmin(req)) {
-
-    if (!C.dbCollections[req.params.type]) {
-
-      res.respond(400, "No such type");
-      return false;
-
-    }
-
-    var tree = C.dbCollections[req.params.type].schema.tree;
-
-    var newTree = {
-      schema: {}
-    };
-
-    Object.keys(tree).forEach(function (item) {
-
-      if (item === "id" || item === "__v" || item === "entityType") {
-
-        return false;
-
-      }
-
-      if (checkField(item, tree[item])) {
-
-        newTree.schema[item] = checkField(item, tree[item]);
-
-      }
-
-    })
-
-    newTree.form = [
-    "*",
-      {
-        "type": "submit",
-        "title": "Save"
-    }
-  ];
-
-    res.send(newTree);
-
-  } else {
-
-    res.respond(403, "Access denied");
-
-  }
-
-});
-
 C.app.get("/admin/edit/:type/:id", function (req, res) {
 
   if (CM.admin.globals.checkAdmin(req)) {
@@ -230,7 +179,7 @@ C.app.get("/admin/edit/:type/:_id/form", function (req, res) {
 
       Object.keys(tree).forEach(function (item) {
 
-        if (item === "id" || item === "__v" || item === "entityType") {
+        if (item === "id" || item === "_id" || item === "__v" || item === "entityType") {
 
           return false;
 
@@ -286,7 +235,7 @@ C.app.get("/admin/create/:type/form/", function (req, res) {
 
     Object.keys(tree).forEach(function (item) {
 
-      if (item === "id" || item === "__v" || item === "entityType") {
+      if (item === "id" || item === "_id" || item === "__v" || item === "entityType") {
 
         return false;
 
