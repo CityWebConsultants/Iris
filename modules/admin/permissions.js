@@ -13,7 +13,7 @@ C.app.get("/permissions", function (req, res) {
 
     } catch (e) {
 
-      console.log(e);
+      fs.writeFileSync(CM.auth.configPath + "/permissions.JSON", JSON.stringify({}), "utf8");
 
     }
 

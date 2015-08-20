@@ -190,7 +190,7 @@ CM.auth.globals = {
 
     } catch (e) {
 
-      fs.writeFileSync(CM.auth.configPath + "/permissions.JSON", {}, "utf8");
+      fs.writeFileSync(CM.auth.configPath + "/permissions.JSON", JSON.stringify({}), "utf8");
 
     }
 
