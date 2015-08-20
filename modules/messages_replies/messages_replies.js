@@ -11,7 +11,7 @@ C.registerModule("messages_replies");
 // Add parents to message schema
 C.registerDbSchema("message", {
   parents: {
-    type: Array,
+    type: [String],
     required: false
   },
   replyTo: {
