@@ -16,9 +16,12 @@ C.app.get("/admin/create/:type", function (req, res) {
 
 });
 
-C.app.post("/schema/create/:model", function (req, res) {
+C.app.post("/schema/create", function (req, res) {
 
-  var model = req.params.model;
+  var model = req.body.entityname;
+  
+  delete req.body.entityname;
+
   var form = req.body;
   var schema = {};
 

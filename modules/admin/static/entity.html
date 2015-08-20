@@ -40,6 +40,12 @@
   <script>
     var schema = {
       "schema": {
+        "entityname": {
+          "type": "string",
+          "title": "Entity name",
+          "description": "The name of this entity. This cannot be changed.",
+          "required": true
+        },
         "help": {
           "type": "hidden"
         },
@@ -193,6 +199,8 @@
         },
       },
       "form": [{
+      "key": "entityname",
+    },{
         "type": "array",
         "title": "Fields",
         "items": {
@@ -255,7 +263,7 @@
 
           var form = $('form').serialize();
 
-          $.post("/schema/create/test", form, function(data, errors) {
+          $.post("/schema/create", form, function(data, errors) {
 
             console.log(errors);
 
