@@ -190,7 +190,7 @@ CM.auth.globals = {
 
     } catch (e) {
 
-      console.log(e);
+      fs.writeFileSync(CM.auth.configPath + "/permissions.JSON", {}, "utf8");
 
     }
 
@@ -209,6 +209,12 @@ CM.auth.globals = {
       });
 
     });
+
+    if (authPass.roles.indexOf("admin") !== -1) {
+
+      access = true;
+
+    };
 
     return access;
 
