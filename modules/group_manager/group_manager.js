@@ -27,7 +27,11 @@ C.registerDbSchema("group", {
       type: String,
       required: true,
     },
-    roles: [String],
+    roles: {
+      type:[String],
+      title: "Roles",
+      required: false
+    },
     lastUpdated: {
       title: "Last updated",
       type: Date,
