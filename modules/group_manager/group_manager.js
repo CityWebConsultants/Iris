@@ -20,29 +20,33 @@ C.registerDbSchema("group", {
     title: "Name",
     required: false
   },
-  members: [{
-    _id: false,
-    userid: {
-      title: "UserID",
-      type: String,
-      required: true,
-    },
-    roles: {
-      type:[String],
-      title: "Roles",
-      required: false
-    },
-    lastUpdated: {
-      title: "Last updated",
-      type: Date,
-      required: false
-    },
-    joined: {
-      title: "Joined",
-      type: Date,
-      required: false
-    }
-      }],
+  members: {
+    "title": "members",
+    "description": "Group members go here",
+    type: [{
+      _id: false,
+      userid: {
+        title: "UserID",
+        type: String,
+        required: true,
+      },
+      roles: {
+        type: [String],
+        title: "Roles",
+        required: false
+      },
+      lastUpdated: {
+        title: "Last updated",
+        type: Date,
+        required: false
+      },
+      joined: {
+        title: "Joined",
+        type: Date,
+        required: false
+      }
+      }]
+  },
   entityRef: {
     title: "Entity reference",
     type: String,

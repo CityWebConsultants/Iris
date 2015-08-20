@@ -385,44 +385,50 @@ var checkField = function (key, item) {
 
   }
 
-  //If doesn't have a type set, must be array or object 
+  if (item.type === Boolean) {
 
-  if (!type) {
+    return {
 
-    //Check if array
+      "title": key,
+      "type": "boolean",
+      "required": item.required,
 
-    if (Array.isArray(item)) {
+    };
 
-      var array = {
+  }
 
-        type: "array",
-        title: key,
-        items: checkField(key, item[0]),
+  //Check if array
 
-      }
+  if (Array.isArray(item.type)) {
 
-      return array;
+    var array = {
 
-    } else if (typeof item === "object") {
-
-      var toInsert = {
-
-        type: "object",
-        title: key,
-        required: item.required,
-        properties: {}
-
-      }
-
-      Object.keys(item).forEach(function (propertyName) {
-
-        toInsert.properties[propertyName] = checkField(propertyName, item[propertyName])
-
-      });
-
-      return toInsert;
+      type: "array",
+      title: key,
+      items: checkField(key, item.type[0]),
 
     }
+
+    return array;
+
+  } else if (typeof item === "object") {
+
+    var toInsert = {
+
+      type: "object",
+      title: key,
+      required: item.required,
+      properties: {}
+
+    }
+
+    Object.keys(item).forEach(function (propertyName) {
+
+      toInsert.properties[propertyName] = checkField(propertyName, item[propertyName])
+
+    });
+
+    return toInsert;
 
   }
 
