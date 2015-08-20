@@ -93,6 +93,22 @@ C.dbPopulate = function () {
 
       C.dbCollections[model] = mongoose.model(model, schema);
 
+      //Add schema to config for easy export
+
+      var fs = require('fs');
+
+      var mkdirSync = function (path) {
+        try {
+          fs.mkdirSync(path);
+        } catch (e) {
+          if (e.code != 'EEXIST') throw e;
+        }
+      }
+
+      mkdirSync(C.sitePath + "/db");
+
+      fs.writeFileSync(C.sitePath + "/db/" + model + ".JSON", JSON.stringify(C.dbSchemaFields[model]), "utf8");
+
       //Create permissions for this entity type
 
       CM.auth.globals.registerPermission("can create " + model, "entity")
