@@ -40,9 +40,7 @@ C.app.post("/schema/create", function (req, res) {
 
   });
 
-  //Now all the fields have been split into their fieldsets, turn them into a schema (deep breath)
-
-  Object.keys(values).forEach(function (item) {
+  var processSchema = function (item) {
 
     schema[values[item][item]] = {};
 
@@ -72,9 +70,17 @@ C.app.post("/schema/create", function (req, res) {
 
     });
 
-    //Get field type
+    //Assign ref if a field collection field for easier lookup and switching later
 
-    if (item.split(".")[0] === "text") {
+    if (item.split(".")[0].indexOf("fc") !== -1) {
+
+      current.ref = item.split(".")[0].split("fc")[0];
+
+    };
+
+    //Get field types
+
+    if (item.split(".")[0] === "text" || item.split(".")[0].replace(/[0-9]/g, '') === "fctext") {
 
       current.type = String;
 
@@ -86,20 +92,8 @@ C.app.post("/schema/create", function (req, res) {
 
       var fcNumber = item.split("_")[1];
 
-      var subfields = [];
-
-      Object.keys(values).forEach(function (element) {
-
-        if (element.split(".")[0].indexOf(fcNumber + "fc") !== -1) {
-
-          subfields.push(values[element]);
-
-        };
-
-      });
-
-      current.type = String;
-      current.contents = subfields;
+      current.type = "fc";
+      current.ref = fcNumber;
 
     };
 
@@ -127,11 +121,11 @@ C.app.post("/schema/create", function (req, res) {
       });
 
     };
-    
-    if(item.split(".")[0].indexOf("fc") !== -1){
-      
+
+    if (item.split(".")[0].indexOf("fc") !== -1) {
+
       current.type = String;
-      
+
     };
 
     if (item.split(".")[0] === "date") {
@@ -143,6 +137,48 @@ C.app.post("/schema/create", function (req, res) {
     if (item.split(".")[0] === "boolean") {
 
       current.type = Boolean;
+
+    };
+
+  };
+
+  //Now all the fields have been split into their fieldsets, turn them into a schema (deep breath)
+
+  Object.keys(values).forEach(function (item) {
+
+    processSchema(item);
+
+  });
+
+  //Pair up field collection items
+
+  Object.keys(schema).forEach(function (element) {
+
+    var item = schema[element];
+
+    if (item.ref && item.type !== "fc") {
+
+      var fcitem = item.ref;
+
+      item.destroy = true;
+
+      Object.keys(schema).forEach(function (fc) {
+
+        if (schema[fc].ref === fcitem && schema[fc].type === "fc") {
+
+          if (!schema[fc].fcitems) {
+
+            schema[fc].type = [{}];
+
+          }
+
+          schema[fc].type[0][element] = schema[element];
+
+        };
+
+      });
+
+      delete schema[element];
 
     };
 
