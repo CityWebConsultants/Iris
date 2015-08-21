@@ -97,14 +97,14 @@ C.app.post("/schema/create", function (req, res) {
 
     };
 
-    if (item.split(".")[0] === "longtext") {
+    if (item.split(".")[0] === "longtext" || item.split(".")[0].replace(/[0-9]/g, '') === "fclongtext") {
 
       current.type = String;
       current.long = true;
 
     };
 
-    if (item.split(".")[0] === "select") {
+    if (item.split(".")[0] === "select" || item.split(".")[0].replace(/[0-9]/g, '') === "fcselect") {
 
       current.type = String;
 
@@ -122,19 +122,14 @@ C.app.post("/schema/create", function (req, res) {
 
     };
 
-    if (item.split(".")[0].indexOf("fc") !== -1) {
 
-      current.type = String;
-
-    };
-
-    if (item.split(".")[0] === "date") {
+    if (item.split(".")[0] === "date" || item.split(".")[0].replace(/[0-9]/g, '') === "fcdate") {
 
       current.type = Date;
 
     };
 
-    if (item.split(".")[0] === "boolean") {
+    if (item.split(".")[0] === "boolean" || item.split(".")[0].replace(/[0-9]/g, '') === "fcboolean") {
 
       current.type = Boolean;
 

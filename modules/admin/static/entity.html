@@ -31,21 +31,7 @@
   <script>
     $(document).ready(function() {
 
-      $('form').jsonForm(schema);
-
-    });
-
-  </script>
-
-  <script>
-    var schema = {
-      "schema": {
-        "entityname": {
-          "type": "string",
-          "title": "Entity name",
-          "description": "The name of this entity. This cannot be changed.",
-          "required": true
-        },
+      var fields = {
         "help": {
           "type": "hidden"
         },
@@ -117,7 +103,7 @@
         },
         "date": {
           "type": "object",
-          "title": "Text",
+          "title": "Date",
           "properties": {
             "system name": {
               "type": "string",
@@ -163,79 +149,6 @@
             }
           }
         },
-        "object": {
-          "type": "object",
-          "title": "Object",
-          "properties": {
-            "system name": {
-              "type": "string",
-              "title": "System name",
-              "description": "The name of the field when stored in the database (this can't be changed easily once set)",
-              "required": true
-            },
-            "label": {
-              "type": "string",
-              "title": "Label"
-            },
-            "description": {
-              "type": "textarea",
-              "title": "Description"
-            },
-            "subfields": {
-
-              "type": "array",
-              "title": "subfield",
-              "items": {
-
-                type: "object",
-                properties: {
-
-                  "text": {
-                    "type": "object",
-                    "title": "Text",
-                    "properties": {
-                      "system name": {
-                        "type": "string",
-                        "title": "System name",
-                        "description": "The name of the field when stored in the database (this can't be changed easily once set)",
-                        "required": true
-                      },
-                      "label": {
-                        "allowEmpty": true,
-                        "type": "string",
-                        "title": "Label"
-                      },
-                      "fieldType": {
-                        "allowEmpty": true,
-                        "type": "string",
-                        "title": "Type of value",
-                        "enum": ["text", "number", "rich text"]
-                      },
-                      "description": {
-                        "allowEmpty": true,
-                        "type": "textarea",
-                        "title": "Description"
-                      },
-                      "multifield": {
-                        "allowEmpty": true,
-                        "type": "boolean",
-                        "title": "Can this field have multiple entries?"
-                      },
-                      "required": {
-                        "allowEmpty": true,
-                        "type": "boolean",
-                        "title": "Is this field required?"
-                      },
-                    }
-                  }
-
-                }
-
-              }
-
-            }
-          }
-        },
         "select": {
           "type": "object",
           "title": "options",
@@ -269,8 +182,60 @@
               "title": "Description"
             }
           }
-        },
-      },
+        }
+      };
+
+      schema.schema = fields;
+
+      schema.schema.entityname = {
+        "type": "string",
+        "title": "Entity name",
+        "description": "The name of this entity. This cannot be changed.",
+        "required": true
+      }
+
+      schema.schema.object = {
+        "type": "object",
+        "title": "Object",
+        "properties": {
+          "system name": {
+            "type": "string",
+            "title": "System name",
+            "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+            "required": true
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "textarea",
+            "title": "Description"
+          },
+          "subfields": {
+
+            "type": "array",
+            "title": "subfield",
+            "items": {
+
+              type: "object",
+              properties: JSON.parse(JSON.stringify(fields))
+
+            }
+
+          }
+        }
+      }
+
+      $('form').jsonForm(schema);
+
+    });
+
+  </script>
+
+  <script>
+    var schema = {
+      "schema": {},
       "form": [{
         "key": "entityname",
       }, {
