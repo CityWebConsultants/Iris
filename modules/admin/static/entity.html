@@ -185,6 +185,8 @@
         }
       };
 
+      var fieldcollectionfields = JSON.parse(JSON.stringify(fields));
+      
       schema.schema = fields;
 
       schema.schema.entityname = {
@@ -219,7 +221,7 @@
             "items": {
 
               type: "object",
-              properties: JSON.parse(JSON.stringify(fields))
+              properties: fieldcollectionfields
 
             }
 
