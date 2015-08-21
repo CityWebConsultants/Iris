@@ -19,7 +19,7 @@ C.app.get("/admin/create/:type", function (req, res) {
 C.app.post("/schema/create", function (req, res) {
 
   var model = req.body.entityname;
-  
+
   delete req.body.entityname;
 
   var form = req.body;
@@ -80,6 +80,29 @@ C.app.post("/schema/create", function (req, res) {
 
     };
 
+    //Field collections!
+
+    if (item.split(".")[0] === "object") {
+
+      var fcNumber = item.split("_")[1];
+
+      var subfields = [];
+
+      Object.keys(values).forEach(function (element) {
+
+        if (element.split(".")[0].indexOf(fcNumber + "fc") !== -1) {
+
+          subfields.push(values[element]);
+
+        };
+
+      });
+
+      current.type = String;
+      current.contents = subfields;
+
+    };
+
     if (item.split(".")[0] === "longtext") {
 
       current.type = String;
@@ -103,6 +126,12 @@ C.app.post("/schema/create", function (req, res) {
 
       });
 
+    };
+    
+    if(item.split(".")[0].indexOf("fc") !== -1){
+      
+      current.type = String;
+      
     };
 
     if (item.split(".")[0] === "date") {

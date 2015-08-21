@@ -163,6 +163,79 @@
             }
           }
         },
+        "object": {
+          "type": "object",
+          "title": "Object",
+          "properties": {
+            "system name": {
+              "type": "string",
+              "title": "System name",
+              "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+              "required": true
+            },
+            "label": {
+              "type": "string",
+              "title": "Label"
+            },
+            "description": {
+              "type": "textarea",
+              "title": "Description"
+            },
+            "subfields": {
+
+              "type": "array",
+              "title": "subfield",
+              "items": {
+
+                type: "object",
+                properties: {
+
+                  "text": {
+                    "type": "object",
+                    "title": "Text",
+                    "properties": {
+                      "system name": {
+                        "type": "string",
+                        "title": "System name",
+                        "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+                        "required": true
+                      },
+                      "label": {
+                        "allowEmpty": true,
+                        "type": "string",
+                        "title": "Label"
+                      },
+                      "fieldType": {
+                        "allowEmpty": true,
+                        "type": "string",
+                        "title": "Type of value",
+                        "enum": ["text", "number", "rich text"]
+                      },
+                      "description": {
+                        "allowEmpty": true,
+                        "type": "textarea",
+                        "title": "Description"
+                      },
+                      "multifield": {
+                        "allowEmpty": true,
+                        "type": "boolean",
+                        "title": "Can this field have multiple entries?"
+                      },
+                      "required": {
+                        "allowEmpty": true,
+                        "type": "boolean",
+                        "title": "Is this field required?"
+                      },
+                    }
+                  }
+
+                }
+
+              }
+
+            }
+          }
+        },
         "select": {
           "type": "object",
           "title": "options",
@@ -199,8 +272,8 @@
         },
       },
       "form": [{
-      "key": "entityname",
-    },{
+        "key": "entityname",
+      }, {
         "type": "array",
         "title": "Fields",
         "items": {
@@ -244,6 +317,9 @@
           }, {
             "key": "date",
             "legend": "A date field"
+          }, {
+            "key": "object",
+            "legend": "A field collection"
           }],
         }
       }, {
@@ -251,6 +327,15 @@
         "title": "Submit"
       }],
       onSubmit: function(errors, values) {
+
+        $.each($("*[name*='object.subfields']"), function(index, element) {
+
+          var fieldnumber = $(element).attr("name").split(".")[1].replace("subfields[", "").replace("]", "");
+          var fcnumber = $(element).attr("name").split("_")[1];
+
+          $(element).attr("name", $(element).attr("name").replace("object.subfields[0].", fcnumber + "fc" + fieldnumber));
+
+        });
 
         if (errors) {
           console.error(errors);
@@ -261,7 +346,7 @@
             "secretkey": "letmein"
           };
 
-          var form = $('form').serialize();
+          var form = $('form').serializeArray();
 
           $.post("/schema/create", form, function(data, errors) {
 
