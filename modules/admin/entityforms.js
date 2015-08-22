@@ -19,7 +19,7 @@ C.app.get("/admin/create/:type", function (req, res) {
 C.app.post("/schema/create", function (req, res) {
     
   var model = req.body.entityname;
-    
+  
   delete req.body.entityname;
 
   var form = req.body;
@@ -28,7 +28,7 @@ C.app.post("/schema/create", function (req, res) {
   var values = {};
   var currentvalue = {};
   Object.keys(req.body).forEach(function (key) {
-
+        
     if (key.indexOf("system-name") !== -1) {
 
       values[key] = {};
@@ -39,7 +39,7 @@ C.app.post("/schema/create", function (req, res) {
     currentvalue[key] = req.body[key];
 
   });
-
+  
   var processSchema = function (item) {
 
     schema[values[item][item]] = {};
