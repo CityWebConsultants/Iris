@@ -46,7 +46,6 @@ CM.auth.globals = {
 
     if (CM.auth.globals.permissions[category][permission]) {
 
-      console.log("Permission alreay exists");
       return false;
 
     } else {
