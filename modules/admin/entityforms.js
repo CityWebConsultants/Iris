@@ -17,9 +17,9 @@ C.app.get("/admin/create/:type", function (req, res) {
 });
 
 C.app.post("/schema/create", function (req, res) {
-
+    
   var model = req.body.entityname;
-
+    
   delete req.body.entityname;
 
   var form = req.body;
@@ -73,8 +73,8 @@ C.app.post("/schema/create", function (req, res) {
     //Assign ref if a field collection field for easier lookup and switching later
 
     if (item.split(".")[0].indexOf("fc") !== -1) {
-
-      current.ref = item.split(".")[0].split("fc")[0];
+    
+      current.ref = item.split(".")[0].split("fc")[1].replace(/[^0-9.]/g, "");
 
     };
 
@@ -92,7 +92,7 @@ C.app.post("/schema/create", function (req, res) {
 
       var fcNumber = item.split("_")[1];
 
-      current.type = "fc";
+      current.fc = true;
       current.ref = fcNumber;
 
     };
@@ -144,29 +144,27 @@ C.app.post("/schema/create", function (req, res) {
     processSchema(item);
 
   });
-
+      
   //Pair up field collection items
 
   Object.keys(schema).forEach(function (element) {
 
     var item = schema[element];
 
-    if (item.ref && item.type !== "fc") {
+    if (item.ref && !item.fc) {
 
       var fcitem = item.ref;
 
-      item.destroy = true;
-
       Object.keys(schema).forEach(function (fc) {
 
-        if (schema[fc].ref === fcitem && schema[fc].type === "fc") {
+        if (schema[fc].ref === fcitem && schema[fc].fc) {
 
-          if (!schema[fc].fcitems) {
+          if (!schema[fc].type) {
 
             schema[fc].type = [{}];
 
           }
-
+          
           schema[fc].type[0][element] = schema[element];
 
         };
@@ -178,7 +176,9 @@ C.app.post("/schema/create", function (req, res) {
     };
 
   });
-
+    
+//  return false;
+  
   C.registerDbModel(model);
   C.registerDbSchema(model, schema);
   C.dbPopulate();

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 
@@ -32,9 +33,6 @@
     $(document).ready(function() {
 
       var fields = {
-        "help": {
-          "type": "hidden"
-        },
         "text": {
           "type": "object",
           "title": "Text",
@@ -185,9 +183,54 @@
         }
       };
 
-      var fieldcollectionfields = JSON.parse(JSON.stringify(fields));
-      
-      schema.schema = fields;
+      var clonefields = JSON.parse(JSON.stringify(fields));
+
+      fieldcollectionfields = {};
+
+      fieldcollectionfields.choose = {
+        "type": "choose"
+      };
+
+      var select = "";
+
+      select += "<option>Pick an item</option>";
+
+      var i = 0;
+
+      $.each(clonefields, function(index, element) {
+
+        fieldcollectionfields[index] = element;
+        select += "<option value='" + i + "'>" + index + "</option>";
+
+        i += 1;
+
+      });
+
+      JSONForm.elementTypes['choose'] = Object.create(JSONForm.elementTypes['hidden']);
+      JSONForm.elementTypes['choose'].template = '<select onchange="chooseField(event)" class="field-collection-select form-control">' + select + '</select>';
+
+      JSONForm.elementTypes['fieldset'].onInsert = function(e, node) {
+
+        if (node.key.replace(/[0-9]/g, '').split(".")[1] === "subfields[]" && node.key.split(".").length > 2) {
+
+          var fieldsets = $(e.target).closest("fieldset").hide();
+
+        };
+
+      };
+
+      window.chooseField = function(e) {
+
+        var choice = e.target.value;
+
+        var parent = $(e.target).closest("fieldset");
+
+        $(parent).find("fieldset").hide();
+        $(parent).find("fieldset").find("*[name]").attr("disabled", "true");
+
+        $(parent).find("fieldset").eq(choice).show().find("*[name]").removeAttr("disabled");
+
+      };
 
       schema.schema.entityname = {
         "type": "string",
@@ -195,6 +238,16 @@
         "description": "The name of this entity. This cannot be changed.",
         "required": true
       }
+
+      schema.schema.help = {
+        "type": "hidden"
+      };
+
+      $.each(fields, function(index, element) {
+
+        schema.schema[index] = element;
+
+      });
 
       schema.schema.object = {
         "type": "object",
@@ -265,7 +318,6 @@
             });
 
           },
-          "items": ["help", "text", "select", "boolean", "date"],
           "items": [{
             "key": "help",
             "legend": "Pick a field"
@@ -294,13 +346,20 @@
         "title": "Submit"
       }],
       onSubmit: function(errors, values) {
-
+                
         $.each($("*[name*='object.subfields']"), function(index, element) {
-
+          
           var fieldnumber = $(element).attr("name").split(".")[1].replace("subfields[", "").replace("]", "");
-          var fcnumber = $(element).attr("name").split("_")[1];
 
-          $(element).attr("name", $(element).attr("name").replace("object.subfields[0].", fcnumber + "fc" + fieldnumber));
+          $(element).attr("name", $(element).attr("name").replace("object.subfields[" + fieldnumber + "].", "fc" + fieldnumber));
+
+        });
+
+        $.each($("*[name]"), function(index, element) {
+
+          if ($(element).attr("name").indexOf("entityname") === -1) {
+            $(element).attr("name", $(element).attr("name") + "_" + index);
+          }
 
         });
 
