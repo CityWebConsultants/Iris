@@ -71,7 +71,9 @@
 
           CKEDITOR.instances[i].on('change', function(e) {
 
-            $(e.editor.element)[0].$.innerHTML = "hello";
+            var data = e.editor.getData();
+
+            $(e.editor.element)[0].$.innerHTML = data;
 
           });
 

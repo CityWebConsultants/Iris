@@ -2,9 +2,11 @@
 <html>
 
 <head>
-  
+
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  
+
+  <script src="//cdn.ckeditor.com/4.5.3/standard/ckeditor.js"></script>
+
   <script src="/admin/jsonform/deps/jquery.min.js"></script>
   <script src="/admin/jsonform/deps/underscore-min.js"></script>
   <script src="/admin/jsonform/deps/opt/jquery.ui.custom.js"></script>
@@ -55,7 +57,7 @@
 
             values._id = id;
 
-            $.post("/entity/edit/" + type, values, function(err, data) {
+            $.post("/entity/edit/" + type + "/" + id, values, function(err, data) {
 
               console.log(data);
 
@@ -65,6 +67,23 @@
         };
 
         $('form').jsonForm(data);
+
+
+        $("textarea").each(function() {
+          CKEDITOR.replace(this);
+        });
+
+        for (var i in CKEDITOR.instances) {
+
+          CKEDITOR.instances[i].on('change', function(e) {
+
+            var data = e.editor.getData();
+
+            $(e.editor.element)[0].$.innerHTML = data;
+
+          });
+
+        };
 
       });
 
