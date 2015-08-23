@@ -255,15 +255,13 @@
           $("select[name='" + node.name + "']").val(choice);
 
           var parent = $("select[name='" + node.name + "']").closest("fieldset")
-
-          $(parent).find("fieldset").hide();
-          $(parent).find("fieldset").find("*[name]").attr("disabled", "true");
-
+          $(parent).children("fieldset").hide();
+          $(parent).children("fieldset").find("*[name]").attr("disabled", "true");
           $(parent).find("fieldset").eq(choice).show().find("*[name]").removeAttr("disabled");
 
         } else {
 
-          $("select[name='" + node.name + "']").closest("fieldset").find("fieldset").hide();
+          $("select[name='" + node.name + "']").closest("fieldset").children("fieldset").hide();
 
         }
 
@@ -275,7 +273,7 @@
 
         var parent = $(e.target).closest("fieldset");
 
-        $(parent).find("fieldset").hide();
+        $(parent).children("fieldset").hide();
         $(parent).find("fieldset").find("*[name]").attr("disabled", "true");
 
         $(parent).find("fieldset").eq(choice).show().find("*[name]").removeAttr("disabled");
@@ -301,40 +299,6 @@
           "properties": fields
         }
       }
-
-//      schema.value = {
-//        "entityname": "entity",
-//        "fields": [{
-//          "choose": "5",
-//          "object": {
-//            "system-name": "fc",
-//            "label": "fieldcollection",
-//            "description": "Test field collection",
-//            "subfields": [{
-//              "choose": "0",
-//              "text": {
-//                "system-name": "textone",
-//                "label": "Text one",
-//                "fieldType": "text",
-//                "description": "Text field one",
-//                "multifield": false,
-//                "required": false
-//              }
-//            }, {
-//              "choose": "1",
-//              "longtext": {
-//                "system-name": "texttwo",
-//                "label": "Text two",
-//                "fieldType": "text",
-//                "description": "Text field two",
-//                "multifield": false,
-//                "required": false
-//              }
-//            }],
-//            "required": false
-//          }
-//        }]
-//      }
 
       $('form').jsonForm(schema);
 

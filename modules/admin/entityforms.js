@@ -2,26 +2,8 @@
 
 var path = require('path');
 
-C.app.get("/admin/create/:type", function (req, res) {
+var upsertSchema = function (model, data, callback) {
 
-  if (CM.admin.globals.checkAdmin(req)) {
-
-    res.sendFile(path.join(__dirname, 'create.html'));
-
-  } else {
-
-    res.redirect("/admin");
-
-  }
-
-});
-
-C.app.post("/schema/create", function (req, res) {
-
-  var model = req.body.entityname;
-
-  delete req.body.entityname;
-  
   schema = {};
 
   var converters = {};
@@ -30,6 +12,33 @@ C.app.post("/schema/create", function (req, res) {
 
     var field = {};
     field.type = String;
+
+    if (element.required === "true") {
+
+      field.required = true;
+
+    };
+
+    if (element.label) {
+
+      field.title = element.label;
+
+    };
+
+    if (element.description) {
+
+      field.description = element.description;
+
+    };
+
+    return field;
+
+  };
+
+  converters["date"] = function (element) {
+
+    var field = {};
+    field.type = Date;
 
     if (element.required === "true") {
 
@@ -82,10 +91,9 @@ C.app.post("/schema/create", function (req, res) {
   };
 
   converters["select"] = function (element) {
-    
+
     var field = {};
     field.type = String;
-    field.long = true;
 
     if (element.required === "true") {
 
@@ -157,10 +165,10 @@ C.app.post("/schema/create", function (req, res) {
 
   //Loop over all the fields in the fields array and convert based on type
 
-  if (req.body.fields) {
+  if (data.fields) {
 
-    req.body.fields.forEach(function (element, index) {
-      
+    data.fields.forEach(function (element, index) {
+
       var type = Object.keys(element)[1];
 
       if (converters[type]) {
@@ -172,10 +180,208 @@ C.app.post("/schema/create", function (req, res) {
     });
 
   };
-  
+
   C.registerDbModel(model);
   C.registerDbSchema(model, schema);
   C.dbPopulate();
+
+  callback();
+
+};
+
+C.app.post("/schema/create", function (req, res) {
+
+  var model = req.body.entityname;
+
+  delete req.body.entityname;
+
+  upsertSchema(model, req.body, function () {
+
+    res.send("success");
+
+  });
+
+});
+
+C.app.post("/schema/edit/:type", function (req, res) {
+
+  var model = req.params.type;
+
+  upsertSchema(model, req.body, function () {
+
+    res.send("success");
+
+  });
+
+});
+
+//Page for creating a new schema
+
+C.app.get("/admin/schema/create", function (req, res) {
+
+  if (CM.admin.globals.checkAdmin(req)) {
+
+    res.sendFile(path.join(__dirname, 'entity.html'));
+
+  } else {
+
+    res.redirect("/admin");
+
+  }
+
+});
+
+//Page for editing an existing schema
+
+C.app.get("/admin/schema/edit/:type", function (req, res) {
+
+  if (CM.admin.globals.checkAdmin(req)) {
+
+    res.sendFile(path.join(__dirname, 'entityedit.html'));
+
+  } else {
+
+    res.redirect("/admin");
+
+  }
+
+});
+
+//Fetch existing schema
+
+C.app.get("/admin/schema/edit/:type/form", function (req, res) {
+
+  try {
+
+    var fieldProcess = function (fieldname, rawfield) {
+
+      //Ordinary strings
+
+      if (rawfield.type === "String" && !rawfield.long && !rawfield.enum) {
+
+        return {
+          "choose": "0",
+          "text": {
+            "system-name": fieldname,
+            "label": rawfield.title,
+            "description": rawfield.description,
+            "multifield": rawfield.multifield,
+            "required": rawfield.required
+          }
+        }
+
+      };
+
+      //Long text field
+
+      if (rawfield.type === "String" && rawfield.long) {
+
+        return {
+          "choose": "1",
+          "longtext": {
+            "system-name": fieldname,
+            "label": rawfield.title,
+            "description": rawfield.description,
+            "multifield": rawfield.multifield,
+            "required": rawfield.required,
+          }
+        }
+
+      };
+
+      //Select field
+
+      if (rawfield.type === "String" && rawfield.enum) {
+
+        return {
+          "choose": "3",
+          "select": {
+            "system-name": fieldname,
+            "label": rawfield.title,
+            "description": rawfield.description,
+            "multifield": rawfield.multifield,
+            "required": rawfield.required,
+            "options": rawfield.enum
+
+          }
+        }
+
+      };
+
+      //Date
+
+      if (rawfield.type === "Date") {
+
+        return {
+          "choose": "2",
+          "date": {
+            "system-name": fieldname,
+            "label": rawfield.title,
+            "description": rawfield.description,
+            "multifield": rawfield.multifield,
+            "required": rawfield.required
+          }
+        }
+
+      };
+
+      //Boolean
+
+      if (rawfield.type === "Boolean") {
+
+        return {
+          "choose": "5",
+          "boolean": {
+            "system-name": fieldname,
+            "label": rawfield.title,
+            "description": rawfield.description,
+            "multifield": rawfield.multifield,
+            "required": rawfield.required
+          }
+        }
+
+      };
+
+    };
+
+    var fs = require("fs");
+
+    var rawSchema = fs.readFileSync(C.sitePath + "/db/" + req.params.type + ".JSON", "utf8");
+
+    rawSchema = JSON.parse(rawSchema);
+
+    var editSchema = [];
+
+    Object.keys(rawSchema).forEach(function (fieldName) {
+
+      var rawField = rawSchema[fieldName];
+
+      editSchema.push(fieldProcess(fieldName, rawField));
+
+    });
+
+    res.send(editSchema);
+
+  } catch (e) {
+
+    res.respond(400, "No such schema");
+
+  }
+});
+
+//Create and edit forms
+
+C.app.get("/admin/create/:type", function (req, res) {
+
+  if (CM.admin.globals.checkAdmin(req)) {
+
+    res.sendFile(path.join(__dirname, 'create.html'));
+
+  } else {
+
+    res.redirect("/admin");
+
+  }
 
 });
 
