@@ -32,6 +32,9 @@
     $(document).ready(function() {
 
       var fields = {
+        "choose": {
+          type: "choose"
+        },
         "text": {
           "type": "object",
           "title": "Text",
@@ -179,15 +182,46 @@
               "title": "Description"
             }
           }
+        },
+        object: {
+          "type": "object",
+          "title": "options",
+          "properties": {
+            "system-name": {
+              "type": "string",
+              "title": "System name",
+              "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+              "required": true
+            },
+            "label": {
+              "type": "string",
+              "title": "Label"
+            },
+            "required": {
+              "type": "boolean",
+              "title": "Is this field required?"
+            },
+            "description": {
+              "type": "textarea",
+              "title": "Description"
+            },
+            "subfields": {
+              "type": "array",
+              "title": "Fields",
+              "items": {
+                "type": "object",
+                "title": "option",
+                "properties": {
+                  "choose": {
+
+                    type: "choose"
+
+                  }
+                }
+              }
+            },
+          }
         }
-      };
-
-      var clonefields = JSON.parse(JSON.stringify(fields));
-
-      fieldcollectionfields = {};
-
-      fieldcollectionfields.choose = {
-        "type": "choose"
       };
 
       var select = "";
@@ -196,25 +230,42 @@
 
       var i = 0;
 
-      $.each(clonefields, function(index, element) {
+      $.each(fields, function(index, element) {
 
-        fieldcollectionfields[index] = element;
-        select += "<option value='" + i + "'>" + index + "</option>";
+        if (index !== "choose") {
 
-        i += 1;
+          fields.object.properties.subfields.items.properties[index] = JSON.parse(JSON.stringify(element));
+          select += "<option value='" + i + "'>" + index + "</option>";
+
+          i += 1;
+
+        }
 
       });
 
-      JSONForm.elementTypes['choose'] = Object.create(JSONForm.elementTypes['hidden']);
-      JSONForm.elementTypes['choose'].template = '<select onchange="chooseField(event)" class="field-collection-select form-control">' + select + '</select>';
+      JSONForm.elementTypes['choose'] = Object.create(JSONForm.elementTypes['text']);
+      JSONForm.elementTypes['choose'].template = '<select value="<%= escape(value) %>" name="<%= node.name %>" onchange="chooseField(event)" class="field-collection-select form-control">' + select + '</select>';
 
-      JSONForm.elementTypes['fieldset'].onInsert = function(e, node) {
+      JSONForm.elementTypes['choose'].onInsert = function(e, node) {
 
-        if (node.key.replace(/[0-9]/g, '').split(".")[1] === "subfields[]" && node.key.split(".").length > 2) {
+        if (node.value) {
 
-          var fieldsets = $(e.target).closest("fieldset").hide();
+          var choice = node.value;
 
-        };
+          $("select[name='" + node.name + "']").val(choice);
+
+          var parent = $("select[name='" + node.name + "']").closest("fieldset")
+
+          $(parent).find("fieldset").hide();
+          $(parent).find("fieldset").find("*[name]").attr("disabled", "true");
+
+          $(parent).find("fieldset").eq(choice).show().find("*[name]").removeAttr("disabled");
+
+        } else {
+
+          $("select[name='" + node.name + "']").closest("fieldset").find("fieldset").hide();
+
+        }
 
       };
 
@@ -238,48 +289,52 @@
         "required": true
       }
 
-      schema.schema.help = {
-        "type": "hidden"
-      };
+      schema.schema.fields = {
 
-      $.each(fields, function(index, element) {
-
-        schema.schema[index] = element;
-
-      });
-
-      schema.schema.object = {
-        "type": "object",
-        "title": "Object",
-        "properties": {
-          "system-name": {
-            "type": "string",
-            "title": "System name",
-            "description": "The name of the field when stored in the database (this can't be changed easily once set)",
-            "required": true
-          },
-          "label": {
-            "type": "string",
-            "title": "Label"
-          },
-          "description": {
-            "type": "textarea",
-            "title": "Description"
-          },
-          "subfields": {
-
-            "type": "array",
-            "title": "subfield",
-            "items": {
-
-              type: "object",
-              properties: fieldcollectionfields
-
-            }
-
-          }
+        "type": "array",
+        "title": "Fields",
+        "description": "Fields on this entity type",
+        "required": true,
+        "items": {
+          type: "object",
+          "title": "Choose fields",
+          "properties": fields
         }
       }
+
+//      schema.value = {
+//        "entityname": "entity",
+//        "fields": [{
+//          "choose": "5",
+//          "object": {
+//            "system-name": "fc",
+//            "label": "fieldcollection",
+//            "description": "Test field collection",
+//            "subfields": [{
+//              "choose": "0",
+//              "text": {
+//                "system-name": "textone",
+//                "label": "Text one",
+//                "fieldType": "text",
+//                "description": "Text field one",
+//                "multifield": false,
+//                "required": false
+//              }
+//            }, {
+//              "choose": "1",
+//              "longtext": {
+//                "system-name": "texttwo",
+//                "label": "Text two",
+//                "fieldType": "text",
+//                "description": "Text field two",
+//                "multifield": false,
+//                "required": false
+//              }
+//            }],
+//            "required": false
+//          }
+//        }]
+//      }
 
       $('form').jsonForm(schema);
 
@@ -290,64 +345,13 @@
   <script>
     var schema = {
       "schema": {},
-      "form": [{
-        "key": "entityname",
-      }, {
-        "type": "array",
-        "title": "Fields",
-        "items": {
-          "type": "selectfieldset",
-          "title": "Choose a field type",
-          "items": [{
-            "key": "help",
-            "legend": "Pick a field"
-          }, {
-            "key": "text",
-            "legend": "A text field"
-          }, {
-            "key": "longtext",
-            "legend": "A long text field"
-          }, {
-            "key": "select",
-            "legend": "A select field"
-          }, {
-            "key": "boolean",
-            "legend": "A yes/no checkbox"
-          }, {
-            "key": "date",
-            "legend": "A date field"
-          }, {
-            "key": "object",
-            "legend": "A field collection"
-          }],
-        }
-      }, {
+      "form": ["*", {
         "type": "submit",
         "title": "Submit"
       }],
       onSubmit: function(errors, values) {
 
-        //Convert field collection names for processing
-
-        $.each($("*[name*='object.subfields']"), function(index, element) {
-
-          var fieldnumber = $(element).attr("name").split(".")[1].replace("subfields[", "").replace("]", "");
-
-          $(element).attr("name", $(element).attr("name").replace("object.subfields[" + fieldnumber + "].", "fc" + fieldnumber));
-
-        });
-
-        //Suffix fields to prevent duplicates
-
-        $.each($("*[name]"), function(index, element) {
-
-          var parent = $(element).parents('*[data-idx]').last().attr("data-idx");
-
-          if ($(element).attr("name").indexOf("entityname") === -1) {
-            $(element).attr("name", $(element).attr("name") + "_" + parent + "_" + index);
-          }
-
-        });
+        console.log(JSON.stringify(values));
 
         if (errors) {
           console.error(errors);
@@ -358,9 +362,7 @@
             "secretkey": "letmein"
           };
 
-          var form = $('form').serializeArray();
-
-          $.post("/schema/create", form, function(data, errors) {
+          $.post("/schema/create", values, function(data, errors) {
 
             console.log(errors);
 

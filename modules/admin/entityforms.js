@@ -17,167 +17,161 @@ C.app.get("/admin/create/:type", function (req, res) {
 });
 
 C.app.post("/schema/create", function (req, res) {
-    
+
   var model = req.body.entityname;
-  
+
   delete req.body.entityname;
-
-  var form = req.body;
-  var schema = {};
-
-  var values = {};
-  var currentvalue = {};
-  Object.keys(req.body).forEach(function (key) {
-        
-    if (key.indexOf("system-name") !== -1) {
-
-      values[key] = {};
-      currentvalue = values[key];
-
-    }
-
-    currentvalue[key] = req.body[key];
-
-  });
   
-  var processSchema = function (item) {
+  schema = {};
 
-    schema[values[item][item]] = {};
+  var converters = {};
 
-    var current = schema[values[item][item]];
+  converters["text"] = function (element) {
 
-    //Add fields that are on every type
+    var field = {};
+    field.type = String;
 
-    Object.keys(values[item]).forEach(function (subfield) {
+    if (element.required === "true") {
 
-      var type = subfield.split("_")[0].split(".")[1];
+      field.required = true;
 
-      if (type === "label") {
-        current.title = values[item][subfield];
-      }
+    };
 
-      if (type === "description") {
+    if (element.label) {
 
-        current.description = values[item][subfield];
+      field.title = element.label;
 
-      }
+    };
 
-      if (type === "required" && values[item][subfield] === 1) {
+    if (element.description) {
 
-        current.required = true;
+      field.description = element.description;
 
-      }
+    };
 
-    });
+    return field;
 
-    //Assign ref if a field collection field for easier lookup and switching later
+  };
 
-    if (item.split(".")[0].indexOf("fc") !== -1) {
+  converters["longtext"] = function (element) {
+
+    var field = {};
+    field.type = String;
+    field.long = true;
+
+    if (element.required === "true") {
+
+      field.required = true;
+
+    };
+
+    if (element.label) {
+
+      field.title = element.label;
+
+    };
+
+    if (element.description) {
+
+      field.description = element.description;
+
+    };
+
+    return field;
+
+  };
+
+  converters["select"] = function (element) {
     
-      current.ref = item.split(".")[0].split("fc")[1].replace(/[^0-9.]/g, "");
+    var field = {};
+    field.type = String;
+    field.long = true;
+
+    if (element.required === "true") {
+
+      field.required = true;
 
     };
 
-    //Get field types
+    if (element.label) {
 
-    if (item.split(".")[0] === "text" || item.split(".")[0].replace(/[0-9]/g, '') === "fctext") {
-
-      current.type = String;
+      field.title = element.label;
 
     };
 
-    //Field collections!
+    if (element.description) {
 
-    if (item.split(".")[0] === "object") {
-
-      var fcNumber = item.split("_")[1];
-
-      current.fc = true;
-      current.ref = fcNumber;
+      field.description = element.description;
 
     };
 
-    if (item.split(".")[0] === "longtext" || item.split(".")[0].replace(/[0-9]/g, '') === "fclongtext") {
+    field.enum = element.options;
 
-      current.type = String;
-      current.long = true;
+    return field;
+
+  };
+
+  converters['object'] = function (element) {
+
+    var field = {};
+
+    if (element.required === "true") {
+
+      field.required = true;
 
     };
 
-    if (item.split(".")[0] === "select" || item.split(".")[0].replace(/[0-9]/g, '') === "fcselect") {
+    if (element.label) {
 
-      current.type = String;
+      field.title = element.label;
 
-      Object.keys(values[item]).forEach(function (subfield) {
+    };
 
-        var type = subfield.split("_")[0].split(".")[1];
+    if (element.description) {
 
-        if (type === "options") {
+      field.description = element.description;
 
-          current.enum = values[item][subfield][0];
+    };
+
+    if (element.subfields) {
+
+      field.type = [{}];
+
+      element.subfields.forEach(function (subfield, index) {
+
+        var type = Object.keys(subfield)[1];
+
+        if (converters[type]) {
+
+          field.type[0][subfield[type]['system-name']] = converters[type](subfield[type]);
 
         }
 
       });
 
-    };
+    }
 
-
-    if (item.split(".")[0] === "date" || item.split(".")[0].replace(/[0-9]/g, '') === "fcdate") {
-
-      current.type = Date;
-
-    };
-
-    if (item.split(".")[0] === "boolean" || item.split(".")[0].replace(/[0-9]/g, '') === "fcboolean") {
-
-      current.type = Boolean;
-
-    };
+    return field;
 
   };
 
-  //Now all the fields have been split into their fieldsets, turn them into a schema (deep breath)
+  //Loop over all the fields in the fields array and convert based on type
 
-  Object.keys(values).forEach(function (item) {
+  if (req.body.fields) {
 
-    processSchema(item);
-
-  });
+    req.body.fields.forEach(function (element, index) {
       
-  //Pair up field collection items
+      var type = Object.keys(element)[1];
 
-  Object.keys(schema).forEach(function (element) {
+      if (converters[type]) {
 
-    var item = schema[element];
+        schema[element[type]['system-name']] = converters[type](element[type]);
 
-    if (item.ref && !item.fc) {
+      }
 
-      var fcitem = item.ref;
+    });
 
-      Object.keys(schema).forEach(function (fc) {
-
-        if (schema[fc].ref === fcitem && schema[fc].fc) {
-
-          if (!schema[fc].type) {
-
-            schema[fc].type = [{}];
-
-          }
-          
-          schema[fc].type[0][element] = schema[element];
-
-        };
-
-      });
-
-      delete schema[element];
-
-    };
-
-  });
-    
-//  return false;
+  };
   
   C.registerDbModel(model);
   C.registerDbSchema(model, schema);
