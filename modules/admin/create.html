@@ -2,9 +2,11 @@
 <html>
 
 <head>
-  
+
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  
+
+  <script src="//cdn.ckeditor.com/4.5.3/standard/ckeditor.js"></script>
+
   <script src="/admin/jsonform/deps/jquery.min.js"></script>
   <script src="/admin/jsonform/deps/underscore-min.js"></script>
   <script src="/admin/jsonform/deps/opt/jquery.ui.custom.js"></script>
@@ -61,8 +63,21 @@
 
         $('form').jsonForm(data);
 
-      });
+        $("textarea").each(function() {
+          CKEDITOR.replace(this);
+        });
 
+        for (var i in CKEDITOR.instances) {
+
+          CKEDITOR.instances[i].on('change', function(e) {
+
+            $(e.editor.element)[0].$.innerHTML = "hello";
+
+          });
+
+        };
+
+      })
     });
 
   </script>

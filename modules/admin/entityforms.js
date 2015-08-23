@@ -330,13 +330,39 @@ C.app.get("/admin/schema/edit/:type/form", function (req, res) {
       if (rawfield.type === "Boolean") {
 
         return {
-          "choose": "5",
+          "choose": "4",
           "boolean": {
             "system-name": fieldname,
             "label": rawfield.title,
             "description": rawfield.description,
             "multifield": rawfield.multifield,
             "required": rawfield.required
+          }
+        }
+
+      };
+
+      //Field collections
+
+      if (Array.isArray(rawfield.type)) {
+
+        var subfields = [];
+
+        Object.keys(rawfield.type[0]).forEach(function (element) {
+
+          subfields.push(fieldProcess(element, rawfield.type[0][element]));
+
+        });
+
+        return {
+          "choose": "5",
+          "object": {
+            "system-name": fieldname,
+            "label": rawfield.title,
+            "description": rawfield.description,
+            "multifield": rawfield.multifield,
+            "required": rawfield.required,
+            "subfields": subfields,
           }
         }
 
