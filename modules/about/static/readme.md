@@ -446,6 +446,26 @@ CM.auth.registerHook("hook_auth_maketoken",0,function(thisHook, token) {
 
 Provide an object with a data.userid and data.token and delete the specific token, if it exists. Once the initial event is fired it returns the userid the token was deleted for. Note that this hook also clears the user from the system's list of active users if the user has no tokens left.
 
-### hook_auth_clearauth
+#### hook_auth_clearauth
 
 Provided with a userid it clears the user from the system and deletes all their access tokens.
+
+### Entity
+
+#### hook_entity_create
+
+Takes a data.entityType and other data fields depending on the type of entity needing to be created.
+
+#### hook_entity_edit
+
+Takes a data.entityType and data._id of an existing entity along with any fields that need to be updated on the entity
+
+#### hook\_entity\_validate
+#### hook\_entity\_validate\_*entitytype*
+
+Hook into this to check the contents of an entity that is being created or edited. The fields cannot be altered during this hook. It's meant for passing or failing validation. Alterations are done in hook_entity_presave
+
+#### hook\_entity\_presave
+#### hook\_entity\_presave\_*entitytype*
+
+Change an entity being updated or created just before it's saved.
