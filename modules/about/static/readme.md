@@ -95,6 +95,11 @@ CM.mymodule.configPath //This returns the path to the configuration folder for t
 
 Hooks are named event chains that run through the system when they are triggered. Modules register hooks, assign the hook a rank and then when an event with that hook name is fired, the ranked hooks with that name of all modules fire in order and pass data between each other in a chain.
 
+To finish a hook successfuly, use ** thisHook.finish(true, *data to pass to next hook*); **
+
+To finish a hook in failure, use ** thisHook.finish(false, *data to pass to next hook*); **
+
+
 ```javascript
 
 CM.mymodule.registerHook("entity_blog_save",2,function(thisHook, data){
