@@ -76,7 +76,8 @@ Use this function within a module file to register a new ____ module. This inita
 
 C.registerModule("mymodule");
 
-//This would create a /sites/yoursite/configurations/mymodule folder and a CM.mymodule object where the module's functions can be accessed.
+// This would create a /sites/yoursite/configurations/mymodule folder
+// and a CM.mymodule object where the module's functions can be accessed.
 
 ```
 
@@ -394,7 +395,8 @@ var success = function(failData){
 
 C.promiseChain([promiseOne, promiseTwo], data, success, fail);
 
-//Runs both functions, passes through the data, then runs the success function if they both pass or the fail function if either of them fail.
+// Runs both functions, passes through the data
+// then runs the success function if they both pass or the fail function if either of them fail.
 
 ```
 
