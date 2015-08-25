@@ -146,7 +146,7 @@ var exports = {
 
                                 if (auth.userlist[socket.userid].sockets.length === 0) {
 
-                                    delete auth.userlist[socket.userid];
+                                    delete auth.userlist[socket.userid].sockets;
 
                                 }
 
