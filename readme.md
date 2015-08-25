@@ -1,405 +1,476 @@
-Chat Application Core
-=====================
+# About
 
-API endpoints
--------------
+## Dependencies
 
-_Note: POST requests are expected with encoding x-www-form-urlencoded for easy processing of text._
+____ is built using Node.JS, uses Express for HTTP routing, Socket.IO for websockets and runs on a MongoDB database. The front end widgets are built using Angular.JS and the forms and admin interface are created using the JSONform library and bootstrap. Other Node.js module dependencies can be found in the package.JSON file and everything can be installed by running NPM install.
 
-**User authentication:**
+## Directory structure
 
-* userid (string)
-The user ID of the sender.
-* token (string)
-The corresponding authorisation token.
+The ____ directory structure is separated into four main areas.
 
-These parameters need to be sent whenever an endpoint requires user authentication/authorisation.
+### Core area
 
-### /auth
-Handles authentication requests from the user management application/host CMS.
+The first is the root directory that contains files crucial to the running of the system. These should not be edited or removed.
 
-**POST parameters:**
+* __boot.js__ – This is run when the server starts and initiates the global C object and the global CM modules objects that are used throughout the system. It runs through many of the other core files, loads modules and initiates the files launching the HTTP server, web socket server and the database. It is not run directly but run through a config file for a particular site (more on this later).
+* __db.js__ – This loads in database schema files and models created by modules and through the entity management system and sets them up for use in the MongoDB database.
+* modules.js – This file contains the parent objects all ____ modules are based on and defines all their functionality.
+* __hook.js__ – This contains the core hook and event system functionality that is used by the module system.
+* __server.js__ – This sets up Express.js and the HTTP server based on the settings provided in the configurations file on site start-up.
+* __log.js__ – This uses Bunyan to create logs for viewing in the administration interface or elsewhere.
+* __sockets.js__ – This initiates the Socket.IO web socket server and provides functions for creating socket listeners and sending socket events.
+* __utils.js__ – This defines helper functions such as the translation system and the promise system that are used throughout.
 
-* userid (string)
-The user ID as provided by a site making use of this server. For example, a user ID from Drupal sent from a Drupal chat integration module.
-* secretkey
-The site authorisation API key.
+### Core modules
 
-**Returns:**
+The “core_modules” folder contains ____ modules (defined using the modules.js file) that are essential for the running of the system.
 
-* authorisation token for user
+#### Auth
+This provides a system for managing sessions, permissions, roles and verifying authentication details and creating access tokens.
 
-### /message
+#### Entity
+This provides a system for creating, editing, deleting and searching for/fetching categorised database documents.
 
-#### /message/add [requires authentication]
+### Sites directory
 
-Post a message to a group.
+The sites directory stores all the configuration for the current application instance, including database schema, module settings, permissions and server and database connection settings. It is also where the application itself is launched.
 
-**POST parameters:**
+### Custom modules
+Custom ____ modules can either be placed in the “modules” folder or installed regularly through NPM into Node_modules. They initiate as soon as they are included using the Node.JS require() function.
 
-* groupid (string)
-The target group ID
-* content (string)
-The message contents
-* messagetype (string)
-The messagetype, e.g. `text`
+The sites directory contains an __enabled_modules.js__ file. This contains Node.JS require commands that load in custom or NPM modules using the ____ system. They need to be loaded at this point so that they get initialised properly.
 
-**Returns:**
+## Site config file
 
-* newly created message ID
+A “defaults” directory is provided as an example configuration file. To make a new application, simply copy/rename this directory. The launch_default.js file is where the settings for the application are placed. Here is a summary of these settings:
 
-#### /message/hub [requires secret key]
+* __port__: The port the Node.JS web server runs on. (80 or 3000 for example)
+* __apikey__: This is the administrator username/apikey. It should be kept secret.
+* __secretkey__: An additional password used in combination with the secretkey to gain access to the system as an administrator.
+* __https__: set to true or false depending on whether the site is running on HTTPS.
+* __https_key__: System path to the SSL key if HTTPS mode is on.
+* __https_cert__: System path to the SSL certificate if HTTPS mode is on.
+* __db_server__: the server hosting the database (localhost for example).
+* __db_port__: The MongoDB database port (27017 for example).
+* __db_name__: The name of the MongoDB database used for this application.
 
-Post a message to a group directly from the CMS.
+###Other files in the sites directory
 
-**POST parameters**
+____ automatically creates directories inside a site’s folder for database schema, module configuration and logs. These can then be exported or saved through version control allowing for multiple sites to be managed using one core code base.
 
-* groupid
-* content
-* secretkey
+## Launch instructions
 
-### /group
-Handles group creation and manipulation.
+Once the sites directory has been created, the launch_sitename.js (renamed launch_defaults.js) can be run using Node.JS. This initiates the server and database, loads modules and sets up the configuration folder and files.
 
-#### /group/add [requires authentication]
-Takes a group name and initial list of members; creates a server-side group entry.
+## Core functions and variables
 
-**POST parameters:**
+All the core functionality is stored in the C JavaScript object. This is frozen once it has been created so no additional properties can be added to it.
 
-* name (string)
-The desired name of the group being created
-* members (string) (may be appended more than once)
-The desired set of members, as userids, to be added to the group
-* is121 (optional; only value is 'true')
-Whether this group is a one-to-one conversation.
+###Modules
 
-**Returns:**
+#### C.registerModule()
 
-* Newly created group ID
+Use this function within a module file to register a new ____ module. This initates the module, assigns functions global to all modules and creates a configuration folder for that module in the sites directory.
 
-#### /group/update/addmember  [requires authentication]
-Adds a user to an existing group.
+```javascript
 
-**POST parameters:**
+C.registerModule("mymodule");
 
-* groupid (string)
-The unique group ID of the referenced group
-* userid (int)
-The desired user to be added to the group
+//This would create a /sites/yoursite/configurations/mymodule folder and a CM.mymodule object where the module's functions can be accessed.
 
-#### /group/update/removemember  [requires authentication]
-Removes a member from an existing group.
-
-**POST parameters:**
-
-* groupid (string)
-The unique group ID of the referenced group
-* userid (int)
-The desired user to be removed from the group
-
-#### /group/update/name  [requires authentication]
-Changes the name of an existing group.
-
-**POST parameters:**
-
-* groupid (string)
-The unique group ID of the referenced group
-* name (string)
-The desired ne name of the group
-
-### /fetch
-Handles requests for message history and group information.
-
-#### /fetch/groups  [requires authentication]
-Returns group information. Takes a parameter `userid` which will return the groups that a specific userid belongs to.
-
-See also /debug/groups for which the `userid` parameter is optional and when it is missing all groups in the system will be returned.
-
-#### /fetch/group/users [requires authentication]
-Returns the set of users that are contained in a provided group.
-
-#### /fetch/message [requires authentication]
-Returns message(s) matching query.
-
-#### /fetch/messagetypes
-Returns all valid messagetypes.
-
-Socket Events
--------------
-### message
-This is pushed to a client whenever a new message is posted in one of their groups. Contains a message object.
-
-Example: `{groupid: '5492b9311a4ecc3202c1a1cc', 'userid': 1, content: {'text': 'hello'}}`
-
-### notification_message
-This is pushed to a client whenever the state of a stored message or group changes, e.g. when a message is updated or removed or when a group is renamed or
-created involving that user.
-
-Example: `{action: 'name', groupid: '5492b9311a4ecc3202c1a1cc', time: 1418908303209}`
-
-### online_users
-This is pushed to all clients whenever the list of online users changes. Data is as follows: `{users: ['1', '2', '3']}` - in other words, an array of user IDs
-under key `users`.
-
-Data structures
----------------
-Group and message relations are stored using a semi-relational reference structure.
-
-### Group
-A group is essentially a named collection of users. All chats take place in a context of a group; a direct chat between two users takes place in a group which contains only those two users as members.
-
-General group structure: `{ 'gid': 'group ID', 'members': {}, 'name': 'group name', 'is121': true/false}`
-
-**Example group:**
 ```
-{ '_id': '_ZS3sd234h',
-  'members': {
-    {'userid': '1', 'joined': 1416316036},
-    {'userid': '2', 'joined': 1416316516},
-    {'userid': '3', 'joined': 1416314536},
+
+#### Module path variables
+
+The module object contains some helper variables for getting the path of the module.
+
+```javascript
+
+CM.mymodule.path // This returns the system path for the module
+CM.mymodule.configPath //This returns the path to the configuration folder for this module
+
+```
+
+#### CM.*modulename*.registerHook()
+
+Hooks are named event chains that run through the system when they are triggered. Modules register hooks, assign the hook a rank and then when an event with that hook name is fired, the ranked hooks with that name of all modules fire in order and pass data between each other in a chain.
+
+To finish a hook successfuly, use ** thisHook.finish(true, *data to pass to next hook*); **
+
+To finish a hook in failure, use ** thisHook.finish(false, *data to pass to next hook*); **
+
+
+```javascript
+
+CM.mymodule.registerHook("entity_blog_save",2,function(thisHook, data){
+
+  //Finish the hook and pass the data through to the next hook without doing anything to the data
+
+  thisHook.finish(true, data);
+
+})
+
+```
+
+#### CM.*modulename*.globals
+
+The CM.*modulename* object for registered modules is sealed from editing to prevent it being accidentally destroyed or polluted. All custom variables and methods can be namespaced under the CM.*modulename*.globals object and they will be available for any other module to use.
+
+```javascript
+
+CM.mymodule.globals = {
+
+  "hello": function(name){
+  
+    return "hello" +" "+ name;
+  
   }
-  'name': 'An Example Group',
-  'is121': false
+
 }
-```
 
-The generation of IDs is the responsibility of the database handler module.
+// In any module in the system
 
-The `is121` flag, if set to true, defines the group as a one-to-one chat. Such a chat can only contain two users and cannot be duplicated.
-
-### Message
-Each message consists of an essential core set of values - author, group reference and timestamp (TODO: decide on whether to use the MongoDB ID for timestamping) followed by a content array that is filled depending on which modules are in use.
-
-Messsage structure: `{ 'author': 'author ID', 'group': 'group ID', 'time': 'timestamp', 'content': {} }`
-
-**Example message:**
-```
-{ '_id': '_aEfb2c23e3243d',
-  'author': '1',
-  'group': '_ZS3sd234h',
-  'content': {},
-}
-```
-Note that this message contains no content; it is nothing but a base object ready to have data such as a text message or file transfer request added to it by the relevant module. A text message might have content resembling `content: {text: "Example message body"}` or `{file-remote: "http://localhost/file.ext"}`.
-
-The generation of IDs is the responsibility of the database handler module.
-
-Files
------
-###server.js
-Server implementation; runs an HTTP server instance to process REST API requests and web socket connections.
-
-###client.js
-Initial client implementation. This will test all the specified functionality by making API requests.
-
-###hook.js
-Event-based hook system module.
-
-###config.js
-The core system configuration file. Includes base settings and an enabled modules object.
-
-####System Settings:
-
-* `port` (int)
-  Port number to run the server on
-* `secretkey` (string)
-  Global super secret key. Used for authenticating the user authentication system. _Really secret._
-* `messagetypes_enabled` (array)
-  Enabled message types.
-
-####Module Settings:
-
-* `name` (object)
-  Machine name of module to enable. This will be looked for in the filesystem under the chat_modules/ directory.
-
-* `options` (object)
-Object of options that will be parsed by the module itself to determine its behaviour.
-
-**Example modules table:**
-```
-modules_enabled: [
-    {
-        name: 'auth',
-        options: {
-            token_length: 16
-        }
-    }
-]
-```
-
-Module System
--------------
-Modules are .js files stored in the chat_modules/ directory. Modules are loaded by looking for module entries
-in the config.js file (see config.js section above). A module is a single object returned by setting
-`module.exports` containing functions and options.
-
-#### Options
-The `options` property of the module object is automatically populated from the config.js file during the
-bootstrap process. One can set defaults as an `options` object within the module should the person configuring
-the module not set any values.
-
-#### Dependencies
-The proposed `dependencies` property would be an array of modules that this is dependent on.
-
-####Init Function
-A function contained within the `init` property of the module object will be run upon the module being loaded.
-
-Global Functions
-----------------
-Global functions can be defined as properties each module's exports.globals object. Call them with `c.module_name.functionName();`
-
-#### getPermissionsLevel _(user, groupid, authenticate?, callback)_
-Returns Permissions Level for the user. Runs auth checks/secretkey checks based on the contents of the _user_ parameter as an object, e.g.
-
-`user = {userid: 1, token: '2af3b3f}`
-
-Group ID is optional and enables returning '2' if the user is a member of that group. This is a groupid reference and a query for that group will run.
-
-#### checkGroupPermissions _(group, action, level, callback)_
-Returns `true` or `false` depending on whether the user has the permissions to perform a given action on a group.
-
-Group must be an object, but if it contains only an `_id` key the rest of the group object will be queried for.
-
-Standard Hooks
---------------
-### API endpoints
-
-#### hook_post
-All POST requests sent to the server will generate a `hook_post` event. For example, sending a request to the URL /example would
-trigger the event `hook_post_example` and pass an object containing the request URL (`url`) and the parsed POST object (`post`).
-
-#### hook_get
-All GET requests sent to the server will generate a `hook_get` event in the same manner as `hook_post`. The parsed query string is
-passed as the data object property `get`.
-
-### Database or storage handling
-
-#### hook_db_insert
-Call this hook and pass an object like the following: `{dbcollection: string, dbobject: {}}`.
-
-#### hook_db_find
-Call this hook and pass an object like the following: `{dbcollection: string, dbquery: {}, findOne: bool}`.
-
-#### hook_db_update
-Call this hook and pass an object like the following: `{dbcollection: string, dbquery: {}, dbupdate: {}, dbupsert: bool, dbmulti: bool}`.
-
-#### hook_db_remove
-Call this hook and pass an object like the following: `{dbcollection: string, dbquery: {}}`.
-
-### User management and authentication
-
-#### hook_auth_check
-Call this hook and pass an object of the format `{userid: int, token: string}`. Returns a boolean.
-
-### Message preprocessing
-
-#### hook_message_preprocess
-Implementing this hook results in the relevant function being called with the entire message as `data.content` whenever a message is about to be stored in the database and then sent to clients. Making changes to the message will thus result in those changes being carried forwards into the DB and to the client.
-
-#### hook_message_postprocess
-Implementing this hook results in the relevant function being called with the message `content` object as `data.object` each time a message
-is sent to a client. Therefore making changes to the message will affect how it is seen by clients but not how it is stored in the database.
-
-Hook System
------------
-### Responding to Hooks
-In order to respond to a hook, a module needs to provide an object named after the hook containing a rank specifying its place
-in the order of hook processing (i.e. whether it should run before or after another module) and an event function.
-
-See this example.
+CM.mymodule.globals.hello("Rachel"); // Returns "hello Rachel".
 
 ```
-hook_name: {
-    rank: 2,
-    event:
-        function (data) {
-            var url = data.value;
-            var post = data.val2;
 
-            process.emit('next', data);
-        }
-}
-```
+#### CM.*modulename*.registerSocketListener()
 
-The `process.emit('next', data);` statement indicates that this module has completed its processing and is ready to pass the event
-on to the next handler in the queue.
+Listen for a specific web socket message and run the function in the callback when the message is sent.
 
-### Firing Hook Events
-To fire a hook event, use the `hook` function, specifying a hook name and passing a data object:
+```javascript
+
+CM.mymodule.registerSocketListener("package", function(socket,data){
+
+  socket.emit("received", data); //Sends the data back to the socket that sent it with a received message
+
+})
+
 
 ```
-hook('hook_name', data)
+
+###Entities
+
+#### C.registerDbCollection();
+
+Register a database model name (a MongoDB collection) that is used for a specific entity type.
+
+A database collection with the same name can only be registered once. Multiple modules can attach fields or write to this same database collection.
+
+Database collections can also be created directly in the entity management user interface.
+
+```javascript
+
+C.registerDbCollection("blog");
+
 ```
 
-### Hooks with Callbacks
-See this example of making a hook call and then using data it returns in a callback:
+#### C.registerDbSchema()
 
-```
-// Call db find hook.
-hook('hook_db_find', {dbcollection: 'groups', dbquery: {}}, function (gotData) {
-    // do things with gotData
+Associate fields (as Mongoose database schema) with a specific database collection. See the Mongoose documentation for more information. Additional fields for title and description are provided for the entity UI.
 
-    process.emit('next', data);
-    }
+```javascript
+
+C.registerDbSchema("blog", {
+
+  name: {
+    type: String,
+    title: "Blog title",
+    description: "Blog title goes here",
+    required: true
+  },
+  date: {
+    title: "Publication date",
+    type: Date,
+    required: true
+  }
 });
+
+
 ```
-Sockets.js
-----------
-Presents these functions:
 
-### process.addSocketListener
+### Authentication
 
-Add listener for a specific socket event.
+#### The authPass object
 
-### process.groupBroadcast
+When a user makes a request into the system an authPass is generated for them by the core Auth module. If they pass in a credentials object with either a userid and a token or a secretkey and apikey (for the administrator) these credentials are checked, otherwise the authPass returned is that for an anonymous user.
 
-Send socket messages to every client in a given group.
+The authPass is automatically added to the Express.js req object under req.Authpass.  It contains the user's user id and their roles. It is used throughout the system when calling things such as hooks to check the permissions of a user.
 
-### process.socketio
+```javascript
 
-All socket.io stuff.
+C.app.get("/hello", function(req, res){
 
-Core Modules
-------------
-### mongodb
+  console.log(req.authPass)  // returns {userid:1, roles: ["authenticated", "administrator"]} for example
 
-MongoDB database driver wrapper. Responds to the `hook_db` set of hooks to store and manipulate data in the database.
+  res.send("hello");
 
-### auth
+});
 
-Handles user authorisation. Presents a REST API endpoint for assigning a randomly generated authorisation token to
-a provided user ID.
+```
 
-### group_manager
+#### C.registerRole()
 
-Presents a basic REST API for group management.
+Register a role to be used in the permission system. This instantly makes it visible and usable in the permissions user interface. How a role is assigned to a user is up to you and your module.
 
-### sockets
+```javascript
 
-Presents an event system for socket.io connections.
+C.registerRole("contributor");
 
-### socket_message
+```
 
-Handles sending and receiving of messages through web sockets.
+#### C.registerPermission()
 
-### message_add
+Register a permission to be used in the permission system. Permissions are categorised to make them easier to filter on the permissions administration page.
 
-Presents a hook and API endpoints for saving and sending messages.
+```javascript
 
-### message_edit
+C.registerPermission("games", "can play games");
 
-Presents hooks and API endpoints for editing and removing messages.
+```
 
-### message_fetch
+#### CM.auth.checkPermissions()
 
-Presents hooks and API endpoints for getting messages.
+Takes an authPass (see above), an array of permissions to check for and returns true or false depending on whether the user has that permission.
 
-### message_types
+```javascript
 
-Presents an API endpoint for showing the list of available message types.
+  C.app.get("/games", function(req, res){
 
-### socket_notifications
+  if(CM.auth.checkPermissions(["can play games"], req.authPass){
+    
+    res.send("Go play outside");
+  
+  } else {
+  
+    res.send("can't play games");
+  
+  }
 
-Sends messages to clients that are within a group when messages are deleted or edited within that group, so that a
-client application may instantly update or remove those messages.
+});
 
+
+```
+
+### Web sockets
+
+Note: For registering web socket event handlers, look at the module documentation for CM.*modulename*.registerSocketListener().
+
+To broadcast a socket message to an array of users (current logged in users)
+
+#### C.sendSocketMessage()
+
+Send a web socket message to an array of userids. “*” means send to all connected websockets.
+
+```javascript
+
+var greetingMessage = "hello";
+
+C.sendSocketMessage(["1","5","17"], "greeting", greetingMessage);
+
+```
+
+### Hooks
+
+#### C.hook()
+
+Trigger a hook (or a series of hooks) registered by modules through CM.*modulename*.registerHook. This returns a JavaScript promise with the result of the hook chain (whether it passed or failed).
+
+```javascript
+
+C.hook("game_save", data, req.authPass).then(function (success) {
+
+  res.send(success);
+
+}, function(fail) {
+
+  res.send("Game failed to send");
+
+});
+
+
+```
+
+### Translations
+
+#### C.registerTranslation();
+
+Register a translation of a string that is passed through the C.translate function. The context is a condition function that is checked before the translation is run.
+
+```javascript
+
+C.registerTranslation("hello %s", "hola %s, function(){
+
+  return authPass.roles.indexOf("spanish");
+
+});
+
+```
+#### C.translate()
+
+Pass in a string with placeholders for %s string, %n number and %j json. Provide these variables as the second and subsequent arguments. These are then placed in and also run through the translation system. Finally put in an authPass object that can be checked to see if translation contexts should apply.
+
+```javascript
+
+C.translate("hello %s", "Michael", req.authPass);
+
+```
+
+### Global variables
+
+* __C.sitePath__ - The path of the current application’s sites folder.
+* __C.app__ - The express application, used for creating HTTP paths.
+
+### Assorted global functions
+
+#### C.log.info C.log.warn C.log.error
+
+Use this to record an entry to the system log.
+
+```javascript
+
+C.log.info("User" + userid + " " + "logged in");  
+
+```
+
+#### C.include()
+
+Attempt to load a file from the one location (a user configuration directory for example), if it is not present, load from the default directory.
+
+```javascript
+
+C.include(__dirname + "/group_types.js", C.configPath + "/group_manager/group_types.js");
+
+```
+
+#### C.promise and C.promisechain
+
+Helper functions for creating JavaScript promises functions wrapped in an error catching service. 
+
+C.promise takes a function which passes through three arguments, a yes function for if the promise completes successfully, a no function for when it fails and a data object.
+
+C.promiseChain takes and runs through an array of promises, data to pass through and success and fail functions to use when the chain succeeds or fails.
+
+```javascript
+
+var promiseOne = C.promise(function (_id, yes, no) {
+
+    C.dbCollections.message.findOne({
+      '_id': _id
+    }, function (err, doc) {
+
+      if (err) {
+
+        no("Database error");
+
+      }
+
+      if (doc) {
+
+        yes(doc);
+
+      } else {
+
+        no(false);
+
+      }
+
+    })
+);
+  
+var promiseTwo // another promise
+
+var success = function(successData){
+
+  C.log.info(successData);
+
+};
+
+var success = function(failData){
+
+  C.log.info(data);
+
+};
+
+C.promiseChain([promiseOne, promiseTwo], data, success, fail);
+
+//Runs both functions, passes through the data, then runs the success function if they both pass or the fail function if either of them fail.
+
+```
+
+##Core module hooks
+
+### Auth
+
+#### hook_auth_authpass
+
+Fired on creating an authPass, latch onto this hook to add items to the authPass object (such as roles)
+
+```javascript
+
+CM.auth.registerHook("hook_auth_authpass",0,function(thisHook, authPass) {
+
+  //Check if a user is in the editors array and add an "editor" role if yes.
+  
+  var editors = ["5","66", "77"];
+  
+  editors.forEach(function(editor, index){
+  
+    if(authPass.userid === editor){
+    
+      authPass.roles.push("editor");
+    
+    }
+  
+  });
+
+  thisHook.finish(true, authPass);
+
+});
+
+```
+
+#### hook_auth_maketoken
+
+On receiving an object with a userid (data.userid for example), generates, returns and stores an access token for that user id. The access token can be modified by subsequent hooks.  
+
+```javascript
+
+CM.auth.registerHook("hook_auth_maketoken",0,function(thisHook, token) {
+
+  //Add a timestamp to the token
+  
+  token.id += Date.now();
+  
+  thisHook.finish(true, token);
+  
+}
+
+```
+#### hook_auth_deletetoken
+
+Provide an object with a data.userid and data.token and delete the specific token, if it exists. Once the initial event is fired it returns the userid the token was deleted for. Note that this hook also clears the user from the system's list of active users if the user has no tokens left.
+
+#### hook_auth_clearauth
+
+Provided with a userid it clears the user from the system and deletes all their access tokens.
+
+### Entity
+
+#### hook_entity_create
+
+Takes a data.entityType and other data fields depending on the type of entity needing to be created.
+
+#### hook_entity_edit
+
+Takes a data.entityType and data._id of an existing entity along with any fields that need to be updated on the entity
+
+#### hook\_entity\_validate
+#### hook\_entity\_validate\_*entitytype*
+
+Hook into this to check the contents of an entity that is being created or edited. The fields cannot be altered during this hook. It's meant for passing or failing validation. Alterations are done in hook_entity_presave
+
+#### hook\_entity\_presave
+#### hook\_entity\_presave\_*entitytype*
+
+Change an entity being updated or created just before it's saved.
