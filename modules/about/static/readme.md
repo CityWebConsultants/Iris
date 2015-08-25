@@ -389,6 +389,63 @@ var success = function(failData){
 
 C.promiseChain([promiseOne, promiseTwo], data, success, fail);
 
-//Runs both functions, then the success function if they both pass or the fail function if either of them fail.
+//Runs both functions, passes through the data, then runs the success function if they both pass or the fail function if either of them fail.
 
 ```
+
+##Core module hooks
+
+### Auth
+
+#### hook_auth_authpass
+
+Fired on creating an authPass, latch onto this hook to add items to the authPass object (such as roles)
+
+```javascript
+
+CM.auth.registerHook("hook_auth_authpass",0,function(thisHook, authPass) {
+
+  //Check if a user is in the editors array and add an "editor" role if yes.
+  
+  var editors = ["5","66", "77"];
+  
+  editors.forEach(function(editor, index){
+  
+    if(authPass.userid === editor){
+    
+      authPass.roles.push("editor");
+    
+    }
+  
+  });
+
+  thisHook.finish(true, authPass);
+
+});
+
+```
+
+#### hook_auth_maketoken
+
+On receiving an object with a userid (data.userid for example), generates, returns and stores an access token for that user id. The access token can be modified by subsequent hooks.  
+
+```javascript
+
+CM.auth.registerHook("hook_auth_maketoken",0,function(thisHook, token) {
+
+  //Add a timestamp to the token
+  
+  token.id += Date.now();
+  
+  thisHook.finish(true, token);
+  
+}
+
+```
+#### hook_auth_deletetoken
+
+Provide an object with a data.userid and data.token and delete the specific token, if it exists. Once the initial event is fired it returns the userid the token was deleted for. Note that this hook also clears the user from the system's list of active users if the user has no tokens left.
+
+### hook_auth_clearauth
+
+Provided with a userid it clears the user from the system and deletes all their access tokens.
