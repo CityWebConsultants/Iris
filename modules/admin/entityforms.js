@@ -2,6 +2,22 @@
 
 var path = require('path');
 
+C.app.get("/admin/entitytypes", function (req, res) {
+
+  if (CM.admin.globals.checkAdmin(req)) {
+
+    res.send(Object.keys(C.dbCollections));
+
+  } else {
+
+    res.redirect("/admin");
+
+  }
+
+});
+
+CM.admin.globals.registerMenuItem("Entities", path.join(__dirname, 'templates/entities.html'));
+
 var upsertSchema = function (model, data, callback) {
 
   schema = {};
@@ -197,7 +213,7 @@ C.app.post("/schema/create", function (req, res) {
 
   upsertSchema(model, req.body, function () {
 
-    res.send("success");
+    res.redirect("/admin/entities");
 
   });
 
@@ -209,7 +225,7 @@ C.app.post("/schema/edit/:type", function (req, res) {
 
   upsertSchema(model, req.body, function () {
 
-    res.send("success");
+    res.redirect("/admin/entities");
 
   });
 
@@ -217,11 +233,33 @@ C.app.post("/schema/edit/:type", function (req, res) {
 
 //Page for creating a new schema
 
+//Get list of fields
+
+C.app.get("/admin/schema/fieldtypes", function (req, res) {
+
+  var fs = require("fs");
+
+  if (CM.admin.globals.checkAdmin(req)) {
+
+    var coreFields = fs.readFileSync(__dirname + "/" + "corefields.json", "utf8");
+
+    coreFields = JSON.parse(coreFields);
+
+    res.respond(200, coreFields);
+
+  } else {
+
+    res.redirect("/admin");
+
+  }
+
+});
+
 C.app.get("/admin/schema/create", function (req, res) {
 
   if (CM.admin.globals.checkAdmin(req)) {
 
-    res.sendFile(path.join(__dirname, 'entity.html'));
+    res.sendFile(path.join(__dirname, 'templates/entity.html'));
 
   } else {
 
@@ -237,7 +275,7 @@ C.app.get("/admin/schema/edit/:type", function (req, res) {
 
   if (CM.admin.globals.checkAdmin(req)) {
 
-    res.sendFile(path.join(__dirname, 'entityedit.html'));
+    res.sendFile(path.join(__dirname, 'templates/entityedit.html'));
 
   } else {
 
@@ -401,7 +439,7 @@ C.app.get("/admin/create/:type", function (req, res) {
 
   if (CM.admin.globals.checkAdmin(req)) {
 
-    res.sendFile(path.join(__dirname, 'create.html'));
+    res.sendFile(path.join(__dirname, 'templates/create.html'));
 
   } else {
 
@@ -415,7 +453,7 @@ C.app.get("/admin/edit/:type/:id", function (req, res) {
 
   if (CM.admin.globals.checkAdmin(req)) {
 
-    res.sendFile(path.join(__dirname, 'edit.html'));
+    res.sendFile(path.join(__dirname, 'templates/edit.html'));
 
   } else {
 
