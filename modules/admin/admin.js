@@ -6,12 +6,6 @@ var express = require('express');
 
 C.app.use("/admin", express.static(__dirname + '/static'));
 
-require("./entityforms.js");
-
-require("./permissions.js");
-
-//var path = require('path');res.sendFile(path.join(__dirname, '/templates/', 'admin.html'));
-
 CM.admin.globals = {
 
   adminToken: "",
@@ -24,6 +18,14 @@ CM.admin.globals = {
   }
 
 }
+
+require("./menu.js");
+
+require("./entityforms.js");
+
+require("./permissions.js");
+
+require("./logs.js");
 
 var path = require('path');
 

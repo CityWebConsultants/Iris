@@ -1,5 +1,11 @@
-html, body {margin:10px; background-color:deepskyblue; color:white; font-size:15px;}
+header {border-style:solid; border-width:0 0 2px 0; width:100%; border-color:#3D79BD;}
+h1, h2 {text-align: center; color:#3D79BD;}
+body {padding:10px; font-size:15px;}
+a {color:#3D79BD;}
+img {max-width: 100%;}
 table {background-color: transparent;}
-
+#logo {width:70px; display: inline-block; margin-bottom:5px;}
+ul.main-menu {display:inline-block;}
+.main-menu li {display: inline-block; margin:0 5px 0 5px;}
 #permissions td {width:300px; text-align: center;}
 #permissions td.permission {text-align: left;}

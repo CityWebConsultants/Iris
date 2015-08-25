@@ -35,22 +35,9 @@ C.app.get("/permissions", function (req, res) {
 
 });
 
-C.app.get("/admin/permissions", function (req, res) {
+var path = require('path');
 
-  var path = require('path');
-
-  if (CM.admin.globals.checkAdmin(req)) {
-
-    res.sendFile(path.join(__dirname, 'permissions.html'));
-
-  } else {
-
-    res.redirect("/admin");
-
-  }
-
-});
-
+CM.admin.globals.registerMenuItem("Permissions", path.join(__dirname, 'templates/permissions.html'));
 
 C.app.post("/admin/permissions", function (req, res) {
 

@@ -1,0 +1,33 @@
+<!doctype HTML>
+<html>
+
+<head>
+
+  <link rel="stylesheet" style="text/css" href="/admin/jsonform/deps/opt/bootstrap.css" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+  <script src="/admin/jsonform/deps/jquery.min.js"></script>
+  <script src="/admin/adminui.js"></script>
+
+  <script>
+    $.get("/admin/entitytypes", function(data, err) {
+
+      $.each(data, function(index, element) {
+
+        $("#entity-types").append("<li><a href='/admin/schema/edit/"+element+"'>"+element+"</a></li>");
+
+      });
+
+    });
+
+  </script>
+
+</head>
+
+<body>
+  <h1>Edit entity types</h1>
+  <h2>Add/modify fields</h2>
+  <ul id="entity-types"></ul>
+  <a class="btn" href="/admin/schema/create">Create a new entity type</a>
+</body>
+
+</html>
