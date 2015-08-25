@@ -14,10 +14,6 @@ module.exports = function (config) {
   C.rootPath = __dirname;
   C.sitePath = process.cwd();
 
-  //Load logging module
-
-  require('./log');
-
   //Make config folder
 
   var fs = require('fs');
@@ -91,15 +87,11 @@ module.exports = function (config) {
 
   require('./db');
 
-  //Free C object, no longer extensible
-
   C.status = {
 
     ready: false
 
   };
-
-  Object.freeze(C);
 
   mongoose.connection.once("open", function () {
 
@@ -108,9 +100,19 @@ module.exports = function (config) {
     require('./core_modules/auth/auth.js');
     require('./core_modules/entity/entity.js');
 
+    //Load logging module
+
+    require('./log');
+
     require(process.cwd() + '/enabled_modules');
 
     C.status.ready = true;
+
+    //Free C object, no longer extensible
+
+    Object.freeze(C);
+
+    C.log.info("Server started");
 
     C.app.use(function (req, res, next) {
       res.status(404).send('Sorry cant find that!');
