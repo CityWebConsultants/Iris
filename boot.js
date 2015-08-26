@@ -114,7 +114,7 @@ module.exports = function (config) {
 
     C.log.info("Server started");
 
-    C.app.use(function (req, res, next) {
+    C.app.use(function (req, res) {
       res.status(404).send('Sorry cant find that!');
     });
 

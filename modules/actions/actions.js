@@ -82,7 +82,7 @@ CM.actions.globals = {
 
                   });
 
-                  console.log(condition.variables);
+//                  console.log(condition.variables);
 
                 };
 
