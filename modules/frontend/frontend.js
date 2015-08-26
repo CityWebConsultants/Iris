@@ -43,7 +43,25 @@ C.app.use(function (req, res, next) {
 
         var fs = require("fs");
 
-        var page = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/" + data.entity.type + ".html", "utf8");
+        try {
+
+          var page = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/" + data.entity.type + "_" + data.entity.id + ".html", "utf8");
+
+        } catch (e) {
+
+          try {
+
+            var page = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/" + data.entity.type + ".html", "utf8");
+
+          } catch (e) {
+
+            next();
+            return false;
+
+          }
+
+        }
+        //Replace page variables so content can be loaded
 
         page = page.split("<<entityType>>").join(data.entity.type);
         page = page.split("<<entityID>>").join(data.entity.id);
