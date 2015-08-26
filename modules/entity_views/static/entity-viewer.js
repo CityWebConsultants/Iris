@@ -6,7 +6,7 @@ angular.element(document).ready(function () {
 
 var C = {};
 
-C.entityFetch = function ($scope, $attrs, $http) {
+C.entityFetch = function ($scope, $attrs, $http, $sce) {
 
   //get location of node.js server
 
@@ -84,6 +84,8 @@ C.entityFetch = function ($scope, $attrs, $http) {
           processedQueries.push(currentQuery);
 
         } else {
+          
+          processedQueries.push(currentQuery);
 
         }
 
@@ -115,9 +117,9 @@ C.entityFetch = function ($scope, $attrs, $http) {
 
       }
 
-    }, function (response) {
+    }, function (error) {
 
-      console.log(response);
+      console.log(error);
 
     });
 
@@ -129,4 +131,10 @@ C.entityFetch = function ($scope, $attrs, $http) {
 
 var app = angular.module("app", []);
 
-app.controller("C", ["$scope", "$attrs", "$http", C.entityFetch])
+app.filter('html_filter', ['$sce', function ($sce) {
+  return function (text) {
+    return $sce.trustAsHtml(text);
+  };
+}]);
+
+app.controller("C", ["$scope", "$attrs", "$http", "$sce", C.entityFetch])
