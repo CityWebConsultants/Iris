@@ -43,10 +43,11 @@ CM.actions.globals = {
 
           outputfunction.call(ruleSet, data, function (eventData) {
 
-
             //Loop over conditions to generate promises
 
             if (ruleSet.conditions) {
+
+              var tests = [];
 
               ruleSet.conditions.forEach(function (condition, index) {
 
@@ -73,8 +74,6 @@ CM.actions.globals = {
                           condition.variables[rawVariable] = variable.replace("[" + token + "]", eventData[token]);
 
                         }
-                        
-                        
 
                       });
 
@@ -82,11 +81,37 @@ CM.actions.globals = {
 
                   });
 
-//                  console.log(condition.variables);
+                  tests.push(C.promise(function (data, yes, no) {
+
+                    CM.actions.globals.conditions[condition.name].test(condition.variables).then(function () {
+
+                      yes();
+
+                    }, function () {
+
+                      no();
+
+                    });
+
+                  }));
 
                 };
 
               });
+
+              var success = function () {
+
+                console.log("success");
+
+              };
+
+              var fail = function () {
+
+                console.log("fail");
+
+              };
+
+              C.promiseChain(tests, null, success, fail);
 
             }
 
@@ -100,9 +125,12 @@ CM.actions.globals = {
 
   },
 
-  registerCondition: function () {
+  registerCondition: function (name, variables, testPromise) {
 
-
+    CM.actions.globals.conditions[name] = {
+      variables: variables,
+      test: testPromise
+    };
 
   },
 
@@ -115,15 +143,32 @@ CM.actions.globals = {
 
 CM.actions.globals.registerEvent("hello", "hello", [{
   type: "String",
-  name: "Name"
+  name: "check"
 }], function (data, callback) {
 
   output = {
-    check: data.toUpperCase()
+    check: data
   };
 
   callback(output);
 
 });
 
-process.emit("hello", "hello");
+CM.actions.globals.registerCondition("check", [{
+  type: "String",
+  name: "Name"
+}], C.promise(function (data, yes, no) {
+
+  if (data.name === "hello") {
+
+    yes(data);
+
+  } else {
+
+    no();
+
+  };
+
+}));
+
+//process.emit("hello", "hello");
