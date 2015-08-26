@@ -105,7 +105,15 @@ C.entityFetch = function ($scope, $attrs, $http) {
       paramSerializer: '$httpParamSerializerJQLike'
     }).then(function (response) {
 
-      $scope.data = response.data.response;
+      if (!$attrs.parent) {
+
+        $scope.data = response.data.response;
+
+      } else {
+
+        $scope.current = response.data.response[$attrs.entities][0];
+
+      }
 
     }, function (response) {
 

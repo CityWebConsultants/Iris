@@ -79,8 +79,7 @@ C.app.use(function (req, res, next) {
         }
         //Replace page variables so content can be loaded
 
-        page = page.split("<<entityType>>").join(data.entity.type);
-        page = page.split("<<entityID>>").join(data.entity.id);
+        page = page.split("<html>").join('<html ng-controller="C" entities="' + data.entity.type + '" queries="_id:IS:' + data.entity.id + '" parent="true">');
 
         //Check if user can actually access page
 
