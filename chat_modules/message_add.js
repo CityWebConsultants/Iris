@@ -226,9 +226,9 @@ var exports = {
 
             if (data.message.content.text) {
                 var skip = false;
-                if (process.config.admins) {
+                if (process.config.admins && data.message.userid) {
                     process.config.admins.forEach(function (element) {
-                        if (data.message.userid === element) {
+                        if (data.message.userid.toString() === element.toString()) {
                             skip = true;
                         }
                     });
