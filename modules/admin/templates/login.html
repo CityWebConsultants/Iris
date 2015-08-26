@@ -2,19 +2,20 @@
 
 <link rel="stylesheet" style="text/css" href="/admin/jsonform/deps/opt/bootstrap.css" />
 <link rel="stylesheet" href="/admin/admin.css" />
+
 <style>
 
   html {background-color:#3D79BD;}
   body {margin:auto; width:300px; background-color: transparent; color:white;}
-  h1 {text-align: center;}
+  h1 {text-align: center; color:white;}
 
 </style>
-
+<img src="/admin/pond-white.svg" />
 <h1>Sign in</h1>
 <form method='POST' action='/admin/login'>
   <label for='apikey'>API key</label>
-  <input name='apikey' />
+  <input autocomplete="off" name='apikey' />
   <label for='secretkey'>Secret key</label>
-  <input name='secretkey' />
+  <input autocomplete="off" name='secretkey' />
   <input class="btn" type="submit" value='login' />
 </form>
