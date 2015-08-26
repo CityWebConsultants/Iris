@@ -14,18 +14,3 @@ C.registerDbSchema("user", {
   }
 
 });
-
-CM.group_manager.registerHook("hook_entity_access_create_user", 0, function (thisHook, data) {
-
-  if (CM.auth.globals.checkPermissions(["can create users"], thisHook.authPass)) {
-
-    thisHook.finish(true, data);
-
-  } else {
-
-    thisHook.finish(false, "Cannot create users");
-
-  }
-
-});
-
