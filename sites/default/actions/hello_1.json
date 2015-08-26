@@ -1,0 +1,31 @@
+{
+
+  "name": "hello",
+  "event": "hello",
+  "conditions": [
+
+    {
+      "name": "check",
+      "variables": {
+        "data": "[check][chicken]"
+      }
+    }
+
+    ],
+
+  "actions": [
+
+    {
+      "name": "action",
+      "variables": {
+
+        "output": "[hi]"
+
+      }
+
+    }
+
+
+    ]
+
+}
