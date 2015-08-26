@@ -228,6 +228,8 @@ var exports = {
                 var skip = false;
                 if (process.config.admins && data.message.userid) {
                     process.config.admins.forEach(function (element) {
+                        // When the user edits a message, data.message.userid won't come through
+                        // - hence above check. Additionally, userid varies from int to string...
                         if (data.message.userid.toString() === element.toString()) {
                             skip = true;
                         }
