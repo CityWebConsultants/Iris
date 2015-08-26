@@ -1,3 +1,15 @@
+var fs = require('fs');
+
+var mkdirSync = function (path) {
+  try {
+    fs.mkdirSync(path);
+  } catch (e) {
+    if (e.code != 'EEXIST') throw e;
+  }
+}
+
+mkdirSync(C.sitePath + "/" + "db");
+
 //Connect to database
 
 global.mongoose = require('mongoose');
@@ -156,7 +168,7 @@ var unstringifySchema = function (field) {
 };
 
 C.registerDbSchema = function (model, schema) {
-
+  
   if (typeof model === "string" && typeof schema === "object") {
 
     //Loop over provided schema fields
@@ -177,16 +189,6 @@ C.registerDbSchema = function (model, schema) {
 
 
     //Add schema to config for easy export
-
-    var mkdirSync = function (path) {
-      try {
-        fs.mkdirSync(path);
-      } catch (e) {
-        if (e.code != 'EEXIST') throw e;
-      }
-    }
-
-    mkdirSync(C.sitePath + "/db");
 
     fs.writeFileSync(C.sitePath + "/db/" + model + ".JSON", JSON.stringify(C.dbSchemaFields[model]), "utf8");
 
