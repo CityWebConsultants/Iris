@@ -19,6 +19,18 @@ CM.admin.globals = {
 
 }
 
+CM.admin.registerHook("hook_auth_authpass", 1, function (thisHook, data) {
+
+  if (thisHook.req && thisHook.req.cookies && thisHook.req.cookies.auth == CM.admin.globals.adminToken) {
+    
+    data.roles.push("admin");
+    
+  }
+  
+  thisHook.finish(true, data);
+
+});
+
 require("./menu.js");
 
 require("./entityforms.js");
