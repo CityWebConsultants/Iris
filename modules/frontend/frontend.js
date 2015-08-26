@@ -1,5 +1,21 @@
 C.registerModule("frontend");
 
+var fs = require('fs');
+var express = require('express');
+
+var mkdirSync = function (path) {
+  try {
+    fs.mkdirSync(path);
+  } catch (e) {
+    if (e.code != 'EEXIST') throw e;
+  }
+}
+
+mkdirSync(C.sitePath + "/" + "configurations/frontend/templates");
+mkdirSync(C.sitePath + "/" + "configurations/frontend/static");
+
+C.app.use("/static", express.static(C.sitePath + "/" + "configurations/frontend/static"));
+
 C.app.use(function (req, res, next) {
 
   //Get all entity types
@@ -45,13 +61,13 @@ C.app.use(function (req, res, next) {
 
         try {
 
-          var page = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/" + data.entity.type + "_" + data.entity.id + ".html", "utf8");
+          var page = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/templates/" + data.entity.type + "_" + data.entity.id + ".html", "utf8");
 
         } catch (e) {
 
           try {
 
-            var page = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/" + data.entity.type + ".html", "utf8");
+            var page = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/templates/" + data.entity.type + ".html", "utf8");
 
           } catch (e) {
 
