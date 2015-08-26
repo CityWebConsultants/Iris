@@ -1,6 +1,7 @@
-var hook = function (hookname, data, authPass) {
+var hook = function (hookname, data, authPass, req) {
 
   var auth = authPass;
+  var httpRequest = req;
 
   return new Promise(function (yes, no) {
 
@@ -108,6 +109,7 @@ var hook = function (hookname, data, authPass) {
 
           thisHook.authPass = auth;
 
+          thisHook.req = httpRequest;
           thisHook.name = hookcall.name;
           thisHook.path = hookcall.parentModule;
           thisHook.rank = hookcall.rank;

@@ -103,7 +103,7 @@ C.app.use(function (req, res, next) {
     }
 
   });
-  CM.auth.globals.credentialsToPass(req.body.credentials).then(function (authPass) {
+  CM.auth.globals.credentialsToPass(req.body.credentials, req).then(function (authPass) {
 
     delete req.body.credentials;
 

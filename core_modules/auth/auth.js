@@ -74,8 +74,8 @@ CM.auth.globals = {
   //List of logged in users/access tokens
   userList: {},
 
-  credentialsToPass: function (authCredentials) {
-
+  credentialsToPass: function (authCredentials, req) {
+    
     return new Promise(function (yes, no) {
 
       var authPass = {
@@ -127,7 +127,7 @@ CM.auth.globals = {
 
       //Run any hooks that latch onto this one to extend the authpass
 
-      C.hook('hook_auth_authpass', authPass, authPass)
+      C.hook('hook_auth_authpass', authPass, authPass, req)
         .then(function (authPass) {
 
           //Complete access pass received.
