@@ -77,10 +77,15 @@ C.app.use(function (req, res, next) {
           }
 
         }
+        
+        //Scripts
+        
+        scripts = '<script src="/entity_views/angular.js"></script><script src="/socket.io/socket.io.js"></script><script src="/entity_views/entity-viewer.js"></script>';
+        
         //Replace page variables so content can be loaded
 
-        page = page.split("<html>").join('<html ng-controller="C" entities="' + data.entity.type + '" queries="_id:IS:' + data.entity.id + '" parent="true">');
-
+        page = page.split("<html>").join('<html ng-controller="C" entities="' + data.entity.type + '" queries="_id:IS:' + data.entity.id + '" parent="true">'+scripts);
+      
         //Check if user can actually access page
 
         if (CM.auth.globals.checkPermissions(["can view any " + data.entity.type], req.authPass)) {
