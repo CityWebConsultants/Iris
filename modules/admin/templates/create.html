@@ -65,7 +65,11 @@
         $('form').jsonForm(data);
 
         $("textarea").each(function() {
-          CKEDITOR.replace(this);
+          CKEDITOR.replace(this, {
+
+            filebrowserUploadUrl: '/admin/file/upload'
+
+          });
         });
 
         for (var i in CKEDITOR.instances) {

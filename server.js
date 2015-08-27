@@ -118,6 +118,10 @@ C.app.use(function (req, res, next) {
 
 });
 
+//Public files folder
+
+C.app.use("/files", express.static(C.sitePath + '/files'));
+
 //Server and request function router
 
 if (C.config.https) {

@@ -19,7 +19,7 @@
   <script src="/admin/jsonform/lib/jsonform.js"></script>
 
   <link rel="stylesheet" href="/admin/admin.css" />
-    <script src="/admin/adminui.js"></script>
+  <script src="/admin/adminui.js"></script>
 
 
 </head>
@@ -70,9 +70,12 @@
 
         $('form').jsonForm(data);
 
-
         $("textarea").each(function() {
-          CKEDITOR.replace(this);
+          CKEDITOR.replace(this, {
+
+            filebrowserUploadUrl: '/admin/file/upload'
+
+          });
         });
 
         for (var i in CKEDITOR.instances) {

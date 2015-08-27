@@ -709,3 +709,27 @@ var checkField = function (key, item) {
   }
 
 };
+
+var busboy = require('connect-busboy');
+
+C.app.use(busboy());
+
+var fs = require('fs');
+
+//CK Editor file upload
+
+C.app.post('/admin/file/upload', function (req, res) {
+
+  var fstream;
+  req.pipe(req.busboy);
+  req.busboy.on('file', function (fieldname, file, filename) {
+    fstream = fs.createWriteStream(C.sitePath + '/files/' + filename);
+    file.pipe(fstream);
+    fstream.on('close', function () {
+
+      res.end("<script>window.parent.CKEDITOR.tools.callFunction('" + req.query.CKEditorFuncNum + "','/files/" + filename + "','Uploaded!');</script>");
+
+    });
+  });
+
+});

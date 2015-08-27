@@ -30,6 +30,10 @@ module.exports = function (config) {
 
   C.configPath = path.join(C.sitePath, "/configurations");
 
+  //Make files directory
+
+  mkdirSync(C.sitePath + "/" + "files");
+
   //Fetch command line paramaters
 
   var paramaters = {};
