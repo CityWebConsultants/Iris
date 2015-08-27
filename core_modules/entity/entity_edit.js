@@ -170,10 +170,10 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
     function callback(err, numAffected) {
 
       thisHook.finish(true, "Updated");
+      
+      C.hook("hook_entity_updated", data, thisHook.authPass);
 
-      C.hook("entity_updated", data, thisHook.authPass);
-
-      C.hook("entity_updated_" + data.entityType, data, thisHook.authPass);
+//      C.hook("entity_updated_" + data.entityType, data, thisHook.authPass);
 
     }
 

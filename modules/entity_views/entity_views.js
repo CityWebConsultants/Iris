@@ -7,7 +7,13 @@ var express = require('express');
 C.app.use("/entity_views", express.static(__dirname + '/static'));
 
 CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, data) {
-  
+
+  C.sendSocketMessage(["*"], "entityUpdate", data);
+
+});
+
+CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, data) {
+
   C.sendSocketMessage(["*"], "entityUpdate", data);
 
 });
