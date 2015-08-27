@@ -710,13 +710,85 @@ var checkField = function (key, item) {
 
 };
 
+//Entity listing screen
+
+C.app.get("/admin/entitylist/:type", function (req, res) {
+
+  if (req.authPass.roles.indexOf("admin") === -1) {
+
+    res.redirect("/admin");
+    return false;
+
+  }
+
+  if (C.dbCollections[req.params.type]) {
+
+    //Get list of string fields
+
+    var fields = [];
+
+    Object.keys(C.dbCollections[req.params.type].schema.tree).forEach(function (fieldTitle) {
+
+      var field = C.dbCollections[req.params.type].schema.tree[fieldTitle];
+
+      if (fieldTitle !== "entityType" && field.type === String && field.long !== true) {
+
+        fields.push(fieldTitle);
+
+      };
+
+    });
+
+    var table = "<table class='table' id='entity-list'>";
+
+    //Generate content table
+
+    fields.forEach(function (element) {
+
+      table += "<th>" + element + "</th>"
+
+    });
+    
+    table += "<th>Edit</th>"
+
+    table += "<tr ng-repeat='entity in data." + req.params.type + "'>";
+
+    fields.forEach(function (element) {
+
+      table += "<td>{{entity." + element + "}}</td>";
+
+    });
+    
+    table += "<td><a href='/admin/edit/"+req.params.type+"/{{entity._id}}'>Edit</a></td>";
+
+    table += "</tr>";
+
+    table += "</table>";
+
+    var page = fs.readFileSync(__dirname + "/" + "templates/entitylist.html", "utf8");
+
+    page = page.split("<<entitytype>>").join(req.params.type);
+
+    page = page.split("<<entitytable>>").join(table);
+
+    res.send(page);
+
+  } else {
+
+    res.status(400);
+    res.send("No such entity type");
+
+  }
+
+});
+
+//CK Editor file upload
+
 var busboy = require('connect-busboy');
 
 C.app.use(busboy());
 
 var fs = require('fs');
-
-//CK Editor file upload
 
 C.app.post('/admin/file/upload', function (req, res) {
 

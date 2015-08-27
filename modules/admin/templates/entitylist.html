@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+  <script src="//cdn.ckeditor.com/4.5.3/standard/ckeditor.js"></script>
+
+  <script src="/entity_views/angular.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/entity_views/entity-viewer.js"></script>
+
+  <script src="/admin/jsonform/deps/jquery.min.js"></script>
+  <script src="/admin/jsonform/deps/underscore-min.js"></script>
+  <script src="/admin/jsonform/deps/opt/jquery.ui.custom.js"></script>
+  <script src="/admin/jsonform/deps/opt/bootstrap-dropdown.js"></script>
+  <script src="/admin/jsonform/deps/opt/bootstrap-typeahead.js"></script>
+  <script src="/admin/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script>
+  <script src="/admin/jsonform/deps/opt/spectrum.js"></script>
+  <script src="/admin/jsonform/deps/opt/jquery.transloadit2.js"></script>
+
+  <script src="/admin/jsonform/lib/jsonform.js"></script>
+
+  <link rel="stylesheet" href="/admin/admin.css" />
+  <script src="/admin/adminui.js"></script>
+
+
+</head>
+
+<body>
+  
+  <h1>List of <<entitytype>> entities</h1>
+
+  <section ng-controller="C" entities="<<entitytype>>">
+
+    <<entitytable>>
+
+  </section>
+
+</body>
+
+</html>

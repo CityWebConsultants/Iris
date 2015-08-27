@@ -13,7 +13,7 @@
 
       $.each(data, function(index, element) {
 
-        $("#entity-types").append("<li><a href='/admin/schema/edit/"+element+"'>"+element+"</a></li>");
+        $("#entity-types").append("<li><h3>"+element+"</h3><ul><li><a href='/admin/schema/edit/"+element+"'>Edit fields</a></li><li><a href='/admin/entitylist/"+element+"'>View content</a></li></ul></li>");
 
       });
 

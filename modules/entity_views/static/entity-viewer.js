@@ -8,12 +8,25 @@ var C = {};
 
 C.entityFetch = function ($scope, $attrs, $http, $sce) {
 
+  var root = "";
+
   //get location of node.js server
 
-  var scripts = document.getElementsByTagName('script'),
-    script = scripts[scripts.length - 1].src;
+  var scripts = document.getElementsByTagName('script');
 
-  var root = script.replace("entity_views/entity-viewer.js", "");
+  var i;
+
+  for (i = 0; i < scripts.length; i += 1) {
+
+    var script = scripts[i];
+
+    if (script.src.indexOf("entity_views/entity-viewer.js") !== -1) {
+
+      var root = script.src.replace("entity_views/entity-viewer.js", "");
+
+    };
+
+  };
 
   //Set up socket.io listener
 
@@ -84,7 +97,7 @@ C.entityFetch = function ($scope, $attrs, $http, $sce) {
           processedQueries.push(currentQuery);
 
         } else {
-          
+
           processedQueries.push(currentQuery);
 
         }
