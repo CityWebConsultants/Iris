@@ -61,9 +61,6 @@ CM.auth.globals = {
   },
 
   roles: {
-    admin: {
-      name: "admin"
-    },
     anonymous: {
       name: "anonymous"
     },
@@ -75,7 +72,7 @@ CM.auth.globals = {
   userList: {},
 
   credentialsToPass: function (authCredentials, req) {
-    
+
     return new Promise(function (yes, no) {
 
       var authPass = {
@@ -268,13 +265,17 @@ CM.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
       //Create new user if not in existence
 
       if (!CM.auth.globals.userList[data.userid]) {
+
         CM.auth.globals.userList[data.userid] = {};
+
       }
 
       //Check if no tokens already set and create array
 
       if (!CM.auth.globals.userList[data.userid].tokens) {
+
         CM.auth.globals.userList[data.userid].tokens = {};
+
       }
 
       var token = {
