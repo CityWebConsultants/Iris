@@ -4,16 +4,6 @@ C.registerModule("actions");
 
 var fs = require("fs");
 
-var mkdirSync = function (path) {
-  try {
-    fs.mkdirSync(path);
-  } catch (e) {
-    if (e.code != 'EEXIST') throw e;
-  }
-}
-
-mkdirSync(C.sitePath + "/" + "actions");
-
 CM.actions.globals = {
 
   events: {},
@@ -29,7 +19,7 @@ CM.actions.globals = {
 
     process.on(event, function (data) {
 
-      var events = fs.readdirSync(C.sitePath + "/" + "actions");
+      var events = fs.readdirSync(C.sitePath + "/configurations/" + "actions");
 
       events.forEach(function (file) {
 
@@ -37,7 +27,7 @@ CM.actions.globals = {
 
         if (event === name) {
 
-          var file = fs.readFileSync(C.sitePath + "/actions/" + file, "utf8");
+          var file = fs.readFileSync(C.sitePath + "/configurations/actions/" + file, "utf8");
 
           ruleSet = JSON.parse(file);
 
@@ -141,9 +131,9 @@ CM.actions.globals = {
 
 }
 
-CM.actions.globals.registerEvent("hello", "hello", [{
+CM.actions.globals.registerEvent("newblogpost", "New blog post", [{
   type: "String",
-  name: "check"
+  name: "Blog title"
 }], function (data, callback) {
 
   output = {
@@ -154,9 +144,9 @@ CM.actions.globals.registerEvent("hello", "hello", [{
 
 });
 
-CM.actions.globals.registerCondition("check", [{
+CM.actions.globals.registerCondition("Check title", [{
   type: "String",
-  name: "Name"
+  name: "Title"
 }], C.promise(function (data, yes, no) {
 
   if (data.name === "hello") {
@@ -171,4 +161,4 @@ CM.actions.globals.registerCondition("check", [{
 
 }));
 
-//process.emit("hello", "hello");
+process.emit("hello", "hello");

@@ -410,7 +410,7 @@ C.app.get("/admin/schema/edit/:type/form", function (req, res) {
 
     var fs = require("fs");
 
-    var rawSchema = fs.readFileSync(C.sitePath + "/db/" + req.params.type + ".JSON", "utf8");
+    var rawSchema = fs.readFileSync(C.sitePath + "/configurations/entity/" + req.params.type + ".JSON", "utf8");
 
     rawSchema = JSON.parse(rawSchema);
 
@@ -597,7 +597,7 @@ C.app.get("/admin/create/:type/form/", function (req, res) {
 var checkField = function (key, item) {
 
   if (item === String) {
-
+    
     return {
 
       "title": key,
@@ -630,7 +630,8 @@ var checkField = function (key, item) {
 
       return {
 
-        "title": key,
+        "title": item.title,
+        "description": item.description,
         "type": "string",
         "required": item.required,
         "enum": item.enum
@@ -641,7 +642,8 @@ var checkField = function (key, item) {
 
       return {
 
-        "title": key,
+        "title": item.title,
+        "description": item.description,
         "type": "textarea",
         "required": item.required,
 
@@ -651,7 +653,8 @@ var checkField = function (key, item) {
 
       return {
 
-        "title": key,
+        "title": item.title,
+        "description": item.description,
         "type": "string",
         "required": item.required,
 
@@ -748,7 +751,7 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
       table += "<th>" + element + "</th>"
 
     });
-    
+
     table += "<th>Edit</th>"
 
     table += "<tr ng-repeat='entity in data." + req.params.type + "'>";
@@ -758,8 +761,8 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
       table += "<td>{{entity." + element + "}}</td>";
 
     });
-    
-    table += "<td><a href='/admin/edit/"+req.params.type+"/{{entity._id}}'>Edit</a></td>";
+
+    table += "<td><a href='/admin/edit/" + req.params.type + "/{{entity._id}}'>Edit</a></td>";
 
     table += "</tr>";
 

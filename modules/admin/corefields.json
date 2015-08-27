@@ -16,11 +16,6 @@
         "type": "string",
         "title": "Label"
       },
-      "fieldType": {
-        "type": "string",
-        "title": "Type of value",
-        "enum": ["text", "number", "rich text"]
-      },
       "description": {
         "type": "textarea",
         "title": "Description"
@@ -48,11 +43,6 @@
       "label": {
         "type": "string",
         "title": "Label"
-      },
-      "fieldType": {
-        "type": "string",
-        "title": "Type of value",
-        "enum": ["text", "number", "rich text"]
       },
       "description": {
         "type": "textarea",

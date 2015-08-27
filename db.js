@@ -1,15 +1,5 @@
 var fs = require('fs');
 
-var mkdirSync = function (path) {
-  try {
-    fs.mkdirSync(path);
-  } catch (e) {
-    if (e.code != 'EEXIST') throw e;
-  }
-}
-
-mkdirSync(C.sitePath + "/" + "db");
-
 //Connect to database
 
 global.mongoose = require('mongoose');
@@ -190,7 +180,7 @@ C.registerDbSchema = function (model, schema) {
 
     //Add schema to config for easy export
 
-    fs.writeFileSync(C.sitePath + "/db/" + model + ".JSON", JSON.stringify(C.dbSchemaFields[model]), "utf8");
+    fs.writeFileSync(C.sitePath + "/configurations/entity/" + model + ".JSON", JSON.stringify(C.dbSchemaFields[model]), "utf8");
 
   } else {
 
@@ -206,11 +196,11 @@ C.dbPopulate = function () {
 
   //Loop over all the db models that have been initialised and slot in any schema attached to them
 
-  fs.readdirSync(C.sitePath + "/db").forEach(function (schemafile) {
+  fs.readdirSync(C.sitePath + "/configurations/entity").forEach(function (schemafile) {
 
     var model = schemafile.replace(".JSON", "");
 
-    var schema = fs.readFileSync(C.sitePath + "/db/" + schemafile, "UTF8");
+    var schema = fs.readFileSync(C.sitePath + "/configurations/entity/" + schemafile, "UTF8");
 
     schema = JSON.parse(schema);
 
