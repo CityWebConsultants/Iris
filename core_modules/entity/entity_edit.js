@@ -170,10 +170,12 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
     function callback(err, numAffected) {
 
       thisHook.finish(true, "Updated");
-      
-      C.hook("hook_entity_updated", data, thisHook.authPass);
 
-//      C.hook("entity_updated_" + data.entityType, data, thisHook.authPass);
+      C.hook("hook_entity_updated", data, thisHook.authPass)
+
+      C.log.info(data.entityType + " " + validatedEntity._id + " edited by " + validatedEntity.entityAuthor);
+
+      //      C.hook("entity_updated_" + data.entityType, data, thisHook.authPass);
 
     }
 
@@ -201,7 +203,7 @@ C.app.post("/entity/edit/:type/:_id", function (req, res) {
 //Checking access and if entity type and entity exist
 
 CM.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, data) {
-  
+
   if (!CM.auth.globals.checkPermissions(["can edit any " + data.entityType], thisHook.authPass)) {
 
     if (!CM.auth.globals.checkPermissions(["can edit own " + data.entityType], thisHook.authPass)) {
