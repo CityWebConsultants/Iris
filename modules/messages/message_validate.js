@@ -1,3 +1,6 @@
+CM.auth.globals.registerPermission("can post to group without membership", "messages")
+CM.auth.globals.registerPermission("can bypass group permissions", "messages")
+
 //Validate creation of message
 
 CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, entity) {
