@@ -1,4 +1,6 @@
-# About
+<img src="/admin/pond.svg" width="200px" height="auto" text-align="left"/>
+
+# API documentation
 
 ## Dependencies
 

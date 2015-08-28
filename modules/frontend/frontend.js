@@ -84,7 +84,7 @@ C.app.use(function (req, res, next) {
         
         //Replace page variables so content can be loaded
 
-        page = page.split("<html>").join('<html ng-controller="C" entities="' + data.entity.type + '" queries="_id:IS:' + data.entity.id + '" parent="true">'+scripts);
+        page = page.split("<html>").join('<html ng-controller="C" entities="' + data.entity.type + '" queries="_id:IS:' + data.entity.id + '" parent="true" ng-cloak>'+scripts);
       
         //Check if user can actually access page
 
