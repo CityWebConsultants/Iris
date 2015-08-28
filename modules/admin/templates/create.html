@@ -55,7 +55,7 @@
 
             $.post("/entity/create/" + type, values, function(data, err) {
 
-              console.log(data);
+              document.location.href = "/admin/entitylist/" + type;
 
             })
 

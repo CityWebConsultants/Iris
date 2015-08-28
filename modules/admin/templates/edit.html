@@ -61,7 +61,7 @@
 
             $.post("/entity/edit/" + type + "/" + id, values, function(err, data) {
 
-              console.log(data);
+              document.location.href = "/admin/entitylist/" + type;
 
             })
 
