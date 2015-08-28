@@ -66,6 +66,8 @@ exports.createMessageReply_val = function (data) {
 
   var message = message_normal_base;
 
+  message.content = "reply";
+  
   message.groupid = data.groupid;
 
   message.replyTo = data.messageid;

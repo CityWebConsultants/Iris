@@ -34,6 +34,7 @@ CM.messages_replies.registerHook("hook_entity_view_message", 1, function (thisHo
     var output = [];
 
     var sort = function (a, b) {
+
       if (a.parents.length < b.parents.length) {
         return 1;
       }
@@ -48,7 +49,7 @@ CM.messages_replies.registerHook("hook_entity_view_message", 1, function (thisHo
 
       var current = element.parents;
 
-      if (current.length === 0) {
+      if (!current || current.length === 0) {
         rootMessages.push(element);
       }
 
@@ -64,7 +65,7 @@ CM.messages_replies.registerHook("hook_entity_view_message", 1, function (thisHo
 
         var current = element.parents;
 
-        if (current.indexOf(rootMessage._id.toString()) !== -1) {
+        if (current && current.indexOf(rootMessage._id.toString()) !== -1) {
           thread.push(element);
         }
 
@@ -89,7 +90,7 @@ CM.messages_replies.registerHook("hook_entity_view_message", 1, function (thisHo
       thread.forEach(function (flatMessage, messageIndex) {
 
         // Ignore root
-        if (flatMessage.parents.length > 0) {
+        if (flatMessage.parents && flatMessage.parents.length > 0) {
 
           var parentMessage = getMessageById(flatMessage.parents[flatMessage.parents.length - 1]);
 
