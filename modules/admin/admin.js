@@ -70,7 +70,7 @@ C.app.post("/admin/login", function (req, res) {
     CM.admin.globals.adminToken = Math.random();
 
     res.cookie('auth', CM.admin.globals.adminToken, {
-      maxAge: 200000
+//      maxAge: 200000
     });
 
     res.redirect("/admin");
