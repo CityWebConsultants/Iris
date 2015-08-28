@@ -2,11 +2,11 @@
 
 ## Dependencies
 
-____ is built using Node.JS, uses Express for HTTP routing, Socket.IO for websockets and runs on a MongoDB database. The front end widgets are built using Angular.JS and the forms and admin interface are created using the JSONform library and bootstrap. Other Node.js module dependencies can be found in the package.JSON file and everything can be installed by running NPM install.
+Pond is built using Node.JS, uses Express for HTTP routing, Socket.IO for websockets and runs on a MongoDB database. The front end widgets are built using Angular.JS and the forms and admin interface are created using the JSONform library and bootstrap. Other Node.js module dependencies can be found in the package.JSON file and everything can be installed by running NPM install.
 
 ## Directory structure
 
-The ____ directory structure is separated into four main areas.
+The Pond directory structure is separated into four main areas.
 
 ### Core area
 
@@ -14,7 +14,7 @@ The first is the root directory that contains files crucial to the running of th
 
 * __boot.js__ – This is run when the server starts and initiates the global C object and the global CM modules objects that are used throughout the system. It runs through many of the other core files, loads modules and initiates the files launching the HTTP server, web socket server and the database. It is not run directly but run through a config file for a particular site (more on this later).
 * __db.js__ – This loads in database schema files and models created by modules and through the entity management system and sets them up for use in the MongoDB database.
-* modules.js – This file contains the parent objects all ____ modules are based on and defines all their functionality.
+* modules.js – This file contains the parent objects all Pond modules are based on and defines all their functionality.
 * __hook.js__ – This contains the core hook and event system functionality that is used by the module system.
 * __server.js__ – This sets up Express.js and the HTTP server based on the settings provided in the configurations file on site start-up.
 * __log.js__ – This uses Bunyan to create logs for viewing in the administration interface or elsewhere.
@@ -23,7 +23,7 @@ The first is the root directory that contains files crucial to the running of th
 
 ### Core modules
 
-The “core_modules” folder contains ____ modules (defined using the modules.js file) that are essential for the running of the system.
+The “core_modules” folder contains Pond modules (defined using the modules.js file) that are essential for the running of the system.
 
 #### Auth
 This provides a system for managing sessions, permissions, roles and verifying authentication details and creating access tokens.
@@ -36,9 +36,9 @@ This provides a system for creating, editing, deleting and searching for/fetchin
 The sites directory stores all the configuration for the current application instance, including database schema, module settings, permissions and server and database connection settings. It is also where the application itself is launched.
 
 ### Custom modules
-Custom ____ modules can either be placed in the “modules” folder or installed regularly through NPM into Node_modules. They initiate as soon as they are included using the Node.JS require() function.
+Custom Pond modules can either be placed in the “modules” folder or installed regularly through NPM into Node_modules. They initiate as soon as they are included using the Node.JS require() function.
 
-The sites directory contains an __enabled_modules.js__ file. This contains Node.JS require commands that load in custom or NPM modules using the ____ system. They need to be loaded at this point so that they get initialised properly.
+The sites directory contains an __enabled_modules.js__ file. This contains Node.JS require commands that load in custom or NPM modules using the Pond system. They need to be loaded at this point so that they get initialised properly.
 
 ## Site config file
 
@@ -56,7 +56,7 @@ A “defaults” directory is provided as an example configuration file. To make
 
 ###Other files in the sites directory
 
-____ automatically creates directories inside a site’s folder for database schema, module configuration and logs. These can then be exported or saved through version control allowing for multiple sites to be managed using one core code base.
+Pond automatically creates directories inside a site’s folder for database schema, module configuration and logs. These can then be exported or saved through version control allowing for multiple sites to be managed using one core code base.
 
 ## Launch instructions
 
@@ -70,7 +70,7 @@ All the core functionality is stored in the C JavaScript object. This is frozen 
 
 #### C.registerModule()
 
-Use this function within a module file to register a new ____ module. This initates the module, assigns functions global to all modules and creates a configuration folder for that module in the sites directory.
+Use this function within a module file to register a new Pond module. This initates the module, assigns functions global to all modules and creates a configuration folder for that module in the sites directory.
 
 ```javascript
 
