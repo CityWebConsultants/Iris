@@ -58,7 +58,7 @@
                     "title": "Field to check",
                     "enum": fields
                   },
-                  "wrapper": {
+                  "operator": {
                     "type": "string",
                     "title": "Operator",
                     "enum": ["is", "in", "contains"]
@@ -86,6 +86,15 @@
                     "type": "string",
                     "title": "HTML wrapper element",
                     "enum": ["div", "span", "h1", "h2", "h3"]
+                  },
+                  "allowhtml": {
+                    "type": "boolean",
+                    "title": "Allow HTML?"
+                  },
+                  "class": {
+                    "type": "string",
+                    "title": "Classes",
+                    "description": "Space-separated"
                   },
                 }
               }

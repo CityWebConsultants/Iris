@@ -17,7 +17,7 @@ mkdirSync(C.sitePath + "/" + "configurations/frontend/static");
 //Function for finding most specific matching template
 
 var findTemplate = function () {
-
+  
   //Get files in template folder
 
   var templates = fs.readdirSync(C.sitePath + "/" + "configurations/frontend/templates");
@@ -25,13 +25,13 @@ var findTemplate = function () {
   //Loop over arguments
 
   var args = Array.prototype.slice.call(arguments);
-
+  
   var i;
 
   for (i = 0; i <= args.length; i += 1) {
 
     var lookingFor = args.join("_") + ".html";
-
+    
     if (templates.indexOf(lookingFor) !== -1) {
 
       return lookingFor;
@@ -74,7 +74,7 @@ var parseTemplate = function (path, callback, swapVariables) {
 
       var path = element.split("_");
 
-      var subTemplate = findTemplate(path);
+      var subTemplate = findTemplate.apply(this, path);
 
       if (subTemplate) {
 
