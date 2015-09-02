@@ -14,6 +14,86 @@ var mkdirSync = function (path) {
 mkdirSync(C.sitePath + "/" + "configurations/frontend/templates");
 mkdirSync(C.sitePath + "/" + "configurations/frontend/static");
 
+//Function for finding most specific matching template
+
+var findTemplate = function () {
+
+  //Get files in template folder
+
+  var templates = fs.readdirSync(C.sitePath + "/" + "configurations/frontend/templates");
+
+  //Loop over arguments
+
+  var args = Array.prototype.slice.call(arguments);
+
+  var i;
+
+  for (i = 0; i <= args.length; i += 1) {
+
+    var lookingFor = args.join("_") + ".html";
+
+    if (templates.indexOf(lookingFor) !== -1) {
+
+      return lookingFor;
+
+    };
+
+    args.splice(args.length - 1, 1);
+
+  };
+
+  return false;
+
+}
+
+var parseTemplate = function (path, callback, swapVariables) {
+
+  var output = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/templates/" + path, "utf-8");
+
+  if (swapVariables) {
+    
+    swapVariables.forEach(function (element) {
+
+      output = output.split("(((" + element[0] + ")))").join(element[1]);
+
+    });
+
+  };
+
+  //Get any embeded templates inside the template file
+
+  var embeds = output.match(/\(\(\(\s*[\w\.]+\s*\)\)\)/g);
+
+  if (embeds) {
+
+    var embeds = embeds.map(function (x) {
+      return x.match(/[\w\.]+/)[0];
+    });
+
+    embeds.forEach(function (element) {
+
+      var path = element.split("_");
+
+      var subTemplate = findTemplate(path);
+
+      if (subTemplate) {
+
+        parseTemplate(subTemplate, function (contents) {
+
+          output = output.split("(((" + element + ")))").join(contents);
+
+        }, swapVariables);
+
+      };
+
+    });
+
+  }
+
+  callback(output);
+
+};
+
 C.app.use("/static", express.static(C.sitePath + "/" + "configurations/frontend/static"));
 
 C.app.use(function (req, res, next) {
@@ -53,60 +133,21 @@ C.app.use(function (req, res, next) {
 
   var success = function (data) {
 
+    //Entity exists
+
     if (data.entity) {
 
-      try {
+      var template = findTemplate(data.entity.type, data.entity.id);
 
-        var fs = require("fs");
+      parseTemplate(template, function (output) {
 
-        try {
+        res.send(output);
 
-          var page = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/templates/" + data.entity.type + "_" + data.entity.id + ".html", "utf8");
-
-        } catch (e) {
-
-          try {
-
-            var page = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/templates/" + data.entity.type + ".html", "utf8");
-
-          } catch (e) {
-
-            next();
-            return false;
-
-          }
-
-        }
-        
-        //Scripts
-        
-        scripts = '<script src="/entity_views/angular.js"></script><script src="/socket.io/socket.io.js"></script><script src="/entity_views/entity-viewer.js"></script>';
-        
-        //Replace page variables so content can be loaded
-
-        page = page.split("<html>").join('<html ng-controller="C" entities="' + data.entity.type + '" queries="_id:IS:' + data.entity.id + '" parent="true" ng-cloak>'+scripts);
-      
-        //Check if user can actually access page
-
-        if (CM.auth.globals.checkPermissions(["can view any " + data.entity.type], req.authPass)) {
-
-          res.send(page);
-
-        } else {
-
-          res.send("Access denied");
-
-        }
-
-      } catch (e) {
-
-        console.log(e);
-
-        next();
-
-      }
+      },[["type", data.entity.type], ["id", data.entity.id]]);
 
     } else {
+
+      //Entity doesn't exist
 
       next();
 
