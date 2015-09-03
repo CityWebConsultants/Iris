@@ -8,6 +8,21 @@ var C = {};
 
 C.entityFetch = function ($scope, $attrs, $http, $sce) {
 
+  $scope.query = {};
+  $scope.entities;
+
+  $attrs.$observe('queries', function (val) {
+
+    fetch();
+
+  });
+
+  $attrs.$observe('entities', function (val) {
+
+    fetch();
+
+  });
+
   var root = "";
 
   //get location of node.js server
@@ -40,88 +55,51 @@ C.entityFetch = function ($scope, $attrs, $http, $sce) {
 
   var fetch = function () {
 
-    var finalQueries = [];
+    val = $attrs.queries.split("|");
 
-    if ($attrs.entities) {
+    if (val[3] === "JSON") {
 
-      var entities = $attrs.entities.split(",");
+      val[2] = JSON.parse(val[2]);
 
-    }
+    };
 
-    if ($attrs.queries) {
+    $scope.entities = $attrs.entities;
 
-      var queries = $attrs.queries.split(",");
+    $scope.query.field = val[0];
+    $scope.query.comparison = val[1];
+    $scope.query.compare = val[2];
 
-      queries.forEach(function (query) {
+    if ($scope.query.compare === "*") {
 
-        var query = query.split("|");
+      if (!watchers['search_' + $scope.query.field]) {
+        $scope.$watch('search_' + $scope.query.field, function () {
+          fetch();
+        });
+        watchers['search_' + $scope.query.field] = true;
+      } else {
 
-        if (query[3] === "JSON") {
+        var value = $scope["search_" + $scope.query.field];
 
-          query[2] = JSON.stringify(eval('(' + query[2] + ')'));
+        if (value && value.length > 2) {
 
-        };
-
-        var query = {
-
-          "comparison": query[1],
-          "field": query[0],
-          "compare": query[2]
-
-        }
-
-        //Set up watch event for wildcards
-
-        if (query.compare === "*") {
-
-          if (!watchers['search_' + query.field]) {
-            $scope.$watch('search_' + query.field, function () {
-              fetch();
-            });
-            watchers['search_' + query.field] = true;
-          }
-
-        };
-
-        finalQueries.push(query);
-
-      });
-
-    }
-
-    var processedQueries = [];
-
-    //Generate any search queries
-
-    finalQueries.forEach(function (currentQuery, index) {
-
-      if (currentQuery.compare === "*") {
-
-        if ($scope["search_" + currentQuery.field] && $scope["search_" + currentQuery.field].length > 1) {
-
-          currentQuery.compare = $scope["search_" + currentQuery.field];
-          processedQueries.push(currentQuery);
+          $scope.query.compare = value;
 
         } else {
 
-          processedQueries.push(currentQuery);
+          $scope.query.compare = null;
 
         }
 
-      } else {
-
-        processedQueries.push(currentQuery);
-
       }
 
-    });
+    };
 
     $http({
       url: root + "fetch",
       method: "GET",
       params: {
-        "entities[]": entities,
-        "queries[]": processedQueries
+        "entities[]": $scope.entities,
+        "queries[]": $scope.query
       },
       paramSerializer: '$httpParamSerializerJQLike'
     }).then(function (response) {
@@ -143,8 +121,6 @@ C.entityFetch = function ($scope, $attrs, $http, $sce) {
     });
 
   }
-
-  fetch();
 
 };
 
