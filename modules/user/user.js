@@ -79,8 +79,14 @@ C.app.post("/login", function (req, res) {
 
 });
 
+C.app.get("/checkauth", function (req, res) {
+
+  res.send(req.authPass);
+
+});
+
 C.app.post("/logout", function (req, res) {
-  
+
   C.hook("hook_auth_clearauth", req.authPass.userid, "root");
 
   res.send("logged out");
