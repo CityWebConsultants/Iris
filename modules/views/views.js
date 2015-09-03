@@ -68,7 +68,7 @@ C.app.post("/views/create/:type", function (req, res) {
 
     output += "</div>";
 
-    fs.writeFileSync(C.sitePath + "/configurations/frontend/templates/" + req.params.type + "_" + req.body.title.split(" ").join("-") + ".HTML", output, "utf8");
+    fs.writeFileSync(C.sitePath + "/configurations/frontend/templates/" + req.params.type + "_" + req.body.title.split(" ").join("-") + ".html", output, "utf8");
 
   } else {
 
