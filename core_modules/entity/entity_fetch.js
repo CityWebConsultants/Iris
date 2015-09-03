@@ -83,12 +83,6 @@ C.app.get("/fetch", function (req, res) {
       dbActions.push(C.promise(function (data, yes, no) {
           C.dbCollections[type].find(query).lean().exec(function (err, doc) {
 
-            if (type === "group") {
-
-              console.log(query);
-
-            }
-
             if (err) {
 
               no(err);
@@ -169,8 +163,6 @@ C.app.get("/fetch", function (req, res) {
 
       }, function (fail) {
 
-        console.log(fail);
-
         res.send("Fetch failed");
 
       });
@@ -179,7 +171,6 @@ C.app.get("/fetch", function (req, res) {
 
     var fail = function (fail) {
 
-      console.log(fail);
       res.send("Database error");
 
     };
