@@ -38,6 +38,14 @@ C.app.get("/fetch", function (req, res) {
 
     req.body.queries.forEach(function (fieldQuery) {
 
+      try {
+
+        fieldQuery.compare = JSON.parse(fieldQuery.compare);
+
+      } catch (e) {
+
+      }
+
       if (fieldQuery.comparison === "IS") {
 
         query[fieldQuery.field] = fieldQuery.compare;
@@ -57,7 +65,7 @@ C.app.get("/fetch", function (req, res) {
         query[fieldQuery.field] = {
           '$regex': fieldQuery.compare
         }
-        
+
       }
 
     });
@@ -74,6 +82,12 @@ C.app.get("/fetch", function (req, res) {
 
       dbActions.push(C.promise(function (data, yes, no) {
           C.dbCollections[type].find(query).lean().exec(function (err, doc) {
+
+            if (type === "group") {
+
+              console.log(query);
+
+            }
 
             if (err) {
 
@@ -115,7 +129,7 @@ C.app.get("/fetch", function (req, res) {
 
             if (!entities[entityBundle]) {
 
-              no();
+              no("No entities");
               return false;
 
             }
@@ -133,7 +147,7 @@ C.app.get("/fetch", function (req, res) {
 
               } else {
 
-                no();
+                no(fail);
 
               }
 
@@ -141,7 +155,7 @@ C.app.get("/fetch", function (req, res) {
 
           }, function (fail) {
 
-            no();
+            no(fail);
 
           });
 
@@ -154,6 +168,8 @@ C.app.get("/fetch", function (req, res) {
         res.respond(200, entities);
 
       }, function (fail) {
+
+        console.log(fail);
 
         res.send("Fetch failed");
 
