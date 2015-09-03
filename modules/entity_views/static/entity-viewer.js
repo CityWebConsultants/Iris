@@ -54,7 +54,13 @@ C.entityFetch = function ($scope, $attrs, $http, $sce) {
 
       queries.forEach(function (query) {
 
-        var query = query.split(":");
+        var query = query.split("|");
+
+        if (query[3] === "JSON") {
+
+          query[2] = JSON.stringify(eval('(' + query[2] + ')'));
+
+        };
 
         var query = {
 
