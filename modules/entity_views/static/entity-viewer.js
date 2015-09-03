@@ -55,7 +55,13 @@ C.entityFetch = function ($scope, $attrs, $http, $sce) {
 
   var fetch = function () {
 
-    val = $attrs.queries.split("|");
+    if ($attrs.queries) {
+      val = $attrs.queries.split("|");
+    } else {
+
+      val = [];
+
+    }
 
     if (val[3] === "JSON") {
 
@@ -93,7 +99,13 @@ C.entityFetch = function ($scope, $attrs, $http, $sce) {
       }
 
     };
-
+    
+    if(!$attrs.queries){
+      
+      $scope.query = [];
+      
+    }
+    
     $http({
       url: root + "fetch",
       method: "GET",
