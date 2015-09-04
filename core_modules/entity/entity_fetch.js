@@ -26,7 +26,9 @@ C.app.get("/fetch", function (req, res) {
 
   //Assemble query
 
-  var query = {};
+  var query = {
+    $and: []
+  };
 
   if (!req.body.queries) {
 
@@ -48,23 +50,35 @@ C.app.get("/fetch", function (req, res) {
 
       if (fieldQuery.comparison === "IS") {
 
-        query[fieldQuery.field] = fieldQuery.compare;
+        var queryItem = {};
+
+        queryItem[fieldQuery["field"]] = fieldQuery.compare
+
+        query.$and.push(queryItem);
 
       }
 
       if (fieldQuery.comparison === "IN") {
 
-        query[fieldQuery.field] = {
+        var queryItem = {};
+
+        queryItem[fieldQuery["field"]] = {
           '$elemMatch': fieldQuery.compare
         }
+
+        query.$and.push(queryItem);
 
       };
 
       if (fieldQuery.comparison === 'CONTAINS') {
 
-        query[fieldQuery.field] = {
+        var queryItem = {};
+
+        queryItem[fieldQuery["field"]] = {
           '$regex': fieldQuery.compare
         }
+
+        query.$and.push(queryItem);
 
       }
 
@@ -75,6 +89,12 @@ C.app.get("/fetch", function (req, res) {
     //Query complete, now run on all entities and collect them
 
     var dbActions = [];
+
+    var util = require('util');
+
+    console.log(util.inspect(query, {
+      depth: 5
+    }));
 
     entityTypes.forEach(function (type) {
 
