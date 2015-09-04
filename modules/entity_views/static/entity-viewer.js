@@ -6,7 +6,7 @@ angular.element(document).ready(function () {
 
 var C = {};
 
-C.entityFetch = function ($scope, $attrs, $http, $sce) {
+C.entityFetch = function ($scope, $attrs, $http, $sce, $rootScope) {
 
   $scope.query = {};
   $scope.entities;
@@ -99,13 +99,13 @@ C.entityFetch = function ($scope, $attrs, $http, $sce) {
       }
 
     };
-    
-    if(!$attrs.queries || $attrs.queries.length === 0){
-      
+
+    if (!$attrs.queries || $attrs.queries.length === 0) {
+
       $scope.query = [];
-      
+
     }
-    
+
     $http({
       url: root + "fetch",
       method: "GET",
@@ -115,6 +115,12 @@ C.entityFetch = function ($scope, $attrs, $http, $sce) {
       },
       paramSerializer: '$httpParamSerializerJQLike'
     }).then(function (response) {
+
+      if ($attrs.id) {
+
+        $rootScope[$attrs.id] = response.data.response;
+
+      };
 
       if (!$attrs.parent) {
 
@@ -144,4 +150,4 @@ app.filter('html_filter', ['$sce', function ($sce) {
   };
 }]);
 
-app.controller("C", ["$scope", "$attrs", "$http", "$sce", C.entityFetch])
+app.controller("C", ["$scope", "$attrs", "$http", "$sce", "$rootScope", C.entityFetch])
