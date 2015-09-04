@@ -100,7 +100,7 @@ C.entityFetch = function ($scope, $attrs, $http, $sce) {
 
     };
     
-    if(!$attrs.queries){
+    if(!$attrs.queries || $attrs.queries.length === 0){
       
       $scope.query = [];
       
