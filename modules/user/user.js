@@ -51,13 +51,13 @@ C.app.post("/login", function (req, res) {
       if (doc) {
 
         C.hook("hook_auth_maketoken", {
-          userid: doc.name
+          userid: doc.userid
         }, "root").then(function (token) {
 
-          res.cookie('userid', req.body.username);
+          res.cookie('userid', doc.userid);
           res.cookie('token', token.id);
 
-          res.respond(200, req.body.username);
+          res.respond(200, doc.userid);
 
         });
 
