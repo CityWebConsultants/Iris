@@ -84,6 +84,12 @@ C.app.get("/fetch", function (req, res) {
 
     });
 
+    if (req.body.queries.length === 0) {
+
+      query = [];
+
+    }
+
     var entities = {};
 
     //Query complete, now run on all entities and collect them
