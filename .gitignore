@@ -4,3 +4,4 @@ config.js
 /loc.sh
 sites/*
 !sites/default
+/nbproject/private/

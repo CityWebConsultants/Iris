@@ -27,7 +27,7 @@ C.app.get("/admin/menu", function (req, res) {
 
   if (CM.admin.globals.checkAdmin(req)) {
 
-    var output = '<header><div id="logo"><img src="/admin/pond.svg" /><a href="/admin"></a></div>';
+    var output = '<header><div id="logo"><a href="/admin">Iris</a></div>';
 
     output += '<ul class="main-menu">';
     Object.keys(CM.admin.globals.menu).forEach(function (element) {
