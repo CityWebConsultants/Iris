@@ -17,7 +17,7 @@ mkdirSync(C.sitePath + "/" + "configurations/frontend/static");
 //Function for finding most specific matching template
 
 var findTemplate = function () {
-  
+
   //Get files in template folder
 
   var templates = fs.readdirSync(C.sitePath + "/" + "configurations/frontend/templates");
@@ -25,13 +25,13 @@ var findTemplate = function () {
   //Loop over arguments
 
   var args = Array.prototype.slice.call(arguments);
-  
+
   var i;
 
-  for (i = 0; i <= args.length; i += 1) {
+  for (i = 0; i <= args.length + 1; i += 1) {
 
     var lookingFor = args.join("_") + ".html";
-    
+
     if (templates.indexOf(lookingFor) !== -1) {
 
       return lookingFor;
@@ -51,7 +51,7 @@ var parseTemplate = function (path, callback, swapVariables) {
   var output = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/templates/" + path, "utf-8");
 
   if (swapVariables) {
-    
+
     swapVariables.forEach(function (element) {
 
       output = output.split("(((" + element[0] + ")))").join(element[1]);
@@ -139,11 +139,27 @@ C.app.use(function (req, res, next) {
 
       var template = findTemplate(data.entity.type, data.entity.id);
 
-      parseTemplate(template, function (output) {
+      parseTemplate(template, function (inner) {
 
-        res.send(output);
+        var wrapperTemplate = findTemplate("html", data.entity.type, data.entity.id);
 
-      },[["type", data.entity.type], ["id", data.entity.id]]);
+        if (wrapperTemplate) {
+
+          parseTemplate(wrapperTemplate, function (wrapper) {
+
+            wrapper = wrapper.split("(((MAINCONTENT)))").join(inner);
+
+            res.send(wrapper);
+
+          }, [["type", data.entity.type], ["id", data.entity.id]]);
+
+        } else {
+
+          res.send(inner);
+
+        }
+
+      }, [["type", data.entity.type], ["id", data.entity.id]]);
 
     } else {
 
