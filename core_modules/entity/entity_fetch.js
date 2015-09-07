@@ -75,7 +75,8 @@ C.app.get("/fetch", function (req, res) {
         var queryItem = {};
 
         queryItem[fieldQuery["field"]] = {
-          '$regex': fieldQuery.compare
+          '$regex': fieldQuery.compare,
+          '$options': 'i'
         }
 
         query.$and.push(queryItem);
@@ -97,10 +98,6 @@ C.app.get("/fetch", function (req, res) {
     var dbActions = [];
 
     var util = require('util');
-
-    console.log(util.inspect(query, {
-      depth: 5
-    }));
 
     entityTypes.forEach(function (type) {
 
