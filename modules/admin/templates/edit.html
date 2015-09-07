@@ -61,11 +61,6 @@
             $('#res').html('<p>I beg your pardon?</p>');
           } else {
 
-            values.credentials = {
-              "apikey": "letmein",
-              "secretkey": "letmein"
-            };
-
             values._id = id;
 
             $.post("/entity/edit/" + type + "/" + id, values, function(err, data) {
