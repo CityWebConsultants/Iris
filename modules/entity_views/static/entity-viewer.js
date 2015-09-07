@@ -6,7 +6,11 @@ angular.element(document).ready(function () {
 
 var C = {};
 
-C.entityFetch = function ($scope, $attrs, $http, $sce, $rootScope) {
+C.entityFetch = function ($scope, $attrs, $http, $sce, $rootScope, $timeout) {
+
+  //Keep array of queries so that only last one gets pushed in
+
+  $scope.queryCount = 0;
 
   $scope.query = {};
   $scope.entities;
@@ -55,90 +59,118 @@ C.entityFetch = function ($scope, $attrs, $http, $sce, $rootScope) {
 
   var fetch = function () {
 
-    if ($attrs.queries) {
-      val = $attrs.queries.split("|");
-    } else {
+    $timeout(function () {
 
-      val = [];
-
-    }
-
-    if (val[3] === "JSON") {
-
-      val[2] = JSON.parse(val[2]);
-
-    };
-
-    $scope.entities = $attrs.entities;
-
-    $scope.query.field = val[0];
-    $scope.query.comparison = val[1];
-    $scope.query.compare = val[2];
-
-    if ($scope.query.compare === "*") {
-
-      if (!watchers['search_' + $scope.query.field]) {
-        $scope.$watch('search_' + $scope.query.field, function () {
-          fetch();
-        });
-        watchers['search_' + $scope.query.field] = true;
+      if ($attrs.queries) {
+        val = $attrs.queries.split("|");
       } else {
 
-        var value = $scope["search_" + $scope.query.field];
-
-        if (value && value.length > 2) {
-
-          $scope.query.compare = value;
-
-        } else {
-
-          $scope.query.compare = null;
-
-        }
+        val = [];
 
       }
 
-    };
+      if (val[3] === "JSON") {
 
-    if (!$attrs.queries || $attrs.queries.length === 0) {
-
-      $scope.query = [];
-
-    }
-
-    $http({
-      url: root + "fetch",
-      method: "GET",
-      params: {
-        "entities[]": $scope.entities,
-        "queries[]": $scope.query
-      },
-      paramSerializer: '$httpParamSerializerJQLike'
-    }).then(function (response) {
-
-      if ($attrs.id) {
-
-        $rootScope[$attrs.id] = response.data.response;
+        val[2] = JSON.parse(val[2]);
 
       };
 
-      if (!$attrs.parent) {
+      $scope.entities = $attrs.entities;
 
-        $scope.data = response.data.response;
+      $scope.query.field = val[0];
+      $scope.query.comparison = val[1];
+      $scope.query.compare = val[2];
 
-      } else {
+      if ($scope.query.compare === "*") {
 
-        $scope.current = response.data.response[$attrs.entities][0];
+        if (!watchers['search_' + $scope.query.field]) {
+          $scope.$watch('search_' + $scope.query.field, function () {
+            fetch();
+          });
+          watchers['search_' + $scope.query.field] = true;
+        } else {
+
+          var value = $scope["search_" + $scope.query.field];
+
+          if (value && value.length > 2) {
+
+            $scope.query.compare = value;
+
+          } else {
+
+            $scope.query.compare = null;
+
+          }
+
+        }
+
+      };
+
+      if (!$attrs.queries || $attrs.queries.length === 0) {
+
+        $scope.query = [];
 
       }
 
-    }, function (error) {
+      $scope.queryCount += 1;
 
-      console.log(error);
+      var queryId = $scope.queryCount;
+
+      $http({
+        url: root + "fetch",
+        method: "GET",
+        params: {
+          "entities[]": $scope.entities,
+          "queries[]": $scope.query
+        },
+        paramSerializer: '$httpParamSerializerJQLike'
+      }).then(function (response) {
+
+        if (queryId < $scope.queryCount) {
+
+          return false;
+
+        };
+
+        if ($attrs.id) {
+
+          $rootScope[$attrs.id] = response.data.response;
+
+        };
+
+        if (!$attrs.parent) {
+
+          $scope.data = response.data.response;
+
+          $timeout(function () {
+
+            $scope.$apply();
+
+          });
+
+        } else {
+
+          $scope.current = response.data.response[$attrs.entities][0];
+
+          $timeout(function () {
+
+            $scope.$apply();
+
+          });
+
+        }
+
+      }, function (error) {
+
+        console.log(error);
+
+      });
 
     });
 
   }
+
+
 
 };
 
@@ -150,4 +182,4 @@ app.filter('html_filter', ['$sce', function ($sce) {
   };
 }]);
 
-app.controller("C", ["$scope", "$attrs", "$http", "$sce", "$rootScope", C.entityFetch])
+app.controller("C", ["$scope", "$attrs", "$http", "$sce", "$rootScope", "$timeout", C.entityFetch])
