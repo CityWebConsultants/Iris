@@ -542,6 +542,20 @@ C.app.get("/admin/edit/:type/:_id/form", function (req, res) {
 
 });
 
+C.app.get("/admin/delete/:type/:id", function (req, res) {
+
+  if (CM.admin.globals.checkAdmin(req)) {
+
+    res.sendFile(path.join(__dirname, 'templates/delete.html'));
+
+  } else {
+
+    res.redirect("/admin");
+
+  }
+
+});
+
 
 C.app.get("/admin/create/:type/form/", function (req, res) {
 
@@ -597,7 +611,7 @@ C.app.get("/admin/create/:type/form/", function (req, res) {
 var checkField = function (key, item) {
 
   if (item === String) {
-    
+
     return {
 
       "title": key,
@@ -754,6 +768,8 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
 
     table += "<th>Edit</th>"
 
+    table += "<th>Delete</th>"
+
     table += "<tr ng-repeat='entity in data." + req.params.type + "'>";
 
     fields.forEach(function (element) {
@@ -763,6 +779,8 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
     });
 
     table += "<td><a href='/admin/edit/" + req.params.type + "/{{entity._id}}'>Edit</a></td>";
+
+    table += "<td><a href='/admin/delete/" + req.params.type + "/{{entity._id}}'>Delete</a></td>";
 
     table += "</tr>";
 

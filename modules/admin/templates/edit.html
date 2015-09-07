@@ -31,6 +31,7 @@
 
   <form></form>
 
+  <input type="submit" class="btn " id="delete-button" value="Delete">
 
   <script>
     $(document).ready(function() {
@@ -38,6 +39,19 @@
       var type = document.location.pathname.split("/")[document.location.pathname.split("/").length - 1];
 
       $("h1").text("Edit " + type);
+
+      var path = document.location.pathname.split("/");
+
+      var type = path[path.length - 2];
+      var id = path[path.length - 1];
+
+      $("#delete-button").click(function (e) {
+
+        e.preventDefault();
+
+        document.location.href = "/admin/delete/" + type + '/' + id;
+
+      });
 
       $.get(document.location.pathname + "/form").done(function(data) {
 
@@ -51,11 +65,6 @@
               "apikey": "letmein",
               "secretkey": "letmein"
             };
-
-            var path = document.location.pathname.split("/");
-
-            var type = path[path.length - 2];
-            var id = path[path.length - 1]
 
             values._id = id;
 
