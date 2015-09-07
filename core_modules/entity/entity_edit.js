@@ -10,7 +10,7 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
   };
 
-  //Set author and entity type
+  //Set entity type
 
   if (!data.entityType || !C.dbCollections[data.entityType]) {
 
@@ -65,7 +65,7 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
         } else {
 
-          res.send(fail);
+          thisHook.finish(false, fail);
 
         }
 
@@ -74,7 +74,7 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
     }, function (fail) {
 
-      res.send(fail);
+      thisHook.finish(false, fail);
 
     })
 
