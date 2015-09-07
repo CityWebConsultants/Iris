@@ -54,7 +54,7 @@ var parseTemplate = function (path, callback, swapVariables) {
 
     swapVariables.forEach(function (element) {
 
-      output = output.split("(((" + element[0] + ")))").join(element[1]);
+      output = output.split("[[" + element[0] + "]]").join(element[1]);
 
     });
 
@@ -117,7 +117,8 @@ C.app.use(function (req, res, next) {
           data.entity = {
 
             id: doc._id,
-            type: type
+            type: type,
+            fields: doc,
 
           }
 
@@ -137,6 +138,16 @@ C.app.use(function (req, res, next) {
 
     if (data.entity) {
 
+      //Create variables array
+
+      var variables = [];
+
+      Object.keys(data.entity.fields._doc).forEach(function (field) {
+
+        variables.push(["current."+field, data.entity.fields._doc[field]]);
+
+      });
+      
       var template = findTemplate(data.entity.type, data.entity.id);
 
       parseTemplate(template, function (inner) {
@@ -147,11 +158,11 @@ C.app.use(function (req, res, next) {
 
           parseTemplate(wrapperTemplate, function (wrapper) {
 
-            wrapper = wrapper.split("(((MAINCONTENT)))").join(inner);
+            wrapper = wrapper.split("[[MAINCONTENT]]").join(inner);
 
             res.send(wrapper);
 
-          }, [["type", data.entity.type], ["id", data.entity.id]]);
+          }, variables);
 
         } else {
 
@@ -159,7 +170,7 @@ C.app.use(function (req, res, next) {
 
         }
 
-      }, [["type", data.entity.type], ["id", data.entity.id]]);
+      }, variables);
 
     } else {
 
