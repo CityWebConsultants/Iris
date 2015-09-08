@@ -55,6 +55,10 @@ C.entityFetch = function ($scope, $attrs, $http, $sce, $rootScope, $timeout) {
     fetch()
   });
 
+  C.receiver.on('entityDelete', function (data) {
+    fetch()
+  });
+
   var watchers = {};
 
   var fetch = function () {
