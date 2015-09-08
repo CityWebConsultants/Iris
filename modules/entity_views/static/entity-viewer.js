@@ -42,7 +42,7 @@ C.entityFetch = function ($scope, $attrs, $http, $sce, $rootScope, $timeout) {
     if (script.src.indexOf("entity_views/entity-viewer.js") !== -1) {
 
       var root = script.src.replace("entity_views/entity-viewer.js", "");
-
+      
     };
 
   };
@@ -125,7 +125,8 @@ C.entityFetch = function ($scope, $attrs, $http, $sce, $rootScope, $timeout) {
         method: "GET",
         params: {
           "entities[]": $scope.entities,
-          "queries[]": $scope.query
+          "queries[]": $scope.query,
+          "timestamp": Math.random()
         },
         paramSerializer: '$httpParamSerializerJQLike'
       }).then(function (response) {
