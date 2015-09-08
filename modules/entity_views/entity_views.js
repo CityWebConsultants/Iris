@@ -17,3 +17,9 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, data)
   C.sendSocketMessage(["*"], "entityUpdate", data);
 
 });
+
+CM.entity_views.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
+
+  C.sendSocketMessage(["*"], "entityDelete", data);
+
+});

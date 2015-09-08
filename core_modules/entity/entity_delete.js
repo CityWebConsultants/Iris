@@ -86,6 +86,8 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
       _id: validatedEntity._id
     };
 
+    data.deletedId = validatedEntity._id;
+
     delete validatedEntity._id;
 
     var update = validatedEntity;
