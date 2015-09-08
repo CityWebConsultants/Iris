@@ -81,17 +81,25 @@ C.app.post("/login", function (req, res) {
 
 CM.user.registerHook("hook_entity_view_message", 1, function (thisHook, enitites) {
 
+  var userids = {};
+
   var promises = [];
 
   enitites.forEach(function (message) {
-    
+
+    userids[message.userid] = "";
+
+  });
+
+  Object.keys(userids).forEach(function (key) {
+
     promises.push(C.promise(function (data, success, fail) {
 
       C.dbCollections['user'].findOne({
-        userid: message.userid
+        userid: key
       }, function (err, user) {
-        
-        message.username = user.name;
+
+        userids[key] = user.name;
 
         success(data);
 
@@ -102,6 +110,12 @@ CM.user.registerHook("hook_entity_view_message", 1, function (thisHook, enitites
   });
 
   var success = function (success) {
+
+    enitites.forEach(function (message) {
+
+      message.username = userids[message.userid];
+
+    });
 
     thisHook.finish(true, enitites);
 
