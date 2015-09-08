@@ -79,6 +79,45 @@ C.app.post("/login", function (req, res) {
 
 });
 
+CM.user.registerHook("hook_entity_view_message", 1, function (thisHook, enitites) {
+
+  var promises = [];
+
+  enitites.forEach(function (message) {
+    
+    promises.push(C.promise(function (data, success, fail) {
+
+      C.dbCollections['user'].findOne({
+        userid: message.userid
+      }, function (err, user) {
+        
+        message.username = user.name;
+
+        success(data);
+
+      });
+
+    }));
+
+  });
+
+  var success = function (success) {
+
+    thisHook.finish(true, enitites);
+
+  };
+
+  var fail = function (fail) {
+
+    thisHook.finish(false, enitites);
+
+  };
+
+  C.promiseChain(promises, enitites, success, fail);
+
+
+});
+
 C.app.get("/checkauth", function (req, res) {
 
   res.send(req.authPass);

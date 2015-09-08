@@ -24,6 +24,16 @@ C.registerDbSchema("message", {
 
 
 CM.messages_replies.registerHook("hook_entity_view_message", 1, function (thisHook, data) {
+  
+  //Add timestamp
+  
+  data.forEach(function(message){
+    
+    message.timestamp = message._id.getTimestamp();
+    
+  });
+  
+  //Add author
 
   // Prepare threaded message
 
