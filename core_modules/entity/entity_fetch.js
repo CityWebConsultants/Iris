@@ -103,24 +103,63 @@ C.app.get("/fetch", function (req, res) {
 
       entities[type] = [];
 
+      //First check if the user can view those entities.
+
+      if (!CM.auth.globals.checkPermissions(["can view any " + type], thisHook.authPass)) {
+
+        return false;
+
+      }
+
       dbActions.push(C.promise(function (data, yes, no) {
-          C.dbCollections[type].find(query).lean().exec(function (err, doc) {
 
-            if (err) {
+          var fetch = function (query) {
 
-              no(err);
+            C.dbCollections[type].find(query).lean().exec(function (err, doc) {
 
-            } else {
+              if (err) {
 
-              doc.forEach(function (element) {
+                no(err);
 
-                entities[type].push(element);
+              } else {
 
-              });
+                doc.forEach(function (element) {
 
-              yes();
+                  entities[type].push(element);
 
-            }
+                });
+
+                yes();
+
+              }
+
+            });
+
+          };
+
+          C.hook("hook_entity_query_alter", query, req.authPass).then(function (query) {
+
+            C.hook("hook_entity_query_alter_" + type, query, req.authPass).then(function (query) {
+
+              fetch(query);
+
+            }, function (fail) {
+
+              if (fail === "No such hook exists") {
+
+                fetch(query);
+
+              } else {
+
+                no(fail);
+
+              }
+
+            })
+
+          }, function (fail) {
+
+            no(fail);
 
           });
 
@@ -208,6 +247,13 @@ C.app.get("/fetch", function (req, res) {
 
 });
 
+
+CM.entity.registerHook("hook_entity_query_alter", 0, function (thisHook, query) {
+
+  thisHook.finish(true, query);
+
+});
+
 CM.entity.registerHook("hook_entity_view", 0, function (thisHook, data) {
 
   //Loop over entity types and check if user can see them
@@ -239,8 +285,6 @@ CM.entity.registerHook("hook_entity_view", 0, function (thisHook, data) {
         });
 
       }
-
-
     }
 
   });
