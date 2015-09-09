@@ -86,8 +86,6 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
       _id: validatedEntity._id
     };
 
-    data.deletedId = validatedEntity._id;
-
     delete validatedEntity._id;
 
     var update = validatedEntity;
@@ -99,6 +97,8 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
     function callback(err, numAffected) {
 
       thisHook.finish(true, "Deleted");
+
+      data._id = conditions._id;
 
       C.hook("hook_entity_deleted", data, thisHook.authPass)
 

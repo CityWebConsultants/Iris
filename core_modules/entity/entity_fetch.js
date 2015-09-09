@@ -1,8 +1,28 @@
 C.app.get("/fetch", function (req, res) {
 
+  if (req.body.queryList) {
+
+    // Current accepting only one query at a time but sending as an array for future multiqueries
+
+    if (req.body.queryList && Array.isArray(req.body.queryList)) {
+
+      req.body.entities = req.body.queryList[0].entities;
+      req.body.queries = req.body.queryList[0].queries;
+      req.body.limit = req.body.queryList[0].limit;
+      req.body.sort = req.body.queryList[0].sort;
+
+    } else {
+
+      res.respond(400, "Send queries as array");
+      return false;
+
+    }
+
+  }
+  
   var entityTypes = [];
 
-  //Populate list of targetted DB entities
+  // Populate list of targetted DB entities
 
   if (Array.isArray(req.body.entities)) {
 
@@ -112,10 +132,10 @@ C.app.get("/fetch", function (req, res) {
       }
 
       dbActions.push(C.promise(function (data, yes, no) {
-
+                
           var fetch = function (query) {
 
-            C.dbCollections[type].find(query).lean().exec(function (err, doc) {
+            C.dbCollections[type].find(query).lean().sort(req.body.sort).limit(req.body.limit).exec(function (err, doc) {
 
               if (err) {
 
@@ -233,7 +253,9 @@ C.app.get("/fetch", function (req, res) {
 
     var fail = function (fail) {
 
-      res.send("Database error");
+      console.log(fail);
+
+      res.respond(500, "Database error");
 
     };
 
