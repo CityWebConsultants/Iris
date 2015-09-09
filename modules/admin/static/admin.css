@@ -9,6 +9,9 @@ ul.main-menu {display:inline-block;}
 .main-menu li {display: inline-block; margin:0 5px 0 5px;}
 #permissions td {width:300px; text-align: center;}
 #permissions td.permission {text-align: left;}
+.permission-row:nth-child(even) {
+    background-color: #F0E1FF;
+}
 
 #login-page {
     width:100%;
