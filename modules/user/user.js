@@ -79,26 +79,26 @@ C.app.post("/login", function (req, res) {
 
 });
 
-CM.user.registerHook("hook_entity_view_message", 1, function (thisHook, enitites) {
-
+CM.user.registerHook("hook_entity_view_message", 2, function (thisHook, entities) {
+    
   var userids = {};
 
   var promises = [];
 
-  enitites.forEach(function (message) {
+  entities.forEach(function (message) {
 
     userids[message.userid] = "";
 
   });
 
   Object.keys(userids).forEach(function (key) {
-
+    
     promises.push(C.promise(function (data, success, fail) {
 
       C.dbCollections['user'].findOne({
         userid: key
       }, function (err, user) {
-
+        
         userids[key] = user.name;
 
         success(data);
@@ -110,24 +110,24 @@ CM.user.registerHook("hook_entity_view_message", 1, function (thisHook, enitites
   });
 
   var success = function (success) {
-
-    enitites.forEach(function (message) {
-
-      message.username = userids[message.userid];
-
+    
+    success.forEach(function (message, index) {
+            
+      success[index].username = userids[message.userid];
+      
     });
-
-    thisHook.finish(true, enitites);
+            
+    thisHook.finish(true, success);
 
   };
 
   var fail = function (fail) {
 
-    thisHook.finish(false, enitites);
+    thisHook.finish(false, fail);
 
   };
 
-  C.promiseChain(promises, enitites, success, fail);
+  C.promiseChain(promises, entities, success, fail);
 
 
 });

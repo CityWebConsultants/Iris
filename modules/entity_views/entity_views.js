@@ -8,13 +8,25 @@ C.app.use("/entity_views", express.static(__dirname + '/static'));
 
 CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, data) {
 
-  C.sendSocketMessage(["*"], "entityCreate", data);
+  C.hook("hook_entity_view_" + data.entityType, [data], thisHook.authPass).then(function (filtered) {
+
+    C.sendSocketMessage(["*"], "entityCreate", filtered[0]);
+
+  }, function (fail) {
+
+    console.log(fail);
+
+  });
 
 });
 
 CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, data) {
+  
+  C.hook("hook_entity_view_" + data.entityType, [data], thisHook.authPass).then(function (filtered) {
 
-  C.sendSocketMessage(["*"], "entityUpdate", data);
+    C.sendSocketMessage(["*"], "entityUpdate", filtered[0]);
+
+  });
 
 });
 

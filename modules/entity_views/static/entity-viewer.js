@@ -179,12 +179,4 @@ C.entityFetch = function ($scope, $attrs, $http, $sce, $rootScope, $timeout) {
 
 };
 
-var app = angular.module("app", []);
-
-app.filter('html_filter', ['$sce', function ($sce) {
-  return function (text) {
-    return $sce.trustAsHtml(text);
-  };
-}]);
-
 app.controller("C", ["$scope", "$attrs", "$http", "$sce", "$rootScope", "$timeout", C.entityFetch])

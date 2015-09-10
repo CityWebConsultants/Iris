@@ -9,9 +9,11 @@
 
   <script src="/entity_views/angular.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/entity_views/entity-viewer.js"></script>
+    <script src="/admin/jsonform/deps/jquery.min.js"></script>
 
-  <script src="/admin/jsonform/deps/jquery.min.js"></script>
+<!--  <script src="/entity_views/entity-viewer.js"></script>-->
+  <script src="/static/templates.js"></script>
+
 
   <link rel="stylesheet" href="/admin/admin.css" />
   <script src="/admin/adminui.js"></script>
@@ -23,7 +25,7 @@
   
   <h1>List of <<entitytype>> entities</h1>
 
-  <section ng-controller="C" entities="<<entitytype>>">
+  <section ng-controller="C" data-entities="<<entitytype>>">
 
     <<entitytable>>
 

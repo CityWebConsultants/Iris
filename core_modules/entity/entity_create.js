@@ -147,6 +147,8 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
         thisHook.finish(false, "Database error");
 
       } else if (doc) {
+        
+        doc = doc.toObject();
 
         thisHook.finish(true, doc);
 
