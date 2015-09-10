@@ -24,17 +24,17 @@ C.registerDbSchema("message", {
 
 
 CM.messages_replies.registerHook("hook_entity_view_message", 1, function (thisHook, data) {
-  
+
   //Add timestamp
-    
+
   data.forEach(function(message){
-    
+
     var mongoid = mongoose.Types.ObjectId(message._id);
-    
+
     message.timestamp = mongoid.getTimestamp();
-    
+
   });
-    
+
   //Add author
 
   // Prepare threaded message
@@ -206,5 +206,14 @@ CM.messages_replies.registerHook("hook_entity_presave_message", 1, function (thi
     thisHook.finish(true, entity);
 
   }
+
+});
+
+// Tell user to update message thread
+CM.messages_replies.registerHook("hook_entity_created_message", 1, function (thisHook, data) {
+
+  C.sendSocketMessage(["*"], "updateMessageThread", null);
+
+  thisHook.finish(true, data);
 
 });

@@ -67,3 +67,4 @@ CM.messages.globals = {
   })
 
 }
+
