@@ -10,6 +10,7 @@ C.app.get("/fetch", function (req, res) {
       req.body.queries = req.body.queryList[0].queries;
       req.body.limit = req.body.queryList[0].limit;
       req.body.sort = req.body.queryList[0].sort;
+      req.body.skip = req.body.queryList[0].skip;
 
     } else {
 
@@ -19,7 +20,7 @@ C.app.get("/fetch", function (req, res) {
     }
 
   }
-  
+
   var entityTypes = [];
 
   // Populate list of targetted DB entities
@@ -132,10 +133,10 @@ C.app.get("/fetch", function (req, res) {
       }
 
       dbActions.push(C.promise(function (data, yes, no) {
-                
+
           var fetch = function (query) {
 
-            C.dbCollections[type].find(query).lean().sort(req.body.sort).limit(req.body.limit).exec(function (err, doc) {
+            C.dbCollections[type].find(query).lean().sort(req.body.sort).skip(req.body.skip).limit(req.body.limit).exec(function (err, doc) {
 
               if (err) {
 
