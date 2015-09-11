@@ -19,7 +19,7 @@ C.app.get("/fetch", function (req, res) {
     }
 
   }
-  
+
   var entityTypes = [];
 
   // Populate list of targetted DB entities
@@ -132,7 +132,7 @@ C.app.get("/fetch", function (req, res) {
       }
 
       dbActions.push(C.promise(function (data, yes, no) {
-                
+
           var fetch = function (query) {
 
             C.dbCollections[type].find(query).lean().sort(req.body.sort).limit(req.body.limit).exec(function (err, doc) {
@@ -197,7 +197,7 @@ C.app.get("/fetch", function (req, res) {
 
         viewHooks.push(C.promise(function (data, yes, no) {
 
-          //General entity view hook 
+          //General entity view hook
 
           C.hook("hook_entity_view", entities, req.authPass).then(function (viewChecked) {
 
@@ -277,6 +277,24 @@ CM.entity.registerHook("hook_entity_query_alter", 0, function (thisHook, query) 
 });
 
 CM.entity.registerHook("hook_entity_view", 0, function (thisHook, data) {
+
+  // Add timestamp
+
+  Object.keys(data).forEach(function (type) {
+
+    data[type].forEach(function (entity) {
+
+      if (entity._id) {
+
+        var mongoid = mongoose.Types.ObjectId(entity._id);
+
+        entity.timestamp = Date.parse(mongoid.getTimestamp());
+
+      }
+
+    });
+
+  });
 
   //Loop over entity types and check if user can see them
 

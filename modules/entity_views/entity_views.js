@@ -8,21 +8,25 @@ C.app.use("/entity_views", express.static(__dirname + '/static'));
 
 CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, data) {
 
-  C.hook("hook_entity_view_" + data.entityType, [data], thisHook.authPass).then(function (filtered) {
+  C.hook("hook_entity_view", [data], thisHook.authPass).then(function (data) {
 
-    send(filtered[0]);
+    C.hook("hook_entity_view_" + data.entityType, [data], thisHook.authPass).then(function (filtered) {
 
-  }, function (fail) {
+      send(filtered[0]);
 
-    if (fail === "No such hook exists") {
+    }, function (fail) {
 
-      send(data);
+      if (fail === "No such hook exists") {
 
-    } else {
+        send(data);
 
-      thisHook.finish(true, data);
+      } else {
 
-    }
+        thisHook.finish(true, data);
+
+      }
+
+    });
 
   });
 
@@ -36,29 +40,33 @@ CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, data)
 
     thisHook.finish(true, data);
 
-  }
+  };
 
 });
 
 CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 
-  var entityId  = data._id;
+  var entityId = data._id;
 
-  C.hook("hook_entity_view_" + data.entityType, [data], thisHook.authPass).then(function (filtered) {
+  C.hook("hook_entity_view", [data], thisHook.authPass).then(function (data) {
 
-    send(filtered[0]);
+    C.hook("hook_entity_view_" + data.entityType, [data], thisHook.authPass).then(function (filtered) {
 
-  }, function (fail) {
+      send(filtered[0]);
 
-    if (fail === "No such hook exists") {
+    }, function (fail) {
 
-      send(data);
+      if (fail === "No such hook exists") {
 
-    } else {
+        send(data);
 
-      thisHook.finish(true, data);
+      } else {
 
-    }
+        thisHook.finish(true, data);
+
+      }
+
+    });
 
   });
 
@@ -72,7 +80,9 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, data)
 
       // When access permissions change or somesuch event happens
       // act as though the entity was deleted.
-      C.sendSocketMessage(["*"], "entityDelete", {_id: entityId});
+      C.sendSocketMessage(["*"], "entityDelete", {
+        _id: entityId
+      });
 
     }
 
