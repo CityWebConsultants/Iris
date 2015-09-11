@@ -46,19 +46,9 @@ var findTemplate = function () {
 
 }
 
-var parseTemplate = function (path, callback, swapVariables) {
+var parseTemplate = function (path, callback) {
 
   var output = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/templates/" + path, "utf-8");
-
-  if (swapVariables) {
-
-    swapVariables.forEach(function (element) {
-
-      output = output.split("[[" + element[0] + "]]").join(element[1]);
-
-    });
-
-  };
 
   //Get any embeded templates inside the template file
 
@@ -82,7 +72,7 @@ var parseTemplate = function (path, callback, swapVariables) {
 
           output = output.split("(((" + element + ")))").join(contents);
 
-        }, swapVariables);
+        });
 
       };
 
@@ -138,16 +128,6 @@ C.app.use(function (req, res, next) {
 
     if (data.entity) {
 
-      //Create variables array
-
-      var variables = [];
-
-      Object.keys(data.entity.fields._doc).forEach(function (field) {
-
-        variables.push(["current."+field, data.entity.fields._doc[field]]);
-
-      });
-      
       var template = findTemplate(data.entity.type, data.entity.id);
 
       parseTemplate(template, function (inner) {
@@ -158,11 +138,147 @@ C.app.use(function (req, res, next) {
 
           parseTemplate(wrapperTemplate, function (wrapper) {
 
-            wrapper = wrapper.split("[[MAINCONTENT]]").join(inner);
+              wrapper = wrapper.split("[[MAINCONTENT]]").join(inner);
 
-            res.send(wrapper);
+              var entityFetcher = wrapper.match(/<!---\[preload(.|\n)*?endpreload]--->/g);
 
-          }, variables);
+              var templateVars = {};
+
+              if (entityFetcher) {
+
+                entityFetcher.forEach(function (element, index) {
+
+                  var current = entityFetcher[index];
+
+                  current = current.substr(13);
+                  current = current.substr(0, current.length - 15);
+
+                  try {
+
+                    current = JSON.parse(current);
+
+                    if (current.queries && current.queries.length) {
+
+                      current.queries.forEach(function (query, index) {
+
+                        // Split query into sub sections
+
+                        var query = query.split("|");
+
+                        // Skip empty queries
+
+                        if (!query[2]) {
+
+                          current.queries[index] = undefined;
+                          return false;
+
+                        }
+
+                        try {
+
+                          JSON.parse(query[2]);
+
+                        } catch (e) {
+
+                          console.log(query[2]);
+                          console.log(e);
+
+                          current.queries[index] = undefined;
+                          return false;
+
+                        };
+
+                        current.queries[index] = ({
+
+                          field: query[0],
+                          comparison: query[1],
+                          compare: JSON.parse(query[2])
+
+                        });
+
+                      });
+
+                    }
+
+                    // Catch JSON parse error
+                  } catch (e) {
+                    console.log(e);
+                    current = undefined;
+                  }
+
+                  // Apply changes
+                  entityFetcher[index] = current;
+
+                  if (current && current.context) {
+                    templateVars[current.context] = current;
+                  }
+
+                });
+
+              }
+
+              var promises = [];
+
+              entityFetcher.forEach(function (fetcher) {
+
+                promises.push(
+
+                  C.promise(function (yes, no, data) {
+
+                    C.hook("hook_entity_fetch", fetcher, req.authPass).then(function (result) {
+
+                      templateVars[fetcher.context].result = result;
+
+                      yes();
+
+                    }, function (error) {
+
+                      console.log(error);
+
+                      no();
+
+                    });
+
+                  })
+
+                );
+
+              });
+
+              C.promiseChain(promises, function (success) {
+
+                var fields = data.entity.fields;
+
+                data = {
+                  html: wrapper,
+                  vars: templateVars
+                };
+
+                data.vars.current = fields;
+
+                C.hook("hook_frontend_template", data, req.authPass).then(function (success) {
+
+                  res.send(success.html);
+
+                }, function (fail) {
+
+                  if (fail === "No such hook exists") {
+
+                    res.send(wrapper);
+
+                  }
+
+                  res.respond(500, "Could not render template");
+
+                });
+
+              }, function (fail) {
+
+                console.log(fail);
+
+              });
+
+            });
 
         } else {
 
@@ -170,11 +286,11 @@ C.app.use(function (req, res, next) {
 
         }
 
-      }, variables);
+      });
 
     } else {
 
-      //Entity doesn't exist
+      // Entity doesn't exist
 
       next();
 
@@ -194,5 +310,23 @@ C.app.use(function (req, res, next) {
     },
     success,
     fail);
+
+});
+
+CM.frontend.registerHook("hook_frontend_template", 0, function (thisHook, data) {
+
+  var Mustache = require('mustache');
+
+  try {
+
+    data.html = Mustache.render(data.html, data.vars);
+
+    thisHook.finish(true, data);
+
+  } catch (e) {
+
+    thisHook.finish(false, "Mustache rendering failed");
+
+  }
 
 });
