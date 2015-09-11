@@ -1,4 +1,7 @@
-C.app.get("/fetch", function (req, res) {
+CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
+
+  var req = {};
+  req.body = data;
 
   if (req.body.queryList) {
 
@@ -14,13 +17,13 @@ C.app.get("/fetch", function (req, res) {
 
     } else {
 
-      res.respond(400, "Send queries as array");
+      thisHook.finish(false, "Send queries as an array");
       return false;
 
     }
 
   }
-
+  
   var entityTypes = [];
 
   // Populate list of targetted DB entities
@@ -39,7 +42,7 @@ C.app.get("/fetch", function (req, res) {
 
   } else {
 
-    res.respond(400, "Not a valid query");
+    thisHook.finish(false, "Not a valid query");
     return false;
 
 
@@ -111,7 +114,7 @@ C.app.get("/fetch", function (req, res) {
       query = [];
 
     }
-
+    
     var entities = {};
 
     //Query complete, now run on all entities and collect them
@@ -158,9 +161,9 @@ C.app.get("/fetch", function (req, res) {
 
           };
 
-          C.hook("hook_entity_query_alter", query, req.authPass).then(function (query) {
+          C.hook("hook_entity_query_alter", query, thisHook.authPass).then(function (query) {
 
-            C.hook("hook_entity_query_alter_" + type, query, req.authPass).then(function (query) {
+            C.hook("hook_entity_query_alter_" + type, query, thisHook.authPass).then(function (query) {
 
               fetch(query);
 
@@ -200,7 +203,7 @@ C.app.get("/fetch", function (req, res) {
 
           //General entity view hook
 
-          C.hook("hook_entity_view", entities, req.authPass).then(function (viewChecked) {
+          C.hook("hook_entity_view", entities, thisHook.authPass).then(function (viewChecked) {
 
             entities = viewChecked;
 
@@ -211,7 +214,7 @@ C.app.get("/fetch", function (req, res) {
 
             }
 
-            C.hook("hook_entity_view_" + entityBundle, entities[entityBundle], req.authPass).then(function (validated) {
+            C.hook("hook_entity_view_" + entityBundle, entities[entityBundle], thisHook.authPass).then(function (validated) {
 
               entities[entityBundle] = validated;
               yes();
@@ -241,12 +244,12 @@ C.app.get("/fetch", function (req, res) {
       });
 
       C.promiseChain(viewHooks, null, function (success) {
-
-        res.respond(200, entities);
+        
+        thisHook.finish(true, entities);
 
       }, function (fail) {
 
-        res.send("Fetch failed");
+        thisHook.finish(false, "Fetch failed");
 
       });
 
@@ -254,9 +257,7 @@ C.app.get("/fetch", function (req, res) {
 
     var fail = function (fail) {
 
-      console.log(fail);
-
-      res.respond(500, "Database error");
+      thisHook.finish(false, "Database error");
 
     };
 
@@ -264,9 +265,23 @@ C.app.get("/fetch", function (req, res) {
 
   } else {
 
-    res.send("not a valid query");
+    thisHook.finish(false, "not a valid query");
 
   }
+
+});
+
+C.app.get("/fetch", function (req, res) {
+  
+  C.hook("hook_entity_fetch", req.body, req.authPass).then(function (success) {
+
+    res.respond(200, success);
+
+  }, function (fail) {
+
+    res.respond(400, fail);
+
+  })
 
 });
 
