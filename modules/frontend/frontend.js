@@ -138,96 +138,150 @@ C.app.use(function (req, res, next) {
 
           parseTemplate(wrapperTemplate, function (wrapper) {
 
-              wrapper = wrapper.split("[[MAINCONTENT]]").join(inner);
+            // Special [[MAINCONTENT]] variable loads in the relevant page template.
+            wrapper = wrapper.split("[[MAINCONTENT]]").join(inner);
 
-              var entityFetcher = wrapper.match(/<!---\[preload(.|\n)*?endpreload]--->/g);
+            var cheerio = require('cheerio'),
+              $ = cheerio.load(wrapper);
 
-              var templateVars = {};
+            var entitiesToFetch = {};
+            var templateVars = {};
 
-              if (entityFetcher) {
+            /**
+             *  Use Cheerio to get calls for entities from the page.
+             */
+            var entitiesFromPage = function () {
 
-                entityFetcher.forEach(function (element, index) {
+              $('[data-preload-as]').each(function (index, element) {
 
-                  var current = entityFetcher[index];
+                var preloadAs = $(this).attr('data-preload-as');
+                var entities = $(this).attr('data-entities');
+                var queries = $(this).attr('data-queries');
+                var limit = $(this).attr('data-limit');
+                var skip = $(this).attr('data-skip');
+                var sort = $(this).attr('data-sort');
 
-                  current = current.substr(13);
-                  current = current.substr(0, current.length - 15);
+                if (preloadAs && entities) {
 
-                  try {
+                  entitiesToFetch[preloadAs] = {
+                    entities: [entities],
+                    queries: queries,
+                    limit: limit,
+                    skip: skip,
+                    sort: sort,
+                  };
 
-                    current = JSON.parse(current);
+                }
 
-                    if (current.queries && current.queries.length) {
+              });
 
-                      current.queries.forEach(function (query, index) {
+            };
+            entitiesFromPage();
 
-                        // Split query into sub sections
+            /**
+             *  Parse JSON and split queries from string into object.
+             */
+            var prepareQueries = function () {
 
-                        var query = query.split("|");
+              for (var entity in entitiesToFetch) {
 
-                        // Skip empty queries
+                var entity = entitiesToFetch[entity];
 
-                        if (!query[2]) {
+                // Process sort
+                try {
 
-                          current.queries[index] = undefined;
-                          return false;
+                  entity.sort = JSON.parse(entity.sort);
 
-                        }
+                } catch (e) {
 
-                        try {
+                  entity.sort = undefined;
 
-                          JSON.parse(query[2]);
+                }
 
-                        } catch (e) {
+                // Process queries
+                try {
 
-                          console.log(query[2]);
-                          console.log(e);
+                  if (entity.queries) {
 
-                          current.queries[index] = undefined;
-                          return false;
+                    entity.queries = entity.queries.split(',');
 
-                        };
+                  }
 
-                        current.queries[index] = ({
+                  if (entity.queries && entity.queries.length) {
 
-                          field: query[0],
-                          comparison: query[1],
-                          compare: JSON.parse(query[2])
+                    entity.queries.forEach(function (query, index) {
 
-                        });
+                      // Split query into sub sections
+
+                      var query = query.split("|");
+
+                      // Skip empty queries
+
+                      if (!query[2]) {
+
+                        entity.queries[index] = undefined;
+                        return false;
+
+                      }
+
+                      try {
+
+                        JSON.parse(query[2]);
+
+                      } catch (e) {
+
+                        console.log(query[2]);
+                        console.log(e);
+
+                        entity.queries[index] = undefined;
+                        return false;
+
+                      };
+
+                      entity.queries[index] = ({
+
+                        field: query[0],
+                        comparison: query[1],
+                        compare: JSON.parse(query[2])
 
                       });
 
-                    }
+                    });
 
-                    // Catch JSON parse error
-                  } catch (e) {
-                    console.log(e);
-                    current = undefined;
                   }
 
-                  // Apply changes
-                  entityFetcher[index] = current;
-
-                  if (current && current.context) {
-                    templateVars[current.context] = current;
-                  }
-
-                });
+                  // Catch JSON parse error
+                } catch (e) {
+                  console.log(e);
+                  entity = undefined;
+                }
 
               }
 
-              var promises = [];
+            };
+            prepareQueries();
 
-              entityFetcher.forEach(function (fetcher) {
+            var promises = [];
+
+            /**
+             *  Create array of promises that each run hook_entity_fetch on a query.
+             */
+            var makeQueryPromises = function () {
+
+              for (var entity in entitiesToFetch) {
+
+                var key = entity;
+                entity = entitiesToFetch[entity];
 
                 promises.push(
 
                   C.promise(function (yes, no, data) {
 
-                    C.hook("hook_entity_fetch", fetcher, req.authPass).then(function (result) {
+                    C.hook("hook_entity_fetch", {
+                      queryList: [entity]
+                    }, req.authPass).then(function (result) {
 
-                      templateVars[fetcher.context].result = result;
+                      templateVars[key] = result;
 
                       yes();
 
@@ -243,20 +297,38 @@ C.app.use(function (req, res, next) {
 
                 );
 
-              });
+              }
 
-              C.promiseChain(promises, function (success) {
+            };
+            makeQueryPromises();
 
-                var fields = data.entity.fields;
+            // If no queries, make a default promise
+            if (Object.keys(entitiesToFetch).length === 0) {
 
-                data = {
-                  html: wrapper,
-                  vars: templateVars
-                };
+              promises = [
+                C.promise(function (yes, no, data) {
 
-                data.vars.current = fields;
+                  yes();
 
-                C.hook("hook_frontend_template", data, req.authPass).then(function (success) {
+                })
+              ];
+            }
+
+            C.promiseChain(promises, function (success) {
+
+              // Prepare, for templating, the page HTML and fetched query variables
+              var frontendData = {
+                html: wrapper,
+                vars: templateVars
+              };
+
+              var makeTemplate = function () {
+
+                // Make `current` an object rather than an array of one object
+                frontendData.vars.current = frontendData.vars.current[data.entity.fields.entityType][0];
+
+                // Pass to templating systems
+                C.hook("hook_frontend_template", frontendData, req.authPass).then(function (success) {
 
                   res.send(success.html);
 
@@ -272,13 +344,41 @@ C.app.use(function (req, res, next) {
 
                 });
 
-              }, function (fail) {
+              };
 
-                console.log(fail);
+              // Prepare the `current` entity for view hooks
+              var currentFields = {};
+              currentFields[data.entity.fields.entityType] = [data.entity.fields];
+
+              // Confirm that the `current` entity is viewable
+              C.hook("hook_entity_view", currentFields, req.authPass).then(function (filtered) {
+
+                C.hook("hook_entity_view_" + data.entity.fields.entityType, currentFields, req.authPass).then(function (filtered) {
+
+                  frontendData.vars.current = filtered;
+                  makeTemplate();
+
+                }, function (fail) {
+
+                  if (fail === "No such hook exists") {
+
+                    frontendData.vars.current = filtered;
+                    makeTemplate();
+
+                  }
+
+                });
 
               });
 
+            // If the query promises fail
+            }, function (fail) {
+
+              console.log(fail);
+
             });
+
+          });
 
         } else {
 

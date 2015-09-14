@@ -8,9 +8,13 @@ C.app.use("/entity_views", express.static(__dirname + '/static'));
 
 CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, data) {
 
-  C.hook("hook_entity_view", [data], thisHook.authPass).then(function (data) {
+  var entity = {};
 
-    C.hook("hook_entity_view_" + data.entityType, [data], thisHook.authPass).then(function (filtered) {
+  entity[data.entityType] = [data];
+
+  C.hook("hook_entity_view", entity, thisHook.authPass).then(function (data) {
+
+    C.hook("hook_entity_view_" + data.entityType, entity[data.entityType], thisHook.authPass).then(function (filtered) {
 
       send(filtered[0]);
 
@@ -48,9 +52,13 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, data)
 
   var entityId = data._id;
 
-  C.hook("hook_entity_view", [data], thisHook.authPass).then(function (data) {
+  var entity = {};
 
-    C.hook("hook_entity_view_" + data.entityType, [data], thisHook.authPass).then(function (filtered) {
+  entity[data.entityType] = [data];
+
+  C.hook("hook_entity_view", entity, thisHook.authPass).then(function (data) {
+
+    C.hook("hook_entity_view_" + data.entityType, entity[data.entityType], thisHook.authPass).then(function (filtered) {
 
       send(filtered[0]);
 
