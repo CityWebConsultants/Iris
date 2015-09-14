@@ -6,27 +6,23 @@ var express = require('express');
 
 C.app.use("/entity_views", express.static(__dirname + '/static'));
 
-CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, data) {
+CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, entity) {
+  
+  C.hook("hook_entity_view", entity, thisHook.authPass).then(function (filtered) {
 
-  var entity = {};
-
-  entity[data.entityType] = [data];
-
-  C.hook("hook_entity_view", entity, thisHook.authPass).then(function (data) {
-
-    C.hook("hook_entity_view_" + data.entityType, entity[data.entityType], thisHook.authPass).then(function (filtered) {
-
-      send(filtered[0]);
+    C.hook("hook_entity_view_" + entity.entityType, filtered, thisHook.authPass).then(function (filtered) {
+      
+      send(filtered);
 
     }, function (fail) {
 
       if (fail === "No such hook exists") {
 
-        send(data);
+        send(filtered);
 
       } else {
 
-        thisHook.finish(true, data);
+        thisHook.finish(true, filtered);
 
       }
 
@@ -48,19 +44,13 @@ CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, data)
 
 });
 
-CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, data) {
+CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
 
-  var entityId = data._id;
+  C.hook("hook_entity_view", entity, thisHook.authPass).then(function (filtered) {
 
-  var entity = {};
+    C.hook("hook_entity_view_" + entity.entityType, filtered, thisHook.authPass).then(function (filtered) {
 
-  entity[data.entityType] = [data];
-
-  C.hook("hook_entity_view", entity, thisHook.authPass).then(function (data) {
-
-    C.hook("hook_entity_view_" + data.entityType, entity[data.entityType], thisHook.authPass).then(function (filtered) {
-
-      send(filtered[0]);
+      send(filtered);
 
     }, function (fail) {
 
