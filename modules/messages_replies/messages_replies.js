@@ -23,10 +23,8 @@ C.registerDbSchema("message", {
 /* ------- */
 
 
-CM.messages_replies.registerHook("hook_entity_view_message", 1, function (thisHook, data) {
-
-  //Add author
-
+CM.messages_replies.registerHook("hook_entity_view_bulk", 1, function (thisHook, data) {
+  
   // Prepare threaded message
 
   var prepareThreads = function (messages) {

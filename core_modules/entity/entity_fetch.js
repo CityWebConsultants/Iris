@@ -23,7 +23,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
     }
 
   }
-  
+
   var entityTypes = [];
 
   // Populate list of targetted DB entities
@@ -114,7 +114,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
       query = [];
 
     }
-    
+
     var entities = {};
 
     //Query complete, now run on all entities and collect them
@@ -124,8 +124,6 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
     var util = require('util');
 
     entityTypes.forEach(function (type) {
-
-      entities[type] = [];
 
       //First check if the user can view those entities.
 
@@ -149,7 +147,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
                 doc.forEach(function (element) {
 
-                  entities[type].push(element);
+                  entities[element._id] = element;
 
                 });
 
@@ -197,26 +195,19 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
       var viewHooks = [];
 
-      Object.keys(entities).forEach(function (entityBundle) {
+      Object.keys(entities).forEach(function (_id) {
 
         viewHooks.push(C.promise(function (data, yes, no) {
 
           //General entity view hook
 
-          C.hook("hook_entity_view", entities, thisHook.authPass).then(function (viewChecked) {
+          C.hook("hook_entity_view", entities[_id], thisHook.authPass).then(function (viewChecked) {
 
-            entities = viewChecked;
+            entities[_id] = viewChecked;
 
-            if (!entities[entityBundle]) {
+            C.hook("hook_entity_view_" + viewChecked.entityType, entities[_id], thisHook.authPass).then(function (validated) {
 
-              no("No entities");
-              return false;
-
-            }
-
-            C.hook("hook_entity_view_" + entityBundle, entities[entityBundle], thisHook.authPass).then(function (validated) {
-
-              entities[entityBundle] = validated;
+              entities[entity._id] = validated;
               yes();
 
             }, function (fail) {
@@ -243,9 +234,25 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
       });
 
-      C.promiseChain(viewHooks, null, function (success) {
-        
-        thisHook.finish(true, entities);
+      C.promiseChain(viewHooks, null, function () {
+
+        var output = [];
+
+        for (entity in entities) {
+
+          output.push(entities[entity]);
+
+        }
+
+        C.hook("hook_entity_view_bulk", output, thisHook.authPass).then(function (output) {
+
+          thisHook.finish(true, output);
+
+        }, function (fail) {
+
+          thisHook.finish(false, fail);
+
+        });
 
       }, function (fail) {
 
@@ -272,7 +279,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 });
 
 C.app.get("/fetch", function (req, res) {
-  
+
   C.hook("hook_entity_fetch", req.body, req.authPass).then(function (success) {
 
     res.respond(200, success);
@@ -292,59 +299,45 @@ CM.entity.registerHook("hook_entity_query_alter", 0, function (thisHook, query) 
 
 });
 
-CM.entity.registerHook("hook_entity_view", 0, function (thisHook, data) {
+CM.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
 
   // Add timestamp
 
-  Object.keys(data).forEach(function (type) {
+  var entity = JSON.parse(JSON.stringify(entity));
 
-    data[type].forEach(function (entity) {
+  var mongoid = mongoose.Types.ObjectId(entity._id);
 
-      if (entity._id) {
+  entity.timestamp = Date.parse(mongoid.getTimestamp());
 
-        var mongoid = mongoose.Types.ObjectId(entity._id);
+  // Check if user can see entity type
 
-        entity.timestamp = Date.parse(mongoid.getTimestamp());
+  if (!CM.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass)) {
 
-      }
+    if (!CM.auth.globals.checkPermissions(["can view own " + entity.entityType], thisHook.authPass)) {
 
-    });
+      //Can't view any of this type, delete it
 
-  });
+      entity = undefined;
 
-  //Loop over entity types and check if user can see them
+    } else {
 
-  Object.keys(data).forEach(function (type) {
+      // Check if owned by user
 
-    if (!CM.auth.globals.checkPermissions(["can view any " + type], thisHook.authPass)) {
+      if (entity.entityAuthor !== thisHook.authPass.userid) {
 
-      if (!CM.auth.globals.checkPermissions(["can view own " + type], thisHook.authPass)) {
-
-        //Can't view any of this type, delete them
-
-        delete data[type];
-
-      } else {
-
-        //Loop over all entities to check if any are owned by the user, remove others
-
-        data[type].forEach(function (item, index) {
-
-          if (item.entityAuthor !== thisHook.authPass.userid) {
-
-            if (data[type]) {
-              data[type] = data[type].splice[index, 1];
-
-            }
-          }
-
-        });
+        entity = undefined;
 
       }
+
     }
+  }
 
-  });
+  thisHook.finish(true, entity);
 
-  thisHook.finish(true, data);
+});
+
+CM.entity.registerHook("hook_entity_view_bulk", 0, function (thisHook, entityList) {
+
+  thisHook.finish(true, entityList);
 
 });

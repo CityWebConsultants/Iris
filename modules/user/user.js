@@ -79,26 +79,30 @@ C.app.post("/login", function (req, res) {
 
 });
 
-CM.user.registerHook("hook_entity_view_message", 2, function (thisHook, entities) {
-    
+CM.user.registerHook("hook_entity_view_bulk", 2, function (thisHook, entities) {
+
   var userids = {};
 
   var promises = [];
 
   entities.forEach(function (message) {
 
-    userids[message.userid] = "";
-
+    if (message.userid) {
+      
+      userids[message.userid] = "";
+    
+    }
+    
   });
 
   Object.keys(userids).forEach(function (key) {
-    
+
     promises.push(C.promise(function (data, success, fail) {
 
       C.dbCollections['user'].findOne({
         userid: key
       }, function (err, user) {
-        
+
         userids[key] = user.name;
 
         success(data);
@@ -110,13 +114,13 @@ CM.user.registerHook("hook_entity_view_message", 2, function (thisHook, entities
   });
 
   var success = function (success) {
-    
+
     success.forEach(function (message, index) {
-            
+
       success[index].username = userids[message.userid];
-      
+
     });
-            
+
     thisHook.finish(true, success);
 
   };

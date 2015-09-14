@@ -272,7 +272,7 @@ C.app.use(function (req, res, next) {
 
                 var key = entity;
                 entity = entitiesToFetch[entity];
-
+                
                 promises.push(
 
                   C.promise(function (yes, no, data) {
@@ -280,7 +280,7 @@ C.app.use(function (req, res, next) {
                     C.hook("hook_entity_fetch", {
                       queryList: [entity]
                     }, req.authPass).then(function (result) {
-
+                      
                       templateVars[key] = result;
 
                       yes();
@@ -323,13 +323,10 @@ C.app.use(function (req, res, next) {
               };
 
               var makeTemplate = function () {
-
-                // Make `current` an object rather than an array of one object
-                frontendData.vars.current = frontendData.vars.current[data.entity.fields.entityType][0];
-
+                                
                 // Pass to templating systems
                 C.hook("hook_frontend_template", frontendData, req.authPass).then(function (success) {
-
+                  
                   res.send(success.html);
 
                 }, function (fail) {
@@ -346,14 +343,12 @@ C.app.use(function (req, res, next) {
 
               };
 
-              // Prepare the `current` entity for view hooks
-              var currentFields = {};
-              currentFields[data.entity.fields.entityType] = [data.entity.fields];
 
               // Confirm that the `current` entity is viewable
-              C.hook("hook_entity_view", currentFields, req.authPass).then(function (filtered) {
-
-                C.hook("hook_entity_view_" + data.entity.fields.entityType, currentFields, req.authPass).then(function (filtered) {
+              
+              C.hook("hook_entity_view", data.entity.fields, req.authPass).then(function (filtered) {
+                
+                C.hook("hook_entity_view_" + filtered.entityType, filtered, req.authPass).then(function (filtered) {
 
                   frontendData.vars.current = filtered;
                   makeTemplate();
@@ -361,7 +356,7 @@ C.app.use(function (req, res, next) {
                 }, function (fail) {
 
                   if (fail === "No such hook exists") {
-
+                    
                     frontendData.vars.current = filtered;
                     makeTemplate();
 
