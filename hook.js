@@ -127,7 +127,11 @@ var hook = function (hookname, data, authPass, req) {
             console.log("authPass:");
             console.log(thisHook.authPass);
             console.log("message:");
-            console.log(e);
+            if (e.stack) {
+              console.log(e.stack);
+            } else {
+              console.log(e);
+            }
             console.log("***********");
             no("ERROR");
           }
