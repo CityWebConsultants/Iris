@@ -87,6 +87,30 @@ var moduleTemplate = (function () {
 
 })
 
+function _getCallerFile() {
+  try {
+    var err = new Error();
+    var callerfile;
+    var currentfile;
+
+    Error.prepareStackTrace = function (err, stack) {
+      return stack;
+    };
+
+    currentfile = err.stack.shift().getFileName();
+
+    while (err.stack.length) {
+      callerfile = err.stack.shift().getFileName();
+
+      if (currentfile !== callerfile) return callerfile;
+    }
+  } catch (err) {}
+  return undefined;
+}
+
+var path = require('path');
+var express = require('express');
+
 C.registerModule = function (name) {
 
   if (CM[name]) {
@@ -97,7 +121,7 @@ C.registerModule = function (name) {
   } else {
 
     CM[name] = new moduleTemplate;
-//    CM[name].path = C.getModulePath(name);
+    CM[name].path = path.parse(_getCallerFile()).dir;
 
     //Create config directory
 
@@ -114,6 +138,8 @@ C.registerModule = function (name) {
     mkdirSync(C.configPath + "/" + name);
 
     CM[name].configPath = C.configPath + "/" + name;
+    
+    C.app.use('/modules/' + name, express.static(CM[name].path + "/static"));
 
     Object.seal(CM[name]);
 
