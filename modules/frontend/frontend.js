@@ -11,14 +11,26 @@ var mkdirSync = function (path) {
   }
 }
 
-mkdirSync(C.sitePath + "/" + "configurations/frontend/templates");
-mkdirSync(C.sitePath + "/" + "configurations/frontend/static");
+// Check that theme exists and is sane
+try {
+
+  fs.readdirSync(C.sitePath + '/' + C.config.theme + "/templates");
+  fs.readdirSync(C.sitePath + '/' + C.config.theme + "/static");
+
+} catch (e) {
+
+  console.log("Theme does not contain /templates or /static directories.");
+
+}
 
 // Template Registry. Contains arrays of directories to look for templates in.
 CM.frontend.globals.templateRegistry = {
-  theme: [C.sitePath + "/" + "configurations/frontend/templates"],
+  theme: [C.sitePath + '/' + C.config.theme + "/templates"],
   external: [__dirname + '/templates']
 };
+
+// Theme static setup
+C.app.use("/static", express.static(C.sitePath + '/' + C.config.theme + '/static'));
 
 // Function for returning a parsed HTML template for an entity, including sub templates
 
@@ -467,8 +479,6 @@ var parseTemplate = function (path, entity, callback) {
   callback(output);
 
 };
-
-C.app.use("/static", express.static(C.sitePath + "/" + "configurations/frontend/static"));
 
 C.app.use(function (req, res, next) {
 
