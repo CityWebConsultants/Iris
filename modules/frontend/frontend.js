@@ -25,13 +25,13 @@ var findTemplate = function () {
   //Loop over arguments
 
   var args = Array.prototype.slice.call(arguments);
-
+  
   var i;
 
   for (i = 0; i <= args.length + 1; i += 1) {
 
     var lookingFor = args.join("_") + ".html";
-
+        
     if (templates.indexOf(lookingFor) !== -1) {
 
       return lookingFor;
@@ -46,8 +46,8 @@ var findTemplate = function () {
 
 }
 
-var parseTemplate = function (path, callback) {
-
+var parseTemplate = function (path, entity, callback) {
+    
   var output = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/templates/" + path, "utf-8");
 
   //Get any embeded templates inside the template file
@@ -62,13 +62,17 @@ var parseTemplate = function (path, callback) {
 
     embeds.forEach(function (element) {
 
-      var path = element.split("_");
-
+      var path = [];
+          
+      path.push(element);
+      path.push(entity.entityType);
+      path.push(entity._id);
+                  
       var subTemplate = findTemplate.apply(this, path);
 
       if (subTemplate) {
 
-        parseTemplate(subTemplate, function (contents) {
+        parseTemplate(subTemplate, entity, function (contents) {
 
           output = output.split("(((" + element + ")))").join(contents);
 
@@ -132,13 +136,13 @@ C.app.use(function (req, res, next) {
 
       var template = findTemplate(data.entity.type, data.entity.id);
 
-      parseTemplate(template, function (inner) {
+      parseTemplate(template, data.entity.fields, function (inner) {
 
         var wrapperTemplate = findTemplate("html", data.entity.type, data.entity.id);
 
         if (wrapperTemplate) {
 
-          parseTemplate(wrapperTemplate, function (wrapper) {
+          parseTemplate(wrapperTemplate, data.entity.fields, function (wrapper) {
 
             // Special [[MAINCONTENT]] variable loads in the relevant page template.
             wrapper = wrapper.split("[[MAINCONTENT]]").join(inner);
