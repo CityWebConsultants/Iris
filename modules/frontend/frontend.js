@@ -94,6 +94,8 @@ C.app.use(function (req, res, next) {
 
   var promises = [];
 
+  // Query all entity types for an entity with the current 'path'
+
   entityTypes.forEach(function (type) {
 
     promises.push(C.promise(function (data, yes, no) {
@@ -141,241 +143,249 @@ C.app.use(function (req, res, next) {
             // Special [[MAINCONTENT]] variable loads in the relevant page template.
             wrapper = wrapper.split("[[MAINCONTENT]]").join(inner);
 
-            var cheerio = require('cheerio'),
-              $ = cheerio.load(wrapper);
+            var makePreloadQueries = function () {
 
-            var entitiesToFetch = {};
-            var templateVars = {};
+              var cheerio = require('cheerio'),
+                $ = cheerio.load(wrapper);
 
-            /**
-             *  Use Cheerio to get calls for entities from the page.
-             */
-            var entitiesFromPage = function () {
+              var entitiesToFetch = {};
+              var templateVars = {};
 
-              $('[data-preload-as]').each(function (index, element) {
+              /**
+               *  Use Cheerio to get calls for entities from the page.
+               */
+              var entitiesFromPage = function () {
 
-                var preloadAs = $(this).attr('data-preload-as');
-                var entities = $(this).attr('data-entities');
-                var queries = $(this).attr('data-queries');
-                var limit = $(this).attr('data-limit');
-                var skip = $(this).attr('data-skip');
-                var sort = $(this).attr('data-sort');
+                $('[data-preload-as]').each(function (index, element) {
 
-                if (preloadAs && entities) {
+                  var preloadAs = $(this).attr('data-preload-as');
+                  var entities = $(this).attr('data-entities');
+                  var queries = $(this).attr('data-queries');
+                  var limit = $(this).attr('data-limit');
+                  var skip = $(this).attr('data-skip');
+                  var sort = $(this).attr('data-sort');
 
-                  entitiesToFetch[preloadAs] = {
-                    entities: [entities],
-                    queries: queries,
-                    limit: limit,
-                    skip: skip,
-                    sort: sort,
-                  };
+                  if (preloadAs && entities) {
 
-                }
-
-              });
-
-            };
-            entitiesFromPage();
-
-            /**
-             *  Parse JSON and split queries from string into object.
-             */
-            var prepareQueries = function () {
-
-              for (var entity in entitiesToFetch) {
-
-                var entity = entitiesToFetch[entity];
-
-                // Process sort
-                try {
-
-                  entity.sort = JSON.parse(entity.sort);
-
-                } catch (e) {
-
-                  entity.sort = undefined;
-
-                }
-
-                // Process queries
-                try {
-
-                  if (entity.queries) {
-
-                    entity.queries = entity.queries.split(',');
+                    entitiesToFetch[preloadAs] = {
+                      entities: [entities],
+                      queries: queries,
+                      limit: limit,
+                      skip: skip,
+                      sort: sort,
+                    };
 
                   }
 
-                  if (entity.queries && entity.queries.length) {
+                });
 
-                    entity.queries.forEach(function (query, index) {
+              };
+              entitiesFromPage();
 
-                      // Split query into sub sections
+              /**
+               *  Parse JSON and split queries from string into object.
+               */
+              var prepareQueries = function () {
 
-                      var query = query.split("|");
+                for (var entity in entitiesToFetch) {
 
-                      // Skip empty queries
+                  var entity = entitiesToFetch[entity];
 
-                      if (!query[2]) {
+                  // Process sort
+                  try {
 
-                        entity.queries[index] = undefined;
-                        return false;
+                    entity.sort = JSON.parse(entity.sort);
 
-                      }
+                  } catch (e) {
 
-                      try {
+                    entity.sort = undefined;
 
-                        JSON.parse(query[2]);
+                  }
 
-                      } catch (e) {
+                  // Process queries
+                  try {
 
-                        console.log(query[2]);
-                        console.log(e);
+                    if (entity.queries) {
 
-                        entity.queries[index] = undefined;
-                        return false;
+                      entity.queries = entity.queries.split(',');
 
-                      };
+                    }
 
-                      entity.queries[index] = ({
+                    if (entity.queries && entity.queries.length) {
 
-                        field: query[0],
-                        comparison: query[1],
-                        compare: JSON.parse(query[2])
+                      entity.queries.forEach(function (query, index) {
+
+                        // Split query into sub sections
+
+                        var query = query.split("|");
+
+                        // Skip empty queries
+
+                        if (!query[2]) {
+
+                          entity.queries[index] = undefined;
+                          return false;
+
+                        }
+
+                        try {
+
+                          JSON.parse(query[2]);
+
+                        } catch (e) {
+
+                          console.log(query[2]);
+                          console.log(e);
+
+                          entity.queries[index] = undefined;
+                          return false;
+
+                        };
+
+                        entity.queries[index] = ({
+
+                          field: query[0],
+                          comparison: query[1],
+                          compare: JSON.parse(query[2])
+
+                        });
 
                       });
 
-                    });
+                    }
 
+                    // Catch JSON parse error
+                  } catch (e) {
+                    console.log(e);
+                    entity = undefined;
                   }
 
-                  // Catch JSON parse error
-                } catch (e) {
-                  console.log(e);
-                  entity = undefined;
                 }
 
-              }
+              };
+              prepareQueries();
 
-            };
-            prepareQueries();
+              var promises = [];
 
-            var promises = [];
+              /**
+               *  Create array of promises that each run hook_entity_fetch on a query.
+               */
+              var makeQueryPromises = function () {
 
-            /**
-             *  Create array of promises that each run hook_entity_fetch on a query.
-             */
-            var makeQueryPromises = function () {
+                for (var entity in entitiesToFetch) {
 
-              for (var entity in entitiesToFetch) {
+                  var key = entity;
+                  entity = entitiesToFetch[entity];
 
-                var key = entity;
-                entity = entitiesToFetch[entity];
-                
-                promises.push(
+                  promises.push(
 
-                  C.promise(function (yes, no, data) {
+                    C.promise(function (yes, no, data) {
 
-                    C.hook("hook_entity_fetch", {
-                      queryList: [entity]
-                    }, req.authPass).then(function (result) {
-                      
-                      templateVars[key] = result;
+                      C.hook("hook_entity_fetch", {
+                        queryList: [entity]
+                      }, req.authPass).then(function (result) {
 
-                      yes();
+                        templateVars[key] = result;
 
-                    }, function (error) {
+                        yes();
 
-                      console.log(error);
+                      }, function (error) {
 
-                      no();
+                        console.log(error);
 
-                    });
+                        no();
 
-                  })
+                      });
 
-                );
+                    })
 
-              }
+                  );
 
-            };
-            makeQueryPromises();
+                }
 
-            // If no queries, make a default promise
-            if (Object.keys(entitiesToFetch).length === 0) {
+              };
+              makeQueryPromises();
 
-              promises = [
+              // If no queries, make a default promise
+              if (Object.keys(entitiesToFetch).length === 0) {
+
+                promises = [
                 C.promise(function (yes, no, data) {
 
-                  yes();
+                    yes();
 
-                })
+                  })
               ];
-            }
+              }
 
-            C.promiseChain(promises, function (success) {
+              C.promiseChain(promises, function (success) {
 
-              // Prepare, for templating, the page HTML and fetched query variables
-              var frontendData = {
-                html: wrapper,
-                vars: templateVars
-              };
+                // Prepare, for templating, the page HTML and fetched query variables
+                var frontendData = {
+                  html: wrapper,
+                  vars: templateVars
+                };
 
-              var makeTemplate = function () {
-                                
-                // Pass to templating systems
-                C.hook("hook_frontend_template", frontendData, req.authPass).then(function (success) {
-                  
-                  res.send(success.html);
+                // Pass frontentData to templating hook and send to client
+                var makeTemplate = function () {
 
-                }, function (fail) {
+                  // Pass to templating systems
+                  C.hook("hook_frontend_template", frontendData, req.authPass).then(function (success) {
 
-                  if (fail === "No such hook exists") {
+                    res.send(success.html);
 
-                    res.send(wrapper);
+                  }, function (fail) {
 
-                  }
+                    if (fail === "No such hook exists") {
 
-                  res.respond(500, "Could not render template");
+                      res.send(wrapper);
 
-                });
+                    }
 
-              };
+                    res.respond(500, "Could not render template");
 
+                  });
 
-              // Confirm that the `current` entity is viewable
-              
-              C.hook("hook_entity_view", data.entity.fields, req.authPass).then(function (filtered) {
-                
-                C.hook("hook_entity_view_" + filtered.entityType, filtered, req.authPass).then(function (filtered) {
+                };
 
-                  frontendData.vars.current = filtered;
-                  makeTemplate();
+                // Confirm that the `current` entity is viewable and pass to makeTemplate().
 
-                }, function (fail) {
+                C.hook("hook_entity_view", data.entity.fields, req.authPass).then(function (filtered) {
 
-                  if (fail === "No such hook exists") {
-                    
+                  C.hook("hook_entity_view_" + filtered.entityType, filtered, req.authPass).then(function (filtered) {
+
                     frontendData.vars.current = filtered;
                     makeTemplate();
 
-                  }
+                  }, function (fail) {
+
+                    if (fail === "No such hook exists") {
+
+                      frontendData.vars.current = filtered;
+                      makeTemplate();
+
+                    }
+
+                  });
 
                 });
 
+                // If the query promises fail
+              }, function (fail) {
+
+                console.log(fail);
+
               });
 
-            // If the query promises fail
-            }, function (fail) {
+            };
 
-              console.log(fail);
-
-            });
+            makePreloadQueries();
 
           });
 
         } else {
+
+          // else no wrapperTemplate
 
           res.send(inner);
 
