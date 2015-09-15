@@ -14,41 +14,139 @@ var mkdirSync = function (path) {
 mkdirSync(C.sitePath + "/" + "configurations/frontend/templates");
 mkdirSync(C.sitePath + "/" + "configurations/frontend/static");
 
+// Template Registry. Contains arrays of directories to look for templates in.
+CM.frontend.globals.templateRegistry = {
+  theme: [C.sitePath + "/" + "configurations/frontend/templates"],
+  external: [__dirname + '/templates']
+};
+
 //Function for finding most specific matching template
 
 var findTemplate = function () {
 
-  //Get files in template folder
-
-  var templates = fs.readdirSync(C.sitePath + "/" + "configurations/frontend/templates");
-
-  //Loop over arguments
-
   var args = Array.prototype.slice.call(arguments);
 
-  var i;
+  // Compare top-level arguments against given files
 
-  for (i = 0; i <= args.length + 1; i += 1) {
+  var lookForTemplate = function (files, args) {
 
-    var lookingFor = args.join("_") + ".html";
+    var searchArgs = JSON.parse(JSON.stringify(args));
 
-    if (templates.indexOf(lookingFor) !== -1) {
+    //Loop over arguments
 
-      return lookingFor;
+    var i;
+
+    for (i = 0; i <= searchArgs.length + 1; i += 1) {
+
+      var lookingFor = searchArgs.join("_") + ".html";
+
+      if (files.indexOf(lookingFor) !== -1) {
+
+        return lookingFor;
+
+      }
+
+      searchArgs.splice(searchArgs.length - 1, 1);
 
     };
 
-    args.splice(args.length - 1, 1);
+    return false;
 
   };
 
-  return false;
+  // Get files in template folders
 
-}
+  // This could be cached or otherwise done on startup, but we want to be able to edit templates
+  // without restarting or clearing caches.
+
+  var found = [];
+
+  CM.frontend.globals.templateRegistry.theme.forEach(function (directory) {
+
+    var files = fs.readdirSync(directory);
+
+    var result = lookForTemplate(files, args);
+
+    if (result) {
+
+      found.push({directory: directory, filename: result, rank: 1});
+
+    }
+
+  });
+
+  CM.frontend.globals.templateRegistry.external.forEach(function (directory) {
+
+    var files = fs.readdirSync(directory);
+
+    var result = lookForTemplate(files, args);
+
+    if (result) {
+
+      found.push({directory: directory, filename: result, rank: 0});
+
+    }
+
+  });
+
+// return path or false
+
+  // Sort so that longest and hence most specific filenames are at the top
+  var sortLength = function (a, b) {
+
+    if (a.filename.split('_').length > b.filename.split('_').length) {
+      return -1;
+    }
+
+    if (a.filename.split('_').length < b.filename.split('_').length) {
+      return 1;
+    }
+
+    return 0;
+
+  };
+
+  found.sort(sortLength);
+
+  // Filter out filenames less specific than the top
+  found = found.filter(function (value) {
+
+    if (value.filename.split('_').length < found[0].filename.split('_').length) {
+      return false;
+    } else {
+      return true;
+    }
+
+  });
+
+  // Sort by rank
+    var sortRank = function (a, b) {
+
+    if (a.rank > b.rank) {
+      return -1;
+    }
+
+    if (a.rank < b.rank) {
+      return 1;
+    }
+
+    return 0;
+
+  };
+
+  found.sort(sortRank);
+
+  if (found[0]) {
+    return found[0].directory + '/' + found[0].filename;
+  } else {
+    return false;
+  }
+
+};
 
 var parseTemplate = function (path, callback) {
 
-  var output = fs.readFileSync(C.sitePath + "/" + "configurations/frontend/templates/" + path, "utf-8");
+  var output = fs.readFileSync(path, "utf-8");
 
   //Get any embeded templates inside the template file
 
