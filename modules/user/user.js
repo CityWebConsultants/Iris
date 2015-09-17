@@ -50,9 +50,9 @@ C.app.post("/login", function (req, res) {
 
       if (doc) {
 
-        C.hook("hook_auth_maketoken", {
+        C.hook("hook_auth_maketoken", "root", null, {
           userid: doc.userid
-        }, "root").then(function (token) {
+        }).then(function (token) {
 
           res.cookie('userid', doc.userid);
           res.cookie('token', token.id);
@@ -88,11 +88,11 @@ CM.user.registerHook("hook_entity_view_bulk", 2, function (thisHook, entities) {
   entities.forEach(function (message) {
 
     if (message.userid) {
-      
+
       userids[message.userid] = "";
-    
+
     }
-    
+
   });
 
   Object.keys(userids).forEach(function (key) {
@@ -144,7 +144,7 @@ C.app.get("/checkauth", function (req, res) {
 
 C.app.post("/logout", function (req, res) {
 
-  C.hook("hook_auth_clearauth", req.authPass.userid, "root");
+  C.hook("hook_auth_clearauth", "root", null, req.authPass.userid);
 
   res.send("logged out");
 

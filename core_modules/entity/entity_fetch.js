@@ -159,9 +159,9 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
           };
 
-          C.hook("hook_entity_query_alter", query, thisHook.authPass).then(function (query) {
+          C.hook("hook_entity_query_alter", thisHook.authPass, null, query).then(function (query) {
 
-            C.hook("hook_entity_query_alter_" + type, query, thisHook.authPass).then(function (query) {
+            C.hook("hook_entity_query_alter_" + type, thisHook.authPass, null, query).then(function (query) {
 
               fetch(query);
 
@@ -198,14 +198,14 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
       Object.keys(entities).forEach(function (_id) {
 
         viewHooks.push(C.promise(function (data, yes, no) {
-
+          
           //General entity view hook
 
-          C.hook("hook_entity_view", entities[_id], thisHook.authPass).then(function (viewChecked) {
+          C.hook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
 
             entities[_id] = viewChecked;
 
-            C.hook("hook_entity_view_" + viewChecked.entityType, entities[_id], thisHook.authPass).then(function (validated) {
+            C.hook("hook_entity_view_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
 
               entities[entity._id] = validated;
               yes();
@@ -243,8 +243,8 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
           output.push(entities[entity]);
 
         }
-
-        C.hook("hook_entity_view_bulk", output, thisHook.authPass).then(function (output) {
+        
+        C.hook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
 
           thisHook.finish(true, output);
 
@@ -255,7 +255,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
         });
 
       }, function (fail) {
-
+        
         thisHook.finish(false, "Fetch failed");
 
       });
@@ -280,7 +280,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
 C.app.get("/fetch", function (req, res) {
 
-  C.hook("hook_entity_fetch", req.body, req.authPass).then(function (success) {
+  C.hook("hook_entity_fetch", req.authPass, null, req.body).then(function (success) {
 
     res.respond(200, success);
 

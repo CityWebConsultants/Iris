@@ -31,9 +31,9 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
   //Check if user has access to create entities
 
-  C.hook("hook_entity_access_create", data, thisHook.authPass).then(function (success) {
+  C.hook("hook_entity_access_create", thisHook.authPass, null, data).then(function (success) {
 
-    C.hook("hook_entity_access_create_" + data.entityType, data, thisHook.authPass).then(function (successData) {
+    C.hook("hook_entity_access_create_" + data.entityType, thisHook.authPass, null, data).then(function (successData) {
 
       validate(data);
 
@@ -69,9 +69,9 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
     //    Object.freeze(dummyBody);
 
-    C.hook("hook_entity_validate", dummyBody, thisHook.authPass).then(function (successData) {
+    C.hook("hook_entity_validate", thisHook.authPass, null, dummyBody).then(function (successData) {
 
-      C.hook("hook_entity_validate_" + data.entityType, dummyBody, thisHook.authPass).then(function (pass) {
+      C.hook("hook_entity_validate_" + data.entityType, thisHook.authPass, null, dummyBody).then(function (pass) {
 
         preSave(data);
 
@@ -103,9 +103,9 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
   var preSave = function (entity) {
 
-    C.hook("hook_entity_presave", entity, thisHook.authPass).then(function (successData) {
+    C.hook("hook_entity_presave", thisHook.authPass, null, entity).then(function (successData) {
 
-      C.hook("hook_entity_presave_" + data.entityType, entity, thisHook.authPass).then(function (pass) {
+      C.hook("hook_entity_presave_" + data.entityType, thisHook.authPass, null, entity).then(function (pass) {
 
         create(successData);
 
@@ -152,9 +152,9 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
         thisHook.finish(true, doc);
 
-        C.hook("hook_entity_created", doc, thisHook.authPass);
+        C.hook("hook_entity_created", thisHook.authPass, null, doc);
 
-        C.hook("hook_entity_created_" + data.entityType, doc, thisHook.authPass);
+        C.hook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
         
         C.log.info(data.entityType + " created by " + doc.entityAuthor);
 
@@ -170,7 +170,7 @@ C.app.post("/entity/create/:type", function (req, res) {
 
   req.body.entityType = req.params.type;
 
-  C.hook("hook_entity_create", req.body, req.authPass).then(function (success) {
+  C.hook("hook_entity_create", req.authPass, null, req.body).then(function (success) {
 
     res.send(success);
 
