@@ -11,7 +11,31 @@ var mkdirSync = function (path) {
   }
 }
 
-// Check that theme exists and is sane
+require("./regions.js");
+
+/**
+ *  Load theme
+ */
+
+CM.frontend.globals.themeConfig = function () {
+
+  try {
+
+    var themeConfig = require(C.sitePath + '/' + C.config.theme + '/theme.js');
+
+    return themeConfig;
+
+  } catch (e) {
+
+    console.log("Could not read theme.js");
+
+    return false;
+
+  }
+
+};
+
+// Check that theme is sane
 try {
 
   fs.readdirSync(C.sitePath + '/' + C.config.theme + "/templates");
@@ -365,7 +389,11 @@ var findTemplate = function () {
 
     if (result) {
 
-      found.push({directory: directory, filename: result, rank: 1});
+      found.push({
+        directory: directory,
+        filename: result,
+        rank: 1
+      });
 
     }
 
@@ -379,7 +407,11 @@ var findTemplate = function () {
 
     if (result) {
 
-      found.push({directory: directory, filename: result, rank: 0});
+      found.push({
+        directory: directory,
+        filename: result,
+        rank: 0
+      });
 
     }
 
@@ -414,7 +446,7 @@ var findTemplate = function () {
   });
 
   // Sort by rank
-    var sortRank = function (a, b) {
+  var sortRank = function (a, b) {
 
     if (a.rank > b.rank) {
       return -1;
