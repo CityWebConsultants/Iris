@@ -473,11 +473,83 @@ var findTemplate = function () {
 
 CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  data = data.replace("BLOCK", "[[[block]]]");
-
+//  parseBlock("block", data, function (variable, next) {
+//
+//    next(variable.toUpperCase());
+//
+//  }).then(function (html) {
+//
+//    thisHook.finish(true, html);
+//
+//  });
+  
   thisHook.finish(true, data);
 
 })
+
+// Helper function for parsing blocks
+
+var parseBlock = function (prefix, html, action) {
+
+  return new Promise(function (yes, no) {
+
+    var finder = new RegExp("\\[\\[\\[" + prefix + "\\s[\\w\\.\\-]+\\s*\\]\\]\\]", "g");
+
+    var embeds = html.match(finder);
+
+    if (embeds) {
+
+      var embeds = embeds.map(function (x) {
+
+        var internal = new RegExp(prefix + "\\s([\\w\\.\\-]+)");
+
+        return x.match(internal)[1];
+
+      });
+
+      var counter = 0;
+
+      var runthrough = function (choice) {
+
+        var next = function (content) {
+
+          html = html.split("[[[" + prefix + " " + choice + "]]]").join(content);
+
+          if (counter === embeds.length) {
+
+            runthrough(embeds[counter]);
+
+            counter += 1;
+
+          } else {
+
+            yes(html);
+
+          }
+
+        };
+
+        try {
+          action(choice, next)
+        } catch (e) {
+
+          no(e);
+
+        };
+
+      };
+
+      runthrough(embeds[counter]);
+
+    } else {
+      
+      yes(html);
+      
+    }
+
+  });
+
+};
 
 var parseTemplate = function (html, entity, authpass, callback) {
 
@@ -485,12 +557,14 @@ var parseTemplate = function (html, entity, authpass, callback) {
 
   //Get any embeded templates inside the template file
 
-  var embeds = output.split("[[[MAINCONTENT]]]").join("").match(/\[\[\[\s*[\w\.]+\s*\]\]\]/g);
+  var embeds = output.split("[[[MAINCONTENT]]]").join("").match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
 
   if (embeds) {
 
     var embeds = embeds.map(function (x) {
-      return x.match(/[\w\.]+/)[0];
+
+      return x.match(/file\s([\w\.\-]+)/)[1];
+
     });
 
     var counter = embeds.length;
@@ -509,7 +583,7 @@ var parseTemplate = function (html, entity, authpass, callback) {
 
         parseTemplate(subTemplate, entity, authpass, function (contents) {
 
-          output = output.split("[[[" + element + "]]]").join(contents);
+          output = output.split("[[[file " + element + "]]]").join(contents);
 
           counter -= 1;
 
@@ -531,7 +605,7 @@ var parseTemplate = function (html, entity, authpass, callback) {
 
         // Remove template if it can't be found
 
-        output = output.split("[[[" + element + "]]]").join("");
+        output = output.split("[[[file " + element + "]]]").join("");
 
         parseTemplate(output, entity, authpass, function (contents) {
 
@@ -557,7 +631,7 @@ var parseTemplate = function (html, entity, authpass, callback) {
 
     // Check for embedded templates
 
-    var embeds = output.split("[[[MAINCONTENT]]]").join("").match(/\[\[\[\s*[\w\.]+\s*\]\]\]/g);
+    var embeds = output.split("[[[MAINCONTENT]]]").join("").match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
 
     if (embeds) {
 
