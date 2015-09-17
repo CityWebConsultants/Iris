@@ -74,16 +74,17 @@ CM.frontend.globals.getTemplate = function (entity, authPass, callback) {
 
   var template = findTemplate(data.entity.type, data.entity.id);
 
-  parseTemplate(template, data.entity.fields, function (inner) {
+  parseTemplate(template, data.entity.fields, authPass, function (inner) {
 
     var wrapperTemplate = findTemplate("html", data.entity.type, data.entity.id);
 
     if (wrapperTemplate) {
 
-      parseTemplate(wrapperTemplate, data.entity.fields, function (wrapper) {
+      parseTemplate(wrapperTemplate, data.entity.fields, authPass, function (wrapper) {
 
         // Special [[MAINCONTENT]] variable loads in the relevant page template.
-        wrapper = wrapper.split("[[MAINCONTENT]]").join(inner);
+
+        wrapper = wrapper.split("[[[MAINCONTENT]]]").join(inner);
 
         var makePreloadQueries = function () {
 
@@ -463,21 +464,29 @@ var findTemplate = function () {
   found.sort(sortRank);
 
   if (found[0]) {
-    return found[0].directory + '/' + found[0].filename;
+    return fs.readFileSync(found[0].directory + '/' + found[0].filename, "utf-8");
   } else {
     return false;
   }
 
 };
 
-var parseTemplate = function (path, entity, callback) {
+CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  var output = fs.readFileSync(path, "utf-8");
+  data = data.replace("BLOCK", "[[[block]]]");
+
+  thisHook.finish(true, data);
+
+})
+
+var parseTemplate = function (html, entity, authpass, callback) {
+
+  var output = html;
 
   //Get any embeded templates inside the template file
 
-  var embeds = output.match(/\[\[\[\s*[\w\.]+\s*\]\]\]/g);
-
+  var embeds = output.split("[[[MAINCONTENT]]]").join("").match(/\[\[\[\s*[\w\.]+\s*\]\]\]/g);  
+  
   if (embeds) {
 
     var embeds = embeds.map(function (x) {
@@ -485,6 +494,8 @@ var parseTemplate = function (path, entity, callback) {
     });
 
     embeds.forEach(function (element) {
+
+      var counter = embeds.length;
 
       var path = [];
 
@@ -496,9 +507,21 @@ var parseTemplate = function (path, entity, callback) {
 
       if (subTemplate) {
 
-        parseTemplate(subTemplate, entity, function (contents) {
+        parseTemplate(subTemplate, entity, authpass, function (contents) {
 
           output = output.split("[[[" + element + "]]]").join(contents);
+
+          counter -= 1;
+
+          if (counter === 0) {
+
+            C.hook("hook_frontend_template_parse", authpass, entity, output).then(function (output) {
+
+              complete(output);
+
+            });
+
+          }
 
         });
 
@@ -506,9 +529,37 @@ var parseTemplate = function (path, entity, callback) {
 
     });
 
+  } else {
+
+    C.hook("hook_frontend_template_parse", authpass, entity, output).then(function (output) {
+
+      complete(output);
+
+    });
+
   }
 
-  callback(output);
+  var complete = function (output) {
+
+    // Check for embedded templates
+
+    var embeds = output.split("[[[MAINCONTENT]]]").join("").match(/\[\[\[\s*[\w\.]+\s*\]\]\]/g);
+
+    if (embeds) {
+
+      parseTemplate(output, entity, authpass, function (output) {
+
+        callback(output);
+
+      })
+
+    } else {
+
+      callback(output);
+
+    }
+
+  };
 
 };
 
