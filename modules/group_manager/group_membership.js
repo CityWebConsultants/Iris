@@ -127,7 +127,7 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
 C.app.post("/group/addmember", function (req, res) {
 
-  C.hook("hook_group_manager_addmember", req.body, req.authPass).then(function (pass) {
+  C.hook("hook_group_manager_addmember", req.authPass, null, req.body).then(function (pass) {
 
     res.respond(200, pass);
 
@@ -260,7 +260,7 @@ CM.group_manager.registerHook("hook_group_manager_removemember", 0, function (th
 
 C.app.post("/group/removemember", function (req, res) {
 
-  C.hook("hook_group_manager_removemember", req.body, req.authPass).then(function (pass) {
+  C.hook("hook_group_manager_removemember", req.authPass, null, req.body).then(function (pass) {
 
     res.respond(200, pass);
 

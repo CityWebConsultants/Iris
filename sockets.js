@@ -98,7 +98,7 @@ C.socketServer.on("connection", function (socket) {
 
     //Run hook for disconnected socket
 
-    C.hook("hook_socket_disconnected", Date.now(), socket.authPass)
+    C.hook("hook_socket_disconnected", socket.authPass, null, Date.now())
 
   });
 

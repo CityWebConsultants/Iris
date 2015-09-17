@@ -51,9 +51,9 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
   var runUpdate = function () {
 
-    C.hook("hook_entity_access_edit", data, thisHook.authPass).then(function (success) {
+    C.hook("hook_entity_access_edit", thisHook.authPass, null, data).then(function (success) {
 
-      C.hook("hook_entity_access_edit_" + data.entityType, data, thisHook.authPass).then(function (success) {
+      C.hook("hook_entity_access_edit_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
 
         validate()
 
@@ -90,9 +90,9 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
     //    Object.freeze(dummyBody);
 
-    C.hook("hook_entity_validate", dummyBody, thisHook.authPass).then(function (successData) {
+    C.hook("hook_entity_validate", thisHook.authPass, null, dummyBody).then(function (successData) {
 
-      C.hook("hook_entity_validate_" + data.entityType, dummyBody, thisHook.authPass).then(function (pass) {
+      C.hook("hook_entity_validate_" + data.entityType, thisHook.authPass, null, dummyBody).then(function (pass) {
 
         preSave(data);
 
@@ -124,9 +124,9 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
   var preSave = function () {
 
-    C.hook("hook_entity_presave", data, thisHook.authPass).then(function (successData) {
+    C.hook("hook_entity_presave", thisHook.authPass, null, data).then(function (successData) {
 
-      C.hook("hook_entity_presave_" + data.entityType, data, thisHook.authPass).then(function (pass) {
+      C.hook("hook_entity_presave_" + data.entityType, thisHook.authPass, null, data).then(function (pass) {
 
         update(pass);
 
@@ -173,11 +173,9 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
       data._id = conditions._id;
 
-      C.hook("hook_entity_updated", data, thisHook.authPass)
+      C.hook("hook_entity_updated", thisHook.authPass, null, data)
 
       C.log.info(data.entityType + " " + conditions._id + " edited by " + validatedEntity.entityAuthor);
-
-      //      C.hook("entity_updated_" + data.entityType, data, thisHook.authPass);
 
     }
 
@@ -190,7 +188,7 @@ C.app.post("/entity/edit/:type/:_id", function (req, res) {
   req.body.entityType = req.params.type;
   req.body._id = req.params._id;
 
-  C.hook("hook_entity_edit", req.body, req.authPass).then(function (success) {
+  C.hook("hook_entity_edit", req.authPass, null, req.body).then(function (success) {
 
     res.respond(200, success);
 

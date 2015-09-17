@@ -51,9 +51,9 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
 
   var runDelete = function () {
 
-    C.hook("hook_entity_access_delete", data, thisHook.authPass).then(function (success) {
+    C.hook("hook_entity_access_delete", thisHook.authPass, null, data).then(function (success) {
 
-      C.hook("hook_entity_access_delete_" + data.entityType, data, thisHook.authPass).then(function (success) {
+      C.hook("hook_entity_access_delete_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
 
         deleteEntity(data)
 
@@ -100,7 +100,7 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
 
       data._id = conditions._id;
 
-      C.hook("hook_entity_deleted", data, thisHook.authPass)
+      C.hook("hook_entity_deleted", thisHook.authPass, null, data)
 
       C.log.info(data.entityType + " " + conditions._id + " deleted by " + validatedEntity.entityAuthor);
 
@@ -115,7 +115,7 @@ C.app.post("/entity/delete/:type/:_id", function (req, res) {
   req.body.entityType = req.params.type;
   req.body._id = req.params._id;
 
-  C.hook("hook_entity_delete", req.body, req.authPass).then(function (success) {
+  C.hook("hook_entity_delete", req.authPass, null, req.body).then(function (success) {
 
     res.respond(200, success);
 

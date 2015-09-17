@@ -124,7 +124,7 @@ CM.auth.globals = {
 
       //Run any hooks that latch onto this one to extend the authpass
 
-      C.hook('hook_auth_authpass', authPass, authPass, req)
+      C.hook('hook_auth_authpass', authPass, {req:req}, authPass)
         .then(function (authPass) {
 
           //Complete access pass received.

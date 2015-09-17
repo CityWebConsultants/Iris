@@ -223,9 +223,9 @@ CM.frontend.globals.getTemplate = function (entity, authPass, callback) {
 
                 C.promise(function (yes, no, data) {
 
-                  C.hook("hook_entity_fetch", {
+                  C.hook("hook_entity_fetch", req.authPass, null, {
                     queryList: [entity]
-                  }, req.authPass).then(function (result) {
+                  }).then(function (result) {
 
                     templateVars[key] = result;
 
@@ -272,7 +272,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, callback) {
             var makeTemplate = function () {
 
               // Pass to templating systems
-              C.hook("hook_frontend_template", frontendData, req.authPass).then(function (success) {
+              C.hook("hook_frontend_template", req.authPass, null, frontendData).then(function (success) {
 
                 callback(success.html);
 
@@ -295,9 +295,9 @@ CM.frontend.globals.getTemplate = function (entity, authPass, callback) {
 
             // Confirm that the `current` entity is viewable and pass to makeTemplate().
 
-            C.hook("hook_entity_view", data.entity.fields, req.authPass).then(function (filtered) {
+            C.hook("hook_entity_view", req.authPass, null, data.entity.fields).then(function (filtered) {
 
-              C.hook("hook_entity_view_" + filtered.entityType, filtered, req.authPass).then(function (filtered) {
+              C.hook("hook_entity_view_" + filtered.entityType, req.authPass, null, filtered).then(function (filtered) {
 
                 frontendData.vars.current = filtered;
                 makeTemplate();

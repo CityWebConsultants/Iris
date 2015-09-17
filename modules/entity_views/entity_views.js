@@ -8,9 +8,9 @@ C.app.use("/entity_views", express.static(__dirname + '/static'));
 
 CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, entity) {
 
-  C.hook("hook_entity_view", entity, thisHook.authPass).then(function (filtered) {
+  C.hook("hook_entity_view", thisHook.authPass, null, entity).then(function (filtered) {
 
-    C.hook("hook_entity_view_" + entity.entityType, filtered, thisHook.authPass).then(function (filtered) {
+    C.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, filtered).then(function (filtered) {
 
       send(filtered);
 
@@ -34,7 +34,7 @@ CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, entit
 
     if (data) {
 
-      C.hook("hook_entity_view_bulk", [data], thisHook.authPass).then(function (data) {
+      C.hook("hook_entity_view_bulk", thisHook.authPass, null, [data]).then(function (data) {
 
         C.sendSocketMessage(["*"], "entityCreate", data[0]);
 
@@ -50,9 +50,9 @@ CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, entit
 
 CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
 
-  C.hook("hook_entity_view", entity, thisHook.authPass).then(function (filtered) {
+  C.hook("hook_entity_view", thisHook.authPass, null, entity).then(function (filtered) {
 
-    C.hook("hook_entity_view_" + entity.entityType, filtered, thisHook.authPass).then(function (filtered) {
+    C.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, filtered).then(function (filtered) {
 
       send(filtered);
 
@@ -76,7 +76,7 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entit
 
     if (data) {
 
-      C.hook("hook_entity_view_bulk", [data], thisHook.authPass).then(function (data) {
+      C.hook("hook_entity_view_bulk", thisHook.authPass, null, [data]).then(function (data) {
 
         C.sendSocketMessage(["*"], "entityUpdate", data[0]);
 
@@ -99,7 +99,7 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entit
 });
 
 CM.entity_views.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
-
+  
   C.sendSocketMessage(["*"], "entityDelete", data);
 
 });

@@ -279,7 +279,7 @@ Trigger a hook (or a series of hooks) registered by modules through CM.*modulena
 
 ```javascript
 
-C.hook("game_save", data, req.authPass).then(function (success) {
+C.hook("game_save", req.authPass, constants, variables).then(function (success) {
 
   res.send(success);
 
