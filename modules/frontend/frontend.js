@@ -493,9 +493,9 @@ var parseTemplate = function (html, entity, authpass, callback) {
       return x.match(/[\w\.]+/)[0];
     });
 
-    embeds.forEach(function (element) {
+    var counter = embeds.length;
 
-      var counter = embeds.length;
+    embeds.forEach(function (element) {
 
       var path = [];
 
@@ -525,7 +525,21 @@ var parseTemplate = function (html, entity, authpass, callback) {
 
         });
 
-      };
+      } else {
+
+        console.log("Cannot find template " + element);
+
+        // Remove template if it can't be found
+
+        output = output.split("[[[" + element + "]]]").join("");
+
+        parseTemplate(output, entity, authpass, function (contents) {
+
+          complete(contents);
+
+        });
+
+      }
 
     });
 
