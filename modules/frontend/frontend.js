@@ -485,8 +485,8 @@ var parseTemplate = function (html, entity, authpass, callback) {
 
   //Get any embeded templates inside the template file
 
-  var embeds = output.split("[[[MAINCONTENT]]]").join("").match(/\[\[\[\s*[\w\.]+\s*\]\]\]/g);  
-  
+  var embeds = output.split("[[[MAINCONTENT]]]").join("").match(/\[\[\[\s*[\w\.]+\s*\]\]\]/g);
+
   if (embeds) {
 
     var embeds = embeds.map(function (x) {
@@ -648,18 +648,6 @@ C.app.use(function (req, res, next) {
 
 CM.frontend.registerHook("hook_frontend_template", 0, function (thisHook, data) {
 
-  var Mustache = require('mustache');
-
-  try {
-
-    data.html = Mustache.render(data.html, data.vars);
-
-    thisHook.finish(true, data);
-
-  } catch (e) {
-
-    thisHook.finish(false, "Mustache rendering failed");
-
-  }
+  thisHook.finish(true, data);
 
 });
