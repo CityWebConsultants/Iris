@@ -28,7 +28,77 @@ module.exports = function (config) {
 
   mkdirSync(C.sitePath + "/" + "configurations");
 
+  C.configStore = {};
+
   C.configPath = path.join(C.sitePath, "/configurations");
+
+  C.saveConfig = function (contents, directory, filename) {
+
+    var current = C.configStore;
+
+    directory.split("/").forEach(function (path) {
+
+      if (!current[path]) {
+
+        current[path] = {};
+
+        current = current[path];
+
+      };
+
+    });
+
+    current[filename] = contents;
+
+    var filePath = path.join(C.sitePath, "/configurations", directory);
+
+    var mkdirp = require('mkdirp');
+
+    mkdirp(filePath, function (err) {
+      if (err) {
+        console.error(err)
+      } else {
+        fs.writeFileSync(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8");
+      }
+    });
+
+  };
+
+  C.readConfig = function (directory, filename) {
+
+    function defined(ref, strNames) {
+      var name;
+      var arrNames = strNames.split('/');
+
+      while (name = arrNames.shift()) {
+        if (!ref.hasOwnProperty(name)) return false;
+        ref = ref[name];
+      }
+
+      return ref;
+    }
+
+    var exists = defined(C.configStore, directory + "/" + filename);
+
+    if (exists) {
+
+      console.log(exists);
+
+    } else {
+
+      try {
+
+        console.log(JSON.parse(fs.readFileSync(C.sitePath + "/configurations" + "/" + directory + "/" + filename + ".json", "utf8")));
+
+      } catch (e) {
+
+        console.log("No such config exists");
+
+      }
+
+    }
+
+  };
 
   //Make files directory
 
