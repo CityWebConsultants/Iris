@@ -770,7 +770,7 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
 
     table += "<th>Delete</th>"
 
-    table += "<tr ng-repeat='entity in data." + req.params.type + "'>";
+    table += "<tr ng-repeat='entity in data'>";
 
     fields.forEach(function (element) {
 
