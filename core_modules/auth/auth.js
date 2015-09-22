@@ -124,7 +124,9 @@ CM.auth.globals = {
 
       //Run any hooks that latch onto this one to extend the authpass
 
-      C.hook('hook_auth_authpass', authPass, {req:req}, authPass)
+      C.hook('hook_auth_authpass', authPass, {
+          req: req
+        }, authPass)
         .then(function (authPass) {
 
           //Complete access pass received.
@@ -172,7 +174,7 @@ CM.auth.globals = {
   },
 
   checkPermissions: function (permissionsArray, authPass) {
-
+    
     var fs = require('fs');
 
     //Load in permissions
@@ -180,13 +182,24 @@ CM.auth.globals = {
     var permissions = {};
 
     try {
-      var currentPermissions = fs.readFileSync(CM.auth.configPath + "/permissions.JSON", "utf8");
 
-      permissions = JSON.parse(currentPermissions);
+      if (CM.auth.globals.permissionRules) {
 
+        var permissions = CM.auth.globals.permissionRules;
+
+      } else {
+
+        var currentPermissions = fs.readFileSync(CM.auth.configPath + "/permissions.JSON", "utf8");
+
+        CM.auth.globals.permissionRules = JSON.parse(currentPermissions);
+
+      }
+      
     } catch (e) {
 
       fs.writeFileSync(CM.auth.configPath + "/permissions.JSON", JSON.stringify({}), "utf8");
+
+      CM.auth.globals.permissionRules = {};
 
     }
 
@@ -196,7 +209,7 @@ CM.auth.globals = {
 
       authPass.roles.forEach(function (role) {
 
-        if (permissions[permission] && permissions[permission].indexOf(role) !== -1) {
+        if (CM.auth.globals.permissionRules[permission] && CM.auth.globals.permissionRules[permission].indexOf(role) !== -1) {
 
           access = true;
 
