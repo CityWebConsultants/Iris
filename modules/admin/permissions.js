@@ -40,8 +40,6 @@ var path = require('path');
 CM.admin.globals.registerMenuItem("Permissions", path.join(__dirname, 'templates/permissions.html'));
 
 C.app.post("/admin/permissions", function (req, res) {
-  
-  CM.auth.globals.permissionRules = JSON.stringify(req.body);
 
   fs.writeFile(C.configPath + "/auth/permissions.JSON", JSON.stringify(req.body), "utf8", function (err, data) {
 
