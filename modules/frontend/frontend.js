@@ -72,272 +72,273 @@ CM.frontend.globals.getTemplate = function (entity, authPass, callback) {
   data.entity.id = entity._id;
   data.entity.fields = entity;
 
-  var template = findTemplate(data.entity.type, data.entity.id);
+  var template = findTemplate(data.entity.type, data.entity.id).then(function (data) {
 
-  parseTemplate(template, data.entity.fields, authPass, function (inner) {
+    processTemplate(data);
 
-    var wrapperTemplate = findTemplate("html", data.entity.type, data.entity.id);
+  });
 
-    if (wrapperTemplate) {
+  var processTemplate = function (template) {
 
-      parseTemplate(wrapperTemplate, data.entity.fields, authPass, function (wrapper) {
+    parseTemplate(template, data.entity.fields, authPass, function (inner) {
 
-        // Special [[MAINCONTENT]] variable loads in the relevant page template.
+      var wrapperTemplate = findTemplate("html", data.entity.type, data.entity.id).then(function (wrapperTemplate) {
+        
+        parseTemplate(wrapperTemplate, data.entity.fields, authPass, function (wrapper) {
 
-        wrapper = wrapper.split("[[[MAINCONTENT]]]").join(inner);
+          // Special [[MAINCONTENT]] variable loads in the relevant page template.
 
-        var makePreloadQueries = function () {
+          wrapper = wrapper.split("[[[MAINCONTENT]]]").join(inner);
 
-          var cheerio = require('cheerio'),
-            $ = cheerio.load(wrapper);
+          var makePreloadQueries = function () {
 
-          var entitiesToFetch = {};
-          var templateVars = {};
+            var cheerio = require('cheerio'),
+              $ = cheerio.load(wrapper);
 
-          /**
-           *  Use Cheerio to get calls for entities from the page.
-           */
-          var entitiesFromPage = function () {
+            var entitiesToFetch = {};
+            var templateVars = {};
 
-            $('[data-preload-as]').each(function (index, element) {
+            /**
+             *  Use Cheerio to get calls for entities from the page.
+             */
+            var entitiesFromPage = function () {
 
-              var preloadAs = $(this).attr('data-preload-as');
-              var entities = $(this).attr('data-entities');
-              var queries = $(this).attr('data-queries');
-              var limit = $(this).attr('data-limit');
-              var skip = $(this).attr('data-skip');
-              var sort = $(this).attr('data-sort');
+              $('[data-preload-as]').each(function (index, element) {
 
-              if (preloadAs && entities) {
+                var preloadAs = $(this).attr('data-preload-as');
+                var entities = $(this).attr('data-entities');
+                var queries = $(this).attr('data-queries');
+                var limit = $(this).attr('data-limit');
+                var skip = $(this).attr('data-skip');
+                var sort = $(this).attr('data-sort');
 
-                entitiesToFetch[preloadAs] = {
-                  entities: [entities],
-                  queries: queries,
-                  limit: limit,
-                  skip: skip,
-                  sort: sort,
-                };
+                if (preloadAs && entities) {
 
-              }
-
-            });
-
-          };
-          entitiesFromPage();
-
-          /**
-           *  Parse JSON and split queries from string into object.
-           */
-          var prepareQueries = function () {
-
-            for (var entity in entitiesToFetch) {
-
-              var entity = entitiesToFetch[entity];
-
-              // Process sort
-              try {
-
-                entity.sort = JSON.parse(entity.sort);
-
-              } catch (e) {
-
-                entity.sort = undefined;
-
-              }
-
-              // Process queries
-              try {
-
-                if (entity.queries) {
-
-                  entity.queries = entity.queries.split(',');
-
-                }
-
-                if (entity.queries && entity.queries.length) {
-
-                  entity.queries.forEach(function (query, index) {
-
-                    // Split query into sub sections
-
-                    var query = query.split("|");
-
-                    // Skip empty queries
-
-                    if (!query[2]) {
-
-                      entity.queries[index] = undefined;
-                      return false;
-
-                    }
-
-                    try {
-
-                      JSON.parse(query[2]);
-
-                    } catch (e) {
-
-                      console.log(query[2]);
-                      console.log(e);
-
-                      entity.queries[index] = undefined;
-                      return false;
-
-                    };
-
-                    entity.queries[index] = ({
-
-                      field: query[0],
-                      comparison: query[1],
-                      compare: JSON.parse(query[2])
-
-                    });
-
-                  });
-
-                }
-
-                // Catch JSON parse error
-              } catch (e) {
-                console.log(e);
-                entity = undefined;
-              }
-
-            }
-
-          };
-          prepareQueries();
-
-          var promises = [];
-
-          /**
-           *  Create array of promises that each run hook_entity_fetch on a query.
-           */
-          var makeQueryPromises = function () {
-
-            for (var entity in entitiesToFetch) {
-
-              var key = entity;
-              entity = entitiesToFetch[entity];
-
-              promises.push(
-
-                C.promise(function (yes, no, data) {
-
-                  C.hook("hook_entity_fetch", req.authPass, null, {
-                    queryList: [entity]
-                  }).then(function (result) {
-
-                    templateVars[key] = result;
-
-                    yes();
-
-                  }, function (error) {
-
-                    console.log(error);
-
-                    no();
-
-                  });
-
-                })
-
-              );
-
-            }
-
-          };
-          makeQueryPromises();
-
-          // If no queries, make a default promise
-          if (Object.keys(entitiesToFetch).length === 0) {
-
-            promises = [
-                C.promise(function (yes, no, data) {
-
-                yes();
-
-              })
-              ];
-          }
-
-          C.promiseChain(promises, function (success) {
-
-            // Prepare, for templating, the page HTML and fetched query variables
-            var frontendData = {
-              html: wrapper,
-              vars: templateVars
-            };
-
-            // Pass frontentData to templating hook and send to client
-            var makeTemplate = function () {
-
-              // Pass to templating systems
-              C.hook("hook_frontend_template", req.authPass, null, frontendData).then(function (success) {
-
-                callback(success.html);
-
-              }, function (fail) {
-
-                if (fail === "No such hook exists") {
-
-                  callback(wrapper);
-
-                } else {
-
-                  console.log("Could not render template");
-                  callback(false);
+                  entitiesToFetch[preloadAs] = {
+                    entities: [entities],
+                    queries: queries,
+                    limit: limit,
+                    skip: skip,
+                    sort: sort,
+                  };
 
                 }
 
               });
 
             };
+            entitiesFromPage();
 
-            // Confirm that the `current` entity is viewable and pass to makeTemplate().
+            /**
+             *  Parse JSON and split queries from string into object.
+             */
+            var prepareQueries = function () {
 
-            C.hook("hook_entity_view", req.authPass, null, data.entity.fields).then(function (filtered) {
+              for (var entity in entitiesToFetch) {
 
-              C.hook("hook_entity_view_" + filtered.entityType, req.authPass, null, filtered).then(function (filtered) {
+                var entity = entitiesToFetch[entity];
 
-                frontendData.vars.current = filtered;
-                makeTemplate();
+                // Process sort
+                try {
 
-              }, function (fail) {
+                  entity.sort = JSON.parse(entity.sort);
 
-                if (fail === "No such hook exists") {
+                } catch (e) {
+
+                  entity.sort = undefined;
+
+                }
+
+                // Process queries
+                try {
+
+                  if (entity.queries) {
+
+                    entity.queries = entity.queries.split(',');
+
+                  }
+
+                  if (entity.queries && entity.queries.length) {
+
+                    entity.queries.forEach(function (query, index) {
+
+                      // Split query into sub sections
+
+                      var query = query.split("|");
+
+                      // Skip empty queries
+
+                      if (!query[2]) {
+
+                        entity.queries[index] = undefined;
+                        return false;
+
+                      }
+
+                      try {
+
+                        JSON.parse(query[2]);
+
+                      } catch (e) {
+
+                        console.log(query[2]);
+                        console.log(e);
+
+                        entity.queries[index] = undefined;
+                        return false;
+
+                      };
+
+                      entity.queries[index] = ({
+
+                        field: query[0],
+                        comparison: query[1],
+                        compare: JSON.parse(query[2])
+
+                      });
+
+                    });
+
+                  }
+
+                  // Catch JSON parse error
+                } catch (e) {
+                  console.log(e);
+                  entity = undefined;
+                }
+
+              }
+
+            };
+            prepareQueries();
+
+            var promises = [];
+
+            /**
+             *  Create array of promises that each run hook_entity_fetch on a query.
+             */
+            var makeQueryPromises = function () {
+
+              for (var entity in entitiesToFetch) {
+
+                var key = entity;
+                entity = entitiesToFetch[entity];
+
+                promises.push(
+
+                  C.promise(function (yes, no, data) {
+
+                    C.hook("hook_entity_fetch", req.authPass, null, {
+                      queryList: [entity]
+                    }).then(function (result) {
+
+                      templateVars[key] = result;
+
+                      yes();
+
+                    }, function (error) {
+
+                      console.log(error);
+
+                      no();
+
+                    });
+
+                  })
+
+                );
+
+              }
+
+            };
+
+            makeQueryPromises();
+
+            // If no queries, make a default promise
+            if (Object.keys(entitiesToFetch).length === 0) {
+
+              promises = [
+                C.promise(function (yes, no, data) {
+
+                  yes();
+
+                })
+              ];
+            }
+
+            C.promiseChain(promises, function (success) {
+
+              // Prepare, for templating, the page HTML and fetched query variables
+              var frontendData = {
+                html: wrapper,
+                vars: templateVars
+              };
+
+              // Pass frontentData to templating hook and send to client
+              var makeTemplate = function () {
+
+                // Pass to templating systems
+                C.hook("hook_frontend_template", req.authPass, null, frontendData).then(function (success) {
+
+                  callback(success.html);
+
+                }, function (fail) {
+
+                  if (fail === "No such hook exists") {
+
+                    callback(wrapper);
+
+                  } else {
+
+                    console.log("Could not render template");
+                    callback(false);
+
+                  }
+
+                });
+
+              };
+
+              // Confirm that the `current` entity is viewable and pass to makeTemplate().
+
+              C.hook("hook_entity_view", req.authPass, null, data.entity.fields).then(function (filtered) {
+
+                C.hook("hook_entity_view_" + filtered.entityType, req.authPass, null, filtered).then(function (filtered) {
 
                   frontendData.vars.current = filtered;
                   makeTemplate();
 
-                }
+                }, function (fail) {
+
+                  if (fail === "No such hook exists") {
+
+                    frontendData.vars.current = filtered;
+                    makeTemplate();
+
+                  }
+
+                });
 
               });
 
+              // If the query promises fail
+            }, function (fail) {
+
+              console.log(fail);
+
             });
 
-            // If the query promises fail
-          }, function (fail) {
+          };
 
-            console.log(fail);
+          makePreloadQueries();
 
-          });
+        });
 
-        };
+      })
 
-        makePreloadQueries();
+    });
 
-      });
-
-    } else {
-
-      // else no wrapperTemplate
-
-      res.send(inner);
-
-    }
-
-  });
+  }
 
 };
 
@@ -347,142 +348,150 @@ var findTemplate = function () {
 
   var args = Array.prototype.slice.call(arguments);
 
-  // Compare top-level arguments against given files
+  return new Promise(function (yes, no) {
 
-  var lookForTemplate = function (files, args) {
+    // Compare top-level arguments against given files
 
-    var searchArgs = JSON.parse(JSON.stringify(args));
+    var lookForTemplate = function (files, args) {
 
-    //Loop over arguments
+      var searchArgs = JSON.parse(JSON.stringify(args));
 
-    var i;
+      //Loop over arguments
 
-    for (i = 0; i <= searchArgs.length + 1; i += 1) {
+      var i;
 
-      var lookingFor = searchArgs.join("_") + ".html";
+      for (i = 0; i <= searchArgs.length + 1; i += 1) {
 
-      if (files.indexOf(lookingFor) !== -1) {
+        var lookingFor = searchArgs.join("_") + ".html";
 
-        return lookingFor;
+        if (files.indexOf(lookingFor) !== -1) {
 
-      }
+          return lookingFor;
 
-      searchArgs.splice(searchArgs.length - 1, 1);
+        }
+
+        searchArgs.splice(searchArgs.length - 1, 1);
+
+      };
+
+      return false;
 
     };
 
-    return false;
+    // Get files in template folders
 
-  };
+    // This could be cached or otherwise done on startup, but we want to be able to edit templates
+    // without restarting or clearing caches.
 
-  // Get files in template folders
+    var found = [];
 
-  // This could be cached or otherwise done on startup, but we want to be able to edit templates
-  // without restarting or clearing caches.
+    CM.frontend.globals.templateRegistry.theme.forEach(function (directory) {
 
-  var found = [];
+      var files = fs.readdirSync(directory);
 
-  CM.frontend.globals.templateRegistry.theme.forEach(function (directory) {
+      var result = lookForTemplate(files, args);
 
-    var files = fs.readdirSync(directory);
+      if (result) {
 
-    var result = lookForTemplate(files, args);
+        found.push({
+          directory: directory,
+          filename: result,
+          rank: 1
+        });
 
-    if (result) {
+      }
 
-      found.push({
-        directory: directory,
-        filename: result,
-        rank: 1
+    });
+
+    CM.frontend.globals.templateRegistry.external.forEach(function (directory) {
+
+      var files = fs.readdirSync(directory);
+
+      var result = lookForTemplate(files, args);
+
+      if (result) {
+
+        found.push({
+          directory: directory,
+          filename: result,
+          rank: 0
+        });
+
+      }
+
+    });
+
+    // Sort so that longest and hence most specific filenames are at the top
+    var sortLength = function (a, b) {
+
+      if (a.filename.split('_').length > b.filename.split('_').length) {
+        return -1;
+      }
+
+      if (a.filename.split('_').length < b.filename.split('_').length) {
+        return 1;
+      }
+
+      return 0;
+
+    };
+
+    found.sort(sortLength);
+
+    // Filter out filenames less specific than the top
+    found = found.filter(function (value) {
+
+      if (value.filename.split('_').length < found[0].filename.split('_').length) {
+        return false;
+      } else {
+        return true;
+      }
+
+    });
+
+    // Sort by rank
+    var sortRank = function (a, b) {
+
+      if (a.rank > b.rank) {
+        return -1;
+      }
+
+      if (a.rank < b.rank) {
+        return 1;
+      }
+
+      return 0;
+
+    };
+
+    found.sort(sortRank);
+
+    if (found[0]) {
+      fs.readFile(found[0].directory + '/' + found[0].filename, "utf-8", function (err, data) {
+
+        yes(data);
+
       });
-
-    }
-
-  });
-
-  CM.frontend.globals.templateRegistry.external.forEach(function (directory) {
-
-    var files = fs.readdirSync(directory);
-
-    var result = lookForTemplate(files, args);
-
-    if (result) {
-
-      found.push({
-        directory: directory,
-        filename: result,
-        rank: 0
-      });
-
-    }
-
-  });
-
-  // Sort so that longest and hence most specific filenames are at the top
-  var sortLength = function (a, b) {
-
-    if (a.filename.split('_').length > b.filename.split('_').length) {
-      return -1;
-    }
-
-    if (a.filename.split('_').length < b.filename.split('_').length) {
-      return 1;
-    }
-
-    return 0;
-
-  };
-
-  found.sort(sortLength);
-
-  // Filter out filenames less specific than the top
-  found = found.filter(function (value) {
-
-    if (value.filename.split('_').length < found[0].filename.split('_').length) {
-      return false;
     } else {
-      return true;
+      no(false);
     }
 
   });
-
-  // Sort by rank
-  var sortRank = function (a, b) {
-
-    if (a.rank > b.rank) {
-      return -1;
-    }
-
-    if (a.rank < b.rank) {
-      return 1;
-    }
-
-    return 0;
-
-  };
-
-  found.sort(sortRank);
-
-  if (found[0]) {
-    return fs.readFileSync(found[0].directory + '/' + found[0].filename, "utf-8");
-  } else {
-    return false;
-  }
 
 };
 
 CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-//  parseBlock("block", data, function (variable, next) {
-//
-//    next(variable.toUpperCase());
-//
-//  }).then(function (html) {
-//
-//    thisHook.finish(true, html);
-//
-//  });
-  
+  //  parseBlock("block", data, function (variable, next) {
+  //
+  //    next(variable.toUpperCase());
+  //
+  //  }).then(function (html) {
+  //
+  //    thisHook.finish(true, html);
+  //
+  //  });
+
   thisHook.finish(true, data);
 
 })
@@ -542,9 +551,9 @@ var parseBlock = function (prefix, html, action) {
       runthrough(embeds[counter]);
 
     } else {
-      
+
       yes(html);
-      
+
     }
 
   });
@@ -571,15 +580,7 @@ var parseTemplate = function (html, entity, authpass, callback) {
 
     embeds.forEach(function (element) {
 
-      var path = [];
-
-      path.push(element);
-      path.push(entity.entityType);
-      path.push(entity._id);
-
-      var subTemplate = findTemplate.apply(this, path);
-
-      if (subTemplate) {
+      findTemplate(element, entity.entityType, entity._id).then(function (subTemplate) {
 
         parseTemplate(subTemplate, entity, authpass, function (contents) {
 
@@ -599,7 +600,7 @@ var parseTemplate = function (html, entity, authpass, callback) {
 
         });
 
-      } else {
+      }, function (fail) {
 
         console.log("Cannot find template " + element);
 
@@ -613,7 +614,7 @@ var parseTemplate = function (html, entity, authpass, callback) {
 
         });
 
-      }
+      });
 
     });
 
