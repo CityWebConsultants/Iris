@@ -32,8 +32,8 @@ module.exports = function (config) {
 
   C.configPath = path.join(C.sitePath, "/configurations");
 
-  C.saveConfig = function (contents, directory, filename) {
-
+  C.saveConfig = function (contents, directory, filename, callback) {
+    
     var current = C.configStore;
 
     directory.split("/").forEach(function (path) {
@@ -58,7 +58,7 @@ module.exports = function (config) {
       if (err) {
         console.error(err)
       } else {
-        fs.writeFileSync(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8");
+        fs.writeFile(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8", callback);
       }
     });
 
@@ -66,37 +66,45 @@ module.exports = function (config) {
 
   C.readConfig = function (directory, filename) {
 
-    function defined(ref, strNames) {
-      var name;
-      var arrNames = strNames.split('/');
+    return new Promise(function (yes, no) {
 
-      while (name = arrNames.shift()) {
-        if (!ref.hasOwnProperty(name)) return false;
-        ref = ref[name];
+      function defined(ref, strNames) {
+        var name;
+        var arrNames = strNames.split('/');
+
+        while (name = arrNames.shift()) {
+          if (!ref.hasOwnProperty(name)) return false;
+          ref = ref[name];
+        }
+
+        return ref;
       }
 
-      return ref;
-    }
+      var exists = defined(C.configStore, directory + "/" + filename);
 
-    var exists = defined(C.configStore, directory + "/" + filename);
+      if (exists) {
 
-    if (exists) {
+        yes(exists);
 
-      console.log(exists);
+      } else {
 
-    } else {
+        try {
 
-      try {
+          var contents = JSON.parse(fs.readFileSync(C.sitePath + "/configurations" + "/" + directory + "/" + filename + ".json", "utf8"));
 
-        console.log(JSON.parse(fs.readFileSync(C.sitePath + "/configurations" + "/" + directory + "/" + filename + ".json", "utf8")));
+          C.saveConfig(contents, directory, filename);
 
-      } catch (e) {
+          yes(contents);
 
-        console.log("No such config exists");
+        } catch (e) {
+
+          no("No such config exists");
+
+        }
 
       }
 
-    }
+    });
 
   };
 
