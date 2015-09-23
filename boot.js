@@ -33,7 +33,7 @@ module.exports = function (config) {
   C.configPath = path.join(C.sitePath, "/configurations");
 
   C.saveConfig = function (contents, directory, filename, callback) {
-    
+
     var current = C.configStore;
 
     directory.split("/").forEach(function (path) {
@@ -197,7 +197,27 @@ module.exports = function (config) {
     C.log.info("Server started");
 
     C.app.use(function (req, res) {
-      res.status(404).send('Sorry cant find that!');
+
+      C.hook("hook_catch_request", req.authPass, {
+        req: req
+      }, null).then(function (success) {
+
+        if (typeof success === "function") {
+          
+          success(res);
+
+        } else {
+
+          res.status(404).send('404');
+
+        }
+
+      }, function (fail) {
+
+        res.status(404).send('404');
+
+      })
+
     });
 
     C.dbPopulate();
