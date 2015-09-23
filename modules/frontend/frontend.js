@@ -11,7 +11,7 @@ var mkdirSync = function (path) {
   }
 }
 
-require("./regions.js");
+//require("./regions.js");
 
 /**
  *  Load theme
@@ -83,7 +83,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, callback) {
     parseTemplate(template, data.entity.fields, authPass, function (inner) {
 
       var wrapperTemplate = findTemplate("html", data.entity.type, data.entity.id).then(function (wrapperTemplate) {
-        
+
         parseTemplate(wrapperTemplate, data.entity.fields, authPass, function (wrapper) {
 
           // Special [[MAINCONTENT]] variable loads in the relevant page template.
