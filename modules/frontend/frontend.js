@@ -83,7 +83,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, callback) {
     parseTemplate(template, data.entity.fields, authPass, function (inner) {
 
       var wrapperTemplate = findTemplate("html", data.entity.type, data.entity.id).then(function (wrapperTemplate) {
-        
+
         parseTemplate(wrapperTemplate, data.entity.fields, authPass, function (wrapper) {
 
           // Special [[MAINCONTENT]] variable loads in the relevant page template.
@@ -480,25 +480,9 @@ var findTemplate = function () {
 
 };
 
-CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-
-  //  parseBlock("block", data, function (variable, next) {
-  //
-  //    next(variable.toUpperCase());
-  //
-  //  }).then(function (html) {
-  //
-  //    thisHook.finish(true, html);
-  //
-  //  });
-
-  thisHook.finish(true, data);
-
-})
-
 // Helper function for parsing blocks
 
-var parseBlock = function (prefix, html, action) {
+CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
   return new Promise(function (yes, no) {
 
@@ -653,6 +637,12 @@ var parseTemplate = function (html, entity, authpass, callback) {
 };
 
 C.app.use(function (req, res, next) {
+
+  if (req.method !== "GET") {
+
+    next();
+
+  }
 
   //Get all entity types
 
