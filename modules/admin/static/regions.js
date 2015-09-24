@@ -101,18 +101,16 @@ var prepareRegionsUI = function () {
 
   var buildRegions = function () {
 
-    regions = {};
-
     // for each Region that contains a set of blocks
     $('.region-blocks').each(function (index, region) {
 
       var currentRegion = $(this).parent().attr('data-region-id');
 
-      regions[currentRegion] = [];
+      regions[currentRegion].blocks = [];
 
       $(this).find('.region-block').each(function (index, regionBlock) {
 
-        regions[currentRegion].push({id: $(this).attr('data-instance-id'), type: $(this).attr('data-block-type')});
+        regions[currentRegion].blocks.push({id: $(this).attr('data-instance-id'), type: $(this).attr('data-block-type')});
 
       });
 
