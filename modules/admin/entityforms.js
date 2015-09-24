@@ -803,6 +803,64 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
 
 });
 
+// Regions configuration page
+
+C.app.get('/admin/regions', function (req, res) {
+
+  if (req.authPass.roles.indexOf("admin") === -1) {
+
+    res.redirect("/admin");
+    return false;
+
+  }
+
+  var page = fs.readFileSync(__dirname + "/templates/regions.html", "utf8");
+
+  CM.frontend.globals.parseTemplate(page, req.authPass).then(function (page) {
+
+    res.send(page);
+
+  });
+
+});
+
+C.app.get('/admin/block/edit/:id', function (req, res) {
+
+  if (req.authPass.roles.indexOf("admin") === -1) {
+
+    res.redirect("/admin");
+    return false;
+
+  }
+
+  var page = fs.readFileSync(__dirname + "/templates/blockedit.html", "utf8");
+
+  // Fetch block
+
+//  C.hook("hook_block_loadConfig", req.authPass, {
+//    type: req.params.type,
+//    id: req.params.id
+//  }).then(function (config) {
+//
+//    res.respond(200, config);
+//
+//  }, function (fail) {
+//
+//    res.respond(500, fail);
+//
+//  });
+
+//  page = page.split("<<blockname>>").join(req.params.id);
+//  page = page.split("<<blockid>>").join('block_' + req.params.id);
+
+  CM.frontend.globals.parseTemplate(page, req.authPass).then(function (page) {
+
+    res.send(page);
+
+  });
+
+});
+
 //CK Editor file upload
 
 var busboy = require('connect-busboy');
