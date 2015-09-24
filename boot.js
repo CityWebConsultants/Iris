@@ -42,9 +42,9 @@ module.exports = function (config) {
 
         current[path] = {};
 
-        current = current[path];
+      }
 
-      };
+      current = current[path];
 
     });
 
@@ -139,7 +139,7 @@ module.exports = function (config) {
 
   }
 
-  //Store config object for global use 
+  //Store config object for global use
 
   C.config = config;
 
@@ -203,7 +203,7 @@ module.exports = function (config) {
       }, null).then(function (success) {
 
         if (typeof success === "function") {
-          
+
           success(res);
 
         } else {
