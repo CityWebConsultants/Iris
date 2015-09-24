@@ -73,6 +73,53 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
 });
 
+var populateForm = function (form) {
+
+  if (!form.config.form) {
+
+    form.config.form = [];
+
+  }
+
+  Object.keys(form.config.schema).forEach(function (property) {
+
+    var present;
+
+    form.config.form.forEach(function (element) {
+
+      if (element.key === property) {
+
+        present = true;
+
+      }
+
+    });
+
+    if (!present) {
+
+      form.config.form.push({
+        key: property
+      });
+
+    }
+
+  });
+
+  form.config.form.push({
+    "type": "submit",
+    "title": "Submit"
+  })
+
+};
+
+//General form render hook
+
+CM.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
+
+});
+
 CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   CM.frontend.globals.parseBlock("form", data, function (formName, next) {
@@ -81,34 +128,46 @@ CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, 
 
     if (CM.forms.globals.forms[formName]) {
 
-      C.hook("hook_form_render_" + formName, thisHook.authPass, CM.forms.globals.forms[formName], CM.forms.globals.forms[formName]).then(function (form) {
+      C.hook("hook_form_render", thisHook.authPass, CM.forms.globals.forms[formName], CM.forms.globals.forms[formName]).then(function (form) {
 
-          var output = "<form method='POST' action='/' id='" + formName + "'></form>";
+        render(form);
 
-          output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form.config) + ");</script>";
+      });
 
-          next(output);
+      var render = function (form) {
 
-        },
-        function (fail) {
+        C.hook("hook_form_render_" + formName, thisHook.authPass, form, form).then(function (form) {
 
-          if (fail === "No such hook exists") {
-
+            populateForm(form);
 
             var output = "<form method='POST' action='/' id='" + formName + "'></form>";
 
-            output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(CM.forms.globals.forms[formName].config) + ");</script>";
+            output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form.config) + ");</script>";
 
             next(output);
 
+          },
+          function (fail) {
 
-          } else {
+            if (fail === "No such hook exists") {
 
-            next("<!-- No handler for form " + formName + " -->");
+              populateForm(form);
 
-          }
+              var output = "<form method='POST' action='/' id='" + formName + "'></form>";
 
-        });
+              output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form.config) + ");</script>";
+
+              next(output);
+
+            } else {
+
+              next("<!-- No handler for form " + formName + " -->");
+
+            }
+
+          });
+
+      }
 
     } else {
 

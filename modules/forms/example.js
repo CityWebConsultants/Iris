@@ -5,13 +5,17 @@ CM.forms.globals.makeForm("example", {
     name: {
       type: 'string',
       title: 'Name',
-      required: true
+      required: true,
     },
     age: {
       type: 'number',
       title: 'Age'
     }
-  }
+  },
+  form: [{
+    "key": "name",
+    "fieldHtmlClass": "test"
+  }],
 });
 
 
