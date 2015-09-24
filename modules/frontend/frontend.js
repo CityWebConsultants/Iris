@@ -553,11 +553,12 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
 };
 
-var parseTemplate = function (html, authpass, context, callback) {
+var parseTemplate = function (html, context, authpass, callback) {
 
   if (!context) {
 
     context = {};
+    context.entity = {};
 
   }
 
