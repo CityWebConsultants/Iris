@@ -1,5 +1,5 @@
 CM.headertags.globals.newTag("top", "script", {
-  src: "http://test.com/test.js"
+  src: "//code.jquery.com/jquery-1.11.3.min.js"
 }, {
   cache: true
 });

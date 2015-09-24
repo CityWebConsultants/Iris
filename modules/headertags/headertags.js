@@ -80,7 +80,7 @@ CM.headertags.registerHook("hook_frontend_template_parse", 1, function (thisHook
 });
 
 CM.headertags.registerHook("hook_headertags_process", 0, function (thisHook, tagArray) {
-
+  
   thisHook.finish(true, tagArray);
 
 });
