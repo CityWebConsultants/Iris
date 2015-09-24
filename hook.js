@@ -138,7 +138,6 @@ var hook = function (hookname, authPass, static, variables) {
             console.log("message:");
             if (e.stack) {
               console.log(e.stack);
-            } else {
               console.log(e);
             }
             console.log("***********");
