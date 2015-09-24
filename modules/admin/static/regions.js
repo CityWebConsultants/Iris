@@ -99,16 +99,26 @@ var prepareRegionsUI = function () {
 
   }
 
-//  // for each Region that contains a set of blocks
-//  $('.region-blocks').each(function (index, region) {
-//
-//    $(this).find('.region-block').each(function (index, regionBlock) {
-//
-//      console.log($(this));
-//
-//    });
-//
-//  });
+  var buildRegions = function () {
+
+    regions = {};
+
+    // for each Region that contains a set of blocks
+    $('.region-blocks').each(function (index, region) {
+
+      var currentRegion = $(this).parent().attr('data-region-id');
+
+      regions[currentRegion] = [];
+
+      $(this).find('.region-block').each(function (index, regionBlock) {
+
+        regions[currentRegion].push({id: $(this).attr('data-instance-id'), type: $(this).attr('data-block-type')});
+
+      });
+
+    });
+
+  }
 
   // Set up draggable groups for each region
   $('.region-blocks').each(function (index, element) {
@@ -133,16 +143,7 @@ var prepareRegionsUI = function () {
             // Use block name with block type in brackets.
             $(e.item).find(".region-block__title").html(instanceName + " <i>(" + $(e.item).find(".region-block__title").html() + ")</i>");
 
-            // Insert new item into tracking object at correct position
-            if (!regions[newRegion].blocks) {
-
-              regions[newRegion].blocks = [{id: instanceName, type: e.item.getAttribute('data-block-type')}];
-
-            } else {
-
-              regions[newRegion].blocks.splice(e.newIndex, 0, instanceName);
-
-            }
+            buildRegions();
 
           }
 
@@ -151,24 +152,7 @@ var prepareRegionsUI = function () {
 
             var instance = e.item.getAttribute('data-instance-id');
 
-            // Remove from previous
-            if (regions[prevRegion].blocks.indexOf(instance) !== -1) {
-
-              regions[prevRegion].blocks.splice(regions[prevRegion].blocks.indexOf(instance), 1);
-
-            }
-
-            // Add to new
-
-            if (!regions[newRegion].blocks) {
-
-              regions[newRegion].blocks = [{id: instance, type: e.item.getAttribute('data-block-type')}];
-
-            } else {
-
-              regions[newRegion].blocks.splice(e.newIndex, 0, instance);
-
-            }
+            buildRegions();
 
           }
 
@@ -180,13 +164,7 @@ var prepareRegionsUI = function () {
       },
       onUpdate: function (e) {
 
-        var thisRegion = $(e.to).parent().attr('data-region-id');
-
-        // Swap positions
-
-        var temp = regions[thisRegion].blocks[e.oldIndex];
-        regions[thisRegion].blocks[e.oldIndex] = regions[thisRegion].blocks[e.newIndex];
-        regions[thisRegion].blocks[e.newIndex] = temp;
+        buildRegions();
 
       }
     });
