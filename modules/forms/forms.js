@@ -2,20 +2,18 @@ C.registerModule("forms");
 
 CM.forms.globals.forms = {};
 
-CM.forms.globals.makeForm = function (name, form) {
+CM.forms.globals.makeForm = function (name, schema) {
 
-  if (form.schema) {
+  //Add hidden form ID field
 
-    form.schema.formid = {
-      "type": "hidden",
-      "default": name
-    };
-
-  }
+  schema.formid = {
+    "type": "hidden",
+    "default": name
+  };
 
   CM.forms.globals.forms[name] = {};
   CM.forms.globals.forms[name].name = name;
-  CM.forms.globals.forms[name].config = form;
+  CM.forms.globals.forms[name].schema = schema;
 
 };
 
@@ -73,48 +71,66 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
 });
 
-var populateForm = function (form) {
+var populateForm = function (form, authPass) {
 
-  if (!form.config.form) {
+  if (!form.form) {
 
-    form.config.form = [];
+    form.form = [];
 
   }
 
-  Object.keys(form.config.schema).forEach(function (property) {
+  Object.keys(form.schema).forEach(function (property) {
 
-    var present;
-
-    form.config.form.forEach(function (element) {
-
-      if (element.key === property) {
-
-        present = true;
-
-      }
-
+    form.form.push({
+      key: property
     });
-
-    if (!present) {
-
-      form.config.form.push({
-        key: property
-      });
-
-    }
 
   });
 
-  form.config.form.push({
+  form.form.push({
     "type": "submit",
     "title": "Submit"
   })
 
+  return new Promise(function (yes, no) {
+
+    var name = form.name;
+
+    C.hook("hook_form_render", authPass, form, form).then(function (form) {
+
+      C.hook("hook_form_render_" + name, authPass, form, form).then(function (form) {
+
+        yes(form);
+
+      }, function (fail) {
+
+        if (fail === "No such hook exists") {
+
+          yes(form);
+
+        } else {
+
+          no(fail);
+
+        }
+
+      });
+
+    });
+
+  });
+
 };
+
+CM.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
+
+});
 
 //General form render hook
 
-CM.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
+CM.forms.registerHook("hook_form_schema_alter", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
 
@@ -128,7 +144,9 @@ CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, 
 
     if (CM.forms.globals.forms[formName]) {
 
-      C.hook("hook_form_render", thisHook.authPass, CM.forms.globals.forms[formName], CM.forms.globals.forms[formName]).then(function (form) {
+      form = JSON.parse(JSON.stringify(CM.forms.globals.forms[formName]));
+
+      C.hook("hook_form_schema_alter", thisHook.authPass, form, form).then(function (form) {
 
         render(form);
 
@@ -136,28 +154,32 @@ CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, 
 
       var render = function (form) {
 
-        C.hook("hook_form_render_" + formName, thisHook.authPass, form, form).then(function (form) {
+        C.hook("hook_form_schema_alter_" + formName, thisHook.authPass, form, form).then(function (form) {
 
-            populateForm(form);
+            populateForm(form, thisHook.authPass).then(function (form) {
 
-            var output = "<form method='POST' action='/' id='" + formName + "'></form>";
+              var output = "<form method='POST' action='/' id='" + formName + "'></form>";
 
-            output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form.config) + ");</script>";
+              output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
 
-            next(output);
+              next(output);
+
+            });
 
           },
           function (fail) {
 
             if (fail === "No such hook exists") {
 
-              populateForm(form);
+              populateForm(form, thisHook.authPass).then(function (form) {
 
-              var output = "<form method='POST' action='/' id='" + formName + "'></form>";
+                var output = "<form method='POST' action='/' id='" + formName + "'></form>";
 
-              output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form.config) + ");</script>";
+                output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
 
-              next(output);
+                next(output);
+
+              });
 
             } else {
 
