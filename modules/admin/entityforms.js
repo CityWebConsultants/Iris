@@ -824,7 +824,7 @@ C.app.get('/admin/regions', function (req, res) {
 
 });
 
-C.app.get('/admin/block/edit/:id', function (req, res) {
+C.app.get('/admin/block/edit/:type/:id', function (req, res) {
 
   if (req.authPass.roles.indexOf("admin") === -1) {
 
@@ -837,25 +837,28 @@ C.app.get('/admin/block/edit/:id', function (req, res) {
 
   // Fetch block
 
-//  C.hook("hook_block_loadConfig", req.authPass, {
-//    type: req.params.type,
-//    id: req.params.id
-//  }).then(function (config) {
-//
-//    res.respond(200, config);
-//
-//  }, function (fail) {
-//
-//    res.respond(500, fail);
-//
-//  });
+  var blockConfig;
 
-//  page = page.split("<<blockname>>").join(req.params.id);
-//  page = page.split("<<blockid>>").join('block_' + req.params.id);
+  C.hook("hook_block_loadConfig", req.authPass, {
+    type: req.params.type,
+    id: req.params.id
+  }).then(function (config) {
 
-  CM.frontend.globals.parseTemplate(page, req.authPass).then(function (page) {
+    console.log(config);
 
-    res.send(page);
+    page = page.split("[[blockname]]").join(req.params.id);
+    page = page.split("[[blocktype]]").join(req.params.type);
+    page = page.split("[[blockid]]").join('block_' + req.params.id);
+
+    CM.frontend.globals.parseTemplate(page, req.authPass).then(function (page) {
+
+      res.send(page);
+
+    });
+
+  }, function (fail) {
+
+    res.send("Block could not be loaded");
 
   });
 
