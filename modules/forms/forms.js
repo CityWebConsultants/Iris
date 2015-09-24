@@ -73,6 +73,45 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
 });
 
+var populateForm = function (form) {
+
+  if (!form.config.form) {
+
+    form.config.form = [];
+
+  }
+
+  Object.keys(form.config.schema).forEach(function (property) {
+
+    var present;
+    
+    form.config.form.forEach(function(element){
+      
+      if(element.key === property){
+       
+        present = true;
+        
+      }
+      
+    });
+    
+    if (!present) {
+
+      form.config.form.push({
+        key: property
+      });
+
+    }
+
+  });
+
+  form.config.form.push({
+    "type": "submit",
+    "title": "Submit"
+  })
+
+};
+
 CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   CM.frontend.globals.parseBlock("form", data, function (formName, next) {
@@ -82,6 +121,8 @@ CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, 
     if (CM.forms.globals.forms[formName]) {
 
       C.hook("hook_form_render_" + formName, thisHook.authPass, CM.forms.globals.forms[formName], CM.forms.globals.forms[formName]).then(function (form) {
+
+          populateForm(form);
 
           var output = "<form method='POST' action='/' id='" + formName + "'></form>";
 
@@ -94,6 +135,7 @@ CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, 
 
           if (fail === "No such hook exists") {
 
+            populateForm(CM.forms.globals.forms[formName]);
 
             var output = "<form method='POST' action='/' id='" + formName + "'></form>";
 
