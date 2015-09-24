@@ -88,7 +88,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
       }
 
       parseTemplate(template, context, authPass, function (inner) {
-        
+
         var wrapperTemplate = findTemplate("html", data.entity.type, data.entity.id).then(function (wrapperTemplate) {
 
           parseTemplate(wrapperTemplate, context, authPass, function (wrapper) {
@@ -553,7 +553,13 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
 };
 
-var parseTemplate = function (html, context, authpass, callback) {
+var parseTemplate = function (html, authpass, context, callback) {
+
+  if (!context) {
+
+    context = {};
+
+  }
 
   var entity = context.entity;
 
