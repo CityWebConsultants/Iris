@@ -87,11 +87,11 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
         extras: optionalContext
       }
 
-      parseTemplate(template, context, authPass, function (inner) {
+      parseTemplate(template, authPass, context).then(function (inner) {
 
         var wrapperTemplate = findTemplate("html", data.entity.type, data.entity.id).then(function (wrapperTemplate) {
 
-          parseTemplate(wrapperTemplate, context, authPass, function (wrapper) {
+          parseTemplate(wrapperTemplate, authPass, context).then(function (wrapper) {
 
             // Special [[MAINCONTENT]] variable loads in the relevant page template.
 
@@ -553,104 +553,108 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
 };
 
-var parseTemplate = function (html, context, authpass, callback) {
+var parseTemplate = function (html, authPass, context) {
+  
+  return new Promise(function (pass, fail) {
 
-  if (!context) {
+    if (!context) {
 
-    context = {};
-    context.entity = {};
+      context = {};
+      context.entity = {};
 
-  }
+    }
 
-  var entity = context.entity;
+    var entity = context.entity;
 
-  var output = html;
+    var output = html;
 
-  //Get any embeded templates inside the template file
-
-  var embeds = output.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
-
-  if (embeds) {
-
-    var embeds = embeds.map(function (x) {
-
-      return x.match(/file\s([\w\.\-]+)/)[1];
-
-    });
-
-    var counter = embeds.length;
-
-    embeds.forEach(function (element) {
-
-      findTemplate(element, entity.entityType, entity._id).then(function (subTemplate) {
-
-        parseTemplate(subTemplate, context, authpass, function (contents) {
-
-          output = output.split("[[[file " + element + "]]]").join(contents);
-
-          counter -= 1;
-
-          if (counter === 0) {
-
-            C.hook("hook_frontend_template_parse", authpass, context, output).then(function (output) {
-
-              complete(output);
-
-            });
-
-          }
-
-        });
-
-      }, function (fail) {
-
-        console.log("Cannot find template " + element);
-
-        // Remove template if it can't be found
-
-        output = output.split("[[[file " + element + "]]]").join("");
-
-        parseTemplate(output, context, authpass, function (contents) {
-
-          complete(contents);
-
-        });
-
-      });
-
-    });
-
-  } else {
-
-    C.hook("hook_frontend_template_parse", authpass, context, output).then(function (output) {
-
-      complete(output);
-
-    });
-
-  }
-
-  var complete = function (output) {
-
-    // Check for embedded templates
+    //Get any embeded templates inside the template file
 
     var embeds = output.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
 
     if (embeds) {
 
-      parseTemplate(output, context, authpass, function (output) {
+      var embeds = embeds.map(function (x) {
 
-        callback(output);
+        return x.match(/file\s([\w\.\-]+)/)[1];
 
-      })
+      });
+
+      var counter = embeds.length;
+
+      embeds.forEach(function (element) {
+        
+        findTemplate(element, entity.entityType, entity._id).then(function (subTemplate) {
+                    
+          parseTemplate(subTemplate, authPass, context).then(function (contents) {
+                        
+            output = output.split("[[[file " + element + "]]]").join(contents);
+
+            counter -= 1;
+
+            if (counter === 0) {
+
+              C.hook("hook_frontend_template_parse", authPass, context, output).then(function (output) {
+
+                complete(output);
+
+              });
+
+            }
+
+          });
+
+        }, function (fail) {
+
+          console.log("Cannot find template " + element);
+
+          // Remove template if it can't be found
+
+          output = output.split("[[[file " + element + "]]]").join("");
+
+          parseTemplate(output, authPass, context).then(function (contents) {
+
+            complete(contents);
+
+          });
+
+        });
+
+      });
 
     } else {
 
-      callback(output);
+      C.hook("hook_frontend_template_parse", authPass, context, output).then(function (output) {
+
+        complete(output);
+
+      });
 
     }
 
-  };
+    var complete = function (output) {
+
+      // Check for embedded templates
+
+      var embeds = output.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
+
+      if (embeds) {
+
+        parseTemplate(output, authPass, context).then(function (output) {
+
+          pass(output);
+
+        })
+
+      } else {
+
+        pass(output);
+
+      }
+
+    };
+
+  });
 
 };
 
