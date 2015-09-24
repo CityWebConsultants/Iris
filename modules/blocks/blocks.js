@@ -30,13 +30,43 @@ CM.blocks.registerHook("hook_block_loadConfig", 0, function (thisHook, data) {
 
   } else {
 
-    thisHook.finish(true, data);
+    C.readConfig('blocks/' + thisHook.const.type, thisHook.const.id).then(function (output) {
+
+      thisHook.finish(true, output);
+
+    }, function (fail) {
+
+      thisHook.finish(true, "Could not load block");
+
+    });
 
   }
 
 });
 
-CM.blocks.registerHook("hook_block_save", 0, function (thisHook, data) {
+//CM.blocks.registerHook("hook_block_save", 0, function (thisHook, data) {
+//
+//  if (!thisHook.const.id) {
+//
+//    thisHook.finish(false, "must have an id");
+//
+//  } else if (!thisHook.const.type) {
+//
+//    thisHook.finish(false, "must have a type");
+//
+//  } else if (!thisHook.const.config) {
+//
+//    thisHook.finish(false, "must have a config");
+//
+//  } else {
+//
+//    thisHook.finish(true, data);
+//
+//  }
+//
+//});
+
+CM.blocks.registerHook("hook_block_saveConfig", 0, function (thisHook, data) {
 
   if (!thisHook.const.id) {
 
@@ -46,13 +76,17 @@ CM.blocks.registerHook("hook_block_save", 0, function (thisHook, data) {
 
     thisHook.finish(false, "must have a type");
 
-  } else if (!thisHook.const.config) {
-
-    thisHook.finish(false, "must have a config");
-
   } else {
 
-    thisHook.finish(true, data);
+    var config = thisHook.const;
+
+    console.log(config);
+
+    C.saveConfig(config, 'blocks/' + thisHook.const.type, config.id, function (output) {
+
+      thisHook.finish(true, output);
+
+    });
 
   }
 
