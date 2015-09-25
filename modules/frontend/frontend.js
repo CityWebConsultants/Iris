@@ -573,7 +573,7 @@ var parseTemplate = function (html, authPass, context) {
 
       } else {
 
-        C.hook("hook_frontend_template_parse", authPass, context, output).then(function (output) {
+        C.hook("hook_frontend_template_parse", authPass, {context: context}, output).then(function (output) {
 
           if (final) {
 
