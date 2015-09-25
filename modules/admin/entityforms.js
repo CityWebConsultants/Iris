@@ -805,6 +805,8 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
 
 // Regions configuration page
 
+CM.admin.globals.registerMenuItem("Regions", path.join(__dirname, 'templates/regions.html'));
+
 C.app.get('/admin/regions', function (req, res) {
 
   if (req.authPass.roles.indexOf("admin") === -1) {
