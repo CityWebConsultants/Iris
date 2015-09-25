@@ -487,6 +487,8 @@ var findTemplate = function () {
 
 };
 
+CM.frontend.globals.findTemplate = findTemplate;
+
 // Helper function for parsing blocks
 
 CM.frontend.globals.parseBlock = function (prefix, html, action) {
@@ -570,7 +572,7 @@ var parseTemplate = function (html, authPass, context) {
         })
 
       } else {
-        
+
         C.hook("hook_frontend_template_parse", authPass, context, output).then(function (output) {
 
           if (final) {
@@ -591,6 +593,11 @@ var parseTemplate = function (html, authPass, context) {
     if (!context) {
 
       context = {};
+
+    }
+
+    if (!context.entity) {
+
       context.entity = {};
 
     }
