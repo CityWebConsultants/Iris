@@ -174,7 +174,9 @@ CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, 
 
     if (CM.forms.globals.forms[formName]) {
 
-      form = JSON.parse(JSON.stringify(CM.forms.globals.forms[formName]));
+      var form = JSON.parse(JSON.stringify(CM.forms.globals.forms[formName]));
+
+      form.context = thisHook.const.context;
 
       C.hook("hook_form_schema_alter", thisHook.authPass, form, form).then(function (form) {
 
