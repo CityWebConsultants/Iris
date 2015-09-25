@@ -11,8 +11,6 @@ var mkdirSync = function (path) {
   }
 }
 
-//require("./regions.js");
-
 /**
  *  Load theme
  */
@@ -554,7 +552,7 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 };
 
 var parseTemplate = function (html, authPass, context) {
-  
+
   return new Promise(function (pass, fail) {
 
     if (!context) {
@@ -583,11 +581,11 @@ var parseTemplate = function (html, authPass, context) {
       var counter = embeds.length;
 
       embeds.forEach(function (element) {
-        
+
         findTemplate(element, entity.entityType, entity._id).then(function (subTemplate) {
-                    
+
           parseTemplate(subTemplate, authPass, context).then(function (contents) {
-                        
+
             output = output.split("[[[file " + element + "]]]").join(contents);
 
             counter -= 1;

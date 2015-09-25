@@ -15,29 +15,6 @@ CM.block_manager.registerHook("hook_block_registerType", 100, function (thisHook
 
 });
 
-//CM.region_manager.registerHook("hook_block_loadConfig", 0, function (thisHook, data) {
-//
-//  console.log("loadconfig", thisHook.const);
-//
-//  var blockId = thisHook.const.id;
-//  var blockType = thisHook.const.type;
-//
-//  C.readConfig(C.sitePath + '/' + C.config.theme + '/blocks', blockId).then(function (output) {
-//
-//    console.log("read", output);
-//
-//    thisHook.finish(true, data);
-//
-//  }, function (fail) {
-//
-//    console.log(fail);
-//
-//    thisHook.finish(true, data);
-//
-//  });
-//
-//});
-
 /* API ENDPOINTS */
 
 // Return available blockTypes
