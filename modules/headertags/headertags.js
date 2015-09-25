@@ -21,6 +21,12 @@ CM.headertags.globals.newTag = function (category, type, attributes, options) {
 
 };
 
+CM.headertags.registerHook("hook_frontend_template_context", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
+
+});
+
 CM.headertags.registerHook("hook_frontend_template_parse", 1, function (thisHook, data) {
 
   CM.frontend.globals.parseBlock("tags", data, function (tagCollectionName, next) {
@@ -80,7 +86,7 @@ CM.headertags.registerHook("hook_frontend_template_parse", 1, function (thisHook
 });
 
 CM.headertags.registerHook("hook_headertags_process", 0, function (thisHook, tagArray) {
-  
+
   thisHook.finish(true, tagArray);
 
 });

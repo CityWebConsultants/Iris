@@ -555,10 +555,49 @@ var parseTemplate = function (html, authPass, context) {
 
   return new Promise(function (pass, fail) {
 
+    var complete = function (output, final) {
+
+      // Check for embedded templates
+
+      var embeds = output.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
+
+      if (embeds) {
+
+        parseTemplate(output, authPass, context).then(function (output) {
+
+          pass(output);
+
+        })
+
+      } else {
+        
+        C.hook("hook_frontend_template_parse", authPass, context, output).then(function (output) {
+
+          if (final) {
+
+            pass(output);
+
+          } else {
+
+            complete(output, true);
+          }
+
+        });
+
+      }
+
+    };
+
     if (!context) {
 
       context = {};
       context.entity = {};
+
+    }
+
+    if (!context.custom) {
+
+      context.custom = {};
 
     }
 
@@ -592,7 +631,7 @@ var parseTemplate = function (html, authPass, context) {
 
             if (counter === 0) {
 
-              C.hook("hook_frontend_template_parse", authPass, context, output).then(function (output) {
+              C.hook("hook_frontend_template_context", authPass, output, context.custom).then(function (newContext) {
 
                 complete(output);
 
@@ -622,35 +661,13 @@ var parseTemplate = function (html, authPass, context) {
 
     } else {
 
-      C.hook("hook_frontend_template_parse", authPass, context, output).then(function (output) {
+      C.hook("hook_frontend_template_context", authPass, output, context.custom).then(function (newContext) {
 
         complete(output);
 
       });
 
     }
-
-    var complete = function (output) {
-
-      // Check for embedded templates
-
-      var embeds = output.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
-
-      if (embeds) {
-
-        parseTemplate(output, authPass, context).then(function (output) {
-
-          pass(output);
-
-        })
-
-      } else {
-
-        pass(output);
-
-      }
-
-    };
 
   });
 
