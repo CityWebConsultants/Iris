@@ -6,9 +6,9 @@ CM.blocks.registerHook("hook_block_registerType", 0, function (thisHook, data) {
 
     thisHook.finish(false, "must have a name");
 
-  } else if (!thisHook.const.form) {
+  } else if (!thisHook.const.schema) {
 
-    thisHook.finish(false, "must have a form");
+    thisHook.finish(false, "must have a schema");
 
   } else {
 
