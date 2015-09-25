@@ -29,21 +29,45 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
       if (CM.forms.globals.forms[body.formid]) {
 
-        C.hook("hook_form_submit_" + body.formid, thisHook.const.req.authPass, {
+        C.hook("hook_form_submit", thisHook.const.req.authPass, {
           params: thisHook.const.req.body
-        }, null).then(function (redirect) {
+        }).then(function (redirect) {
 
-          if (redirect) {
+          C.hook("hook_form_submit_" + body.formid, thisHook.const.req.authPass, {
+            params: thisHook.const.req.body
+          }, null).then(function (redirect) {
 
-            data = function (req) {
+            if (redirect) {
 
-              req.redirect(redirect);
+              data = function (req) {
 
-            };
+                req.redirect(redirect);
 
-          };
+              };
 
-          thisHook.finish(true, data);
+            }
+
+            thisHook.finish(true, data);
+
+          }, function (fail) {
+
+            if (fail === "No such hook exists") {
+
+              if (redirect) {
+
+                data = function (req) {
+
+                  req.redirect(redirect);
+
+                };
+
+              }
+
+            }
+
+            thisHook.finish(true, data);
+
+          });
 
         }, function (fail) {
 
@@ -122,6 +146,12 @@ var populateForm = function (form, authPass) {
 
 };
 
+CM.forms.registerHook("hook_form_submit", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
+
+});
+
 CM.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
@@ -137,7 +167,7 @@ CM.forms.registerHook("hook_form_schema_alter", 0, function (thisHook, data) {
 });
 
 CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-  
+
   CM.frontend.globals.parseBlock("form", data, function (formName, next) {
 
     // Check if form exists
