@@ -58,23 +58,27 @@ CM.block_manager.registerHook("hook_form_schema_alter", 0, function (thisHook, d
 
 CM.block_manager.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
-  console.log("Inside submit handler");
-  console.log('thisHook', thisHook);
-  console.log(data);
+  var blockId = thisHook.const.params.blockid;
+  var blockType = thisHook.const.params.blocktype;
 
-  //    C.hook("hook_block_saveConfig", thisHook.authPass, {
-  //      id: req.body.id,
-  //      type: req.body.type,
-  //      config: req.body.config
-  //    }).then(function () {
-  //
-  //      res.respond(200, "Saved block");
-  //
-  //    }, function (fail) {
-  //
-  //      res.respond(500, fail);
-  //
-  //    });
+  // Remove form metadata
+  delete thisHook.const.params.blockid;
+  delete thisHook.const.params.formid;
+  delete thisHook.const.params.blocktype;
+
+      C.hook("hook_block_saveConfig", thisHook.authPass, {
+        id: blockId,
+        type: blockType,
+        config: thisHook.const.params
+      }).then(function () {
+
+        res.respond(200, "Saved block");
+
+      }, function (fail) {
+
+        res.respond(500, fail);
+
+      });
 
   thisHook.finish(true, "/admin/regions");
 
