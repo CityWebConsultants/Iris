@@ -846,13 +846,19 @@ C.app.get('/admin/block/edit/:type/:id', function (req, res) {
     id: req.params.id
   }).then(function (config) {
 
-    console.log(config);
-
     page = page.split("[[blockname]]").join(req.params.id);
-    page = page.split("[[blocktype]]").join(req.params.type);
+    page = page.split("[[blockform]]").join('block_' + req.params.type);
     page = page.split("[[blockid]]").join('block_' + req.params.id);
 
-    CM.frontend.globals.parseTemplate(page, req.authPass).then(function (page) {
+    CM.frontend.globals.parseTemplate(page, req.authPass, {
+      custom : {
+        customForm: {
+          type: req.params.type,
+          id: req.params.id
+        },
+        existing: config.config
+      }
+    }).then(function (page) {
 
       res.send(page);
 

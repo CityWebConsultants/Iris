@@ -9,9 +9,74 @@ CM.block_manager.registerHook("hook_block_registerType", 100, function (thisHook
   CM.block_manager.globals.blockTypes[thisHook.const.type] = thisHook.const;
 
   // Automatically register form
-  CM.forms.globals.makeForm("block_" + thisHook.const.type, thisHook.const.form);
+  CM.forms.globals.makeForm("block_" + thisHook.const.type, thisHook.const.schema);
 
   thisHook.finish(true, data);
+
+});
+
+// Add hidden fields to block forms
+CM.block_manager.registerHook("hook_form_schema_alter", 0, function (thisHook, data) {
+
+  if (thisHook.const.name.indexOf("block_" === 0)) {
+
+    thisHook.const.schema.blockid = {};
+    thisHook.const.schema.blocktype = {};
+
+    thisHook.const.schema.blockid = {
+      type: 'hidden',
+      default: thisHook.const.context.custom.customForm.id
+    };
+
+    thisHook.const.schema.blocktype = {
+      type: 'hidden',
+      default: thisHook.const.context.custom.customForm.type
+    };
+
+    // Set defaults
+
+    var existing = thisHook.const.context.custom.existing;
+
+    for (var item in existing) {
+
+      // If item exists on form
+      if (thisHook.const.schema[item]) {
+
+        thisHook.const.schema[item].default = existing[item];
+
+      }
+
+    }
+
+  }
+
+  thisHook.finish(true, data);
+
+});
+
+// Handle block form submission to update config
+
+CM.block_manager.registerHook("hook_form_submit", 0, function (thisHook, data) {
+
+  console.log("Inside submit handler");
+  console.log('thisHook', thisHook);
+  console.log(data);
+
+  //    C.hook("hook_block_saveConfig", thisHook.authPass, {
+  //      id: req.body.id,
+  //      type: req.body.type,
+  //      config: req.body.config
+  //    }).then(function () {
+  //
+  //      res.respond(200, "Saved block");
+  //
+  //    }, function (fail) {
+  //
+  //      res.respond(500, fail);
+  //
+  //    });
+
+  thisHook.finish(true, "/admin/regions");
 
 });
 
@@ -67,19 +132,18 @@ C.app.post('/block/save', function (req, res) {
 C.hook("hook_block_registerType", "root", {
   name: 'Example block',
   type: 'example',
-  form: {
-    schema: {
-      name: {
-        type: 'string',
-        title: 'Name',
-        required: true
-      },
-      age: {
-        type: 'number',
-        title: 'Age'
-      }
+  schema: {
+    title: {
+      type: 'string',
+      title: 'Title',
+      required: true
+    },
+    text: {
+      type: 'string',
+      title: 'Text to display'
     }
   }
+
 }).then(function (block) {
 
 }, function (fail) {
