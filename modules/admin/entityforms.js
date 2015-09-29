@@ -852,7 +852,7 @@ C.app.get('/admin/block/create/:type', function (req, res) {
       }
     }).then(function (page) {
 
-      res.send(page);
+      res.send(page.html);
 
     }, function (fail) {
 
@@ -908,7 +908,7 @@ C.app.get('/admin/block/edit/:type/:id', function (req, res) {
       }
     }).then(function (page) {
 
-      res.send(page);
+      res.send(page.html);
 
     });
 
