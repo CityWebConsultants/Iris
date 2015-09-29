@@ -15,7 +15,8 @@ CM.block_manager.registerHook("hook_block_registerType", 100, function (thisHook
 
 });
 
-// Add hidden fields to block forms
+// Handle block forms
+// Add hidden fields, insert default config values, etc.
 CM.block_manager.registerHook("hook_form_schema_alter", 0, function (thisHook, data) {
 
   if (thisHook.const.name.indexOf("block_" === 0)) {
@@ -32,6 +33,19 @@ CM.block_manager.registerHook("hook_form_schema_alter", 0, function (thisHook, d
       type: 'hidden',
       default: thisHook.const.context.custom.customForm.type
     };
+
+    if (thisHook.const.context.custom.customForm.regions) {
+
+      // Add regions select
+
+      thisHook.const.schema.region = {
+        type: 'select',
+        title: 'Region',
+        required: true,
+        enum: Object.keys(thisHook.const.context.custom.customForm.regions)
+      }
+
+    }
 
     // Set defaults
 
@@ -60,27 +74,64 @@ CM.block_manager.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
   var blockId = thisHook.const.params.blockid;
   var blockType = thisHook.const.params.blocktype;
+  var region = thisHook.const.params.region;
 
   // Remove form metadata
   delete thisHook.const.params.blockid;
   delete thisHook.const.params.formid;
   delete thisHook.const.params.blocktype;
+  delete thisHook.const.params.region;
 
-      C.hook("hook_block_saveConfig", thisHook.authPass, {
-        id: blockId,
-        type: blockType,
-        config: thisHook.const.params
-      }).then(function () {
+  C.hook("hook_block_saveConfig", thisHook.authPass, {
+    id: blockId,
+    type: blockType,
+    config: thisHook.const.params
+  }).then(function () {
 
-        res.respond(200, "Saved block");
+    if (region) {
+
+      C.hook("hook_regions_load", thisHook.authPass).then(function (currentRegions) {
+
+        if (currentRegions[region]) {
+
+          if (!currentRegions[region].blocks) {
+            currentRegions[region].blocks = [];
+          }
+
+          currentRegions[region].blocks.push({
+            id: blockId,
+            type: blockType
+          });
+
+        }
+
+        C.hook("hook_regions_save", thisHook.authPass, currentRegions).then(function (savedRegions) {
+
+          thisHook.finish(true, "/admin/regions");
+
+        }, function (fail) {
+
+          thisHook.finish(false, "Could not save regions");
+
+        });
 
       }, function (fail) {
 
-        res.respond(500, fail);
+        thisHook.finish(false, "Could not load existing regions");
 
       });
 
-  thisHook.finish(true, "/admin/regions");
+    } else {
+
+      thisHook.finish(true, "/admin/regions");
+
+    }
+
+  }, function (fail) {
+
+    thisHook.finish(false, "Could not save block");
+
+  });
 
 });
 

@@ -846,23 +846,61 @@ C.app.get('/admin/block/edit/:type/:id', function (req, res) {
     id: req.params.id
   }).then(function (config) {
 
+    var title = '';
+    var regionSelect = false;
+
+    if (config === "Could not load block") {
+
+      title = "Create new block";
+      regionSelect = true;
+
+    } else {
+
+      title = "Edit block";
+
+    }
+
+    page = page.split("[[blockformtitle]]").join(title);
     page = page.split("[[blockname]]").join(req.params.id);
     page = page.split("[[blockform]]").join('block_' + req.params.type);
     page = page.split("[[blockid]]").join('block_' + req.params.id);
 
-    CM.frontend.globals.parseTemplate(page, req.authPass, {
-      custom : {
-        customForm: {
-          type: req.params.type,
-          id: req.params.id
-        },
-        existing: config.config
-      }
-    }).then(function (page) {
+    var parseTemplate = function (regions) {
 
-      res.send(page);
+      CM.frontend.globals.parseTemplate(page, req.authPass, {
+        custom: {
+          customForm: {
+            type: req.params.type,
+            id: req.params.id,
+            regions: regions
+          },
+          existing: config.config
+        }
+      }).then(function (page) {
 
-    });
+        res.send(page);
+
+      });
+
+    }
+
+    if (regionSelect) {
+
+      C.hook("hook_regions_load", req.authPass).then(function (regions) {
+
+        parseTemplate(regions);
+
+      }, function (fail) {
+
+        res.send("Could not load regions");
+
+      });
+
+    } else {
+
+      parseTemplate();
+
+    }
 
   }, function (fail) {
 
