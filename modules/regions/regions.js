@@ -14,6 +14,10 @@ CM.regions.registerHook("hook_frontend_template_parse", 1, function (thisHook, d
 
         next(html);
 
+      }, function (fail){
+
+        next("<!--- Could not load region " + region + " --->");
+
       });
 
     }).then(function (html) {
@@ -24,7 +28,7 @@ CM.regions.registerHook("hook_frontend_template_parse", 1, function (thisHook, d
 
     }, function (fail) {
 
-      console.log(fail);
+      thisHook.finish(false, fail);
 
     });
 
@@ -64,50 +68,65 @@ CM.regions.registerHook("hook_region_load", 0, function (thisHook, data) {
 
   var region = thisHook.const.regions[thisHook.const.region];
 
+  if (!region) {
+
+    thisHook.finish(false, "Could not load region");
+    return false;
+
+  }
+
   var promises = [];
 
   var renderedBlocks = [];
 
-  region.blocks.forEach(function (block, index) {
+  if (region.blocks) {
 
-    renderedBlocks[index] = {
-      id: block.id,
-      type: block.type
-    };
+    region.blocks.forEach(function (block, index) {
 
-    promises.push(
+      renderedBlocks[index] = {
+        id: block.id,
+        type: block.type
+      };
 
-      C.promise(function (data, yes, no) {
+      promises.push(
 
-        C.hook("hook_block_load", thisHook.authPass, {
-          id: block.id,
-          type: block.type
-        }).then(function (html) {
+        C.promise(function (data, yes, no) {
 
-          renderedBlocks[index].html = html;
+          C.hook("hook_block_load", thisHook.authPass, {
+            id: block.id,
+            type: block.type
+          }).then(function (html) {
 
-          yes(data);
+            renderedBlocks[index].html = html;
 
-        }, function (fail) {
+            yes(data);
 
-          no(data);
+          }, function (fail) {
 
-        });
+            no(data);
 
-      })
+          });
 
-    );
+        })
 
-  });
+      );
 
-  C.promiseChain(promises, data, function (success) {
+    });
 
-    thisHook.finish(true, renderedBlocks);
+    C.promiseChain(promises, data, function (success) {
 
-  }, function (fail) {
+      thisHook.finish(true, renderedBlocks);
 
-    thisHook.finish(false, fail);
+    }, function (fail) {
 
-  });
+      thisHook.finish(false, fail);
+
+    });
+
+  } else {
+
+    thisHook.finish(true, []);
+
+  }
 
 });
