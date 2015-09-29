@@ -9,12 +9,13 @@ CM.regions.registerHook("hook_frontend_template_parse", 1, function (thisHook, d
 
       C.hook("hook_region_render", thisHook.authPass, {
         regions: regions,
-        region: region
+        region: region,
+        context: thisHook.const.context
       }).then(function (html) {
 
         next(html);
 
-      }, function (fail){
+      }, function (fail) {
 
         next("<!--- Could not load region " + region + " --->");
 
@@ -38,14 +39,11 @@ CM.regions.registerHook("hook_frontend_template_parse", 1, function (thisHook, d
 
 // Extensible hook to render a region
 CM.regions.registerHook("hook_region_render", 0, function (thisHook, data) {
-
-  C.hook("hook_region_load", thisHook.authPass, {
-    regions: thisHook.const.regions,
-    region: thisHook.const.region
-  }).then(function (blocks) {
+  
+  C.hook("hook_region_load", thisHook.authPass, thisHook.const).then(function (blocks) {
 
     var html = '';
-
+    
     blocks.forEach(function (block) {
 
       html += '<div class="block block_' + block.id + ' block_type_' + block.type + '">';
