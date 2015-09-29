@@ -1,5 +1,61 @@
 C.registerModule("blocks");
 
+CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+
+  CM.frontend.globals.parseBlock("block", data.html, function (block, next) {
+
+    var blockName = block.split("|")[1];
+    var blockType = block.split("|")[0];
+
+    if (!blockName || !blockType) {
+
+      next("<!--- Could not load block " + block + " --->");
+      return false;
+
+    };
+
+    C.hook("hook_block_loadConfig", thisHook.authPass, {
+      id: blockName,
+      type: blockType
+    }, null).then(function (config) {
+
+      C.hook("hook_block_render", thisHook.authPass, {
+        id: blockName,
+        type: blockType,
+        config: config
+      }, null).then(function (blockHTML) {
+
+        next(blockHTML);
+
+      }, function (fail) {
+
+        next("<!--- Could not load block " + block + " --->");
+
+      });
+
+    }, function (fail) {
+
+      console.log(fail);
+
+      next("<!--- Could not load block " + block + " --->");
+
+    });
+
+  }).then(function (html) {
+
+    data.html = html;
+
+    thisHook.finish(true, data);
+
+  }, function (fail) {
+
+    thisHook.finish(false, fail);
+
+  });
+
+});
+
+
 CM.blocks.registerHook("hook_block_registerType", 0, function (thisHook, data) {
 
   if (!thisHook.const.name) {
@@ -43,28 +99,6 @@ CM.blocks.registerHook("hook_block_loadConfig", 0, function (thisHook, data) {
   }
 
 });
-
-//CM.blocks.registerHook("hook_block_save", 0, function (thisHook, data) {
-//
-//  if (!thisHook.const.id) {
-//
-//    thisHook.finish(false, "must have an id");
-//
-//  } else if (!thisHook.const.type) {
-//
-//    thisHook.finish(false, "must have a type");
-//
-//  } else if (!thisHook.const.config) {
-//
-//    thisHook.finish(false, "must have a config");
-//
-//  } else {
-//
-//    thisHook.finish(true, data);
-//
-//  }
-//
-//});
 
 CM.blocks.registerHook("hook_block_saveConfig", 0, function (thisHook, data) {
 
