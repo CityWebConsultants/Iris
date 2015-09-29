@@ -45,6 +45,8 @@ var templateBlockType = function (blockTypeId, blockTitle) {
 
   html += '  <div class="region-block__title">' + blockTitle + '</div>';
 
+  html += '  <div class="region-block__new"><a href="/admin/block/create/' + blockTypeId + '">Add</a></div>';
+
   html += '</li>';
 
   return html;
@@ -176,15 +178,6 @@ var prepareRegionsUI = function () {
     $('#block-types-list').append(html);
 
   }
-
-  // Set up draggable blocks in block types library
-  Sortable.create($('#block-types-list')[0], {
-    group: {
-      name: 'block-types-list',
-      pull: 'clone',
-      put: false
-    }
-  });
 
 };
 

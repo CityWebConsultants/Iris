@@ -24,10 +24,23 @@ CM.block_manager.registerHook("hook_form_schema_alter", 0, function (thisHook, d
     thisHook.const.schema.blockid = {};
     thisHook.const.schema.blocktype = {};
 
-    thisHook.const.schema.blockid = {
-      type: 'hidden',
-      default: thisHook.const.context.custom.customForm.id
-    };
+    if (thisHook.const.context.custom.isExisting) {
+
+      thisHook.const.schema.blockid = {
+        type: 'hidden',
+        default: thisHook.const.context.custom.customForm.id
+      };
+
+    } else {
+
+      thisHook.const.schema.blockid = {
+        type: 'text',
+        required: true,
+        title: 'Block name',
+        default: thisHook.const.context.custom.customForm.id
+      };
+
+    }
 
     thisHook.const.schema.blocktype = {
       type: 'hidden',
@@ -49,14 +62,18 @@ CM.block_manager.registerHook("hook_form_schema_alter", 0, function (thisHook, d
 
     // Set defaults
 
-    var existing = thisHook.const.context.custom.existing;
+    if (thisHook.const.context.custom.isExisting) {
 
-    for (var item in existing) {
+      var existing = thisHook.const.context.custom.existing;
 
-      // If item exists on form
-      if (thisHook.const.schema[item]) {
+      for (var item in existing) {
 
-        thisHook.const.schema[item].default = existing[item];
+        // If item exists on form
+        if (thisHook.const.schema[item]) {
+
+          thisHook.const.schema[item].default = existing[item];
+
+        }
 
       }
 
