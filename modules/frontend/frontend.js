@@ -509,7 +509,7 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
   return new Promise(function (yes, no) {
 
-    var finder = new RegExp("\\[\\[\\[" + prefix + "\\s[\\w\\.\\-]+\\s*\\]\\]\\]", "g");
+    var finder = new RegExp("\\[\\[\\[" + prefix + "\\s[\\w\\.\\-\\|]+\\s*\\]\\]\\]", "g");
 
     var embeds = html.match(finder);
 
@@ -517,7 +517,7 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
       var embeds = embeds.map(function (x) {
 
-        var internal = new RegExp(prefix + "\\s([\\w\\.\\-]+)");
+        var internal = new RegExp(prefix + "\\s([\\w\\.\\-\\|]+)");
 
         return x.match(internal)[1];
 
