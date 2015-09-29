@@ -1,47 +1,28 @@
 C.registerModule("menu");
 
-C.registerDbModel("menu");
+CM.menu.registerHook("hook_frontend_template_parse2", 0, function (thisHook, data) {
 
-C.registerDbSchema("menu", {
-  "menulink": {
-    "title": "Menu link",
-    "description": "A link in the main menu",
-    "type": [{
-      "title": {
-        "type": String,
-        "required": true,
-        "title": "Title",
-        "description": "The title of the link in the menu"
-      },
-      "path": {
-        "type": String,
-        "required": true,
-        "title": "Path",
-        "description": "The menu path"
-      },
-      "children": {
-        "title": "Menu item children",
-        "description": "Children of the menu item (a sub menu)",
-        "type": [{
-          "title": {
-            "type": String,
-            "required": true,
-            "title": "Title",
-            "description": "The title of the menu item"
-          },
-          "path": {
-            "type": String,
-            "title": "Path",
-            "description": "The path of the menu item"
-          }
-        }]
-      }
-    }]
-  },
-  "title": {
-    "type": String,
-    "required": true,
-    "title": "Menu title",
-    "description": "The title of the menu"
-  }
+  CM.frontend.globals.parseBlock("menu", data, function (menu, next) {
+    
+    CM.frontend.globals.findTemplate("menu", menu).then(function (yes) {
+
+      next(yes);
+
+    }, function (fail) {
+
+      next("<!-- No menu template -->");
+
+    });
+
+  }).then(function (html) {
+
+    thisHook.finish(true, html);
+
+  }, function (fail) {
+
+    console.log(fail);
+    thisHook.finish(true, data);
+
+  });
+
 });

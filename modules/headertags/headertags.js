@@ -27,7 +27,7 @@ CM.headertags.registerHook("hook_frontend_template_context", 0, function (thisHo
 
 });
 
-CM.headertags.registerHook("hook_frontend_template_parse", 1, function (thisHook, data) {
+CM.headertags.registerHook("hook_frontend_template_parse2", 1, function (thisHook, data) {
 
   CM.frontend.globals.parseBlock("tags", data, function (tagCollectionName, next) {
 

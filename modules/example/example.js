@@ -11,3 +11,11 @@ CM.example.registerHook("hook_entity_view_example", 0, function (thisHook, entit
   thisHook.finish(true, entity);
 
 });
+
+CM.example.registerHook("hook_frontend_template_parse", 1, function (thisHook, data) {
+    
+  data.variables["hello"] = "test";
+    
+  thisHook.finish(true, data);
+  
+});

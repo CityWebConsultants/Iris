@@ -557,31 +557,65 @@ var parseTemplate = function (html, authPass, context) {
 
   return new Promise(function (pass, fail) {
 
-    var complete = function (output, final) {
+    var allVariables = {};
+
+    var complete = function (HTML, final) {
 
       // Check for embedded templates
 
-      var embeds = output.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
+      var embeds = HTML.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
 
       if (embeds) {
 
-        parseTemplate(output, authPass, context).then(function (output) {
+        parseTemplate(HTML, authPass, context).then(function (data) {
 
-          pass(output);
+          if (data.variables) {
+
+            Object.keys(data.variables).forEach(function (variable) {
+
+              allVariables[variable] = data.variables[variable];
+
+            })
+
+          };
+
+          pass({
+            html: data.html,
+            variables: allVariables
+          });
 
         })
 
       } else {
 
-        C.hook("hook_frontend_template_parse", authPass, {context: context}, output).then(function (output) {
+        C.hook("hook_frontend_template_parse", authPass, {
+          context: context
+        }, {
+          html: HTML,
+          variables: {}
+        }).then(function (parsedData) {
+
+          if (parsedData.variables) {
+
+            Object.keys(parsedData.variables).forEach(function (variable) {
+
+              allVariables[variable] = parsedData.variables[variable];
+
+            })
+
+          };
 
           if (final) {
 
-            pass(output);
+            pass({
+              html: parsedData.html,
+              variables: allVariables
+            });
 
           } else {
 
-            complete(output, true);
+            complete(parsedData.html, true);
+
           }
 
         });
@@ -629,10 +663,10 @@ var parseTemplate = function (html, authPass, context) {
       embeds.forEach(function (element) {
 
         findTemplate(element, entity.entityType, entity._id).then(function (subTemplate) {
-
+          
           parseTemplate(subTemplate, authPass, context).then(function (contents) {
 
-            output = output.split("[[[file " + element + "]]]").join(contents);
+            output = output.split("[[[file " + element + "]]]").join(contents.html);
 
             counter -= 1;
 
@@ -672,6 +706,10 @@ var parseTemplate = function (html, authPass, context) {
 
         complete(output);
 
+      }, function (fail) {
+
+        console.log(fail);
+
       });
 
     }
@@ -680,7 +718,24 @@ var parseTemplate = function (html, authPass, context) {
 
 };
 
+CM.frontend.registerHook("hook_frontend_template_context", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
+
+});
+
 CM.frontend.globals.parseTemplate = parseTemplate;
+
+CM.frontend.globals.parseTemplate("[[[file header]]]", "root").then(function (output) {
+
+    console.log("vars", output.variables);
+    console.log(output.html);
+
+}, function (fail) {
+
+  console.log(fail);
+
+});
 
 C.app.use(function (req, res, next) {
 
