@@ -123,13 +123,13 @@ var populateForm = function (form, authPass) {
     C.hook("hook_form_render", authPass, form, form).then(function (form) {
 
       C.hook("hook_form_render_" + name, authPass, form, form).then(function (form) {
-        
+
         yes(form);
 
       }, function (fail) {
-        
+
         if (fail === "No such hook exists") {
-          
+
           yes(form);
 
         } else {
@@ -197,23 +197,24 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
         C.hook("hook_form_schema_alter_" + formName, thisHook.authPass, form, form).then(function (form) {
 
             populateForm(form, thisHook.authPass).then(function (form) {
-              
+
               var output = "<form method='POST' action='/' id='" + formName + "'></form>";
-              
+
               // Remove form context. Not needed any more and causes JSON stringify problems.
-              
+
               delete form.context;
-              
-              try { output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
-                   
-                  } catch(e){
-                   
-                    console.log(form);
-                    
-                    console.log(e);
-                    
-                  }
-              
+
+              try {
+                output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
+
+              } catch (e) {
+
+                console.log(form);
+
+                console.log(e);
+
+              }
+
               next(output);
 
             }, function (fail) {
@@ -232,6 +233,10 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
             if (fail === "No such hook exists") {
 
               populateForm(form, thisHook.authPass).then(function (form) {
+
+                // Remove form context. Not needed any more and causes JSON stringify problems.
+
+                delete form.context;
 
                 var output = "<form method='POST' action='/' id='" + formName + "'></form>";
 
