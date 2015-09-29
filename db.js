@@ -297,8 +297,6 @@ C.dbPopulate = function () {
 
     }
     
-    console.log(C.dbCollections);
-
     //Create permissions for this entity type
 
     CM.auth.globals.registerPermission("can create " + schema, "entity")

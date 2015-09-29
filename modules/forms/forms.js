@@ -123,13 +123,13 @@ var populateForm = function (form, authPass) {
     C.hook("hook_form_render", authPass, form, form).then(function (form) {
 
       C.hook("hook_form_render_" + name, authPass, form, form).then(function (form) {
-
+        
         yes(form);
 
       }, function (fail) {
-
+        
         if (fail === "No such hook exists") {
-
+          
           yes(form);
 
         } else {
@@ -138,7 +138,15 @@ var populateForm = function (form, authPass) {
 
         }
 
+      }, function (fail) {
+
+        console.log(fail);
+
       });
+
+    }, function (fail) {
+
+      console.log(fail);
 
     });
 
@@ -166,9 +174,9 @@ CM.forms.registerHook("hook_form_schema_alter", 0, function (thisHook, data) {
 
 });
 
-CM.frontend.registerHook("hook_frontend_template_parse2", 0, function (thisHook, data) {
+CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  CM.frontend.globals.parseBlock("form", data, function (formName, next) {
+  CM.frontend.globals.parseBlock("form", data.html, function (formName, next) {
 
     // Check if form exists
 
@@ -189,12 +197,32 @@ CM.frontend.registerHook("hook_frontend_template_parse2", 0, function (thisHook,
         C.hook("hook_form_schema_alter_" + formName, thisHook.authPass, form, form).then(function (form) {
 
             populateForm(form, thisHook.authPass).then(function (form) {
-
+              
               var output = "<form method='POST' action='/' id='" + formName + "'></form>";
-
-              output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
-
+              
+              // Remove form context. Not needed any more and causes JSON stringify problems.
+              
+              delete form.context;
+              
+              try { output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
+                   
+                  } catch(e){
+                   
+                    console.log(form);
+                    
+                    console.log(e);
+                    
+                  }
+              
               next(output);
+
+            }, function (fail) {
+
+              console.log(fail);
+
+            }, function (fail) {
+
+              console.log(fail);
 
             });
 
@@ -231,9 +259,13 @@ CM.frontend.registerHook("hook_frontend_template_parse2", 0, function (thisHook,
 
   }).then(function (html) {
 
-    thisHook.finish(true, html);
+    data.html = html;
+
+    thisHook.finish(true, data);
 
   }, function (fail) {
+
+    console.log(fail);
 
     thisHook.finish(true, data);
 
