@@ -80,8 +80,6 @@ CM.blocks.registerHook("hook_block_saveConfig", 0, function (thisHook, data) {
 
     var config = thisHook.const;
 
-    console.log(config);
-
     C.saveConfig(config, 'blocks/' + thisHook.const.type, config.id, function (output) {
 
       thisHook.finish(true, output);
@@ -150,7 +148,7 @@ CM.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
 
   } else {
 
-    thisHook.finsh(true, data);
+    thisHook.finish(true, data);
 
   }
 

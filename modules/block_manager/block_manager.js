@@ -200,6 +200,24 @@ C.app.post('/block/save', function (req, res) {
 
 });
 
+CM.block_manager.registerHook("hook_block_render", 0, function (thisHook, data) {
+
+  if (thisHook.const.type === "example") {
+
+    var config = thisHook.const.config.config;
+
+    var html = '';
+
+    html += '<h3 class="block_example_title">' + config.title + '</h3>';
+
+    html += '<div class="block_example_text">' + config.text + '</div>';
+
+    thisHook.finish(true, html);
+
+  }
+
+});
+
 // Register an example type
 C.hook("hook_block_registerType", "root", {
   name: 'Example block',
