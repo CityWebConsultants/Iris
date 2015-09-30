@@ -74,7 +74,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
     data.entity.id = entity._id;
     data.entity.fields = entity;
 
-    var template = findTemplate(data.entity.type, data.entity.id).then(function (data) {
+    var template = findTemplate([data.entity.type, data.entity.id]).then(function (data) {
 
       processTemplate(data);
 
@@ -92,10 +92,10 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
       }
 
       parseTemplate(template, authPass, context).then(function (inner) {
-        
+
         inner = inner.html;
 
-        var wrapperTemplate = findTemplate("html", data.entity.type, data.entity.id).then(function (wrapperTemplate) {
+        var wrapperTemplate = findTemplate(["html", data.entity.type, data.entity.id]).then(function (wrapperTemplate) {
 
           parseTemplate(wrapperTemplate, authPass, context).then(function (wrapper) {
 
@@ -351,10 +351,10 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
         })
 
-      }, function(fail){
-        
+      }, function (fail) {
+
         console.log(fail);
-        
+
       });
 
     }
@@ -365,9 +365,15 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
 //Function for finding most specific matching template
 
-var findTemplate = function () {
+var findTemplate = function (paths, extension) {
 
-  var args = Array.prototype.slice.call(arguments);
+  if (!extension) {
+
+    extension = C.config.templateExtension || "html";
+
+  };
+
+  var args = paths;
 
   return new Promise(function (yes, no) {
 
@@ -383,7 +389,7 @@ var findTemplate = function () {
 
       for (i = 0; i <= searchArgs.length + 1; i += 1) {
 
-        var lookingFor = searchArgs.join("_") + ".html";
+        var lookingFor = searchArgs.join("_") + "." + extension;
 
         if (files.indexOf(lookingFor) !== -1) {
 
@@ -494,7 +500,18 @@ var findTemplate = function () {
 
       });
     } else {
-      no(false);
+
+      CM.frontend.globals.findTemplate(args, "html").then(function (html) {
+        
+        yes(html);
+
+      }, function () {
+
+        no(false);
+
+      });
+
+
     }
 
   });
@@ -558,7 +575,7 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
       runthrough(embeds[counter]);
 
     } else {
-      
+
       yes(html);
 
     }
@@ -568,7 +585,7 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 };
 
 var parseTemplate = function (html, authPass, context) {
-  
+
   return new Promise(function (pass, fail) {
 
     var allVariables = {};
@@ -580,7 +597,7 @@ var parseTemplate = function (html, authPass, context) {
       var embeds = HTML.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
 
       if (embeds) {
-        
+
         parseTemplate(HTML, authPass, context).then(function (data) {
 
           if (data.variables) {
@@ -676,7 +693,7 @@ var parseTemplate = function (html, authPass, context) {
 
       embeds.forEach(function (element) {
 
-        findTemplate(element, entity.entityType, entity._id).then(function (subTemplate) {
+        findTemplate([element, entity.entityType, entity._id]).then(function (subTemplate) {
 
           parseTemplate(subTemplate, authPass, context).then(function (contents) {
 
@@ -733,7 +750,7 @@ var parseTemplate = function (html, authPass, context) {
 };
 
 CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-  
+
   thisHook.finish(true, data);
 
 });
