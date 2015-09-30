@@ -42,17 +42,28 @@ CM.regions.registerHook("hook_region_render", 0, function (thisHook, data) {
 
   C.hook("hook_region_load", thisHook.authPass, thisHook.const).then(function (blocks) {
 
-    var html = '';
+    CM.frontend.globals.findTemplate(["region", thisHook.const.region]).then(function (template) {
 
-    blocks.forEach(function (block) {
+      C.hook("hook_frontend_template", thisHook.authPass, null, {
+        html: template,
+        vars: {
+          blocks: blocks
+        }
+      }).then(function (success) {
 
-      html += '<div class="block block_' + block.id + ' block_type_' + block.type + '">';
-      html += block.html;
-      html += '</div>';
+        thisHook.finish(true, success.html);
+
+      }, function (fail) {
+
+        thisHook.finish(false, fail);
+
+      });
+
+    }, function (fail) {
+
+      thisHook.finish(false, fail);
 
     });
-
-    thisHook.finish(true, html);
 
   }, function (fail) {
 
