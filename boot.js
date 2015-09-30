@@ -9,7 +9,7 @@ module.exports = function (config) {
   var glob = require("glob")
 
   // options is optional
-  glob("*.info", {
+  glob("*.iris", {
     cwd: __dirname,
     matchBase: true
   }, function (er, files) {
@@ -143,8 +143,8 @@ module.exports = function (config) {
   //Get any config paramaters passed through via the command line and set them.
 
   if (Object.keys(paramaters).length > 0) {
+
     console.log("Command line arguments: ");
-    console.log(paramaters);
 
     Object.keys(paramaters).forEach(function (paramater) {
 
@@ -201,7 +201,15 @@ module.exports = function (config) {
 
     require('./log');
 
-    require(process.cwd() + '/enabled_modules');
+    //Read enabled modules
+
+    C.enabledModules = JSON.parse(fs.readFileSync(process.cwd() + '/enabled_modules.json'));
+
+    C.enabledModules.forEach(function (enabledModule, index) {
+
+      require(__dirname + enabledModule.path + "/" + enabledModule.name + ".js");
+
+    });
 
     C.status.ready = true;
 

@@ -17,7 +17,7 @@
 
     start = function () {
 
-      var sub = fork(__dirname + site, [], {
+      var sub = fork(__dirname + site, process.argv.slice(2), {
         env: {
           'NODE_ENV': process.env.NODE_ENV
         }
