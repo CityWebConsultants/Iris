@@ -8,8 +8,7 @@ module.exports = function (config) {
 
   var glob = require("glob")
 
-  // options is optional
-  glob("*.iris", {
+  glob("{modules/**/*.iris" + "," + "node_modules/**/*.iris}", {
     cwd: __dirname,
     matchBase: true
   }, function (er, files) {
@@ -142,13 +141,18 @@ module.exports = function (config) {
 
   //Get any config paramaters passed through via the command line and set them.
 
-  if (Object.keys(paramaters).length > 0) {
+  if (Object.keys(paramaters).length > 1) {
 
     console.log("Command line arguments: ");
 
     Object.keys(paramaters).forEach(function (paramater) {
 
-      config[paramater] = paramaters[paramater];
+      if (paramater !== "site") {
+
+        console.log(paramater, ":", paramaters[paramater]);
+        config[paramater] = paramaters[paramater];
+
+      }
 
     })
 
