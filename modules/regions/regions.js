@@ -39,11 +39,11 @@ CM.regions.registerHook("hook_frontend_template_parse", 1, function (thisHook, d
 
 // Extensible hook to render a region
 CM.regions.registerHook("hook_region_render", 0, function (thisHook, data) {
-  
+
   C.hook("hook_region_load", thisHook.authPass, thisHook.const).then(function (blocks) {
 
     var html = '';
-    
+
     blocks.forEach(function (block) {
 
       html += '<div class="block block_' + block.id + ' block_type_' + block.type + '">';
@@ -92,7 +92,8 @@ CM.regions.registerHook("hook_region_load", 0, function (thisHook, data) {
 
           C.hook("hook_block_load", thisHook.authPass, {
             id: block.id,
-            type: block.type
+            type: block.type,
+            context: thisHook.const.context
           }).then(function (html) {
 
             renderedBlocks[index].html = html;

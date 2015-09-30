@@ -22,7 +22,8 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
       C.hook("hook_block_render", thisHook.authPass, {
         id: blockName,
         type: blockType,
-        config: config
+        config: config,
+        context: thisHook.const.context
       }, null).then(function (blockHTML) {
 
         next(blockHTML);
@@ -142,7 +143,8 @@ CM.blocks.registerHook("hook_block_load", 0, function (thisHook, data) {
 
         id: thisHook.const.id,
         type: thisHook.const.type,
-        config: config
+        config: config,
+        context: thisHook.const.context
 
       }
 
