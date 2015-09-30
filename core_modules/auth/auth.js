@@ -411,3 +411,11 @@ C.app.get('/auth/checkauth', function (req, res) {
   res.send(req.authPass);
 
 });
+
+C.app.post("/logout", function (req, res) {
+
+  C.hook("hook_auth_clearauth", "root", null, req.authPass.userid);
+
+  res.send("logged out");
+
+});

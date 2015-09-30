@@ -22,23 +22,6 @@ C.registerDbSchema("user", {
 
 });
 
-CM.user.registerHook("hook_auth_authpass", 2, function (thisHook, data) {
-
-  if (thisHook.req && thisHook.req.cookies && thisHook.req.cookies.userid && thisHook.req.cookies.token) {
-
-    if (CM.auth.globals.checkAccessToken(thisHook.req.cookies.userid, thisHook.req.cookies.token)) {
-
-      data.userid = thisHook.req.cookies.userid;
-      data.roles.push("authenticated");
-
-    }
-
-  }
-
-  thisHook.finish(true, data);
-
-});
-
 C.app.post("/login", function (req, res) {
 
   if (req.body.username && req.body.password) {
@@ -133,19 +116,5 @@ CM.user.registerHook("hook_entity_view_bulk", 2, function (thisHook, entities) {
 
   C.promiseChain(promises, entities, success, fail);
 
-
-});
-
-C.app.get("/checkauth", function (req, res) {
-
-  res.send(req.authPass);
-
-});
-
-C.app.post("/logout", function (req, res) {
-
-  C.hook("hook_auth_clearauth", "root", null, req.authPass.userid);
-
-  res.send("logged out");
 
 });
