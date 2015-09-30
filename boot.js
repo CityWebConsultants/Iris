@@ -3,6 +3,21 @@
 
 module.exports = function (config) {
 
+
+  // GLOB search for modules
+
+  var glob = require("glob")
+
+  // options is optional
+  glob("*.info", {
+    cwd: __dirname,
+    matchBase: true
+  }, function (er, files) {
+
+    console.log(files);
+
+  })
+
   //Create global object for the application, remove existing
 
   global.C = {};
@@ -195,6 +210,14 @@ module.exports = function (config) {
     Object.freeze(C);
 
     C.log.info("Server started");
+
+    C.app.get("/restart", function (req, res) {
+
+      res.redirect("/");
+
+      process.send("restart");
+
+    });
 
     C.app.use(function (req, res) {
 

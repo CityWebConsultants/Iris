@@ -11,17 +11,30 @@
 
   if (paramaters.site) {
 
-    var site = __dirname + "/sites/" + paramaters.site + "/launch.js";
-    
-    var exec = require('child_process').exec;
+    var site = "/sites/" + paramaters.site + "/launch.js";
 
-    exec('node ' + site, function (error, stdout, stderr) {
-      console.log('stdout: ', stdout);
-      console.log('stderr: ', stderr);
-      if (error !== null) {
-        console.log('exec error: ', error);
-      }
-    });
+    var fork = require('child_process').fork;
+
+    start = function () {
+
+      var sub = fork(__dirname + site, [], {
+        env: {
+          'NODE_ENV': process.env.NODE_ENV
+        }
+      });
+
+      sub.on('message', function (cmd) {
+        if (cmd === 'restart') {
+          sub.on('exit', function () {
+            start();
+          });
+          sub.kill();
+        }
+      });
+
+    };
+
+    start();
 
   } else {
 
