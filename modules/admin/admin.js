@@ -19,14 +19,48 @@ CM.admin.globals = {
 
 }
 
+var fs = require('fs');
+
+C.app.get("/modules", function (req, res) {
+
+  // GLOB search for modules
+
+  var glob = require("glob")
+
+  glob("{modules/**/*.iris" + "," + "node_modules/**/*.iris}", {
+    cwd: C.rootPath,
+    matchBase: true
+  }, function (er, files) {
+
+    var enabled = [];
+
+    files.forEach(function (availableModule, index) {
+
+      enabled.push({
+
+        "name": availableModule,
+        "path": files[index].replace(".iris", ".js")
+
+      });
+
+    });
+
+    fs.writeFileSync(C.sitePath + "/enabled_modules.json", JSON.stringify(enabled), "utf8");
+
+    res.send(enabled);
+
+  })
+
+});
+
 CM.admin.registerHook("hook_auth_authpass", 1, function (thisHook, data) {
 
   if (thisHook.req && thisHook.req.cookies && thisHook.req.cookies.auth == CM.admin.globals.adminToken) {
-    
+
     data.roles.push("admin");
-    
+
   }
-  
+
   thisHook.finish(true, data);
 
 });
@@ -70,7 +104,7 @@ C.app.post("/admin/login", function (req, res) {
     CM.admin.globals.adminToken = Math.random();
 
     res.cookie('auth', CM.admin.globals.adminToken, {
-//      maxAge: 200000
+      //      maxAge: 200000
     });
 
     res.redirect("/admin");

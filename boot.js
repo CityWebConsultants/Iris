@@ -235,8 +235,8 @@ module.exports = function (config) {
     console.log(" ");
 
     C.enabledModules.forEach(function (enabledModule, index) {
-
-      require(__dirname + enabledModule.path + "/" + enabledModule.name + ".js");
+      
+      require(__dirname + "/" + enabledModule.path);
 
       C.hook("hook_module_init_" + enabledModule.name, "root", null, null).then(function (success) {
 
