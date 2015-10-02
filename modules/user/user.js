@@ -22,46 +22,40 @@ C.registerDbSchema("user", {
 
 });
 
-CM.user.registerHook("hook_auth_authpass", 2, function (thisHook, data) {
-
-  if (thisHook.req && thisHook.req.cookies && thisHook.req.cookies.userid && thisHook.req.cookies.token) {
-
-    if (CM.auth.globals.checkAccessToken(thisHook.req.cookies.userid, thisHook.req.cookies.token)) {
-
-      data.userid = thisHook.req.cookies.userid;
-      data.roles.push("authenticated");
-
-    }
-
-  }
-
-  thisHook.finish(true, data);
-
-});
+var bcrypt = require("bcrypt-nodejs");
 
 C.app.post("/login", function (req, res) {
 
   if (req.body.username && req.body.password) {
 
     C.dbCollections['user'].findOne({
-      "name": req.body.username,
-      "password": req.body.password
+      "name": req.body.username
     }, function (err, doc) {
 
       if (doc) {
 
-        C.hook("hook_auth_maketoken", "root", null, {
-          userid: doc.userid
-        }).then(function (token) {
+        bcrypt.compare(req.body.password, doc.password, function (err, match) {
 
-          res.cookie('userid', doc.userid);
-          res.cookie('token', token.id);
+          if (!err && match === true) {
 
-          res.respond(200, doc.userid);
+            C.hook("hook_auth_maketoken", "root", null, {
+              userid: doc.userid
+            }).then(function (token) {
+
+              CM.sessions.globals.writeCookies(doc.userid, token.id, res, 8.64e7, {});
+
+              res.respond(200, doc.userid);
+
+            });
+
+          } else {
+
+            res.respond(400, "Invalid credentials");
+            return false;
+
+          }
 
         });
-
-        return false;
 
       } else {
 
@@ -76,6 +70,25 @@ C.app.post("/login", function (req, res) {
     res.respond(400, "Must send credentials");
 
   }
+
+});
+
+CM.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
+
+  bcrypt.hash(entity.password, null, null, function (err, hash) {
+
+    if (err) {
+
+      thisHook.finish(false, "Could not hash password");
+
+    } else {
+
+      entity.password = hash;
+      thisHook.finish(true, entity);
+
+    }
+
+  });
 
 });
 
@@ -133,19 +146,5 @@ CM.user.registerHook("hook_entity_view_bulk", 2, function (thisHook, entities) {
 
   C.promiseChain(promises, entities, success, fail);
 
-
-});
-
-C.app.get("/checkauth", function (req, res) {
-
-  res.send(req.authPass);
-
-});
-
-C.app.post("/logout", function (req, res) {
-
-  C.hook("hook_auth_clearauth", "root", null, req.authPass.userid);
-
-  res.send("logged out");
 
 });

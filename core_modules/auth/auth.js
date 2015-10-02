@@ -423,5 +423,13 @@ CM.auth.registerHook("hook_module_init_auth", 0, function (thisHook, data) {
   });
 
   thisHook.finish(true, data);
+  
+});
+
+C.app.post("/logout", function (req, res) {
+
+  C.hook("hook_auth_clearauth", "root", null, req.authPass.userid);
+
+  res.send("logged out");
 
 });
