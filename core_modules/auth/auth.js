@@ -124,7 +124,9 @@ CM.auth.globals = {
 
       //Run any hooks that latch onto this one to extend the authpass
 
-      C.hook('hook_auth_authpass', authPass, {req:req}, authPass)
+      C.hook('hook_auth_authpass', authPass, {
+          req: req
+        }, authPass)
         .then(function (authPass) {
 
           //Complete access pass received.
@@ -409,5 +411,17 @@ C.app.post('/auth/maketoken', function (req, res) {
 C.app.get('/auth/checkauth', function (req, res) {
 
   res.send(req.authPass);
+
+});
+
+CM.auth.registerHook("hook_module_init_auth", 0, function (thisHook, data) {
+
+  Object.observe(CM.auth.globals.userList, function (data) {
+
+    console.log(data);
+
+  });
+
+  thisHook.finish(true, data);
 
 });
