@@ -418,12 +418,14 @@ CM.auth.registerHook("hook_module_init_auth", 0, function (thisHook, data) {
 
   Object.observe(CM.auth.globals.userList, function (data) {
 
-    console.log(data);
+    process.send({
+      sessions: CM.auth.globals.userList
+    });
 
   });
 
   thisHook.finish(true, data);
-  
+
 });
 
 C.app.post("/logout", function (req, res) {

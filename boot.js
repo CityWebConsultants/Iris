@@ -3,20 +3,6 @@
 
 module.exports = function (config) {
 
-
-  // GLOB search for modules
-
-  var glob = require("glob")
-
-  glob("{modules/**/*.iris" + "," + "node_modules/**/*.iris}", {
-    cwd: __dirname,
-    matchBase: true
-  }, function (er, files) {
-
-    console.log(files);
-
-  })
-
   //Create global object for the application, remove existing
 
   global.C = {};
@@ -199,7 +185,44 @@ module.exports = function (config) {
     //Core modules
 
     require('./core_modules/auth/auth.js');
+
+    C.hook("hook_module_init_auth", "root", null, null).then(function (success) {
+
+      console.log("Auth module loaded")
+
+    }, function (fail) {
+
+      if (fail === "No such hook exists") {
+
+        console.log("Auth module loaded")
+
+      } else {
+
+        console.log("Failed to initialise auth module", fail)
+
+      }
+
+    });
+
     require('./core_modules/entity/entity.js');
+
+    C.hook("hook_module_init_entity", "root", null, null).then(function (success) {
+
+      console.log("Auth module loaded")
+
+    }, function (fail) {
+
+      if (fail === "No such hook exists") {
+
+        console.log("Entity module loaded")
+
+      } else {
+
+        console.log("Failed to initialise entity module", fail)
+
+      }
+
+    });
 
     //Load logging module
 
@@ -209,9 +232,29 @@ module.exports = function (config) {
 
     C.enabledModules = JSON.parse(fs.readFileSync(process.cwd() + '/enabled_modules.json'));
 
+    console.log(" ");
+
     C.enabledModules.forEach(function (enabledModule, index) {
 
       require(__dirname + enabledModule.path + "/" + enabledModule.name + ".js");
+
+      C.hook("hook_module_init_" + enabledModule.name, "root", null, null).then(function (success) {
+
+        console.log(enabledModule.name + " loaded")
+
+      }, function (fail) {
+
+        if (fail === "No such hook exists") {
+
+          console.log(enabledModule.name + " loaded")
+
+        } else {
+
+          console.log(enabledModule.name + " failed to initialise", fail)
+
+        }
+
+      });
 
     });
 
@@ -261,6 +304,20 @@ module.exports = function (config) {
     });
 
     C.dbPopulate();
+
+    // Send server ready message and get sessions
+
+    process.send("started");
+
+    process.on("message", function (m) {
+
+      if (m.sessions) {
+
+        CM.auth.globals.userList = m.sessions;
+
+      }
+
+    });
 
   });
 
