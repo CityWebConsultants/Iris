@@ -265,14 +265,14 @@ C.dbPopulate = function () {
 
     //Push in author and entity type fields
 
-    schema.entityType = {
+    C.dbSchema[schema].entityType = {
       type: String,
       description: "The type of entity this is",
       title: "Entity type",
       required: true
     }
 
-    schema.entityAuthor = {
+    C.dbSchema[schema].entityAuthor = {
       type: String,
       description: "The name of the author",
       title: "Author",
