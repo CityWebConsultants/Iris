@@ -42,8 +42,7 @@ C.app.post("/login", function (req, res) {
               userid: doc.userid
             }).then(function (token) {
 
-              res.cookie('userid', doc.userid);
-              res.cookie('token', token.id);
+              CM.sessions.globals.writeCookies(doc.userid, token.id, res, 8.64e7, {});
 
               res.respond(200, doc.userid);
 

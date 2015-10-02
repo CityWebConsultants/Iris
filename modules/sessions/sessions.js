@@ -22,3 +22,16 @@ CM.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, data) {
   thisHook.finish(true, data);
 
 });
+
+CM.sessions.globals.writeCookies = function (userid, token, res, maxAge, options) {
+
+  var cookieOptions = {};
+
+  if (maxAge) {
+    cookieOptions.maxAge = maxAge
+  }
+
+  res.cookie('userid', userid, cookieOptions);
+  res.cookie('token', token, cookieOptions);
+
+};
