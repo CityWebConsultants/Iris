@@ -414,17 +414,11 @@ C.app.get('/auth/checkauth', function (req, res) {
 
 });
 
-CM.auth.registerHook("hook_module_init_auth", 0, function (thisHook, data) {
-
-  Object.observe(CM.auth.globals.userList, function (data) {
-
-    process.send({
-      sessions: CM.auth.globals.userList
-    });
-
+Object.observe(CM.auth.globals.userList, function (data) {
+  
+  process.send({
+    sessions: CM.auth.globals.userList
   });
-
-  thisHook.finish(true, data);
 
 });
 

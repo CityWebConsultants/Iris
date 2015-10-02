@@ -313,7 +313,11 @@ module.exports = function (config) {
 
       if (m.sessions) {
 
-        CM.auth.globals.userList = m.sessions;
+        Object.keys(m.sessions).forEach(function (user) {
+
+          CM.auth.globals.userList[user] = m.sessions[user];
+
+        });
 
       }
 

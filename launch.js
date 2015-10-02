@@ -28,6 +28,8 @@ if (paramaters.site) {
     });
 
     sub.on('message', function (cmd) {
+      
+      console.log(cmd);
 
       if (cmd === 'started') {
 
@@ -45,9 +47,9 @@ if (paramaters.site) {
       }
 
       if (cmd.sessions) {
-
+        
         sessions = cmd.sessions;
-
+        
       };
 
     });
