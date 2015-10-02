@@ -29,8 +29,6 @@ if (paramaters.site) {
 
     sub.on('message', function (cmd) {
       
-      console.log(cmd);
-
       if (cmd === 'started') {
 
         sub.send({
