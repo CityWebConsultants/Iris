@@ -22,29 +22,41 @@ C.registerDbSchema("user", {
 
 });
 
+var bcrypt = require("bcrypt-nodejs");
+
 C.app.post("/login", function (req, res) {
 
   if (req.body.username && req.body.password) {
 
     C.dbCollections['user'].findOne({
-      "name": req.body.username,
-      "password": req.body.password
+      "name": req.body.username
     }, function (err, doc) {
 
       if (doc) {
 
-        C.hook("hook_auth_maketoken", "root", null, {
-          userid: doc.userid
-        }).then(function (token) {
+        bcrypt.compare(req.body.password, doc.password, function (err, match) {
 
-          res.cookie('userid', doc.userid);
-          res.cookie('token', token.id);
+          if (!err && match === true) {
 
-          res.respond(200, doc.userid);
+            C.hook("hook_auth_maketoken", "root", null, {
+              userid: doc.userid
+            }).then(function (token) {
+
+              res.cookie('userid', doc.userid);
+              res.cookie('token', token.id);
+
+              res.respond(200, doc.userid);
+
+            });
+
+          } else {
+
+            res.respond(400, "Invalid credentials");
+            return false;
+
+          }
 
         });
-
-        return false;
 
       } else {
 
@@ -59,6 +71,25 @@ C.app.post("/login", function (req, res) {
     res.respond(400, "Must send credentials");
 
   }
+
+});
+
+CM.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
+
+  bcrypt.hash(entity.password, null, null, function (err, hash) {
+
+    if (err) {
+
+      thisHook.finish(false, "Could not hash password");
+
+    } else {
+
+      entity.password = hash;
+      thisHook.finish(true, entity);
+
+    }
+
+  });
 
 });
 
