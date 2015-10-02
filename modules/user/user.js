@@ -18,6 +18,11 @@ C.registerDbSchema("user", {
     title: "Password",
     type: String,
     required: true
+  },
+  roles: {
+    title: "Roles",
+    type: [String],
+    required: false
   }
 
 });
