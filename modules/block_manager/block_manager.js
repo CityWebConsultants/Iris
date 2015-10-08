@@ -19,7 +19,7 @@ CM.block_manager.registerHook("hook_block_registerType", 100, function (thisHook
 // Add hidden fields, insert default config values, etc.
 CM.block_manager.registerHook("hook_form_schema_alter", 0, function (thisHook, data) {
 
-  if (thisHook.const.name.indexOf("block_" === 0)) {
+  if (thisHook.const.name.indexOf("block_") === 0) {
 
     thisHook.const.schema.blockid = {};
     thisHook.const.schema.blocktype = {};
