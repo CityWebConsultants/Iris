@@ -1,0 +1,65 @@
+<title>Sign in</title>
+
+<link rel="stylesheet" style="text/css" href="/admin/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/admin/admin.css" />
+
+<script type="text/javascript" src="/admin/jsonform/deps/jquery.min.js"></script>
+<script type="text/javascript" src="/admin/bootstrap/js/bootstrap.min.js"></script>
+
+<script src="/admin/jsonform/deps/underscore-min.js"></script>
+<script src="/admin/jsonform/deps/opt/jquery.ui.custom.js"></script>
+<script src="/admin/jsonform/deps/opt/bootstrap-dropdown.js"></script>
+<script src="/admin/jsonform/deps/opt/bootstrap-typeahead.js"></script>
+<script src="/admin/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script>
+<script src="/admin/jsonform/deps/opt/spectrum.js"></script>
+<script src="/admin/jsonform/deps/opt/jquery.transloadit2.js"></script>
+
+<script src="/admin/jsonform/lib/jsonform.js"></script>
+
+<script>
+  $('#login-tabs a').click(function(e) {
+    e.preventDefault()
+    $(this).tab('show')
+  })
+
+</script>
+
+<style>
+  #login-tabs {
+    margin-bottom: 20px;
+  }
+
+  #login-tabs li:not(.active) a {
+    color: #fff;
+  }
+
+  #login-tabs li:hover a {
+    color: #555;
+  }
+
+</style>
+
+<section id="login-page">
+  <div id="login-logo">Iris</div>
+  <div id="login-form">
+    <h1>Sign in</h1>
+
+      <!-- Nav tabs -->
+      <ul id="login-tabs" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#username" aria-controls="username" role="tab" data-toggle="tab">Username &amp; password</a></li>
+        <li role="presentation"><a href="#api" aria-controls="api" role="tab" data-toggle="tab">API keys</a></li>
+      </ul>
+
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="username">
+          [[[form adminlogin]]]
+        </div>
+
+        <div role="tabpanel" class="tab-pane" id="api">
+          [[[form example]]]
+        </div>
+      </div>
+
+  </div>
+</section>
