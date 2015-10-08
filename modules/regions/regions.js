@@ -1,5 +1,8 @@
 C.registerModule("regions");
 
+// Register templates folder
+CM.frontend.globals.templateRegistry.external.push(__dirname + '/templates');
+
 // Implement hook_frontend_template_parse to handle [[[region name]]]
 CM.regions.registerHook("hook_frontend_template_parse", 1, function (thisHook, data) {
 
