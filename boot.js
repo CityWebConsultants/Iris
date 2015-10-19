@@ -230,13 +230,15 @@ module.exports = function (config) {
 
     //Read enabled modules
 
+    console.log("Loading modules.");
+
     C.enabledModules = JSON.parse(fs.readFileSync(process.cwd() + '/enabled_modules.json'));
 
     console.log(" ");
 
     C.enabledModules.forEach(function (enabledModule, index) {
-      
-      require(__dirname + "/" + enabledModule.path);
+
+      require(__dirname + enabledModule.path + "/" + enabledModule.name + ".js");
 
       C.hook("hook_module_init_" + enabledModule.name, "root", null, null).then(function (success) {
 
