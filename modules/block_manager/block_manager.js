@@ -89,66 +89,74 @@ CM.block_manager.registerHook("hook_form_schema_alter", 0, function (thisHook, d
 
 CM.block_manager.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
-  var blockId = thisHook.const.params.blockid;
-  var blockType = thisHook.const.params.blocktype;
-  var region = thisHook.const.params.region;
+  if (thisHook.const.params.formid.indexOf('block_') === 0) {
 
-  // Remove form metadata
-  delete thisHook.const.params.blockid;
-  delete thisHook.const.params.formid;
-  delete thisHook.const.params.blocktype;
-  delete thisHook.const.params.region;
+    var blockId = thisHook.const.params.blockid;
+    var blockType = thisHook.const.params.blocktype;
+    var region = thisHook.const.params.region;
 
-  C.hook("hook_block_saveConfig", thisHook.authPass, {
-    id: blockId,
-    type: blockType,
-    config: thisHook.const.params
-  }).then(function () {
+    // Remove form metadata
+    delete thisHook.const.params.blockid;
+    delete thisHook.const.params.formid;
+    delete thisHook.const.params.blocktype;
+    delete thisHook.const.params.region;
 
-    if (region) {
+    C.hook("hook_block_saveConfig", thisHook.authPass, {
+      id: blockId,
+      type: blockType,
+      config: thisHook.const.params
+    }).then(function () {
 
-      C.hook("hook_regions_load", thisHook.authPass).then(function (currentRegions) {
+      if (region) {
 
-        if (currentRegions[region]) {
+        C.hook("hook_regions_load", thisHook.authPass).then(function (currentRegions) {
 
-          if (!currentRegions[region].blocks) {
-            currentRegions[region].blocks = [];
+          if (currentRegions[region]) {
+
+            if (!currentRegions[region].blocks) {
+              currentRegions[region].blocks = [];
+            }
+
+            currentRegions[region].blocks.push({
+              id: blockId,
+              type: blockType
+            });
+
           }
 
-          currentRegions[region].blocks.push({
-            id: blockId,
-            type: blockType
+          C.hook("hook_regions_save", thisHook.authPass, currentRegions).then(function (savedRegions) {
+
+            thisHook.finish(true, "/admin/regions");
+
+          }, function (fail) {
+
+            thisHook.finish(false, "Could not save regions");
+
           });
-
-        }
-
-        C.hook("hook_regions_save", thisHook.authPass, currentRegions).then(function (savedRegions) {
-
-          thisHook.finish(true, "/admin/regions");
 
         }, function (fail) {
 
-          thisHook.finish(false, "Could not save regions");
+          thisHook.finish(false, "Could not load existing regions");
 
         });
 
-      }, function (fail) {
+      } else {
 
-        thisHook.finish(false, "Could not load existing regions");
+        thisHook.finish(true, "/admin/regions");
 
-      });
+      }
 
-    } else {
+    }, function (fail) {
 
-      thisHook.finish(true, "/admin/regions");
+      thisHook.finish(false, "Could not save block");
 
-    }
+    });
 
-  }, function (fail) {
+  } else {
 
-    thisHook.finish(false, "Could not save block");
+    thisHook.finish(true, data);
 
-  });
+  }
 
 });
 

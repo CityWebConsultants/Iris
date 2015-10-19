@@ -5,7 +5,17 @@ var fs = require('fs');
 global.mongoose = require('mongoose');
 var fs = require('fs');
 
-mongoose.connect('mongodb://' + C.config.db_server + ':' + C.config.db_port + '/' + C.config.db_name);
+var connectionUri = 'mongodb://' + C.config.db_server + ':' + C.config.db_port + '/' + C.config.db_name;
+
+if (C.config.db_username && C.config.db_password) {
+
+  mongoose.connect(connectionUri);
+
+} else {
+
+  mongoose.connect(connectionUri, {user: C.config.db_username, pass: C.config.db_password});
+
+}
 
 //Wait until database is open and fail on error
 
@@ -258,7 +268,7 @@ C.dbPopulate = function () {
   Object.keys(C.dbSchema).forEach(function (schema) {
 
     Object.keys(C.dbSchema[schema]).forEach(function (field) {
-  
+
       unstringifySchema(C.dbSchema[schema][field]);
 
     });
@@ -296,7 +306,7 @@ C.dbPopulate = function () {
       console.log(e);
 
     }
-    
+
     //Create permissions for this entity type
 
     CM.auth.globals.registerPermission("can create " + schema, "entity")
