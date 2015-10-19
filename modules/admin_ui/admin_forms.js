@@ -12,12 +12,36 @@ CM.forms.globals.makeForm("adminlogin", {
   }
 });
 
-CM.admin_ui.registerHook("hook_form_submit_adminlogin", 0, function (thisHook, data) {
+CM.admin_ui.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
-  console.log("Admin login");
-  console.log(thisHook.const.params);
+  if (thisHook.const.params.formid === "adminlogin") {
 
-  thisHook.finish(true, "/action");
+    console.log("Admin login");
+    console.log(thisHook.const);
+
+//    if (req.body.secretkey === C.config.secretkey && req.body.apikey === C.config.apikey) {
+//
+//      CM.admin.globals.adminToken = Math.random();
+//
+//      res.cookie('auth', CM.admin.globals.adminToken, {
+//        //      maxAge: 200000
+//      });
+//
+//      res.redirect("/admin");
+//
+//    } else {
+//
+//      res.redirect("/admin/login");
+//
+//    }
+
+    thisHook.finish(true, "/action");
+
+  } else {
+
+    thisHook.finish(true, data);
+
+  }
 
 });
 
