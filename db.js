@@ -9,11 +9,11 @@ var connectionUri = 'mongodb://' + C.config.db_server + ':' + C.config.db_port +
 
 if (C.config.db_username && C.config.db_password) {
 
-  mongoose.connect(connectionUri);
+  mongoose.connect(connectionUri, {user: C.config.db_username, pass: C.config.db_password});
 
 } else {
 
-  mongoose.connect(connectionUri, {user: C.config.db_username, pass: C.config.db_password});
+  mongoose.connect(connectionUri);
 
 }
 
