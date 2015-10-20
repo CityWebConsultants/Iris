@@ -15,6 +15,11 @@
         "title": "Path",
         "description": "The menu path"
       },
+      "id": {
+        "type": "String",
+        "title": "Unique ID",
+        "description": "Unique ID for this menu item, usually one created by the system"
+      },
       "children": {
         "title": "Menu item children",
         "description": "Children of the menu item (a sub menu)",
@@ -29,6 +34,11 @@
             "type": "String",
             "title": "Path",
             "description": "The path of the menu item"
+          },
+          "id": {
+            "type": "String",
+            "title": "Unique ID",
+            "description": "Unique ID for this menu item, usually one created by the system"
           }
         }]
       }
