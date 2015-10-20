@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <script type="text/javascript" src="jsonform/deps/jquery.min.js"></script>
+  <script type="text/javascript" src="jsonform/deps/underscore.js"></script>
+  <link rel="stylesheet" style="text/css" href="jsonform/deps/opt/bootstrap.css" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+    <script src="/admin/adminui.js"></script>
+
+
+</head>
+
+
+<body>
+
+  <h1>Permissions</h1>
+
+  <table id="permissions">
+    <tr id="roles"></tr>
+  </table>
+
+  <script>
+    $(document).ready(function() {
+
+      $.get("/admin/api/permissions").done(function(data) {
+
+        $("#roles").append("<th>Permission</th>");
+
+        var checkboxes = "";
+
+        $.each(data.roles, function(role) {
+
+          $("#roles").append("<th>" + role + "</th>");
+
+          checkboxes += "<td><input type='checkbox' class='role' value='" + role + "' /></td>";
+
+        });
+
+        $.each(data.permissions, function(category) {
+
+
+          $.each(data.permissions[category], function(permission) {
+
+            $("#permissions").append("<tr class='permission-row' data-permission='" + permission.replace(" ", "-") + "'><td class='permission'>" + permission + "</td>" + checkboxes + "</tr>");
+
+          });
+
+        });
+
+        $.each(data.current, function(permission, roles) {
+
+          var row = $.find(".permission-row[data-permission='" + permission.replace(" ", "-") + "'");
+
+          $.each(roles, function(index, role) {
+
+            $(row).find("input[value='" + role + "']").attr("checked", true);
+
+          });
+
+        });
+
+        $("#permissions").append("<input id='savePermissions' type='submit' value='save'/>");
+
+      });
+
+      $("body").on("click", "#savePermissions", function(e) {
+
+        var permissions = {};
+
+        $.each($(".permission-row"), function(index, item) {
+
+          var permission = $(item).find("td.permission")[0];
+
+          permission = $(permission).text();
+
+          permissions[permission] = [];
+
+          var roleSettings = $(item).find("input.role");
+
+          $.each(roleSettings, function(index, setting) {
+
+            if (setting.checked) {
+
+              permissions[permission].push(setting.value);
+
+            }
+
+          });
+
+        });
+
+        $.post("/admin/api/permissions", permissions).done(function(err, data) {
+
+          console.log(data);
+
+        });
+
+      });
+
+    });
+
+  </script>
+
+</body>
+
+</html>

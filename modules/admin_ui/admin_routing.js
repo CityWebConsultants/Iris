@@ -7,7 +7,7 @@ CM.admin_ui.globals.registerPath = function (path, templateName) {
 
       if (req.url.indexOf('/admin2/login') !== 0) {
 
-        res.redirect('/admin2/login?return=' + req.url);
+        res.redirect('/admin2/login');
         return false;
 
       }
