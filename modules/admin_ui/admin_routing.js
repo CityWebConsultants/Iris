@@ -2,6 +2,18 @@ CM.admin_ui.globals.registerPath = function (path, templateName) {
 
   C.app.get(path, function (req, res) {
 
+    // If not admin, present login page
+    if (req.authPass.roles.indexOf('admin') === -1) {
+
+      if (req.url.indexOf('/admin2/login') !== 0) {
+
+        res.redirect('/admin2/login?return=' + req.url);
+        return false;
+
+      }
+
+    }
+
     CM.frontend.globals.findTemplate([templateName], "html").then(function (html) {
 
       CM.frontend.globals.parseTemplate(html, req.authPass).then(function (page) {
