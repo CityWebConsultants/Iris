@@ -1,5 +1,3 @@
-// Admin login page
-
 CM.admin_ui.globals.registerPath = function (path, templateName) {
 
   C.app.get(path, function (req, res) {
