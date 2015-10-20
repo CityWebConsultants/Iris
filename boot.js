@@ -286,6 +286,12 @@ module.exports = function (config) {
 
           success(res);
 
+          if (!res.headersSent) {
+
+            res.redirect(req.url);
+
+          };
+
         } else {
 
           res.status(404).send('404');
