@@ -30,42 +30,28 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
       if (CM.forms.globals.forms[body.formid]) {
 
         C.hook("hook_form_submit", thisHook.const.req.authPass, {
-          params: thisHook.const.req.body
-        }).then(function (redirect) {
+          params: thisHook.const.req.body,
+          req: thisHook.const.req
+        }).then(function (callback) {
 
           C.hook("hook_form_submit_" + body.formid, thisHook.const.req.authPass, {
-            params: thisHook.const.req.body
-          }, null).then(function (redirect) {
+            params: thisHook.const.req.body,
+            req: thisHook.const.req
+          }, null).then(function (callback) {
 
-            if (redirect) {
-
-              data = function (req) {
-
-                req.redirect(redirect);
-
-              };
-
-            }
-
-            thisHook.finish(true, data);
+            thisHook.finish(true, callback);
 
           }, function (fail) {
 
             if (fail === "No such hook exists") {
 
-              if (redirect) {
+              thisHook.finish(true, callback);
 
-                data = function (req) {
+            } else {
 
-                  req.redirect(redirect);
-
-                };
-
-              }
+              thisHook.finish(false, callback);
 
             }
-
-            thisHook.finish(true, data);
 
           });
 
@@ -156,6 +142,8 @@ var populateForm = function (form, authPass) {
 
 CM.forms.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
+  data = function(res){};
+  
   thisHook.finish(true, data);
 
 });
