@@ -33,34 +33,17 @@ C.app.post("/login", function (req, res) {
 
   if (req.body.username && req.body.password) {
 
-    C.dbCollections['user'].findOne({
-      "name": req.body.username
-    }, function (err, doc) {
+    console.log("Doing login")
 
-      if (doc) {
-
-        bcrypt.compare(req.body.password, doc.password, function (err, match) {
-
-          if (!err && match === true) {
-
-            C.hook("hook_auth_maketoken", "root", null, {
-              userid: doc.userid
-            }).then(function (token) {
-
-              CM.sessions.globals.writeCookies(doc.userid, token.id, res, 8.64e7, {});
-
-              res.respond(200, doc.userid);
-
-            });
-
-          } else {
-
-            res.respond(400, "Invalid credentials");
-            return false;
-
-          }
-
-        });
+    CM.user.globals.login({
+      username: req.body.username,
+      password: req.body.password
+    }, res, function (userid) {
+console.log("in userid thing")
+console.log(userid)
+      if (userid) {
+console.log("ok")
+        res.respond(200, userid);
 
       } else {
 
@@ -77,6 +60,46 @@ C.app.post("/login", function (req, res) {
   }
 
 });
+
+CM.user.globals.login = function (auth, res, callback) {
+
+  C.dbCollections['user'].findOne({
+    "name": auth.username
+  }, function (err, doc) {
+
+    if (doc) {
+
+      bcrypt.compare(auth.password, doc.password, function (err, match) {
+
+        if (!err && match === true) {
+
+          C.hook("hook_auth_maketoken", "root", null, {
+            userid: doc.userid
+          }).then(function (token) {
+
+            CM.sessions.globals.writeCookies(doc.userid, token.id, res, 8.64e7, {});
+
+            callback(doc.userid);
+
+          });
+
+        } else {
+
+          callback(false);
+
+        }
+
+      });
+
+    } else {
+
+      callback(false);
+
+    }
+
+  });
+
+};
 
 CM.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
@@ -153,3 +176,5 @@ CM.user.registerHook("hook_entity_view_bulk", 2, function (thisHook, entities) {
 
 
 });
+
+require('./login_form.js');
