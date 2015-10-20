@@ -174,4 +174,26 @@ CM.user.registerHook("hook_entity_view_bulk", 2, function (thisHook, entities) {
 
 });
 
+CM.user.registerHook("hook_auth_authpass", 3, function (thisHook, data) {
+
+  if (data.roles && data.roles.indexOf('authenticated') !== -1) {
+
+    C.dbCollections['user'].findOne({
+      userid: thisHook.req.cookies.userid
+    }, function (err, doc) {
+
+      data.roles = data.roles.concat(doc.roles);
+
+      thisHook.finish(true, data);
+
+    })
+
+  } else {
+
+    thisHook.finish(true, data);
+
+  }
+
+});
+
 require('./login_form.js');
