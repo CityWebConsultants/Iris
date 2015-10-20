@@ -282,7 +282,7 @@ module.exports = function (config) {
         req: req
       }, null).then(function (success) {
 
-          if (success.then) {
+          if (typeof success === "function") {
 
             success(res).then(function () {
 

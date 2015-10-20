@@ -14,11 +14,22 @@ CM.forms.globals.makeForm("login", {
 
 CM.admin_ui.registerHook("hook_form_submit_login", 0, function (thisHook, data) {
 
-  var setLogin = function(res) {
+  var setLogin = function (res) {
 
-    CM.user.globals.login({username: thisHook.const.params.username, password: thisHook.const.params.password}, res, function (userid) {});
+    return new Promise(function (yes, no) {
 
-  }
+      CM.user.globals.login({
+        username: thisHook.const.params.username,
+        password: thisHook.const.params.password
+      }, res, function (userid) {
+
+        yes();
+
+      });
+
+    });
+
+  };
 
   thisHook.finish(true, setLogin);
 
