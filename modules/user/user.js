@@ -174,7 +174,7 @@ CM.user.registerHook("hook_entity_view_bulk", 2, function (thisHook, entities) {
 
 });
 
-CM.user.registerHook("hook_auth_authpass", 3, function (thisHook, data) {
+CM.user.registerHook("hook_auth_authpass", 5, function (thisHook, data) {
 
   if (data.roles && data.roles.indexOf('authenticated') !== -1) {
 
