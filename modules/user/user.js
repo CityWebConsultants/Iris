@@ -174,19 +174,49 @@ CM.user.registerHook("hook_entity_view_bulk", 2, function (thisHook, entities) {
 
 });
 
+CM.user.globals.userRoles = {};
+
+CM.user.globals.getRole = function (userid, callback) {
+
+  if (CM.user.globals.userRoles[userid]) {
+
+    callback(CM.user.globals.userRoles[userid]);
+
+  } else {
+
+    C.dbCollections['user'].findOne({
+        userid: userid
+    }, function (err, doc) {
+
+      if (!err && doc.roles) {
+
+        CM.user.globals.userRoles[userid] = doc.roles;
+
+        callback(doc.roles);
+
+      } else {
+
+        callback([]);
+
+      }
+
+    });
+
+  }
+
+};
+
 CM.user.registerHook("hook_auth_authpass", 5, function (thisHook, data) {
 
   if (data.roles && data.roles.indexOf('authenticated') !== -1) {
 
-    C.dbCollections['user'].findOne({
-      userid: thisHook.req.cookies.userid
-    }, function (err, doc) {
+    CM.user.globals.getRole(thisHook.req.cookies.userid, function(roles) {
 
-      data.roles = data.roles.concat(doc.roles);
+        data.roles = data.roles.concat(roles);
 
-      thisHook.finish(true, data);
+        thisHook.finish(true, data);
 
-    })
+    });
 
   } else {
 
