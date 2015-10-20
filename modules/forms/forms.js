@@ -186,7 +186,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
             populateForm(form, thisHook.authPass).then(function (form) {
 
-              var output = "<form method='POST' action='/' id='" + formName + "'></form>";
+              var output = "<form method='POST' id='" + formName + "'></form>";
 
               // Remove form context. Not needed any more and causes JSON stringify problems.
 
