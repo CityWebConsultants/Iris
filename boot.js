@@ -282,27 +282,34 @@ module.exports = function (config) {
         req: req
       }, null).then(function (success) {
 
-        if (typeof success === "function") {
+          if (success.then) {
 
-          success(res);
+            success(res).then(function () {
 
-          if (!res.headersSent) {
+              if (!res.headersSent) {
 
-            res.redirect(req.url);
+                res.redirect(req.url);
 
-          };
+              };
 
-        } else {
+            }, function (fail) {
+
+              res.send(fail);
+
+            })
+
+          } else {
+
+            res.status(404).send('404');
+
+          }
+
+        },
+        function (fail) {
 
           res.status(404).send('404');
 
-        }
-
-      }, function (fail) {
-
-        res.status(404).send('404');
-
-      })
+        })
 
     });
 
