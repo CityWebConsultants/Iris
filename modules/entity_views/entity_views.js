@@ -60,7 +60,7 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entit
 
       if (fail === "No such hook exists") {
 
-        send(data);
+        send(filtered);
 
       } else {
 
@@ -69,6 +69,10 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entit
       }
 
     });
+
+  }, function (fail) {
+
+    thisHook.finish(true, data);
 
   });
 
@@ -99,7 +103,7 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entit
 });
 
 CM.entity_views.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
-  
+
   C.sendSocketMessage(["*"], "entityDelete", data);
 
 });
