@@ -33,16 +33,13 @@ C.app.post("/login", function (req, res) {
 
   if (req.body.username && req.body.password) {
 
-    console.log("Doing login")
-
     CM.user.globals.login({
       username: req.body.username,
       password: req.body.password
     }, res, function (userid) {
-console.log("in userid thing")
-console.log(userid)
+
       if (userid) {
-console.log("ok")
+
         res.respond(200, userid);
 
       } else {
