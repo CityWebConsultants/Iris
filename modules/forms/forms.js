@@ -226,7 +226,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
                 delete form.context;
 
-                var output = "<form method='POST' action='/' id='" + formName + "'></form>";
+                var output = "<form method='POST' id='" + formName + "'></form>";
 
                 output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
 
