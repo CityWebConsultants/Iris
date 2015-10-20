@@ -1,53 +1,31 @@
 // Admin login page
 
-C.app.get("/admin2/login", function (req, res) {
+CM.admin_ui.globals.registerPath = function (path, templateName) {
 
-  CM.frontend.globals.findTemplate(["admin_login"], "html").then(function (html) {
+  C.app.get(path, function (req, res) {
 
-    CM.frontend.globals.parseTemplate(html, req.authPass).then(function (page) {
+    CM.frontend.globals.findTemplate([templateName], "html").then(function (html) {
 
-      res.send(page.html);
+      CM.frontend.globals.parseTemplate(html, req.authPass).then(function (page) {
+
+        res.send(page.html);
+
+      });
+
+    }, function () {
+
+      var error = function (req, res) {
+
+        res.send("Error loading template");
+
+      };
 
     });
 
-  }, function () {
-
-    error(req, res);
-
   });
 
-});
+}
 
-C.app.get("/admin2/permissions", function (req, res) {
-
-  CM.frontend.globals.findTemplate(["admin_permissions"], "html").then(function (html) {
-
-    res.send(html);
-
-  }, function () {
-
-    error(req, res);
-
-  });
-
-});
-
-C.app.get("/admin2/entities", function (req, res) {
-
-  CM.frontend.globals.findTemplate(["admin_entity_types"], "html").then(function (html) {
-
-    res.send(html);
-
-  }, function () {
-
-    error(req, res);
-
-  });
-
-});
-
-var error = function (req, res) {
-
-  res.send("Error loading template");
-
-};
+CM.admin_ui.globals.registerPath("/admin2/login", "admin_login");
+CM.admin_ui.globals.registerPath("/admin2/permissions", "admin_permissions");
+CM.admin_ui.globals.registerPath("/admin2/entities", "admin_entitiy_types");
