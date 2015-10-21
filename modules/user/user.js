@@ -228,9 +228,13 @@ CM.user.registerHook("hook_auth_authpass", 5, function (thisHook, data) {
 
 CM.user.registerHook("hook_entity_updated", 1, function (thisHook, entity) {
 
-  if (CM.user.globals.userRoles[entity.userid]) {
+  if (entity.entityType === 'user' && entity.userid) {
 
-    delete CM.user.globals.userRoles[entity.userid];
+    if (CM.user.globals.userRoles[entity.userid]) {
+
+      delete CM.user.globals.userRoles[entity.userid];
+
+    }
 
   }
 
