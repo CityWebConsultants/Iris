@@ -4,9 +4,28 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
 
   CM.frontend.globals.parseBlock("menu", data.html, function (menu, next) {
 
-    CM.frontend.globals.findTemplate(["menu", menu]).then(function (yes) {
+    CM.frontend.globals.findTemplate(["menu", menu]).then(function (html) {
 
-      next(yes);
+      C.dbCollections.menu.findOne({
+        'title': menu
+      }, function (err, doc) {
+
+        C.hook("hook_frontend_template", thisHook.authPass, null, {
+          html: html,
+          vars: {
+            menu: doc
+          }
+        }).then(function (success) {
+
+          next(success.html);
+
+        }, function (fail) {
+
+          next(html)
+
+        });
+
+      });
 
     }, function (fail) {
 
