@@ -29,56 +29,103 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
 
 });
 
+var waitingMenuItems = [];
+
 CM.menu.globals.registerMenuItem = function (menuName, path, title) {
 
-  C.dbCollections.menu.findOne({
-    'title': menuName
-  }, function (err, doc) {
+  waitingMenuItems.push({
+    menuName: menuName,
+    path: path,
+    title: title
+  });
 
-    if (doc) {
+};
 
-      if (doc.menulink.some(function (currentValue, index) {
+process.on("dbReady", function () {
 
-          return currentValue.path === path;
+  var promises = [];
 
-        })) {
+  waitingMenuItems.forEach(function (element, index) {
 
-        return false;
+    promises.push(C.promise(function (data, yes, no) {
 
-      }
+      C.dbCollections.menu.findOne({
+        'title': element.menuName
+      }, function (err, doc) {
 
-      C.dbCollections.menu.update({
-          "title": menuName
-        }, {
-          "$addToSet": {
-            "menulink": {
-              "title": "hello",
-              "path": "/"
-            }
+        if (doc) {
+
+          // Item already exists
+
+          if (doc.menulink.some(function (currentValue, index) {
+
+              return currentValue.path === element.path;
+
+            })) {
+
+            // Path already present - don't need to do anything
+
+            waitingMenuItems.splice(index, 1);
+            yes(data);
+            return false;
+
           }
-        }, {
-          "upsert": true
-        },
-        function (err, data) {
 
-          console.log(err, data);
+          // Update menu to place this link in it
+
+          C.dbCollections.menu.update({
+            "title": element.menuName
+          }, {
+            "$addToSet": {
+              "menulink": {
+                "title": element.title,
+                "path": element.path
+              }
+            }
+          }, {
+            "upsert": true
+          }, function (err, data) {
+
+            console.log(err, data);
+
+          });
+
+          waitingMenuItems.splice(index, 1);
+          yes(data);
+
+        } else {
+
+          // Create a new menu
+
+          var entity = new C.dbCollections.menu({
+            title: element.menuName,
+            entityAuthor: "system",
+            entityType: "menu",
+            menulink: [{
+              title: element.title,
+              path: element.path
+            }]
+          });
+
+          entity.save(function (err, doc) {
+
+            if (err) {
+              console.log(err)
+            }
+
+            waitingMenuItems.splice(index, 1);
+            yes(data);
+
+          });
 
         }
-      )
 
-    } else {
-
-      var entity = new C.dbCollections.menu({
-        title: menuName,
-        entityAuthor: "system",
-        entityType: "menu",
-        menulink: [{
-          title: title,
-          path: path
-              }]
       });
 
-    }
+    }));
 
-  })
-};
+  });
+
+  C.promiseChain(promises, {}, function () {});
+
+});
