@@ -91,6 +91,16 @@ CM.block_manager.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
   if (thisHook.const.params.formid.indexOf('block_') === 0) {
 
+    var goto = function (path) {
+
+      return function (res) {
+
+        res.redirect(path);
+
+      }
+
+    }
+
     var blockId = thisHook.const.params.blockid;
     var blockType = thisHook.const.params.blocktype;
     var region = thisHook.const.params.region;
@@ -126,7 +136,7 @@ CM.block_manager.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
           C.hook("hook_regions_save", thisHook.authPass, currentRegions).then(function (savedRegions) {
 
-            thisHook.finish(true, "/admin/regions");
+            thisHook.finish(true, goto("/admin/regions"));
 
           }, function (fail) {
 
@@ -142,7 +152,7 @@ CM.block_manager.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
       } else {
 
-        thisHook.finish(true, "/admin/regions");
+        thisHook.finish(true, goto("/admin/regions"));
 
       }
 

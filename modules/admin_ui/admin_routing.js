@@ -60,3 +60,6 @@ CM.admin_ui.globals.registerPath("/admin2/permissions", "admin_permissions");
 CM.admin_ui.globals.registerPath("/admin2/entities", "admin_entity_types");
 CM.admin_ui.globals.registerPath("/admin2/schema/create", "admin_schema_create");
 CM.admin_ui.globals.registerPath("/admin2/schema/edit/:type", "admin_schema_edit");
+CM.admin_ui.globals.registerPath("/admin2/edit/:type/:_id", "admin_entity_edit");
+CM.admin_ui.globals.registerPath("/admin2/create/:type", "admin_entity_create");
+CM.admin_ui.globals.registerPath("/admin2/delete/:type/:id", "admin_entity_delete");

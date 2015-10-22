@@ -1,5 +1,3 @@
-// Create and edit forms
-
 var path = require('path');
 
 C.app.get("/admin/api/entitytypes", function (req, res) {
@@ -405,39 +403,9 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
   }
 });
 
-/*
-
 //Create and edit forms
 
-C.app.get("/admin/create/:type", function (req, res) {
-
-  if (CM.admin.globals.checkAdmin(req)) {
-
-    res.sendFile(path.join(__dirname, 'templates/create.html'));
-
-  } else {
-
-    res.redirect("/admin");
-
-  }
-
-});
-
-C.app.get("/admin/edit/:type/:id", function (req, res) {
-
-  if (CM.admin.globals.checkAdmin(req)) {
-
-    res.sendFile(path.join(__dirname, 'templates/edit.html'));
-
-  } else {
-
-    res.redirect("/admin");
-
-  }
-
-});
-
-C.app.get("/admin/edit/:type/:_id/form", function (req, res) {
+C.app.get("/admin/api/edit/:type/:_id/form", function (req, res) {
 
   if (CM.admin.globals.checkAdmin(req)) {
 
@@ -516,22 +484,7 @@ C.app.get("/admin/edit/:type/:_id/form", function (req, res) {
 
 });
 
-C.app.get("/admin/delete/:type/:id", function (req, res) {
-
-  if (CM.admin.globals.checkAdmin(req)) {
-
-    res.sendFile(path.join(__dirname, 'templates/delete.html'));
-
-  } else {
-
-    res.redirect("/admin");
-
-  }
-
-});
-
-
-C.app.get("/admin/create/:type/form/", function (req, res) {
+C.app.get("/admin/api/create/:type/form/", function (req, res) {
 
   if (CM.admin.globals.checkAdmin(req)) {
 
@@ -703,7 +656,7 @@ var checkField = function (key, item) {
 
 //Entity listing screen
 
-C.app.get("/admin/entitylist/:type", function (req, res) {
+C.app.get("/admin2/entitylist/:type", function (req, res) {
 
   if (req.authPass.roles.indexOf("admin") === -1) {
 
@@ -752,15 +705,15 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
 
     });
 
-    table += "<td><a href='/admin/edit/" + req.params.type + "/{{entity._id}}'>Edit</a></td>";
+    table += "<td><a href='/admin2/edit/" + req.params.type + "/{{entity._id}}'>Edit</a></td>";
 
-    table += "<td><a href='/admin/delete/" + req.params.type + "/{{entity._id}}'>Delete</a></td>";
+    table += "<td><a href='/admin2/delete/" + req.params.type + "/{{entity._id}}'>Delete</a></td>";
 
     table += "</tr>";
 
     table += "</table>";
 
-    var page = fs.readFileSync(__dirname + "/" + "templates/entitylist.html", "utf8");
+    var page = fs.readFileSync(__dirname + "/" + "../templates/admin_entity_list.html", "utf8");
 
     page = page.split("<<entitytype>>").join(req.params.type);
 
@@ -776,8 +729,6 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
   }
 
 });
-
-*/
 
 //CK Editor file upload
 

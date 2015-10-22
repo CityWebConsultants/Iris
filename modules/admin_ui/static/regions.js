@@ -15,10 +15,10 @@ var makeBlockOptions = function (block) {
   if (blockType && blockId) {
 
     html += '  <li class="region-block__options__edit">';
-    html += '    <a href="' + '/admin/block/edit/' + blockType + '/' + blockId + '">Edit this block</a>';
+    html += '    <a href="' + '/admin2/block/edit/' + blockType + '/' + blockId + '">Edit this block</a>';
     html += '  </li>';
     html += '  <li class="region-block__options__delete">';
-    html += '    <a href="' + '/admin/block/delete/' + blockType + '/' + blockId + '">Delete this block</a>';
+    html += '    <a href="' + '/admin2/block/delete/' + blockType + '/' + blockId + '">Delete this block</a>';
     html += '  </li>';
 
   }
@@ -45,7 +45,7 @@ var templateBlockType = function (blockTypeId, blockTitle) {
 
   html += '  <div class="region-block__title">' + blockTitle + '</div>';
 
-  html += '  <div class="region-block__new"><a href="/admin/block/create/' + blockTypeId + '">Add</a></div>';
+  html += '  <div class="region-block__new"><a href="/admin2/block/create/' + blockTypeId + '">Add</a></div>';
 
   html += '</li>';
 
