@@ -59,3 +59,4 @@ CM.admin_ui.globals.registerPath("/admin2/login", "admin_login");
 CM.admin_ui.globals.registerPath("/admin2/permissions", "admin_permissions");
 CM.admin_ui.globals.registerPath("/admin2/entities", "admin_entity_types");
 CM.admin_ui.globals.registerPath("/admin2/schema/create", "admin_schema_create");
+CM.admin_ui.globals.registerPath("/admin2/schema/edit/:type", "admin_schema_edit");

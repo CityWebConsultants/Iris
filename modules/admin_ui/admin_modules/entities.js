@@ -1,4 +1,4 @@
-//Create and edit forms
+// Create and edit forms
 
 var path = require('path');
 
@@ -229,9 +229,9 @@ C.app.post("/admin/api/schema/edit/:type", function (req, res) {
 
 });
 
-//Page for creating a new schema
+// For: Page for creating a new schema
 
-//Get list of fields
+// Get list of fields
 
 C.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
@@ -255,41 +255,11 @@ C.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
 });
 
-//C.app.get("/admin/schema/create", function (req, res) {
-//
-//  if (CM.admin.globals.checkAdmin(req)) {
-//
-//    res.sendFile(path.join(__dirname, 'templates/entity.html'));
-//
-//  } else {
-//
-//    res.redirect("/admin");
-//
-//  }
-//
-//});
+// For: Page for editing an existing schema
 
-/*
+// Fetch existing schema
 
-//Page for editing an existing schema
-
-C.app.get("/admin/schema/edit/:type", function (req, res) {
-
-  if (CM.admin.globals.checkAdmin(req)) {
-
-    res.sendFile(path.join(__dirname, 'templates/entityedit.html'));
-
-  } else {
-
-    res.redirect("/admin");
-
-  }
-
-});
-
-//Fetch existing schema
-
-C.app.get("/admin/schema/edit/:type/form", function (req, res) {
+C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
   try {
 
@@ -434,6 +404,8 @@ C.app.get("/admin/schema/edit/:type/form", function (req, res) {
 
   }
 });
+
+/*
 
 //Create and edit forms
 
