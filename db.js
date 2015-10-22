@@ -204,6 +204,8 @@ C.dbCollections = {};
 
 C.dbSchema = {};
 
+var dbReady = false;
+
 C.dbPopulate = function () {
 
   // Loop over all enabled modules and check for schema files
@@ -318,5 +320,12 @@ C.dbPopulate = function () {
     CM.auth.globals.registerPermission("can delete own " + schema, "entity")
 
   });
+
+  if (!dbReady) {
+
+    process.emit("dbReady", true);
+    dbReady = true;
+
+  }
 
 };
