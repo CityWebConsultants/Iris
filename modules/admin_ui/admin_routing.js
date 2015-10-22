@@ -7,8 +7,27 @@ CM.admin_ui.globals.registerPath = function (path, templateName) {
 
       if (req.url.indexOf('/admin2/login') !== 0) {
 
-        res.redirect('/admin2/login');
+        res.redirect('/admin2/login?return=' + req.url);
         return false;
+
+      }
+
+    }
+
+    // If admin going to login page, redirect
+    if (req.url.indexOf('/admin2/login') === 0) {
+
+      if (req.authPass.roles.indexOf('admin') !== -1) {
+
+        if (req.query.return) {
+
+          res.redirect(req.query.return);
+
+        } else {
+
+          res.redirect('/');
+
+        }
 
       }
 
@@ -38,4 +57,5 @@ CM.admin_ui.globals.registerPath = function (path, templateName) {
 
 CM.admin_ui.globals.registerPath("/admin2/login", "admin_login");
 CM.admin_ui.globals.registerPath("/admin2/permissions", "admin_permissions");
-CM.admin_ui.globals.registerPath("/admin2/entities", "admin_entitiy_types");
+CM.admin_ui.globals.registerPath("/admin2/entities", "admin_entity_types");
+CM.admin_ui.globals.registerPath("/admin2/schema/create", "admin_schema_create");
