@@ -407,7 +407,7 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
 C.app.get("/admin/api/edit/:type/:_id/form", function (req, res) {
 
-  if (CM.admin.globals.checkAdmin(req)) {
+  if (req.authPass.roles.indexOf('admin') !== -1) {
 
     if (!C.dbCollections[req.params.type]) {
 
@@ -486,7 +486,7 @@ C.app.get("/admin/api/edit/:type/:_id/form", function (req, res) {
 
 C.app.get("/admin/api/create/:type/form/", function (req, res) {
 
-  if (CM.admin.globals.checkAdmin(req)) {
+  if (req.authPass.roles.indexOf('admin') !== -1) {
 
     if (!C.dbCollections[req.params.type]) {
 

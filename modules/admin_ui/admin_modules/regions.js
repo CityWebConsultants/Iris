@@ -72,7 +72,7 @@ C.app.get('/admin2/block/edit/:type/:id', function (req, res) {
 
   }
 
-  var page = fs.readFileSync(__dirname + "/templates/admin_block_edit.html", "utf8");
+  var page = fs.readFileSync(__dirname + "/../templates/admin_block_edit.html", "utf8");
 
   // Fetch block
 

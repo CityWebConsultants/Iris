@@ -35,10 +35,6 @@ C.app.get("/admin/api/permissions", function (req, res) {
 
 });
 
-var path = require('path');
-
-CM.admin.globals.registerMenuItem("Permissions", path.join(__dirname, 'templates/permissions.html'));
-
 C.app.post("/admin/api/permissions", function (req, res) {
 
   fs.writeFile(C.configPath + "/auth/permissions.JSON", JSON.stringify(req.body), "utf8", function (err, data) {
