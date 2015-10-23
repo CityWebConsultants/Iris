@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 CM.admin_ui.globals.registerPath = function (path, templateName) {
 
   C.app.get(path, function (req, res) {
@@ -34,6 +36,10 @@ CM.admin_ui.globals.registerPath = function (path, templateName) {
     }
 
     CM.frontend.globals.findTemplate([templateName], "html").then(function (html) {
+
+      var admin_wrapper = fs.readFileSync(__dirname + '/templates/admin.html', "utf8");
+
+      html = admin_wrapper.replace('[[[ADMINCONTENT]]]', html);
 
       CM.frontend.globals.parseTemplate(html, req.authPass).then(function (page) {
 
