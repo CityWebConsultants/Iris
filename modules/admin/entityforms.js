@@ -1,4 +1,4 @@
-//Create and edit forms
+// Create and edit forms
 
 var path = require('path');
 
@@ -23,6 +23,35 @@ var upsertSchema = function (model, data, callback) {
   schema = {};
 
   var converters = {};
+
+  converters["file"] = function (element) {
+
+    var field = {};
+    field.type = String;
+
+    if (element.required === "true") {
+
+      field.required = true;
+
+    };
+
+    field.fileTypes = element.fileTypes;
+
+    if (element.label) {
+
+      field.title = element.label;
+
+    };
+
+    if (element.description) {
+
+      field.description = element.description;
+
+    };
+
+    return field;
+
+  }
 
   converters["text"] = function (element) {
 
@@ -295,7 +324,7 @@ C.app.get("/admin/schema/edit/:type/form", function (req, res) {
 
       //Ordinary strings
 
-      if (rawfield.type === "String" && !rawfield.long && !rawfield.enum) {
+      if (rawfield.type === "String" && !rawfield.long && !rawfield.enum && !rawfield.fileTypes) {
 
         return {
           "choose": "0",
@@ -309,6 +338,24 @@ C.app.get("/admin/schema/edit/:type/form", function (req, res) {
         }
 
       };
+
+      // File field
+
+      if (rawfield.type === "String" && rawfield.fileTypes) {
+
+        return {
+          "choose": "5",
+          "file": {
+            "fileTypes": rawfield.fileTypes,
+            "system-name": fieldname,
+            "label": rawfield.title,
+            "description": rawfield.description,
+            "multifield": rawfield.multifield,
+            "required": rawfield.required
+          }
+        }
+
+      }
 
       //Long text field
 
@@ -393,7 +440,7 @@ C.app.get("/admin/schema/edit/:type/form", function (req, res) {
         });
 
         return {
-          "choose": "5",
+          "choose": "6",
           "object": {
             "system-name": fieldname,
             "label": rawfield.title,
@@ -663,6 +710,18 @@ var checkField = function (key, item) {
 
       };
 
+    } else if (item.fileTypes) {
+
+      return {
+
+        "title": item.title,
+        "fileTypes": item.fileTypes, 
+        "description": item.description,
+        "type": "fileField",
+        "required": item.required,
+
+      };
+
     } else {
 
       return {
@@ -920,13 +979,29 @@ C.app.get('/admin/block/edit/:type/:id', function (req, res) {
 
 });
 
-//CK Editor file upload
+// CK Editor file upload
 
 var busboy = require('connect-busboy');
 
 C.app.use(busboy());
 
 var fs = require('fs');
+
+C.app.post('/admin/file/fileFieldUpload', function (req, res) {
+
+  var fstream;
+  req.pipe(req.busboy);
+  req.busboy.on('file', function (fieldname, file, filename) {
+    fstream = fs.createWriteStream(C.sitePath + '/files/' + filename);
+    file.pipe(fstream);
+    fstream.on('close', function () {
+
+      res.end(filename);
+
+    });
+  });
+
+});
 
 C.app.post('/admin/file/upload', function (req, res) {
 

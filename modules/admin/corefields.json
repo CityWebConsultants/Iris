@@ -140,6 +140,40 @@
       }
     }
   },
+  "file": {
+    "type": "object",
+    "title": "File",
+    "properties": {
+      "system-name": {
+        "type": "string",
+        "title": "System name",
+        "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+        "required": true
+      },
+      "fileTypes": {
+        "type": "string",
+        "title": "Allowed file types",
+        "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+        "required": true
+      },
+      "label": {
+        "type": "string",
+        "title": "Label"
+      },
+      "description": {
+        "type": "textarea",
+        "title": "Description"
+      },
+      "multifield": {
+        "type": "boolean",
+        "title": "Can this field have multiple entries?"
+      },
+      "required": {
+        "type": "boolean",
+        "title": "Is this field required?"
+      }
+    }
+  },
   "object": {
     "type": "object",
     "title": "options",

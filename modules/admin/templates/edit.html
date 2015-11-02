@@ -45,7 +45,7 @@
       var type = path[path.length - 2];
       var id = path[path.length - 1];
 
-      $("#delete-button").click(function (e) {
+      $("#delete-button").click(function(e) {
 
         e.preventDefault();
 
@@ -71,6 +71,52 @@
 
           }
         };
+
+        JSONForm.elementTypes['fileField'] = Object.create(JSONForm.elementTypes['text']);
+        //        JSONForm.elementTypes['fileField'].template = '<select value="<%= escape(value) %>" name="<%= node.name %>" onchange="chooseField(event)" class="field-collection-select form-control"></select>';
+        JSONForm.elementTypes['fileField'].template = "<input type='hidden' name='<%= node.name %>' value='<%= escape(value) %>'><input type='file' id='input' onchange='handleFiles(this.files[0], <%= node.name %>)'>";
+
+        window.handleFiles = function(file, inputname) {
+          var uri = "/admin/file/fileFieldUpload";
+          var xhr = new XMLHttpRequest();
+          var fd = new FormData();
+
+          xhr.open("POST", uri, true);
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+
+              // Handle response.
+
+              $(inputname).val(xhr.responseText)  // handle response.
+              
+            }
+          };
+          fd.append('myFile', file);
+          // Initiate a multipart/form-data upload
+          xhr.send(fd);
+        }
+
+        //        JSONForm.elementTypes['choose'].onInsert = function(e, node) {
+        //
+        //          if (node.value) {
+        //
+        //            var choice = node.value;
+        //
+        //            $("select[name='" + node.name + "']").val(choice);
+        //
+        //            var parent = $("select[name='" + node.name + "']").closest("fieldset")
+        //            $(parent).children("fieldset").hide();
+        //            $(parent).children("fieldset").find("*[name]").attr("disabled", "true");
+        //            $(parent).find("fieldset").eq(choice).show().find("*[name]").removeAttr("disabled");
+        //
+        //          } else {
+        //
+        //            $("select[name='" + node.name + "']").closest("fieldset").children("fieldset").hide();
+        //
+        //          }
+        //
+        //        };
+
 
         $('form').jsonForm(data);
 

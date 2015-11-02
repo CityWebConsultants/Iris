@@ -185,6 +185,24 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
 C.app.post("/entity/edit/:type/:_id", function (req, res) {
 
+//  var busboy = require('connect-busboy');
+//
+//  C.app.use(busboy());
+//
+//  var fs = require('fs');
+//
+//  var fstream;
+//  req.pipe(req.busboy);
+//  req.busboy.on('file', function (fieldname, file, filename) {
+//    fstream = fs.createWriteStream(C.sitePath + '/files/' + filename);
+//    file.pipe(fstream);
+//    fstream.on('close', function () {
+//
+//      console.log("filesaved");
+//
+//    });
+//  });
+
   req.body.entityType = req.params.type;
   req.body._id = req.params._id;
 
