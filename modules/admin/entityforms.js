@@ -112,6 +112,7 @@ var upsertSchema = function (model, data, callback) {
     var field = {};
     field.type = String;
     field.long = true;
+    field.allowedTags = element.allowedTags;
 
     if (element.required === "true") {
 
@@ -369,6 +370,7 @@ C.app.get("/admin/schema/edit/:type/form", function (req, res) {
             "description": rawfield.description,
             "multifield": rawfield.multifield,
             "required": rawfield.required,
+            "allowedTags": rawfield.allowedTags
           }
         }
 
@@ -700,13 +702,14 @@ var checkField = function (key, item) {
       };
 
     } else if (item.long) {
-
+      
       return {
 
         "title": item.title,
         "description": item.description,
         "type": "textarea",
         "required": item.required,
+        "allowedTags": item.allowedTags
 
       };
 
@@ -715,7 +718,7 @@ var checkField = function (key, item) {
       return {
 
         "title": item.title,
-        "fileTypes": item.fileTypes, 
+        "fileTypes": item.fileTypes,
         "description": item.description,
         "type": "fileField",
         "required": item.required,
