@@ -10,6 +10,10 @@ require('./admin_routing.js');
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/entities', 'Entities');
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/regions', 'Regions');
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/permissions', 'Permissions');
+
+CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/config/export', 'Export config');
+CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/config/import', 'Import config');
+
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/logs', 'Logs');
 CM.menu.globals.registerMenuItem('admin_toolbar', '/logout', 'Log Out');
 
