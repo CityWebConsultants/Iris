@@ -1,59 +1,41 @@
-<!DOCTYPE html>
-<html>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
-<head>
+<script src="/admin/jsonform/deps/jquery.min.js"></script>
+<script src="/admin/jsonform/deps/underscore-min.js"></script>
+<script src="/admin/jsonform/deps/opt/jquery.ui.custom.js"></script>
+<script src="/admin/jsonform/deps/opt/bootstrap-dropdown.js"></script>
+<script src="/admin/jsonform/deps/opt/bootstrap-typeahead.js"></script>
+<script src="/admin/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script>
+<script src="/admin/jsonform/deps/opt/spectrum.js"></script>
+<script src="/admin/jsonform/deps/opt/jquery.transloadit2.js"></script>
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script src="/admin/jsonform/lib/jsonform.js"></script>
 
-  <script src="/admin/jsonform/deps/jquery.min.js"></script>
-  <script src="/admin/jsonform/deps/underscore-min.js"></script>
-  <script src="/admin/jsonform/deps/opt/jquery.ui.custom.js"></script>
-  <script src="/admin/jsonform/deps/opt/bootstrap-dropdown.js"></script>
-  <script src="/admin/jsonform/deps/opt/bootstrap-typeahead.js"></script>
-  <script src="/admin/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script>
-  <script src="/admin/jsonform/deps/opt/spectrum.js"></script>
-  <script src="/admin/jsonform/deps/opt/jquery.transloadit2.js"></script>
-
-  <script src="/admin/jsonform/lib/jsonform.js"></script>
-
-  <link rel="stylesheet" href="/admin/admin.css" />
-
-</head>
+<link rel="stylesheet" href="/admin/admin.css" />
 
 
-<body>
 
-  <h1></h1>
+<h1></h1>
 
-  <script>
-    $(document).ready(function() {
+<script>
+  $(document).ready(function() {
 
-      var path = document.location.pathname.split("/");
+    var path = document.location.pathname.split("/");
 
-      var type = path[path.length - 2];
-      var id = path[path.length - 1];
+    var type = path[path.length - 2];
+    var id = path[path.length - 1];
 
-      $("h1").text("Delete " + id + '?');
+    $("h1").text("Delete " + id + '?');
 
-      // Confirmation form handler
+    // Confirmation form handler
 
-      $("#delete-confirm").submit(function (e) {
+    $("#delete-confirm").submit(function (e) {
 
-        e.preventDefault();
+      e.preventDefault();
 
-        var values = {};
+      var values = {};
 
-        $.post("/entity/delete/" + type + "/" + id, values, function(err, data) {
-
-          document.location.href = "/admin/entitylist/" + type;
-
-        });
-
-      });
-
-      $("#cancel").click(function (e) {
-
-        e.preventDefault();
+      $.post("/entity/delete/" + type + "/" + id, values, function(err, data) {
 
         document.location.href = "/admin/entitylist/" + type;
 
@@ -61,17 +43,24 @@
 
     });
 
-  </script>
+    $("#cancel").click(function (e) {
 
-  Are you sure you want to delete this entity?
+      e.preventDefault();
 
-  <form id="delete-confirm">
+      document.location.href = "/admin/entitylist/" + type;
 
-    <input type="submit" class="btn btn-primary " value="Delete">
-    <input type="reset" class="btn " id="cancel" value="Cancel">
+    });
 
-  </form>
+  });
 
-</body>
+</script>
 
-</html>
+Are you sure you want to delete this entity?
+
+<form id="delete-confirm">
+
+  <input type="submit" class="btn btn-primary " value="Delete">
+  <input type="reset" class="btn " id="cancel" value="Cancel">
+
+</form>
+

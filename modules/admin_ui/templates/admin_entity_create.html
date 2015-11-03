@@ -1,121 +1,111 @@
-<!DOCTYPE html>
-<html>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
-<head>
+<script src="//cdn.ckeditor.com/4.5.3/standard/ckeditor.js"></script>
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script src="/admin/jsonform/deps/jquery.min.js"></script>
+<script src="/admin/jsonform/deps/underscore-min.js"></script>
+<script src="/admin/jsonform/deps/opt/jquery.ui.custom.js"></script>
+<script src="/admin/jsonform/deps/opt/bootstrap-dropdown.js"></script>
+<script src="/admin/jsonform/deps/opt/bootstrap-typeahead.js"></script>
+<script src="/admin/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script>
+<script src="/admin/jsonform/deps/opt/spectrum.js"></script>
+<script src="/admin/jsonform/deps/opt/jquery.transloadit2.js"></script>
 
-  <script src="//cdn.ckeditor.com/4.5.3/standard/ckeditor.js"></script>
+<script src="/admin/jsonform/lib/jsonform.js"></script>
 
-  <script src="/admin/jsonform/deps/jquery.min.js"></script>
-  <script src="/admin/jsonform/deps/underscore-min.js"></script>
-  <script src="/admin/jsonform/deps/opt/jquery.ui.custom.js"></script>
-  <script src="/admin/jsonform/deps/opt/bootstrap-dropdown.js"></script>
-  <script src="/admin/jsonform/deps/opt/bootstrap-typeahead.js"></script>
-  <script src="/admin/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script>
-  <script src="/admin/jsonform/deps/opt/spectrum.js"></script>
-  <script src="/admin/jsonform/deps/opt/jquery.transloadit2.js"></script>
-
-  <script src="/admin/jsonform/lib/jsonform.js"></script>
-
-  <link rel="stylesheet" href="/admin/admin.css" />
-
-</head>
+<link rel="stylesheet" href="/admin/admin.css" />
 
 
-<body>
 
-  <h1></h1>
+<h1></h1>
 
-  <form></form>
+<form></form>
 
 
-  <script>
-    $(document).ready(function() {
+<script>
+  $(document).ready(function() {
 
-      var type = document.location.pathname.split("/")[document.location.pathname.split("/").length - 1];
+    var type = document.location.pathname.split("/")[document.location.pathname.split("/").length - 1];
 
-      $("h1").text("Create " + type);
+    $("h1").text("Create " + type);
 
-      var urlparts = document.location.pathname.split("/");
+    var urlparts = document.location.pathname.split("/");
 
-      window.type = urlparts[urlparts.length - 1];
+    window.type = urlparts[urlparts.length - 1];
 
-      $.get('/admin/api/create/' + window.type + "/form").done(function(data) {
+    $.get('/admin/api/create/' + window.type + "/form").done(function(data) {
 
-        data.onSubmit = function(errors, values) {
+      data.onSubmit = function(errors, values) {
 
-          if (errors) {
+        if (errors) {
 
-            console.error(errors);
+          console.error(errors);
 
-          } else {
+        } else {
 
-            values.credentials = {
-              "apikey": "letmein",
-              "secretkey": "letmein"
-            };
+          values.credentials = {
+            "apikey": "letmein",
+            "secretkey": "letmein"
+          };
 
-            $.post("/entity/create/" + type, values, function(data, err) {
+          $.post("/entity/create/" + type, values, function(data, err) {
 
-              document.location.href = "/admin/entitylist/" + type;
+            document.location.href = "/admin/entitylist/" + type;
 
-            })
+          })
+
+        }
+      };
+
+      JSONForm.elementTypes['fileField'] = Object.create(JSONForm.elementTypes['text']);
+      //        JSONForm.elementTypes['fileField'].template = '<select value="<%= escape(value) %>" name="<%= node.name %>" onchange="chooseField(event)" class="field-collection-select form-control"></select>';
+      JSONForm.elementTypes['fileField'].template = "<input type='hidden' name='<%= node.name %>' value='<%= escape(value) %>'><input type='file' id='input' onchange='handleFiles(this.files[0], <%= node.name %>)'>";
+
+      window.handleFiles = function(file, inputname) {
+        var uri = "/admin/file/fileFieldUpload";
+        var xhr = new XMLHttpRequest();
+        var fd = new FormData();
+
+        xhr.open("POST", uri, true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState == 4 && xhr.status == 200) {
+
+            // Handle response.
+
+            $(inputname).val(xhr.responseText) // handle response.
 
           }
         };
+        fd.append('myFile', file);
+        // Initiate a multipart/form-data upload
+        xhr.send(fd);
+      }
 
-        JSONForm.elementTypes['fileField'] = Object.create(JSONForm.elementTypes['text']);
-        //        JSONForm.elementTypes['fileField'].template = '<select value="<%= escape(value) %>" name="<%= node.name %>" onchange="chooseField(event)" class="field-collection-select form-control"></select>';
-        JSONForm.elementTypes['fileField'].template = "<input type='hidden' name='<%= node.name %>' value='<%= escape(value) %>'><input type='file' id='input' onchange='handleFiles(this.files[0], <%= node.name %>)'>";
+      $('form').jsonForm(data);
 
-        window.handleFiles = function(file, inputname) {
-          var uri = "/admin/file/fileFieldUpload";
-          var xhr = new XMLHttpRequest();
-          var fd = new FormData();
+      $("textarea").each(function() {
+        CKEDITOR.replace(this, {
 
-          xhr.open("POST", uri, true);
-          xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
+          filebrowserUploadUrl: '/admin/file/upload'
 
-              // Handle response.
+        });
+      });
 
-              $(inputname).val(xhr.responseText) // handle response.
+      for (var i in CKEDITOR.instances) {
 
-            }
-          };
-          fd.append('myFile', file);
-          // Initiate a multipart/form-data upload
-          xhr.send(fd);
-        }
+        CKEDITOR.instances[i].on('change', function(e) {
 
-        $('form').jsonForm(data);
+          var data = e.editor.getData();
 
-        $("textarea").each(function() {
-          CKEDITOR.replace(this, {
+          $(e.editor.element)[0].$.innerHTML = data;
 
-            filebrowserUploadUrl: '/admin/file/upload'
-
-          });
         });
 
-        for (var i in CKEDITOR.instances) {
+      };
 
-          CKEDITOR.instances[i].on('change', function(e) {
+    })
+  });
 
-            var data = e.editor.getData();
+</script>
 
-            $(e.editor.element)[0].$.innerHTML = data;
 
-          });
-
-        };
-
-      })
-    });
-
-  </script>
-
-</body>
-
-</html>

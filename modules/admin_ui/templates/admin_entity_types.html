@@ -1,32 +1,22 @@
-<!doctype HTML>
-<html>
+<link rel="stylesheet" style="text/css" href="/admin/jsonform/deps/opt/bootstrap.css" />
+<link rel="stylesheet" href="/admin/admin.css" />
+<script src="/admin/jsonform/deps/jquery.min.js"></script>
 
-<head>
+<script>
+  $.get("/admin/api/entitytypes", function(data, err) {
 
-  <link rel="stylesheet" style="text/css" href="/admin/jsonform/deps/opt/bootstrap.css" />
-  <link rel="stylesheet" href="/admin/admin.css" />
-  <script src="/admin/jsonform/deps/jquery.min.js"></script>
+    $.each(data, function(index, element) {
 
-  <script>
-    $.get("/admin/api/entitytypes", function(data, err) {
-
-      $.each(data, function(index, element) {
-
-        $("#entity-types").append("<li><h3>"+element+"</h3><ul><li><a href='/admin/entitylist/"+element+"'>View content</a></li><li><a href='/admin/create/"+element+"'>Create new</a></li><li><a href='/admin/schema/edit/"+element+"'>Edit entity fields</a></li></ul></li>");
-
-      });
+      $("#entity-types").append("<li><h3>"+element+"</h3><ul><li><a href='/admin/entitylist/"+element+"'>View content</a></li><li><a href='/admin/create/"+element+"'>Create new</a></li><li><a href='/admin/schema/edit/"+element+"'>Edit entity fields</a></li></ul></li>");
 
     });
 
-  </script>
+  });
 
-</head>
+</script>
 
-<body>
-  <h1>Edit entity types</h1>
-  <h2>Add/modify fields</h2>
-  <ul id="entity-types"></ul>
-  <a class="btn" href="/admin/schema/create">Create a new entity type</a>
-</body>
+<h1>Edit entity types</h1>
+<h2>Add/modify fields</h2>
+<ul id="entity-types"></ul>
+<a class="btn" href="/admin/schema/create">Create a new entity type</a>
 
-</html>
