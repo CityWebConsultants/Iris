@@ -341,8 +341,8 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
                     } else {
 
-                      console.log("hello");
-
+                      //
+                      
                     }
 
                   });
