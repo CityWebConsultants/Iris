@@ -1,34 +1,62 @@
 C.registerModule("blocks");
 
+// Default block view permission
+CM.auth.globals.registerPermission("can view blocks", "blocks");
+
+// Default block view permission check
+CM.menu.registerHook("hook_block_view", 0, function (thisHook, menuName) {
+
+  if (CM.auth.globals.checkPermissions(["can view blocks"], thisHook.authPass)) {
+
+    thisHook.finish(true, true);
+
+  } else {
+
+    thisHook.finish(false, false);
+
+  }
+
+});
+
 CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   CM.frontend.globals.parseBlock("block", data.html, function (block, next) {
 
-    var blockName = block.split("|")[1];
-    var blockType = block.split("|")[0];
+    C.hook("hook_block_view", thisHook.authPass, null, region).then(function (canView) {
 
-    if (!blockName || !blockType) {
+      var blockName = block.split("|")[1];
+      var blockType = block.split("|")[0];
 
-      next("<!--- Could not load block " + block + " --->");
-      return false;
+      if (!blockName || !blockType) {
 
-    };
+        next("<!--- Could not load block " + block + " --->");
+        return false;
 
-    C.hook("hook_block_loadConfig", thisHook.authPass, {
-      id: blockName,
-      type: blockType
-    }, null).then(function (config) {
+      };
 
-      C.hook("hook_block_render", thisHook.authPass, {
+      C.hook("hook_block_loadConfig", thisHook.authPass, {
         id: blockName,
-        type: blockType,
-        config: config,
-        context: thisHook.const.context
-      }, null).then(function (blockHTML) {
+        type: blockType
+      }, null).then(function (config) {
 
-        next(blockHTML);
+        C.hook("hook_block_render", thisHook.authPass, {
+          id: blockName,
+          type: blockType,
+          config: config,
+          context: thisHook.const.context
+        }, null).then(function (blockHTML) {
+
+          next(blockHTML);
+
+        }, function (fail) {
+
+          next("<!--- Could not load block " + block + " --->");
+
+        });
 
       }, function (fail) {
+
+        console.log(fail);
 
         next("<!--- Could not load block " + block + " --->");
 
@@ -36,9 +64,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
 
     }, function (fail) {
 
-      console.log(fail);
-
-      next("<!--- Could not load block " + block + " --->");
+      next('');
 
     });
 
@@ -53,6 +79,8 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
     thisHook.finish(false, fail);
 
   });
+
+
 
 });
 

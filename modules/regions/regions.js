@@ -3,6 +3,24 @@ C.registerModule("regions");
 // Register templates folder
 CM.frontend.globals.templateRegistry.external.push(__dirname + '/templates');
 
+// Default region view permission
+CM.auth.globals.registerPermission("can view regions", "regions");
+
+// Default region view permission check
+CM.menu.registerHook("hook_region_view", 0, function (thisHook, menuName) {
+
+  if (CM.auth.globals.checkPermissions(["can view regions"], thisHook.authPass)) {
+
+    thisHook.finish(true, true);
+
+  } else {
+
+    thisHook.finish(false, false);
+
+  }
+
+});
+
 // Implement hook_frontend_template_parse to handle [[[region name]]]
 CM.regions.registerHook("hook_frontend_template_parse", 1, function (thisHook, data) {
 
@@ -10,17 +28,25 @@ CM.regions.registerHook("hook_frontend_template_parse", 1, function (thisHook, d
 
     CM.frontend.globals.parseBlock("region", data.html, function (region, next) {
 
-      C.hook("hook_region_render", thisHook.authPass, {
-        regions: regions,
-        region: region,
-        context: thisHook.const.context
-      }).then(function (html) {
+      C.hook("hook_region_view", thisHook.authPass, null, region).then(function (canView) {
 
-        next(html);
+        C.hook("hook_region_render", thisHook.authPass, {
+          regions: regions,
+          region: region,
+          context: thisHook.const.context
+        }).then(function (html) {
+
+          next(html);
+
+        }, function (fail) {
+
+          next("<!--- Could not load region " + region + " --->");
+
+        });
 
       }, function (fail) {
 
-        next("<!--- Could not load region " + region + " --->");
+        next('')
 
       });
 
