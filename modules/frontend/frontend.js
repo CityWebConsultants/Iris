@@ -247,7 +247,9 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
                         queryList: [entity]
                       }).then(function (result) {
 
-                        templateVars[key] = result;
+                        if (result) {
+                          templateVars[key] = result;
+                        }
 
                         yes();
 
@@ -318,6 +320,13 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
                 C.hook("hook_entity_view", req.authPass, null, data.entity.fields).then(function (filtered) {
 
+                  if (!filtered) {
+
+                    frontendData.vars.current = null;
+                    makeTemplate();
+
+                  }
+
                   C.hook("hook_entity_view_" + filtered.entityType, req.authPass, null, filtered).then(function (filtered) {
 
                     frontendData.vars.current = filtered;
@@ -330,9 +339,17 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
                       frontendData.vars.current = filtered;
                       makeTemplate();
 
+                    } else {
+
+                      console.log("hello");
+
                     }
 
                   });
+
+                }, function (fail) {
+
+                  console.log(fail);
 
                 });
 
@@ -502,7 +519,7 @@ var findTemplate = function (paths, extension) {
     } else {
 
       CM.frontend.globals.findTemplate(args, "html").then(function (html) {
-        
+
         yes(html);
 
       }, function () {
