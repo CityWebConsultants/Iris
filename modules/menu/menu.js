@@ -133,8 +133,6 @@ process.on("dbReady", function () {
             "upsert": true
           }, function (err, data) {
 
-            console.log(err, data);
-
           });
 
           waitingMenuItems.splice(index, 1);

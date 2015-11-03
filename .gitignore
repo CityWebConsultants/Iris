@@ -1,6 +1,5 @@
 .git-backup/
 node_modules/
-config.js
 /loc.sh
 sites/*
 !sites/default
