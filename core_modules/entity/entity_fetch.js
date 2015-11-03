@@ -198,7 +198,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
       Object.keys(entities).forEach(function (_id) {
 
         viewHooks.push(C.promise(function (data, yes, no) {
-          
+
           //General entity view hook
 
           C.hook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
@@ -243,7 +243,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
           output.push(entities[entity]);
 
         }
-        
+
         C.hook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
 
           thisHook.finish(true, output);
@@ -255,7 +255,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
         });
 
       }, function (fail) {
-        
+
         thisHook.finish(false, "Fetch failed");
 
       });
@@ -267,6 +267,12 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
       thisHook.finish(false, "Database error");
 
     };
+
+    if (!dbActions.length) {
+      
+      thisHook.finish(false, "access denied");
+
+    }
 
     C.promiseChain(dbActions, null, success, fail);
 
