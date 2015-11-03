@@ -2,7 +2,7 @@
 
 "use strict";
 
-C.registerModule("entity");
+C.registerModule("entity", true);
 
 require('./entity_create');
 
