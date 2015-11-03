@@ -324,6 +324,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
                     frontendData.vars.current = null;
                     makeTemplate();
+                    return false;
 
                   }
 
