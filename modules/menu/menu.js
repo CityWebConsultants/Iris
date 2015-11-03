@@ -20,38 +20,42 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
 
     C.hook("hook_menu_view", thisHook.authPass, null, menu).then(function (canView) {
 
-    }, function (fail) {
+      CM.frontend.globals.findTemplate(["menu", menu]).then(function (html) {
 
-    });
+        C.dbCollections.menu.findOne({
+          'title': menu
+        }, function (err, doc) {
 
-    CM.frontend.globals.findTemplate(["menu", menu]).then(function (html) {
+          C.hook("hook_frontend_template", thisHook.authPass, null, {
+            html: html,
+            vars: {
+              menu: doc
+            }
+          }).then(function (success) {
 
-      C.dbCollections.menu.findOne({
-        'title': menu
-      }, function (err, doc) {
+            next(success.html);
 
-        C.hook("hook_frontend_template", thisHook.authPass, null, {
-          html: html,
-          vars: {
-            menu: doc
-          }
-        }).then(function (success) {
+          }, function (fail) {
 
-          next(success.html);
+            next(html)
 
-        }, function (fail) {
-
-          next(html)
+          });
 
         });
+
+      }, function (fail) {
+
+        next("<!-- No menu template -->");
 
       });
 
     }, function (fail) {
 
-      next("<!-- No menu template -->");
+//      next("<!-- No permission to view this -->");
 
     });
+
+
 
   }).then(function (html) {
 
