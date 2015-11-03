@@ -1,6 +1,6 @@
 C.registerModule("menu");
 
-CM.auth.globals.registerPermissions("can view menus", "menu");
+CM.auth.globals.registerPermission("can view menus", "menu");
 
 CM.menu.registerHook("hook_menu_view", 0, function (thisHook, menuName) {
 
@@ -52,6 +52,8 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
       });
 
     }, function (fail) {
+
+      next('');
 
 //      next("<!-- No permission to view this -->");
 

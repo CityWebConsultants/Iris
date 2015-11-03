@@ -12,3 +12,20 @@ CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/regions', 'Regions');
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/permissions', 'Permissions');
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/logs', 'Logs');
 CM.menu.globals.registerMenuItem('admin_toolbar', '/logout', 'Log Out');
+
+
+CM.auth.globals.registerPermission("can view admin menu", "admin");
+
+CM.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
+
+  if (CM.auth.globals.checkPermissions(["can view admin menu"], thisHook.authPass)) {
+
+    thisHook.finish(true, true);
+
+  } else {
+
+    thisHook.finish(false, false);
+
+  }
+
+});
