@@ -1,8 +1,28 @@
 C.registerModule("menu");
 
+CM.menu.registerHook("hook_menu_view", 0, function (thisHook, menuName) {
+
+  if (CM.auth.globals.checkPermissions(["can view menus"], thisHook.authPass)) {
+
+    thisHook.finish(true, true);
+
+  } else {
+
+    thisHook.finish(false, false);
+
+  }
+
+});
+
 CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   CM.frontend.globals.parseBlock("menu", data.html, function (menu, next) {
+
+    C.hook("hook_menu_view", thisHook.authPass, null, menu).then(function (canView) {
+
+    }, function (fail) {
+
+    });
 
     CM.frontend.globals.findTemplate(["menu", menu]).then(function (html) {
 
