@@ -270,7 +270,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
     if (!dbActions.length) {
       
-      thisHook.finish(false, "access denied");
+      thisHook.finish(true, null);
 
     }
 
