@@ -98,6 +98,15 @@ CM.user.globals.login = function (auth, res, callback) {
 
 };
 
+C.app.get("/logout", function (req, res) {
+
+  res.clearCookie('userid');
+  res.clearCookie('token');
+
+  res.redirect("/");
+
+});
+
 CM.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
   bcrypt.hash(entity.password, null, null, function (err, hash) {
