@@ -4,7 +4,7 @@
 
 var crypto = require('crypto');
 
-C.registerModule("auth");
+C.registerModule("auth", true);
 
 CM.auth.globals = {
 

@@ -111,7 +111,7 @@ function _getCallerFile() {
 var path = require('path');
 var express = require('express');
 
-C.registerModule = function (name) {
+C.registerModule = function (name, directory) {
 
   if (CM[name]) {
 
@@ -123,22 +123,26 @@ C.registerModule = function (name) {
     CM[name] = new moduleTemplate;
     CM[name].path = path.parse(_getCallerFile()).dir;
 
-    //Create config directory
+    if (directory) {
 
-    var fs = require('fs');
+      //Create config directory
 
-    var mkdirSync = function (path) {
-      try {
-        fs.mkdirSync(path);
-      } catch (e) {
-        if (e.code != 'EEXIST') throw e;
+      var fs = require('fs');
+
+      var mkdirSync = function (path) {
+        try {
+          fs.mkdirSync(path);
+        } catch (e) {
+          if (e.code != 'EEXIST') throw e;
+        }
       }
+
+      mkdirSync(C.configPath + "/" + name);
+
+      CM[name].configPath = C.configPath + "/" + name;
+
     }
 
-    mkdirSync(C.configPath + "/" + name);
-
-    CM[name].configPath = C.configPath + "/" + name;
-    
     C.app.use('/modules/' + name, express.static(CM[name].path + "/static"));
 
     Object.seal(CM[name]);

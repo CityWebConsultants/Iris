@@ -2,7 +2,7 @@
 
 "use strict";
 
-C.registerModule("group_manager");
+C.registerModule("group_manager", true);
 
 //Additional includes
 
