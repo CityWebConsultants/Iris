@@ -656,7 +656,7 @@ var checkField = function (key, item) {
 
 //Entity listing screen
 
-C.app.get("/admin2/entitylist/:type", function (req, res) {
+C.app.get("/admin/entitylist/:type", function (req, res) {
 
   if (req.authPass.roles.indexOf("admin") === -1) {
 
@@ -705,9 +705,9 @@ C.app.get("/admin2/entitylist/:type", function (req, res) {
 
     });
 
-    table += "<td><a href='/admin2/edit/" + req.params.type + "/{{entity._id}}'>Edit</a></td>";
+    table += "<td><a href='/admin/edit/" + req.params.type + "/{{entity._id}}'>Edit</a></td>";
 
-    table += "<td><a href='/admin2/delete/" + req.params.type + "/{{entity._id}}'>Delete</a></td>";
+    table += "<td><a href='/admin/delete/" + req.params.type + "/{{entity._id}}'>Delete</a></td>";
 
     table += "</tr>";
 

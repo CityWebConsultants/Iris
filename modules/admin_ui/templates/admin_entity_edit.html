@@ -49,7 +49,7 @@
 
         e.preventDefault();
 
-        document.location.href = "/admin2/delete/" + type + '/' + id;
+        document.location.href = "/admin/delete/" + type + '/' + id;
 
       });
 
@@ -72,7 +72,7 @@
 
             $.post("/entity/edit/" + type + "/" + id, values, function(err, data) {
 
-              document.location.href = "/admin2/entitylist/" + type;
+              document.location.href = "/admin/entitylist/" + type;
 
             })
 

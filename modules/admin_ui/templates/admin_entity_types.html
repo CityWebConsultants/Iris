@@ -13,7 +13,7 @@
 
       $.each(data, function(index, element) {
 
-        $("#entity-types").append("<li><h3>"+element+"</h3><ul><li><a href='/admin2/entitylist/"+element+"'>View content</a></li><li><a href='/admin2/create/"+element+"'>Create new</a></li><li><a href='/admin2/schema/edit/"+element+"'>Edit entity fields</a></li></ul></li>");
+        $("#entity-types").append("<li><h3>"+element+"</h3><ul><li><a href='/admin/entitylist/"+element+"'>View content</a></li><li><a href='/admin/create/"+element+"'>Create new</a></li><li><a href='/admin/schema/edit/"+element+"'>Edit entity fields</a></li></ul></li>");
 
       });
 
@@ -27,7 +27,7 @@
   <h1>Edit entity types</h1>
   <h2>Add/modify fields</h2>
   <ul id="entity-types"></ul>
-  <a class="btn" href="/admin2/schema/create">Create a new entity type</a>
+  <a class="btn" href="/admin/schema/create">Create a new entity type</a>
 </body>
 
 </html>

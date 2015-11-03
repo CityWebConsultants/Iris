@@ -2,11 +2,11 @@ var fs = require('fs');
 
 // Regions configuration page
 
-C.app.get('/admin2/regions', function (req, res) {
+C.app.get('/admin/regions', function (req, res) {
 
   if (req.authPass.roles.indexOf("admin") === -1) {
 
-    res.redirect("/admin2/login?return=/admin2/regions");
+    res.redirect("/admin/login?return=/admin/regions");
     return false;
 
   }
@@ -21,7 +21,7 @@ C.app.get('/admin2/regions', function (req, res) {
 
 });
 
-C.app.get('/admin2/block/create/:type', function (req, res) {
+C.app.get('/admin/block/create/:type', function (req, res) {
 
   if (req.authPass.roles.indexOf("admin") === -1) {
 
@@ -63,7 +63,7 @@ C.app.get('/admin2/block/create/:type', function (req, res) {
 
 });
 
-C.app.get('/admin2/block/edit/:type/:id', function (req, res) {
+C.app.get('/admin/block/edit/:type/:id', function (req, res) {
 
   if (req.authPass.roles.indexOf("admin") === -1) {
 

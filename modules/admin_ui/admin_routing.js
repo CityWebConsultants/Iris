@@ -7,9 +7,9 @@ CM.admin_ui.globals.registerPath = function (path, templateName) {
     // If not admin, present login page
     if (req.authPass.roles.indexOf('admin') === -1) {
 
-      if (req.url.indexOf('/admin2/login') !== 0) {
+      if (req.url.indexOf('/admin/login') !== 0) {
 
-        res.redirect('/admin2/login?return=' + req.url);
+        res.redirect('/admin/login?return=' + req.url);
         return false;
 
       }
@@ -17,7 +17,7 @@ CM.admin_ui.globals.registerPath = function (path, templateName) {
     }
 
     // If admin going to login page, redirect
-    if (req.url.indexOf('/admin2/login') === 0) {
+    if (req.url.indexOf('/admin/login') === 0) {
 
       if (req.authPass.roles.indexOf('admin') !== -1) {
 
@@ -61,11 +61,11 @@ CM.admin_ui.globals.registerPath = function (path, templateName) {
 
 }
 
-CM.admin_ui.globals.registerPath("/admin2/login", "admin_login");
-CM.admin_ui.globals.registerPath("/admin2/permissions", "admin_permissions");
-CM.admin_ui.globals.registerPath("/admin2/entities", "admin_entity_types");
-CM.admin_ui.globals.registerPath("/admin2/schema/create", "admin_schema_create");
-CM.admin_ui.globals.registerPath("/admin2/schema/edit/:type", "admin_schema_edit");
-CM.admin_ui.globals.registerPath("/admin2/edit/:type/:_id", "admin_entity_edit");
-CM.admin_ui.globals.registerPath("/admin2/create/:type", "admin_entity_create");
-CM.admin_ui.globals.registerPath("/admin2/delete/:type/:id", "admin_entity_delete");
+CM.admin_ui.globals.registerPath("/admin/login", "admin_login");
+CM.admin_ui.globals.registerPath("/admin/permissions", "admin_permissions");
+CM.admin_ui.globals.registerPath("/admin/entities", "admin_entity_types");
+CM.admin_ui.globals.registerPath("/admin/schema/create", "admin_schema_create");
+CM.admin_ui.globals.registerPath("/admin/schema/edit/:type", "admin_schema_edit");
+CM.admin_ui.globals.registerPath("/admin/edit/:type/:_id", "admin_entity_edit");
+CM.admin_ui.globals.registerPath("/admin/create/:type", "admin_entity_create");
+CM.admin_ui.globals.registerPath("/admin/delete/:type/:id", "admin_entity_delete");

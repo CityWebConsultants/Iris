@@ -47,7 +47,7 @@
 
         $.post("/entity/delete/" + type + "/" + id, values, function(err, data) {
 
-          document.location.href = "/admin2/entitylist/" + type;
+          document.location.href = "/admin/entitylist/" + type;
 
         });
 
@@ -57,7 +57,7 @@
 
         e.preventDefault();
 
-        document.location.href = "/admin2/entitylist/" + type;
+        document.location.href = "/admin/entitylist/" + type;
 
       });
 
