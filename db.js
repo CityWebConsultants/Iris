@@ -9,7 +9,10 @@ var connectionUri = 'mongodb://' + C.config.db_server + ':' + C.config.db_port +
 
 if (C.config.db_username && C.config.db_password) {
 
-  mongoose.connect(connectionUri, {user: C.config.db_username, pass: C.config.db_password});
+  mongoose.connect(connectionUri, {
+    user: C.config.db_username,
+    pass: C.config.db_password
+  });
 
 } else {
 
@@ -110,6 +113,8 @@ var stringifySchema = function (field) {
 
 };
 
+C.stringifySchema = stringifySchema;
+
 var unstringifySchema = function (field) {
 
   //Convert function schema types so they can be stored as JSON
@@ -190,7 +195,7 @@ C.registerDbSchema = function (model, schema) {
 
     //Add schema to config for easy export
 
-//    fs.writeFileSync(C.sitePath + "/configurations/entity/" + model + ".JSON", JSON.stringify(C.dbSchemaFields[model]), "utf8");
+    //    fs.writeFileSync(C.sitePath + "/configurations/entity/" + model + ".JSON", JSON.stringify(C.dbSchemaFields[model]), "utf8");
 
   } else {
 
