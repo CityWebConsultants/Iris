@@ -530,6 +530,17 @@ C.app.get("/admin/api/edit/:type/:_id/form", function (req, res) {
 
       newTree.value = doc;
 
+      if (newTree.value.password) {
+
+        // Hide hashed password from edit view
+        newTree.value.password = '';
+
+        newTree.schema.password.description = 'Leave blank to keep the same.'
+
+        newTree.schema.password.required = false;
+
+      }
+
       res.send(newTree);
 
     }

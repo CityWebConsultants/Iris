@@ -109,20 +109,35 @@ C.app.get("/logout", function (req, res) {
 
 CM.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
-  bcrypt.hash(entity.password, null, null, function (err, hash) {
+  if (entity.password && entity.password !== '') {
 
-    if (err) {
+    bcrypt.hash(entity.password, null, null, function (err, hash) {
 
-      thisHook.finish(false, "Could not hash password");
+      if (err) {
 
-    } else {
+        thisHook.finish(false, "Could not hash password");
 
-      entity.password = hash;
-      thisHook.finish(true, entity);
+      } else {
 
-    }
+        entity.password = hash;
+        thisHook.finish(true, entity);
 
-  });
+      }
+
+    });
+
+  } else {
+
+    // If password is blank or not set, don't bother hashing it
+
+    // When editing a user, this results in a blank password
+    // meaning "keep the same password"
+
+    delete entity.password;
+
+    thisHook.finish(true, entity);
+
+  }
 
 });
 
@@ -194,7 +209,7 @@ CM.user.globals.getRole = function (userid, callback) {
   } else {
 
     C.dbCollections['user'].findOne({
-        userid: userid
+      userid: userid
     }, function (err, doc) {
 
       if (!err && doc.roles) {
@@ -219,11 +234,11 @@ CM.user.registerHook("hook_auth_authpass", 5, function (thisHook, data) {
 
   if (data.roles && data.roles.indexOf('authenticated') !== -1) {
 
-    CM.user.globals.getRole(thisHook.req.cookies.userid, function(roles) {
+    CM.user.globals.getRole(thisHook.req.cookies.userid, function (roles) {
 
-        data.roles = data.roles.concat(roles);
+      data.roles = data.roles.concat(roles);
 
-        thisHook.finish(true, data);
+      thisHook.finish(true, data);
 
     });
 
