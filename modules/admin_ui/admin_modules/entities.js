@@ -429,9 +429,18 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
     var fs = require("fs");
 
-    var rawSchema = fs.readFileSync(C.sitePath + "/configurations/entity/" + req.params.type + ".JSON", "utf8");
+    try {
 
-    rawSchema = JSON.parse(rawSchema);
+      var rawSchema = fs.readFileSync(C.sitePath + "/configurations/entity/" + req.params.type + ".JSON", "utf8");
+      rawSchema = JSON.parse(rawSchema);
+
+    } catch (e) {
+
+      var rawSchema = C.dbSchema[schema];
+
+    }
+
+
 
     var editSchema = [];
 
