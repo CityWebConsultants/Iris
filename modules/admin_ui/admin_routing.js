@@ -70,3 +70,4 @@ CM.admin_ui.globals.registerPath("/admin/schema/edit/:type", "admin_schema_edit"
 CM.admin_ui.globals.registerPath("/admin/edit/:type/:_id", "admin_entity_edit");
 CM.admin_ui.globals.registerPath("/admin/create/:type", "admin_entity_create");
 CM.admin_ui.globals.registerPath("/admin/delete/:type/:id", "admin_entity_delete");
+CM.admin_ui.globals.registerPath("/admin/logs", "admin_logs");
