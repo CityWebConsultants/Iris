@@ -269,8 +269,6 @@ C.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
     var coreFields = fs.readFileSync(__dirname + "/" + "corefields.json", "utf8");
 
-    console.log(coreFields)
-
     coreFields = JSON.parse(coreFields);
 
     res.respond(200, coreFields);
@@ -436,19 +434,21 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
     } catch (e) {
 
-      var rawSchema = C.dbSchema[schema];
+      var rawSchema = C.stringifySchema(C.dbSchema[req.params.type]);
 
     }
-
-
 
     var editSchema = [];
 
     Object.keys(rawSchema).forEach(function (fieldName) {
 
-      var rawField = rawSchema[fieldName];
+      if (fieldName !== "entityAuthor" || fieldName !== "entityType") {
 
-      editSchema.push(fieldProcess(fieldName, rawField));
+        var rawField = rawSchema[fieldName];
+
+        editSchema.push(fieldProcess(fieldName, rawField));
+
+      }
 
     });
 
