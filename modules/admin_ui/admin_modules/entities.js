@@ -442,7 +442,7 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
     Object.keys(rawSchema).forEach(function (fieldName) {
 
-      if (fieldName !== "entityAuthor" || fieldName !== "entityType") {
+      if (fieldName !== "entityAuthor" && fieldName !== "entityType") {
 
         var rawField = rawSchema[fieldName];
 
