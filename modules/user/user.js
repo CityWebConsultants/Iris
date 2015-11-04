@@ -103,6 +103,8 @@ C.app.get("/logout", function (req, res) {
   res.clearCookie('userid');
   res.clearCookie('token');
 
+  res.clearCookie('admin_auth');
+
   res.redirect("/");
 
 });
