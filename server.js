@@ -40,7 +40,6 @@ C.app.use(function (req, res, next) {
 
   if (!C.status.ready) {
 
-    window.setTimeout
     res.redirect(req.url);
     return false;
 
