@@ -1,0 +1,25 @@
+{
+  "title": {
+    "type": "String",
+    "required": true,
+    "title": "Page title",
+    "description": "This is the title field"
+  },
+  "body": {
+    "type": "String",
+    "long": true,
+    "required": true,
+    "title": "Body field",
+    "description": "This is the main text area for this page"
+  },
+  "path": {
+    "type": "String",
+    "required": true,
+    "title": "Path",
+    "description": "Url path for this page"
+  },
+  "class": {
+    "type": "String",
+    "title": "Body class"
+  }
+}
