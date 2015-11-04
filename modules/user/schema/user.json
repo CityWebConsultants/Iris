@@ -1,0 +1,22 @@
+{
+  "name": {
+    "type": "String",
+    "title": "Username",
+    "required": true
+  },
+  "userid": {
+    "title": "User id",
+    "type": "String",
+    "required": true
+  },
+  "password": {
+    "title": "Password",
+    "type": "String",
+    "required": true
+  },
+  "roles": {
+    "title": "Roles",
+    "type": "[String]",
+    "required": false
+  }
+}
