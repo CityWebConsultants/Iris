@@ -1,0 +1,61 @@
+<!doctype HTML>
+<html>
+
+<head>
+
+  <link rel="stylesheet" style="text/css" href="/admin/jsonform/deps/opt/bootstrap.css" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+  <script src="/admin/jsonform/deps/jquery.min.js"></script>
+  <script src="/admin/adminui.js"></script>
+  <script src="/admin/jquery.dynatable.js"></script>
+  <link rel="stylesheet" href="jquery.dynatable.css" />
+  
+  <style>
+    
+    header {margin-bottom:10px;}
+    #logs {margin:auto; width:580px;}
+    #logs-table {background-color: #3D79BD;  padding:10px; color:white;}
+    #logs-table th {padding:10px;}
+  
+  </style>
+
+  <script>
+    $.get("/api/logs", function(data, status) {
+    
+      data = JSON.parse(data);
+
+      $('#logs-table').dynatable({
+        dataset: {
+          records: data.response
+        }
+      });
+
+    });
+
+  </script>
+
+</head>
+
+<body>
+  
+  <div id="logs">
+
+  <table id="logs-table">
+    <thead>
+      <th>name</th>
+      <th>hostname</th>
+      <th>pid</th>
+      <th>level</th>
+      <th>msg</th>
+      <th>time</th>
+      <th>v</th>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+    
+    </div>
+
+</body>
+
+</html>
