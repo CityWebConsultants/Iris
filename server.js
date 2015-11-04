@@ -40,7 +40,8 @@ C.app.use(function (req, res, next) {
 
   if (!C.status.ready) {
 
-    res.end("Starting up");
+    window.setTimeout
+    res.redirect(req.url);
     return false;
 
   }
