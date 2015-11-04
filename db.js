@@ -192,11 +192,6 @@ C.registerDbSchema = function (model, schema) {
 
     });
 
-
-    //Add schema to config for easy export
-
-    //    fs.writeFileSync(C.sitePath + "/configurations/entity/" + model + ".JSON", JSON.stringify(C.dbSchemaFields[model]), "utf8");
-
   } else {
 
     console.log("invalid schema");
@@ -263,7 +258,7 @@ C.dbPopulate = function () {
     }
 
     Object.keys(file).forEach(function (field) {
-
+      
       C.dbSchema[schemaName][field] = file[field];
 
     });

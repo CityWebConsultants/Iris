@@ -225,6 +225,9 @@ var upsertSchema = function (model, data, callback) {
 
   C.registerDbModel(model);
   C.registerDbSchema(model, schema);
+
+  fs.writeFileSync(C.sitePath + "/configurations/entity/" + model + ".JSON", JSON.stringify(C.dbSchemaFields[model]), "utf8");
+
   C.dbPopulate();
 
   callback();
@@ -431,6 +434,22 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
       var rawSchema = fs.readFileSync(C.sitePath + "/configurations/entity/" + req.params.type + ".JSON", "utf8");
       rawSchema = JSON.parse(rawSchema);
+
+      try {
+
+        var baseSchema = C.stringifySchema(C.dbSchema[req.params.type]);
+
+        Object.keys(baseSchema).forEach(function (field) {
+
+          rawSchema[field] = baseSchema[field];
+
+        });
+
+      } catch (e) {
+
+
+
+      }
 
     } catch (e) {
 
