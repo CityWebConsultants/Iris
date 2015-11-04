@@ -42,7 +42,7 @@ The sites directory contains an __enabled_modules.js__ file. This contains Node.
 
 ## Site config file
 
-A “defaults” directory is provided as an example configuration file. To make a new application, simply copy/rename this directory. The launch_default.js file is where the settings for the application are placed. Here is a summary of these settings:
+A “defaults” directory is provided as an example site configuration. To make a new application, simply copy/rename this directory. The __settings.json__ file is where the settings for the application are placed. Here is a summary of these settings:
 
 * __port__: The port the Node.JS web server runs on. (80 or 3000 for example)
 * __apikey__: This is the administrator username/apikey. It should be kept secret.
@@ -53,6 +53,10 @@ A “defaults” directory is provided as an example configuration file. To make
 * __db_server__: the server hosting the database (localhost for example).
 * __db_port__: The MongoDB database port (27017 for example).
 * __db_name__: The name of the MongoDB database used for this application.
+* __db_username__: The username (if relevant) to be used when connecting to the database.
+* __db_password__: The password (if relevant) to be used when connecting to the database.
+* __theme__: The relative path to the current theme, if using __frontend__.
+* __templateExtension__: The templating engine to use, if using __frontend__.
 
 ###Other files in the sites directory
 
@@ -60,7 +64,7 @@ Iris automatically creates directories inside a site’s folder for database sch
 
 ## Launch instructions
 
-Once the sites directory has been created, the launch_sitename.js (renamed launch_defaults.js) can be run using Node.JS. This initiates the server and database, loads modules and sets up the configuration folder and files.
+The Iris server is started with __launch.js__ in the root directory which can be run using Node.JS with a command line parameter specifying which site should be served. To start a site, run `launch.js site=sites/sitename`. This will run the site's own __launch.js__ file - meaning that should you want to restart the server, the host process can keep some persistent data. This initiates the server and database, loads modules and sets up the configuration folder and files.
 
 ## Core functions and variables
 
@@ -122,9 +126,9 @@ The CM.*modulename* object for registered modules is sealed from editing to prev
 CM.mymodule.globals = {
 
   "hello": function(name){
-  
+
     return "hello" +" "+ name;
-  
+
   }
 
 }
@@ -239,13 +243,13 @@ Takes an authPass (see above), an array of permissions to check for and returns 
   C.app.get("/games", function(req, res){
 
   if(CM.auth.checkPermissions(["can play games"], req.authPass){
-    
+
     res.send("Go play outside");
-  
+
   } else {
-  
+
     res.send("can't play games");
-  
+
   }
 
 });
@@ -330,7 +334,7 @@ Use this to record an entry to the system log.
 
 ```javascript
 
-C.log.info("User" + userid + " " + "logged in");  
+C.log.info("User" + userid + " " + "logged in");
 
 ```
 
@@ -346,7 +350,7 @@ C.include(__dirname + "/group_types.js", C.configPath + "/group_manager/group_ty
 
 #### C.promise and C.promisechain
 
-Helper functions for creating JavaScript promises functions wrapped in an error catching service. 
+Helper functions for creating JavaScript promises functions wrapped in an error catching service.
 
 C.promise takes a function which passes through three arguments, a yes function for if the promise completes successfully, a no function for when it fails and a data object.
 
@@ -378,7 +382,7 @@ var promiseOne = C.promise(function (_id, yes, no) {
 
     })
 );
-  
+
 var promiseTwo // another promise
 
 var success = function(successData){
@@ -407,7 +411,7 @@ C.promiseChain([promiseOne, promiseTwo], data, success, fail);
   C.saveConfig({
     "hello": "world"
   }, "test/hello", "thisisatest", function () {
-    
+
     C.readConfig("test/hello", "thisisatest").then(function (output) {
 
       console.log("read", output);
@@ -435,17 +439,17 @@ Fired on creating an authPass, latch onto this hook to add items to the authPass
 CM.auth.registerHook("hook_auth_authpass",0,function(thisHook, authPass) {
 
   //Check if a user is in the editors array and add an "editor" role if yes.
-  
+
   var editors = ["5","66", "77"];
-  
+
   editors.forEach(function(editor, index){
-  
+
     if(authPass.userid === editor){
-    
+
       authPass.roles.push("editor");
-    
+
     }
-  
+
   });
 
   thisHook.finish(true, authPass);
@@ -456,18 +460,18 @@ CM.auth.registerHook("hook_auth_authpass",0,function(thisHook, authPass) {
 
 #### hook_auth_maketoken
 
-On receiving an object with a userid (data.userid for example), generates, returns and stores an access token for that user id. The access token can be modified by subsequent hooks.  
+On receiving an object with a userid (data.userid for example), generates, returns and stores an access token for that user id. The access token can be modified by subsequent hooks.
 
 ```javascript
 
 CM.auth.registerHook("hook_auth_maketoken",0,function(thisHook, token) {
 
   //Add a timestamp to the token
-  
+
   token.id += Date.now();
-  
+
   thisHook.finish(true, token);
-  
+
 }
 
 ```
