@@ -143,7 +143,7 @@ var populateForm = function (form, authPass) {
 CM.forms.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
   data = function(res){};
-  
+
   thisHook.finish(true, data);
 
 });
@@ -186,7 +186,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
             populateForm(form, thisHook.authPass).then(function (form) {
 
-              var output = "<form method='POST' id='" + formName + "'></form>";
+              var output = "<form method='POST' id='" + formName + "' ng-non-bindable ></form>";
 
               // Remove form context. Not needed any more and causes JSON stringify problems.
 
@@ -226,7 +226,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
                 delete form.context;
 
-                var output = "<form method='POST' id='" + formName + "'></form>";
+                var output = "<form method='POST' id='" + formName + "' ng-non-bindable ></form>";
 
                 output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
 
