@@ -20,6 +20,8 @@ CM.frontend.globals.templateRegistry.external.push(__dirname + '/templates');
 
 CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
+  var variables = data.variables;
+  
   CM.frontend.globals.parseBlock("menu", data.html, function (menu, next) {
 
     C.hook("hook_menu_view", thisHook.authPass, null, menu).then(function (canView) {
@@ -30,11 +32,11 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
           'title': menu
         }, function (err, doc) {
 
+          data.variables["menu"] = doc;
+
           C.hook("hook_frontend_template", thisHook.authPass, null, {
             html: html,
-            vars: {
-              menu: doc
-            }
+            vars: data.variables
           }).then(function (success) {
 
             next(success.html);
