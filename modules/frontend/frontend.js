@@ -892,15 +892,30 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
 
   CM.frontend.globals.findTemplate([thisHook.const.error], "html").then(function (html) {
 
-    CM.frontend.globals.parseTemplate(html, thisHook.const.req.authPass, {url: thisHook.const.req.url}).then(function (page) {
+    CM.frontend.globals.parseTemplate(html, thisHook.const.req.authPass, {
+      url: thisHook.const.req.url
+    }).then(function (page) {
+      
+      C.hook("hook_frontend_template", thisHook.authPass, null, {
+        html: page.html,
+        vars: page.variables
+      }).then(function (success) {
+        
+        thisHook.finish(true, success.html);
 
-      thisHook.finish(true, page.html);
+      }, function (fail) {
+
+        console.log(fail);
+
+        thisHook.finish(false, page.html);
+
+      });
 
     });
 
   }, function (fail) {
 
-      thisHook.finish(true, "<h1>Error " + thisHook.const.error + "</h1>");
+    thisHook.finish(true, "<h1>Error " + thisHook.const.error + "</h1>");
 
   });
 
