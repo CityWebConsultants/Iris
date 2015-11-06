@@ -92,7 +92,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
       }
 
       parseTemplate(template, authPass, context).then(function (inner) {
-
+        
         inner = inner.html;
 
         var wrapperTemplate = findTemplate(["html", data.entity.type, data.entity.id]).then(function (wrapperTemplate) {
@@ -253,7 +253,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
                       C.hook("hook_entity_fetch", req.authPass, null, {
                         queryList: [entity]
                       }).then(function (result) {
-                        
+
                         if (result) {
                           templateVars[key] = result;
                         }
@@ -297,7 +297,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
                   html: wrapper,
                   vars: templateVars
                 };
-                
+
                 // Pass frontentData to templating hook and send to client
                 var makeTemplate = function () {
 
@@ -613,8 +613,15 @@ var parseTemplate = function (html, authPass, context) {
 
   return new Promise(function (pass, fail) {
 
-    var allVariables = {};
+    if (context) {
 
+      var allVariables = context;
+
+    } else {
+
+      allVariables = {};
+
+    }
     var complete = function (HTML, final) {
 
       // Check for embedded templates
