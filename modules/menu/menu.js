@@ -1,10 +1,16 @@
 C.registerModule("menu");
 
-CM.auth.globals.registerPermission("can view menus", "menu");
-
 CM.menu.registerHook("hook_menu_view", 0, function (thisHook, menuName) {
 
-  thisHook.finish(true, menuName);
+  if (CM.auth.globals.checkPermissions(["can view any menu"], thisHook.authPass)) {
+
+    thisHook.finish(true, menuName);
+
+  } else {
+
+    thisHook.finish(false, menuName);
+
+  }
 
 });
 
