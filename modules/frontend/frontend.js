@@ -655,7 +655,7 @@ var parseTemplate = function (html, authPass, context) {
           context: context
         }, {
           html: HTML,
-          variables: {}
+          variables: allVariables
         }).then(function (parsedData) {
 
           if (parsedData.variables) {
