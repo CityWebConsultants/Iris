@@ -298,8 +298,6 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
                   vars: templateVars
                 };
                 
-                console.log(templateVars);
-
                 // Pass frontentData to templating hook and send to client
                 var makeTemplate = function () {
 
