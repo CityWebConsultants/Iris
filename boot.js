@@ -300,22 +300,48 @@ module.exports = function (config) {
 
           } else {
 
-            res.status(404).send('404');
+            C.hook("hook_display_error_page", req.authPass, {error: 404, req: req, res: res}).then(function (success) {
+
+              res.status(404).send(success);
+
+            }, function (fail) {
+
+              res.status(404).send("404");
+
+            });
 
           }
 
         },
         function (fail) {
 
-          res.status(404).send('404');
+          C.hook("hook_display_error_page", req.authPass, {error: 404, req: req, res: res}).then(function (success) {
 
-        })
+            res.status(404).send(success);
+
+          }, function (fail) {
+
+            res.status(404).send("404");
+
+          });
+
+        });
 
     });
 
     C.app.use(function (err, req, res, next) {
       console.log(err);
-      res.status(500).send('Something went wrong');
+
+      C.hook("hook_display_error_page", req.authPass, {error: 500, req: req, res: res}).then(function (success) {
+
+        res.status(500).send(success);
+
+      }, function (fail) {
+
+        res.status(500).send('Something went wrong');;
+
+      });
+
     });
 
     C.dbPopulate();

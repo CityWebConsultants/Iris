@@ -92,7 +92,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
       }
 
       parseTemplate(template, authPass, context).then(function (inner) {
-        
+
         inner = inner.html;
 
         var wrapperTemplate = findTemplate(["html", data.entity.type, data.entity.id]).then(function (wrapperTemplate) {
@@ -885,5 +885,23 @@ C.app.use(function (req, res, next) {
 CM.frontend.registerHook("hook_frontend_template", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
+
+});
+
+CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data) {
+
+  CM.frontend.globals.findTemplate([thisHook.const.error], "html").then(function (html) {
+
+    CM.frontend.globals.parseTemplate(html, thisHook.const.req.authPass, {url: thisHook.const.req.url}).then(function (page) {
+
+      thisHook.finish(true, page.html);
+
+    });
+
+  }, function (fail) {
+
+      thisHook.finish(true, "<h1>Error " + thisHook.const.error + "</h1>");
+
+  });
 
 });
