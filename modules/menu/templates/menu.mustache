@@ -1,0 +1,27 @@
+{{=[% %]=}}
+
+<nav class="menu menu-[% menu.title %]">
+
+  <ul>
+
+    [% #menu.menulink %]
+
+            <li [% #children %] class="has-children" [% /children %]>
+
+      <a href="[% path %]">[% title %]</a>
+
+              <ul>
+
+      [% #children %]
+
+      <li><a href="[% path %]">[% title %]</a></li>
+
+      [% /children %]
+
+              </ul>
+
+    [% /menu.menulink %]
+
+  </ul>
+
+</nav>

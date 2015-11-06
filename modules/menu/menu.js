@@ -4,17 +4,13 @@ CM.auth.globals.registerPermission("can view menus", "menu");
 
 CM.menu.registerHook("hook_menu_view", 0, function (thisHook, menuName) {
 
-  if (CM.auth.globals.checkPermissions(["can view menus"], thisHook.authPass)) {
-
-    thisHook.finish(true, true);
-
-  } else {
-
-    thisHook.finish(false, false);
-
-  }
+  thisHook.finish(true, menuName);
 
 });
+
+// Register template
+
+CM.frontend.globals.templateRegistry.external.push(__dirname + '/templates');
 
 CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
@@ -53,13 +49,9 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
 
     }, function (fail) {
 
-      next('');
-
-//      next("<!-- No permission to view this -->");
+      next("<!-- No permission to view this -->");
 
     });
-
-
 
   }).then(function (html) {
 
@@ -69,7 +61,6 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
 
   }, function (fail) {
 
-    console.log(fail);
     thisHook.finish(true, data);
 
   });

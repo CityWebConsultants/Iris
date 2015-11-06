@@ -99,6 +99,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
           parseTemplate(wrapperTemplate, authPass, context).then(function (wrapper) {
 
+            variables = wrapper.variables;
             wrapper = wrapper.html;
 
             // Special [[MAINCONTENT]] variable loads in the relevant page template.
@@ -112,6 +113,12 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
               var entitiesToFetch = {};
               var templateVars = {};
+
+              Object.keys(variables).forEach(function (variable) {
+
+                templateVars[variable] = variables[variable];
+
+              });
 
               /**
                *  Use Cheerio to get calls for entities from the page.
@@ -246,7 +253,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
                       C.hook("hook_entity_fetch", req.authPass, null, {
                         queryList: [entity]
                       }).then(function (result) {
-
+                        
                         if (result) {
                           templateVars[key] = result;
                         }
@@ -290,6 +297,8 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
                   html: wrapper,
                   vars: templateVars
                 };
+                
+                console.log(templateVars);
 
                 // Pass frontentData to templating hook and send to client
                 var makeTemplate = function () {
@@ -343,7 +352,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
                     } else {
 
                       //
-                      
+
                     }
 
                   });

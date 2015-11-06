@@ -21,14 +21,22 @@ CM.menu.globals.registerMenuItem('admin_toolbar', '/logout', 'Log Out');
 CM.auth.globals.registerPermission("can view admin menu", "admin");
 
 CM.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
+    
+  if (menuName !== "admin_toolbar") {
+
+    thisHook.finish(true, menuName);
+    
+    return false;
+
+  }
 
   if (CM.auth.globals.checkPermissions(["can view admin menu"], thisHook.authPass)) {
 
-    thisHook.finish(true, true);
+    thisHook.finish(true, menuName);
 
   } else {
 
-    thisHook.finish(false, false);
+    thisHook.finish(false, menuName);
 
   }
 
