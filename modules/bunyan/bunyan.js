@@ -10,12 +10,6 @@ var mkdirSync = function (path) {
   }
 }
 
-var settings = {
-  logToFile: 'warn',
-  logToConsole: 'warn',
-  logFile: 'logs/main.log'
-}
-
 var logLevels = {
   'trace': 10,
   'debug': 20,
@@ -34,8 +28,8 @@ var bunyanSettings = {
   streams: []
 };
 
-if (settings.logToFile && settings.logFile) {
-  bunyanSettings.streams.push({level: settings.logToFile, path: C.sitePath + '/' + settings.logFile});
+if (C.config.logging_to_file_level && C.config.logging_output_file) {
+  bunyanSettings.streams.push({level: C.config.logging_to_file_level, path: C.sitePath + '/' + C.config.logging_output_file});
 }
 
 CM.bunyan.globals.logger = bunyan.createLogger(bunyanSettings);
@@ -44,7 +38,7 @@ CM.bunyan.registerHook("hook_log", 0, function (thisHook, data) {
 
   CM.bunyan.globals.logger[thisHook.const.type](thisHook.const.message);
 
-  if (settings.logToConsole && logLevels[thisHook.const.type] >= logLevels[settings.logToConsole]) {
+  if (C.config.logging_console_level && logLevels[thisHook.const.type] >= logLevels[C.config.logging_console_level]) {
 
     var time = new Date();
     var timeString = ("0" + time.getHours()).slice(-2)   + ":" + ("0" + time.getMinutes()).slice(-2) + ":" + ("0" + time.getSeconds()).slice(-2);
