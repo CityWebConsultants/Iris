@@ -147,7 +147,7 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
         thisHook.finish(false, "Database error");
 
       } else if (doc) {
-        
+
         doc = doc.toObject();
 
         thisHook.finish(true, doc);
@@ -155,7 +155,7 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
         C.hook("hook_entity_created", thisHook.authPass, null, doc);
 
         C.hook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
-        
+
         C.log.info(data.entityType + " created by " + doc.entityAuthor);
 
       }
