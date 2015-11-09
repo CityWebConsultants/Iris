@@ -21,15 +21,17 @@ CM.frontend.globals.templateRegistry.external.push(__dirname + '/templates');
 CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   var variables = data.variables;
-  
+
   CM.frontend.globals.parseBlock("menu", data.html, function (menu, next) {
 
-    C.hook("hook_menu_view", thisHook.authPass, null, menu).then(function (canView) {
+    var menuName = menu[0];
 
-      CM.frontend.globals.findTemplate(["menu", menu]).then(function (html) {
+    C.hook("hook_menu_view", thisHook.authPass, null, menuName).then(function (canView) {
+
+      CM.frontend.globals.findTemplate(["menu", menuName]).then(function (html) {
 
         C.dbCollections.menu.findOne({
-          'title': menu
+          'title': menuName
         }, function (err, doc) {
 
           data.variables["menu"] = doc;

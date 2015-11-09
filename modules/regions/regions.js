@@ -27,6 +27,8 @@ CM.regions.registerHook("hook_frontend_template_parse", 1, function (thisHook, d
   C.hook("hook_regions_load", thisHook.authPass).then(function (regions) {
 
     CM.frontend.globals.parseBlock("region", data.html, function (region, next) {
+      
+      region = region[0];
 
       C.hook("hook_region_view", thisHook.authPass, null, region).then(function (canView) {
 

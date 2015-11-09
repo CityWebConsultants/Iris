@@ -551,7 +551,7 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
   return new Promise(function (yes, no) {
 
-    var finder = new RegExp("\\[\\[\\[" + prefix + "\\s[\\w\\.\\-\\|]+\\s*\\]\\]\\]", "g");
+    var finder = new RegExp("\\[\\[\\[" + prefix + "\\s[^\\[\\]]+\\s*\\]\\]\\]", "g");
 
     var embeds = html.match(finder);
 
@@ -559,16 +559,16 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
       var embeds = embeds.map(function (x) {
 
-        var internal = new RegExp(prefix + "\\s([\\w\\.\\-\\|]+)");
+        var internal = new RegExp(prefix + "\\s([^\\[\\]]+)");
 
         return x.match(internal)[1];
 
       });
-
+      
       var counter = 0;
 
       var runthrough = function (choice) {
-
+        
         var next = function (content) {
 
           html = html.split("[[[" + prefix + " " + choice + "]]]").join(content);
@@ -597,7 +597,7 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
       };
 
-      runthrough(embeds[counter]);
+      runthrough(embeds[counter].split(","));
 
     } else {
 

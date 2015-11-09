@@ -165,6 +165,8 @@ CM.forms.registerHook("hook_form_schema_alter", 0, function (thisHook, data) {
 CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   CM.frontend.globals.parseBlock("form", data.html, function (formName, next) {
+    
+    formName = formName[0];
 
     // Check if form exists
 
