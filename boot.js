@@ -270,13 +270,11 @@ module.exports = function (config) {
 
     C.app.get("/restart", function (req, res) {
 
-      fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/restart.html", function (err, file) {
+      fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/restart.html", "utf8", function (err, file) {
 
         if (!err) {
 
-          console.log(err);
-
-          res.sendFile(C.sitePath + "/" + C.config.theme + "/templates/restart.html");
+          res.send(file);
           process.send("restart");
 
         } else {

@@ -42,11 +42,11 @@ C.app.use(function (req, res, next) {
 
   if (!C.status.ready) {
 
-    fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/startup.html", function (err, file) {
+    fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/startup.html", "utf8", function (err, file) {
 
       if (!err) {
 
-        res.sendFile(C.sitePath + "/" + C.config.theme + "/templates/startup.html");
+        res.send(file);
 
       } else {
 
