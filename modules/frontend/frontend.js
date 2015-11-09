@@ -112,7 +112,19 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
               if (!viewChecked) {
 
-                renderTemplate();
+                C.hook("hook_display_error_page", req.authPass, {
+                  error: 403,
+                  req: req
+                }).then(function (success) {
+
+                  yes(success);
+
+                }, function (fail) {
+
+                  yes("403");
+
+                });
+
                 return false;
 
               } else {
@@ -123,8 +135,10 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
               C.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, entity).then(function (validated) {
 
-                variables["current"] = validated;
-                renderTemplate();
+                if (validated) {
+                  variables["current"] = validated;
+                  renderTemplate();
+                }
 
               }, function (fail) {
 
