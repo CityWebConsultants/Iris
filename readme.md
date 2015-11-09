@@ -1,3 +1,122 @@
+# Iris
+
+Iris is a modular content management system and web application frameworkd built using Node.JS. It uses Express for HTTP routing, Socket.IO for websockets and runs on a MongoDB database powered by the Mongoose driver and schema system. 
+
+On the frontend, alongside its own block, region and form system, it supports any templating language you want. Mustache is packaged in, as are simple to use live-updating front end HTML widgets powered by Angular.JS.
+
+## Quick launching
+
+This first version of Iris is bundled with useful modules so that you can get started as quickly as possible. Here's how to get started.
+
+* Clone the repository.
+* Run NPM install to install dependencies
+* Make sure you have access to a MongoDB database instance
+* Go to the sites folder and copy the default folder into a folder named after your site/application
+* Within this folder, open/edit settings.json and put in details for the following information:
+
+* __port__: The port the Node.JS web server runs on. (80 or 3000 for example)
+* __apikey__: This is the administrator username/apikey. It should be kept secret.
+* __secretkey__: An additional password used in combination with the secretkey to gain access to the system as an administrator.
+* __https__: set to true or false depending on whether the site is running on HTTPS.
+* __https_key__: System path to the SSL key if HTTPS mode is on.
+* __https_cert__: System path to the SSL certificate if HTTPS mode is on.
+* __db_server__: the server hosting the database (localhost for example).
+* __db_port__: The MongoDB database port (27017 for example).
+* __db_name__: The name of the MongoDB database used for this application.
+* __db_username__: The username (if relevant) to be used when connecting to the database.
+* __db_password__: The password (if relevant) to be used when connecting to the database.
+* __theme__: The relative path to the current theme, if using __frontend__.
+* __templateExtension__: The templating engine to use, if using __frontend__.
+
+* Once done, return to the root folder and using node.js run
+
+```
+node launch.js site=YOURSITENAME
+
+```
+replacing YOURSITENAME with the name of your site/application folder.
+
+The application will boot and if you visit the port you ran the application on localhost:3000 for example you will see a welcome page.
+
+## The administration system
+
+To access the administration system visit /admin once the site has loaded (localhost:3000/admin for example).
+
+You will be faced with a login page with two tabs. The first is for user accounts once they have been created and given the "admin" role (details to follow about the user system). The second is for the root user of the system and uses settings listed in the apikey/secretkey section of the settings.json form documented above.
+
+Once you have logged in you should have access to a toolbar with various links for different parts of the administration system.
+
+# Creating and managing entities
+
+Content in Iris, from users to pages to menus, is based around a concept of entities.
+
+Entities have fields such as text fields and file/image fields and are stored in the MongoDB database.
+
+The base distribution contains page, menu and user entity types for you to use. If you want to create your own, simply go to the entity screen and add a new entity type.
+
+The following form will allow you to add fields to the entity of various sorts including groups of fields.
+
+You can also edit, create and delete entities of a particular type through this interface.
+
+Each entity has a unique ID that can be used to reference it throughout the system.
+
+# Users 
+
+The base distribution of Iris comes with a user system which allows people to log in to your website/application and see/do different things depending on their position.
+
+The user entity is simply a fieldable entity like the others, except for the password field (which is hashed and stored securely in the database), and a roles field where users can be given roles to allow various permissions.
+
+## Roles and permissions
+
+The base installation comes with three roles, anonymous (given automatically to not logged in users), authenticated (users that have logged in but have no extra roles (again given automatically)) and "admin". Admin allows a user to administrate the whole system.
+
+More roles can be added with one line of code in a custom module. More of this in the advanced section.
+
+Some permissions have already been created such as permissions to create, delete, view and edit entities of various types. Modules can register additional permissions.
+
+To grant or revoke a permission for a role, visit the permissions tab in the administration toolbar and tick/untick the relevat box for the role/permission. Then hit save at the bottom on of the form.
+
+# Pages
+
+A page entity type has already been created for you in the default distribution. To create/edit and delete pages visit the entities screen and under page either view content or create a new one.
+
+## Page paths
+
+To make a page appear at a path/url relative to your organisation simply put the relative path (with a leading slash) in the path field of the page entity. "/" on its own is the home page. 
+
+# Basic templates and theming
+
+Iris comes with its own templating language for embeded elements such as blocks, forms and menus but also uses and comes with support for Mustache and AngularJS templates. Other template languages can be easily slotted in instead.
+
+## Theme location and structure
+
+Themes are stored in the "themes" folder of a site (so sites/YOURSITE/themes/THEMENAME).
+
+The default "Purple" theme has some basic page templates you can use to get started. The name of the theme folder is set in the main site configuration.json file.
+
+## Static files
+
+Static files can be placed within the "static" directory in the themes folder. This can include frontend JavaScript files, CSS files, static assets and others. 
+
+The contents of this directory will be publicly available at /static
+
+Note that uploaded files stored as part of the entites will not be stored in this folder but instead in the /files folder of the site folder.
+
+## Templates
+
+### Template naming
+
+Iris uses a template lookup and override engine to find and process the right template from the theme folder, falling back to a relevant default template if no such template is present in the theme folder.
+
+### Template extensions
+
+Templates can be simple HTML pages but if you want to use a server-side templating system such as Mustache you should give them an extension based on this templating language. The setting for the extension itself is set in configurations.json .  .mustache files will be treated as mustache templates for example.
+
+### The HTML wrapper template
+
+Each rendered page is wrapped in a special template with a file beginning with HTML. This is where you can place the main HTML wrapper around which entity pages and others sit.
+
+
 # API documentation
 
 ## Dependencies
