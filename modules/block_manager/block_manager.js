@@ -256,6 +256,6 @@ C.hook("hook_block_registerType", "root", {
 
 }, function (fail) {
 
-  console.log(fail);
+  C.log("error", fail);
 
 });

@@ -143,7 +143,7 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
       if (err) {
 
-        console.log(err);
+        C.log("error", err);
         thisHook.finish(false, "Database error");
 
       } else if (doc) {

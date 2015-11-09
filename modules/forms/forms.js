@@ -126,13 +126,13 @@ var populateForm = function (form, authPass) {
 
       }, function (fail) {
 
-        console.log(fail);
+        C.log("error", fail);
 
       });
 
     }, function (fail) {
 
-      console.log(fail);
+      C.log("error", fail);
 
     });
 
@@ -165,7 +165,7 @@ CM.forms.registerHook("hook_form_schema_alter", 0, function (thisHook, data) {
 CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   CM.frontend.globals.parseBlock("form", data.html, function (formName, next) {
-    
+
     formName = formName[0];
 
     // Check if form exists
@@ -199,9 +199,9 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
               } catch (e) {
 
-                console.log(form);
+                C.log("error", form);
 
-                console.log(e);
+                C.log("error", e);
 
               }
 
@@ -209,11 +209,11 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
             }, function (fail) {
 
-              console.log(fail);
+              C.log("error", fail);
 
             }, function (fail) {
 
-              console.log(fail);
+              C.log("error", fail);
 
             });
 
@@ -260,7 +260,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
   }, function (fail) {
 
-    console.log(fail);
+    C.log("error", fail);
 
     thisHook.finish(true, data);
 

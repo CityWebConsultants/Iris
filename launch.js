@@ -28,7 +28,7 @@ if (paramaters.site) {
     });
 
     sub.on('message', function (cmd) {
-      
+
       if (cmd === 'started') {
 
         sub.send({
@@ -45,9 +45,9 @@ if (paramaters.site) {
       }
 
       if (cmd.sessions) {
-        
+
         sessions = cmd.sessions;
-        
+
       };
 
     });

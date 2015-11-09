@@ -51,7 +51,7 @@ C.app.get('/admin/block/create/:type', function (req, res) {
 
     }, function (fail) {
 
-      console.log(fail);
+      C.log("error", fail);
 
     });
 

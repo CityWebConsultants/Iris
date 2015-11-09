@@ -24,7 +24,7 @@ if (C.config.db_username && C.config.db_password) {
 
 mongoose.connection.on('error', function (error) {
 
-  console.log(error);
+  C.log("fatal", error);
 
 });
 
@@ -258,7 +258,7 @@ C.dbPopulate = function () {
     }
 
     Object.keys(file).forEach(function (field) {
-      
+
       C.dbSchema[schemaName][field] = file[field];
 
     });

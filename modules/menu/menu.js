@@ -156,7 +156,7 @@ process.on("dbReady", function () {
           entity.save(function (err, doc) {
 
             if (err) {
-              console.log(err)
+              C.log("error", err)
             }
 
             waitingMenuItems.splice(index, 1);

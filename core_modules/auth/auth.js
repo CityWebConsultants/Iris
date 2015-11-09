@@ -14,7 +14,7 @@ CM.auth.globals = {
 
     if (CM.auth.globals.roles[name]) {
 
-      console.log("Role already exists");
+      C.log("warn", "Role already exists");
       return false;
 
     } else {
@@ -415,7 +415,7 @@ C.app.get('/auth/checkauth', function (req, res) {
 });
 
 Object.observe(CM.auth.globals.userList, function (data) {
-  
+
   process.send({
     sessions: CM.auth.globals.userList
   });

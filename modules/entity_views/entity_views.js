@@ -38,8 +38,8 @@ CM.entity_views.registerHook("hook_frontend_template_parse", 0, function (thisHo
 
           } catch (e) {
 
-            console.log(query[2]);
-            console.log(e);
+            C.log("debug", query[2]);
+            C.log("error", e);
 
             queries[index] = undefined;
             return false;

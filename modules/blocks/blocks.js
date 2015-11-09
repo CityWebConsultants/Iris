@@ -21,9 +21,9 @@ CM.menu.registerHook("hook_block_view", 0, function (thisHook, menuName) {
 CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   CM.frontend.globals.parseBlock("block", data.html, function (block, next) {
-    
+
     var block = block[0];
-    
+
     // TODO move paramaters to use the comma method rather than pipes
 
     C.hook("hook_block_view", thisHook.authPass, null, region).then(function (canView) {
@@ -60,7 +60,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
 
       }, function (fail) {
 
-        console.log(fail);
+        C.log("error", fail);
 
         next("<!--- Could not load block " + block + " --->");
 

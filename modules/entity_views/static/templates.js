@@ -124,8 +124,8 @@ T.initTemplate = function (element) {
 
       } catch (e) {
 
-        console.log(query[2]);
-        console.log(e);
+        C.log("debug", query[2]);
+        C.log("error", e);
         return false;
 
       };
