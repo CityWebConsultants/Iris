@@ -564,11 +564,11 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
         return x.match(internal)[1];
 
       });
-      
+
       var counter = 0;
 
       var runthrough = function (choice) {
-        
+
         var next = function (content) {
 
           html = html.split("[[[" + prefix + " " + choice + "]]]").join(content);
@@ -892,15 +892,24 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
 
   CM.frontend.globals.findTemplate([thisHook.const.error], "html").then(function (html) {
 
+    var isFront = false;
+
+    if (thisHook.const.req.url === '/') {
+
+      isFront = true;
+
+    }
+
     CM.frontend.globals.parseTemplate(html, thisHook.const.req.authPass, {
-      url: thisHook.const.req.url
+      url: thisHook.const.req.url,
+      front: isFront
     }).then(function (page) {
-      
+
       C.hook("hook_frontend_template", thisHook.authPass, null, {
         html: page.html,
         vars: page.variables
       }).then(function (success) {
-        
+
         thisHook.finish(true, success.html);
 
       }, function (fail) {
