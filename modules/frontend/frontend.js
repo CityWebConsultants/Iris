@@ -25,7 +25,7 @@ CM.frontend.globals.themeConfig = function () {
 
   } catch (e) {
 
-    console.log("Could not read theme.js");
+    C.log("error", "Could not read theme.js");
 
     return false;
 
@@ -41,7 +41,7 @@ try {
 
 } catch (e) {
 
-  console.log("Theme does not contain /templates or /static directories.");
+  C.log("error", "Theme does not contain /templates or /static directories.");
 
 }
 
@@ -80,7 +80,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
     }, function (fail) {
 
-      console.log(fail);
+      C.log("error", fail);
 
     });
 
@@ -181,7 +181,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
                 } else {
 
-                  console.log("Could not render template");
+                  C.log("error", "Could not render template");
                   no();
 
                 }
@@ -196,7 +196,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
       }, function (fail) {
 
-        console.log(fail);
+        C.log("error", fail);
 
       });
 
@@ -565,7 +565,7 @@ var parseTemplate = function (html, authPass, context) {
 
         }, function (fail) {
 
-          console.log("Cannot find template " + element);
+          C.log("error", "Cannot find template " + element);
 
           // Remove template if it can't be found
 
@@ -589,7 +589,7 @@ var parseTemplate = function (html, authPass, context) {
 
       }, function (fail) {
 
-        console.log(fail);
+        C.log("error", fail);
 
       });
 
@@ -732,7 +732,7 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
 
       }, function (fail) {
 
-        console.log(fail);
+        C.log("error", fail);
 
         thisHook.finish(false, page.html);
 
