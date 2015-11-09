@@ -137,28 +137,42 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
   var create = function (preparedEntity) {
 
-    var entity = new C.dbCollections[preparedEntity.entityType](preparedEntity);
+    C.dbCollections[preparedEntity.entityType].count({}, function (err, result) {
 
-    entity.save(function (err, doc) {
+      // count is the result
 
-      if (err) {
+      if (!result) {
 
-        console.log(err);
-        thisHook.finish(false, "Database error");
-
-      } else if (doc) {
-
-        doc = doc.toObject();
-
-        thisHook.finish(true, doc);
-
-        C.hook("hook_entity_created", thisHook.authPass, null, doc);
-
-        C.hook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
-
-        C.log("info", data.entityType + " created by " + doc.entityAuthor);
+        preparedEntity.eID = 0;
 
       }
+
+      preparedEntity.eID = result;
+
+      var entity = new C.dbCollections[preparedEntity.entityType](preparedEntity);
+
+      entity.save(function (err, doc) {
+
+        if (err) {
+
+          console.log(err);
+          thisHook.finish(false, "Database error");
+
+        } else if (doc) {
+
+          doc = doc.toObject();
+
+          thisHook.finish(true, doc);
+
+          C.hook("hook_entity_created", thisHook.authPass, null, doc);
+
+          C.hook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
+
+          C.log("info", data.entityType + " created by " + doc.entityAuthor);
+
+        }
+
+      });
 
     });
 
