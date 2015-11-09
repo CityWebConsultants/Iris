@@ -156,7 +156,7 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
         C.hook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
         
-        C.log.info(data.entityType + " created by " + doc.entityAuthor);
+        C.log("info", data.entityType + " created by " + doc.entityAuthor);
 
       }
 

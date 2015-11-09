@@ -334,7 +334,7 @@ Use this to record an entry to the system log.
 
 ```javascript
 
-C.log.info("User" + userid + " " + "logged in");
+C.log("info", "User" + userid + " " + "logged in");
 
 ```
 
@@ -387,13 +387,13 @@ var promiseTwo // another promise
 
 var success = function(successData){
 
-  C.log.info(successData);
+  C.log("info", successData);
 
 };
 
 var success = function(failData){
 
-  C.log.info(data);
+  C.log("info", data);
 
 };
 

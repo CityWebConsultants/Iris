@@ -266,7 +266,7 @@ module.exports = function (config) {
 
     Object.freeze(C);
 
-    C.log.info("Server started");
+    C.log("info", "Server started");
 
     C.app.get("/restart", function (req, res) {
 

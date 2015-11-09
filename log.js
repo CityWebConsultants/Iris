@@ -1,60 +1,18 @@
-var fs = require('fs');
+C.log = function () {
 
-var mkdirSync = function (path) {
-  try {
-    fs.mkdirSync(path);
-  } catch (e) {
-    if (e.code != 'EEXIST') throw e;
-  }
+  var type = arguments[0];
+//  var messages = Array.prototype.slice.call(arguments, 1);
+  var message = arguments[1];
+
+  C.hook("hook_log", "root", {type: type, message: message}).then(function (success) {
+
+
+
+  }, function (fail) {
+
+    // Fallback error log
+    console.log(type.toUpperCase() + ': ' + message);
+
+  });
+
 }
-
-mkdirSync(C.sitePath + "/" + "logs");
-
-var bunyan = require('bunyan');
-
-C.log = bunyan.createLogger({
-  name: 'C',
-  streams: [{
-    path: C.sitePath + "/" + "logs/main.log",
-          }]
-});
-
-CM.auth.globals.registerPermission("can read logs", "logs");
-
-C.app.get("/api/logs", function (req, res) {
-
-  if (CM.auth.globals.checkPermissions(["can read logs"], req.authPass)) {
-
-    try {
-
-      var rawLogs = fs.readFileSync(C.sitePath + "/" + "logs/main.log", "utf8");
-
-      //Remove last line
-
-      rawLogs = rawLogs.replace(/\n$/, "");
-
-      //Split logs by newline
-
-      var logs = rawLogs.split(/\r?\n/)
-
-      logs.forEach(function (element, index) {
-
-        logs[index] = JSON.parse(logs[index]);
-
-      });
-
-      res.respond(200, logs);
-
-    } catch (e) {
-
-      res.send("no logs");
-
-    }
-
-  } else {
-
-    res.respond(403, "Access denied");
-
-  };
-
-});

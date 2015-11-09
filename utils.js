@@ -22,7 +22,7 @@ C.promise = function (callback) {
         console.log(e);
         console.log("---       END        ---");
 
-        C.log.warn(e);
+        C.log("warn", e);
         no("error");
 
       }

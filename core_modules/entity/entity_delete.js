@@ -102,7 +102,7 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
 
       C.hook("hook_entity_deleted", thisHook.authPass, null, data)
 
-      C.log.info(data.entityType + " " + conditions._id + " deleted by " + validatedEntity.entityAuthor);
+      C.log("info", data.entityType + " " + conditions._id + " deleted by " + validatedEntity.entityAuthor);
 
     }
 
