@@ -2,6 +2,104 @@ C.registerModule("entity_views");
 
 var express = require('express');
 
+
+CM.entity_views.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+
+  CM.frontend.globals.parseBlock("entity", data.html, function (entity, next) {
+
+    var entityType = entity[0];
+    var variableName = entity[1];
+    var query = entity[2];
+
+    if (query) {
+
+      var queries = query.split("+");
+
+      if (queries && queries.length) {
+
+        queries.forEach(function (query, index) {
+
+          // Split query into sub sections
+
+          var query = query.split("|");
+
+          // Skip empty queries
+
+          if (!query[2]) {
+
+            queries[index] = undefined;
+            return false;
+
+          }
+
+          try {
+
+            JSON.parse(query[2]);
+
+          } catch (e) {
+
+            console.log(query[2]);
+            console.log(e);
+
+            queries[index] = undefined;
+            return false;
+
+          };
+
+          queries[index] = ({
+
+            field: query[0],
+            comparison: query[1],
+            compare: JSON.parse(query[2])
+
+          });
+
+        });
+
+      }
+
+      var fetch = {
+        queries: queries,
+        entities: [entityType]
+      };
+
+      C.hook("hook_entity_fetch", thisHook.authPass, null, {
+        queryList: [fetch]
+      }).then(function (result) {
+
+        data.variables[variableName] = result;
+
+        next("");
+
+      }, function (error) {
+
+        console.log(error);
+
+        next("");
+
+      });
+
+    } else {
+
+      next("");
+
+    }
+
+  }).then(function (html) {
+
+    data.html = html;
+
+    thisHook.finish(true, data);
+
+  }, function (fail) {
+
+    thisHook.finish(true, data);
+
+  })
+
+});
+
+
 //Register static directory
 
 C.app.use("/entity_views", express.static(__dirname + '/static'));

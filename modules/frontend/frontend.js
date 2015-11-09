@@ -106,271 +106,75 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
             wrapper = wrapper.split("[[[MAINCONTENT]]]").join(inner);
 
-            var makePreloadQueries = function () {
+            // Check if the current person can access the entity itself
 
-              var cheerio = require('cheerio'),
-                $ = cheerio.load(wrapper);
+            C.hook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
 
-              var entitiesToFetch = {};
-              var templateVars = {};
+              if (!viewChecked) {
 
-              Object.keys(variables).forEach(function (variable) {
+                renderTemplate();
+                return false;
 
-                templateVars[variable] = variables[variable];
+              } else {
 
-              });
+                entity = viewChecked;
 
-              /**
-               *  Use Cheerio to get calls for entities from the page.
-               */
-              var entitiesFromPage = function () {
-
-                $('[data-preload-as]').each(function (index, element) {
-
-                  var preloadAs = $(this).attr('data-preload-as');
-                  var entities = $(this).attr('data-entities');
-                  var queries = $(this).attr('data-queries');
-                  var limit = $(this).attr('data-limit');
-                  var skip = $(this).attr('data-skip');
-                  var sort = $(this).attr('data-sort');
-
-                  if (preloadAs && entities) {
-
-                    entitiesToFetch[preloadAs] = {
-                      entities: [entities],
-                      queries: queries,
-                      limit: limit,
-                      skip: skip,
-                      sort: sort,
-                    };
-
-                  }
-
-                });
-
-              };
-              entitiesFromPage();
-
-              /**
-               *  Parse JSON and split queries from string into object.
-               */
-              var prepareQueries = function () {
-
-                for (var entity in entitiesToFetch) {
-
-                  var entity = entitiesToFetch[entity];
-
-                  // Process sort
-                  try {
-
-                    entity.sort = JSON.parse(entity.sort);
-
-                  } catch (e) {
-
-                    entity.sort = undefined;
-
-                  }
-
-                  // Process queries
-                  try {
-
-                    if (entity.queries) {
-
-                      entity.queries = entity.queries.split(',');
-
-                    }
-
-                    if (entity.queries && entity.queries.length) {
-
-                      entity.queries.forEach(function (query, index) {
-
-                        // Split query into sub sections
-
-                        var query = query.split("|");
-
-                        // Skip empty queries
-
-                        if (!query[2]) {
-
-                          entity.queries[index] = undefined;
-                          return false;
-
-                        }
-
-                        try {
-
-                          JSON.parse(query[2]);
-
-                        } catch (e) {
-
-                          console.log(query[2]);
-                          console.log(e);
-
-                          entity.queries[index] = undefined;
-                          return false;
-
-                        };
-
-                        entity.queries[index] = ({
-
-                          field: query[0],
-                          comparison: query[1],
-                          compare: JSON.parse(query[2])
-
-                        });
-
-                      });
-
-                    }
-
-                    // Catch JSON parse error
-                  } catch (e) {
-                    console.log(e);
-                    entity = undefined;
-                  }
-
-                }
-
-              };
-              prepareQueries();
-
-              var promises = [];
-
-              /**
-               *  Create array of promises that each run hook_entity_fetch on a query.
-               */
-              var makeQueryPromises = function () {
-
-                for (var entity in entitiesToFetch) {
-
-                  var key = entity;
-                  entity = entitiesToFetch[entity];
-
-                  promises.push(
-
-                    C.promise(function (yes, no, data) {
-
-                      C.hook("hook_entity_fetch", req.authPass, null, {
-                        queryList: [entity]
-                      }).then(function (result) {
-
-                        if (result) {
-                          templateVars[key] = result;
-                        }
-
-                        yes();
-
-                      }, function (error) {
-
-                        console.log(error);
-
-                        no();
-
-                      });
-
-                    })
-
-                  );
-
-                }
-
-              };
-
-              makeQueryPromises();
-
-              // If no queries, make a default promise
-              if (Object.keys(entitiesToFetch).length === 0) {
-
-                promises = [
-                C.promise(function (yes, no, data) {
-
-                    yes();
-
-                  })
-              ];
               }
 
-              C.promiseChain(promises, function (success) {
+              C.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, entity).then(function (validated) {
 
-                // Prepare, for templating, the page HTML and fetched query variables
-                var frontendData = {
-                  html: wrapper,
-                  vars: templateVars
-                };
+                variables["current"] = validated;
+                renderTemplate();
 
-                // Pass frontentData to templating hook and send to client
-                var makeTemplate = function () {
-
-                  // Pass to templating systems
-                  C.hook("hook_frontend_template", req.authPass, null, frontendData).then(function (success) {
-
-                    yes(success.html);
-
-                  }, function (fail) {
-
-                    if (fail === "No such hook exists") {
-
-                      yes(wrapper);
-
-                    } else {
-
-                      console.log("Could not render template");
-                      no();
-
-                    }
-
-                  });
-
-                };
-
-                // Confirm that the `current` entity is viewable and pass to makeTemplate().
-
-                C.hook("hook_entity_view", req.authPass, null, data.entity.fields).then(function (filtered) {
-
-                  if (!filtered) {
-
-                    frontendData.vars.current = null;
-                    makeTemplate();
-                    return false;
-
-                  }
-
-                  C.hook("hook_entity_view_" + filtered.entityType, req.authPass, null, filtered).then(function (filtered) {
-
-                    frontendData.vars.current = filtered;
-                    makeTemplate();
-
-                  }, function (fail) {
-
-                    if (fail === "No such hook exists") {
-
-                      frontendData.vars.current = filtered;
-                      makeTemplate();
-
-                    } else {
-
-                      //
-
-                    }
-
-                  });
-
-                }, function (fail) {
-
-                  console.log(fail);
-
-                });
-
-                // If the query promises fail
               }, function (fail) {
 
-                console.log(fail);
+                if (fail === "No such hook exists") {
+
+                  variables["current"] = viewChecked;
+                  renderTemplate();
+
+                } else {
+
+                  // Don't set current.
+
+                }
+
+              })
+
+            }, function (fail) {
+
+              no(fail);
+
+            });
+
+            var renderTemplate = function () {
+
+              var frontendData = {
+                html: wrapper,
+                vars: variables
+              };
+
+              // Pass to templating systems
+              C.hook("hook_frontend_template", req.authPass, null, frontendData).then(function (success) {
+
+                yes(success.html);
+
+              }, function (fail) {
+
+                if (fail === "No such hook exists") {
+
+                  yes(wrapper);
+
+                } else {
+
+                  console.log("Could not render template");
+                  no();
+
+                }
 
               });
 
-            };
-
-            makePreloadQueries();
+            }
 
           });
 
