@@ -36,12 +36,26 @@ C.error = function (code, message, notes) {
 
 //Set up CORS
 
+var fs = require("fs");
+
 C.app.use(function (req, res, next) {
 
   if (!C.status.ready) {
 
-    res.send("Starting up");
-    
+    fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/startup.html", function (err, file) {
+
+      if (!err) {
+
+        res.sendFile(C.sitePath + "/" + C.config.theme + "/templates/startup.html");
+
+      } else {
+
+        res.send("starting up");
+
+      }
+
+    });
+
     return false;
 
   }

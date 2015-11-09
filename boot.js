@@ -270,9 +270,23 @@ module.exports = function (config) {
 
     C.app.get("/restart", function (req, res) {
 
-      res.redirect("/");
+      fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/restart.html", function (err, file) {
 
-      process.send("restart");
+        if (!err) {
+
+          console.log(err);
+
+          res.sendFile(C.sitePath + "/" + C.config.theme + "/templates/restart.html");
+          process.send("restart");
+
+        } else {
+
+          res.send("restarting");
+          process.send("restart");
+
+        }
+
+      });
 
     });
 
@@ -300,7 +314,11 @@ module.exports = function (config) {
 
           } else {
 
-            C.hook("hook_display_error_page", req.authPass, {error: 404, req: req, res: res}).then(function (success) {
+            C.hook("hook_display_error_page", req.authPass, {
+              error: 404,
+              req: req,
+              res: res
+            }).then(function (success) {
 
               res.status(404).send(success);
 
@@ -315,7 +333,11 @@ module.exports = function (config) {
         },
         function (fail) {
 
-          C.hook("hook_display_error_page", req.authPass, {error: 404, req: req, res: res}).then(function (success) {
+          C.hook("hook_display_error_page", req.authPass, {
+            error: 404,
+            req: req,
+            res: res
+          }).then(function (success) {
 
             res.status(404).send(success);
 
@@ -332,7 +354,11 @@ module.exports = function (config) {
     C.app.use(function (err, req, res, next) {
       console.log(err);
 
-      C.hook("hook_display_error_page", req.authPass, {error: 500, req: req, res: res}).then(function (success) {
+      C.hook("hook_display_error_page", req.authPass, {
+        error: 500,
+        req: req,
+        res: res
+      }).then(function (success) {
 
         res.status(500).send(success);
 
