@@ -291,6 +291,13 @@ C.dbPopulate = function () {
       required: true
     }
 
+    C.dbSchema[schema].eID = {
+      type: Number,
+      description: "Entity ID",
+      title: "Unique ID",
+      required: false
+    }
+
     try {
       var readySchema = mongoose.Schema(C.dbSchema[schema]);
 
