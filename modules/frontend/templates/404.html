@@ -1,3 +1,7 @@
+{{=[% %]=}}
+
+
+
 <!doctype html>
 
 <html>
@@ -9,6 +13,8 @@
 <title>Iris</title>
 
 <body>
+
+  [% #front %]
 
   <style>
     .main-container {
@@ -25,7 +31,7 @@
   <div class="main-container">
 
     <div class="iris-description">
-      <h1>It works! {{ url }}</h1>
+      <h1>It works! [% url %]</h1>
 
       <br />
 
@@ -40,6 +46,37 @@
     </div>
 
   </div>
+
+  [% /front %]
+
+  [% ^front %]
+
+  <style>
+    .main-container {
+      margin: 0 auto;
+      width: 800px;
+
+      border: 1px solid #efefef;
+      border-radius: 6px;
+      padding: 20px;
+      margin-top: 50px;
+    }
+  </style>
+
+  <div class="main-container">
+
+    <div class="iris-description">
+      <h1>404 - File not found</h1>
+
+      <br />
+
+      <p>This page doesn't seem to exist.</p>
+
+    </div>
+
+  </div>
+
+  [% /front %]
 
 </body>
 
