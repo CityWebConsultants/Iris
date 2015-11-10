@@ -164,7 +164,7 @@ CM.admin_ui.globals.registerPath("/admin/login", "admin_login");
 CM.admin_ui.globals.registerPath("/admin", "admin_dashboard");
 CM.admin_ui.globals.registerPath("/admin/permissions", "admin_permissions");
 CM.admin_ui.globals.registerPath("/admin/entities", "admin_entity_types");
-CM.admin_ui.globals.registerPath("/admin/entitylist2/:type", "admin_entitylist", prepareEntitylist);
+CM.admin_ui.globals.registerPath("/admin/entitylist/:type", "admin_entitylist", prepareEntitylist);
 CM.admin_ui.globals.registerPath("/admin/schema/create", "admin_schema_create");
 CM.admin_ui.globals.registerPath("/admin/schema/edit/:type", "admin_schema_edit");
 CM.admin_ui.globals.registerPath("/admin/edit/:type/:_id", "admin_entity_edit");
