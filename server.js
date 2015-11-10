@@ -41,6 +41,16 @@ var fs = require("fs");
 C.app.use(function (req, res, next) {
 
   if (!C.status.ready) {
+    
+    // Check if no theme
+
+    if (!C.config.theme) {
+
+      res.send("Starting up");
+      process.send("restart");
+      return false;
+
+    }
 
     fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/startup.html", "utf8", function (err, file) {
 
