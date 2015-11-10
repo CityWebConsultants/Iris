@@ -7,11 +7,27 @@ CM.blocks.globals.blockTypes = {};
 CM.blocks.globals.blocks = {};
 
 var fs = require('fs');
-var glob = require("glob")
+var glob = require("glob");
+
+// Function for registering system blocks
+
+CM.blocks.globals.registerBlock = function (config) {
+
+  if (!CM.blocks.globals.blocks[config.type]) {
+
+    CM.blocks.globals.blocks[config.type] = {};
+
+  }
+
+  CM.blocks.globals.blocks[config.type][config.id] = config;
+
+}
 
 // Read all blocks saved by the user
 
 glob(C.configPath + "/blocks/*/*.json", function (er, files) {
+
+  var blocks = [];
 
   files.forEach(function (file) {
 
@@ -31,6 +47,8 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
         }
 
+        blocks.push(config.id);
+
         CM.blocks.globals.blocks[config.type][config.id] = config;
 
       }
@@ -43,7 +61,24 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
   })
 
-  console.log(CM.blocks.globals.blocks);
+  // Make regions form
+  
+  CM.forms.globals.makeForm("regions", {
+    "Header": {
+      "type": "array",
+      "title": "Example region",
+      "items": {
+        "type": "object",
+        "properties": {
+          "blocks": {
+            "type": "string",
+            "title": "Blocks",
+            "enum": blocks
+          }
+        }
+      }
+    }
+  });
 
 })
 
@@ -158,36 +193,3 @@ CM.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
   }
 
 });
-
-//{
-//  "schema": {
-//    "Header": {
-//      "type": "array",
-//      "title": "Header",
-//      "items": {
-//        "type": "object",
-//        "properties": {
-//          "blocks": {
-//            "type": "string",
-//            "title": "Blocks",
-//            "enum": [ "blockOne", "blockTwo", "blockThree" ]
-//          }
-//        }
-//      }
-//    },
-//    "Footer": {
-//      "type": "array",
-//      "title": "Footer",
-//      "items": {
-//        "type": "object",
-//        "properties": {
-//          "blocks": {
-//            "type": "string",
-//            "title": "Blocks",
-//            "enum": [ "blockOne", "blockTwo", "blockThree" ]
-//          }
-//        }
-//      }
-//    }
-//  }
-//}
