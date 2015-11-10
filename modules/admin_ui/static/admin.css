@@ -55,6 +55,7 @@ tr#roles {
   color: #fff;
   padding-top: 30px;
   text-align: center;
+  position: absolute;
 }
 #login-logo {
   font-size: 200px;
