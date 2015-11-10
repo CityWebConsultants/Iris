@@ -1,94 +1,200 @@
 C.registerModule("views");
 
-C.app.get("/admin/views/create/:type/form", function (req, res) {
+var fs = require("fs");
 
-  if (C.dbCollections[req.params.type]) {
+process.on("dbReady", function () {
 
-    var tree = C.dbCollections[req.params.type].schema.tree;
+  // Create a view block type for each entity
 
-    var fields = [];
+  var registerViewBlock = function (name, fields) {
 
-    Object.keys(tree).forEach(function (field) {
-
-      if (tree[field].type === String) {
-
-        fields.push(field);
-
+    // Register an example type
+    C.hook("hook_block_registerType", "root", {
+      name: 'View of ' + name,
+      type: 'view_' + name,
+      schema: {
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Conditions",
+            "properties": {
+              "field": {
+                "type": "string",
+                "title": "Field to check",
+                "enum": fields
+              },
+              "comparison": {
+                "type": "string",
+                "title": "Operator",
+                "enum": ["IS", "IN", "CONTAINS"]
+              },
+              "compare": {
+                "type": "string",
+                "title": "Value to check for",
+                "description": "This value can be altered dynamically later on"
+              },
+            }
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Field",
+            "properties": {
+              "field": {
+                "type": "string",
+                "title": "Entity field",
+                "enum": fields
+              },
+              "wrapper": {
+                "type": "string",
+                "title": "HTML wrapper element",
+                "enum": ["div", "span", "h1", "h2", "h3"]
+              },
+              "allowhtml": {
+                "type": "boolean",
+                "title": "Allow HTML?"
+              },
+              "class": {
+                "type": "string",
+                "title": "Classes",
+                "description": "Space-separated"
+              }
+            }
+          }
+        }
       }
+    }).then(function (block) {
+
+      thisHook.finish(true, block);
+
+    }, function (fail) {
+
+      thisHook.finish(false, block);
+
+      C.log("error", fail);
 
     });
-
-    res.send(fields);
 
   };
 
+  Object.keys(C.dbCollections).forEach(function (entityType) {
+
+    var fields = Object.keys(C.dbCollections[entityType].schema.tree);
+
+    registerViewBlock(entityType, fields);
+
+  });
+
+})
+
+// Render blocks
+
+CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
+
+  if (thisHook.const.type.split("_")[0] === "view") {
+
+    thisHook.finish(true, JSON.stringify(thisHook.const.config));
+
+  } else {
+
+    thisHook.finish(true, data);
+
+  }
+
 });
 
-C.app.post("/views/create/:type", function (req, res) {
+CM.views.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  var fs = require("fs");
+  var variables = data.variables;
 
-  req.body.type = req.params.type;
+  CM.frontend.globals.parseBlock("view", data.html, function (view, next) {
 
-  if (req.authPass.roles.indexOf("admin") !== -1) {
+    var fs = require("fs");
 
-    // Static JSON version of view
+    fs.readFile(C.configPath + "/views/" + view[0] + ".json", "utf8", function (err, file) {
 
-    fs.writeFileSync(C.sitePath + "/configurations/views/" + req.params.type + "_" + req.body.title + ".JSON", JSON.stringify(req.body), "utf8");
+      if (!err) {
 
-    var queries = [];
+        try {
 
-    req.body.conditions.forEach(function (query) {
+          var viewFile = JSON.parse(file);
 
-      queries.push(query.field + ":" + query.operator.toUpperCase() + ":" + query.value);
+          var fetch = {
+            entities: [viewFile.type],
+            queries: viewFile.conditions
+          }
 
-    });
+          C.hook("hook_entity_fetch", thisHook.authPass, null, {
+            queryList: [fetch]
+          }).then(function (result) {
 
-    var queries = queries.join(",");
+            var output = [];
 
-    var output = '<div ng-controller="C" entities="' + req.params.type + '" queries="' + queries + '">';
+            result.forEach(function (fetched) {
 
-    output += "<span ng-repeat='field in data." + req.params.type + "'>";
+              // Loop over all fields and add variable
 
-    req.body.fields.forEach(function (element) {
+              var viewOutput = {};
 
-      if (JSON.parse(element.allowhtml)) {
+              viewFile.fields.forEach(function (field, index) {
 
-        output += "<" + element.wrapper + " " + "class='" + element.class + "'" + "ng-bind-html='field." + element.field + " | html_filter'" + ">" + "< /" + element.wrapper + ">";
+                viewOutput[field.field] = {};
+
+                // Add all settings provided in the view
+
+                Object.keys(viewFile.fields[index]).forEach(function (fieldSetting) {
+
+                  viewOutput[field.field][fieldSetting] = viewFile.fields[index][fieldSetting];
+
+                })
+
+                if (fetched[field.field]) {
+
+                  viewOutput[field.field].value = fetched[field.field];
+
+                }
+
+              })
+
+              output.push(viewOutput);
+
+            })
+
+            next(result);
+
+          }, function (fail) {
+
+            next(fail);
+
+          });
+
+        } catch (e) {
+
+          next("");
+
+        }
 
       } else {
-
-        output += "<" + element.wrapper + " class='" + element.class + "'" + " >" + "{{field." + element.field + "}}" + "</" + element.wrapper + ">";
-
+        next("");
       }
 
-    });
+    })
 
-    output += "</span>";
+  }).then(function (html) {
 
-    output += "</div>";
+    data.html = html;
 
-    fs.writeFileSync(C.sitePath + "/configurations/frontend/templates/" + req.params.type + "_" + req.body.title.split(" ").join("-") + ".html", output, "utf8");
+    thisHook.finish(true, data);
 
-  } else {
+  }, function (fail) {
 
-    res.redirect("/admin");
+    C.log("error", fail);
 
-  }
+    thisHook.finish(true, data);
 
-
-});
-
-C.app.get("/admin/views/create/:type", function (req, res) {
-
-  if (req.authPass.roles.indexOf("admin") !== -1) {
-
-    res.sendFile(__dirname + "/templates/views.html");
-
-  } else {
-
-    res.redirect("/admin");
-
-  }
+  })
 
 });
