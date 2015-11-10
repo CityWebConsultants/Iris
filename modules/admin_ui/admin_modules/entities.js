@@ -794,3 +794,49 @@ C.app.post('/admin/api/file/upload', function (req, res) {
   });
 
 });
+
+CM.admin_ui.globals.prepareEntitylist = function (req, callback) {
+
+  // Query for all entities of this type
+
+  if (C.dbCollections[req.params.type]) {
+
+    var fields = [];
+
+//    Object.keys(C.dbCollections[req.params.type].schema.tree).forEach(function (fieldTitle) {
+//
+//      var field = C.dbCollections[req.params.type].schema.tree[fieldTitle];
+//
+//      if (fieldTitle !== "entityType" && field.type === String && field.long !== true) {
+//
+//        fields.push(fieldTitle);
+//
+//      };
+//
+//    });
+
+    C.dbCollections[req.params.type].find({}, function (err, doc) {
+
+      if (!err) {
+
+        callback({entities: doc, fields: fields});
+
+      } else {
+
+        C.log("error", "Database error while fetching entities");
+
+        callback({});
+
+      }
+
+    })
+
+  } else {
+
+    C.log("error", "Request for invalid entity type");
+
+    callback({});
+
+  }
+
+}

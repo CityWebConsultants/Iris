@@ -114,57 +114,11 @@ CM.admin_ui.globals.registerPath = function (path, templateName, prepFunction) {
 
 }
 
-var prepareEntitylist = function (req, callback) {
-
-  // Query for all entities of this type
-
-  if (C.dbCollections[req.params.type]) {
-
-    var fields = [];
-
-//    Object.keys(C.dbCollections[req.params.type].schema.tree).forEach(function (fieldTitle) {
-//
-//      var field = C.dbCollections[req.params.type].schema.tree[fieldTitle];
-//
-//      if (fieldTitle !== "entityType" && field.type === String && field.long !== true) {
-//
-//        fields.push(fieldTitle);
-//
-//      };
-//
-//    });
-
-    C.dbCollections[req.params.type].find({}, function (err, doc) {
-
-      if (!err) {
-
-        callback({entities: doc, fields: fields});
-
-      } else {
-
-        C.log("error", "Database error while fetching entities");
-
-        callback({});
-
-      }
-
-    })
-
-  } else {
-
-    C.log("error", "Request for invalid entity type");
-
-    callback({});
-
-  }
-
-}
-
 CM.admin_ui.globals.registerPath("/admin/login", "admin_login");
 CM.admin_ui.globals.registerPath("/admin", "admin_dashboard");
 CM.admin_ui.globals.registerPath("/admin/permissions", "admin_permissions");
 CM.admin_ui.globals.registerPath("/admin/entities", "admin_entity_types");
-CM.admin_ui.globals.registerPath("/admin/entitylist/:type", "admin_entitylist", prepareEntitylist);
+CM.admin_ui.globals.registerPath("/admin/entitylist/:type", "admin_entitylist", CM.admin_ui.globals.prepareEntitylist);
 CM.admin_ui.globals.registerPath("/admin/schema/create", "admin_schema_create");
 CM.admin_ui.globals.registerPath("/admin/schema/edit/:type", "admin_schema_edit");
 CM.admin_ui.globals.registerPath("/admin/edit/:type/:_id", "admin_entity_edit");
