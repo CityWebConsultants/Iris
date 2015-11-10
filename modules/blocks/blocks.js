@@ -51,12 +51,8 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
 
   CM.frontend.globals.parseBlock("block", data.html, function (block, next) {
 
-    var block = block[0];
-
-    // TODO move paramaters to use the comma method rather than pipes
-
-    var blockName = block.split("|")[1];
-    var blockType = block.split("|")[0];
+    var blockName = block[1],
+      blockType = block[0];
 
     if (!blockName || !blockType) {
 
@@ -67,13 +63,13 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
 
       // Correct paramaters, now let's see if we can load a block from config
 
-      C.readConfig('blocks/' + blockType, blockName).then(function (output) {
+      if (CM.blocks.globals.blocks[blockType] && CM.blocks.globals.blocks[blockType][blockName]) {
 
         var paramaters = {
 
           id: blockName,
           type: blockType,
-          config: output
+          config: CM.blocks.globals.blocks[blockType][blockName]
 
         }
 
@@ -97,11 +93,11 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
 
         })
 
-      }, function (fail) {
+      } else {
 
         next("<!--- Could not load block " + block + " --->");
 
-      })
+      }
 
     }
 
@@ -162,3 +158,36 @@ CM.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
   }
 
 });
+
+//{
+//  "schema": {
+//    "Header": {
+//      "type": "array",
+//      "title": "Header",
+//      "items": {
+//        "type": "object",
+//        "properties": {
+//          "blocks": {
+//            "type": "string",
+//            "title": "Blocks",
+//            "enum": [ "blockOne", "blockTwo", "blockThree" ]
+//          }
+//        }
+//      }
+//    },
+//    "Footer": {
+//      "type": "array",
+//      "title": "Footer",
+//      "items": {
+//        "type": "object",
+//        "properties": {
+//          "blocks": {
+//            "type": "string",
+//            "title": "Blocks",
+//            "enum": [ "blockOne", "blockTwo", "blockThree" ]
+//          }
+//        }
+//      }
+//    }
+//  }
+//}
