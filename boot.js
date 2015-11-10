@@ -262,13 +262,23 @@ module.exports = function (config) {
 
     C.status.ready = true;
 
-    //Free C object, no longer extensible
+    // Free C object, no longer extensible
 
     Object.freeze(C);
 
     C.log("info", "Server started");
 
     C.app.get("/restart", function (req, res) {
+
+      // Check if theme set
+
+      if (!C.config.theme) {
+
+        res.send("restarting");
+        process.send("restart");
+        return false;
+
+      }
 
       fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/restart.html", "utf8", function (err, file) {
 
