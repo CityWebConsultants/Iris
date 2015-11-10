@@ -1,0 +1,22 @@
+{{=[% %]=}}
+
+  <table class="table" id="entity-list">
+    <tbody>
+
+      <th>ID</th>
+      <th>Title (if applicable)</th>
+      <th>Edit</th>
+      <th>Delete</th>
+
+      [% #entities %]
+      <tr>
+        <td>[% _id %]</td>
+        <td>[% title %]</td>
+        <td><a href="/admin/edit/page/[% _id %]">Edit</a></td>
+        <td><a href="/admin/delete/page/[% _id %]">Delete</a></td>
+      </tr>
+      [% /entities %]
+    </tbody>
+  </table>
+
+</section>
