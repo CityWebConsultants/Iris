@@ -223,6 +223,8 @@ module.exports = function (config) {
       }
 
     });
+    
+    require('./core_modules/frontend/frontend.js');
 
     //Load logging module
 
@@ -272,14 +274,6 @@ module.exports = function (config) {
 
       // Check if theme set
 
-      if (!C.config.theme) {
-
-        res.send("restarting");
-        process.send("restart");
-        return false;
-
-      }
-
       fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/restart.html", "utf8", function (err, file) {
 
         if (!err) {
@@ -289,8 +283,19 @@ module.exports = function (config) {
 
         } else {
 
-          res.send("restarting");
-          process.send("restart");
+          fs.readFile(C.rootPath + "/core_modules/frontend/templates/restart.html", "utf8", function (err, file) {
+
+            if (!err) {
+
+              res.send(file);
+
+            } else {
+
+              res.send("Restarting");
+
+            }
+
+          })
 
         }
 
