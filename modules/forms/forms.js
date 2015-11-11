@@ -90,56 +90,57 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
       value: {}
     }).then(function (form) {
 
-      if (form.schema) {
+        if (form.schema) {
 
-        // Add the form id in as a hidden field
+          // Add the form id in as a hidden field
 
-        form.schema.formid = {
-          "type": "hidden",
-          "default": formName
-        };
+          form.schema.formid = {
+            "type": "hidden",
+            "default": formName
+          };
 
-        // Unset form render object if not set (JSON form provides a default)
+          // Unset form render object if not set (JSON form provides a default)
 
-        if (!form.form || !Object.keys(form.form).length) {
+          if (!form.form || !Object.keys(form.form).length) {
 
-          if (form.form) {
+            if (form.form) {
 
-            delete form.form;
+              delete form.form;
 
-          }
-
-        }
-
-        // Unset form values object if not set
-
-        if (!form.value || !Object.keys(form.value).length) {
-
-          if (form.value) {
-
-            delete form.value;
+            }
 
           }
 
+          // Unset form values object if not set
+
+          if (!form.value || !Object.keys(form.value).length) {
+
+            if (form.value) {
+
+              delete form.value;
+
+            }
+
+          }
+
+          var output = "";
+          output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
+          output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
+
+          next(output);
+
+        } else {
+
+          next("<!-- Failed to load form -->");
+
         }
 
-        var output = "";
-        output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
-        output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
-
-        next(output);
-
-      } else {
+      },
+      function (fail) {
 
         next("<!-- Failed to load form -->");
 
-      }
-
-    }, function (fail) {
-
-      next("<!-- Failed to load form -->");
-
-    });
+      });
 
   }).then(function (html) {
 

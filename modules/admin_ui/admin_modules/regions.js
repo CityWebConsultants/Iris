@@ -34,19 +34,28 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
         "type": "array",
         "title": regionName.toUpperCase(),
         "items": {
-          "type": "object",
-          "properties": {
-            "blocks": {
-              "type": "string",
-              "enum": blocks
-            }
-          }
+          "type": "string",
+          "enum": blocks
         }
       }
 
     })
 
     data.schema = form;
+
+    // Load in past values
+
+    C.readConfig("regions", "regions").then(function (output) {
+
+      data.value = output;
+
+      thisHook.finish(true, data);
+
+    }, function (fail) {
+
+      thisHook.finish(true, data);
+
+    });
 
   } catch (e) {
 
@@ -62,13 +71,13 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 CM.forms.registerHook("hook_form_submit_regions", 0, function (thisHook, data) {
 
   try {
-    
+
     C.saveConfig(thisHook.const.params, "regions", "regions", function () {
 
       thisHook.finish(true, data);
-      
+
     });
-    
+
   } catch (e) {
 
     console.log(e);
