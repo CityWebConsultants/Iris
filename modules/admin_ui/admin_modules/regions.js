@@ -32,23 +32,22 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
       form[regionName] = {
         "type": "array",
+        "title": regionName.toUpperCase(),
         "items": {
           "type": "object",
-          "title": regionName,
           "properties": {
             "blocks": {
               "type": "string",
-              "title": "Blocks",
               "enum": blocks
             }
           }
         }
-      };
+      }
 
     })
 
     data.schema = form;
-    
+
   } catch (e) {
 
     console.log(e);
