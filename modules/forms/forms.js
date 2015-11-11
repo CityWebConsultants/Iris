@@ -83,9 +83,9 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
     var formName = form[0];
 
     C.hook("hook_form_render_" + formName, thisHook.authPass, null, {
-      schema: null,
-      form: null,
-      value: null
+      schema: {},
+      form: {},
+      value: {}
     }).then(function (form) {
 
       if (form.schema) {
@@ -99,12 +99,28 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
         // Unset form render object if not set (JSON form provides a default)
 
-        if (!form.form || !Object.keys(form.form)) {
+        if (!form.form || !Object.keys(form.form).length) {
 
-          form.form = undefined;
+          if (form.form) {
+            
+            delete form.form;
+                      
+          }
 
         }
 
+        // Unset form values object if not set
+
+        if (!form.value || !Object.keys(form.value).length) {
+
+          if (form.value) {
+
+            delete form.value;
+            
+          }
+
+        }
+        
         var output = "";
         output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
         output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
