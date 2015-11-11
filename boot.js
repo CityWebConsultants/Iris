@@ -240,17 +240,7 @@ module.exports = function (config) {
 
     C.enabledModules.forEach(function (enabledModule, index) {
 
-      try {
-
-        require(__dirname + enabledModule.path + "/" + enabledModule.name + ".js");
-
-      } catch (e) {
-
-        console.log("Fatal error:", "Could not load module " + enabledModule.path + "/" + enabledModule.name + ".js");
-
-        process.exit();
-
-      }
+      require(__dirname + enabledModule.path + "/" + enabledModule.name + ".js");
 
       C.hook("hook_module_init_" + enabledModule.name, "root", null, null).then(function (success) {
 
