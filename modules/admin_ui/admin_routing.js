@@ -114,6 +114,7 @@ CM.admin_ui.globals.registerPath = function (path, templateName, prepFunction) {
 
 }
 
+CM.admin_ui.globals.registerPath("/admin/regions", "admin_regions");
 CM.admin_ui.globals.registerPath("/admin/login", "admin_login");
 CM.admin_ui.globals.registerPath("/admin", "admin_dashboard");
 CM.admin_ui.globals.registerPath("/admin/permissions", "admin_permissions");

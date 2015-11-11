@@ -27,8 +27,6 @@ CM.blocks.globals.registerBlock = function (config) {
 
 glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
-  var blocks = [];
-
   files.forEach(function (file) {
 
     var config = fs.readFileSync(file, "utf8");
@@ -46,8 +44,6 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
           CM.blocks.globals.blocks[config.type] = {};
 
         }
-
-        blocks.push(config.id);
 
         CM.blocks.globals.blocks[config.type][config.id] = config;
 

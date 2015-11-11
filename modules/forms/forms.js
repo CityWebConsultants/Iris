@@ -74,27 +74,6 @@ CM.forms.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
 });
 
-CM.forms.registerHook("hook_form_render_test", 0, function (thisHook, data) {
-
-  data = {
-    "schema": {
-      "field": {
-        "type": "string",
-        "title": "A field"
-      }
-    }
-  };
-
-  thisHook.finish(true, data);
-
-});
-
-CM.forms.registerHook("hook_form_submit_test", 0, function (thisHook, data) {
-
-  thisHook.finish(true, data);
-
-});
-
 CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   var variables = data.variables;
