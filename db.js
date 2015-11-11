@@ -24,7 +24,8 @@ if (C.config.db_username && C.config.db_password) {
 
 mongoose.connection.on('error', function (error) {
 
-  C.log("fatal", error);
+  console.log(error);
+  process.send("restart");
 
 });
 
