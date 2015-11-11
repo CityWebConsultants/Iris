@@ -61,25 +61,6 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
   })
 
-  // Make regions form
-  
-  CM.forms.globals.makeForm("regions", {
-    "Header": {
-      "type": "array",
-      "title": "Example region",
-      "items": {
-        "type": "object",
-        "properties": {
-          "blocks": {
-            "type": "string",
-            "title": "Blocks",
-            "enum": blocks
-          }
-        }
-      }
-    }
-  });
-
 })
 
 CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
