@@ -24,9 +24,11 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
             var callback = function (res) {
 
-              res.redirect(req.url);
+              res.redirect(thisHook.const.req.url);
 
             }
+
+            thisHook.finish(true, callback);
 
           } else {
 
@@ -102,9 +104,9 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
         if (!form.form || !Object.keys(form.form).length) {
 
           if (form.form) {
-            
+
             delete form.form;
-                      
+
           }
 
         }
@@ -116,11 +118,11 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
           if (form.value) {
 
             delete form.value;
-            
+
           }
 
         }
-        
+
         var output = "";
         output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
         output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
