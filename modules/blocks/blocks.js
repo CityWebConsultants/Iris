@@ -136,7 +136,7 @@ CM.blocks.globals.registerBlockType = function (name) {
   } else {
 
     // Add to global object of blockTypes
-    
+
     CM.blocks.globals.blockTypes[name] = {};
 
   }
@@ -162,5 +162,47 @@ CM.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
     thisHook.finish(true, data);
 
   }
+
+});
+
+// Add title field to block forms
+
+CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
+
+  var formTitle = thisHook.const.formId;
+
+  if (formTitle.split("_")[0] === "blockForm") {
+
+    if (!data.schema) {
+
+      data.schema = {};
+
+    }
+
+    data.schema["blockTitle"] = {
+      type: "string",
+      required: true,
+      title: "Block title"
+    };
+
+  };
+
+  thisHook.finish(true, data);
+
+})
+
+// Default form submit for block forms
+
+CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
+
+  var formTitle = thisHook.const.params.formid;
+
+  if (formTitle.split("_")[0] === "blockForm") {
+
+    //    console.log(formTitle.split("_")[1])
+
+  };
+
+  thisHook.finish(true, data);
 
 });
