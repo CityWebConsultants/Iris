@@ -136,7 +136,7 @@ CM.blocks.globals.registerBlockType = function (name) {
   } else {
 
     // Add to global object of blockTypes
-    
+
     CM.blocks.globals.blockTypes[name] = {};
 
   }
@@ -162,5 +162,72 @@ CM.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
     thisHook.finish(true, data);
 
   }
+
+});
+
+// Add title field to block forms
+
+CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
+
+  var formTitle = thisHook.const.formId;
+
+  if (formTitle.split("_")[0] === "blockForm") {
+
+    if (!data.schema) {
+
+      data.schema = {};
+
+    }
+
+    data.schema["blockTitle"] = {
+      type: "string",
+      required: true,
+      title: "Block title"
+    };
+
+    data.schema["blockType"] = {
+      type: "hidden",
+      default: formTitle.split("_")[1]
+    };
+
+    // Check if a config file has already been saved for this block. If so, load in the current settings.
+
+    C.readConfig("blocks/" + formTitle.split("_")[1], formTitle.split("_")[2]).then(function (output) {
+
+      data.value = output;
+
+      thisHook.finish(true, data);
+
+    }, function (fail) {
+
+      thisHook.finish(true, data);
+
+    });
+
+  } else {
+
+    thisHook.finish(true, data);
+
+  };
+
+})
+
+// Default form submit for block forms
+
+CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
+
+  var formId = thisHook.const.params.formid
+
+  if (formId.split("_")[0] === "blockForm") {
+
+    C.saveConfig(thisHook.const.params, "blocks" + "/" + formId.split('_')[1], formId.split('_')[2], function () {
+
+      thisHook.finish(true, data);
+
+    });
+
+  };
+
+  thisHook.finish(true, data);
 
 });
