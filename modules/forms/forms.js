@@ -1,24 +1,5 @@
 C.registerModule("forms");
 
-CM.forms.globals.forms = {};
-
-CM.forms.globals.makeForm = function (name, schema) {
-
-  //Add hidden form ID field
-
-  schema.formid = {
-    "type": "hidden",
-    "default": name
-  };
-
-  CM.forms.globals.forms[name] = {};
-  CM.forms.globals.forms[name].name = name;
-  CM.forms.globals.forms[name].schema = schema;
-
-};
-
-require("./example");
-
 CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
   if (thisHook.const.req.method === "POST") {
@@ -27,45 +8,51 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
     if (body && body.formid) {
 
-      if (CM.forms.globals.forms[body.formid]) {
+      C.hook("hook_form_submit", thisHook.const.req.authPass, {
+        params: thisHook.const.req.body,
+        req: thisHook.const.req
+      }).then(function (output) {
 
-        C.hook("hook_form_submit", thisHook.const.req.authPass, {
+        C.hook("hook_form_submit_" + body.formid, thisHook.const.req.authPass, {
           params: thisHook.const.req.body,
           req: thisHook.const.req
-        }).then(function (callback) {
+        }, null).then(function (callback) {
 
-          C.hook("hook_form_submit_" + body.formid, thisHook.const.req.authPass, {
-            params: thisHook.const.req.body,
-            req: thisHook.const.req
-          }, null).then(function (callback) {
+          if (typeof callback !== "function") {
 
-            thisHook.finish(true, callback);
+            // If no callback is supplied provide a basic redirect to the same page
 
-          }, function (fail) {
+            var callback = function (res) {
 
-            if (fail === "No such hook exists") {
-
-              thisHook.finish(true, callback);
-
-            } else {
-
-              thisHook.finish(false, callback);
+              res.redirect(req.url);
 
             }
 
-          });
+          } else {
+
+            thisHook.finish(true, callback);
+
+          }
 
         }, function (fail) {
 
-          thisHook.finish(true, data);
+          if (fail === "No such hook exists") {
+
+            thisHook.finish(true, callback);
+
+          } else {
+
+            thisHook.finish(false, callback);
+
+          }
 
         });
 
-      } else {
+      }, function (fail) {
 
         thisHook.finish(true, data);
 
-      }
+      });
 
     } else {
 
@@ -81,82 +68,7 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
 });
 
-var populateForm = function (form, authPass) {
-
-  if (!form.form) {
-
-    form.form = [];
-
-  }
-
-  Object.keys(form.schema).forEach(function (property) {
-
-    form.form.push({
-      key: property
-    });
-
-  });
-
-  form.form.push({
-    "type": "submit",
-    "title": "Submit"
-  })
-
-  return new Promise(function (yes, no) {
-
-    var name = form.name;
-
-    C.hook("hook_form_render", authPass, form, form).then(function (form) {
-
-      C.hook("hook_form_render_" + name, authPass, form, form).then(function (form) {
-
-        yes(form);
-
-      }, function (fail) {
-
-        if (fail === "No such hook exists") {
-
-          yes(form);
-
-        } else {
-
-          no(fail);
-
-        }
-
-      }, function (fail) {
-
-        C.log("error", fail);
-
-      });
-
-    }, function (fail) {
-
-      C.log("error", fail);
-
-    });
-
-  });
-
-};
-
 CM.forms.registerHook("hook_form_submit", 0, function (thisHook, data) {
-
-  data = function(res){};
-
-  thisHook.finish(true, data);
-
-});
-
-CM.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
-
-  thisHook.finish(true, data);
-
-});
-
-//General form render hook
-
-CM.forms.registerHook("hook_form_schema_alter", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
 
@@ -164,93 +76,68 @@ CM.forms.registerHook("hook_form_schema_alter", 0, function (thisHook, data) {
 
 CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  CM.frontend.globals.parseBlock("form", data.html, function (formName, next) {
+  var variables = data.variables;
 
-    formName = formName[0];
+  CM.frontend.globals.parseBlock("form", data.html, function (form, next) {
 
-    // Check if form exists
+    var formName = form[0];
 
-    if (CM.forms.globals.forms[formName]) {
+    C.hook("hook_form_render_" + formName, thisHook.authPass, null, {
+      schema: {},
+      form: {},
+      value: {}
+    }).then(function (form) {
 
-      var form = JSON.parse(JSON.stringify(CM.forms.globals.forms[formName]));
+      if (form.schema) {
 
-      form.context = thisHook.const.context;
+        // Add the form id in as a hidden field
 
-      C.hook("hook_form_schema_alter", thisHook.authPass, form, form).then(function (form) {
+        form.schema.formid = {
+          "type": "hidden",
+          "default": formName
+        };
 
-        render(form);
+        // Unset form render object if not set (JSON form provides a default)
 
-      });
+        if (!form.form || !Object.keys(form.form).length) {
 
-      var render = function (form) {
+          if (form.form) {
+            
+            delete form.form;
+                      
+          }
 
-        C.hook("hook_form_schema_alter_" + formName, thisHook.authPass, form, form).then(function (form) {
+        }
 
-            populateForm(form, thisHook.authPass).then(function (form) {
+        // Unset form values object if not set
 
-              var output = "<form method='POST' id='" + formName + "' ng-non-bindable ></form>";
+        if (!form.value || !Object.keys(form.value).length) {
 
-              // Remove form context. Not needed any more and causes JSON stringify problems.
+          if (form.value) {
 
-              delete form.context;
+            delete form.value;
+            
+          }
 
-              try {
-                output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
+        }
+        
+        var output = "";
+        output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
+        output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
 
-              } catch (e) {
+        next(output);
 
-                C.log("error", form);
+      } else {
 
-                C.log("error", e);
-
-              }
-
-              next(output);
-
-            }, function (fail) {
-
-              C.log("error", fail);
-
-            }, function (fail) {
-
-              C.log("error", fail);
-
-            });
-
-          },
-          function (fail) {
-
-            if (fail === "No such hook exists") {
-
-              populateForm(form, thisHook.authPass).then(function (form) {
-
-                // Remove form context. Not needed any more and causes JSON stringify problems.
-
-                delete form.context;
-
-                var output = "<form method='POST' id='" + formName + "' ng-non-bindable ></form>";
-
-                output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
-
-                next(output);
-
-              });
-
-            } else {
-
-              next("<!-- No handler for form " + formName + " -->");
-
-            }
-
-          });
+        next("<!-- Failed to load form -->");
 
       }
 
-    } else {
+    }, function (fail) {
 
-      next("<!-- Could not find form " + formName + " -->");
+      next("<!-- Failed to load form -->");
 
-    }
+    });
 
   }).then(function (html) {
 
@@ -260,10 +147,8 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
   }, function (fail) {
 
-    C.log("error", fail);
-
     thisHook.finish(true, data);
 
   });
 
-})
+});

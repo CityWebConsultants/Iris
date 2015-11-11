@@ -27,8 +27,6 @@ CM.blocks.globals.registerBlock = function (config) {
 
 glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
-  var blocks = [];
-
   files.forEach(function (file) {
 
     var config = fs.readFileSync(file, "utf8");
@@ -47,8 +45,6 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
         }
 
-        blocks.push(config.id);
-
         CM.blocks.globals.blocks[config.type][config.id] = config;
 
       }
@@ -60,25 +56,6 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
     }
 
   })
-
-  // Make regions form
-  
-  CM.forms.globals.makeForm("regions", {
-    "Header": {
-      "type": "array",
-      "title": "Example region",
-      "items": {
-        "type": "object",
-        "properties": {
-          "blocks": {
-            "type": "string",
-            "title": "Blocks",
-            "enum": blocks
-          }
-        }
-      }
-    }
-  });
 
 })
 

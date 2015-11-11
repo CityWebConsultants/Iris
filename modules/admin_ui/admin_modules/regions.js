@@ -1,116 +1,68 @@
 var fs = require('fs');
 
-// Regions configuration page
+CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
-C.app.get('/admin/regions', function (req, res) {
+  // Loop over available block types and add their blocks to a list for the form
 
-  if (req.authPass.roles.indexOf("admin") === -1) {
+  var blocks = [];
 
-    res.redirect("/admin/login?return=/admin/regions");
-    return false;
+  Object.keys(CM.blocks.globals.blocks).forEach(function (blockType) {
+
+    Object.keys(CM.blocks.globals.blocks[blockType]).forEach(function (block) {
+
+      blocks.push(block);
+
+    })
+
+  });
+
+  // Get a list of regions
+
+  try {
+
+    var themeSettings = fs.readFileSync(C.sitePath + "/" + C.config.theme + "/theme.json", "utf8");
+
+    themeSettings = JSON.parse(themeSettings);
+
+    var regions = themeSettings.regions;
+
+    var form = {};
+
+    regions.forEach(function (regionName) {
+
+      form[regionName] = {
+        "type": "array",
+        "title": regionName.toUpperCase(),
+        "items": {
+          "type": "object",
+          "properties": {
+            "blocks": {
+              "type": "string",
+              "enum": blocks
+            }
+          }
+        }
+      }
+
+    })
+
+    data.schema = form;
+
+  } catch (e) {
+
+    console.log(e);
+    thisHook.finish(true, data);
 
   }
 
-  var page = fs.readFileSync(__dirname + "/../templates/admin_regions_list.html", "utf8");
-
-  CM.frontend.globals.parseTemplate(page, req.authPass).then(function (page) {
-
-    res.send(page.html);
-
-  });
+  thisHook.finish(true, data);
 
 });
 
-C.app.get('/admin/block/create/:type', function (req, res) {
+CM.forms.registerHook("hook_form_submit_regions", 0, function (thisHook, data) {
 
-  if (req.authPass.roles.indexOf("admin") === -1) {
+  console.log(thisHook.params);
 
-    res.redirect("/admin");
-    return false;
-
-  }
-
-  var page = fs.readFileSync(__dirname + "/../templates/admin_block_edit.html", "utf8");
-
-  page = page.split("[[blockformtitle]]").join("Create new " + req.params.type + " block");
-  page = page.split("[[blockform]]").join('block_' + req.params.type);
-
-  C.hook("hook_regions_load", req.authPass).then(function (regions) {
-
-    CM.frontend.globals.parseTemplate(page, req.authPass, {
-      custom: {
-        customForm: {
-          type: req.params.type,
-          regions: regions
-        },
-        isExisting: false
-      }
-    }).then(function (page) {
-
-      res.send(page.html);
-
-    }, function (fail) {
-
-      C.log("error", fail);
-
-    });
-
-  }, function (fail) {
-
-    res.send("Could not load regions");
-
-  });
-
-});
-
-C.app.get('/admin/block/edit/:type/:id', function (req, res) {
-
-  if (req.authPass.roles.indexOf("admin") === -1) {
-
-    res.redirect("/admin");
-    return false;
-
-  }
-
-  var page = fs.readFileSync(__dirname + "/../templates/admin_block_edit.html", "utf8");
-
-  // Fetch block
-
-  var blockConfig;
-
-  C.hook("hook_block_loadConfig", req.authPass, {
-    type: req.params.type,
-    id: req.params.id
-  }).then(function (config) {
-
-    if (config === "Could not load block") {
-
-      // Block doesn't exist
-
-    }
-
-    page = page.split("[[blockformtitle]]").join("Edit block " + req.params.id);
-    page = page.split("[[blockform]]").join('block_' + req.params.type);
-
-    CM.frontend.globals.parseTemplate(page, req.authPass, {
-      custom: {
-        customForm: {
-          type: req.params.type,
-          id: req.params.id
-        },
-        isExisting: true,
-        existing: config.config
-      }
-    }).then(function (page) {
-
-      res.send(page.html);
-
-    });
-
-  }, function (fail) {
-
-    res.send("Block could not be loaded");
-
-  });
+  thisHook.finish(true, data);
 
 });

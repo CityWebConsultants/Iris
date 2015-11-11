@@ -1,15 +1,24 @@
-CM.forms.globals.makeForm("apikey_login", {
-  apikey: {
-    type: 'password',
-    title: 'API key',
-    required: true,
-  },
-  secretkey: {
-    type: 'password',
-    title: 'Secret key',
-    required: true,
-  }
+CM.forms.registerHook("hook_form_render_apikey_login", 0, function (thisHook, data) {
+
+  data = {
+    "schema": {
+      apikey: {
+        type: 'password',
+        title: 'API key',
+        required: true,
+      },
+      secretkey: {
+        type: 'password',
+        title: 'Secret key',
+        required: true,
+      }
+    }
+  };
+
+  thisHook.finish(true, data);
+
 });
+
 
 CM.admin_ui.globals.adminToken = [];
 
