@@ -185,6 +185,11 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
       title: "Block title"
     };
 
+    data.schema["blockType"] = {
+      type: "hidden",
+      default: formTitle.split("_")[1]
+    };
+
   };
 
   thisHook.finish(true, data);
@@ -195,11 +200,15 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
 CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
-  var formTitle = thisHook.const.params.formid;
+  var formId = thisHook.const.params.formid
 
-  if (formTitle.split("_")[0] === "blockForm") {
+  if (formId.split("_")[0] === "blockForm") {
+    
+    C.saveConfig(thisHook.const.params, "blocks" + "/" + formId.split('_')[1], formId.split('_')[2], function () {
 
-    //    console.log(formTitle.split("_")[1])
+      thisHook.finish(true, data);
+
+    });
 
   };
 
