@@ -9,6 +9,7 @@ require('./admin_routing.js');
 
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/entities', 'Entities');
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/regions', 'Regions');
+CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/blocks', 'Blocks');
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/permissions', 'Permissions');
 
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/config/export', 'Export config');

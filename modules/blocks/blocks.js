@@ -127,23 +127,17 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
 
 });
 
-CM.blocks.globals.registerBlockType = function (name, schema) {
+CM.blocks.globals.registerBlockType = function (name) {
 
   if (!name) {
 
     C.log("error", "block types must have a name")
 
-  } else if (!schema) {
-
-    C.log("error", "block types must have a form schema")
-
   } else {
 
     // Add to global object of blockTypes
-    CM.blocks.globals.blockTypes[thisHook.const.type] = thisHook.const;
-
-    // Automatically register form
-    CM.blocks.globals.makeForm("block_" + thisHook.const.type, thisHook.const.schema);
+    
+    CM.blocks.globals.blockTypes[name] = {};
 
   }
 

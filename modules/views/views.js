@@ -6,85 +6,11 @@ process.on("dbReady", function () {
 
   // Create a view block type for each entity
 
-  var registerViewBlock = function (name, fields) {
-
-    // Register an example type
-    C.hook("hook_block_registerType", "root", {
-      name: 'View of ' + name,
-      type: 'view_' + name,
-      schema: {
-        "conditions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "title": "Conditions",
-            "properties": {
-              "field": {
-                "type": "string",
-                "title": "Field to check",
-                "enum": fields
-              },
-              "comparison": {
-                "type": "string",
-                "title": "Operator",
-                "enum": ["IS", "IN", "CONTAINS"]
-              },
-              "compare": {
-                "type": "string",
-                "title": "Value to check for",
-                "description": "This value can be altered dynamically later on"
-              },
-            }
-          }
-        },
-        "fields": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "title": "Field",
-            "properties": {
-              "field": {
-                "type": "string",
-                "title": "Entity field",
-                "enum": fields
-              },
-              "wrapper": {
-                "type": "string",
-                "title": "HTML wrapper element",
-                "enum": ["div", "span", "h1", "h2", "h3"]
-              },
-              "allowhtml": {
-                "type": "boolean",
-                "title": "Allow HTML?"
-              },
-              "class": {
-                "type": "string",
-                "title": "Classes",
-                "description": "Space-separated"
-              }
-            }
-          }
-        }
-      }
-    }).then(function (block) {
-
-      thisHook.finish(true, block);
-
-    }, function (fail) {
-
-      thisHook.finish(false, block);
-
-      C.log("error", fail);
-
-    });
-
-  };
-
   Object.keys(C.dbCollections).forEach(function (entityType) {
 
     var fields = Object.keys(C.dbCollections[entityType].schema.tree);
 
-    registerViewBlock(entityType, fields);
+    CM.blocks.globals.registerBlockType('View of ' + entityType);
 
   });
 
@@ -198,3 +124,60 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
 //  })
 //
 //});
+
+// Form
+
+//{
+//        "conditions": {
+//          "type": "array",
+//          "items": {
+//            "type": "object",
+//            "title": "Conditions",
+//            "properties": {
+//              "field": {
+//                "type": "string",
+//                "title": "Field to check",
+//                "enum": fields
+//              },
+//              "comparison": {
+//                "type": "string",
+//                "title": "Operator",
+//                "enum": ["IS", "IN", "CONTAINS"]
+//              },
+//              "compare": {
+//                "type": "string",
+//                "title": "Value to check for",
+//                "description": "This value can be altered dynamically later on"
+//              },
+//            }
+//          }
+//        },
+//        "fields": {
+//          "type": "array",
+//          "items": {
+//            "type": "object",
+//            "title": "Field",
+//            "properties": {
+//              "field": {
+//                "type": "string",
+//                "title": "Entity field",
+//                "enum": fields
+//              },
+//              "wrapper": {
+//                "type": "string",
+//                "title": "HTML wrapper element",
+//                "enum": ["div", "span", "h1", "h2", "h3"]
+//              },
+//              "allowhtml": {
+//                "type": "boolean",
+//                "title": "Allow HTML?"
+//              },
+//              "class": {
+//                "type": "string",
+//                "title": "Classes",
+//                "description": "Space-separated"
+//              }
+//            }
+//          }
+//        }
+//      });
