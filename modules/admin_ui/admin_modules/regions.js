@@ -61,8 +61,18 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
 CM.forms.registerHook("hook_form_submit_regions", 0, function (thisHook, data) {
 
-  console.log(thisHook.params);
+  try {
+    
+    C.saveConfig(thisHook.const.params, "regions", "regions", function () {
 
-  thisHook.finish(true, data);
+      thisHook.finish(true, data);
+      
+    });
+    
+  } catch (e) {
+
+    console.log(e);
+
+  }
 
 });
