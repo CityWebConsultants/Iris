@@ -84,49 +84,47 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
     var renderForm = function (form) {
 
-      if (form.schema) {
+      if (!form.schema) {
 
-        // Add the form id in as a hidden field
-
-        form.schema.formid = {
-          "type": "hidden",
-          "default": formName
-        };
-
-        // Unset form render object if not set (JSON form provides a default)
-
-        if (!form.form || !Object.keys(form.form).length) {
-
-          if (form.form) {
-
-            delete form.form;
-
-          }
-
-        }
-
-        // Unset form values object if not set
-
-        if (!form.value || !Object.keys(form.value).length) {
-
-          if (form.value) {
-
-            delete form.value;
-
-          }
-
-        }
-
-        var output = "";
-        output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
-        output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
-        return output;
-
-      } else {
-
-        return "<!-- Failed to load form -->";
+        form.schema = {}
 
       }
+
+      // Add the form id in as a hidden field
+
+      form.schema.formid = {
+        "type": "hidden",
+        "default": formName
+      };
+
+      // Unset form render object if not set (JSON form provides a default)
+
+      if (!form.form || !Object.keys(form.form).length) {
+
+        if (form.form) {
+
+          delete form.form;
+
+        }
+
+      }
+
+      // Unset form values object if not set
+
+      if (!form.value || !Object.keys(form.value).length) {
+
+        if (form.value) {
+
+          delete form.value;
+
+        }
+
+      }
+
+      var output = "";
+      output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
+      output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
+      return output;
 
     };
 
@@ -138,13 +136,19 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
       value: {}
     }
 
-    C.hook("hook_form_render", thisHook.authPass, formName, formTemplate).then(function (formTemplate) {
+    C.hook("hook_form_render", thisHook.authPass, {
+      formId: form[0]
+    }, formTemplate).then(function (formTemplate) {
 
-      C.hook("hook_form_render_" + formName, thisHook.authPass, form[0], formTemplate).then(function (form) {
+      C.hook("hook_form_render_" + formName, thisHook.authPass, {
+        formId: form[0]
+      }, formTemplate).then(function (form) {
 
         next(renderForm(form));
 
       }, function (fail) {
+
+        next(renderForm(formTemplate))
 
         next("<!-- Failed to load form -->");
 
