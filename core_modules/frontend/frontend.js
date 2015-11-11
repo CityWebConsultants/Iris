@@ -74,13 +74,13 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
     data.entity.id = entity._id;
     data.entity.fields = entity;
 
-    if (!data.entity.fields.eID) {
+    if (!data.entity.fields.eId) {
 
-      data.entity.fields.eID = data.entity._id;
+      data.entity.fields.eId = data.entity._id;
 
     }
-    
-    var template = findTemplate([data.entity.type, data.entity.fields.eID]).then(function (data) {
+
+    var template = findTemplate([data.entity.type, data.entity.fields.eId]).then(function (data) {
 
       processTemplate(data);
 
@@ -101,7 +101,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
         inner = inner.html;
 
-        var wrapperTemplate = findTemplate(["html", data.entity.type, data.entity.fields.eID]).then(function (wrapperTemplate) {
+        var wrapperTemplate = findTemplate(["html", data.entity.type, data.entity.fields.eId]).then(function (wrapperTemplate) {
 
           parseTemplate(wrapperTemplate, authPass, context).then(function (wrapper) {
 
@@ -549,13 +549,13 @@ var parseTemplate = function (html, authPass, context) {
 
       embeds.forEach(function (element) {
 
-        if (!entity.eID) {
+        if (!entity.eId) {
 
-          entity.eID = entity._id;
+          entity.eId = entity._id;
 
         }
 
-        findTemplate([element, entity.entityType, entity.eID]).then(function (subTemplate) {
+        findTemplate([element, entity.entityType, entity.eId]).then(function (subTemplate) {
 
           parseTemplate(subTemplate, authPass, context).then(function (contents) {
 

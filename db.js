@@ -291,7 +291,7 @@ C.dbPopulate = function () {
       required: true
     }
 
-    C.dbSchema[schema].eID = {
+    C.dbSchema[schema].eId = {
       type: Number,
       description: "Entity ID",
       title: "Unique ID",

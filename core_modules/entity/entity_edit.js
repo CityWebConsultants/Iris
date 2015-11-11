@@ -12,9 +12,9 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
   // Unset entity ID. You shouldn't be able to change it.
 
-  if (!data.eID) {
+  if (!data.eId) {
 
-    data.eID = undefined;
+    data.eId = undefined;
 
   };
 
@@ -163,14 +163,6 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
   };
 
   var update = function (validatedEntity) {
-
-    // TODO - Remove this!
-    
-    if (!validatedEntity.eID) {
-
-      validatedEntity.eID = Math.floor(Math.random() * (1 - 100000000000000 + 1)) + 1;
-
-    }
 
     var conditions = {
       _id: validatedEntity._id

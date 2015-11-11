@@ -146,11 +146,11 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
         C.log("error", err);
         thisHook.finish(false, "Database error");
 
-        preparedEntity.eID = 0;
+        preparedEntity.eId = 0;
 
       }
 
-      preparedEntity.eID = result;
+      preparedEntity.eId = result;
 
       var entity = new C.dbCollections[preparedEntity.entityType](preparedEntity);
 
