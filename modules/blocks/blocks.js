@@ -190,9 +190,25 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
       default: formTitle.split("_")[1]
     };
 
-  };
+    // Check if a config file has already been saved for this block. If so, load in the current settings.
 
-  thisHook.finish(true, data);
+    C.readConfig("blocks/" + formTitle.split("_")[1], formTitle.split("_")[2]).then(function (output) {
+
+      data.value = output;
+
+      thisHook.finish(true, data);
+
+    }, function (fail) {
+
+      thisHook.finish(true, data);
+
+    });
+
+  } else {
+
+    thisHook.finish(true, data);
+
+  };
 
 })
 
@@ -203,7 +219,7 @@ CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
   var formId = thisHook.const.params.formid
 
   if (formId.split("_")[0] === "blockForm") {
-    
+
     C.saveConfig(thisHook.const.params, "blocks" + "/" + formId.split('_')[1], formId.split('_')[2], function () {
 
       thisHook.finish(true, data);
