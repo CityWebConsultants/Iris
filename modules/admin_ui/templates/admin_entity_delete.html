@@ -22,7 +22,7 @@
 
       $.post("/entity/delete/" + type + "/" + id, values, function(err, data) {
 
-        document.location.href = "/modules/admin_ui/entitylist/" + type;
+        document.location.href = "/admin/entitylist/" + type;
 
       });
 
@@ -32,7 +32,7 @@
 
       e.preventDefault();
 
-      document.location.href = "/modules/admin_ui/entitylist/" + type;
+      document.location.href = "/admin/entitylist/" + type;
 
     });
 
