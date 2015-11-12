@@ -39,7 +39,7 @@ CM.admin_ui.globals.registerPath = function (path, templateName, prepFunction) {
 
       prepFunction = function (req, callback) {
 
-        callback();
+        callback({test: 'tes'});
 
       }
 
@@ -114,6 +114,7 @@ CM.admin_ui.globals.registerPath = function (path, templateName, prepFunction) {
 
 }
 
+CM.admin_ui.globals.registerPath("/admin/blocks", "admin_blockslist");
 CM.admin_ui.globals.registerPath("/admin/regions", "admin_regions");
 CM.admin_ui.globals.registerPath("/admin/login", "admin_login");
 CM.admin_ui.globals.registerPath("/admin", "admin_dashboard");
@@ -126,14 +127,3 @@ CM.admin_ui.globals.registerPath("/admin/edit/:type/:_id", "admin_entity_edit");
 CM.admin_ui.globals.registerPath("/admin/create/:type", "admin_entity_create");
 CM.admin_ui.globals.registerPath("/admin/delete/:type/:id", "admin_entity_delete");
 CM.admin_ui.globals.registerPath("/admin/logs", "admin_logs");
-
-CM.admin_ui.globals.registerPath("/admin/blocks", "admin_blockslist", function (req, callback) {
-  
-  console.log(CM.blocks.globals.blocks);
-  
-  callback({
-    blockTypes: CM.blocks.globals.blockTypes,
-    blocks: CM.blocks.globals.blocks
-  });
-
-});
