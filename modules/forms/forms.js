@@ -123,7 +123,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
       var output = "";
       output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
-      output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
+      output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/deps/jquery.min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
       return output;
 
     };
