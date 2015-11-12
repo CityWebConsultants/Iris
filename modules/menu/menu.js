@@ -14,10 +14,6 @@ CM.menu.registerHook("hook_menu_view", 0, function (thisHook, menuName) {
 
 });
 
-// Register template
-
-CM.frontend.globals.templateRegistry.external.push(__dirname + '/templates');
-
 CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   var variables = data.variables;

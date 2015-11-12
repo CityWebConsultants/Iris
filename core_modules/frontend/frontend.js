@@ -33,6 +33,18 @@ CM.frontend.globals.themeConfig = function () {
 
 };
 
+// Add theme folders from modules
+
+process.on("dbReady", function () {
+
+  Object.keys(CM).forEach(function (moduleName) {
+
+    CM.frontend.globals.templateRegistry.external.push(CM[moduleName].path + '/templates');
+
+  })
+
+});
+
 // Check that theme is sane
 try {
 
@@ -281,7 +293,13 @@ var findTemplate = function (paths, extension) {
 
     CM.frontend.globals.templateRegistry.external.forEach(function (directory) {
 
-      var files = fs.readdirSync(directory);
+      try {
+        var files = fs.readdirSync(directory)
+      } catch (e) {
+
+        return false;
+
+      };
 
       var result = lookForTemplate(files, args);
 

@@ -1,8 +1,5 @@
 C.registerModule("regions");
 
-// Register templates folder
-CM.frontend.globals.templateRegistry.external.push(__dirname + '/templates');
-
 // Default region view permission
 CM.auth.globals.registerPermission("can view regions", "regions");
 

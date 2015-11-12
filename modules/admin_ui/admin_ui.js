@@ -1,8 +1,5 @@
 C.registerModule("admin_ui");
 
-// Register templates folder
-CM.frontend.globals.templateRegistry.external.push(__dirname + '/templates');
-
 require('./admin_modules.js');
 
 require('./admin_routing.js');
@@ -17,7 +14,6 @@ CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/config/import', 'Impor
 
 CM.menu.globals.registerMenuItem('admin_toolbar', '/admin/logs', 'Logs');
 CM.menu.globals.registerMenuItem('admin_toolbar', '/logout', 'Log Out');
-
 
 CM.auth.globals.registerPermission("can view admin menu", "admin");
 
