@@ -773,3 +773,46 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
   }
 
 });
+
+// Helper function for parsing a template from a file with paramaters 
+
+CM.frontend.globals.parseTemplateFile = function (templateName, parameters, authPass, req) {
+
+  return new Promise(function (yes, no) {
+
+    CM.frontend.globals.findTemplate(templateName).then(function (template) {
+
+      CM.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
+
+          C.hook("hook_frontend_template", authPass || "root", {
+            html: success.html,
+            vars: success.variables
+          }, {
+            html: success.html,
+            vars: success.variables
+          }).then(function (output) {
+
+            yes(output);
+
+          }, function (fail) {
+
+            no(fail);
+
+          })
+        },
+        function (fail) {
+
+          no(fail);
+
+        });
+
+
+    }, function (fail) {
+
+      no(fail);
+
+    });
+
+  });
+
+}
