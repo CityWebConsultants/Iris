@@ -52,9 +52,6 @@
     "name": "example",
     "path": "/modules/example"
 }, {
-    "name": "mustache",
-    "path": "/modules/mustache"
-}, {
     "name": "blocks",
     "path": "/modules/blocks"
 },

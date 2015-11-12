@@ -712,12 +712,6 @@ C.app.use(function (req, res, next) {
 
 });
 
-CM.frontend.registerHook("hook_frontend_template", 0, function (thisHook, data) {
-
-  thisHook.finish(true, data);
-
-});
-
 CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data) {
 
   CM.frontend.globals.findTemplate([thisHook.const.error], "html").then(function (html) {
@@ -757,5 +751,25 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
     thisHook.finish(true, "<h1>Error " + thisHook.const.error + "</h1>");
 
   });
+
+});
+
+// Handlebars templating
+
+CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
+
+  var Handlebars = require('handlebars');
+
+  try {
+
+    data.html = Handlebars.compile(data.html)(data.vars);
+
+    thisHook.finish(true, data);
+
+  } catch (e) {
+
+    thisHook.finish(false, e);
+
+  }
 
 });
