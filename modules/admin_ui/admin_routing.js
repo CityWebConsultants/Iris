@@ -47,64 +47,29 @@ CM.admin_ui.globals.registerPath = function (path, templateName, prepFunction) {
 
     prepFunction(req, function (variables) {
 
-      // find specified template
+      // find specified template and render it
 
-      CM.frontend.globals.findTemplate([templateName], "html").then(function (html) {
+      CM.frontend.globals.parseTemplateFile([templateName], ['admin_wrapper'], variables, req.authPass, req).then(function (success) {
 
-        // Merge in admin wrapper (including admin menu)
+        res.send(success)
 
-        var admin_wrapper = fs.readFileSync(__dirname + '/templates/admin.html', "utf8");
+      }, function (fail) {
 
-        html = admin_wrapper.replace('[[[ADMINCONTENT]]]', html);
+        C.log("error", e);
 
-        // Parse using the templating system
+        C.hook("hook_display_error_page", req.authPass, {
+          error: 500,
+          req: req,
+          res: res
+        }).then(function (success) {
 
-        CM.frontend.globals.parseTemplate(html, req.authPass).then(function (page) {
+          res.status(500).send(success);
 
-          page.variables = Object.assign(variables, page.variables);
+        }, function (fail) {
 
-          // Parse with Mustache manually
-          // ----------------------------
-          // Does not use the hook to do this as admin_ui needs to work independently
-          // of which templating system is used for the site frontend.
-
-          var Handlebars = require('handlebars');
-
-          try {
-
-            var html = Handlebars.compile(page.html);
-                        
-            res.send(html(page.variables));
-
-          } catch (e) {
-                        
-            C.log("error", e);
-
-            C.hook("hook_display_error_page", req.authPass, {
-              error: 500,
-              req: req,
-              res: res
-            }).then(function (success) {
-
-              res.status(500).send(success);
-
-            }, function (fail) {
-
-              res.status(500).send("Something went wrong");;
-
-            });
-
-          }
+          res.status(500).send("Something went wrong");;
 
         });
-
-      }, function () {
-
-        var error = function (req, res) {
-
-          res.send("Error loading template");
-
-        };
 
       });
 
