@@ -214,7 +214,7 @@ CM.user.globals.getRole = function (userid, callback) {
       userid: userid
     }, function (err, doc) {
 
-      if (!err && doc.roles) {
+      if (!err && doc && doc.roles) {
 
         CM.user.globals.userRoles[userid] = doc.roles;
 
