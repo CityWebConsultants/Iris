@@ -7,7 +7,7 @@
 <script>
   $(document).ready(function() {
 
-    $.get("/modules/admin_ui/api/schema/fieldtypes", function(data) {
+    $.get("/admin/api/schema/fieldtypes", function(data) {
 
       var fields = JSON.parse(data).response;
 
@@ -115,7 +115,7 @@
           "secretkey": "letmein"
         };
 
-        $.post("/modules/admin_ui/api/schema/create", values, function(data, status) {
+        $.post("/admin/api/schema/create", values, function(data, status) {
 
           if (status === "success") {
 

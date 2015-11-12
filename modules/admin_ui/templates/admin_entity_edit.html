@@ -34,7 +34,7 @@
     var type = urlparts[urlparts.length - 2];
     var id = urlparts[urlparts.length - 1];
 
-    $.get('/modules/admin_ui/api/edit/' + type + '/' + id + "/form").done(function(data) {
+    $.get('/admin/api/edit/' + type + '/' + id + "/form").done(function(data) {
 
       data.onSubmit = function(errors, values) {
 
@@ -82,7 +82,7 @@
       $("textarea").each(function() {
         CKEDITOR.replace(this, {
 
-          filebrowserUploadUrl: '/modules/admin_ui/api/file/upload'
+          filebrowserUploadUrl: '/admin/api/file/upload'
 
         });
       });

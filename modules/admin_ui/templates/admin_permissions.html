@@ -11,7 +11,7 @@
 <script>
   $(document).ready(function() {
 
-    $.get("/modules/admin_ui/api/permissions").done(function(data) {
+    $.get("/admin/api/permissions").done(function(data) {
 
       $("#roles").append("<th>Permission</th>");
 
@@ -78,7 +78,7 @@
 
       });
 
-      $.post("/modules/admin_ui/api/permissions", permissions).done(function(err, data) {
+      $.post("/admin/api/permissions", permissions).done(function(err, data) {
 
         console.log(data);
 
