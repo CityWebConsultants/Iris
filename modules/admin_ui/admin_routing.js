@@ -68,17 +68,17 @@ CM.admin_ui.globals.registerPath = function (path, templateName, prepFunction) {
           // Does not use the hook to do this as admin_ui needs to work independently
           // of which templating system is used for the site frontend.
 
-          var Mustache = require('mustache');
+          var Handlebars = require('handlebars');
 
           try {
 
-            page.html = Mustache.render(page.html, page.variables);
+            page.html = Handlebars.compile(page.html, page.variables);
 
             res.send(page.html);
 
           } catch (e) {
-
-            C.log("error", "Mustache rendering failed");
+            
+            C.log("error", "Handlerbars rendering failed");
 
             C.hook("hook_display_error_page", req.authPass, {
               error: 500,
