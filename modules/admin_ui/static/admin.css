@@ -21,11 +21,12 @@ img {
 }
 table {
   background-color: transparent;
+    margin:20px 0;
 }
 th, td {
   padding:10px;
 }
-tr:nth-child(odd) {
+tr:nth-child(even) {
   background-color: #E9E6FF;
 }
 #main {
