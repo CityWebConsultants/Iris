@@ -218,7 +218,7 @@ var findTemplate = function (paths, extension) {
 
   if (!extension) {
 
-    extension = C.config.templateExtension || "html";
+    extension = "html";
 
   };
 
