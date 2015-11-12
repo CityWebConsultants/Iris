@@ -240,6 +240,17 @@ module.exports = function (config) {
 
     C.enabledModules.forEach(function (enabledModule, index) {
 
+      try {
+
+        fs.readFileSync(__dirname + enabledModule.path + "/" + enabledModule.name + ".js");
+        
+      } catch (e) {
+
+        console.log("can't find module " + enabledModule.name)
+        return false;
+
+      }
+
       require(__dirname + enabledModule.path + "/" + enabledModule.name + ".js");
 
       C.hook("hook_module_init_" + enabledModule.name, "root", null, null).then(function (success) {
