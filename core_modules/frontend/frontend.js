@@ -794,42 +794,69 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
 
 // Helper function for parsing a template from a file with paramaters 
 
-CM.frontend.globals.parseTemplateFile = function (templateName, parameters, authPass, req) {
+CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
 
   return new Promise(function (yes, no) {
 
-    CM.frontend.globals.findTemplate(templateName).then(function (template) {
+    var parseTemplateFile = function (template, parameters, callback) {
 
-      CM.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
+      CM.frontend.globals.findTemplate(templateName).then(function (template) {
 
-          C.hook("hook_frontend_template", authPass || "root", {
-            html: success.html,
-            vars: success.variables
-          }, {
-            html: success.html,
-            vars: success.variables
-          }).then(function (output) {
+        CM.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
 
-            yes(output);
+            C.hook("hook_frontend_template", authPass || "root", {
+              html: success.html,
+              vars: success.variables
+            }, {
+              html: success.html,
+              vars: success.variables
+            }).then(function (output) {
 
-          }, function (fail) {
+              callback(output);
+
+            }, function (fail) {
+
+              no(fail);
+
+            })
+          },
+          function (fail) {
 
             no(fail);
 
-          })
-        },
-        function (fail) {
-
-          no(fail);
-
-        });
+          });
 
 
-    }, function (fail) {
+      }, function (fail) {
 
-      no(fail);
+        no(fail);
 
-    });
+      });
+
+    };
+
+    if (wrapperTemplateName) {
+
+      parseTemplateFile(wrapperTemplateName, parameters, function (wrapperOutput) {
+
+        parseTemplateFile(templateName, wrapperOutput.variables, function (innerOutput) {
+
+          var output = innerOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput);
+          yes(output);
+
+        })
+
+      })
+
+    } else {
+
+      parseTemplateFile(templateName, function (output) {
+
+        yes(output);
+
+      })
+
+    }
 
   });
 
