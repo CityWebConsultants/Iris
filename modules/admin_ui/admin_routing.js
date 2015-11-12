@@ -47,15 +47,324 @@ C.app.get("/admin/blocks", function (req, res) {
 
 })
 
-//CM.admin_ui.globals.registerPath("/admin/regions", "admin_regions");
-//CM.admin_ui.globals.registerPath("/admin/login", "admin_login");
-//CM.admin_ui.globals.registerPath("/admin", "admin_dashboard");
-//CM.admin_ui.globals.registerPath("/admin/permissions", "admin_permissions");
-//CM.admin_ui.globals.registerPath("/admin/entities", "admin_entity_types");
-//CM.admin_ui.globals.registerPath("/admin/entitylist/:type", "admin_entitylist", CM.admin_ui.globals.prepareEntitylist);
-//CM.admin_ui.globals.registerPath("/admin/schema/create", "admin_schema_create");
-//CM.admin_ui.globals.registerPath("/admin/schema/edit/:type", "admin_schema_edit");
-//CM.admin_ui.globals.registerPath("/admin/edit/:type/:_id", "admin_entity_edit");
-//CM.admin_ui.globals.registerPath("/admin/create/:type", "admin_entity_create");
-//CM.admin_ui.globals.registerPath("/admin/delete/:type/:id", "admin_entity_delete");
-//CM.admin_ui.globals.registerPath("/admin/logs", "admin_logs");
+C.app.get("/admin/regions", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+C.app.get("/admin", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_dashboard"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+C.app.get("/admin/permissions", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+C.app.get("/admin/entities", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_entity_types"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+C.app.get("/admin/logs", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_logs"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+C.app.get("/admin/schema/create", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_schema_create"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+C.app.get("/admin/schema/edit", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_schema_edit"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+C.app.get("/admin/edit/:type/:_id", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_entity_edit"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+C.app.get("/admin/create/:type", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_entity_create"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+C.app.get("/admin/delete/:type/:id", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_entity_delete"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+C.app.get("/admin/entitylist/:type", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.admin_ui.globals.prepareEntitylist(req.params.type, function (output) {
+        
+    CM.frontend.globals.parseTemplateFile(["admin_entitylist"], ['admin_wrapper'], {
+      entities: output
+    }, req.authPass, req).then(function (success) {
+
+      res.send(success)
+
+    }, function (fail) {
+
+      CM.frontend.globals.displayErrorPage(500, req, res);
+
+      C.log("error", e);
+
+    });
+
+  })
+
+})

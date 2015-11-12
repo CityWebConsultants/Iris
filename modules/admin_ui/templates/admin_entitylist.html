@@ -1,20 +1,26 @@
-  <table class="table" id="entity-list">
-    <tbody>
+<table class="table" id="entity-list">
+  
+  <tbody>
 
-      <th>ID</th>
-      <th>Title (if applicable)</th>
-      <th>Edit</th>
-      <th>Delete</th>
+    <th>ID</th>
+    <th>Title (if applicable)</th>
+    <th>Edit</th>
+    <th>Delete</th>
 
-      {{#each entities}}
-      <tr>
-        <td>{{_id}}</td>
-        <td>{{title}}</td>
-        <td><a href="/admin/edit/{{ entityType }}/{{ _id }}">Edit</a></td>
-        <td><a href="/admin/delete/{{ entityType }}/{{ _id }}">Delete</a></td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
+    {{#each entities}}
+
+    <br />
+
+    <tr>
+      <td>{{_id}}</td>
+      <td>{{title}}</td>
+      <td><a href="/admin/edit/{{ entityType }}/{{ _id }}">Edit</a></td>
+      <td><a href="/admin/delete/{{ entityType }}/{{ _id }}">Delete</a></td>
+    </tr>
+
+    {{/each}}
+
+  </tbody>
+</table>
 
 </section>
