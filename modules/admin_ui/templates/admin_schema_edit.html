@@ -9,7 +9,7 @@
 <script>
   $(document).ready(function() {
 
-    $.get("/modules/admin_ui/api/schema/fieldtypes", function(data) {
+    $.get("/admin/api/schema/fieldtypes", function(data) {
 
       var fields = JSON.parse(data).response;
 
@@ -89,7 +89,7 @@
 
       window.type = urlparts[urlparts.length - 1];
 
-      $.get("/modules/admin_ui/api/schema/edit/" + type + "/form", function(data, errors) {
+      $.get("/admin/api/schema/edit/" + type + "/form", function(data, errors) {
 
         schema.value = {
           "entityname": type,
@@ -124,11 +124,11 @@
           "secretkey": "letmein"
         };
 
-        $.post("/modules/admin_ui/api/schema/edit/" + type, values, function(data, status) {
+        $.post("/admin/api/schema/edit/" + type, values, function(data, status) {
 
           if (status === "success") {
 
-            document.location.href = "/modules/admin_ui/entities";
+            document.location.href = "/admin/entities";
 
           };
 

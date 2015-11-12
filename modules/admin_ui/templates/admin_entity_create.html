@@ -17,7 +17,7 @@
 
     window.type = urlparts[urlparts.length - 1];
 
-    $.get('/modules/admin_ui/api/create/' + window.type + "/form").done(function(data) {
+    $.get('/admin/api/create/' + window.type + "/form").done(function(data) {
 
       data.onSubmit = function(errors, values) {
 
@@ -34,7 +34,7 @@
 
           $.post("/entity/create/" + type, values, function(data, err) {
 
-            document.location.href = "/modules/admin_ui/entitylist/" + type;
+            document.location.href = "/admin/entitylist/" + type;
 
           })
 
@@ -46,7 +46,7 @@
       JSONForm.elementTypes['fileField'].template = "<input type='hidden' name='<%= node.name %>' value='<%= escape(value) %>'><input type='file' id='input' onchange='handleFiles(this.files[0], <%= node.name %>)'>";
 
       window.handleFiles = function(file, inputname) {
-        var uri = "/modules/admin_ui/file/fileFieldUpload";
+        var uri = "/admin/file/fileFieldUpload";
         var xhr = new XMLHttpRequest();
         var fd = new FormData();
 
@@ -70,7 +70,7 @@
       $("textarea").each(function() {
         CKEDITOR.replace(this, {
 
-          filebrowserUploadUrl: '/modules/admin_ui/file/upload'
+          filebrowserUploadUrl: '/admin/file/upload'
 
         });
       });

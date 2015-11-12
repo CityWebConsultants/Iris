@@ -1,9 +1,9 @@
 <script>
-  $.get("/modules/admin_ui/api/entitytypes", function(data, err) {
+  $.get("/admin/api/entitytypes", function(data, err) {
 
     $.each(data, function(index, element) {
 
-      $("#entity-types").append("<li><h3>"+element+"</h3><ul><li><a href='/modules/admin_ui/entitylist/"+element+"'>View content</a></li><li><a href='/modules/admin_ui/create/"+element+"'>Create new</a></li><li><a href='/modules/admin_ui/schema/edit/"+element+"'>Edit entity fields</a></li></ul></li>");
+      $("#entity-types").append("<li><h3>"+element+"</h3><ul><li><a href='/admin/entitylist/"+element+"'>View content</a></li><li><a href='/admin/create/"+element+"'>Create new</a></li><li><a href='/admin/schema/edit/"+element+"'>Edit entity fields</a></li></ul></li>");
 
     });
 
@@ -14,5 +14,5 @@
 <h1>Edit entity types</h1>
 <h2>Add/modify fields</h2>
 <ul id="entity-types"></ul>
-<a class="btn" href="/modules/admin_ui/schema/create">Create a new entity type</a>
+<a class="btn" href="/admin/schema/create">Create a new entity type</a>
 
