@@ -1,3 +1,27 @@
-<h1>Blocks</h1> 
+{{=[% %]=}}
 
+<h1>Blocks</h1>
 
+<h2>List of block types</h2>
+
+<ul>
+
+  [% #blockTypes %]
+
+  <li> [% . %] </li>
+
+  [%/blockTypes%]
+
+</ul>
+
+<h2>List of blocks</h2>
+
+<ul>
+
+  [% #blocks %]
+
+  [%#.%]  <li> [% name %] </li> [%/.%] 
+
+  [%/blocks%]
+
+</ul>

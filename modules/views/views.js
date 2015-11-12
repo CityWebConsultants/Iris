@@ -11,7 +11,7 @@ process.on("dbReady", function () {
     var fields = Object.keys(C.dbCollections[entityType].schema.tree);
 
     CM.blocks.globals.registerBlockType('View of ' + entityType);
-
+    
   });
 
 })

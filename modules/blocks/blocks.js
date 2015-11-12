@@ -1,6 +1,6 @@
 C.registerModule("blocks");
 
-CM.blocks.globals.blockTypes = {};
+CM.blocks.globals.blockTypes = [];
 
 // Object in which to store all blocks
 
@@ -28,24 +28,24 @@ CM.blocks.globals.registerBlock = function (config) {
 glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
   files.forEach(function (file) {
-
+    
     var config = fs.readFileSync(file, "utf8");
 
     try {
 
       config = JSON.parse(config);
-
-      if (config.id && config.type) {
+      
+      if (config.blockTitle && config.blockType) {
 
         // Make object for block type if it doesn't already exist
 
-        if (!CM.blocks.globals.blocks[config.type]) {
+        if (!CM.blocks.globals.blocks[config.blockType]) {
 
-          CM.blocks.globals.blocks[config.type] = {};
+          CM.blocks.globals.blocks[config.blockType] = {};
 
         }
 
-        CM.blocks.globals.blocks[config.type][config.id] = config;
+        CM.blocks.globals.blocks[config.blockType][config.blockTitle] = config;
 
       }
 
@@ -135,9 +135,8 @@ CM.blocks.globals.registerBlockType = function (name) {
 
   } else {
 
-    // Add to global object of blockTypes
-
-    CM.blocks.globals.blockTypes[name] = {};
+    // Add to global list of blockTypes
+    CM.blocks.globals.blockTypes.push(name);
 
   }
 
