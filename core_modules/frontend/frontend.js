@@ -740,7 +740,9 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
 
   }
 
-  CM.frontend.globals.parseTemplateFile([thisHook.const.error], null, {front: isFront}, thisHook.const.req.authPass, thisHook.const.req).then(function (success) {
+  CM.frontend.globals.parseTemplateFile([thisHook.const.error], null, {
+    front: isFront
+  }, thisHook.const.req.authPass, thisHook.const.req).then(function (success) {
 
     thisHook.finish(true, success.html)
 
@@ -819,9 +821,10 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
       parseTemplateFile(wrapperTemplateName, parameters, function (wrapperOutput) {
 
-        parseTemplateFile(templateName, wrapperOutput.variables, function (innerOutput) {
-
+        parseTemplateFile(templateName, wrapperOutput.vars, function (innerOutput) {
+          
           var output = wrapperOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput.html);
+
           yes(output);
 
         })
