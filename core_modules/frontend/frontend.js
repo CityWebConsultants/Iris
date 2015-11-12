@@ -218,7 +218,7 @@ var findTemplate = function (paths, extension) {
 
   if (!extension) {
 
-    extension = "html";
+    extension = "htm";
 
   };
 
