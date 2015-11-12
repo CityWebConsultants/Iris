@@ -732,37 +732,17 @@ C.app.use(function (req, res, next) {
 
 CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data) {
 
-  CM.frontend.globals.findTemplate([thisHook.const.error], "html").then(function (html) {
+  var isFront = false;
 
-    var isFront = false;
+  if (thisHook.const.req.url === '/' || thisHook.const.req.url === '/force_front_404') {
 
-    if (thisHook.const.req.url === '/' || thisHook.const.req.url === '/force_front_404') {
+    isFront = true;
 
-      isFront = true;
+  }
 
-    }
+  CM.frontend.globals.parseTemplateFile([thisHook.const.error], null, {front: isFront}, thisHook.const.req.authPass, thisHook.const.req).then(function (success) {
 
-    CM.frontend.globals.parseTemplate(html, thisHook.const.req.authPass, {
-      url: thisHook.const.req.url,
-      front: isFront
-    }).then(function (page) {
-
-      C.hook("hook_frontend_template", thisHook.authPass, null, {
-        html: page.html,
-        vars: page.variables
-      }).then(function (success) {
-
-        thisHook.finish(true, success.html);
-
-      }, function (fail) {
-
-        C.log("error", fail);
-
-        thisHook.finish(false, page.html);
-
-      });
-
-    });
+    thisHook.finish(true, success.html)
 
   }, function (fail) {
 
@@ -850,7 +830,7 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
     } else {
 
-      parseTemplateFile(templateName, function (output) {
+      parseTemplateFile(templateName, parameters, function (output) {
 
         yes(output);
 
