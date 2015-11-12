@@ -718,7 +718,7 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
 
     var isFront = false;
 
-    if (thisHook.const.req.url === '/') {
+    if (thisHook.const.req.url === '/' || thisHook.const.req.url === '/force_front_404') {
 
       isFront = true;
 
