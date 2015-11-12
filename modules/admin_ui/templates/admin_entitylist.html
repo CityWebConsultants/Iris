@@ -1,5 +1,3 @@
-{{=[% %]=}}
-
   <table class="table" id="entity-list">
     <tbody>
 
@@ -8,14 +6,14 @@
       <th>Edit</th>
       <th>Delete</th>
 
-      [% #entities %]
+      {{#each entities}}
       <tr>
-        <td>[% _id %]</td>
-        <td>[% title %]</td>
-        <td><a href="/admin/edit/[% entityType %]/[% _id %]">Edit</a></td>
-        <td><a href="/admin/delete/[% entityType %]/[% _id %]">Delete</a></td>
+        <td>{{_id}}</td>
+        <td>{{title}}</td>
+        <td><a href="/admin/edit/{{ entityType }}/{{ _id }}">Edit</a></td>
+        <td><a href="/admin/delete/{{ entityType }}/{{ _id }}">Delete</a></td>
       </tr>
-      [% /entities %]
+      {{/each}}
     </tbody>
   </table>
 

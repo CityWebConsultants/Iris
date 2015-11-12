@@ -73,7 +73,7 @@ CM.admin_ui.globals.registerPath = function (path, templateName, prepFunction) {
           try {
 
             var html = Handlebars.compile(page.html);
-            
+                        
             res.send(html(page.variables));
 
           } catch (e) {
