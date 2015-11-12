@@ -1,26 +1,24 @@
-{{=[% %]=}}
-
-<nav class="menu menu-[% menu.title %]">
+<nav class="menu menu-{{menu.title}}">
 
   <ul>
 
-    [% #menu.menulink %]
+    {{#menu.menulink}}
 
-            <li [% #children %] class="has-children" [% /children %]>
+            <li {{#children}} class="has-children" {{/children}}>
 
-      <a href="[% path %]">[% title %]</a>
+      <a href="{{path}}">{{title}}</a>
 
               <ul>
 
-      [% #children %]
+      {{#children}}
 
-      <li><a href="[% path %]">[% title %]</a></li>
+      <li><a href="{{path}}">{{title}}</a></li>
 
-      [% /children %]
+      {{/children}}
 
               </ul>
 
-    [% /menu.menulink %]
+    {{/menu.menulink}}
 
   </ul>
 

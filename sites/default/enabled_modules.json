@@ -1,1 +1,64 @@
-[{"name":"modules/about/about.iris","path":"modules/about/about.js"},{"name":"modules/actions/actions.iris","path":"modules/actions/actions.js"},{"name":"modules/admin/admin.iris","path":"modules/admin/admin.js"},{"name":"modules/block_manager/block_manager.iris","path":"modules/block_manager/block_manager.js"},{"name":"modules/blocks/blocks.iris","path":"modules/blocks/blocks.js"},{"name":"modules/ckeditor/ckeditor.iris","path":"modules/ckeditor/ckeditor.js"},{"name":"modules/entity_views/entity_views.iris","path":"modules/entity_views/entity_views.js"},{"name":"modules/example/example.iris","path":"modules/example/example.js"},{"name":"modules/forms/forms.iris","path":"modules/forms/forms.js"},{"name":"modules/frontend/frontend.iris","path":"modules/frontend/frontend.js"},{"name":"modules/group_manager/group_manager.iris","path":"modules/group_manager/group_manager.js"},{"name":"modules/headertags/headertags.iris","path":"modules/headertags/headertags.js"},{"name":"modules/menu/menu.iris","path":"modules/menu/menu.js"},{"name":"modules/messages_replies/messages_replies.iris","path":"modules/messages_replies/messages_replies.js"},{"name":"modules/messages/messages.iris","path":"modules/messages/messages.js"},{"name":"modules/mustache/mustache.iris","path":"modules/mustache/mustache.js"},{"name":"modules/region_manager/region_manager.iris","path":"modules/region_manager/region_manager.js"},{"name":"modules/regions/regions.iris","path":"modules/regions/regions.js"},{"name":"modules/sessions/sessions.iris","path":"modules/sessions/sessions.js"},{"name":"modules/user/user.iris","path":"modules/user/user.js"},{"name":"modules/views/views.iris","path":"modules/views/views.js"}]
+[{
+    "name": "sessions",
+    "path": "/modules/sessions"
+}, {
+    "name": "group_manager",
+    "path": "/modules/group_manager"
+}, {
+    "name": "bunyan",
+    "path": "/modules/bunyan"
+}, {
+    "name": "messages",
+    "path": "/modules/messages"
+}, {
+    "name": "messages_replies",
+    "path": "/modules/messages_replies"
+}, {
+    "name": "entity_views",
+    "path": "/modules/entity_views"
+}, {
+    "name": "about",
+    "path": "/modules/about"
+}, {
+    "name": "actions",
+    "path": "/modules/actions"
+}, {
+    "name": "forms",
+    "path": "/modules/forms"
+}, {
+    "name": "headertags",
+    "path": "/modules/headertags"
+},
+  {
+    "name": "ckeditor",
+    "path": "/modules/ckeditor"
+},
+  {
+    "name": "menu",
+    "path": "/modules/menu"
+},
+  {
+    "name": "admin_ui",
+    "path": "/modules/admin_ui"
+},
+  {
+    "name": "page",
+    "path": "/modules/page"
+},
+  {
+    "name": "user",
+    "path": "/modules/user"
+}, {
+    "name": "example",
+    "path": "/modules/example"
+}, {
+    "name": "mustache",
+    "path": "/modules/mustache"
+}, {
+    "name": "blocks",
+    "path": "/modules/blocks"
+},
+  {
+    "name": "views",
+    "path": "/modules/views"
+}]

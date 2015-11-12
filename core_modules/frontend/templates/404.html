@@ -1,7 +1,3 @@
-{{=[% %]=}}
-
-
-
 <!doctype html>
 
 <html>
@@ -14,7 +10,7 @@
 
 <body>
 
-  [% #front %]
+  {{#front}}
 
   <style>
     .main-container {
@@ -47,9 +43,9 @@
 
   </div>
 
-  [% /front %]
+  {{/front}}
 
-  [% ^front %]
+  {{^front}}
 
   <style>
     .main-container {
@@ -76,7 +72,7 @@
 
   </div>
 
-  [% /front %]
+  {{/front}}
 
 </body>
 
