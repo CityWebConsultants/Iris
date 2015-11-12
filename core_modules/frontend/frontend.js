@@ -744,7 +744,7 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
     front: isFront
   }, thisHook.const.req.authPass, thisHook.const.req).then(function (success) {
 
-    thisHook.finish(true, success.html)
+    thisHook.finish(true, success)
 
   }, function (fail) {
 
@@ -822,7 +822,7 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
       parseTemplateFile(wrapperTemplateName, parameters, function (wrapperOutput) {
 
         parseTemplateFile(templateName, wrapperOutput.vars, function (innerOutput) {
-          
+
           var output = wrapperOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput.html);
 
           yes(output);
@@ -835,7 +835,7 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
       parseTemplateFile(templateName, parameters, function (output) {
 
-        yes(output);
+        yes(output.html);
 
       })
 
