@@ -7,7 +7,7 @@
 <script>
   $(document).ready(function() {
 
-    $.get("/admin/api/schema/fieldtypes", function(data) {
+    $.get("/modules/admin_ui/api/schema/fieldtypes", function(data) {
 
       var fields = JSON.parse(data).response;
 
@@ -115,11 +115,11 @@
           "secretkey": "letmein"
         };
 
-        $.post("/admin/api/schema/create", values, function(data, status) {
+        $.post("/modules/admin_ui/api/schema/create", values, function(data, status) {
 
           if (status === "success") {
 
-            document.location.href = "/admin/entities";
+            document.location.href = "/modules/admin_ui/entities";
 
           };
 

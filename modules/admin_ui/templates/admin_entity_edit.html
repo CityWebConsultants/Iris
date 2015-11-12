@@ -23,7 +23,7 @@
 
       e.preventDefault();
 
-      document.location.href = "/admin/delete/" + type + '/' + id;
+      document.location.href = "/modules/admin_ui/delete/" + type + '/' + id;
 
     });
 
@@ -34,7 +34,7 @@
     var type = urlparts[urlparts.length - 2];
     var id = urlparts[urlparts.length - 1];
 
-    $.get('/admin/api/edit/' + type + '/' + id + "/form").done(function(data) {
+    $.get('/modules/admin_ui/api/edit/' + type + '/' + id + "/form").done(function(data) {
 
       data.onSubmit = function(errors, values) {
 
@@ -46,7 +46,7 @@
 
           $.post("/entity/edit/" + type + "/" + id, values, function(err, data) {
 
-            document.location.href = "/admin/entitylist/" + type;
+            document.location.href = "/modules/admin_ui/entitylist/" + type;
 
           })
 
@@ -58,7 +58,7 @@
       JSONForm.elementTypes['fileField'].template = "<input type='hidden' name='<%= node.name %>' value='<%= escape(value) %>'><input type='file' id='input' onchange='handleFiles(this.files[0], <%= node.name %>)'>";
 
       window.handleFiles = function(file, inputname) {
-        var uri = "/admin/file/fileFieldUpload";
+        var uri = "/modules/admin_ui/file/fileFieldUpload";
         var xhr = new XMLHttpRequest();
         var fd = new FormData();
 
@@ -82,7 +82,7 @@
       $("textarea").each(function() {
         CKEDITOR.replace(this, {
 
-          filebrowserUploadUrl: '/admin/api/file/upload'
+          filebrowserUploadUrl: '/modules/admin_ui/api/file/upload'
 
         });
       });
