@@ -90,3 +90,10 @@ C.typeCheck = function (allowed, entity, data) {
   }
 
 };
+
+C.sanitizeFileName = function (name) {
+
+  // Doesn't currently support anything not English
+  return name.split(/\W/).join('-').toLowerCase();
+
+}
