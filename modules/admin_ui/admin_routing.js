@@ -72,13 +72,13 @@ CM.admin_ui.globals.registerPath = function (path, templateName, prepFunction) {
 
           try {
 
-            page.html = Handlebars.compile(page.html, page.variables);
-
-            res.send(page.html);
+            var html = Handlebars.compile(page.html);
+            
+            res.send(html(page.variables));
 
           } catch (e) {
-            
-            C.log("error", "Handlerbars rendering failed");
+                        
+            C.log("error", e);
 
             C.hook("hook_display_error_page", req.authPass, {
               error: 500,
