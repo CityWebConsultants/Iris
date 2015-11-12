@@ -792,15 +792,15 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
 
 });
 
-// Helper function for parsing a template from a file with paramaters 
+// Helper function for parsing a template from a file with paramaters
 
 CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
 
   return new Promise(function (yes, no) {
 
-    var parseTemplateFile = function (template, parameters, callback) {
+    var parseTemplateFile = function (currentTemplateName, parameters, callback) {
 
-      CM.frontend.globals.findTemplate(templateName).then(function (template) {
+      CM.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
 
         CM.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
 
@@ -841,7 +841,7 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
         parseTemplateFile(templateName, wrapperOutput.variables, function (innerOutput) {
 
-          var output = innerOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput);
+          var output = wrapperOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput.html);
           yes(output);
 
         })
