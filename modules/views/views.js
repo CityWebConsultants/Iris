@@ -26,76 +26,87 @@ process.on("dbReady", function () {
 
     CM.blocks.globals.registerBlockType('View-of-' + entityType);
 
-    CM.views.registerHook("hook_form_render_blockForm_View-of-" + entityType, 0, function (thisHook, data) {
+  });
 
-      // Add in fields
+  // Register edit/create forms
 
-      var form = {
-        "conditions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "title": "Conditions",
-            "properties": {
-              "field": {
-                "type": "string",
-                "title": "Field to check",
-                "enum": fields
-              },
-              "comparison": {
-                "type": "string",
-                "title": "Operator",
-                "enum": ["IS", "IN", "CONTAINS"]
-              },
-              "compare": {
-                "type": "string",
-                "title": "Value to check for",
-                "description": "This value can be altered dynamically later on"
-              },
-            }
+  CM.views.registerHook("hook_form_render", 0, function (thisHook, data) {
+        
+    if(thisHook.const.formId.indexOf("View") === -1){
+    
+      thisHook.finish(true, data);
+      return false;
+      
+    }
+
+    var fields = ["hello"];
+    
+    // Add in fields
+
+    var form = {
+      "conditions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "title": "Conditions",
+          "properties": {
+            "field": {
+              "type": "string",
+              "title": "Field to check",
+              "enum": fields
+            },
+            "comparison": {
+              "type": "string",
+              "title": "Operator",
+              "enum": ["IS", "IN", "CONTAINS"]
+            },
+            "compare": {
+              "type": "string",
+              "title": "Value to check for",
+              "description": "This value can be altered dynamically later on"
+            },
           }
-        },
-        "fields": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "title": "Field",
-            "properties": {
-              "field": {
-                "type": "string",
-                "title": "Entity field",
-                "enum": fields
-              },
-              "wrapper": {
-                "type": "string",
-                "title": "HTML wrapper element",
-                "enum": ["div", "span", "h1", "h2", "h3"]
-              },
-              "allowhtml": {
-                "type": "boolean",
-                "title": "Allow HTML?"
-              },
-              "class": {
-                "type": "string",
-                "title": "Classes",
-                "description": "Space-separated"
-              }
+        }
+      },
+      "fields": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "title": "Field",
+          "properties": {
+            "field": {
+              "type": "string",
+              "title": "Entity field",
+              "enum": fields
+            },
+            "wrapper": {
+              "type": "string",
+              "title": "HTML wrapper element",
+              "enum": ["div", "span", "h1", "h2", "h3"]
+            },
+            "allowhtml": {
+              "type": "boolean",
+              "title": "Allow HTML?"
+            },
+            "class": {
+              "type": "string",
+              "title": "Classes",
+              "description": "Space-separated"
             }
           }
         }
       }
+    }
 
-      Object.keys(form).forEach(function (formField) {
+    Object.keys(form).forEach(function (formField) {
 
-        data.schema[formField] = form[formField];
-
-      })
-
-      thisHook.finish(true, data);
+      data.schema[formField] = form[formField];
 
     })
+    
+    thisHook.finish(true, data);
 
-  });
+  })
 
 })
 
@@ -148,11 +159,11 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
               viewOutput[field.field].value = fetched[field.field];
 
             }
-            
+
             output.push(viewOutput);
 
           })
-          
+
           CM.frontend.globals.parseTemplateFile(["views", thisHook.const.type], null, {
             view: output
           }, thisHook.authPass).then(function (success) {
