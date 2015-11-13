@@ -410,7 +410,7 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
   CM.admin_ui.globals.prepareEntitylist(req.params.type, function (output) {
 
     CM.frontend.globals.parseTemplateFile(["admin_entitylist"], ['admin_wrapper'], {
-      entities: output
+      entities: output.entities
     }, req.authPass, req).then(function (success) {
 
       res.send(success)
