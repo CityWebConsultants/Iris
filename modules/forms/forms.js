@@ -8,12 +8,12 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
     if (body && body.formid) {
 
-      C.hook("hook_form_submit", thisHook.const.req.authPass, {
+      C.hook("hook_form_submit", thisHook.authPass, {
         params: thisHook.const.req.body,
         req: thisHook.const.req
       }).then(function (output) {
 
-        C.hook("hook_form_submit_" + body.formid, thisHook.const.req.authPass, {
+        C.hook("hook_form_submit_" + body.formid, thisHook.authPass, {
           params: thisHook.const.req.body,
           req: thisHook.const.req
         }, null).then(function (callback) {
@@ -40,7 +40,25 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
           if (fail === "No such hook exists") {
 
-            thisHook.finish(true, callback);
+            // Default form if not handler
+
+            if (typeof callback !== "function") {
+
+              // If no callback is supplied provide a basic redirect to the same page
+
+              var callback = function (res) {
+
+                res.redirect(thisHook.const.req.url);
+
+              }
+
+              thisHook.finish(true, callback);
+
+            } else {
+
+              thisHook.finish(true, callback);
+
+            }
 
           } else {
 
