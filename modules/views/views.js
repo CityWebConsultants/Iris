@@ -103,9 +103,75 @@ process.on("dbReady", function () {
 
 CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
 
-  if (thisHook.const.type.split("_")[0] === "view") {
+  if (thisHook.const.type.split("-")[0] === "View") {
 
-    thisHook.finish(true, JSON.stringify(thisHook.const.config));
+    var config = thisHook.const.config;
+
+    var fetch = {
+      entities: [thisHook.const.type.replace("View-of-", "")],
+      queries: config.conditions
+    }
+
+    C.hook("hook_entity_fetch", thisHook.authPass, null, {
+      queryList: [fetch]
+    }).then(function (result) {
+
+        var output = [];
+
+        if (!result || !result.length) {
+
+          thisHook.finish(false, false)
+          return false;
+
+        }
+
+        result.forEach(function (fetched) {
+
+          // Loop over all fields and add variable
+
+          var viewOutput = {};
+
+          config.fields.forEach(function (field, index) {
+
+            viewOutput[field.field] = {};
+
+            // Add all settings provided in the view
+
+            Object.keys(config.fields[index]).forEach(function (fieldSetting) {
+
+              viewOutput[field.field][fieldSetting] = config.fields[index][fieldSetting];
+
+            })
+
+            if (fetched[field.field]) {
+
+              viewOutput[field.field].value = fetched[field.field];
+
+            }
+            
+            output.push(viewOutput);
+
+          })
+          
+          CM.frontend.globals.parseTemplateFile(["views", thisHook.const.type], null, {
+            view: output
+          }, thisHook.authPass).then(function (success) {
+
+            thisHook.finish(true, success);
+
+          }, function (fail) {
+
+            thisHook.finish(true, fail);
+
+          })
+
+        })
+      },
+      function (fail) {
+
+        thisHook.finish(true, fail);
+
+      });
 
   } else {
 
@@ -114,96 +180,3 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
   }
 
 });
-
-//CM.views.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-//
-//  var variables = data.variables;
-//
-//  CM.frontend.globals.parseBlock("view", data.html, function (view, next) {
-//
-//    var fs = require("fs");
-//
-//    fs.readFile(C.configPath + "/views/" + view[0] + ".json", "utf8", function (err, file) {
-//
-//      if (!err) {
-//
-//        try {
-//
-//          var viewFile = JSON.parse(file);
-//
-//          var fetch = {
-//            entities: [viewFile.type],
-//            queries: viewFile.conditions
-//          }
-//
-//          C.hook("hook_entity_fetch", thisHook.authPass, null, {
-//            queryList: [fetch]
-//          }).then(function (result) {
-//
-//            var output = [];
-//
-//            result.forEach(function (fetched) {
-//
-//              // Loop over all fields and add variable
-//
-//              var viewOutput = {};
-//
-//              viewFile.fields.forEach(function (field, index) {
-//
-//                viewOutput[field.field] = {};
-//
-//                // Add all settings provided in the view
-//
-//                Object.keys(viewFile.fields[index]).forEach(function (fieldSetting) {
-//
-//                  viewOutput[field.field][fieldSetting] = viewFile.fields[index][fieldSetting];
-//
-//                })
-//
-//                if (fetched[field.field]) {
-//
-//                  viewOutput[field.field].value = fetched[field.field];
-//
-//                }
-//
-//              })
-//
-//              output.push(viewOutput);
-//
-//            })
-//
-//            next(result);
-//
-//          }, function (fail) {
-//
-//            next(fail);
-//
-//          });
-//
-//        } catch (e) {
-//
-//          next("");
-//
-//        }
-//
-//      } else {
-//        next("");
-//      }
-//
-//    })
-//
-//  }).then(function (html) {
-//
-//    data.html = html;
-//
-//    thisHook.finish(true, data);
-//
-//  }, function (fail) {
-//
-//    C.log("error", fail);
-//
-//    thisHook.finish(true, data);
-//
-//  })
-//
-//});

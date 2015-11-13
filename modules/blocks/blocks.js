@@ -83,27 +83,27 @@ CM.blocks.globals.registerBlock = function (config) {
 // Read all blocks saved by the user
 
 glob(C.configPath + "/blocks/*/*.json", function (er, files) {
-
+  
   files.forEach(function (file) {
 
     var config = fs.readFileSync(file, "utf8");
 
     try {
-
+      
       config = JSON.parse(config);
 
-      if (config.id && config.type) {
-
+      if (config.blockTitle && config.blockType) {
+      
         // Make object for block type if it doesn't already exist
+        
+        if (!CM.blocks.globals.blocks[config.blockType]) {
 
-        if (!CM.blocks.globals.blocks[config.type]) {
-
-          CM.blocks.globals.blocks[config.type] = {};
+          CM.blocks.globals.blocks[config.blockType] = {};
 
         }
 
-        CM.blocks.globals.blocks[config.type][config.id] = config;
-
+        CM.blocks.globals.blocks[config.blockType][config.blockTitle] = config;
+        
       }
 
     } catch (e) {
@@ -131,7 +131,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
     } else {
 
       // Correct paramaters, now let's see if we can load a block from config
-
+            
       if (CM.blocks.globals.blocks[blockType] && CM.blocks.globals.blocks[blockType][blockName]) {
 
         var paramaters = {
@@ -141,7 +141,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
           config: CM.blocks.globals.blocks[blockType][blockName]
 
         }
-
+        
         C.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
 
           if (!html) {
@@ -149,7 +149,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
             next("<!--- Could not load block " + block + " --->");
 
           } else {
-
+            
             // Block loaded!
 
             next(html);
