@@ -413,7 +413,11 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
         var next = function (content) {
 
-          html = html.split("[[[" + prefix + " " + choice + "]]]").join(content);
+          if (content) {
+
+            html = html.split("[[[" + prefix + " " + choice + "]]]").join(content);
+
+          }
 
           if (counter === embeds.length) {
 
@@ -764,7 +768,24 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
 
     data.html = Handlebars.compile(data.html)(data.vars);
 
-    thisHook.finish(true, data);
+    // Run through parse template again to see if any new templates can be loaded.
+
+    if (data.html.indexOf("[[[") !== -1) {
+
+      CM.frontend.globals.parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
+
+        success.html = Handlebars.compile(success.html)(success.variables);
+
+        thisHook.finish(true, success);
+
+      });
+
+    } else {
+
+      thisHook.finish(true, data);
+
+    }
+
 
   } catch (e) {
 
