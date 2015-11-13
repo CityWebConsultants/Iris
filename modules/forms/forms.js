@@ -11,7 +11,7 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
       C.hook("hook_form_submit", thisHook.authPass, {
         params: thisHook.const.req.body,
         req: thisHook.const.req
-      }).then(function (output) {
+      }).then(function (gremlin) {
 
         C.hook("hook_form_submit_" + body.formid, thisHook.authPass, {
           params: thisHook.const.req.body,
@@ -38,11 +38,12 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
         }, function (fail) {
 
+
           if (fail === "No such hook exists") {
 
             // Default form if not handler
-
-            if (typeof callback !== "function") {
+                        
+            if (typeof gremlin !== "function") {
 
               // If no callback is supplied provide a basic redirect to the same page
 
@@ -52,17 +53,17 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
               }
 
-              thisHook.finish(true, callback);
+              thisHook.finish(true, gremlin);
 
             } else {
 
-              thisHook.finish(true, callback);
+              thisHook.finish(true, gremlin);
 
             }
 
           } else {
 
-            thisHook.finish(false, callback);
+            thisHook.finish(false, fail);
 
           }
 
@@ -165,6 +166,12 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
         next(renderForm(form));
 
       }, function (fail) {
+
+        if (fail = "No such hook exists") {
+
+          next(false);
+
+        }
 
         next(false);
 

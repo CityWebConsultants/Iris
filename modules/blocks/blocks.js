@@ -9,6 +9,63 @@ CM.blocks.globals.blocks = {};
 var fs = require('fs');
 var glob = require("glob");
 
+// Form for making new blocks
+
+CM.forms.registerHook("hook_form_render_newBlockForm", 0, function (thisHook, data) {
+
+  data.schema = {
+    "blockType": {
+      type: 'string',
+      title: 'Block type',
+      required: true,
+      enum: Object.keys(CM.blocks.globals.blockTypes)
+    }
+  };
+
+  thisHook.finish(true, data);
+
+});
+
+CM.forms.registerHook("hook_form_submit_newBlockForm", 0, function (thisHook, data) {
+
+  data = function (res) {
+
+    res.redirect("/admin/blocks/create/" + thisHook.const.params.blockType)
+
+  }
+
+  thisHook.finish(true, data);
+
+});
+
+C.app.get("/admin/blocks/create/:type", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
+    blocktype: req.params.type,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+});
+
 // Function for registering system blocks
 
 CM.blocks.globals.registerBlock = function (config) {
@@ -216,18 +273,26 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
 CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
-  var formId = thisHook.const.params.formid
+  var formId = thisHook.const.params.formid;
 
   if (formId.split("_")[0] === "blockForm") {
 
-    C.saveConfig(thisHook.const.params, "blocks" + "/" + formId.split('_')[1], formId.split('_')[2], function () {
+    C.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, thisHook.const.params.blockTitle, function () {
+      
+      var data = function (res) {
 
+        res.redirect("/admin/blocks")
+
+      }
+      
       thisHook.finish(true, data);
 
     });
 
-  };
+  } else {
 
-  thisHook.finish(true, data);
+    thisHook.finish(true, data);
+
+  }
 
 });

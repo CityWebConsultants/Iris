@@ -8,9 +8,92 @@ process.on("dbReady", function () {
 
   Object.keys(C.dbCollections).forEach(function (entityType) {
 
-    var fields = Object.keys(C.dbCollections[entityType].schema.tree);
+    var fields = [];
 
-    CM.blocks.globals.registerBlockType('View of ' + entityType);
+    Object.keys(C.dbCollections[entityType].schema.tree).forEach(function (fieldName) {
+
+      // Only push in string and number fields
+
+      var field = C.dbCollections[entityType].schema.tree[fieldName];
+
+      if (field.type === String || field.type === Number) {
+
+        fields.push(fieldName);
+
+      }
+
+    });
+
+    CM.blocks.globals.registerBlockType('View-of-' + entityType);
+
+    CM.views.registerHook("hook_form_render_blockForm_View-of-" + entityType, 0, function (thisHook, data) {
+
+      // Add in fields
+
+      var form = {
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Conditions",
+            "properties": {
+              "field": {
+                "type": "string",
+                "title": "Field to check",
+                "enum": fields
+              },
+              "comparison": {
+                "type": "string",
+                "title": "Operator",
+                "enum": ["IS", "IN", "CONTAINS"]
+              },
+              "compare": {
+                "type": "string",
+                "title": "Value to check for",
+                "description": "This value can be altered dynamically later on"
+              },
+            }
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Field",
+            "properties": {
+              "field": {
+                "type": "string",
+                "title": "Entity field",
+                "enum": fields
+              },
+              "wrapper": {
+                "type": "string",
+                "title": "HTML wrapper element",
+                "enum": ["div", "span", "h1", "h2", "h3"]
+              },
+              "allowhtml": {
+                "type": "boolean",
+                "title": "Allow HTML?"
+              },
+              "class": {
+                "type": "string",
+                "title": "Classes",
+                "description": "Space-separated"
+              }
+            }
+          }
+        }
+      }
+
+      Object.keys(form).forEach(function (formField) {
+
+        data.schema[formField] = form[formField];
+
+      })
+
+      thisHook.finish(true, data);
+
+    })
 
   });
 
@@ -124,60 +207,3 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
 //  })
 //
 //});
-
-// Form
-
-//{
-//        "conditions": {
-//          "type": "array",
-//          "items": {
-//            "type": "object",
-//            "title": "Conditions",
-//            "properties": {
-//              "field": {
-//                "type": "string",
-//                "title": "Field to check",
-//                "enum": fields
-//              },
-//              "comparison": {
-//                "type": "string",
-//                "title": "Operator",
-//                "enum": ["IS", "IN", "CONTAINS"]
-//              },
-//              "compare": {
-//                "type": "string",
-//                "title": "Value to check for",
-//                "description": "This value can be altered dynamically later on"
-//              },
-//            }
-//          }
-//        },
-//        "fields": {
-//          "type": "array",
-//          "items": {
-//            "type": "object",
-//            "title": "Field",
-//            "properties": {
-//              "field": {
-//                "type": "string",
-//                "title": "Entity field",
-//                "enum": fields
-//              },
-//              "wrapper": {
-//                "type": "string",
-//                "title": "HTML wrapper element",
-//                "enum": ["div", "span", "h1", "h2", "h3"]
-//              },
-//              "allowhtml": {
-//                "type": "boolean",
-//                "title": "Allow HTML?"
-//              },
-//              "class": {
-//                "type": "string",
-//                "title": "Classes",
-//                "description": "Space-separated"
-//              }
-//            }
-//          }
-//        }
-//      });
