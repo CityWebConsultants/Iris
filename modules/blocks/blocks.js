@@ -30,7 +30,7 @@ CM.forms.registerHook("hook_form_submit_newBlockForm", 0, function (thisHook, da
 
   data = function (res) {
 
-    res.redirect("/admin/blocks/create/" + thisHook.const.params.blockType)
+    res.send("/admin/blocks/create/" + thisHook.const.params.blockType)
 
   }
 
@@ -276,12 +276,14 @@ CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
   var formId = thisHook.const.params.formid;
 
   if (formId.split("_")[0] === "blockForm") {
+    
+    console.log(thisHook.const.params);
 
     C.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, thisHook.const.params.blockTitle, function () {
       
       var data = function (res) {
 
-        res.redirect("/admin/blocks")
+        res.send("/admin/blocks")
 
       }
       

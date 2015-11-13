@@ -24,7 +24,7 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
             var callback = function (res) {
 
-              res.redirect(thisHook.const.req.url);
+              res.send(thisHook.const.req.url);
 
             }
 
@@ -42,14 +42,14 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
           if (fail === "No such hook exists") {
 
             // Default form if not handler
-                        
+
             if (typeof gremlin !== "function") {
 
               // If no callback is supplied provide a basic redirect to the same page
 
               var callback = function (res) {
 
-                res.redirect(thisHook.const.req.url);
+                res.send(thisHook.const.req.url);
 
               }
 
@@ -141,8 +141,11 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
       }
 
       var output = "";
+
+      var toSource = require('tosource');
+
       output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
-      output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/deps/jquery.min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + JSON.stringify(form) + ");</script>";
+      output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/deps/jquery.min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + toSource(form) + ");</script>";
       return output;
 
     };
@@ -154,6 +157,16 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
       form: {},
       value: {}
     }
+
+    formTemplate.onSubmit = function (errors, values) {
+
+      $.post(window.location, values, function (data, err) {
+
+        window.location.href = data;
+
+      })
+
+    };
 
     C.hook("hook_form_render", thisHook.authPass, {
       formId: form[0]
