@@ -761,7 +761,7 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
   var Handlebars = require('handlebars');
 
   try {
-
+    console.log(data.vars);
     data.html = Handlebars.compile(data.html)(data.vars);
 
     thisHook.finish(true, data);
