@@ -181,7 +181,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
       }, function (fail) {
 
         if (fail = "No such hook exists") {
-          
+
           next(false);
 
         }
@@ -196,7 +196,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
     });
   }).then(function (html) {
-    
+
     data.html = html;
 
     thisHook.finish(true, data);

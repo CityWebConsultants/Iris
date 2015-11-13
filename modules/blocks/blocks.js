@@ -83,19 +83,19 @@ CM.blocks.globals.registerBlock = function (config) {
 // Read all blocks saved by the user
 
 glob(C.configPath + "/blocks/*/*.json", function (er, files) {
-
+  
   files.forEach(function (file) {
 
     var config = fs.readFileSync(file, "utf8");
 
     try {
-
+      
       config = JSON.parse(config);
 
       if (config.blockTitle && config.blockType) {
-
+      
         // Make object for block type if it doesn't already exist
-
+        
         if (!CM.blocks.globals.blocks[config.blockType]) {
 
           CM.blocks.globals.blocks[config.blockType] = {};
@@ -103,12 +103,7 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
         }
 
         CM.blocks.globals.blocks[config.blockType][config.blockTitle] = config;
-
-        C.saveConfig(config, "blocks" + "/" + config.blockType, config.blockTitle, function (config) {
-
-
-        });
-
+        
       }
 
     } catch (e) {
@@ -136,7 +131,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
     } else {
 
       // Correct paramaters, now let's see if we can load a block from config
-
+            
       if (CM.blocks.globals.blocks[blockType] && CM.blocks.globals.blocks[blockType][blockName]) {
 
         var paramaters = {
@@ -146,7 +141,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
           config: CM.blocks.globals.blocks[blockType][blockName]
 
         }
-
+        
         C.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
 
           if (!html) {
@@ -154,7 +149,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
             next("<!--- Could not load block " + block + " --->");
 
           } else {
-
+            
             // Block loaded!
 
             next(html);
@@ -251,17 +246,17 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
       type: "hidden",
       default: formTitle.split("_")[1]
     };
-    
+
     // Check if a config file has already been saved for this block. If so, load in the current settings.
 
     C.readConfig("blocks/" + formTitle.split("_")[1], formTitle.split("_")[2]).then(function (output) {
-      
+
       data.value = output;
-      
+
       thisHook.finish(true, data);
 
     }, function (fail) {
-      
+
       thisHook.finish(true, data);
 
     });
@@ -281,15 +276,17 @@ CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
   var formId = thisHook.const.params.formid;
 
   if (formId.split("_")[0] === "blockForm") {
+    
+    console.log(thisHook.const.params);
 
     C.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, thisHook.const.params.blockTitle, function () {
-
+      
       var data = function (res) {
 
         res.send("/admin/blocks")
 
       }
-
+      
       thisHook.finish(true, data);
 
     });
@@ -301,64 +298,3 @@ CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
   }
 
 });
-
-// Blocks admin page
-
-C.app.get("/admin/blocks", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    CM.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  CM.frontend.globals.parseTemplateFile(["admin_blockslist"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    blockTypes: Object.keys(CM.blocks.globals.blockTypes),
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    CM.frontend.globals.displayErrorPage(500, req, res);
-
-    C.log("error", e);
-
-  });
-
-})
-
-// Blocks edit page
-
-C.app.get("/admin/blocks/edit/:type/:title", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    CM.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  CM.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
-    blocktype: req.params.type + "_" + req.params.title
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    CM.frontend.globals.displayErrorPage(500, req, res);
-
-    C.log("error", e);
-
-  });
-
-})

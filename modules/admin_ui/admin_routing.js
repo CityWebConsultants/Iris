@@ -76,6 +76,35 @@ C.app.get("/admin/config/import", function (req, res) {
 
 });
 
+C.app.get("/admin/blocks", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_blockslist"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    blockTypes: Object.keys(CM.blocks.globals.blockTypes),
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
 C.app.get("/admin/regions", function (req, res) {
 
   // If not admin, present 403 page
