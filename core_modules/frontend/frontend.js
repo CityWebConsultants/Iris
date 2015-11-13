@@ -418,7 +418,7 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
             html = html.split("[[[" + prefix + " " + choice + "]]]").join(content);
 
           }
-          
+
           if (counter === embeds.length) {
 
             runthrough(embeds[counter]);
@@ -772,10 +772,10 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
 
     if (data.html.indexOf("[[[") !== -1) {
 
-      console.log("running through template again");
-
       CM.frontend.globals.parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
-        
+
+        success.html = Handlebars.compile(success.html)(success.variables);
+
         thisHook.finish(true, success);
 
       });
