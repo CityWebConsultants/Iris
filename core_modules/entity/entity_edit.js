@@ -12,11 +12,13 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
   // Unset entity ID. You shouldn't be able to change it.
 
-  if (!data.eId) {
+  if (data.eId) {
 
     data.eId = undefined;
 
   };
+  
+  console.log(data);
 
   //Set entity type
 
@@ -213,7 +215,7 @@ C.app.post("/entity/edit/:type/:_id", function (req, res) {
 
   req.body.entityType = req.params.type;
   req.body._id = req.params._id;
-
+  
   C.hook("hook_entity_edit", req.authPass, null, req.body).then(function (success) {
 
     res.respond(200, success);
