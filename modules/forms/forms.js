@@ -148,15 +148,13 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
       }, function (fail) {
 
-        next(renderForm(formTemplate))
-
-        next("<!-- Failed to load form -->");
+        next(false);
 
       });
 
     }, function (fail) {
 
-      next("<!-- Failed to load form -->");
+      next(false);
 
     });
   }).then(function (html) {
