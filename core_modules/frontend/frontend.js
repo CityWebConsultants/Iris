@@ -807,21 +807,8 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
         CM.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
 
-            C.hook("hook_frontend_template", authPass || "root", {
-              html: success.html,
-              vars: success.variables
-            }, {
-              html: success.html,
-              vars: success.variables
-            }).then(function (output) {
+            callback(success);
 
-              callback(output);
-
-            }, function (fail) {
-
-              no(fail);
-
-            })
           },
           function (fail) {
 
@@ -842,11 +829,25 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
       parseTemplateFile(wrapperTemplateName, parameters, function (wrapperOutput) {
 
-        parseTemplateFile(templateName, wrapperOutput.vars, function (innerOutput) {
+        parseTemplateFile(templateName, wrapperOutput.variables, function (innerOutput) {
 
           var output = wrapperOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput.html);
 
-          yes(output);
+          C.hook("hook_frontend_template", authPass || "root", {
+            html: output,
+            vars: innerOutput.variables
+          }, {
+            html: output,
+            vars: innerOutput.variables
+          }).then(function (output) {
+
+            yes(output.html);
+
+          }, function (fail) {
+
+            no(fail);
+
+          })
 
         })
 
