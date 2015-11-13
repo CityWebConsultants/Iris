@@ -90,7 +90,7 @@ C.app.get("/admin/blocks", function (req, res) {
 
   CM.frontend.globals.parseTemplateFile(["admin_blockslist"], ['admin_wrapper'], {
     blocks: CM.blocks.globals.blocks,
-    hello: "world"
+    blockTypes: Object.keys(CM.blocks.globals.blockTypes),
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -262,10 +262,7 @@ C.app.get("/admin/schema/create", function (req, res) {
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["admin_schema_create"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    hello: "world"
-  }, req.authPass, req).then(function (success) {
+  CM.frontend.globals.parseTemplateFile(["admin_schema_create"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
@@ -279,7 +276,7 @@ C.app.get("/admin/schema/create", function (req, res) {
 
 })
 
-C.app.get("/admin/schema/edit", function (req, res) {
+C.app.get("/admin/schema/edit/:type", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -291,10 +288,7 @@ C.app.get("/admin/schema/edit", function (req, res) {
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["admin_schema_edit"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    hello: "world"
-  }, req.authPass, req).then(function (success) {
+  CM.frontend.globals.parseTemplateFile(["admin_schema_edit"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
