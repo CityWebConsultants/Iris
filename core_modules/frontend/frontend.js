@@ -856,8 +856,22 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
     } else {
 
       parseTemplateFile(templateName, parameters, function (output) {
+        
+        C.hook("hook_frontend_template", authPass || "root", {
+          html: output.html,
+          vars: output.variables
+        }, {
+          html: output.html,
+          vars: output.variables
+        }).then(function (output) {
 
-        yes(output.html);
+          yes(output.html);
+
+        }, function (fail) {
+
+          no(fail);
+
+        })
 
       })
 
