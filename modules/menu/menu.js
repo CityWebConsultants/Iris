@@ -24,32 +24,27 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
 
     C.hook("hook_menu_view", thisHook.authPass, null, menuName).then(function (canView) {
 
-      CM.frontend.globals.findTemplate(["menu", menuName]).then(function (html) {
+      C.dbCollections.menu.findOne({
+        'title': menuName
+      }, function (err, doc) {
 
-        C.dbCollections.menu.findOne({
-          'title': menuName
-        }, function (err, doc) {
+        if (!err && doc) {
 
-          data.variables["menu"] = doc;
+          CM.frontend.globals.parseTemplateFile(["menu", menuName], null, {menu: doc}, thisHook.authPass).then(function (html) {
 
-          C.hook("hook_frontend_template", thisHook.authPass, null, {
-            html: html,
-            vars: data.variables
-          }).then(function (success) {
-
-            next(success.html);
+            next(html);
 
           }, function (fail) {
 
-            next(html)
+            next("<!-- No menu template -->");
 
-          });
+          })
 
-        });
+        } else {
 
-      }, function (fail) {
+          next("<!-- Menu does not exist -->");
 
-        next("<!-- No menu template -->");
+        }
 
       });
 

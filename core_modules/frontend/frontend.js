@@ -413,7 +413,11 @@ CM.frontend.globals.parseBlock = function (prefix, html, action) {
 
         var next = function (content) {
 
-          html = html.split("[[[" + prefix + " " + choice + "]]]").join(content);
+          if (content) {
+
+            html = html.split("[[[" + prefix + " " + choice + "]]]").join(content);
+
+          }
 
           if (counter === embeds.length) {
 
@@ -764,7 +768,24 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
     console.log(data.vars);
     data.html = Handlebars.compile(data.html)(data.vars);
 
-    thisHook.finish(true, data);
+    // Run through parse template again to see if any new templates can be loaded.
+
+    if (data.html.indexOf("[[[") !== -1) {
+
+      CM.frontend.globals.parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
+
+        success.html = Handlebars.compile(success.html)(success.variables);
+
+        thisHook.finish(true, success);
+
+      });
+
+    } else {
+
+      thisHook.finish(true, data);
+
+    }
+
 
   } catch (e) {
 
@@ -786,21 +807,8 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
         CM.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
 
-            C.hook("hook_frontend_template", authPass || "root", {
-              html: success.html,
-              vars: success.variables
-            }, {
-              html: success.html,
-              vars: success.variables
-            }).then(function (output) {
+            callback(success);
 
-              callback(output);
-
-            }, function (fail) {
-
-              no(fail);
-
-            })
           },
           function (fail) {
 
@@ -821,11 +829,25 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
       parseTemplateFile(wrapperTemplateName, parameters, function (wrapperOutput) {
 
-        parseTemplateFile(templateName, wrapperOutput.vars, function (innerOutput) {
+        parseTemplateFile(templateName, wrapperOutput.variables, function (innerOutput) {
 
           var output = wrapperOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput.html);
 
-          yes(output);
+          C.hook("hook_frontend_template", authPass || "root", {
+            html: output,
+            vars: innerOutput.variables
+          }, {
+            html: output,
+            vars: innerOutput.variables
+          }).then(function (output) {
+
+            yes(output.html);
+
+          }, function (fail) {
+
+            no(fail);
+
+          })
 
         })
 

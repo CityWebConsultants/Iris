@@ -18,6 +18,64 @@ CM.frontend.globals.displayErrorPage = function (code, req, res) {
 
 };
 
+C.app.get("/admin/config/export", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_export_config"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+});
+
+C.app.get("/admin/config/import", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_import_config"], ['admin_wrapper'], {
+    blocks: CM.blocks.globals.blocks,
+    hello: "world"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+});
+
 C.app.get("/admin/blocks", function (req, res) {
 
   // If not admin, present 403 page
@@ -350,7 +408,7 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
   }
 
   CM.admin_ui.globals.prepareEntitylist(req.params.type, function (output) {
-        
+
     CM.frontend.globals.parseTemplateFile(["admin_entitylist"], ['admin_wrapper'], {
       entities: output.entities
     }, req.authPass, req).then(function (success) {
