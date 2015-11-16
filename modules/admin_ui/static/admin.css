@@ -33,6 +33,11 @@ tr:nth-child(even) {
   max-width:1120px;
   margin:auto;
 }
+@media screen and (max-width:1130px) {
+  #main {
+    padding:0 20px;
+  }
+}
 #logo {
   width: 70px;
   display: inline-block;

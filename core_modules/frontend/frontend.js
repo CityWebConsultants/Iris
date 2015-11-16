@@ -761,11 +761,13 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
 // Handlebars templating
 
 CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
-
+  
   var Handlebars = require('handlebars');
 
   try {
+
     console.log(data.vars);
+
     data.html = Handlebars.compile(data.html)(data.vars);
 
     // Run through parse template again to see if any new templates can be loaded.
@@ -854,9 +856,9 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
       })
 
     } else {
-
+      
       parseTemplateFile(templateName, parameters, function (output) {
-        
+                
         C.hook("hook_frontend_template", authPass || "root", {
           html: output.html,
           vars: output.variables
@@ -864,7 +866,7 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
           html: output.html,
           vars: output.variables
         }).then(function (output) {
-
+          
           yes(output.html);
 
         }, function (fail) {

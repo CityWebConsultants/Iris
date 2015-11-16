@@ -9,6 +9,63 @@ CM.blocks.globals.blocks = {};
 var fs = require('fs');
 var glob = require("glob");
 
+// Form for making new blocks
+
+CM.forms.registerHook("hook_form_render_newBlockForm", 0, function (thisHook, data) {
+
+  data.schema = {
+    "blockType": {
+      type: 'string',
+      title: 'Block type',
+      required: true,
+      enum: Object.keys(CM.blocks.globals.blockTypes)
+    }
+  };
+
+  thisHook.finish(true, data);
+
+});
+
+CM.forms.registerHook("hook_form_submit_newBlockForm", 0, function (thisHook, data) {
+
+  data = function (res) {
+
+    res.send("/admin/blocks/create/" + thisHook.const.params.blockType)
+
+  }
+
+  thisHook.finish(true, data);
+
+});
+
+C.app.get("/admin/blocks/create/:type", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
+    blocktype: req.params.type,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+});
+
 // Function for registering system blocks
 
 CM.blocks.globals.registerBlock = function (config) {
@@ -26,27 +83,27 @@ CM.blocks.globals.registerBlock = function (config) {
 // Read all blocks saved by the user
 
 glob(C.configPath + "/blocks/*/*.json", function (er, files) {
-
+  
   files.forEach(function (file) {
 
     var config = fs.readFileSync(file, "utf8");
 
     try {
-
+      
       config = JSON.parse(config);
 
-      if (config.id && config.type) {
-
+      if (config.blockTitle && config.blockType) {
+      
         // Make object for block type if it doesn't already exist
+        
+        if (!CM.blocks.globals.blocks[config.blockType]) {
 
-        if (!CM.blocks.globals.blocks[config.type]) {
-
-          CM.blocks.globals.blocks[config.type] = {};
+          CM.blocks.globals.blocks[config.blockType] = {};
 
         }
 
-        CM.blocks.globals.blocks[config.type][config.id] = config;
-
+        CM.blocks.globals.blocks[config.blockType][config.blockTitle] = config;
+        
       }
 
     } catch (e) {
@@ -74,7 +131,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
     } else {
 
       // Correct paramaters, now let's see if we can load a block from config
-
+            
       if (CM.blocks.globals.blocks[blockType] && CM.blocks.globals.blocks[blockType][blockName]) {
 
         var paramaters = {
@@ -84,7 +141,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
           config: CM.blocks.globals.blocks[blockType][blockName]
 
         }
-
+        
         C.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
 
           if (!html) {
@@ -92,7 +149,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
             next("<!--- Could not load block " + block + " --->");
 
           } else {
-
+            
             // Block loaded!
 
             next(html);
@@ -216,18 +273,28 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
 CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
-  var formId = thisHook.const.params.formid
+  var formId = thisHook.const.params.formid;
 
   if (formId.split("_")[0] === "blockForm") {
+    
+    console.log(thisHook.const.params);
 
-    C.saveConfig(thisHook.const.params, "blocks" + "/" + formId.split('_')[1], formId.split('_')[2], function () {
+    C.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, thisHook.const.params.blockTitle, function () {
+      
+      var data = function (res) {
 
+        res.send("/admin/blocks")
+
+      }
+      
       thisHook.finish(true, data);
 
     });
 
-  };
+  } else {
 
-  thisHook.finish(true, data);
+    thisHook.finish(true, data);
+
+  }
 
 });
