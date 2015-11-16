@@ -31,8 +31,7 @@ C.app.get("/admin/config/export", function (req, res) {
   }
 
   CM.frontend.globals.parseTemplateFile(["admin_export_config"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    hello: "world"
+    blocks: CM.blocks.globals.blocks
   }, req.authPass, req).then(function (success) {
 
     res.send(success)

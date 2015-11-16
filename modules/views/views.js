@@ -28,6 +28,15 @@ process.on("dbReady", function () {
 
     CM.views.registerHook("hook_form_render_blockForm_View-of-" + entityType, 0, function (thisHook, data) {
 
+      if (CM.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]]) {
+
+        var existingView = CM.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]];
+
+        data.value = existingView;
+
+
+      }
+
       // Add in fields
 
       var form = {
@@ -148,11 +157,11 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
               viewOutput[field.field].value = fetched[field.field];
 
             }
-            
+
             output.push(viewOutput);
 
           })
-          
+
           CM.frontend.globals.parseTemplateFile(["views", thisHook.const.type], null, {
             view: output
           }, thisHook.authPass).then(function (success) {
