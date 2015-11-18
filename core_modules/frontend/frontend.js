@@ -655,82 +655,43 @@ C.app.use(function (req, res, next) {
 
   }
 
-  //Get all entity types
+  // Look up entity with the current 'path'
 
-  var entityTypes = Object.keys(C.dbCollections);
+  if (CM.paths.globals.entityPaths[req.url]) {
 
-  var promises = [];
+    C.dbCollections[CM.paths.globals.entityPaths[req.url].entityType].findOne({
+      _id: mongoose.Types.ObjectId(CM.paths.globals.entityPaths[req.url]._id)
+    }, function (err, doc) {
 
-  // Query all entity types for an entity with the current 'path'
+      if (!err && doc) {
 
-  entityTypes.forEach(function (type) {
+        CM.frontend.globals.getTemplate(doc, req.authPass, {
+          req: req
+        }).then(function (html) {
 
-    promises.push(C.promise(function (data, yes, no) {
+          res.send(html);
 
-      C.dbCollections[type].findOne({
-        'path': req.url
-      }, function (err, doc) {
+          next();
 
-        if (doc) {
+        }, function (fail) {
 
-          data.entity = {
+          next();
 
-            id: doc._id,
-            type: type,
-            fields: doc,
+        });
 
-          }
-
-        }
-
-        yes(data);
-
-      });
-
-    }));
-
-  });
-
-  var success = function (data) {
-
-    //Entity exists
-
-    if (data.entity) {
-
-      CM.frontend.globals.getTemplate(data.entity.fields, req.authPass, {
-        req: req
-      }).then(function (html) {
-
-        res.send(html);
-
-      }, function (fail) {
+      } else {
 
         next();
 
-      });
+      }
 
-    } else {
+    });
 
-      // Entity doesn't exist
-
-      next();
-
-    }
-
-  }
-
-  var fail = function () {
+  } else {
 
     next();
 
   }
-
-  C.promiseChain(promises, {
-      id: null,
-      url: req.url,
-    },
-    success,
-    fail);
 
 });
 
@@ -761,11 +722,11 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
 // Handlebars templating
 
 CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
-  
+
   var Handlebars = require('handlebars');
 
   try {
-    
+
     data.html = Handlebars.compile(data.html)(data.vars);
 
     // Run through parse template again to see if any new templates can be loaded.
@@ -854,9 +815,9 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
       })
 
     } else {
-      
+
       parseTemplateFile(templateName, parameters, function (output) {
-                
+
         C.hook("hook_frontend_template", authPass || "root", {
           html: output.html,
           vars: output.variables
@@ -864,7 +825,7 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
           html: output.html,
           vars: output.variables
         }).then(function (output) {
-          
+
           yes(output.html);
 
         }, function (fail) {
