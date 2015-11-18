@@ -652,8 +652,11 @@ C.app.use(function (req, res, next) {
   if (req.method !== "GET") {
 
     next();
+    return false;
 
   }
+
+  console.log("Should not see this for admin.", req.method, req.url)
 
   // Look up entity with the current 'path'
 
