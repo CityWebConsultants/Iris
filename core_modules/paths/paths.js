@@ -32,6 +32,24 @@ process.on("dbReady", function () {
 
 });
 
+// Format a path automatically, e.g. from an entity's title
+
+CM.paths.globals.makePath = function (title) {
+
+  title = title.replace(/[\W_]+/g, "-");
+
+  return title;
+
+};
+
+// Enable AJAX fetching of formatted path so that the edit form can prefill
+
+C.app.get('/admin/api/makepath', function (req, res) {
+
+  res.send(CM.paths.globals.makePath(req.body.title));
+
+});
+
 CM.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
   // Check that path is not a duplicate
