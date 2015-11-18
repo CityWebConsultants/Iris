@@ -656,8 +656,6 @@ C.app.use(function (req, res, next) {
 
   }
 
-  console.log("Should not see this for admin.", req.method, req.url)
-
   // Look up entity with the current 'path'
 
   if (CM.paths.globals.entityPaths[req.url]) {
