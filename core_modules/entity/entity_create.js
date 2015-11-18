@@ -199,12 +199,6 @@ C.app.post("/entity/create/:type", function (req, res) {
 
 });
 
-CM.entity.registerHook("hook_entity_validate", 0, function (thisHook, data) {
-
-  thisHook.finish(true, data);
-
-});
-
 //Checking access and if entity exists
 
 CM.entity.registerHook("hook_entity_access_create", 0, function (thisHook, data) {

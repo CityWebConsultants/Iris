@@ -11,3 +11,5 @@ require('./entity_delete');
 require('./entity_edit');
 
 require('./entity_fetch');
+
+require('./entity_paths');
