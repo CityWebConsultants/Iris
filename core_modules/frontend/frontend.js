@@ -70,13 +70,15 @@ C.app.use("/static", express.static(C.sitePath + '/' + C.config.theme + '/static
 
 CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
+  var req = optionalContext.req;
+
   if (entity.toObject) {
 
     entity = entity.toObject();
 
   }
 
-//  var context = Object.assign(entity, optionalContext);
+  //  var context = Object.assign(entity, optionalContext);
 
   if (!entity.eId) {
 
@@ -92,21 +94,82 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
   context = optionalContext;
 
-  context.current = entity;
+//  context.current = entity;
 
   return new Promise(function (yes, no) {
 
-    CM.frontend.globals.parseTemplateFile([entity.entityType, entity.eId], ["html", entity.entityType, entity.eId], context, authPass, context.req).then(function (success) {
+    // Check if the current person can access the entity itself
 
-      yes(success);
+    C.hook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
+
+      if (!viewChecked) {
+
+        C.hook("hook_display_error_page", req.authPass, {
+          error: 403,
+          req: req
+        }).then(function (success) {
+
+          yes(success);
+
+        }, function (fail) {
+
+          yes("403");
+
+        });
+
+        return false;
+
+      } else {
+
+        entity = viewChecked;
+
+      }
+
+      C.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, entity).then(function (validated) {
+
+        if (validated) {
+
+          context.current = validated;
+          renderTemplate();
+
+        }
+
+      }, function (fail) {
+
+        if (fail === "No such hook exists") {
+
+          context.current = viewChecked;
+          renderTemplate();
+
+        } else {
+
+          // Entity is never set if it fails
+
+        }
+
+      })
 
     }, function (fail) {
 
-      C.log("error", fail);
-
-      no("Could not parse template");
+      no(fail);
 
     });
+
+    var renderTemplate = function () {
+
+      CM.frontend.globals.parseTemplateFile([entity.entityType, entity.eId], ["html", entity.entityType, entity.eId], context, authPass, context.req).then(function (success) {
+
+        yes(success);
+
+      }, function (fail) {
+
+        C.log("error", fail);
+
+        no("Could not parse template");
+
+      });
+
+    };
 
   });
 
