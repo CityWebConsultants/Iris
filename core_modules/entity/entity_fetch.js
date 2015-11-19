@@ -4,7 +4,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
   req.body = data;
 
   if (req.body.queryList) {
-            
+
     // Current accepting only one query at a time but sending as an array for future multiqueries
 
     if (req.body.queryList && Array.isArray(req.body.queryList)) {
@@ -263,13 +263,13 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
     };
 
     var fail = function (fail) {
-      
+
       thisHook.finish(false, fail);
 
     };
 
     if (!dbActions.length) {
-      
+
       thisHook.finish(true, null);
 
     }

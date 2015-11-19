@@ -50,6 +50,37 @@ C.app.get('/admin/api/makepath', function (req, res) {
 
 });
 
+// Append number to duplicate paths
+
+CM.paths.globals.makePathUnique = function (path) {
+
+  var isDuplicate = true;
+  var counter = 1;
+
+  var workingPath = path;
+
+  while (isDuplicate) {
+
+    if (CM.paths.globals.entityPaths[workingPath]) {
+
+      // This is a duplicate
+
+      workingPath = path + '-' + counter;
+
+      counter++;
+
+    } else {
+
+      isDuplicate = false;
+
+    }
+
+  }
+
+  return workingPath;
+
+};
+
 CM.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
   // Check that path is not a duplicate
@@ -136,3 +167,70 @@ CM.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
   }
 
 });
+
+//CM.paths.registerHook("hook_entity_presave", 0, function (thisHook, data) {
+//
+//  console.log(data);
+//
+//  if (!data.path || data.path = "") {
+//
+//    CM.paths.globals.makePathUnique()
+//
+//  }
+//
+//  thisHook.finish(true, data);
+//
+//});
+
+// Handle custom paths
+
+C.app.use(function (req, res, next) {
+
+  if (req.method !== "GET") {
+
+    next();
+    return false;
+
+  }
+
+  // Look up entity with the current 'path'
+
+  if (CM.paths.globals.entityPaths[req.url]) {
+
+    C.dbCollections[CM.paths.globals.entityPaths[req.url].entityType].findOne({
+      _id: mongoose.Types.ObjectId(CM.paths.globals.entityPaths[req.url]._id)
+    }, function (err, doc) {
+
+      if (!err && doc) {
+
+        CM.frontend.globals.getTemplate(doc, req.authPass, {
+          req: req
+        }).then(function (html) {
+
+          res.send(html);
+
+          next();
+
+        }, function (fail) {
+
+          next();
+
+        });
+
+      } else {
+
+        next();
+
+      }
+
+    });
+
+  } else {
+
+    next();
+
+  }
+
+});
+
+

@@ -70,7 +70,11 @@ C.app.use("/static", express.static(C.sitePath + '/' + C.config.theme + '/static
 
 CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
-  entity = entity.toObject();
+  if (entity.toObject) {
+
+    entity = entity.toObject();
+
+  }
 
   return new Promise(function (yes, no) {
 
@@ -656,17 +660,26 @@ C.app.use(function (req, res, next) {
 
   }
 
-  // Look up entity with the current 'path'
+  // Lookup literal entity from path
 
-  if (CM.paths.globals.entityPaths[req.url]) {
+  var splitUrl = req.url.split('/');
 
-    C.dbCollections[CM.paths.globals.entityPaths[req.url].entityType].findOne({
-      _id: mongoose.Types.ObjectId(CM.paths.globals.entityPaths[req.url]._id)
-    }, function (err, doc) {
+  if (splitUrl && splitUrl.length === 3 && Object.keys(C.dbCollections).indexOf(splitUrl[1]) !== -1) {
 
-      if (!err && doc) {
+    C.hook("hook_entity_fetch", req.authPass, null, {
+      queryList: [{
+        entities: [splitUrl[1]],
+        queries: [{
+          field: 'eId',
+          comparison: 'IS',
+          compare: splitUrl[2]
+        }]
+      }]
+    }).then(function (result) {
 
-        CM.frontend.globals.getTemplate(doc, req.authPass, {
+      if (result && result[0]) {
+
+        CM.frontend.globals.getTemplate(result[0], req.authPass, {
           req: req
         }).then(function (html) {
 
@@ -685,6 +698,12 @@ C.app.use(function (req, res, next) {
         next();
 
       }
+
+    }, function (error) {
+
+      console.log(error);
+
+      next();
 
     });
 
