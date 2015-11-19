@@ -666,6 +666,18 @@ C.app.use(function (req, res, next) {
 
   if (splitUrl && splitUrl.length === 3 && Object.keys(C.dbCollections).indexOf(splitUrl[1]) !== -1) {
 
+    for (var path in CM.paths.globals.entityPaths) {
+
+      if (CM.paths.globals.entityPaths[path].eId && CM.paths.globals.entityPaths[path].eId.toString() === splitUrl[2] && CM.paths.globals.entityPaths[path].entityType === splitUrl[1]) {
+
+        res.redirect(path)
+
+        return false;
+
+      }
+
+    }
+
     C.hook("hook_entity_fetch", req.authPass, null, {
       queryList: [{
         entities: [splitUrl[1]],
