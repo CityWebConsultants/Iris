@@ -1,0 +1,12 @@
+{
+
+  "enum": {
+    "type": "array",
+    "title": "hello",
+    "items": {
+      "type": "string",
+      "title": "enum"
+    }
+  }
+
+}
