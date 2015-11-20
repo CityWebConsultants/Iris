@@ -100,10 +100,12 @@ C.dbPopulate = function () {
 
     switch (type) {
       case "ofstring":
-        return [String]
+        return [String];
         break;
       case "string":
-        return String
+        return String;
+      case "number":
+        return Number
     }
 
     return false;
@@ -114,6 +116,32 @@ C.dbPopulate = function () {
 
     Object.keys(C.dbSchema[schema]).forEach(function (field) {
 
+      // Check if it's an object with subfields
+
+      if (C.dbSchema[schema][field].subfields) {
+
+        var type = {};
+
+        Object.keys(C.dbSchema[schema][field].subfields).forEach(function (subfieldName) {
+
+          var subfield = C.dbSchema[schema][field].subfields[subfieldName];
+
+          if (subfield.fieldTypeType && typeConverter(subfield.fieldTypeType)) {
+
+            subfield.type = typeConverter(subfield.fieldTypeType);
+
+          }
+
+          type[subfieldName] = subfield;
+
+        });
+
+        delete C.dbSchema[schema][field].subfields;
+
+        C.dbSchema[schema][field].type = type;
+
+      }
+
       // Convert types
 
       if (C.dbSchema[schema][field].fieldTypeType && typeConverter(C.dbSchema[schema][field].fieldTypeType)) {
@@ -121,9 +149,9 @@ C.dbPopulate = function () {
         C.dbSchema[schema][field].type = typeConverter(C.dbSchema[schema][field].fieldTypeType);
 
       }
-      
-    });
 
+    });
+    
     //Push in author and entity type fields
 
     C.dbSchema[schema].path = {

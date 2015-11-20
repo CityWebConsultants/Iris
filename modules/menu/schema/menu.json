@@ -2,7 +2,8 @@
   "menulink": {
     "title": "Menu link",
     "description": "A link in the main menu",
-    "type": [{
+    "subfields": {
+
       "title": {
         "fieldTypeType": "string",
         "required": true,
@@ -19,30 +20,8 @@
         "fieldTypeType": "string",
         "title": "Unique ID",
         "description": "Unique ID for this menu item, usually one created by the system"
-      },
-      "children": {
-        "title": "Menu item children",
-        "description": "Children of the menu item (a sub menu)",
-        "type": [{
-          "title": {
-            "type": "String",
-            "required": true,
-            "title": "Title",
-            "description": "The title of the menu item"
-          },
-          "path": {
-            "type": "String",
-            "title": "Path",
-            "description": "The path of the menu item"
-          },
-          "id": {
-            "type": "String",
-            "title": "Unique ID",
-            "description": "Unique ID for this menu item, usually one created by the system"
-          }
-        }]
       }
-    }]
+    }
   },
   "title": {
     "fieldTypeType": "string",
