@@ -15,7 +15,7 @@ C.app.get("/admin/api/entitytypes", function (req, res) {
 });
 
 C.app.post("/admin/api/schema/save", function (req, res) {
-  
+    
   var savedSchema = {};
 
   // Function for processing field
@@ -108,19 +108,6 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
   })
 
-  //  return {
-  //          "choose": "0",
-  //          "text": {
-  //            "system-name": fieldname,
-  //            "label": rawfield.title,
-  //            "description": rawfield.description,
-  //            "multifield": rawfield.multifield,
-  //            "required": rawfield.required
-  //          }
-  //        }
-
-
-
   C.readConfig("entity", req.params.type).then(function (config) {
 
     var fields = [];
@@ -134,8 +121,8 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
       var choose = fieldTypes[fieldType];
 
       var editBundle = {};
-      
-      editBundle["choose"] = choose;
+            
+      editBundle["choose"] = choose.toString();
       editBundle[fieldType] = config[field];
       
       fields.push(editBundle);
