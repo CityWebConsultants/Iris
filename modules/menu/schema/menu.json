@@ -4,19 +4,19 @@
     "description": "A link in the main menu",
     "type": [{
       "title": {
-        "type": "String",
+        "fieldTypeType": "string",
         "required": true,
         "title": "Title",
         "description": "The title of the link in the menu"
       },
       "path": {
-        "type": "String",
+        "fieldTypeType": "string",
         "required": true,
         "title": "Path",
         "description": "The menu path"
       },
       "id": {
-        "type": "String",
+        "fieldTypeType": "string",
         "title": "Unique ID",
         "description": "Unique ID for this menu item, usually one created by the system"
       },
@@ -45,7 +45,7 @@
     }]
   },
   "title": {
-    "type": "String",
+    "fieldTypeType": "string",
     "required": true,
     "title": "Menu title",
     "description": "The title of the menu"

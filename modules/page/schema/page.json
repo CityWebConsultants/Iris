@@ -1,19 +1,19 @@
 {
   "title": {
-    "type": "String",
+    "fieldTypeType": "string",
     "required": true,
     "title": "Page title",
     "description": "This is the title field"
   },
   "body": {
-    "type": "String",
+    "fieldTypeType": "string",
     "long": true,
     "required": true,
     "title": "Body field",
     "description": "This is the main text area for this page"
   },
   "class": {
-    "type": "String",
+    "fieldTypeType": "string",
     "title": "Body class"
   }
 }
