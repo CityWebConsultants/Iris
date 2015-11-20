@@ -35,6 +35,11 @@ CM.entity2.globals.fetchSchemaForm = function () {
           "title": "Field Title"
         }
 
+        fieldSchema.label = {
+          "type": "string",
+          "title": "Label"
+        }
+
         fieldSchema.fieldTypeName = {
           "type": "hidden",
           "default": fieldTypeName
@@ -137,7 +142,7 @@ CM.entity2.globals.fetchSchemaForm = function () {
     "type": "object",
     "title": "options",
     "properties": {
-      "system-name": {
+      "title": {
         "type": "string",
         "title": "System name",
         "description": "The name of the field when stored in the database (this can't be changed easily once set)",

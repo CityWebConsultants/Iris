@@ -14,188 +14,37 @@ C.app.get("/admin/api/entitytypes", function (req, res) {
 
 });
 
-var upsertSchema = function (model, data, callback) {
+C.app.post("/admin/api/schema/save", function (req, res) {
 
-  schema = {};
+  var savedSchema = {};
 
-  var converters = {};
+  // Function for processing field
 
-  converters["text"] = function (element) {
+  var processField = function (field) {
 
-    var field = {};
-    field.type = String;
+    if (field.choose) {
+      delete field.choose;
+    }
 
-    if (element.required === "true") {
+    // Check if field collection
 
-      field.required = true;
+    if (field.subfields) {
 
-    };
+      var subfields = {};
 
-    if (element.label) {
+      field.subfields.forEach(function (subfield) {
 
-      field.title = element.label;
+        Object.keys(subfield).forEach(function (fieldName) {
 
-    };
+          if (fieldName !== "choose") {
 
-    if (element.description) {
+            subfields[subfield[fieldName].title] = processField(subfield[fieldName]);
 
-      field.description = element.description;
+          }
 
-    };
+        });
 
-    return field;
-
-  };
-
-  converters["file"] = function (element) {
-
-    var field = {};
-    field.type = String;
-
-    if (element.required === "true") {
-
-      field.required = true;
-
-    };
-
-    field.fileTypes = element.fileTypes;
-
-    if (element.label) {
-
-      field.title = element.label;
-
-    };
-
-    if (element.description) {
-
-      field.description = element.description;
-
-    };
-
-    return field;
-
-  }
-
-  converters["date"] = function (element) {
-
-    var field = {};
-    field.type = Date;
-
-    if (element.required === "true") {
-
-      field.required = true;
-
-    };
-
-    if (element.label) {
-
-      field.title = element.label;
-
-    };
-
-    if (element.description) {
-
-      field.description = element.description;
-
-    };
-
-    return field;
-
-  };
-
-  converters["longtext"] = function (element) {
-
-    var field = {};
-    field.type = String;
-    field.long = true;
-    field.allowedTags = element.allowedTags;
-
-    if (element.required === "true") {
-
-      field.required = true;
-
-    };
-
-    if (element.label) {
-
-      field.title = element.label;
-
-    };
-
-    if (element.description) {
-
-      field.description = element.description;
-
-    };
-
-    return field;
-
-  };
-
-  converters["select"] = function (element) {
-
-    var field = {};
-    field.type = String;
-
-    if (element.required === "true") {
-
-      field.required = true;
-
-    };
-
-    if (element.label) {
-
-      field.title = element.label;
-
-    };
-
-    if (element.description) {
-
-      field.description = element.description;
-
-    };
-
-    field.enum = element.options;
-
-    return field;
-
-  };
-
-  converters['object'] = function (element) {
-
-    var field = {};
-
-    if (element.required === "true") {
-
-      field.required = true;
-
-    };
-
-    if (element.label) {
-
-      field.title = element.label;
-
-    };
-
-    if (element.description) {
-
-      field.description = element.description;
-
-    };
-
-    if (element.subfields) {
-
-      field.type = [{}];
-
-      element.subfields.forEach(function (subfield, index) {
-
-        var type = Object.keys(subfield)[1];
-
-        if (converters[type]) {
-
-          field.type[0][subfield[type]['system-name']] = converters[type](subfield[type]);
-
-        }
+        field.subfields = subfields;
 
       });
 
@@ -203,56 +52,23 @@ var upsertSchema = function (model, data, callback) {
 
     return field;
 
-  };
+  }
 
-  //Loop over all the fields in the fields array and convert based on type
+  Object.keys(req.body.fields).forEach(function (field) {
 
-  if (data.fields) {
+    Object.keys(req.body.fields[field]).forEach(function (fieldName) {
 
-    data.fields.forEach(function (element, index) {
+      if (fieldName !== "choose") {
 
-      var type = Object.keys(element)[1];
-
-      if (converters[type]) {
-
-        schema[element[type]['system-name']] = converters[type](element[type]);
+        savedSchema[req.body.fields[field][fieldName].title] = processField(req.body.fields[field][fieldName]);
 
       }
 
-    });
-
-  };
-
-  C.registerDbModel(model);
-  C.registerDbSchema(model, schema);
-
-  fs.writeFileSync(C.sitePath + "/configurations/entity/" + model + ".JSON", JSON.stringify(C.dbSchemaFields[model]), "utf8");
-
-  C.dbPopulate();
-
-  callback();
-
-};
-
-C.app.post("/admin/api/schema/create", function (req, res) {
-
-  var model = req.body.entityname;
-
-  delete req.body.entityname;
-
-  upsertSchema(model, req.body, function () {
-
-    res.redirect("/admin/entities");
+    })
 
   });
 
-});
-
-C.app.post("/admin/api/schema/edit/:type", function (req, res) {
-
-  var model = req.params.type;
-
-  upsertSchema(model, req.body, function () {
+  C.saveConfig(savedSchema, "entity", req.body.entityname, function () {
 
     res.redirect("/admin/entities");
 
@@ -267,7 +83,7 @@ C.app.post("/admin/api/schema/edit/:type", function (req, res) {
 C.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
   if (req.authPass.roles.indexOf('admin') !== -1) {
-    
+
     res.respond(200, CM.entity2.globals.fetchSchemaForm());
 
   } else {
@@ -278,200 +94,20 @@ C.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
 });
 
-// For: Page for editing an existing schema
-
 // Fetch existing schema
 
 C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
-  try {
+  C.readConfig("entity", req.params.type).then(function (config) {
 
-    var fieldProcess = function (fieldname, rawfield) {
+    res.send(config);
 
-      //Ordinary strings
+  }, function (fail) {
 
-      if (rawfield.type === "String" && !rawfield.long && !rawfield.enum && !rawfield.fileTypes) {
+    res.send(fail);
 
-        return {
-          "choose": "0",
-          "text": {
-            "system-name": fieldname,
-            "label": rawfield.title,
-            "description": rawfield.description,
-            "multifield": rawfield.multifield,
-            "required": rawfield.required
-          }
-        }
+  });
 
-      };
-
-      // File field
-
-      if (rawfield.type === "String" && rawfield.fileTypes) {
-
-        return {
-          "choose": "5",
-          "file": {
-            "fileTypes": rawfield.fileTypes,
-            "system-name": fieldname,
-            "label": rawfield.title,
-            "description": rawfield.description,
-            "multifield": rawfield.multifield,
-            "required": rawfield.required
-          }
-        }
-
-      }
-
-      //Long text field
-
-      if (rawfield.type === "String" && rawfield.long) {
-
-        return {
-          "choose": "1",
-          "longtext": {
-            "system-name": fieldname,
-            "label": rawfield.title,
-            "description": rawfield.description,
-            "multifield": rawfield.multifield,
-            "required": rawfield.required,
-            "allowedTags": rawfield.allowedTags
-          }
-        }
-
-      };
-
-      //Select field
-
-      if (rawfield.type === "String" && rawfield.enum) {
-
-        return {
-          "choose": "3",
-          "select": {
-            "system-name": fieldname,
-            "label": rawfield.title,
-            "description": rawfield.description,
-            "multifield": rawfield.multifield,
-            "required": rawfield.required,
-            "options": rawfield.enum
-
-          }
-        }
-
-      };
-
-      //Date
-
-      if (rawfield.type === "Date") {
-
-        return {
-          "choose": "2",
-          "date": {
-            "system-name": fieldname,
-            "label": rawfield.title,
-            "description": rawfield.description,
-            "multifield": rawfield.multifield,
-            "required": rawfield.required
-          }
-        }
-
-      };
-
-      //Boolean
-
-      if (rawfield.type === "Boolean") {
-
-        return {
-          "choose": "4",
-          "boolean": {
-            "system-name": fieldname,
-            "label": rawfield.title,
-            "description": rawfield.description,
-            "multifield": rawfield.multifield,
-            "required": rawfield.required
-          }
-        }
-
-      };
-
-      //Field collections
-
-      if (Array.isArray(rawfield.type)) {
-
-        var subfields = [];
-
-        Object.keys(rawfield.type[0]).forEach(function (element) {
-
-          subfields.push(fieldProcess(element, rawfield.type[0][element]));
-
-        });
-
-        return {
-          "choose": "6",
-          "object": {
-            "system-name": fieldname,
-            "label": rawfield.title,
-            "description": rawfield.description,
-            "multifield": rawfield.multifield,
-            "required": rawfield.required,
-            "subfields": subfields,
-          }
-        }
-
-      };
-
-    };
-
-    var fs = require("fs");
-
-    try {
-
-      var rawSchema = fs.readFileSync(C.sitePath + "/configurations/entity/" + req.params.type + ".JSON", "utf8");
-      rawSchema = JSON.parse(rawSchema);
-
-      try {
-
-        var baseSchema = C.stringifySchema(C.dbSchema[req.params.type]);
-
-        Object.keys(baseSchema).forEach(function (field) {
-
-          rawSchema[field] = baseSchema[field];
-
-        });
-
-      } catch (e) {
-
-
-
-      }
-
-    } catch (e) {
-
-      var rawSchema = C.stringifySchema(C.dbSchema[req.params.type]);
-
-    }
-
-    var editSchema = [];
-
-    Object.keys(rawSchema).forEach(function (fieldName) {
-
-      if (fieldName !== "entityAuthor" && fieldName !== "entityType") {
-
-        var rawField = rawSchema[fieldName];
-
-        editSchema.push(fieldProcess(fieldName, rawField));
-
-      }
-
-    });
-
-    res.send(editSchema);
-
-  } catch (e) {
-
-    res.respond(400, "No such schema");
-
-  }
 });
 
 //Create and edit forms
@@ -801,7 +437,10 @@ CM.admin_ui.globals.prepareEntitylist = function (type, callback) {
 
       if (!err) {
 
-        callback({entities: doc, fields: fields});
+        callback({
+          entities: doc,
+          fields: fields
+        });
 
       } else {
 

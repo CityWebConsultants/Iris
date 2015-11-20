@@ -104,18 +104,12 @@
     }],
     onSubmit: function(errors, values) {
 
-      console.log(JSON.stringify(values));
-
       if (errors) {
         console.error(errors);
       } else {
 
-        values.credentials = {
-          "apikey": "letmein",
-          "secretkey": "letmein"
-        };
-
-        $.post("/admin/api/schema/create", values, function(data, status) {
+        
+        $.post("/admin/api/schema/save", values, function(data, status) {
 
           if (status === "success") {
 
