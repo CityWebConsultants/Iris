@@ -15,7 +15,7 @@ C.app.get("/admin/api/entitytypes", function (req, res) {
 });
 
 C.app.post("/admin/api/schema/save", function (req, res) {
-
+  
   var savedSchema = {};
 
   // Function for processing field
@@ -98,9 +98,51 @@ C.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
 C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
+  // Get field types for referencing drop down choice numbers in form
+
+  var fieldTypes = {};
+
+  Object.keys(CM.entity2.globals.fetchSchemaForm()).forEach(function (fieldType, index) {
+
+    fieldTypes[fieldType] = index;
+
+  })
+
+  //  return {
+  //          "choose": "0",
+  //          "text": {
+  //            "system-name": fieldname,
+  //            "label": rawfield.title,
+  //            "description": rawfield.description,
+  //            "multifield": rawfield.multifield,
+  //            "required": rawfield.required
+  //          }
+  //        }
+
+
+
   C.readConfig("entity", req.params.type).then(function (config) {
 
-    res.send(config);
+    var fields = [];
+
+    // TODO : field collection fields
+    
+    Object.keys(config).forEach(function (field) {
+      
+      var fieldType = config[field].fieldTypeType + "_" + config[field].fieldTypeName;
+      
+      var choose = fieldTypes[fieldType];
+
+      var editBundle = {};
+      
+      editBundle["choose"] = choose;
+      editBundle[fieldType] = config[field];
+      
+      fields.push(editBundle);
+
+    })
+
+    res.send(fields);
 
   }, function (fail) {
 
