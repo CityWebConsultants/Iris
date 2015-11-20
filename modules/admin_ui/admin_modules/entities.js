@@ -69,6 +69,8 @@ C.app.post("/admin/api/schema/save", function (req, res) {
   });
 
   C.saveConfig(savedSchema, "entity", req.body.entityname, function () {
+    
+    C.dbPopulate();
 
     res.redirect("/admin/entities");
 
