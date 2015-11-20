@@ -6,9 +6,9 @@ var fs = require("fs");
 
 CM.entity2.globals.fieldTypes = {};
 
-// Generate schema form by searching for fields
+// Generate form for schema edit/create
 
-C.app.get("/admin/editschema", function (req, res) {
+CM.entity2.globals.fetchSchemaForm = function () {
 
   // Search all enabled module paths for fieldSchema directories and schema
 
@@ -26,15 +26,13 @@ C.app.get("/admin/editschema", function (req, res) {
         var fieldTypeName = schemafile.split("_")[1];
         var fieldTypeType = schemafile.split("_")[0];
 
-        // Parse file
+        var fieldSchema = {};
 
-        var fieldSchema = JSON.parse(fs.readFileSync(CM[moduleName].path + "/schema_fields/" + schemafile + ".json"));
-
-        // Add extra fields
+        // Add extra fields to top
 
         fieldSchema.title = {
           "type": "string",
-          "title": "Field Title "
+          "title": "Field Title"
         }
 
         fieldSchema.fieldTypeName = {
@@ -46,6 +44,21 @@ C.app.get("/admin/editschema", function (req, res) {
           "type": "hidden",
           "default": fieldTypeType
         }
+
+        fieldSchema.required = {
+          "title": "Required",
+          "type": "boolean"
+        }
+
+        // Parse file
+
+        var filedSchema = JSON.parse(fs.readFileSync(CM[moduleName].path + "/schema_fields/" + schemafile + ".json"));
+
+        Object.keys(filedSchema).forEach(function (field) {
+
+          fieldSchema[field] = filedSchema[field];
+
+        })
 
         // TODO : Validation at this point to check for bad fields
 
@@ -87,6 +100,77 @@ C.app.get("/admin/editschema", function (req, res) {
 
   });
 
-  res.send(CM.entity2.globals.fieldTypes);
+  // Put together form
 
-})
+  var schemaFormFields = {};
+
+  Object.keys(CM.entity2.globals.fieldTypes).forEach(function (fieldType) {
+
+    Object.keys(CM.entity2.globals.fieldTypes[fieldType]).forEach(function (field) {
+
+      var fieldConfig = CM.entity2.globals.fieldTypes[fieldType][field];
+
+      schemaFormFields[fieldType + "_" + field] = {
+
+        "type": "object",
+        "title": field
+
+      }
+
+      // Add properties
+
+      schemaFormFields[fieldType + "_" + field].properties = fieldConfig;
+
+    })
+
+  });
+
+  // add choose field
+
+  schemaFormFields["choose"] = {
+    "type": "choose"
+  };
+
+  // add in object field for field collections
+
+  schemaFormFields["object"] = {
+    "type": "object",
+    "title": "options",
+    "properties": {
+      "system-name": {
+        "type": "string",
+        "title": "System name",
+        "description": "The name of the field when stored in the database (this can't be changed easily once set)",
+        "required": true
+      },
+      "label": {
+        "type": "string",
+        "title": "Label"
+      },
+      "required": {
+        "type": "boolean",
+        "title": "Is this field required?"
+      },
+      "description": {
+        "type": "textarea",
+        "title": "Description"
+      },
+      "subfields": {
+        "type": "array",
+        "title": "Fields",
+        "items": {
+          "type": "object",
+          "title": "option",
+          "properties": {
+            "choose": {
+              "type": "choose"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return schemaFormFields;
+
+}

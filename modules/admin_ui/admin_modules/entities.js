@@ -266,15 +266,9 @@ C.app.post("/admin/api/schema/edit/:type", function (req, res) {
 
 C.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
-  var fs = require("fs");
-
   if (req.authPass.roles.indexOf('admin') !== -1) {
-
-    var coreFields = fs.readFileSync(__dirname + "/" + "corefields.json", "utf8");
-
-    coreFields = JSON.parse(coreFields);
-
-    res.respond(200, coreFields);
+    
+    res.respond(200, CM.entity2.globals.fetchSchemaForm());
 
   } else {
 
