@@ -126,17 +126,15 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
     var fields = [];
 
-    // TODO : field collection fields
-
     var fieldParse = function (field) {
-      
+
       if (field.subfields) {
 
         var choose = fieldTypes["object"];
 
         var editBundle = {};
 
-        editBundle["choose"] = choose.toString() - 1;
+        editBundle["choose"] = (choose - 1).toString();
 
         editBundle["object"] = field;
 
@@ -147,7 +145,7 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
           subFields.push(fieldParse(field.subfields[subfieldName]));
 
         })
-        
+
         field.subfields = subFields;
 
         return editBundle;
