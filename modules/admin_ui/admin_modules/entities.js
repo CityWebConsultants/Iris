@@ -122,15 +122,15 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
   C.readConfig("entity", req.params.type).then(function (config) {
 
+    var util = require("util");
+
     var fields = [];
 
     // TODO : field collection fields
 
-    Object.keys(config).forEach(function (field) {
-
-      // Check if has subfields
-
-      if (config[field].subfields) {
+    var fieldParse = function (field) {
+      
+      if (field.subfields) {
 
         var choose = fieldTypes["object"];
 
@@ -138,40 +138,40 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
         editBundle["choose"] = choose.toString() - 1;
 
-        editBundle["object"] = config[field];
+        editBundle["object"] = field;
 
         var subFields = [];
 
-        Object.keys(config[field].subfields).forEach(function (subfieldName) {
+        Object.keys(field.subfields).forEach(function (subfieldName) {
 
-          var subfield = {};
-
-          var fieldType = config[field].subfields[subfieldName].fieldTypeType + "_" + config[field].subfields[subfieldName].fieldTypeName;
-
-          subfield[fieldType] = config[field].subfields[subfieldName];
-
-          subfield.choose = fieldTypes[fieldType].toString();
-
-          subFields.push(subfield);
+          subFields.push(fieldParse(field.subfields[subfieldName]));
 
         })
+        
+        field.subfields = subFields;
 
-        config[field].subfields = subFields;
-
-        fields.push(editBundle);
+        return editBundle;
 
       } else {
-        var fieldType = config[field].fieldTypeType + "_" + config[field].fieldTypeName;
+        var fieldType = field.fieldTypeType + "_" + field.fieldTypeName;
 
         var choose = fieldTypes[fieldType];
 
         var editBundle = {};
 
         editBundle["choose"] = choose.toString();
-        editBundle[fieldType] = config[field];
+        editBundle[fieldType] = field;
 
-        fields.push(editBundle);
+        return editBundle;
       }
+
+    }
+
+    Object.keys(config).forEach(function (field) {
+
+      // Check if has subfields
+
+      fields.push(fieldParse(config[field]));
 
     })
 
