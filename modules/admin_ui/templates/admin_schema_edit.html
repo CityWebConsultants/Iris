@@ -118,7 +118,7 @@
         console.error(errors);
       } else {
 
-        $.post("/admin/api/schema/save", values, function(data, status) {
+        $.post("/admin/api/schema/save" + "/" + window.type, values, function(data, status) {
 
           if (status === "success") {
 

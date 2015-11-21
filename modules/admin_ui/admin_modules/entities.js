@@ -14,8 +14,18 @@ C.app.get("/admin/api/entitytypes", function (req, res) {
 
 });
 
-C.app.post("/admin/api/schema/save", function (req, res) {
-    
+C.app.post("/admin/api/schema/save/:type", function (req, res) {
+
+  if (req.body.entityname) {
+
+    var type = req.body.entityname;
+
+  } else {
+
+    var type = req.params.type;
+
+  }
+
   var savedSchema = {};
 
   // Function for processing field
@@ -32,7 +42,7 @@ C.app.post("/admin/api/schema/save", function (req, res) {
 
       var subfields = {};
 
-      field.subfields.forEach(function (subfield) {
+      field.subfields.forEach(function (subfield, subFieldindex) {
 
         Object.keys(subfield).forEach(function (fieldName) {
 
@@ -68,8 +78,8 @@ C.app.post("/admin/api/schema/save", function (req, res) {
 
   });
 
-  C.saveConfig(savedSchema, "entity", req.body.entityname, function () {
-    
+  C.saveConfig(savedSchema, "entity", type, function () {
+
     C.dbPopulate();
 
     res.redirect("/admin/entities");
@@ -115,19 +125,53 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
     var fields = [];
 
     // TODO : field collection fields
-    
-    Object.keys(config).forEach(function (field) {
-      
-      var fieldType = config[field].fieldTypeType + "_" + config[field].fieldTypeName;
-      
-      var choose = fieldTypes[fieldType];
 
-      var editBundle = {};
-            
-      editBundle["choose"] = choose.toString();
-      editBundle[fieldType] = config[field];
-      
-      fields.push(editBundle);
+    Object.keys(config).forEach(function (field) {
+
+      // Check if has subfields
+
+      if (config[field].subfields) {
+
+        var choose = fieldTypes["object"];
+
+        var editBundle = {};
+
+        editBundle["choose"] = choose.toString() - 1;
+
+        editBundle["object"] = config[field];
+
+        var subFields = [];
+
+        Object.keys(config[field].subfields).forEach(function (subfieldName) {
+
+          var subfield = {};
+
+          var fieldType = config[field].subfields[subfieldName].fieldTypeType + "_" + config[field].subfields[subfieldName].fieldTypeName;
+
+          subfield[fieldType] = config[field].subfields[subfieldName];
+
+          subfield.choose = fieldTypes[fieldType].toString();
+
+          subFields.push(subfield);
+
+        })
+
+        config[field].subfields = subFields;
+
+        fields.push(editBundle);
+
+      } else {
+        var fieldType = config[field].fieldTypeType + "_" + config[field].fieldTypeName;
+
+        var choose = fieldTypes[fieldType];
+
+        var editBundle = {};
+
+        editBundle["choose"] = choose.toString();
+        editBundle[fieldType] = config[field];
+
+        fields.push(editBundle);
+      }
 
     })
 
@@ -140,281 +184,6 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
   });
 
 });
-
-//Create and edit forms
-
-C.app.get("/admin/api/edit/:type/:_id/form", function (req, res) {
-
-  if (req.authPass.roles.indexOf('admin') !== -1) {
-
-    if (!C.dbCollections[req.params.type]) {
-
-      res.respond(400, "No such type");
-      return false;
-
-    }
-
-    C.dbCollections[req.params.type].findOne({
-      "_id": req.params._id
-    }, function (err, doc) {
-
-      if (err) {
-
-        res.respond(500, "Database error");
-
-      }
-
-      if (doc) {
-
-        editForm(doc);
-
-      } else {
-
-        res.respond(400, "Entity not found");
-
-      }
-
-    });
-
-    var editForm = function (doc) {
-
-      var tree = C.dbCollections[req.params.type].schema.tree;
-
-      var newTree = {
-        schema: {}
-      };
-
-      Object.keys(tree).forEach(function (item) {
-
-        if (item === "id" || item === "_id" || item === "__v" || item === "entityType" || item === "entityAuthor" || item === "eId") {
-
-          return false;
-
-        }
-
-        if (checkField(item, tree[item])) {
-
-          newTree.schema[item] = checkField(item, tree[item]);
-
-        }
-
-      })
-
-      newTree.form = [
-    "*",
-        {
-          "type": "submit",
-          "title": "Save"
-    }
-  ];
-
-      newTree.value = doc;
-
-      if (newTree.value.password) {
-
-        // Hide hashed password from edit view
-        newTree.value.password = '';
-
-        newTree.schema.password.description = 'Leave blank to keep the same.'
-
-        newTree.schema.password.required = false;
-
-      }
-
-      res.send(newTree);
-
-    }
-
-  } else {
-
-    res.redirect("/admin");
-
-  }
-
-});
-
-C.app.get("/admin/api/create/:type/form/", function (req, res) {
-
-  if (req.authPass.roles.indexOf('admin') !== -1) {
-
-    if (!C.dbCollections[req.params.type]) {
-
-      res.respond(400, "No such type");
-      return false;
-
-    }
-
-    var tree = C.dbCollections[req.params.type].schema.tree;
-
-    var newTree = {
-      schema: {}
-    };
-
-    Object.keys(tree).forEach(function (item) {
-
-      if (item === "id" || item === "_id" || item === "__v" || item === "entityType" || item === "entityAuthor" || item === "eId") {
-
-        return false;
-
-      }
-
-      if (checkField(item, tree[item])) {
-
-        newTree.schema[item] = checkField(item, tree[item]);
-
-      }
-
-    })
-
-    newTree.form = [
-    "*",
-      {
-        "type": "submit",
-        "title": "Save"
-    }
-  ];
-
-    res.send(newTree);
-
-  } else {
-
-    res.redirect("/admin");
-
-  }
-
-});
-
-var checkField = function (key, item) {
-
-  if (item === String) {
-
-    return {
-
-      "title": key,
-      "type": "string",
-      "required": item.required
-
-    };
-
-  }
-
-  var type = item.type;
-
-  if (type === Date) {
-
-    return {
-
-      "title": item.title,
-      "description": item.description,
-      "type": "date",
-      "required": item.required
-
-    };
-
-
-  }
-
-  if (type === String) {
-
-    if (item.enum) {
-
-      return {
-
-        "title": item.title,
-        "description": item.description,
-        "type": "string",
-        "required": item.required,
-        "enum": item.enum
-
-      };
-
-    } else if (item.long) {
-
-      return {
-
-        "title": item.title,
-        "description": item.description,
-        "type": "textarea",
-        "required": item.required,
-        "allowedTags": item.allowedTags
-
-      };
-
-    } else if (item.fileTypes) {
-
-      return {
-
-        "title": item.title,
-        "fileTypes": item.fileTypes,
-        "description": item.description,
-        "type": "fileField",
-        "required": item.required,
-
-      }
-
-    } else {
-
-      return {
-
-        "title": item.title,
-        "description": item.description,
-        "type": "string",
-        "required": item.required,
-
-      };
-
-    }
-
-  }
-
-  if (item.type === Boolean) {
-
-    return {
-
-      "title": key,
-      "type": "boolean",
-      "required": item.required,
-
-    };
-
-  }
-
-  //Check if array
-
-  if (Array.isArray(item.type)) {
-
-    var array = {
-
-      type: "array",
-      title: key,
-      items: checkField(key, item.type[0]),
-
-    }
-
-    return array;
-
-  } else if (typeof item === "object") {
-
-    var toInsert = {
-
-      type: "object",
-      title: key,
-      required: item.required,
-      properties: {}
-
-    }
-
-    Object.keys(item).forEach(function (propertyName) {
-
-      toInsert.properties[propertyName] = checkField(propertyName, item[propertyName])
-
-    });
-
-    return toInsert;
-
-  }
-
-};
 
 //CK Editor file upload
 
