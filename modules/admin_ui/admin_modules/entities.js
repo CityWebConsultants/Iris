@@ -120,66 +120,105 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
   })
 
-  C.readConfig("entity", req.params.type).then(function (config) {
+  var config = C.dbSchemaJSON[req.params.type];
 
-    var util = require("util");
+  var util = require("util");
 
-    var fields = [];
+  var fields = [];
 
-    var fieldParse = function (field) {
+  var fieldParse = function (field) {
 
-      if (field.subfields) {
+    if (field.subfields) {
 
-        var choose = fieldTypes["object"];
+      var choose = fieldTypes["object"];
 
-        var editBundle = {};
+      var editBundle = {};
 
-        editBundle["choose"] = (choose - 1).toString();
+      editBundle["choose"] = (choose - 1).toString();
 
-        editBundle["object"] = field;
+      editBundle["object"] = field;
 
-        var subFields = [];
+      var subFields = [];
 
-        Object.keys(field.subfields).forEach(function (subfieldName) {
+      Object.keys(field.subfields).forEach(function (subfieldName) {
 
-          subFields.push(fieldParse(field.subfields[subfieldName]));
+        subFields.push(fieldParse(field.subfields[subfieldName]));
 
-        })
+      })
 
-        field.subfields = subFields;
+      field.subfields = subFields;
 
-        return editBundle;
+      return editBundle;
 
-      } else {
-        var fieldType = field.fieldTypeType + "_" + field.fieldTypeName;
+    } else {
 
-        var choose = fieldTypes[fieldType];
+      var fieldType = field.fieldTypeType + "_" + field.fieldTypeName;
 
-        var editBundle = {};
+      var choose = fieldTypes[fieldType];
 
-        editBundle["choose"] = choose.toString();
-        editBundle[fieldType] = field;
+      var editBundle = {};
 
-        return editBundle;
-      }
+      editBundle["choose"] = choose.toString();
+      editBundle[fieldType] = field;
 
+      return editBundle;
     }
 
-    Object.keys(config).forEach(function (field) {
+  }
 
-      // Check if has subfields
+  Object.keys(config).forEach(function (field) {
 
-      fields.push(fieldParse(config[field]));
+    // Check if has subfields
+
+    fields.push(fieldParse(config[field]));
+
+  })
+
+  res.send(fields);
+
+});
+
+// Create entity form
+
+CM.forms.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
+
+  // Check if entity type exists
+
+  var type = thisHook.const.params[1];
+
+  if (C.dbCollections[type]) {
+
+    var schema = C.dbCollections[type].schema.tree;
+
+    var fieldConvert = function (field) {
+
+      console.log(typeof field.type);
+
+    };
+
+    Object.keys(schema).forEach(function (field) {
+
+      if (fieldConvert(schema[field])) {
+
+        schema[field].type = fieldConvert(schema[field]);
+
+      } else {
+
+        delete schema[field];
+
+      }
 
     })
 
-    res.send(fields);
+    data.schema = schema;
 
-  }, function (fail) {
+    thisHook.finish(true, data);
 
-    res.send(fail);
+  } else {
 
-  });
+    thisHook.finish(false, data);
+
+  }
 
 });
 

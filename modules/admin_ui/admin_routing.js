@@ -343,8 +343,7 @@ C.app.get("/admin/create/:type", function (req, res) {
   }
 
   CM.frontend.globals.parseTemplateFile(["admin_entity_create"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    hello: "world"
+    type: req.params.type
   }, req.authPass, req).then(function (success) {
 
     res.send(success)

@@ -2,21 +2,25 @@
   "name": {
     "fieldTypeType": "string",
     "title": "Username",
-    "required": true
+    "required": true,
+    "fieldTypeName": "string"
   },
   "userid": {
     "title": "User id",
     "fieldTypeType": "string",
-    "required": true
+    "required": true,
+    "fieldTypeName": "string"
   },
   "password": {
     "title": "Password",
     "fieldTypeType": "string",
-    "required": true
+    "required": true,
+    "fieldTypeName": "string"
   },
   "roles": {
     "title": "Roles",
     "fieldTypeType": "ofstring",
-    "required": false
+    "required": false,
+    "fieldTypeName": "string"
   }
 }

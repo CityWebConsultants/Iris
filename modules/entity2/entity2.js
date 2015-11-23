@@ -109,6 +109,12 @@ CM.entity2.globals.fetchSchemaForm = function () {
 
   var schemaFormFields = {};
 
+  // add choose field
+
+  schemaFormFields["choose"] = {
+    "type": "choose"
+  };
+
   Object.keys(CM.entity2.globals.fieldTypes).forEach(function (fieldType) {
 
     Object.keys(CM.entity2.globals.fieldTypes[fieldType]).forEach(function (field) {
@@ -129,12 +135,6 @@ CM.entity2.globals.fetchSchemaForm = function () {
     })
 
   });
-
-  // add choose field
-
-  schemaFormFields["choose"] = {
-    "type": "choose"
-  };
 
   // add in object field for field collections
 

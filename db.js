@@ -31,6 +31,8 @@ mongoose.connection.on('error', function (error) {
 
 C.dbCollections = {};
 
+C.dbSchemaJSON = {};
+
 C.dbSchema = {};
 
 var dbReady = false;
@@ -104,8 +106,10 @@ C.dbPopulate = function () {
         break;
       case "string":
         return String;
+        break;
       case "number":
-        return Number
+        return Number;
+        break;
     }
 
     return false;
@@ -145,6 +149,10 @@ C.dbPopulate = function () {
       }
 
     }
+
+    // Make JSON copy of complete schema
+
+    C.dbSchemaJSON[schema] = JSON.parse(JSON.stringify(C.dbSchema[schema]));
 
     Object.keys(C.dbSchema[schema]).forEach(function (field) {
 
