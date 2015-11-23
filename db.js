@@ -154,13 +154,27 @@ C.dbPopulate = function () {
 
     C.dbSchemaJSON[schema] = JSON.parse(JSON.stringify(C.dbSchema[schema]));
 
+    // Filter out universal fields
+
+    var universalFields = ["path", "entityType", "entityAuthor", "eId"];
+
+    Object.keys(C.dbSchemaJSON[schema]).forEach(function (field) {
+
+      if (universalFields.indexOf(field) !== -1) {
+
+        delete C.dbSchemaJSON[schema][field];
+
+      }
+
+    })
+
     Object.keys(C.dbSchema[schema]).forEach(function (field) {
 
       parseField(C.dbSchema[schema][field]);
 
     });
 
-    //Push in universal type fields
+    //Push in universal type fields if not already in.
 
     C.dbSchema[schema].path = {
       type: String,
