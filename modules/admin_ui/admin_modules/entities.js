@@ -158,7 +158,7 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
       var editBundle = {};
 
-      editBundle["choose"] = choose.toString();
+      editBundle["choose"] = (choose - 1).toString();
       editBundle[fieldType] = field;
 
       return editBundle;
