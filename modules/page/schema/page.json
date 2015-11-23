@@ -1,12 +1,14 @@
 {
   "title": {
     "fieldTypeType": "string",
+    "fieldTypeName": "string",
     "required": true,
     "title": "Page title",
     "description": "This is the title field"
   },
   "body": {
     "fieldTypeType": "string",
+    "fieldTypeName": "string",
     "long": true,
     "required": true,
     "title": "Body field",
@@ -14,6 +16,7 @@
   },
   "class": {
     "fieldTypeType": "string",
+    "fieldTypeName": "string",
     "title": "Body class"
   }
 }
