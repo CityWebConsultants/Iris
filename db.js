@@ -114,45 +114,45 @@ C.dbPopulate = function () {
 
   Object.keys(C.dbSchema).forEach(function (schema) {
 
-    Object.keys(C.dbSchema[schema]).forEach(function (field) {
+    var parseField = function (field) {
 
       // Check if it's an object with subfields
 
-      if (C.dbSchema[schema][field].subfields) {
+      if (field.subfields) {
 
         var type = {};
 
-        Object.keys(C.dbSchema[schema][field].subfields).forEach(function (subfieldName) {
+        Object.keys(field.subfields).forEach(function (subfieldName) {
 
-          var subfield = C.dbSchema[schema][field].subfields[subfieldName];
+          parseField(field.subfields[subfieldName]);
 
-          if (subfield.fieldTypeType && typeConverter(subfield.fieldTypeType)) {
-
-            subfield.type = typeConverter(subfield.fieldTypeType);
-
-          }
-
-          type[subfieldName] = subfield;
+          type[subfieldName] = field.subfields[subfieldName];
 
         });
 
-        delete C.dbSchema[schema][field].subfields;
+        delete field.subfields;
 
-        C.dbSchema[schema][field].type = type;
+        field.type = type;
 
       }
 
       // Convert types
 
-      if (C.dbSchema[schema][field].fieldTypeType && typeConverter(C.dbSchema[schema][field].fieldTypeType)) {
+      if (field.fieldTypeType && typeConverter(field.fieldTypeType)) {
 
-        C.dbSchema[schema][field].type = typeConverter(C.dbSchema[schema][field].fieldTypeType);
+        field.type = typeConverter(field.fieldTypeType);
 
       }
 
+    }
+
+    Object.keys(C.dbSchema[schema]).forEach(function (field) {
+
+      parseField(C.dbSchema[schema][field]);
+
     });
-    
-    //Push in author and entity type fields
+
+    //Push in universal type fields
 
     C.dbSchema[schema].path = {
       type: String,
