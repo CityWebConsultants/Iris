@@ -178,41 +178,73 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
 });
 
+// Example widget
+
+CM.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
+
+  var type = thisHook.const.type;
+  var name = thisHook.const.name;
+
+  var schema = {
+    type: "string",
+    title: type,
+    description: name
+  }
+
+  thisHook.finish(true, schema);
+
+});
+
+
 // Create entity form
 
 CM.forms.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
 
   // Check if entity type exists
 
-  var type = thisHook.const.params[1];
+  var type = thisHook.const.params[1],
+    schema = C.dbSchemaJSON[type];
 
-  if (C.dbCollections[type]) {
+  var widgets = {};
 
-    var schema = C.dbCollections[type].schema.tree;
+  var doneCount = 0;
 
-    var fieldConvert = function (field) {
+  var done = function () {
 
-      console.log(typeof field.type);
+    doneCount += 1;
 
-    };
+    if (doneCount === Object.keys(schema).length) {
 
-    Object.keys(schema).forEach(function (field) {
+      data.schema = widgets;
 
-      if (fieldConvert(schema[field])) {
+      thisHook.finish(true, data);
 
-        schema[field].type = fieldConvert(schema[field]);
+    }
 
-      } else {
+  }
 
-        delete schema[field];
+  if (schema) {
 
+    Object.keys(schema).forEach(function (fieldName) {
+
+      var field = {
+        name: schema[fieldName].fieldTypeName,
+        type: schema[fieldName].fieldTypeType
       }
 
-    })
+      C.hook("hook_render_entityfield_form", thisHook.authPass, field, null).then(function (form) {
 
-    data.schema = schema;
+        widgets[fieldName] = form;
 
-    thisHook.finish(true, data);
+        done();
+
+      }, function (fail) {
+
+        done();
+
+      })
+
+    });
 
   } else {
 
