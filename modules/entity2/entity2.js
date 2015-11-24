@@ -287,6 +287,18 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 
     if (doneCount === widgetValues.length) {
 
+      formData.entityType = type;
+
+      C.hook("hook_entity_create", thisHook.authPass, formData, formData).then(function (success) {
+
+        thisHook.finish(true, success);
+
+      }, function (fail) {
+
+        thisHook.finish(false, fail);
+
+      });
+
       thisHook.finish(true, data);
 
     }
