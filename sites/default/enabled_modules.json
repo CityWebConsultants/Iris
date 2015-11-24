@@ -11,23 +11,12 @@
     "name": "actions",
     "path": "/modules/actions"
 }, {
-    "name": "forms",
-    "path": "/modules/forms"
-}, {
     "name": "headertags",
     "path": "/modules/headertags"
 },
   {
     "name": "ckeditor",
     "path": "/modules/ckeditor"
-},
-  {
-    "name": "menu",
-    "path": "/modules/menu"
-},
-  {
-    "name": "admin_ui",
-    "path": "/modules/admin_ui"
 },
   {
     "name": "page",
