@@ -228,6 +228,8 @@ module.exports = function (config) {
 
     require('./core_modules/paths/paths.js');
 
+    require('./core_modules/entity2/entity2.js');
+
     //Load logging module
 
     require('./log');

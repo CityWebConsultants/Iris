@@ -2,23 +2,11 @@
     "name": "sessions",
     "path": "/modules/sessions"
 }, {
-    "name": "group_manager",
-    "path": "/modules/group_manager"
-}, {
     "name": "bunyan",
     "path": "/modules/bunyan"
 }, {
-    "name": "messages",
-    "path": "/modules/messages"
-}, {
-    "name": "messages_replies",
-    "path": "/modules/messages_replies"
-}, {
     "name": "entity_views",
     "path": "/modules/entity_views"
-}, {
-    "name": "about",
-    "path": "/modules/about"
 }, {
     "name": "actions",
     "path": "/modules/actions"
@@ -48,9 +36,6 @@
   {
     "name": "user",
     "path": "/modules/user"
-}, {
-    "name": "example",
-    "path": "/modules/example"
 }, {
     "name": "blocks",
     "path": "/modules/blocks"

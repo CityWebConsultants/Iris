@@ -15,24 +15,6 @@ var mkdirSync = function (path) {
  *  Load theme
  */
 
-CM.frontend.globals.themeConfig = function () {
-
-  try {
-
-    var themeConfig = require(C.sitePath + '/' + C.config.theme + '/theme.js');
-
-    return themeConfig;
-
-  } catch (e) {
-
-    C.log("error", "Could not read theme.js");
-
-    return false;
-
-  }
-
-};
-
 // Add theme folders from modules
 
 process.on("dbReady", function () {
@@ -45,7 +27,6 @@ process.on("dbReady", function () {
 
 });
 
-// Check that theme is sane
 try {
 
   fs.readdirSync(C.sitePath + '/' + C.config.theme + "/templates");
@@ -53,7 +34,15 @@ try {
 
 } catch (e) {
 
-  C.log("error", "Theme does not contain /templates or /static directories.");
+  // Make theme settings if not set
+
+  mkdirSync(C.sitePath + '/' + "themes");
+  mkdirSync(C.sitePath + '/' + C.config.theme);
+
+  mkdirSync(C.sitePath + '/' + C.config.theme + "/templates");
+  mkdirSync(C.sitePath + '/' + C.config.theme + "/static");
+
+  fs.writeFileSync(C.sitePath + '/' + C.config.theme + "/theme.json", '{}', 'utf8');
 
 }
 
@@ -94,7 +83,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
   context = optionalContext;
 
-//  context.current = entity;
+  //  context.current = entity;
 
   return new Promise(function (yes, no) {
 
