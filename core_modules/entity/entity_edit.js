@@ -3,22 +3,12 @@
 
 CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
-  if (!data._id) {
+  if (!data.eId) {
 
     thisHook.finish(false, C.error(400, "Have to have an ID to edit something"));
     return false;
 
   };
-
-  // Unset entity ID. You shouldn't be able to change it.
-
-  if (data.eId) {
-
-    data.eId = undefined;
-
-  };
-  
-  console.log(data);
 
   //Set entity type
 
@@ -32,7 +22,7 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
   //Check entity actually exists
 
   C.dbCollections[data.entityType].findOne({
-    _id: data._id
+    eId: data.eId
   }, function (err, doc) {
 
     if (err) {
@@ -167,10 +157,10 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
   var update = function (validatedEntity) {
 
     var conditions = {
-      _id: validatedEntity._id
+      eId: validatedEntity.eId
     };
 
-    delete validatedEntity._id;
+    delete validatedEntity.eId;
 
     var update = validatedEntity;
 
@@ -215,7 +205,7 @@ C.app.post("/entity/edit/:type/:_id", function (req, res) {
 
   req.body.entityType = req.params.type;
   req.body._id = req.params._id;
-  
+
   C.hook("hook_entity_edit", req.authPass, null, req.body).then(function (success) {
 
     res.respond(200, success);
