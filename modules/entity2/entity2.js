@@ -224,11 +224,65 @@ CM.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, d
 
 CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
 
-  console.log(thisHook.const.params);
-  
+  // Get type from url
+  // Get the schema for the requested type to get the widgets
+  // Get the submitted form values
+
+  var type = thisHook.const.req.url.split("/")[3],
+    schema = C.dbSchemaJSON[type],
+    values = thisHook.const.params;
+
+  // Gather array of field value/widgets pairs
+
+  var widgetValues = [];
+
+  Object.keys(values).forEach(function (field) {
+
+    if (schema[field]) {
+
+      widgetValues.push({
+        schema: schema[field],
+        value: values[field],
+        fieldName: field
+      });
+
+    }
+
+  });
+
   // Loop over all widgets to assemble a saved entity
 
-  thisHook.finish(true, data);
+  var formData = {};
+
+  var doneCount = 0;
+
+  var done = function () {
+
+    doneCount += 1;
+
+    if (doneCount === widgetValues.length) {
+      
+      thisHook.finish(true, data);
+
+    }
+
+  }
+
+  widgetValues.forEach(function (widget) {
+
+    C.hook("hook_entityfield_save", thisHook.authPass, widget, {}).then(function (result) {
+
+      formData[widget.fieldName] = result;
+
+      done();
+
+    }, function (fail) {
+
+      done();
+
+    })
+
+  });
 
 });
 
