@@ -325,6 +325,90 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 
 });
 
+// Entity edit form handler ( TODO: should merge this with create as they're pretty much the same thing)
+
+// Entity create form handler
+
+CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, data) {
+
+  // Get type from url
+  // Get the schema for the requested type to get the widgets
+  // Get the submitted form values
+
+  var type = thisHook.const.req.url.split("/")[3],
+    schema = C.dbSchemaJSON[type],
+    eId = thisHook.const.req.url.split("/")[4],
+    values = thisHook.const.params;
+
+  // Gather array of field value/widgets pairs
+
+  var widgetValues = [];
+
+  Object.keys(values).forEach(function (field) {
+
+    if (schema[field]) {
+
+      widgetValues.push({
+        schema: schema[field],
+        value: values[field],
+        fieldName: field
+      });
+
+    }
+
+  });
+
+  // Loop over all widgets to assemble a saved entity
+
+  var formData = {};
+
+  var doneCount = 0;
+
+  var done = function () {
+
+    doneCount += 1;
+
+    if (doneCount === widgetValues.length) {
+
+      formData.entityType = type;
+      formData.eId = eId;
+
+      C.hook("hook_entity_edit", thisHook.authPass, formData, formData).then(function (success) {
+
+        thisHook.finish(true, success);
+
+      }, function (fail) {
+
+        thisHook.finish(false, fail);
+
+      });
+
+      thisHook.finish(true, data);
+
+    }
+
+  }
+
+  widgetValues.forEach(function (widget) {
+
+    C.hook("hook_entityfield_save", thisHook.authPass, widget, {}).then(function (result) {
+
+      formData[widget.fieldName] = result;
+
+      done();
+
+    }, function (fail) {
+
+      done();
+
+    })
+
+  });
+
+});
+
+
+
 // Create entity form
 
 CM.entity2.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
