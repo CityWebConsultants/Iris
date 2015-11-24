@@ -184,16 +184,17 @@ CM.entity2.globals.fetchSchemaForm = function () {
 
 CM.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
-  var type = thisHook.const.fieldTypeType;
-  var name = thisHook.const.fieldTypeName;
+  var type = thisHook.const.field.fieldTypeType;
+  var name = thisHook.const.field.fieldTypeName;
 
   if (type === "string") {
 
     data = {
       type: "string",
-      title: thisHook.const.title,
-      required: thisHook.const.required,
-      description: thisHook.const.description
+      title: thisHook.const.field.title,
+      required: thisHook.const.field.required,
+      description: thisHook.const.field.description,
+      default: thisHook.const.value
     }
 
     thisHook.finish(true, data);
@@ -202,12 +203,13 @@ CM.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, d
 
     data = {
       type: "array",
-      required: thisHook.const.required,
-      title: thisHook.const.title,
-      "description": thisHook.const.description,
+      required: thisHook.const.field.required,
+      title: thisHook.const.field.title,
+      "description": thisHook.const.field.description,
       items: {
         type: "string"
-      }
+      },
+      "default": thisHook.const.value
     }
 
     thisHook.finish(true, data);
@@ -354,7 +356,10 @@ CM.entity2.registerHook("hook_form_render_createEntity", 0, function (thisHook, 
 
     Object.keys(schema).forEach(function (fieldName) {
 
-      C.hook("hook_render_entityfield_form", thisHook.authPass, schema[fieldName], {}).then(function (form) {
+      C.hook("hook_render_entityfield_form", thisHook.authPass, {
+        field: schema[fieldName],
+        value: null
+      }, {}).then(function (form) {
 
         widgets[fieldName] = form;
 
@@ -373,5 +378,78 @@ CM.entity2.registerHook("hook_form_render_createEntity", 0, function (thisHook, 
     thisHook.finish(false, data);
 
   }
+
+});
+
+// Edit entity form
+
+// Create entity form
+
+CM.entity2.registerHook("hook_form_render_editEntity", 0, function (thisHook, data) {
+
+  // Check if entity type exists
+
+  var type = thisHook.const.params[1],
+    id = thisHook.const.params[2],
+    schema = C.dbSchemaJSON[type];
+
+  if (!schema) {
+
+    thisHook.finish(false, data);
+    return false;
+
+  }
+
+  // Load in entity to get defaults
+
+  C.dbCollections[type].findOne({
+    eId: id
+  }, function (err, current) {
+
+    if (err) {
+
+      thisHook.finish(false, err);
+      return false;
+
+    }
+
+    var widgets = {};
+
+    var doneCount = 0;
+
+    var done = function () {
+
+      doneCount += 1;
+
+      if (doneCount === Object.keys(schema).length) {
+
+        data.schema = widgets;
+
+        thisHook.finish(true, data);
+
+      }
+
+    }
+
+    Object.keys(schema).forEach(function (fieldName) {
+
+      C.hook("hook_render_entityfield_form", thisHook.authPass, {
+        field: schema[fieldName],
+        value: current[fieldName]
+      }, {}).then(function (form) {
+
+        widgets[fieldName] = form;
+
+        done();
+
+      }, function (fail) {
+
+        done();
+
+      })
+
+    });
+
+  });
 
 });
