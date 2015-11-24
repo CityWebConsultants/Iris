@@ -15,7 +15,7 @@
     "description": "This is the main text area for this page"
   },
   "class": {
-    "fieldTypeType": "string",
+    "fieldTypeType": "ofstring",
     "fieldTypeName": "string",
     "title": "Body class"
   }
