@@ -32,6 +32,12 @@ C.app.post("/admin/api/schema/save/:type", function (req, res) {
 
   var processField = function (field) {
 
+    if (field.required) {
+
+      field.required = Boolean(field.required);
+
+    }
+
     if (field.choose) {
       delete field.choose;
     }
