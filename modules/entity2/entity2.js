@@ -179,3 +179,108 @@ CM.entity2.globals.fetchSchemaForm = function () {
   return schemaFormFields;
 
 }
+
+// Base level widgets
+
+CM.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
+
+  var type = thisHook.const.fieldTypeType;
+  var name = thisHook.const.fieldTypeName;
+
+  if (type === "string") {
+
+    data = {
+      type: "string",
+      title: thisHook.const.title,
+      required: thisHook.const.required,
+      description: thisHook.const.description
+    }
+
+    thisHook.finish(true, data);
+
+  } else if (type === "ofstring") {
+
+    data = {
+      type: "array",
+      required: thisHook.const.required,
+      title: thisHook.const.title,
+      "description": thisHook.const.description,
+      items: {
+        type: "string"
+      }
+    }
+
+    thisHook.finish(true, data);
+
+  } else {
+
+    thisHook.finish(false, data);
+
+  }
+
+});
+
+// Entity create form handler
+
+CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
+
+  console.log(thisHook.const.params);
+  
+  // Loop over all widgets to assemble a saved entity
+
+  thisHook.finish(true, data);
+
+});
+
+// Create entity form
+
+CM.entity2.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
+
+  // Check if entity type exists
+
+  var type = thisHook.const.params[1],
+    schema = C.dbSchemaJSON[type];
+
+  var widgets = {};
+
+  var doneCount = 0;
+
+  var done = function () {
+
+    doneCount += 1;
+
+    if (doneCount === Object.keys(schema).length) {
+
+      data.schema = widgets;
+
+      thisHook.finish(true, data);
+
+    }
+
+  }
+
+  if (schema) {
+
+    Object.keys(schema).forEach(function (fieldName) {
+
+      C.hook("hook_render_entityfield_form", thisHook.authPass, schema[fieldName], {}).then(function (form) {
+
+        widgets[fieldName] = form;
+
+        done();
+
+      }, function (fail) {
+
+        done();
+
+      })
+
+    });
+
+  } else {
+
+    thisHook.finish(false, data);
+
+  }
+
+});

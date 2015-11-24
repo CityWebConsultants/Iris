@@ -8,7 +8,7 @@
   },
   "body": {
     "fieldTypeType": "string",
-    "fieldTypeName": "string",
+    "fieldTypeName": "long",
     "long": true,
     "required": true,
     "title": "Body field",

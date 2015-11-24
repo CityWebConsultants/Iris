@@ -1,0 +1,12 @@
+{
+  "allowedTags": {
+    "title": "Allowed tags",
+    "type": "array",
+    "description": "Insert supported tags here",
+    "items": {
+
+      "type": "string"
+
+    }
+  }
+}
