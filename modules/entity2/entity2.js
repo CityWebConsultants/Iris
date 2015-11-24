@@ -220,6 +220,31 @@ CM.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, d
 
 });
 
+// Field save handler
+
+CM.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
+
+  var fieldSchema = thisHook.const.schema,
+    value = thisHook.const.value,
+    fieldType = thisHook.const.schema.fieldTypeType,
+    fieldName = thisHook.const.schema.fieldTypeName;
+
+  if (fieldType === "string") {
+
+    thisHook.finish(true, thisHook.const.value)
+
+  } else if (fieldType === "ofstring") {
+
+    thisHook.finish(true, thisHook.const.value)
+
+  } else {
+
+    thisHook.finish(false, data);
+
+  }
+
+});
+
 // Entity create form handler
 
 CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
@@ -261,7 +286,7 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
     doneCount += 1;
 
     if (doneCount === widgetValues.length) {
-      
+
       thisHook.finish(true, data);
 
     }
