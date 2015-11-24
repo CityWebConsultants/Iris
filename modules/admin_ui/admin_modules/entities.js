@@ -178,23 +178,43 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
 });
 
-// Example widget
+// Base level widgets
 
 CM.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
-  var type = thisHook.const.type;
-  var name = thisHook.const.name;
+  var type = thisHook.const.fieldTypeType;
+  var name = thisHook.const.fieldTypeName;
 
-  var schema = {
-    type: "string",
-    title: type,
-    description: name
+  if (type === "string") {
+
+    data = {
+      type: "string",
+      title: thisHook.const.title,
+      description: thisHook.const.description
+    }
+
+    thisHook.finish(true, data);
+
+  } else if (type === "ofstring") {
+
+    data = {
+      type: "array",
+      title: thisHook.const.title,
+      "description": thisHook.const.description,
+      items: {
+        type: "string"
+      }
+    }
+
+    thisHook.finish(true, data);
+
+  } else {
+
+    thisHook.finish(false, data);
+
   }
 
-  thisHook.finish(true, schema);
-
 });
-
 
 // Create entity form
 
@@ -227,12 +247,7 @@ CM.forms.registerHook("hook_form_render_createEntity", 0, function (thisHook, da
 
     Object.keys(schema).forEach(function (fieldName) {
 
-      var field = {
-        name: schema[fieldName].fieldTypeName,
-        type: schema[fieldName].fieldTypeType
-      }
-
-      C.hook("hook_render_entityfield_form", thisHook.authPass, field, null).then(function (form) {
+      C.hook("hook_render_entityfield_form", thisHook.authPass, schema[fieldName], {}).then(function (form) {
 
         widgets[fieldName] = form;
 
