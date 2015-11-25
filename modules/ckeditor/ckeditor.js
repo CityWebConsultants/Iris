@@ -34,16 +34,17 @@ CM.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {
 
 CM.ckeditor.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
-  var type = thisHook.const.fieldTypeType;
-  var name = thisHook.const.fieldTypeName;
+  var type = thisHook.const.field.fieldTypeType;
+  var name = thisHook.const.field.fieldTypeName;
 
   if (name === "long") {
 
     data = {
-      "type": "textarea",
-      "title": thisHook.const.title,
-      "required": thisHook.const.required,
-      "description": thisHook.const.description,
+      "type": "ckeditor",
+      "title": thisHook.const.field.title,
+      "required": thisHook.const.field.required,
+      "description": thisHook.const.field.description,
+      "default": thisHook.const.value
     }
 
     thisHook.finish(true, data);

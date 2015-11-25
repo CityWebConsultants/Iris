@@ -17,6 +17,14 @@
   "class": {
     "fieldTypeType": "ofstring",
     "fieldTypeName": "string",
+    "required": false,
     "title": "Body class"
+  },
+  "path": {
+    "fieldTypeType": "string",
+    "fieldTypeName": "string",
+    "required": true,
+    "title": "Path",
+    "description": "This is the path field"
   }
 }

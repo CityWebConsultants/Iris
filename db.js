@@ -156,7 +156,7 @@ C.dbPopulate = function () {
 
     // Filter out universal fields
 
-    var universalFields = ["path", "entityType", "entityAuthor", "eId"];
+    var universalFields = ["entityType", "entityAuthor", "eId"];
 
     Object.keys(C.dbSchemaJSON[schema]).forEach(function (field) {
 
@@ -175,13 +175,6 @@ C.dbPopulate = function () {
     });
 
     //Push in universal type fields if not already in.
-
-    C.dbSchema[schema].path = {
-      type: String,
-      description: "Url path for this entity",
-      title: "Path",
-      required: false
-    }
 
     C.dbSchema[schema].entityType = {
       type: String,

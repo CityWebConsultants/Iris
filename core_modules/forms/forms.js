@@ -1,5 +1,7 @@
 C.registerModule("forms");
 
+var toSource = require('tosource');
+
 CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
   if (thisHook.const.req.method === "POST") {
@@ -142,10 +144,21 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
       var output = "";
 
-      var toSource = require('tosource');
-
       output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
-      output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/deps/jquery.min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + toSource(form) + ");</script>";
+
+      // Add in any custom widgets
+
+      output += "<script>";
+
+      Object.keys(CM.forms.globals.widgets).forEach(function (widget) {
+
+        output += "var " + widget + " = " + CM.forms.globals.widgets[widget] + "()";
+
+      });
+
+      output += "</script>";
+
+      output += "<script>$('#" + formName + "').jsonForm(" + toSource(form) + ");</script>";
       return output;
 
     };
@@ -218,3 +231,30 @@ CM.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
   thisHook.finish(true, data);
 
 })
+
+CM.forms.globals.widgets = {};
+
+// Allow custom form widget types
+
+CM.forms.globals.registerWidget = function (widgetFunction, name) {
+
+  CM.forms.globals.widgets[name] = toSource(widgetFunction);
+
+}
+
+CM.forms.globals.registerWidget(function () {
+
+  JSONForm.elementTypes['ckeditor'] = Object.create(JSONForm.elementTypes['text']);
+
+  JSONForm.elementTypes['ckeditor'].template = '<textarea class="ckeditor" id="<%= id %>" name="<%= node.name %>" ' +
+    'style="height:<%= elt.height || "150px" %>;width:<%= elt.width || "100%" %>;"' +
+    '<%= (node.disabled? " disabled" : "")%>' +
+    '<%= (node.readOnly ? " readonly=\'readonly\'" : "") %>' +
+    '<%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %>' +
+    '<%= (node.schemaElement && node.schemaElement.required ? " required=\'required\'" : "") %>' +
+    '<%= (node.placeholder? "placeholder=" + \'"\' + escape(node.placeholder) + \'"\' : "")%>' +
+    '><%= value %></textarea>';
+  JSONForm.elementTypes['ckeditor'].fieldTemplate = true;
+  JSONForm.elementTypes['ckeditor'].inputfield = true;
+
+}, "CKeditor");
