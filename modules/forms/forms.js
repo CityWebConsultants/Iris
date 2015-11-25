@@ -169,11 +169,13 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
     };
 
     C.hook("hook_form_render", thisHook.authPass, {
-      formId: form[0]
+      formId: form[0],
+      params: form
     }, formTemplate).then(function (formTemplate) {
 
       C.hook("hook_form_render_" + formName, thisHook.authPass, {
-        formId: form[0]
+        formId: form[0],
+        params: form
       }, formTemplate).then(function (form) {
 
         next(renderForm(form));

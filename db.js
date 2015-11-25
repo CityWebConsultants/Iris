@@ -278,6 +278,13 @@ C.dbPopulate = function () {
 
     //Push in author and entity type fields
 
+    C.dbSchema[schema].path = {
+      type: String,
+      description: "Url path for this entity",
+      title: "Path",
+      required: false
+    }
+
     C.dbSchema[schema].entityType = {
       type: String,
       description: "The type of entity this is",

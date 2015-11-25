@@ -70,155 +70,106 @@ C.app.use("/static", express.static(C.sitePath + '/' + C.config.theme + '/static
 
 CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
-  entity = entity.toObject();
+  var req = optionalContext.req;
+
+  if (entity.toObject) {
+
+    entity = entity.toObject();
+
+  }
+
+  //  var context = Object.assign(entity, optionalContext);
+
+  if (!entity.eId) {
+
+    entity.eId = entity._id;
+
+  }
+
+  if (!optionalContext) {
+
+    optionalContext = {};
+
+  }
+
+  context = optionalContext;
+
+//  context.current = entity;
 
   return new Promise(function (yes, no) {
 
-    var req = {};
+    // Check if the current person can access the entity itself
 
-    req.authPass = authPass;
+    C.hook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
 
-    data = {};
+      if (!viewChecked) {
 
-    data.entity = {};
+        C.hook("hook_display_error_page", req.authPass, {
+          error: 403,
+          req: req
+        }).then(function (success) {
 
-    data.entity.type = entity.entityType;
-    data.entity.id = entity._id;
-    data.entity.fields = entity;
+          yes(success);
 
-    if (!data.entity.fields.eId) {
+        }, function (fail) {
 
-      data.entity.fields.eId = data.entity._id;
+          yes("403");
 
-    }
+        });
 
-    var template = findTemplate([data.entity.type, data.entity.fields.eId]).then(function (data) {
+        return false;
 
-      processTemplate(data);
+      } else {
+
+        entity = viewChecked;
+
+      }
+
+      C.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, entity).then(function (validated) {
+
+        if (validated) {
+
+          context.current = validated;
+          renderTemplate();
+
+        }
+
+      }, function (fail) {
+
+        if (fail === "No such hook exists") {
+
+          context.current = viewChecked;
+          renderTemplate();
+
+        } else {
+
+          // Entity is never set if it fails
+
+        }
+
+      })
 
     }, function (fail) {
 
-      C.log("error", fail);
+      no(fail);
 
     });
 
-    var processTemplate = function (template) {
+    var renderTemplate = function () {
 
-      var context = {
-        entity: data.entity.fields,
-        extras: optionalContext
-      }
+      CM.frontend.globals.parseTemplateFile([entity.entityType, entity.eId], ["html", entity.entityType, entity.eId], context, authPass, context.req).then(function (success) {
 
-      parseTemplate(template, authPass, context).then(function (inner) {
-
-        inner = inner.html;
-
-        var wrapperTemplate = findTemplate(["html", data.entity.type, data.entity.fields.eId]).then(function (wrapperTemplate) {
-
-          parseTemplate(wrapperTemplate, authPass, context).then(function (wrapper) {
-
-            variables = wrapper.variables;
-            wrapper = wrapper.html;
-
-            // Special [[MAINCONTENT]] variable loads in the relevant page template.
-
-            wrapper = wrapper.split("[[[MAINCONTENT]]]").join(inner);
-
-            // Check if the current person can access the entity itself
-
-            C.hook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
-
-              if (!viewChecked) {
-
-                C.hook("hook_display_error_page", req.authPass, {
-                  error: 403,
-                  req: req
-                }).then(function (success) {
-
-                  yes(success);
-
-                }, function (fail) {
-
-                  yes("403");
-
-                });
-
-                return false;
-
-              } else {
-
-                entity = viewChecked;
-
-              }
-
-              C.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, entity).then(function (validated) {
-
-                if (validated) {
-                  variables["current"] = validated;
-                  renderTemplate();
-                }
-
-              }, function (fail) {
-
-                if (fail === "No such hook exists") {
-
-                  variables["current"] = viewChecked;
-                  renderTemplate();
-
-                } else {
-
-                  // Don't set current.
-
-                }
-
-              })
-
-            }, function (fail) {
-
-              no(fail);
-
-            });
-
-            var renderTemplate = function () {
-
-              var frontendData = {
-                html: wrapper,
-                vars: variables
-              };
-
-              // Pass to templating systems
-              C.hook("hook_frontend_template", req.authPass, null, frontendData).then(function (success) {
-
-                yes(success.html);
-
-              }, function (fail) {
-
-                if (fail === "No such hook exists") {
-
-                  yes(wrapper);
-
-                } else {
-
-                  C.log("error", "Could not render template");
-                  no();
-
-                }
-
-              });
-
-            }
-
-          });
-
-        })
+        yes(success);
 
       }, function (fail) {
 
         C.log("error", fail);
 
+        no("Could not parse template");
+
       });
 
-    }
+    };
 
   });
 
@@ -652,85 +603,74 @@ C.app.use(function (req, res, next) {
   if (req.method !== "GET") {
 
     next();
+    return false;
 
   }
 
-  //Get all entity types
+  // Lookup literal entity from path
 
-  var entityTypes = Object.keys(C.dbCollections);
+  var splitUrl = req.url.split('/');
 
-  var promises = [];
+  if (splitUrl && splitUrl.length === 3 && Object.keys(C.dbCollections).indexOf(splitUrl[1]) !== -1) {
 
-  // Query all entity types for an entity with the current 'path'
+    for (var path in CM.paths.globals.entityPaths) {
 
-  entityTypes.forEach(function (type) {
+      if (CM.paths.globals.entityPaths[path].eId && CM.paths.globals.entityPaths[path].eId.toString() === splitUrl[2] && CM.paths.globals.entityPaths[path].entityType === splitUrl[1]) {
 
-    promises.push(C.promise(function (data, yes, no) {
+        res.redirect(path)
 
-      C.dbCollections[type].findOne({
-        'path': req.url
-      }, function (err, doc) {
+        return false;
 
-        if (doc) {
-
-          data.entity = {
-
-            id: doc._id,
-            type: type,
-            fields: doc,
-
-          }
-
-        }
-
-        yes(data);
-
-      });
-
-    }));
-
-  });
-
-  var success = function (data) {
-
-    //Entity exists
-
-    if (data.entity) {
-
-      CM.frontend.globals.getTemplate(data.entity.fields, req.authPass, {
-        req: req
-      }).then(function (html) {
-
-        res.send(html);
-
-      }, function (fail) {
-
-        next();
-
-      });
-
-    } else {
-
-      // Entity doesn't exist
-
-      next();
+      }
 
     }
 
-  }
+    C.hook("hook_entity_fetch", req.authPass, null, {
+      queryList: [{
+        entities: [splitUrl[1]],
+        queries: [{
+          field: 'eId',
+          comparison: 'IS',
+          compare: splitUrl[2]
+        }]
+      }]
+    }).then(function (result) {
 
-  var fail = function () {
+      if (result && result[0]) {
+
+        CM.frontend.globals.getTemplate(result[0], req.authPass, {
+          req: req
+        }).then(function (html) {
+
+          res.send(html);
+
+          next();
+
+        }, function (fail) {
+
+          next();
+
+        });
+
+      } else {
+
+        next();
+
+      }
+
+    }, function (error) {
+
+      console.log(error);
+
+      next();
+
+    });
+
+  } else {
 
     next();
 
   }
-
-  C.promiseChain(promises, {
-      id: null,
-      url: req.url,
-    },
-    success,
-    fail);
 
 });
 
@@ -761,7 +701,7 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
 // Handlebars templating
 
 CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
-  
+
   var Handlebars = require('handlebars');
 
   try {
@@ -856,9 +796,9 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
       })
 
     } else {
-      
+
       parseTemplateFile(templateName, parameters, function (output) {
-                
+
         C.hook("hook_frontend_template", authPass || "root", {
           html: output.html,
           vars: output.variables
@@ -866,7 +806,7 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
           html: output.html,
           vars: output.variables
         }).then(function (output) {
-          
+
           yes(output.html);
 
         }, function (fail) {

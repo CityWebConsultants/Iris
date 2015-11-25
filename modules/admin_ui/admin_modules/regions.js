@@ -1,5 +1,7 @@
 var fs = require('fs');
 
+C.registerModule("regions");
+
 CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
   // Loop over available block types and add their blocks to a list for the form
@@ -10,7 +12,7 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
     Object.keys(CM.blocks.globals.blocks[blockType]).forEach(function (block) {
 
-      blocks.push(block);
+      blocks.push(block + "|" + blockType)
 
     })
 
@@ -27,6 +29,12 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
     var regions = themeSettings.regions;
 
     var form = {};
+
+    // Push in N/A option
+
+    blocks.push("None");
+
+    blocks.reverse();
 
     regions.forEach(function (regionName) {
 
@@ -83,5 +91,111 @@ CM.forms.registerHook("hook_form_submit_regions", 0, function (thisHook, data) {
     console.log(e);
 
   }
+
+});
+
+// Load regions
+
+CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+
+  CM.frontend.globals.parseBlock("region", data.html, function (region, next) {
+
+    var regionName = region[0];
+
+    // Get list of regions
+
+    C.readConfig("regions", "regions").then(function (output) {
+
+        if (output[regionName]) {
+
+          // Render each block in the region
+
+          var blockPromises = [];
+          var blockData = {};
+
+          output[regionName].forEach(function (block) {
+
+            if (block === "none") {
+
+              return false;
+
+            }
+
+            var blockName = block.split("|")[0],
+              blockType = block.split("|")[1];
+
+            var paramaters = {
+              id: blockName,
+              type: blockType,
+              config: CM.blocks.globals.blocks[blockType][blockName]
+            }
+
+            blockPromises.push(function (object) {
+
+              return new Promise(function (yes, no) {
+
+                C.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
+
+                  blockData[blockType + "|" + blockName] = html;
+                  
+                  yes(blockData);
+
+                });
+
+              })
+
+            })
+
+
+          })
+
+          C.promiseChain(blockPromises, {}, function (pass) {
+            
+            // Run parse template file for a regions template
+
+            CM.frontend.globals.parseTemplateFile(["regions"], null, {
+              blocks: pass
+            }, thisHook.authPass, null).then(function (success) {
+                            
+              next(success);
+
+            }, function (fail) {
+              
+              next(false);
+
+              C.log("error", e);
+
+            });
+
+          }, function (fail) {
+
+            next(false);
+
+          });
+
+        } else {
+
+          next(false);
+
+        }
+
+      },
+      function (fail) {
+
+        next(false);
+
+      });
+
+  }).then(function (html) {
+
+    data.html = html;
+
+    thisHook.finish(true, data)
+
+  }, function (fail) {
+
+    thisHook.finish(true, data)
+
+  });
 
 });

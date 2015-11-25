@@ -226,6 +226,8 @@ module.exports = function (config) {
 
     require('./core_modules/frontend/frontend.js');
 
+    require('./core_modules/paths/paths.js');
+
     //Load logging module
 
     require('./log');
@@ -243,7 +245,7 @@ module.exports = function (config) {
       try {
 
         fs.readFileSync(__dirname + enabledModule.path + "/" + enabledModule.name + ".js");
-        
+
       } catch (e) {
 
         console.log("can't find module " + enabledModule.name)
