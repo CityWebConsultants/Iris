@@ -170,7 +170,7 @@ var findTemplate = function (paths, extension) {
 
   if (!extension) {
 
-    extension = "htm";
+    extension = "html";
 
   };
 
@@ -306,18 +306,26 @@ var findTemplate = function (paths, extension) {
         yes(data);
 
       });
+
     } else {
 
-      CM.frontend.globals.findTemplate(args, "html").then(function (html) {
+      if (Object.keys(C.dbCollections).indexOf(paths[0]) !== -1) {
+        
+        CM.frontend.globals.findTemplate(["entity"], "html").then(function (html) {
+          
+          yes(html);
 
-        yes(html);
+        }, function (fail) {
+          
+          no(false);
 
-      }, function () {
+        })
+
+      } else {
 
         no(false);
 
-      });
-
+      }
 
     }
 
