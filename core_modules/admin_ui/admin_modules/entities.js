@@ -84,7 +84,7 @@ C.app.post("/admin/api/schema/save/:type", function (req, res) {
 
   });
 
-  C.saveConfig(savedSchema, "entity", type, function () {
+  C.saveConfig(savedSchema, "entity", C.sanitizeFileName(type), function () {
 
     C.dbPopulate();
 
