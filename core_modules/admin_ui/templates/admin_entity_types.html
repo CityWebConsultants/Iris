@@ -1,17 +1,9 @@
 <script>
-  $.get("/admin/api/entitytypes", function(data, err) {
-
-    $.each(data, function(index, element) {
-
-      $("#entity-types").append("<tr><td>"+element+"</td><td><div class=\"dropdown closed\"><span class=\"glyphicon glyphicon-chevron-down\"></span><ul><li><a href='/admin/entitylist/"+element+"'>View content</a></li><li><a href='/admin/create/"+element+"'>Create new</a></li><li><a href='/admin/schema/edit/"+element+"'>Edit entity fields</a></li></ul></div></td></tr>");
-
-    });
-
-  });
 
   $('body').on('click', '#entity-types .dropdown .glyphicon', function (e) {
     $(this).parent().toggleClass('closed');
   });
+  
 </script>
 
 <h1>Edit entity types</h1>
@@ -23,6 +15,14 @@
       <th>Options</th>
     </tr>
   </thead>
+
+{{#each entityTypes}}
+
+<tr><td>{{this}}</td><td><div class="dropdown closed"><span class="glyphicon glyphicon-chevron-down"></span><ul><li><a href='/admin/entitylist/{{this}}'>View content</a></li><li><a href='/admin/create/{{this}}'>Create new</a></li><li><a href='/admin/schema/edit/{{this}}'>Edit entity fields</a></li></ul></div></td></tr>
+
+{{/each}}
+
+  
 </table>
 <a class="btn btn-primary" href="/admin/schema/create">Create a new entity type</a>
 

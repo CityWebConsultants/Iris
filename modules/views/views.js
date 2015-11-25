@@ -28,12 +28,11 @@ process.on("dbReady", function () {
 
     CM.views.registerHook("hook_form_render_blockForm_View-of-" + entityType, 0, function (thisHook, data) {
 
-      if (CM.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]]) {
+      if (thisHook.const.params[1] && CM.blocks.globals.blocks["View-of-" + entityType] && CM.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]]) {
 
         var existingView = CM.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]];
 
         data.value = existingView;
-
 
       }
 

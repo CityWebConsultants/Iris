@@ -204,8 +204,7 @@ C.app.get("/admin/entities", function (req, res) {
   }
 
   CM.frontend.globals.parseTemplateFile(["admin_entity_types"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    hello: "world"
+    entityTypes: Object.keys(C.dbCollections)
   }, req.authPass, req).then(function (success) {
 
     res.send(success)

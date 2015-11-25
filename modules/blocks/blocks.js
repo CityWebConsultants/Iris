@@ -306,7 +306,7 @@ CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
   if (formId.split("_")[0] === "blockForm") {
 
-    C.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, thisHook.const.params.blockTitle, function () {
+    C.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, C.sanitizeFileName(thisHook.const.params.blockTitle), function () {
 
       var data = function (res) {
 
