@@ -1,0 +1,42 @@
+<!-- CSS and JS common to all pages --->
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="/modules/admin_ui/admin.css" />
+<link rel="stylesheet" href="/modules/admin_ui/admin_menu.css" />
+
+<script src="/modules/admin_ui/jsonform/deps/jquery.min.js"></script>
+<script type="text/javascript" src="/modules/admin_ui/bootstrap/js/bootstrap.min.js"></script>
+<title>Sign in</title>
+
+
+[[[file admin_include_jsonform]]]
+
+
+<style>
+  #login-tabs {
+    margin-bottom: 20px;
+  }
+  
+  #login-tabs li:not(.active) a {
+    color: #fff;
+  }
+  
+  #login-tabs li:hover a {
+    color: #555;
+  }
+
+</style>
+
+<section id="login-page">
+  <div id="login-logo">Iris</div>
+  <div id="login-form">
+    <h1>Sign in</h1>
+
+    <!-- Nav tabs -->
+
+    [[[form login]]]
+
+  </div>
+
+  </div>
+</section>
