@@ -231,6 +231,8 @@ module.exports = function (config) {
     require('./core_modules/entity2/entity2.js');
     
     require('./core_modules/menu/menu.js');
+    
+    require('./core_modules/menu2/menu2.js');
 
     require('./core_modules/forms/forms.js');
 

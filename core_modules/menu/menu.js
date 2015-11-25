@@ -166,34 +166,3 @@ process.on("dbReady", function () {
   C.promiseChain(promises, {}, function () {});
 
 });
-
-// Menu schema
-
-//{
-//  "schema": {
-//    "properties": {
-//      "animal": {
-//        "$ref": "#/definitions/menuitem"
-//      }
-//    },
-//    "definitions": {
-//      "menuitem": {
-//        "type": "object",
-//        "properties": {
-//          "path": {
-//            "title": "Path",
-//            "type": "text"
-//          },
-//          "children": {
-//            "title": "Children",
-//            "type": "array",
-//            "items": {
-//              "$ref": "#/definitions/menuitem"
-//            },
-//            "default": []
-//          }
-//        }
-//      }
-//    }
-//  }
-//}
