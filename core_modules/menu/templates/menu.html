@@ -1,24 +1,28 @@
-<nav class="menu menu-{{menu.title}}">
+<nav class="menu menu-{{menu.menuName}}">
 
   <ul>
 
-    {{#menu.menulink}}
+    {{#each menu.items}}
 
-            <li {{#children}} class="has-children" {{/children}}>
+    <li><a href="{{this.path}}">{{this.title}}</a> 
+      
+      {{#if this.children}}
 
-      <a href="{{path}}">{{title}}</a>
+        <ul style="display:none">
 
-              <ul>
+          {{#each this.children}}
 
-      {{#children}}
+            <li><a href="{{this.path}}">{{this.title}}</a></li>
 
-      <li><a href="{{path}}">{{title}}</a></li>
+          {{/each}}
 
-      {{/children}}
+        </ul>
 
-              </ul>
+      {{/if}}
 
-    {{/menu.menulink}}
+    </li>
+
+    {{/each}}
 
   </ul>
 

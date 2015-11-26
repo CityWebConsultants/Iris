@@ -1,18 +1,224 @@
 C.registerModule("menu");
 
-CM.menu.registerHook("hook_menu_view", 0, function (thisHook, menuName) {
+// Get any already saved config
 
-  if (CM.auth.globals.checkPermissions(["can view any menu"], thisHook.authPass)) {
+var fs = require('fs');
+var glob = require("glob");
 
-    thisHook.finish(true, menuName);
+glob(C.configPath + "/menu/*.json", function (er, files) {
 
-  } else {
+  files.forEach(function (file) {
 
-    thisHook.finish(false, menuName);
+    var config = fs.readFileSync(file, "utf8");
+
+    config = JSON.parse(config);
+
+    if (config.menuName) {
+
+      C.saveConfig(config, "menu", C.sanitizeFileName(config.menuName), function () {
+
+        },
+        function (fail) {
+
+          console.log(fail);
+
+        });
+    }
+  })
+
+})
+
+// Function for getting menu form
+
+CM.menu.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
+
+  // Check if menu name supplied and previous values available
+
+  if (thisHook.const.params[1]) {
+
+    if (thisHook.const.params[1].indexOf("{") !== -1) {
+
+      thisHook.finish(false, data);
+      return false;
+
+    } else {
+
+      if (C.configStore["menu"] && C.configStore["menu"][thisHook.const.params[1]]) {
+
+        data.value = C.configStore["menu"][thisHook.const.params[1]];
+
+      }
+
+    }
 
   }
 
+  // Create form for menus
+
+  data.schema = {
+    "menuName": {
+      "type": "text",
+      "title": "Menu title"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "text",
+            "title": "Title"
+          },
+          "path": {
+            "type": "text",
+            "title": "path"
+          },
+          "children": {
+            "type": "array",
+            "default": [],
+            "title": "Children",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "text",
+                  "title": "Title"
+                },
+                "path": {
+                  "type": "text",
+                  "title": "path"
+                },
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Hide menu title if editing
+
+  if (data.value.menuName) {
+
+    data.schema.menuName.type = "hidden";
+
+  }
+
+  thisHook.finish(true, data);
+
+})
+
+CM.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
+
+  C.saveConfig(thisHook.const.params, "menu", C.sanitizeFileName(thisHook.const.params.menuName), function () {
+
+    var data = function (res) {
+
+      res.send("/admin")
+
+    }
+
+    thisHook.finish(true, data);
+
+  }, function (fail) {
+
+    console.log(fail);
+
+  });
+
 });
+
+// Page for creating a new menu
+
+C.app.get("/admin/menu/create", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_menu_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+});
+
+// Page for editing an existing menu
+
+C.app.get("/admin/menu/edit/:menuName", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_menu_form_edit"], ['admin_wrapper'], {
+    menuName: req.params.menuName
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+});
+
+// List of menus page
+
+// Page for editing an existing menu
+
+C.app.get("/admin/menu", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_menu_list"], ['admin_wrapper'], {
+    menuList: C.configStore["menu"]
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+});
+
+// Parse menu templates
 
 CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
@@ -22,35 +228,23 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
 
     var menuName = menu[0];
 
-    C.hook("hook_menu_view", thisHook.authPass, null, menuName).then(function (canView) {
+    C.readConfig("menu", menuName).then(function (output) {
 
-      C.dbCollections.menu.findOne({
-        'title': menuName
-      }, function (err, doc) {
+      CM.frontend.globals.parseTemplateFile(["menu", menuName], null, {
+        menu: output
+      }, thisHook.authPass).then(function (html) {
 
-        if (!err && doc) {
+        next(html);
 
-          CM.frontend.globals.parseTemplateFile(["menu", menuName], null, {menu: doc}, thisHook.authPass).then(function (html) {
+      }, function (fail) {
 
-            next(html);
+        next(false);
 
-          }, function (fail) {
-
-            next("<!-- No menu template -->");
-
-          })
-
-        } else {
-
-          next("<!-- Menu does not exist -->");
-
-        }
-
-      });
+      })
 
     }, function (fail) {
 
-      next("<!-- No permission to view this -->");
+      next(false);
 
     });
 
@@ -68,101 +262,64 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
 
 });
 
-var waitingMenuItems = [];
+// Programatic menu generation functions
 
-CM.menu.globals.registerMenuItem = function (menuName, path, title) {
+CM.menu.globals.registerMenu = function (menuName) {
 
-  waitingMenuItems.push({
-    menuName: menuName,
-    path: path,
-    title: title
-  });
+  if (!C.configStore["menu"]) {
+    C.configStore['menu'] = {};
+  }
 
-};
+  C.configStore['menu'][C.sanitizeFileName(menuName)] = {
+    "menuName": menuName,
+    "items": []
+  };
 
-process.on("dbReady", function () {
+}
 
-  var promises = [];
+CM.menu.globals.registerMenuLink = function (menuName, parentPath, path, title) {
 
-  waitingMenuItems.forEach(function (element, index) {
+  if (!C.configStore["menu"]) {
 
-    promises.push(C.promise(function (data, yes, no) {
+    return false;
 
-      C.dbCollections.menu.findOne({
-        'title': element.menuName
-      }, function (err, doc) {
+  }
 
-        if (doc) {
+  if (!C.configStore['menu'][C.sanitizeFileName(menuName)]) {
+    C.log("error", "no such menu - " + menuName)
+    return false;
+  } else {
 
-          // Item already exists
+    var menuConfig = C.configStore['menu'][C.sanitizeFileName(menuName)];
 
-          if (doc.menulink.some(function (currentValue, index) {
+    if (parentPath) {
 
-              return currentValue.path === element.path;
+      menuConfig.items.forEach(function (item) {
 
-            })) {
+        if (item.path === parentPath) {
 
-            // Path already present - don't need to do anything
+          if (!item.children) {
 
-            waitingMenuItems.splice(index, 1);
-            yes(data);
-            return false;
+            item.children = [];
 
           }
 
-          // Update menu to place this link in it
-
-          C.dbCollections.menu.update({
-            "title": element.menuName
-          }, {
-            "$addToSet": {
-              "menulink": {
-                "title": element.title,
-                "path": element.path
-              }
-            }
-          }, {
-            "upsert": true
-          }, function (err, data) {
-
-          });
-
-          waitingMenuItems.splice(index, 1);
-          yes(data);
-
-        } else {
-
-          // Create a new menu
-
-          var entity = new C.dbCollections.menu({
-            title: element.menuName,
-            entityAuthor: "system",
-            entityType: "menu",
-            menulink: [{
-              title: element.title,
-              path: element.path
-            }]
-          });
-
-          entity.save(function (err, doc) {
-
-            if (err) {
-              C.log("error", err)
-            }
-
-            waitingMenuItems.splice(index, 1);
-            yes(data);
-
+          item.children.push({
+            title: title,
+            path: path
           });
 
         }
 
+      })
+
+    } else {
+
+      menuConfig.items.push({
+        title: title,
+        path: path
       });
 
-    }));
-
-  });
-
-  C.promiseChain(promises, {}, function () {});
-
-});
+    }
+  }
+}
