@@ -70,9 +70,7 @@ CM.forms.globals.registerWidget(function () {
       $(".ckeditor").each(function () {
         CKEDITOR.replace(this, {
 
-          customConfig: '/modules/ckeditor/config.js',
-          filebrowserUploadUrl: '/admin/file/ckeditorupload'
-
+          customConfig: '/modules/ckeditor/config.js'
 
         });
       });
