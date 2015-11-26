@@ -1,28 +1,31 @@
 <nav class="menu menu-{{menu.menuName}}">
 
-  <ul>
+  <ul class="menu">
 
-    {{#each menu.items}}
+    {{#menu.items}}
 
-    <li><a href="{{this.path}}">{{this.title}}</a> 
+        <li {{#children}} class="has-children" {{/children}}>
+
+      <a href="{{path}}">{{title}}</a>
+          
+          {{#if this.children}}
+          <ul class="sub-menu">
+              {{#children}}
+
+          
+
+            <li><a href="{{path}}">{{title}}</a></li>
+
+          
+
+          {{/children}}
+          </ul>
+          
+          {{/if}}
       
-      {{#if this.children}}
-
-        <ul style="display:none">
-
-          {{#each this.children}}
-
-            <li><a href="{{this.path}}">{{this.title}}</a></li>
-
-          {{/each}}
-
-        </ul>
-
-      {{/if}}
-
     </li>
 
-    {{/each}}
+    {{/menu.items}}
 
   </ul>
 
