@@ -433,7 +433,27 @@ C.app.get("/admin/structure/", function (req, res) {
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["admin_structure"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+  // Load in admin menu
+
+  var structureMenu = {};
+
+  if (C.configStore["menu"]["admin-toolbar"]) {
+
+    C.configStore["menu"]["admin-toolbar"].items.forEach(function (item) {
+
+      if (item.path === "/admin/structure") {
+
+        structureMenu = item;
+
+      }
+
+    })
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_structure"], ['admin_wrapper'], {
+    structureMenu: structureMenu
+  }, req.authPass, req).then(function (success) {
     res.send(success)
   }, function (fail) {
 
@@ -459,7 +479,27 @@ C.app.get("/admin/config/", function (req, res) {
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["admin_config"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+  // Load in admin menu
+
+  var structureMenu = {};
+
+  if (C.configStore["menu"]["admin-toolbar"]) {
+
+    C.configStore["menu"]["admin-toolbar"].items.forEach(function (item) {
+
+      if (item.path === "/admin/config") {
+
+        configMenu = item;
+
+      }
+
+    })
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_config"], ['admin_wrapper'], {
+    configMenu: configMenu
+  }, req.authPass, req).then(function (success) {
     res.send(success)
   }, function (fail) {
 
@@ -470,3 +510,5 @@ C.app.get("/admin/config/", function (req, res) {
   });
 
 })
+
+
