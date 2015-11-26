@@ -84,16 +84,16 @@ CM.paths.globals.makePathUnique = function (path) {
 CM.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
   // Check that path is not a duplicate
-  
+
   var path = data.path;
   var eId = data.eId;
 
   // If path already listed, and
   //   - Entity is new and has no id, or
   //   - Entity id being edited does not match
-  
 
-  if (CM.paths.globals.entityPaths[path] && (!eId || CM.paths.globals.entityPaths[path].eId.toString() !== eId.toString())) {
+
+  if (false && CM.paths.globals.entityPaths[path] && (!eId || CM.paths.globals.entityPaths[path].eId.toString() !== eId.toString())) {
 
     thisHook.finish(false, "Entity with that path already exists")
 
@@ -169,20 +169,6 @@ CM.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 
 });
 
-//CM.paths.registerHook("hook_entity_presave", 0, function (thisHook, data) {
-//
-//  console.log(data);
-//
-//  if (!data.path || data.path = "") {
-//
-//    CM.paths.globals.makePathUnique()
-//
-//  }
-//
-//  thisHook.finish(true, data);
-//
-//});
-
 // Handle custom paths
 
 C.app.use(function (req, res, next) {
@@ -199,7 +185,7 @@ C.app.use(function (req, res, next) {
   if (CM.paths.globals.entityPaths[req.url]) {
 
     C.dbCollections[CM.paths.globals.entityPaths[req.url].entityType].findOne({
-      _id: mongoose.Types.ObjectId(CM.paths.globals.entityPaths[req.url]._id)
+      eId: CM.paths.globals.entityPaths[req.url].eId
     }, function (err, doc) {
 
       if (!err && doc) {
