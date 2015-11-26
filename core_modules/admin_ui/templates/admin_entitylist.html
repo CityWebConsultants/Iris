@@ -1,3 +1,8 @@
+<h1>List of {{type}} entities</h1>
+
+<p><a class="btn btn-primary" href="/admin/create/{{type}}">Create new {{type}}</a>
+</p>
+
 <table class="table" id="entity-list">
 
   <tbody>
@@ -8,8 +13,6 @@
     <th>Delete</th>
 
     {{#each entities}}
-
-    <br />
 
     <tr>
       <td>{{#if path}}<a href="{{path}}">{{eId}}</a>{{else}}{{eId}}{{/if}}</td>

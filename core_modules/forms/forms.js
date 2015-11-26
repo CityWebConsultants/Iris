@@ -1,5 +1,7 @@
 C.registerModule("forms");
 
+var toSource = require('tosource');
+
 CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
   if (thisHook.const.req.method === "POST") {
@@ -142,10 +144,23 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
       var output = "";
 
-      var toSource = require('tosource');
-
       output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
-      output += "<script src='/modules/forms/jsonform/deps/underscore-min.js'></script><script src='/modules/forms/jsonform/deps/jquery.min.js'></script><script src='/modules/forms/jsonform/lib/jsonform.js'></script><script>$('#" + formName + "').jsonForm(" + toSource(form) + ");</script>";
+
+      // Add in any custom widgets
+
+      output += '<script src="/modules/admin_ui/jsonform/deps/jquery.min.js"></script><script src="/modules/admin_ui/jsonform/deps/underscore-min.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/jquery.ui.custom.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-dropdown.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-typeahead.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/spectrum.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/jquery.transloadit2.js"></script><script src="/modules/admin_ui/jsonform/lib/jsonform.js"></script>';
+
+      output += "<script>";
+
+      Object.keys(CM.forms.globals.widgets).forEach(function (widget) {
+
+        output += "var " + widget + " = " + CM.forms.globals.widgets[widget] + "()";
+
+      });
+
+      output += "</script>";
+
+      output += "<script>$('#" + formName + "').jsonForm(" + toSource(form) + ");</script>";
       return output;
 
     };
@@ -218,3 +233,13 @@ CM.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
   thisHook.finish(true, data);
 
 })
+
+CM.forms.globals.widgets = {};
+
+// Allow custom form widget types
+
+CM.forms.globals.registerWidget = function (widgetFunction, name) {
+
+  CM.forms.globals.widgets[name] = toSource(widgetFunction);
+
+}

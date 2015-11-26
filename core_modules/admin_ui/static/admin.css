@@ -141,3 +141,10 @@ tr#roles, thead tr {
     white-space:nowrap;
 }
 
+.expandable > legend:before {
+  content: '\25B8';
+  padding-right: 5px;
+}
+.expanded > legend:before {
+  content: '\25BE';
+}

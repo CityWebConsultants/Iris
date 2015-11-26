@@ -1,5 +1,6 @@
 [[[file admin_include_jsonform]]]
 
+
 <h1></h1>
 
 <form></form>
@@ -31,6 +32,7 @@
       });
 
       JSONForm.elementTypes['choose'] = Object.create(JSONForm.elementTypes['text']);
+            
       JSONForm.elementTypes['choose'].template = '<select value="<%= escape(value) %>" name="<%= node.name %>" onchange="chooseField(event)" class="field-collection-select form-control">' + select + '</select>';
 
       JSONForm.elementTypes['choose'].onInsert = function(e, node) {

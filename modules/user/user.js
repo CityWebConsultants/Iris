@@ -242,3 +242,31 @@ CM.user.registerHook("hook_entity_updated", 1, function (thisHook, entity) {
 });
 
 require('./login_form.js');
+
+// Login form
+
+C.app.get("/login", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('anonymous') === -1) {
+
+    res.send("Already logged in");
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["login"], ['html'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})

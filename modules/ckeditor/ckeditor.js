@@ -34,16 +34,17 @@ CM.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {
 
 CM.ckeditor.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
-  var type = thisHook.const.fieldTypeType;
-  var name = thisHook.const.fieldTypeName;
+  var type = thisHook.const.field.fieldTypeType;
+  var name = thisHook.const.field.fieldTypeName;
 
   if (name === "long") {
 
     data = {
-      "type": "textarea",
-      "title": thisHook.const.title,
-      "required": thisHook.const.required,
-      "description": thisHook.const.description,
+      "type": "ckeditor",
+      "title": thisHook.const.field.title,
+      "required": thisHook.const.field.required,
+      "description": thisHook.const.field.description,
+      "default": thisHook.const.value
     }
 
     thisHook.finish(true, data);
@@ -53,5 +54,68 @@ CM.ckeditor.registerHook("hook_render_entityfield_form", 0, function (thisHook, 
     thisHook.finish(true, data);
 
   }
+
+});
+
+// Register CKeditor widget
+
+CM.forms.globals.registerWidget(function () {
+
+  JSONForm.elementTypes['ckeditor'] = Object.create(JSONForm.elementTypes['text']);
+
+  $(document).ready(function () {
+
+    $.getScript("//cdn.ckeditor.com/4.5.3/standard/ckeditor.js", function () {
+
+      CKEDITOR.on("instanceReady", function () {
+
+        for (var i in CKEDITOR.instances) {
+
+          CKEDITOR.instances[i].on('change', function (e) {
+
+            var data = e.editor.getData();
+
+            $(e.editor.element)[0].$.innerHTML = data;
+
+          });
+
+        };
+
+      })
+
+    });
+
+  });
+
+  JSONForm.elementTypes['ckeditor'].template = '<textarea class="ckeditor" id="<%= id %>" name="<%= node.name %>" ' +
+    'style="height:<%= elt.height || "150px" %>;width:<%= elt.width || "100%" %>;"' +
+    '<%= (node.disabled? " disabled" : "")%>' +
+    '<%= (node.readOnly ? " readonly=\'readonly\'" : "") %>' +
+    '<%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %>' +
+    '<%= (node.schemaElement && node.schemaElement.required ? " required=\'required\'" : "") %>' +
+    '<%= (node.placeholder? "placeholder=" + \'"\' + escape(node.placeholder) + \'"\' : "")%>' +
+    '><%= value %></textarea>';
+  JSONForm.elementTypes['ckeditor'].fieldTemplate = true;
+  JSONForm.elementTypes['ckeditor'].inputfield = true;
+
+}, "CKeditor");
+
+// CKeditor file upload field
+
+var fs = require('fs');
+
+C.app.post('/admin/file/fileFieldUpload', function (req, res) {
+
+  var fstream;
+  req.pipe(req.busboy);
+  req.busboy.on('file', function (fieldname, file, filename) {
+    fstream = fs.createWriteStream(C.sitePath + '/files/' + filename);
+    file.pipe(fstream);
+    fstream.on('close', function () {
+
+      res.end(filename);
+
+    });
+  });
 
 });

@@ -5,7 +5,7 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
 
   // Check for supplied ID and type
 
-  if (!data._id) {
+  if (!data.eId) {
 
     thisHook.finish(false, C.error(400, "Have to have an ID to delete something"));
     return false;
@@ -22,7 +22,7 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
   //Check entity actually exists
 
   C.dbCollections[data.entityType].findOne({
-    _id: data._id
+    eId: data.eId
   }, function (err, doc) {
 
     if (err) {
@@ -83,10 +83,10 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
   var deleteEntity = function (validatedEntity) {
 
     var conditions = {
-      _id: validatedEntity._id
+      eId: validatedEntity.eId
     };
 
-    delete validatedEntity._id;
+    delete validatedEntity.eId;
 
     var update = validatedEntity;
 
@@ -98,7 +98,7 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
 
       thisHook.finish(true, "Deleted");
 
-      data._id = conditions._id;
+      data.eId = conditions.eId;
 
       C.hook("hook_entity_deleted", thisHook.authPass, null, data)
 
@@ -110,10 +110,10 @@ CM.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
 
 });
 
-C.app.post("/entity/delete/:type/:_id", function (req, res) {
+C.app.post("/entity/delete/:type/:eId", function (req, res) {
 
   req.body.entityType = req.params.type;
-  req.body._id = req.params._id;
+  req.body.eId = req.params.eId;
 
   C.hook("hook_entity_delete", req.authPass, null, req.body).then(function (success) {
 

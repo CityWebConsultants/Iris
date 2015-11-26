@@ -3,6 +3,9 @@ var fs = require('fs');
 //Connect to database
 
 global.mongoose = require('mongoose');
+
+var autoIncrement = require('mongoose-auto-increment');
+
 var fs = require('fs');
 
 var connectionUri = 'mongodb://' + C.config.db_server + ':' + C.config.db_port + '/' + C.config.db_name;
@@ -19,6 +22,8 @@ if (C.config.db_username && C.config.db_password) {
   mongoose.connect(connectionUri);
 
 }
+
+autoIncrement.initialize(mongoose.connection);
 
 //Wait until database is open and fail on error
 
@@ -156,7 +161,7 @@ C.dbPopulate = function () {
 
     // Filter out universal fields
 
-    var universalFields = ["path", "entityType", "entityAuthor", "eId"];
+    var universalFields = ["entityType", "entityAuthor", "eId"];
 
     Object.keys(C.dbSchemaJSON[schema]).forEach(function (field) {
 
@@ -175,13 +180,6 @@ C.dbPopulate = function () {
     });
 
     //Push in universal type fields if not already in.
-
-    C.dbSchema[schema].path = {
-      type: String,
-      description: "Url path for this entity",
-      title: "Path",
-      required: false
-    }
 
     C.dbSchema[schema].entityType = {
       type: String,
@@ -207,12 +205,17 @@ C.dbPopulate = function () {
     try {
       var readySchema = mongoose.Schema(C.dbSchema[schema]);
 
-
       if (mongoose.models[schema]) {
 
         delete mongoose.models[schema];
 
       }
+
+      readySchema.plugin(autoIncrement.plugin, {
+        model: schema,
+        field: 'eId',
+        startAt: 1,
+      });
 
       C.dbCollections[schema] = mongoose.model(schema, readySchema);
 

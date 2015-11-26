@@ -293,15 +293,19 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 
       C.hook("hook_entity_create", thisHook.authPass, formData, formData).then(function (success) {
 
-        thisHook.finish(true, success);
+        data = function (res) {
+
+          res.send("/admin/entitylist/" + type)
+
+        }
+
+        thisHook.finish(true, data);
 
       }, function (fail) {
 
         thisHook.finish(false, fail);
 
       });
-
-      thisHook.finish(true, data);
 
     }
 
@@ -375,15 +379,19 @@ CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, da
 
       C.hook("hook_entity_edit", thisHook.authPass, formData, formData).then(function (success) {
 
-        thisHook.finish(true, success);
+        var data = function (res) {
+
+          res.send("/admin/entitylist/" + type)
+
+        }
+
+        thisHook.finish(true, data);
 
       }, function (fail) {
 
         thisHook.finish(false, fail);
 
       });
-
-      thisHook.finish(true, data);
 
     }
 

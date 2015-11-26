@@ -204,8 +204,7 @@ C.app.get("/admin/entities", function (req, res) {
   }
 
   CM.frontend.globals.parseTemplateFile(["admin_entity_types"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    hello: "world"
+    entityTypes: Object.keys(C.dbCollections)
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -400,9 +399,10 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
   }
 
   CM.admin_ui.globals.prepareEntitylist(req.params.type, function (output) {
-    
+
     CM.frontend.globals.parseTemplateFile(["admin_entitylist"], ['admin_wrapper'], {
-      entities: output.entities
+      entities: output.entities,
+      type: req.params.type
     }, req.authPass, req).then(function (success) {
 
       res.send(success)
@@ -418,3 +418,97 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
   })
 
 })
+
+// Structure page
+
+C.app.get("/admin/structure/", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  // Load in admin menu
+
+  var structureMenu = {};
+
+  if (C.configStore["menu"]["admin-toolbar"]) {
+
+    C.configStore["menu"]["admin-toolbar"].items.forEach(function (item) {
+
+      if (item.path === "/admin/structure") {
+
+        structureMenu = item;
+
+      }
+
+    })
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_structure"], ['admin_wrapper'], {
+    structureMenu: structureMenu
+  }, req.authPass, req).then(function (success) {
+    res.send(success)
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+// Config page
+
+C.app.get("/admin/config/", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  // Load in admin menu
+
+  var structureMenu = {};
+
+  if (C.configStore["menu"]["admin-toolbar"]) {
+
+    C.configStore["menu"]["admin-toolbar"].items.forEach(function (item) {
+
+      if (item.path === "/admin/config") {
+
+        configMenu = item;
+
+      }
+
+    })
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_config"], ['admin_wrapper'], {
+    configMenu: configMenu
+  }, req.authPass, req).then(function (success) {
+    res.send(success)
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+

@@ -226,16 +226,15 @@ module.exports = function (config) {
 
     require('./core_modules/frontend/frontend.js');
 
+    require('./core_modules/entity2/entity2.js');
+
     require('./core_modules/paths/paths.js');
 
-    require('./core_modules/entity2/entity2.js');
-    
     require('./core_modules/menu/menu.js');
 
     require('./core_modules/forms/forms.js');
 
     require('./core_modules/admin_ui/admin_ui.js');
-    
 
     //Load logging module
 

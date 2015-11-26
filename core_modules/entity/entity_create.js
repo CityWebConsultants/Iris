@@ -139,23 +139,10 @@ CM.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
     C.dbCollections[preparedEntity.entityType].count({}, function (err, result) {
 
-      // count is the result
-
-      if (!result) {
-
-        C.log("error", err);
-        thisHook.finish(false, "Database error");
-
-        preparedEntity.eId = 0;
-
-      }
-
-      preparedEntity.eId = result;
-
       var entity = new C.dbCollections[preparedEntity.entityType](preparedEntity);
 
       entity.save(function (err, doc) {
-
+        
         if (err) {
 
           console.log(err);

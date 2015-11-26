@@ -1,58 +1,102 @@
 var fs = require('fs');
 
-C.app.get("/admin/api/permissions", function (req, res) {
+// Permissions form
 
-  if (req.authPass.roles.indexOf('admin') !== -1) {
+CM.admin_ui.registerHook("hook_form_render_permissions", 0, function (thisHook, data) {
 
-    var current = {};
+  // Check if menu name supplied and previous values available
 
-    try {
-      var currentPermissions = fs.readFileSync(CM.auth.configPath + "/permissions.JSON", "utf8");
+  var current = {};
 
-      current = JSON.parse(currentPermissions);
+  try {
+    var currentPermissions = fs.readFileSync(CM.auth.configPath + "/permissions.JSON", "utf8");
 
-    } catch (e) {
+    current = JSON.parse(currentPermissions);
 
-      fs.writeFileSync(CM.auth.configPath + "/permissions.JSON", JSON.stringify({}), "utf8");
+  } catch (e) {
 
-    }
-
-    res.send({
-
-      current: current,
-      permissions: CM.auth.globals.permissions,
-      roles: CM.auth.globals.roles
-
-
-    });
-
-  } else {
-
-    res.respond(403, "Access denied");
+    fs.writeFileSync(CM.auth.configPath + "/permissions.JSON", JSON.stringify({}), "utf8");
 
   }
 
+  var permissions = CM.auth.globals.permissions;
 
-});
+  var roles = CM.auth.globals.roles;
 
-C.app.post("/admin/api/permissions", function (req, res) {
+  var permissionSchema = {};
+  var form = [];
 
-  fs.writeFile(C.configPath + "/auth/permissions.JSON", JSON.stringify(req.body), "utf8", function (err, data) {
+  // Loop over each permission and add a schema item for it.
 
-    if (err) {
+  // Categories first, later move these into fieldsets
 
-      res.send("error");
+  Object.keys(CM.auth.globals.permissions).forEach(function (category) {
 
-    } else if (data) {
+    var items = [];
 
-      res.send("success");
+    Object.keys(CM.auth.globals.permissions[category]).forEach(function (permissionName) {
 
-    } else {
+      var permission = CM.auth.globals.permissions[category][permissionName].name;
 
-      res.send("fail");
+      permissionSchema[permission] = {
+        "type": "array",
+        "title": permission.toUpperCase(),
+        "items": {
+          "type": "string",
+          "enum": Object.keys(roles)
+        }
+      }
 
-    }
+      items.push({
+        "key": permission,
+        "type": "checkboxbuttons",
+        "activeClass": "btn-success"
+      });
 
-  })
+    })
+
+    form.push({
+      "type": "fieldset",
+      "title": category,
+      "expandable": false,
+      "items": items
+    })
+
+  });
+
+  permissionSchema.form2id = {
+    "type": "hidden"
+  }
+
+  form.push({
+    "key": "formid"
+  });
+
+  form.push({
+    "title": "Submit",
+    "type": "submit"
+  });
+
+  data.schema = permissionSchema;
+  data.form = form;
+  data.value = current;
+
+  data.value["formid"] = "permissions";
+
+  thisHook.finish(true, data);
+
+})
+
+CM.admin_ui.registerHook("hook_form_submit_permissions", 0, function (thisHook, data) {
+
+  fs.writeFileSync(CM.auth.configPath + "/permissions.JSON", JSON.stringify(thisHook.const.params), "utf8");
+
+  data = function (res) {
+
+    res.send("/admin");
+
+  }
+
+  thisHook.finish(true, data);
 
 });

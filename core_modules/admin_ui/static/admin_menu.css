@@ -1,34 +1,36 @@
-/* ADMIN MENU */
-
-.menu-admin_toolbar {
-  background: #333;
+nav .menu {
   width: 100%;
-  font-size: 12px;
-  color: #fff;
-  height: 35px;
-/*  position: absolute;*/
+  background-color: black;
+  color: white;
 }
-
-.menu-admin_toolbar ul {
+ul.menu,
+ul.menu ul.sub-menu {
+  padding: 0;
   margin: 0;
 }
-
-.menu-admin_toolbar li {
-  padding: 8px;
+ul.menu li,
+ul.menu ul.sub-menu li {
+  list-style-type: none;
   display: inline-block;
 }
-
-.menu-admin_toolbar li.has-children ul {
-  top: 32px;
-}
-
-.menu-admin_toolbar li.has-children ul li {
-  margin-left: -8px;
-  padding-left: 9px;
-}
-
-.menu-admin_toolbar a, .menu-admin_toolbar a:hover {
+ul.menu li a,
+ul.menu li ul.sub-menu li a {
+  text-decoration: none;
   color: #fff;
+  background: black;
+  padding: 5px;
+  display: inline-block;
 }
-
-
+ul.menu li {
+  position: relative;
+}
+ul.menu li ul.sub-menu {
+  display: none;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 100px;
+}
+ul.menu li:hover ul.sub-menu {
+  display: block;
+}
