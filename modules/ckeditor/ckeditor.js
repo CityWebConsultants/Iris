@@ -67,6 +67,16 @@ CM.forms.globals.registerWidget(function () {
 
     $.getScript("//cdn.ckeditor.com/4.5.3/standard/ckeditor.js", function () {
 
+      $(".ckeditor").each(function () {
+        CKEDITOR.replace(this, {
+
+          customConfig: '/modules/ckeditor/config.js',
+          filebrowserUploadUrl: '/admin/file/upload'
+
+
+        });
+      });
+
       CKEDITOR.on("instanceReady", function () {
 
         for (var i in CKEDITOR.instances) {
@@ -105,6 +115,16 @@ CM.forms.globals.registerWidget(function () {
 var fs = require('fs');
 
 C.app.post('/admin/file/fileFieldUpload', function (req, res) {
+
+  var mkdirSync = function (path) {
+    try {
+      fs.mkdirSync(path);
+    } catch (e) {
+      if (e.code != 'EEXIST') throw e;
+    }
+  }
+
+  mkdirSync(C.sitePath + "/" + "files");
 
   var fstream;
   req.pipe(req.busboy);
