@@ -243,20 +243,3 @@ CM.forms.globals.registerWidget = function (widgetFunction, name) {
   CM.forms.globals.widgets[name] = toSource(widgetFunction);
 
 }
-
-CM.forms.globals.registerWidget(function () {
-
-  JSONForm.elementTypes['ckeditor'] = Object.create(JSONForm.elementTypes['text']);
-
-  JSONForm.elementTypes['ckeditor'].template = '<textarea class="ckeditor" id="<%= id %>" name="<%= node.name %>" ' +
-    'style="height:<%= elt.height || "150px" %>;width:<%= elt.width || "100%" %>;"' +
-    '<%= (node.disabled? " disabled" : "")%>' +
-    '<%= (node.readOnly ? " readonly=\'readonly\'" : "") %>' +
-    '<%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %>' +
-    '<%= (node.schemaElement && node.schemaElement.required ? " required=\'required\'" : "") %>' +
-    '<%= (node.placeholder? "placeholder=" + \'"\' + escape(node.placeholder) + \'"\' : "")%>' +
-    '><%= value %></textarea>';
-  JSONForm.elementTypes['ckeditor'].fieldTemplate = true;
-  JSONForm.elementTypes['ckeditor'].inputfield = true;
-
-}, "CKeditor");

@@ -192,22 +192,6 @@ C.app.use(busboy());
 
 var fs = require('fs');
 
-C.app.post('/admin/file/fileFieldUpload', function (req, res) {
-
-  var fstream;
-  req.pipe(req.busboy);
-  req.busboy.on('file', function (fieldname, file, filename) {
-    fstream = fs.createWriteStream(C.sitePath + '/files/' + filename);
-    file.pipe(fstream);
-    fstream.on('close', function () {
-
-      res.end(filename);
-
-    });
-  });
-
-});
-
 C.app.post('/admin/api/file/upload', function (req, res) {
 
   var fstream;
