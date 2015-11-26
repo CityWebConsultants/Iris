@@ -418,3 +418,55 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
   })
 
 })
+
+// Structure page
+
+C.app.get("/admin/structure/", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_structure"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+    res.send(success)
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
+// Config page
+
+C.app.get("/admin/config/", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_config"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+    res.send(success)
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
