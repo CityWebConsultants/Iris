@@ -84,15 +84,16 @@ CM.paths.globals.makePathUnique = function (path) {
 CM.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
   // Check that path is not a duplicate
-
+  
   var path = data.path;
-  var id = data._id;
+  var eId = data.eId;
 
   // If path already listed, and
   //   - Entity is new and has no id, or
   //   - Entity id being edited does not match
+  
 
-  if (CM.paths.globals.entityPaths[path] && (!id || CM.paths.globals.entityPaths[path]._id.toString() !== id.toString())) {
+  if (CM.paths.globals.entityPaths[path] && (!eId || CM.paths.globals.entityPaths[path].eId.toString() !== eId.toString())) {
 
     thisHook.finish(false, "Entity with that path already exists")
 
