@@ -301,7 +301,7 @@ C.app.get("/admin/schema/edit/:type", function (req, res) {
 
 })
 
-C.app.get("/admin/edit/:type/:_id", function (req, res) {
+C.app.get("/admin/edit/:type/:eId", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -314,8 +314,8 @@ C.app.get("/admin/edit/:type/:_id", function (req, res) {
   }
 
   CM.frontend.globals.parseTemplateFile(["admin_entity_edit"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    hello: "world"
+    eId: req.params.eId,
+    type: req.params.type
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -343,8 +343,7 @@ C.app.get("/admin/create/:type", function (req, res) {
   }
 
   CM.frontend.globals.parseTemplateFile(["admin_entity_create"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    hello: "world"
+    type: req.params.type
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -401,7 +400,7 @@ C.app.get("/admin/entitylist/:type", function (req, res) {
   }
 
   CM.admin_ui.globals.prepareEntitylist(req.params.type, function (output) {
-
+    
     CM.frontend.globals.parseTemplateFile(["admin_entitylist"], ['admin_wrapper'], {
       entities: output.entities
     }, req.authPass, req).then(function (success) {

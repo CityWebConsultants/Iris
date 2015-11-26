@@ -1,8 +1,0 @@
-{
-
-  "limit": {
-    "type": "integer",
-    "title": "limit"
-  }
-
-}

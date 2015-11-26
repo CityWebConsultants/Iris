@@ -19,15 +19,39 @@ CM.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {
     if (schema[field] && schema[field].allowedTags) {
 
       var tags = schema[field].allowedTags.split(",");
-      
+
       data[field] = sanitizeHtml(data[field], {
         allowedTags: tags,
       });
-      
+
     }
 
   });
 
   thisHook.finish(true, data);
+
+});
+
+CM.ckeditor.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
+
+  var type = thisHook.const.fieldTypeType;
+  var name = thisHook.const.fieldTypeName;
+
+  if (name === "long") {
+
+    data = {
+      "type": "textarea",
+      "title": thisHook.const.title,
+      "required": thisHook.const.required,
+      "description": thisHook.const.description,
+    }
+
+    thisHook.finish(true, data);
+
+  } else {
+
+    thisHook.finish(true, data);
+
+  }
 
 });

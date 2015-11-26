@@ -1,32 +1,5 @@
 C.registerModule("user");
 
-C.registerDbModel("user");
-
-C.registerDbSchema("user", {
-
-  name: {
-    type: String,
-    title: "Username",
-    required: true
-  },
-  userid: {
-    title: "User id",
-    type: String,
-    required: true
-  },
-  password: {
-    title: "Password",
-    type: String,
-    required: true
-  },
-  roles: {
-    title: "Roles",
-    type: [String],
-    required: false
-  }
-
-});
-
 var bcrypt = require("bcrypt-nodejs");
 
 C.app.post("/login", function (req, res) {
