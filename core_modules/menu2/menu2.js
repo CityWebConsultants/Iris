@@ -12,7 +12,7 @@ glob(C.configPath + "/menu/*.json", function (er, files) {
     var config = fs.readFileSync(file, "utf8");
 
     config = JSON.parse(config);
-    
+
     if (config.menuName) {
 
       C.saveConfig(config, "menu", C.sanitizeFileName(config.menuName), function () {
@@ -46,8 +46,6 @@ CM.menu2.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
       if (C.configStore["menu"] && C.configStore["menu"][thisHook.const.params[1]]) {
 
         data.value = C.configStore["menu"][thisHook.const.params[1]];
-
-        console.log(data.value);
 
       }
 
@@ -98,6 +96,14 @@ CM.menu2.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
     }
   }
 
+  // Hide menu title if editing
+
+  if (data.value.menuName) {
+
+    data.schema.menuName.type = "hidden";
+
+  }
+
   thisHook.finish(true, data);
 
 })
@@ -124,7 +130,7 @@ CM.menu2.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
 
 // Page for creating a new menu
 
-C.app.get("/admin/menu", function (req, res) {
+C.app.get("/admin/menu/create", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -168,6 +174,38 @@ C.app.get("/admin/menu/edit/:menuName", function (req, res) {
     menuName: req.params.menuName
   }, req.authPass, req).then(function (success) {
 
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+});
+
+// List of menus page
+
+// Page for editing an existing menu
+
+C.app.get("/admin/menu", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+    
+  CM.frontend.globals.parseTemplateFile(["admin_menu_list"], ['admin_wrapper'], {
+    menuList: C.configStore["menu"]
+  }, req.authPass, req).then(function (success) {
+    
     res.send(success)
 
   }, function (fail) {
