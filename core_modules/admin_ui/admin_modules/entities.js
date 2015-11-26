@@ -192,7 +192,17 @@ C.app.use(busboy());
 
 var fs = require('fs');
 
-C.app.post('/admin/api/file/upload', function (req, res) {
+C.app.post('/admin/file/fileFieldUpload', function (req, res) {
+
+  var mkdirSync = function (path) {
+    try {
+      fs.mkdirSync(path);
+    } catch (e) {
+      if (e.code != 'EEXIST') throw e;
+    }
+  }
+
+  mkdirSync(C.sitePath + "/" + "files");
 
   var fstream;
   req.pipe(req.busboy);
@@ -201,12 +211,13 @@ C.app.post('/admin/api/file/upload', function (req, res) {
     file.pipe(fstream);
     fstream.on('close', function () {
 
-      res.end("<script>window.parent.CKEDITOR.tools.callFunction('" + req.query.CKEditorFuncNum + "','/files/" + filename + "','Uploaded!');</script>");
+      res.end(filename);
 
     });
   });
 
 });
+
 
 CM.admin_ui.globals.prepareEntitylist = function (type, callback) {
 

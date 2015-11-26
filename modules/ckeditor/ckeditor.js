@@ -71,7 +71,7 @@ CM.forms.globals.registerWidget(function () {
         CKEDITOR.replace(this, {
 
           customConfig: '/modules/ckeditor/config.js',
-          filebrowserUploadUrl: '/admin/file/upload'
+          filebrowserUploadUrl: '/admin/file/ckeditorupload'
 
 
         });
@@ -114,8 +114,8 @@ CM.forms.globals.registerWidget(function () {
 
 var fs = require('fs');
 
-C.app.post('/admin/file/fileFieldUpload', function (req, res) {
-
+C.app.post('/admin/file/ckeditorupload', function (req, res) {
+  
   var mkdirSync = function (path) {
     try {
       fs.mkdirSync(path);
@@ -129,11 +129,12 @@ C.app.post('/admin/file/fileFieldUpload', function (req, res) {
   var fstream;
   req.pipe(req.busboy);
   req.busboy.on('file', function (fieldname, file, filename) {
+
     fstream = fs.createWriteStream(C.sitePath + '/files/' + filename);
     file.pipe(fstream);
     fstream.on('close', function () {
 
-      res.end(filename);
+      res.end("<script>window.parent.CKEDITOR.tools.callFunction('" + req.query.CKEditorFuncNum + "','/files/" + filename + "','Uploaded!');</script>");
 
     });
   });
