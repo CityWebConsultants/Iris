@@ -389,6 +389,8 @@ CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, da
 
       }, function (fail) {
 
+        console.log(fail);
+
         thisHook.finish(false, fail);
 
       });
