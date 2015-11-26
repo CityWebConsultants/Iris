@@ -1,12 +1,38 @@
 C.registerModule("menu2");
 
+// Get any already saved config
+
+var fs = require('fs');
+var glob = require("glob");
+
+glob(C.configPath + "/menu/*.json", function (er, files) {
+
+  files.forEach(function (file) {
+
+    var config = fs.readFileSync(file, "utf8");
+
+    config = JSON.parse(config);
+    
+    if (config.menuName) {
+
+      C.saveConfig(config, "menu", C.sanitizeFileName(config.menuName), function () {
+
+        },
+        function (fail) {
+
+          console.log(fail);
+
+        });
+    }
+  })
+
+})
+
 // Function for getting menu form
 
 CM.menu2.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
 
   // Check if menu name supplied and previous values available
-
-  var values = {};
 
   if (thisHook.const.params[1]) {
 
@@ -19,7 +45,9 @@ CM.menu2.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
 
       if (C.configStore["menu"] && C.configStore["menu"][thisHook.const.params[1]]) {
 
-        values = C.configStore["menu"][thisHook.const.params[1]].menu;
+        data.value = C.configStore["menu"][thisHook.const.params[1]];
+
+        console.log(data.value);
 
       }
 
@@ -30,7 +58,7 @@ CM.menu2.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
   // Create form for menus
 
   data.schema = {
-    "menuTitle": {
+    "menuName": {
       "type": "text",
       "title": "Menu title"
     },
