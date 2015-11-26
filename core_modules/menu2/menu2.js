@@ -27,57 +27,48 @@ CM.menu2.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
 
   }
 
-  data = {
-    "schema": {
-      "properties": {
-        "menuName": {
-          "$ref": "#/definitions/menuName"
-        },
-        "menu": {
-          "$ref": "#/definitions/menuItem"
-        },
-      },
-      "definitions": {
-        "menuName": {
-          "title": "Menu name",
-          "type": "text"
-        },
-        "menuItem": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "path": {
-                "title": "Path",
-                "type": "text"
-              },
-              "children": {
-                "title": "Children",
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/menuItem"
+  // Create form for menus
+
+  data.schema = {
+    "menuTitle": {
+      "type": "text",
+      "title": "Menu title"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "text",
+            "title": "Title"
+          },
+          "path": {
+            "type": "text",
+            "title": "path"
+          },
+          "children": {
+            "type": "array",
+            "default": [],
+            "title": "Children",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "text",
+                  "title": "Title"
                 },
-                "default": []
+                "path": {
+                  "type": "text",
+                  "title": "path"
+                },
               }
             }
           }
         }
       }
-    },
-    "onSubmit": function (errors, values) {
-
-      // Hard code formid as the JSONform reference system writes forms in a different method to what we expect. The recursive $ref is an experimental feature but nested menus probably need it. Hopefully this can be taken out eventually.
-
-      values.formid = "menu";
-
-      $.post(window.location, values, function (data, err) {
-
-        window.location.href = data;
-
-      });
-
     }
-  };
+  }
 
   thisHook.finish(true, data);
 
