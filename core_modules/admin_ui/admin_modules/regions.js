@@ -107,7 +107,6 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
     C.readConfig("regions", "regions").then(function (output) {
 
         if (output[regionName]) {
-
           // Render each block in the region
 
           var blockPromises = [];
@@ -115,7 +114,7 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
 
           output[regionName].forEach(function (block) {
 
-            if (block === "none") {
+            if (block.toLowerCase() === "none") {
 
               return false;
 
@@ -137,7 +136,7 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
                 C.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
 
                   blockData[blockType + "|" + blockName] = html;
-                  
+
                   yes(blockData);
 
                 });
@@ -150,17 +149,17 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
           })
 
           C.promiseChain(blockPromises, {}, function (pass) {
-            
+
             // Run parse template file for a regions template
 
             CM.frontend.globals.parseTemplateFile(["regions"], null, {
               blocks: pass
             }, thisHook.authPass, null).then(function (success) {
-                            
+
               next(success);
 
             }, function (fail) {
-              
+
               next(false);
 
               C.log("error", e);
