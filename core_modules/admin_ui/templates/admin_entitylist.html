@@ -15,10 +15,10 @@
     {{#each entities}}
 
     <tr>
-      <td>{{#if path}}<a href="{{path}}">{{eId}}</a>{{else}}{{eId}}{{/if}}</td>
+      <td>{{#if path}}<a href="{{path}}">{{eid}}</a>{{else}}{{eid}}{{/if}}</td>
       <td>{{title}}</td>
-      <td><a href="/admin/edit/{{ entityType }}/{{ eId }}">Edit</a></td>
-      <td><a href="/admin/delete/{{ entityType }}/{{ eId }}">Delete</a></td>
+      <td><a href="/admin/edit/{{ entityType }}/{{ eid }}">Edit</a></td>
+      <td><a href="/admin/delete/{{ entityType }}/{{ eid }}">Delete</a></td>
     </tr>
 
     {{/each}}

@@ -3,7 +3,7 @@
 
 CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
-  if (!data.eId) {
+  if (!data.eid) {
 
     thisHook.finish(false, C.error(400, "Have to have an ID to edit something"));
     return false;
@@ -22,7 +22,7 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
   //Check entity actually exists
 
   C.dbCollections[data.entityType].findOne({
-    eId: data.eId
+    eid: data.eid
   }, function (err, doc) {
 
     if (err) {
@@ -157,10 +157,10 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
   var update = function (validatedEntity) {
 
     var conditions = {
-      eId: validatedEntity.eId
+      eid: validatedEntity.eid
     };
 
-    delete validatedEntity.eId;
+    delete validatedEntity.eid;
 
     var update = validatedEntity;
 
@@ -171,11 +171,11 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
       thisHook.finish(true, "Updated");
 
-      data.eId = conditions.eId;
+      data.eid = conditions.eid;
 
       C.hook("hook_entity_updated", thisHook.authPass, null, data)
 
-      C.log("info", data.entityType + " " + conditions.eId + " edited by " + validatedEntity.entityAuthor);
+      C.log("info", data.entityType + " " + conditions.eid + " edited by " + validatedEntity.entityAuthor);
 
     }
 

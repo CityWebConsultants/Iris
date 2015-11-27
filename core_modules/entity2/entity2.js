@@ -341,7 +341,7 @@ CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, da
 
   var type = thisHook.const.req.url.split("/")[3],
     schema = C.dbSchemaJSON[type],
-    eId = thisHook.const.req.url.split("/")[4],
+    eid = thisHook.const.req.url.split("/")[4],
     values = thisHook.const.params;
 
   // Gather array of field value/widgets pairs
@@ -375,7 +375,7 @@ CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, da
     if (doneCount === widgetValues.length) {
 
       formData.entityType = type;
-      formData.eId = eId;
+      formData.eid = eid;
 
       C.hook("hook_entity_edit", thisHook.authPass, formData, formData).then(function (success) {
 
@@ -497,7 +497,7 @@ CM.entity2.registerHook("hook_form_render_editEntity", 0, function (thisHook, da
   // Load in entity to get defaults
 
   C.dbCollections[type].findOne({
-    eId: id
+    eid: id
   }, function (err, current) {
 
     if (err) {

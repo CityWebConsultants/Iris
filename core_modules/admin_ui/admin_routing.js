@@ -300,7 +300,7 @@ C.app.get("/admin/schema/edit/:type", function (req, res) {
 
 })
 
-C.app.get("/admin/edit/:type/:eId", function (req, res) {
+C.app.get("/admin/edit/:type/:eid", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -313,7 +313,7 @@ C.app.get("/admin/edit/:type/:eId", function (req, res) {
   }
 
   CM.frontend.globals.parseTemplateFile(["admin_entity_edit"], ['admin_wrapper'], {
-    eId: req.params.eId,
+    eid: req.params.eid,
     type: req.params.type
   }, req.authPass, req).then(function (success) {
 

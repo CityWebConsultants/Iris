@@ -69,9 +69,9 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
   //  var context = Object.assign(entity, optionalContext);
 
-  if (!entity.eId) {
+  if (!entity.eid) {
 
-    entity.eId = entity._id;
+    entity.eid = entity._id;
 
   }
 
@@ -146,7 +146,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
     var renderTemplate = function () {
 
-      CM.frontend.globals.parseTemplateFile([entity.entityType, entity.eId], ["html", entity.entityType, entity.eId], context, authPass, context.req).then(function (success) {
+      CM.frontend.globals.parseTemplateFile([entity.entityType, entity.eid], ["html", entity.entityType, entity.eid], context, authPass, context.req).then(function (success) {
 
         yes(success);
 
@@ -310,13 +310,13 @@ var findTemplate = function (paths, extension) {
     } else {
 
       if (Object.keys(C.dbCollections).indexOf(paths[0]) !== -1) {
-        
+
         CM.frontend.globals.findTemplate(["entity"], "html").then(function (html) {
-          
+
           yes(html);
 
         }, function (fail) {
-          
+
           no(false);
 
         })
@@ -519,13 +519,13 @@ var parseTemplate = function (html, authPass, context) {
 
       embeds.forEach(function (element) {
 
-        if (!entity.eId) {
+        if (!entity.eid) {
 
-          entity.eId = entity._id;
+          entity.eid = entity._id;
 
         }
 
-        findTemplate([element, entity.entityType, entity.eId]).then(function (subTemplate) {
+        findTemplate([element, entity.entityType, entity.eid]).then(function (subTemplate) {
 
           parseTemplate(subTemplate, authPass, context).then(function (contents) {
 
@@ -612,7 +612,7 @@ C.app.use(function (req, res, next) {
 
     for (var path in CM.paths.globals.entityPaths) {
 
-      if (CM.paths.globals.entityPaths[path].eId && CM.paths.globals.entityPaths[path].eId.toString() === splitUrl[2] && CM.paths.globals.entityPaths[path].entityType === splitUrl[1]) {
+      if (CM.paths.globals.entityPaths[path].eid && CM.paths.globals.entityPaths[path].eid.toString() === splitUrl[2] && CM.paths.globals.entityPaths[path].entityType === splitUrl[1]) {
 
         res.redirect(path)
 
@@ -626,7 +626,7 @@ C.app.use(function (req, res, next) {
       queryList: [{
         entities: [splitUrl[1]],
         queries: [{
-          field: 'eId',
+          field: 'eid',
           comparison: 'IS',
           compare: splitUrl[2]
         }]

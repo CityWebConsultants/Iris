@@ -18,7 +18,7 @@ process.on("dbReady", function () {
 
           CM.paths.globals.entityPaths[element.path] = {
             _id: element._id,
-            eId: element.eId,
+            eid: element.eid,
             entityType: element.entityType
           };
 
@@ -86,14 +86,14 @@ CM.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
   // Check that path is not a duplicate
 
   var path = data.path;
-  var eId = data.eId;
+  var eid = data.eid;
 
   // If path already listed, and
   //   - Entity is new and has no id, or
   //   - Entity id being edited does not match
 
 
-  if (false && CM.paths.globals.entityPaths[path] && (!eId || CM.paths.globals.entityPaths[path].eId.toString() !== eId.toString())) {
+  if (false && CM.paths.globals.entityPaths[path] && (!eid || CM.paths.globals.entityPaths[path].eid.toString() !== eid.toString())) {
 
     thisHook.finish(false, "Entity with that path already exists")
 
@@ -111,12 +111,12 @@ CM.paths.registerHook("hook_entity_created", 0, function (thisHook, data) {
 
     var path = data.path;
     var id = data._id;
-    var eId = data.eId;
+    var eid = data.eid;
     var entityType = data.entityType;
 
     CM.paths.globals.entityPaths[path] = {
       _id: id,
-      eId: eId,
+      eid: eid,
       entityType: entityType
     };
 
@@ -150,12 +150,12 @@ CM.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 
     var path = data.path;
     var id = data._id;
-    var eId = data.eId;
+    var eid = data.eid;
     var entityType = data.entityType;
 
     CM.paths.globals.entityPaths[path] = {
       _id: id,
-      eId: eId,
+      eid: eid,
       entityType: entityType
     };
 
@@ -185,7 +185,7 @@ C.app.use(function (req, res, next) {
   if (CM.paths.globals.entityPaths[req.url]) {
 
     C.dbCollections[CM.paths.globals.entityPaths[req.url].entityType].findOne({
-      eId: CM.paths.globals.entityPaths[req.url].eId
+      eid: CM.paths.globals.entityPaths[req.url].eid
     }, function (err, doc) {
 
       if (!err && doc) {

@@ -161,7 +161,7 @@ C.dbPopulate = function () {
 
     // Filter out universal fields
 
-    var universalFields = ["entityType", "entityAuthor", "eId"];
+    var universalFields = ["entityType", "entityAuthor", "eid"];
 
     Object.keys(C.dbSchemaJSON[schema]).forEach(function (field) {
 
@@ -195,7 +195,7 @@ C.dbPopulate = function () {
       required: true
     }
 
-    C.dbSchema[schema].eId = {
+    C.dbSchema[schema].eid = {
       type: Number,
       description: "Entity ID",
       title: "Unique ID",
@@ -213,7 +213,7 @@ C.dbPopulate = function () {
 
       readySchema.plugin(autoIncrement.plugin, {
         model: schema,
-        field: 'eId',
+        field: 'eid',
         startAt: 1,
       });
 
