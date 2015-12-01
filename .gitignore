@@ -3,4 +3,5 @@ node_modules/
 /loc.sh
 sites/*
 !sites/default
+!sites/base
 /nbproject/private/
