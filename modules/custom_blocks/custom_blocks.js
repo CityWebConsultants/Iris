@@ -3,7 +3,7 @@ C.registerModule("custom_blocks");
 CM.blocks.globals.registerBlockType("Template-file");
 CM.blocks.globals.registerBlockType("Custom-HTML");
 
-CM.views.registerHook("hook_form_render_blockForm_Template-file", 0, function (thisHook, data) {
+CM.custom_blocks.registerHook("hook_form_render_blockForm_Template-file", 0, function (thisHook, data) {
 
   var currentTemplate = '';
 
@@ -34,7 +34,7 @@ CM.views.registerHook("hook_form_render_blockForm_Template-file", 0, function (t
 
 });
 
-CM.views.registerHook("hook_form_render_blockForm_Custom-HTML", 0, function (thisHook, data) {
+CM.custom_blocks.registerHook("hook_form_render_blockForm_Custom-HTML", 0, function (thisHook, data) {
 
   var currentContents = '';
 
@@ -68,7 +68,7 @@ CM.views.registerHook("hook_form_render_blockForm_Custom-HTML", 0, function (thi
 
 // Render those blocks!
 
-CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
+CM.custom_blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
 
   if (thisHook.const.type === "Template-file") {
 
