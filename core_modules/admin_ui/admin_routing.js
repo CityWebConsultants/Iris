@@ -3,16 +3,16 @@ var fs = require('fs');
 CM.frontend.globals.displayErrorPage = function (code, req, res) {
 
   C.hook("hook_display_error_page", req.authPass, {
-    error: 403,
+    error: code,
     req: req,
     res: res
   }).then(function (success) {
 
-    res.status(403).send(success);
+    res.status(code).send(success);
 
   }, function (fail) {
 
-    res.status(403).send("403");
+    res.status(code).send(code.toString());
 
   });
 
