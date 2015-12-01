@@ -6,43 +6,63 @@ var bcrypt = require("bcrypt-nodejs");
 
 CM.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
 
-  data.schema.username = {
-    "type": "text",
-    "title": "username"
-  }
+  C.dbCollections["user"].count({}, function (err, count) {
+    if (count === 0) {
 
-  data.schema.password = {
-    "type": "password",
-    "title": "Password",
-    "description": "Make it strong"
-  };
+      data.schema.username = {
+        "type": "text",
+        "title": "username"
+      }
 
+      data.schema.password = {
+        "type": "password",
+        "title": "Password",
+        "description": "Make it strong"
+      };
 
-  thisHook.finish(true, data);
+      thisHook.finish(true, data);
+
+    } else {
+
+      thisHook.finish(false, data);
+
+    }
+  });
 
 })
 
 CM.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, data) {
 
-  var user = {
+  C.dbCollections["user"].count({}, function (err, count) {
+    if (count === 0) {
 
-    entityType: "user",
-    entityAuthor: "system",
-    password: thisHook.const.params.password,
-    username: thisHook.const.params.username,
-    roles: ["admin"]
-  }
+      var user = {
 
-  C.hook("hook_entity_create", "root", user, user).then(function (user) {
+        entityType: "user",
+        entityAuthor: "system",
+        password: thisHook.const.params.password,
+        username: thisHook.const.params.username,
+        roles: ["admin"]
+      }
 
-    console.log(user);
-    thisHook.finish(true, data);
+      C.hook("hook_entity_create", "root", user, user).then(function (user) {
 
-  }, function (fail) {
+        console.log(user);
+        thisHook.finish(true, data);
 
-    console.log(fail);
+      }, function (fail) {
 
-  })
+        console.log(fail);
+
+      })
+
+    } else {
+
+      thisHook.finish(false, data);
+
+    }
+
+  });
 
 })
 
@@ -50,18 +70,27 @@ CM.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, d
 
 C.app.get("/firstuser", function (req, res) {
 
-  CM.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
+  C.dbCollections["user"].count({}, function (err, count) {
+    if (count === 0) {
 
-    res.send(success)
+      CM.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
 
-  }, function (fail) {
+        res.send(success)
 
-    CM.frontend.globals.displayErrorPage(500, req, res);
+      }, function (fail) {
 
-    C.log("error", e);
+        CM.frontend.globals.displayErrorPage(500, req, res);
 
-  });
+        C.log("error", e);
 
+      });
+
+    } else {
+
+      CM.frontend.globals.displayErrorPage(500, req, res);
+
+    }
+  })
 })
 
 CM.user.globals.login = function (auth, res, callback) {
@@ -230,7 +259,7 @@ require('./login_form.js');
 C.app.get("/login", function (req, res) {
 
   // If not admin, present 403 page
-  
+
   if (req.authPass.roles.indexOf('authenticated') !== -1) {
 
     res.send("Already logged in");
