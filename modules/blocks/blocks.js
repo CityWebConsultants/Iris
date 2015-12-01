@@ -133,6 +133,10 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
         CM.blocks.globals.blocks[config.blockType][config.blockTitle] = config;
 
+        C.saveConfig(config, "blocks" + "/" + config.blockType, config.blockTitle, function () {
+          
+        })
+
       }
 
     } catch (e) {
@@ -277,10 +281,14 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
     };
 
     // Check if a config file has already been saved for this block. If so, load in the current settings.
-
-    C.readConfig("blocks/" + formTitle.split("_")[1], formTitle.split("_")[2]).then(function (output) {
+    
+    C.readConfig("blocks/" + formTitle.split("_")[1], thisHook.const.params[1]).then(function (output) {
 
       data.value = output;
+
+      // Hide the title as you shouldn't be able to change it
+
+      data.schema["blockTitle"].type = "hidden";
 
       thisHook.finish(true, data);
 
