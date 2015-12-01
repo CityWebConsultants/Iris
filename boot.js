@@ -236,6 +236,8 @@ module.exports = function (config) {
 
     require('./core_modules/admin_ui/admin_ui.js');
 
+    require('./core_modules/user/user.js');
+
     //Load logging module
 
     require('./log');
