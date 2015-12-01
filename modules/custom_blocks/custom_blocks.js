@@ -48,11 +48,10 @@ CM.custom_blocks.registerHook("hook_form_render_blockForm_Custom-HTML", 0, funct
 
   var form = {
     "contents": {
-      "type": "string",
+      "type": "ckeditor",
       "title": "Body",
       "description": "Custom HTML body for this block.",
       "default": currentContents,
-      "fieldHtmlClass": 'ckeditor'
     },
   };
 
