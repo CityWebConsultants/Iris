@@ -24,6 +24,8 @@ CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/permissions", "P
 CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs");
 CM.menu.globals.registerMenuLink("admin-toolbar", null, "/logout", "Log Out");
 
+CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/restart", "Restart server");
+
 CM.auth.globals.registerPermission("can view admin menu", "admin");
 
 CM.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
@@ -45,5 +47,19 @@ CM.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
     thisHook.finish(false, menuName);
 
   }
+
+});
+
+CM.admin_ui.registerHook("hook_form_render_restart", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
+
+});
+
+CM.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data) {
+  
+  process.send("restart");
+
+  thisHook.finish(true, data);
 
 });
