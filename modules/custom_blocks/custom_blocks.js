@@ -73,11 +73,12 @@ CM.custom_blocks.registerHook("hook_block_render", 0, function (thisHook, data) 
 
     thisHook.finish(true, "Test")
 
+    return true;
+
   } else if (thisHook.const.type === "Custom-HTML") {
-
-    console.log(thisHook.const);
-
-//    thisHook.finish(true, )
+    
+    thisHook.finish(true, thisHook.const.config.contents);
+    return true;
 
   }
 
