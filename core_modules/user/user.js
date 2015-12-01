@@ -2,6 +2,44 @@ C.registerModule("user");
 
 var bcrypt = require("bcrypt-nodejs");
 
+// First ever login form
+
+CM.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
+
+  data.schema.username = {
+    "type": "text",
+    "title": "username"
+  }
+
+  data.schema.password = {
+    "type": "password",
+    "title": "Password",
+    "description": "Make it strong"
+  };
+
+
+  thisHook.finish(true, data);
+
+})
+
+// First ever login page (should only show if no user has been set up)
+
+C.app.get("/firstuser", function (req, res) {
+
+  CM.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})
+
 CM.user.globals.login = function (auth, res, callback) {
 
   C.dbCollections['user'].findOne({
@@ -86,6 +124,8 @@ CM.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
   }
 
 });
+
+// TODO : Why is this in the user module?
 
 CM.user.registerHook("hook_entity_view_bulk", 2, function (thisHook, entities) {
 
