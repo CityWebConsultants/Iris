@@ -1,13 +1,7 @@
 {
-  "name": {
+  "username": {
     "fieldTypeType": "string",
     "title": "Username",
-    "required": true,
-    "fieldTypeName": "string"
-  },
-  "userid": {
-    "title": "User id",
-    "fieldTypeType": "string",
     "required": true,
     "fieldTypeName": "string"
   },
