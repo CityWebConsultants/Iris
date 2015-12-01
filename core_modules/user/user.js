@@ -47,7 +47,6 @@ CM.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, d
 
       C.hook("hook_entity_create", "root", user, user).then(function (user) {
 
-        console.log(user);
         thisHook.finish(true, data);
 
       }, function (fail) {
@@ -68,7 +67,7 @@ CM.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, d
 
 // First ever login page (should only show if no user has been set up)
 
-C.app.get("/firstuser", function (req, res) {
+C.app.get("/", function (req, res, next) {
 
   C.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
@@ -87,7 +86,7 @@ C.app.get("/firstuser", function (req, res) {
 
     } else {
 
-      CM.frontend.globals.displayErrorPage(500, req, res);
+      next();
 
     }
   })
