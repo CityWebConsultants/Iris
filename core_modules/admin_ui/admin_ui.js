@@ -60,6 +60,12 @@ CM.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data
   
   process.send("restart");
 
+  data = function (res) {
+
+    res.send("/");
+
+  };
+
   thisHook.finish(true, data);
 
 });
