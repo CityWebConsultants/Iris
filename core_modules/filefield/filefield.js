@@ -29,14 +29,14 @@ CM.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['file'].template = '<input class="filefield" type="file" ' +
     '<%= (fieldHtmlClass ? "class=\'" + fieldHtmlClass + "\' " : "") %>' +
-    'name="<%= node.name %>" value="<%= escape(value) %>" id="<%= id %>"' +
+    'name="FILEFIELD<%= node.name %>" value="<%= escape(value) %>" id="FILEFIELD<%= id %>"' +
     '<%= (node.disabled? " disabled" : "")%>' +
     '<%= (node.readOnly ? " readonly=\'readonly\'" : "") %>' +
     '<%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %>' +
     '<%= (node.schemaElement && node.schemaElement.required && (node.schemaElement.type !== "boolean") ? " required=\'required\'" : "") %>' +
     '<%= (node.placeholder? "placeholder=" + \'"\' + escape(node.placeholder) + \'"\' : "")%>' +
-    ' />',
-    JSONForm.elementTypes['file'].fieldTemplate = true;
+    ' /><input style="display:none" id="<%= id %>" type="text" value="<%= escape(value) %>" name="<%= node.name %>" />';
+  JSONForm.elementTypes['file'].fieldTemplate = true;
   JSONForm.elementTypes['file'].inputfield = true;
 
   $(document).ready(function () {
@@ -48,6 +48,8 @@ CM.forms.globals.registerWidget(function () {
       var formData = new FormData();
       formData.append('file', file);
 
+      var id = $(data.target).attr("id").replace("FILEFIELD", "");
+
       $.ajax({
         url: '/admin/file/fileFieldUpload',
         type: 'POST',
@@ -55,8 +57,10 @@ CM.forms.globals.registerWidget(function () {
         processData: false,
         contentType: false
       }).done(function (response) {
+        
+        alert("Uploaded");
 
-        $(data.target).attr("value", response).attr("type", "text");
+        $("#" + id).attr("value", response);
 
       });
 

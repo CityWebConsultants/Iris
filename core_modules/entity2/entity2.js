@@ -338,6 +338,8 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 // Entity create form handler
 
 CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, data) {
+  
+  console.log(thisHook.const.params);
 
   // Get type from url
   // Get the schema for the requested type to get the widgets
