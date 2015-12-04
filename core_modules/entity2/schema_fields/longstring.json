@@ -1,4 +1,6 @@
 {
+  "fieldTypeType": "string",
+  "fieldTypeName": "Formatted long text field",
   "allowedTags": {
     "title": "Allowed tags",
     "type": "array",

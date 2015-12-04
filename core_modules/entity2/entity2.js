@@ -23,8 +23,7 @@ CM.entity2.globals.fetchSchemaForm = function () {
 
         // Get field name and fieldtype
 
-        var fieldTypeName = schemafile.split("_")[1];
-        var fieldTypeType = schemafile.split("_")[0];
+        var fieldTypeMachineName = schemafile;
 
         var fieldSchema = {};
 
@@ -40,16 +39,6 @@ CM.entity2.globals.fetchSchemaForm = function () {
           "title": "Label"
         }
 
-        fieldSchema.fieldTypeName = {
-          "type": "hidden",
-          "default": fieldTypeName
-        }
-
-        fieldSchema.fieldTypeType = {
-          "type": "hidden",
-          "default": fieldTypeType
-        }
-
         fieldSchema.required = {
           "title": "Required",
           "type": "boolean"
@@ -59,9 +48,26 @@ CM.entity2.globals.fetchSchemaForm = function () {
 
         var filedSchema = JSON.parse(fs.readFileSync(CM[moduleName].path + "/schema_fields/" + schemafile + ".json"));
 
+        if (filedSchema.fieldTypeName) {
+
+          var fieldTypeName = filedSchema.fieldTypeName
+
+          fieldSchema.fieldTypeName = {
+            "type": "hidden",
+            "title": fieldTypeName,
+            "default": fieldTypeMachineName
+          }
+
+        }
+
+
         Object.keys(filedSchema).forEach(function (field) {
 
-          fieldSchema[field] = filedSchema[field];
+          if (field !== "fieldTypeName") {
+
+            fieldSchema[field] = filedSchema[field];
+
+          }
 
         })
 
@@ -69,15 +75,10 @@ CM.entity2.globals.fetchSchemaForm = function () {
 
         // Add fieldtype to memory index if it doesn't already exist
 
-        if (!CM.entity2.globals.fieldTypes[fieldTypeType]) {
 
-          CM.entity2.globals.fieldTypes[fieldTypeType] = {};
+        if (!CM.entity2.globals.fieldTypes[fieldTypeMachineName]) {
 
-        }
-
-        if (!CM.entity2.globals.fieldTypes[fieldTypeType][fieldTypeName]) {
-
-          CM.entity2.globals.fieldTypes[fieldTypeType][fieldTypeName] = fieldSchema;
+          CM.entity2.globals.fieldTypes[fieldTypeMachineName] = fieldSchema;
 
         } else {
 
@@ -85,7 +86,7 @@ CM.entity2.globals.fetchSchemaForm = function () {
 
           Object.keys(fieldSchema).forEach(function (field) {
 
-            CM.entity2.globals.fieldTypes[fieldTypeType][fieldTypeName][field] = fieldSchema[field];
+            CM.entity2.globals.fieldTypes[fieldTypeMachineName][field] = fieldSchema[field];
 
           })
 
@@ -115,22 +116,23 @@ CM.entity2.globals.fetchSchemaForm = function () {
     "type": "choose"
   };
 
-  Object.keys(CM.entity2.globals.fieldTypes).forEach(function (fieldType) {
+  Object.keys(CM.entity2.globals.fieldTypes).forEach(function (field) {
 
-    Object.keys(CM.entity2.globals.fieldTypes[fieldType]).forEach(function (field) {
+    var fieldConfig = CM.entity2.globals.fieldTypes[field];
 
-      var fieldConfig = CM.entity2.globals.fieldTypes[fieldType][field];
+    schemaFormFields[field] = {
 
-      schemaFormFields[fieldType + "_" + field] = {
+      "type": "object",
 
-        "type": "object",
-        "title": field
+    }
 
-      }
+    // Add properties
 
-      // Add properties
+    schemaFormFields[field].properties = {};
 
-      schemaFormFields[fieldType + "_" + field].properties = fieldConfig;
+    Object.keys(fieldConfig).forEach(function (fieldName) {
+
+      schemaFormFields[field].properties[fieldName] = fieldConfig[fieldName];
 
     })
 
@@ -184,8 +186,8 @@ CM.entity2.globals.fetchSchemaForm = function () {
 
 CM.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
-  var type = thisHook.const.field.fieldTypeType;
   var name = thisHook.const.field.fieldTypeName;
+  var type = CM.entity2.globals.fieldTypes[thisHook.const.field.fieldTypeName].fieldTypeType;
 
   if (type === "string") {
 
@@ -228,7 +230,6 @@ CM.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
 
   var fieldSchema = thisHook.const.schema,
     value = thisHook.const.value,
-    fieldType = thisHook.const.schema.fieldTypeType,
     fieldName = thisHook.const.schema.fieldTypeName;
 
   if (fieldType === "string") {

@@ -102,7 +102,21 @@ C.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
   if (req.authPass.roles.indexOf('admin') !== -1) {
 
-    res.respond(200, CM.entity2.globals.fetchSchemaForm());
+    var fields = JSON.parse(JSON.stringify(CM.entity2.globals.fetchSchemaForm()));
+
+    Object.keys(fields).forEach(function (field) {
+
+      if (fields[field].properties && fields[field].properties.fieldTypeType) {
+
+        // Hide field type field, not needed
+
+        delete fields[field].properties.fieldTypeType;
+
+      }
+
+    })
+
+    res.respond(200, fields);
 
   } else {
 
@@ -158,7 +172,7 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
     } else {
 
-      var fieldType = field.fieldTypeType + "_" + field.fieldTypeName;
+      var fieldType = field.fieldTypeName;
 
       var choose = fieldTypes[fieldType];
 

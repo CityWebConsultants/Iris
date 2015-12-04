@@ -34,10 +34,9 @@ CM.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {
 
 CM.ckeditor.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
-  var type = thisHook.const.field.fieldTypeType;
   var name = thisHook.const.field.fieldTypeName;
-
-  if (name === "long") {
+  
+  if (name === "longstring") {
 
     data = {
       "type": "ckeditor",
