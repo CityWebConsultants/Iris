@@ -56,8 +56,8 @@ CM.forms.globals.registerWidget(function () {
         contentType: false
       }).done(function (response) {
 
-        $(data.target).attr("value", response);
-        
+        $(data.target).attr("value", response).attr("type", "text");
+
       });
 
     });

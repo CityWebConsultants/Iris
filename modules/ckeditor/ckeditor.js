@@ -18,7 +18,7 @@ CM.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {
 
     if (schema[field] && schema[field].allowedTags) {
 
-      var tags = schema[field].allowedTags.split(",");
+      var tags = schema[field].allowedTags;
 
       data[field] = sanitizeHtml(data[field], {
         allowedTags: tags,
@@ -35,7 +35,7 @@ CM.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {
 CM.ckeditor.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
   var name = thisHook.const.field.fieldTypeName;
-  
+
   if (name === "longstring") {
 
     data = {
@@ -112,7 +112,7 @@ CM.forms.globals.registerWidget(function () {
 var fs = require('fs');
 
 C.app.post('/admin/file/ckeditorupload', function (req, res) {
-  
+
   var mkdirSync = function (path) {
     try {
       fs.mkdirSync(path);

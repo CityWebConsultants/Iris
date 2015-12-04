@@ -230,7 +230,8 @@ CM.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
 
   var fieldSchema = thisHook.const.schema,
     value = thisHook.const.value,
-    fieldName = thisHook.const.schema.fieldTypeName;
+    fieldName = thisHook.const.schema.fieldTypeName,
+    fieldType = CM.entity2.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
 
   if (fieldType === "string") {
 
@@ -251,6 +252,8 @@ CM.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
 // Entity create form handler
 
 CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
+
+  console.log(thisHook.const.params);
 
   // Get type from url
   // Get the schema for the requested type to get the widgets

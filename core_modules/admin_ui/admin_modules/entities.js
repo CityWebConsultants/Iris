@@ -221,7 +221,6 @@ C.app.post('/admin/file/fileFieldUpload', function (req, res) {
   var fstream;
   req.pipe(req.busboy);
   req.busboy.on('file', function (fieldname, file, filename) {
-    console.log(filename);
     fstream = fs.createWriteStream(C.sitePath + '/files/' + filename);
     file.pipe(fstream);
     fstream.on('close', function () {
