@@ -1,4 +1,4 @@
 {
   "fieldTypeName": "File field",
-  "fieldTypeType": "ofstring"
+  "fieldTypeType": "string"
 }

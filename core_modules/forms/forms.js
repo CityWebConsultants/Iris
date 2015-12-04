@@ -155,6 +155,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
       Object.keys(CM.forms.globals.widgets).forEach(function (widget) {
 
         output += "var " + widget + " = " + CM.forms.globals.widgets[widget] + "()";
+        output += "\n";
 
       });
 
