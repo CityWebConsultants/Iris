@@ -1,22 +1,35 @@
 # Iris
 
-Iris is a modular content management system and web application frameworkd built using Node.JS. It uses Express for HTTP routing, Socket.IO for websockets and runs on a MongoDB database powered by the Mongoose driver and schema system. 
+Iris is a modular content management system and web application framework built using JavaScript (Node.js) and MongoDB.
 
-On the frontend, alongside its own block, region and form system, it supports any templating language you want. Mustache is packaged in, as are simple to use live-updating front end HTML widgets powered by Angular.JS.
+Alongside its own block, region, form and embed system, Iris supports any templating language you'd want to use with it (even plain HTML). Handlebars is packaged in, as is a module for simple to use front-end HTML widgets (powered by Angular.js) that fetch, sort and filter the exact content you want without you having to play around with server-side database queries. These templates also live update when something changes without page refresh (via websockets) so you can use them for news feeds, social media websites and chat rooms. Without writing any server side code.
 
-## Quick launching
+Iris comes with an extendable user, profile, role and permission system with a graphical admin interface so you can make sure only people with the right permissions can access content you want or perform actions.
 
-This first version of Iris is bundled with useful modules so that you can get started as quickly as possible. Here's how to get started.
+Although we'd love you to build and share custom modules, and provide a full hook based API for doing so (meaning you can override or extend anything you'd want to override), a lot of Iris is built to be used without writing masses of extra JavaScript. The admin interface will allow you to build up blocks, regions, users, views/lists of content, make custom content types, attach fields to them and create, edit and delete content all through a graphical user interface.
+
+Iris was built with version control in mind so, instead of storing blocks, regions, fields and entity types, views and other configuration in the database, all configuration you'd want to put through Git or another version control system is stored in easily exportable/importable JSON files. You can even edit these manually if you want as they're written to be human-readable. The exporting and importing is again done through the user interface, though if you prefer drag and drop you can do that too and nothing will break.
+
+After a year of keeping it to ourselves, we'd love you to try out Iris, let us know what we've done right and wrong and perhaps help us build it by contributing to its source code and building modules.
+
+## System requirements
+
+Iris runs on Node.js so you'll need the latest version of that installed (5.0 at the time of writing). It will also need a connection to a MongoDB database. Iris was created and tested on Windows, Linux and OSX systems so hopefully it should work on your setup. Put in an issue in the issue queue if it doesn't and we'll try to help.
+
+## Quick start for site builders
+
+This first version of Iris is bundled with useful modules so that you can get started using it as a content management system and web site builder as quickly as possible. Here's how to get started.
 
 * Clone the repository.
 * Run NPM install to install dependencies
 * Make sure you have access to a MongoDB database instance
 * Go to the sites folder and copy the default folder into a folder named after your site/application
-* Within this folder, open/edit settings.json and put in details for the following information:
+
+### Settings.json
+
+* Within your sites folder, edit settings.json and put in details for the following information:
 
 * __port__: The port the Node.JS web server runs on. (80 or 3000 for example)
-* __apikey__: This is the administrator username/apikey. It should be kept secret.
-* __secretkey__: An additional password used in combination with the secretkey to gain access to the system as an administrator.
 * __https__: set to true or false depending on whether the site is running on HTTPS.
 * __https_key__: System path to the SSL key if HTTPS mode is on.
 * __https_cert__: System path to the SSL certificate if HTTPS mode is on.
@@ -25,10 +38,9 @@ This first version of Iris is bundled with useful modules so that you can get st
 * __db_name__: The name of the MongoDB database used for this application.
 * __db_username__: The username (if relevant) to be used when connecting to the database.
 * __db_password__: The password (if relevant) to be used when connecting to the database.
-* __theme__: The relative path to the current theme, if using __frontend__.
-* __templateExtension__: The templating engine to use, if using __frontend__.
+* __theme__: The relative path to the current theme (we've put in a default Purple theme to get you started, you can copy this to another folder to make your own and put that folder name here)
 
-* Once done, return to the root folder and using node.js run
+* Once done, return to the root folder in your command line and run:
 
 ```
 node launch.js site=YOURSITENAME
@@ -36,33 +48,46 @@ node launch.js site=YOURSITENAME
 ```
 replacing YOURSITENAME with the name of your site/application folder.
 
-The application will boot and if you visit the port you ran the application on localhost:3000 for example you will see a welcome page.
+### Post launch config
 
-## The administration system
+If everything's gone to plan you should be able to visit the server via your web browser (http://localhost:3000 for example) where you will see a page telling you to set up a root user account.
 
-To access the administration system visit /admin once the site has loaded (localhost:3000/admin for example).
+Pick a secure but memorable password and note it down somewhere safe. You will be able to create multiple accounts later but before you do you'll need this one to access the site.
 
-You will be faced with a login page with two tabs. The first is for user accounts once they have been created and given the "admin" role (details to follow about the user system). The second is for the root user of the system and uses settings listed in the apikey/secretkey section of the settings.json form documented above.
+### The administration system
 
-Once you have logged in you should have access to a toolbar with various links for different parts of the administration system.
+Once you've created an administrator account you should be able to vist /admin with it and access the administration system.
 
-# Creating and managing entities
+### Creating and managing entities
 
 Content in Iris, from users to pages to menus, is based around a concept of entities.
 
-Entities have fields such as text fields and file/image fields and are stored in the MongoDB database.
+Entities have fields for things such such as text, url paths and images. Entities themselves are stored in the MongoDB database while configuration for fields and entity types is stored in JSON files in your sites' configuration folder. 
 
-The base distribution contains page, menu and user entity types for you to use. If you want to create your own, simply go to the entity screen and add a new entity type.
+### Creating and editing entity types
 
-The following form will allow you to add fields to the entity of various sorts including groups of fields.
+To create a new entity type (for example a blog, page or message), visit the entities section in the administration menu (or /admin/entities) and select the "Create new entity type" button.
 
-You can also edit, create and delete entities of a particular type through this interface.
+You will be presented with a form to create your new entity type.
 
-Each entity has a unique ID that can be used to reference it throughout the system.
+First pick a name for your entity type. This won't usually be shown outside of the administration system but it cannot be changed easily after creation.
 
-# Users 
+##### Field types
+ 
+* string_string - A simple text field for short lines of text.
+* string_long - A long formatted, rich text field with a CKeditor text editor.
+* string_file - A file upload
+* ofstring_string - A field containing multiple simple text strings
 
-The base distribution of Iris comes with a user system which allows people to log in to your website/application and see/do different things depending on their position.
+##### Editing and creating entities
+
+To create a new entity, visit the entities page in the administration toolbar and use the dropdown next to each one to create a new entity of that type.
+
+To edit/delete entities of a type, select the "View content" option for an entity type. 
+
+## Users
+
+Iris comes with a user system which allows people to log in to your website/application and see/do different things depending on their position.
 
 The user entity is simply a fieldable entity like the others, except for the password field (which is hashed and stored securely in the database), and a roles field where users can be given roles to allow various permissions.
 
