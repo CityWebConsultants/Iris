@@ -232,13 +232,13 @@ module.exports = function (config) {
 
     require('./core_modules/filefield/filefield.js');
 
-    require('./core_modules/paths/paths.js');
-
     require('./core_modules/menu/menu.js');
 
     require('./core_modules/admin_ui/admin_ui.js');
 
     require('./core_modules/user/user.js');
+
+    require('./core_modules/paths/paths.js');
 
     //Load logging module
 
