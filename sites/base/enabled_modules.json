@@ -23,16 +23,14 @@
     "path": "/modules/page"
 },
   {
-    "name": "user",
-    "path": "/modules/user"
-}, {
     "name": "blocks",
     "path": "/modules/blocks"
 },
   {
     "name": "views",
     "path": "/modules/views"
-}, {
+},
+{
     "name": "custom_blocks",
     "path": "/modules/custom_blocks"
 }]
