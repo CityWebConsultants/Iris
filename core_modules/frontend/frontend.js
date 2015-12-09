@@ -713,6 +713,8 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
 
         success.html = Handlebars.compile(success.html)(success.variables);
 
+        success.html = success.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
+
         thisHook.finish(true, success);
 
       });
