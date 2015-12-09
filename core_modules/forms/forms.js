@@ -1,5 +1,9 @@
 C.registerModule("forms");
 
+// Store of rendered form keys to check if form has already been submitted and stop cross site scripting problems with re-rendered forms
+
+CM.forms.globals.formRenderCache = {};
+
 var toSource = require('tosource');
 
 CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
@@ -8,7 +12,29 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
     var body = thisHook.const.req.body;
 
-    if (body && body.formid) {
+    if (body && body.formid && body.formToken) {
+
+      // Check if form id exists in cache, if not stop
+
+      if (CM.forms.globals.formRenderCache[body.formToken]) {
+
+        var token = CM.forms.globals.formRenderCache[body.formToken];
+
+        if (token.authPass.userid === thisHook.authPass.userid && body.formid === token.formid) {
+
+        } else {
+
+          thisHook.finish(false, "Bad request");
+          return false;
+
+        }
+
+      } else {
+
+        thisHook.finish(false, "Bad request");
+        return false;
+
+      }
 
       C.hook("hook_form_submit", thisHook.authPass, {
         params: thisHook.const.req.body,
@@ -37,6 +63,10 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
             thisHook.finish(true, callback);
 
           }
+
+          // Stop form being submitted a second time
+
+          delete CM.forms.globals.formRenderCache[body.formToken];
 
         }, function (fail) {
 
@@ -103,7 +133,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
   CM.frontend.globals.parseBlock("form", data.html, function (form, next) {
 
-    var renderForm = function (form) {
+    var renderForm = function (form, callback) {
 
       if (!form.schema) {
 
@@ -118,51 +148,71 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
         "default": formName
       };
 
-      // Unset form render object if not set (JSON form provides a default)
+      // Crete a form token and add to form
 
-      if (!form.form || !Object.keys(form.form).length) {
+      var crypto = require('crypto');
 
-        if (form.form) {
+      crypto.randomBytes(16, function (ex, buf) {
 
-          delete form.form;
+        var token = buf.toString('hex');
+
+        CM.forms.globals.formRenderCache[token] = {
+          formid: formName,
+          authPass: thisHook.authPass
+        };
+
+        form.schema.formToken = {
+          "type": "hidden",
+          "default": token
+        };
+
+        // Unset form render object if not set (JSON form provides a default)
+
+        if (!form.form || !Object.keys(form.form).length) {
+
+          if (form.form) {
+
+            delete form.form;
+
+          }
 
         }
 
-      }
+        // Unset form values object if not set
 
-      // Unset form values object if not set
+        if (!form.value || !Object.keys(form.value).length) {
 
-      if (!form.value || !Object.keys(form.value).length) {
+          if (form.value) {
 
-        if (form.value) {
+            delete form.value;
 
-          delete form.value;
+          }
 
         }
 
-      }
+        var output = "";
 
-      var output = "";
+        output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
 
-      output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
+        // Add in any custom widgets
 
-      // Add in any custom widgets
+        output += '<script src="/modules/admin_ui/jsonform/deps/jquery.min.js"></script><script src="/modules/admin_ui/jsonform/deps/underscore-min.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/jquery.ui.custom.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-dropdown.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-typeahead.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/spectrum.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/jquery.transloadit2.js"></script><script src="/modules/admin_ui/jsonform/lib/jsonform.js"></script>';
 
-      output += '<script src="/modules/admin_ui/jsonform/deps/jquery.min.js"></script><script src="/modules/admin_ui/jsonform/deps/underscore-min.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/jquery.ui.custom.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-dropdown.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-typeahead.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/spectrum.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/jquery.transloadit2.js"></script><script src="/modules/admin_ui/jsonform/lib/jsonform.js"></script>';
+        output += "<script>";
 
-      output += "<script>";
+        Object.keys(CM.forms.globals.widgets).forEach(function (widget) {
 
-      Object.keys(CM.forms.globals.widgets).forEach(function (widget) {
+          output += "var " + widget + " = " + CM.forms.globals.widgets[widget] + "()";
+          output += "\n";
 
-        output += "var " + widget + " = " + CM.forms.globals.widgets[widget] + "()";
-        output += "\n";
+        });
+
+        output += "</script>";
+
+        output += "<script>$('#" + formName + "').jsonForm(" + toSource(form) + ");</script>";
+        callback(output);
 
       });
-
-      output += "</script>";
-
-      output += "<script>$('#" + formName + "').jsonForm(" + toSource(form) + ");</script>";
-      return output;
 
     };
 
@@ -194,7 +244,11 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
         params: form
       }, formTemplate).then(function (form) {
 
-        next(renderForm(form));
+        renderForm(form, function (output) {
+
+          next(output);
+
+        });
 
       }, function (fail) {
 
