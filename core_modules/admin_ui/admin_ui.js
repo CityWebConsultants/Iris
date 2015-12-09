@@ -78,11 +78,11 @@ CM.admin_ui.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
   if (thisHook.authPass.roles.indexOf("admin") === -1) {
 
-    thisHook.finish(true, data);
+    thisHook.finish(false, data);
 
   } else {
 
-    thisHook.finish(false, data);
+    thisHook.finish(true, data);
 
   }
 
