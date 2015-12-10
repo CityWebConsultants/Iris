@@ -231,9 +231,31 @@ C.app.get("/admin/logs", function (req, res) {
 
   }
 
+  var rawLogs = fs.readFileSync(C.sitePath + '/' + "/logs/main.log", "utf8");
+
+  //Remove last line
+
+  rawLogs = rawLogs.replace(/\n$/, "");
+
+  //Split logs by newline
+
+  var logs = rawLogs.split(/\r?\n/)
+
+  logs.forEach(function (element, index) {
+
+    logs[index] = JSON.parse(logs[index]);
+
+  });
+
+  if (logs[0]) {
+
+    keys = Object.keys(logs[0]);
+
+  }
+
   CM.frontend.globals.parseTemplateFile(["admin_logs"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    hello: "world"
+    logs: logs.reverse(),
+    keys: keys
   }, req.authPass, req).then(function (success) {
 
     res.send(success)

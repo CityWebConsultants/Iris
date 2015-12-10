@@ -28,9 +28,19 @@ var bunyanSettings = {
   streams: []
 };
 
-if (C.config.logging_to_file_level && C.config.logging_output_file) {
-  bunyanSettings.streams.push({level: C.config.logging_to_file_level, path: C.sitePath + '/' + C.config.logging_output_file});
+try {
+
+  fs.readFileSync(C.sitePath + '/logs/' + "main.log", "utf8");
+
+} catch (e) {
+
+  fs.writeFileSync(C.sitePath + '/logs/' + "main.log", "");
+
 }
+
+bunyanSettings.streams.push({
+  path: C.sitePath + '/logs/' + "main.log"
+});
 
 CM.bunyan.globals.logger = bunyan.createLogger(bunyanSettings);
 
@@ -38,53 +48,9 @@ CM.bunyan.registerHook("hook_log", 0, function (thisHook, data) {
 
   CM.bunyan.globals.logger[thisHook.const.type](thisHook.const.message);
 
-  if (C.config.logging_console_level && logLevels[thisHook.const.type] >= logLevels[C.config.logging_console_level]) {
-
     var time = new Date();
-    var timeString = ("0" + time.getHours()).slice(-2)   + ":" + ("0" + time.getMinutes()).slice(-2) + ":" + ("0" + time.getSeconds()).slice(-2);
+    var timeString = ("0" + time.getHours()).slice(-2) + ":" + ("0" + time.getMinutes()).slice(-2) + ":" + ("0" + time.getSeconds()).slice(-2);
 
     console.log(timeString + ' [' + thisHook.const.type.toUpperCase() + '] ' + thisHook.const.message);
-
-  }
-
-});
-
-CM.auth.globals.registerPermission("can read logs", "logs");
-
-C.app.get("/api/logs", function (req, res) {
-
-  if (CM.auth.globals.checkPermissions(["can read logs"], req.authPass)) {
-
-    try {
-
-      var rawLogs = fs.readFileSync(C.sitePath + "/" + "logs/main.log", "utf8");
-
-      //Remove last line
-
-      rawLogs = rawLogs.replace(/\n$/, "");
-
-      //Split logs by newline
-
-      var logs = rawLogs.split(/\r?\n/)
-
-      logs.forEach(function (element, index) {
-
-        logs[index] = JSON.parse(logs[index]);
-
-      });
-
-      res.respond(200, logs);
-
-    } catch (e) {
-
-      res.send("no logs");
-
-    }
-
-  } else {
-
-    res.respond(403, "Access denied");
-
-  };
 
 });
