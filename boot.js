@@ -332,41 +332,6 @@ module.exports = function (config) {
 
     C.log("info", "Server started");
 
-    C.app.get("/restart", function (req, res) {
-
-      // Check if theme set
-
-      fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/restart.html", "utf8", function (err, file) {
-
-        if (!err) {
-
-          res.send(file);
-          process.send("restart");
-
-        } else {
-
-          fs.readFile(C.rootPath + "/core_modules/frontend/templates/restart.html", "utf8", function (err, file) {
-
-            if (!err) {
-
-              res.send(file);
-              process.send("restart");
-
-            } else {
-
-              res.send("Restarting <meta http-equiv=\"refresh\" content=\"5; url=/\">");
-              process.send("restart");
-
-            }
-
-          })
-
-        }
-
-      });
-
-    });
-
     C.app.use(function (req, res) {
 
       C.hook("hook_catch_request", req.authPass, {
