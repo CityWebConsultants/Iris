@@ -359,19 +359,31 @@ CM.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook
 
 CM.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook, data) {
 
-  var path = require('path');
+  if (thisHook.const.params.blockTitle === 'starting-up') {
 
-  var fileToDelete = C.sitePath + "/configurations/blocks/" + thisHook.const.params.blockType + '/' + thisHook.const.params.blockTitle + '.json';
+    thisHook.finish(false, data);
 
-  console.log(fileToDelete)
+  }
 
-  fs.unlink(fileToDelete, function () {
+  if (CM.blocks.globals.blocks[thisHook.const.params.blockType] && CM.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle]) {
+
+    delete CM.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle];
+
+  }
+
+  C.deleteConfig("blocks/" + thisHook.const.params.blockType, C.sanitizeFileName(thisHook.const.params.blockTitle), function(err) {
+
+    if (err) {
+
+      thisHook.finish(false, data);
+
+    }
 
     var data = function (res) {
 
-      res.send("/admin/blocks")
+      res.send("/admin/blocks");
 
-    }
+    };
 
     thisHook.finish(true, data);
 

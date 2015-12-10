@@ -64,6 +64,43 @@ module.exports = function (config) {
 
   };
 
+  C.deleteConfig = function (directory, filename, callback) {
+    var splitDirectory = directory.split('/');
+
+    // Get last parts of the directory, used as key in config store
+    var configStoreCategory = splitDirectory[splitDirectory.length - 2];
+    var configStoreInstance = splitDirectory[splitDirectory.length - 1];
+
+    // Delete it from config store, if present
+    if (C.configStore[configStoreCategory][configStoreInstance][filename]) {
+
+      delete C.configStore[configStoreCategory][configStoreInstance][filename];
+
+    }
+
+
+
+    var filePath = path.join(C.sitePath, "/configurations", directory);
+
+    filePath = filePath + '/' + filename + '.json';
+
+    fs.unlink(filePath, function (err) {
+
+      if (err) {
+
+        // Return err = true
+        callback(true);
+
+      } else {
+
+        callback(false);
+
+      }
+
+    });
+
+  };
+
   C.readConfig = function (directory, filename) {
 
     return new Promise(function (yes, no) {
@@ -313,10 +350,12 @@ module.exports = function (config) {
             if (!err) {
 
               res.send(file);
+              process.send("restart");
 
             } else {
 
-              res.send("Restarting");
+              res.send("Restarting <meta http-equiv=\"refresh\" content=\"5; url=/\">");
+              process.send("restart");
 
             }
 
