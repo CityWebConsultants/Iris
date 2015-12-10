@@ -52,6 +52,17 @@ CM.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
 
 CM.admin_ui.registerHook("hook_form_render_restart", 0, function (thisHook, data) {
 
+  data.onSubmit = function (errors, values) {
+
+    $.post(window.location, values, function (data, err) {
+
+      $("#restart").remove();
+      $(".restart-information").text("Refresh this page to restart another time.")
+
+    })
+
+  };
+
   thisHook.finish(true, data);
 
 });
@@ -60,11 +71,15 @@ CM.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data
 
   process.send("restart");
 
-  data = function (res) {
+  setTimeout(function () {
 
-    res.send("/");
+    data = function (res) {
 
-  };
+      res.send("/");
+
+    };
+
+  }, 5000);
 
   thisHook.finish(true, data);
 
