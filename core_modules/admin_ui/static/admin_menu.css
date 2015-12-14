@@ -1,36 +1,36 @@
-nav .menu {
+nav.menu-admin-toolbar .menu {
   width: 100%;
   background-color: black;
   color: white;
 }
-ul.menu,
-ul.menu ul.sub-menu {
+.menu-admin-toolbar ul.menu,
+.menu-admin-toolbar ul.menu ul.sub-menu {
   padding: 0;
   margin: 0;
 }
-ul.menu li,
-ul.menu ul.sub-menu li {
+.menu-admin-toolbar ul.menu li,
+.menu-admin-toolbar ul.menu ul.sub-menu li {
   list-style-type: none;
   display: inline-block;
 }
-ul.menu li a,
-ul.menu li ul.sub-menu li a {
+.menu-admin-toolbar ul.menu li a,
+.menu-admin-toolbar ul.menu li ul.sub-menu li a {
   text-decoration: none;
   color: #fff;
   background: black;
   padding: 5px;
   display: inline-block;
 }
-ul.menu li {
+.menu-admin-toolbar ul.menu li {
   position: relative;
 }
-ul.menu li ul.sub-menu {
+.menu-admin-toolbar ul.menu li ul.sub-menu {
   display: none;
   position: absolute;
   top: 30px;
   left: 0;
   width: 100px;
 }
-ul.menu li:hover ul.sub-menu {
+.menu-admin-toolbar ul.menu li:hover ul.sub-menu {
   display: block;
 }

@@ -23,7 +23,7 @@ CM.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {
       data[field] = sanitizeHtml(data[field], {
         allowedTags: tags,
         allowedAttributes: {
-            '*': ['href', 'align', 'alt', 'center', 'bgcolor', 'class', 'id']
+            '*': ['src', 'href', 'align', 'alt', 'center', 'bgcolor', 'class', 'id']
         }
       });
 
