@@ -95,6 +95,35 @@ C.app.get("/admin/blocks/edit/:type/:id", function (req, res) {
 
 });
 
+C.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_blockdelete"], ['admin_wrapper'], {
+    blocktype: req.params.type,
+    blockid: req.params.id
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+});
+
 // Function for registering system blocks
 
 CM.blocks.globals.registerBlock = function (config) {
@@ -132,6 +161,10 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
         }
 
         CM.blocks.globals.blocks[config.blockType][config.blockTitle] = config;
+
+        C.saveConfig(config, "blocks" + "/" + config.blockType, config.blockTitle, function () {
+
+        })
 
       }
 
@@ -278,9 +311,13 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
     // Check if a config file has already been saved for this block. If so, load in the current settings.
 
-    C.readConfig("blocks/" + formTitle.split("_")[1], formTitle.split("_")[2]).then(function (output) {
+    C.readConfig("blocks/" + formTitle.split("_")[1], thisHook.const.params[1]).then(function (output) {
 
       data.value = output;
+
+      // Hide the title as you shouldn't be able to change it
+
+      data.schema["blockTitle"].type = "hidden";
 
       thisHook.finish(true, data);
 
@@ -296,7 +333,63 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
   };
 
-})
+});
+
+CM.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook, data) {
+
+    if (!data.schema) {
+
+      data.schema = {};
+
+    }
+
+    data.schema["blockTitle"] = {
+      type: "hidden",
+      default: thisHook.const.params[2]
+    };
+
+    data.schema["blockType"] = {
+      type: "hidden",
+      default: thisHook.const.params[1]
+    };
+
+    thisHook.finish(true, data);
+
+});
+
+CM.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook, data) {
+
+  if (thisHook.const.params.blockTitle === 'starting-up') {
+
+    thisHook.finish(false, data);
+
+  }
+
+  if (CM.blocks.globals.blocks[thisHook.const.params.blockType] && CM.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle]) {
+
+    delete CM.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle];
+
+  }
+
+  C.deleteConfig("blocks/" + thisHook.const.params.blockType, C.sanitizeFileName(thisHook.const.params.blockTitle), function(err) {
+
+    if (err) {
+
+      thisHook.finish(false, data);
+
+    }
+
+    var data = function (res) {
+
+      res.send("/admin/blocks");
+
+    };
+
+    thisHook.finish(true, data);
+
+  });
+
+});
 
 // Default form submit for block forms
 

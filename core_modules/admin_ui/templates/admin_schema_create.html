@@ -22,8 +22,20 @@
 
         if (index !== "choose") {
 
+          var title;
+
+          if (element.properties.fieldTypeName) {
+
+            title = element.properties.fieldTypeName.title;
+
+          } else {
+
+            title = index;
+
+          }
+
           fields.object.properties.subfields.items.properties[index] = JSON.parse(JSON.stringify(element));
-          select += "<option value='" + i + "'>" + index + "</option>";
+          select += "<option value='" + i + "'>" + title + "</option>";
 
           i += 1;
 
@@ -32,7 +44,7 @@
       });
 
       JSONForm.elementTypes['choose'] = Object.create(JSONForm.elementTypes['text']);
-            
+
       JSONForm.elementTypes['choose'].template = '<select value="<%= escape(value) %>" name="<%= node.name %>" onchange="chooseField(event)" class="field-collection-select form-control">' + select + '</select>';
 
       JSONForm.elementTypes['choose'].onInsert = function(e, node) {
@@ -109,7 +121,7 @@
         console.error(errors);
       } else {
 
-        
+
         $.post("/admin/api/schema/save/new", values, function(data, status) {
 
           if (status === "success") {
@@ -125,4 +137,3 @@
   }
 
 </script>
-

@@ -64,6 +64,43 @@ module.exports = function (config) {
 
   };
 
+  C.deleteConfig = function (directory, filename, callback) {
+    var splitDirectory = directory.split('/');
+
+    // Get last parts of the directory, used as key in config store
+    var configStoreCategory = splitDirectory[splitDirectory.length - 2];
+    var configStoreInstance = splitDirectory[splitDirectory.length - 1];
+
+    // Delete it from config store, if present
+    if (C.configStore[configStoreCategory][configStoreInstance][filename]) {
+
+      delete C.configStore[configStoreCategory][configStoreInstance][filename];
+
+    }
+
+
+
+    var filePath = path.join(C.sitePath, "/configurations", directory);
+
+    filePath = filePath + '/' + filename + '.json';
+
+    fs.unlink(filePath, function (err) {
+
+      if (err) {
+
+        // Return err = true
+        callback(true);
+
+      } else {
+
+        callback(false);
+
+      }
+
+    });
+
+  };
+
   C.readConfig = function (directory, filename) {
 
     return new Promise(function (yes, no) {
@@ -226,15 +263,19 @@ module.exports = function (config) {
 
     require('./core_modules/frontend/frontend.js');
 
+    require('./core_modules/forms/forms.js');
+
     require('./core_modules/entity2/entity2.js');
 
-    require('./core_modules/paths/paths.js');
+    require('./core_modules/filefield/filefield.js');
 
     require('./core_modules/menu/menu.js');
 
-    require('./core_modules/forms/forms.js');
-
     require('./core_modules/admin_ui/admin_ui.js');
+
+    require('./core_modules/user/user.js');
+
+    require('./core_modules/paths/paths.js');
 
     //Load logging module
 
@@ -290,39 +331,6 @@ module.exports = function (config) {
     Object.freeze(C);
 
     C.log("info", "Server started");
-
-    C.app.get("/restart", function (req, res) {
-
-      // Check if theme set
-
-      fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/restart.html", "utf8", function (err, file) {
-
-        if (!err) {
-
-          res.send(file);
-          process.send("restart");
-
-        } else {
-
-          fs.readFile(C.rootPath + "/core_modules/frontend/templates/restart.html", "utf8", function (err, file) {
-
-            if (!err) {
-
-              res.send(file);
-
-            } else {
-
-              res.send("Restarting");
-
-            }
-
-          })
-
-        }
-
-      });
-
-    });
 
     C.app.use(function (req, res) {
 

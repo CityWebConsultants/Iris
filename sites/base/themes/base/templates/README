@@ -1,0 +1,21 @@
+This templates folder is where you can store template files, which override those that are included with the modules.
+
+Custom templates are loaded to override the base module template by their filename.
+
+Examples for entities:
+----------------------
+
+Naming a template after an entity - e.g. page.html for an entity called 'page' - will cause it to be used as the inner template
+for that entity type when it is rendered.
+
+If one would like to target a specific entity by its ID to use a different template, this is done by naming the template along the
+format <entity>_<entity ID>.html, e.g. page_3.html for the 'page' entity with an ID of 3.
+
+Examples from core modules:
+---------------------------
+
+html.html           - Main wrapper template
+maintenance.html    - Maintenance mode page
+restart.html        - Restarting page
+startup.html        - "Starting up" page
+404.html            - 404 page

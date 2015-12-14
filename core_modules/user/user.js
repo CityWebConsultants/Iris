@@ -2,54 +2,121 @@ C.registerModule("user");
 
 var bcrypt = require("bcrypt-nodejs");
 
-C.app.post("/login", function (req, res) {
+// First ever login form
 
-  if (req.body.username && req.body.password) {
+CM.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
 
-    CM.user.globals.login({
-      username: req.body.username,
-      password: req.body.password
-    }, res, function (userid) {
+  C.dbCollections["user"].count({}, function (err, count) {
+    if (count === 0) {
 
-      if (userid) {
-
-        res.respond(200, userid);
-
-      } else {
-
-        res.respond(400, "Invalid credentials");
-
+      data.schema.username = {
+        "type": "text",
+        "title": "username"
       }
 
-    });
+      data.schema.password = {
+        "type": "password",
+        "title": "Password",
+        "description": "Make it strong"
+      };
 
-  } else {
+      thisHook.finish(true, data);
 
-    res.respond(400, "Must send credentials");
+    } else {
 
-  }
+      thisHook.finish(false, data);
 
-});
+    }
+  });
+
+})
+
+CM.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, data) {
+
+  C.dbCollections["user"].count({}, function (err, count) {
+    if (count === 0) {
+
+      var user = {
+
+        entityType: "user",
+        entityAuthor: "system",
+        password: thisHook.const.params.password,
+        username: thisHook.const.params.username,
+        roles: ["admin"]
+      }
+
+      C.hook("hook_entity_create", "root", user, user).then(function (user) {
+
+        thisHook.finish(true, data);
+
+      }, function (fail) {
+
+        console.log(fail);
+
+      })
+
+    } else {
+
+      thisHook.finish(false, data);
+
+    }
+
+  });
+
+})
+
+// First ever login page (should only show if no user has been set up)
+
+C.app.get("/", function (req, res, next) {
+
+  C.dbCollections["user"].count({}, function (err, count) {
+    if (count === 0) {
+
+      CM.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
+
+        res.send(success)
+
+      }, function (fail) {
+
+        CM.frontend.globals.displayErrorPage(500, req, res);
+
+        C.log("error", e);
+
+      });
+
+    } else {
+
+      next();
+
+    }
+  })
+})
 
 CM.user.globals.login = function (auth, res, callback) {
 
   C.dbCollections['user'].findOne({
-    "name": auth.username
+    "username": auth.username
   }, function (err, doc) {
 
     if (doc) {
+
+      var userid = doc.eid.toString();
 
       bcrypt.compare(auth.password, doc.password, function (err, match) {
 
         if (!err && match === true) {
 
           C.hook("hook_auth_maketoken", "root", null, {
-            userid: doc.userid
+            userid: userid
           }).then(function (token) {
 
-            CM.sessions.globals.writeCookies(doc.userid, token.id, res, 8.64e7, {});
+            CM.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
 
-            callback(doc.userid);
+            callback(userid);
+
+          }, function (fail) {
+
+            console.log(fail);
 
           });
 
@@ -116,63 +183,6 @@ CM.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
 });
 
-CM.user.registerHook("hook_entity_view_bulk", 2, function (thisHook, entities) {
-
-  var userids = {};
-
-  var promises = [];
-
-  entities.forEach(function (message) {
-
-    if (message.userid) {
-
-      userids[message.userid] = "";
-
-    }
-
-  });
-
-  Object.keys(userids).forEach(function (key) {
-
-    promises.push(C.promise(function (data, success, fail) {
-
-      C.dbCollections['user'].findOne({
-        userid: key
-      }, function (err, user) {
-
-        userids[key] = user.name;
-
-        success(data);
-
-      });
-
-    }));
-
-  });
-
-  var success = function (success) {
-
-    success.forEach(function (message, index) {
-
-      success[index].username = userids[message.userid];
-
-    });
-
-    thisHook.finish(true, success);
-
-  };
-
-  var fail = function (fail) {
-
-    thisHook.finish(false, fail);
-
-  };
-
-  C.promiseChain(promises, entities, success, fail);
-
-
-});
-
 CM.user.globals.userRoles = {};
 
 CM.user.globals.getRole = function (userid, callback) {
@@ -184,7 +194,7 @@ CM.user.globals.getRole = function (userid, callback) {
   } else {
 
     C.dbCollections['user'].findOne({
-      userid: userid
+      eid: parseInt(userid)
     }, function (err, doc) {
 
       if (!err && doc && doc.roles) {
@@ -249,7 +259,7 @@ C.app.get("/login", function (req, res) {
 
   // If not admin, present 403 page
 
-  if (req.authPass.roles.indexOf('anonymous') === -1) {
+  if (req.authPass.roles.indexOf('authenticated') !== -1) {
 
     res.send("Already logged in");
 

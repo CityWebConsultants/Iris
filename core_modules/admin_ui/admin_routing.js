@@ -3,16 +3,16 @@ var fs = require('fs');
 CM.frontend.globals.displayErrorPage = function (code, req, res) {
 
   C.hook("hook_display_error_page", req.authPass, {
-    error: 403,
+    error: code,
     req: req,
     res: res
   }).then(function (success) {
 
-    res.status(403).send(success);
+    res.status(code).send(success);
 
   }, function (fail) {
 
-    res.status(403).send("403");
+    res.status(code).send(code.toString());
 
   });
 
@@ -231,9 +231,31 @@ C.app.get("/admin/logs", function (req, res) {
 
   }
 
+  var rawLogs = fs.readFileSync(C.sitePath + '/' + "/logs/main.log", "utf8");
+
+  //Remove last line
+
+  rawLogs = rawLogs.replace(/\n$/, "");
+
+  //Split logs by newline
+
+  var logs = rawLogs.split(/\r?\n/)
+
+  logs.forEach(function (element, index) {
+
+    logs[index] = JSON.parse(logs[index]);
+
+  });
+
+  if (logs[0]) {
+
+    keys = Object.keys(logs[0]);
+
+  }
+
   CM.frontend.globals.parseTemplateFile(["admin_logs"], ['admin_wrapper'], {
-    blocks: CM.blocks.globals.blocks,
-    hello: "world"
+    logs: logs.reverse(),
+    keys: keys
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -300,7 +322,7 @@ C.app.get("/admin/schema/edit/:type", function (req, res) {
 
 })
 
-C.app.get("/admin/edit/:type/:eId", function (req, res) {
+C.app.get("/admin/edit/:type/:eid", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -313,7 +335,7 @@ C.app.get("/admin/edit/:type/:eId", function (req, res) {
   }
 
   CM.frontend.globals.parseTemplateFile(["admin_entity_edit"], ['admin_wrapper'], {
-    eId: req.params.eId,
+    eid: req.params.eid,
     type: req.params.type
   }, req.authPass, req).then(function (success) {
 
@@ -511,4 +533,30 @@ C.app.get("/admin/config/", function (req, res) {
 
 })
 
+// Restart page
 
+C.app.get("/admin/restart", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    CM.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  CM.frontend.globals.parseTemplateFile(["admin_restart"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    CM.frontend.globals.displayErrorPage(500, req, res);
+
+    C.log("error", e);
+
+  });
+
+})

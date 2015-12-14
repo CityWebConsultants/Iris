@@ -218,6 +218,14 @@ C.app.get("/admin/menu", function (req, res) {
 
 });
 
+// Default menu view function
+
+CM.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
+
+})
+
 // Parse menu templates
 
 CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
@@ -234,7 +242,17 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
         menu: output
       }, thisHook.authPass).then(function (html) {
 
-        next(html);
+        // Check if user can view menu
+
+        C.hook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
+
+          next(html);
+
+        }, function (noaccess) {
+
+          next(false);
+
+        })
 
       }, function (fail) {
 

@@ -1,0 +1,17 @@
+{
+  "username": {
+    "title": "Username",
+    "required": true,
+    "fieldTypeName": "string"
+  },
+  "password": {
+    "title": "Password",
+    "required": true,
+    "fieldTypeName": "string"
+  },
+  "roles": {
+    "title": "Roles",
+    "required": false,
+    "fieldTypeName": "multistring"
+  }
+}

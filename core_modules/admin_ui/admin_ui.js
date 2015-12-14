@@ -24,6 +24,8 @@ CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/permissions", "P
 CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs");
 CM.menu.globals.registerMenuLink("admin-toolbar", null, "/logout", "Log Out");
 
+CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/restart", "Restart server");
+
 CM.auth.globals.registerPermission("can view admin menu", "admin");
 
 CM.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
@@ -47,3 +49,56 @@ CM.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
   }
 
 });
+
+CM.admin_ui.registerHook("hook_form_render_restart", 0, function (thisHook, data) {
+
+  data.onSubmit = function (errors, values) {
+
+    $.post(window.location, values, function (data, err) {
+
+      $("#restart").remove();
+      $(".restart-information").text("Refresh this page to restart another time.")
+
+    })
+
+  };
+
+  thisHook.finish(true, data);
+
+});
+
+CM.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data) {
+
+  process.send("restart");
+
+  setTimeout(function () {
+
+    data = function (res) {
+
+      res.send("/");
+
+    };
+
+  }, 5000);
+
+  thisHook.finish(true, data);
+
+});
+
+// Admin menu view
+
+// Default menu view function
+
+CM.admin_ui.registerHook("hook_view_menu", 0, function (thisHook, data) {
+
+  if (thisHook.authPass.roles.indexOf("admin") === -1) {
+
+    thisHook.finish(false, data);
+
+  } else {
+
+    thisHook.finish(true, data);
+
+  }
+
+})

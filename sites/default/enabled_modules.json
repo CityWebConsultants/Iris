@@ -21,14 +21,14 @@
   {
     "name": "page",
     "path": "/modules/page"
-},
-  {
-    "name": "user",
-    "path": "/modules/user"
 }, {
     "name": "blocks",
     "path": "/modules/blocks"
 },
+ {
+    "name": "custom_blocks",
+    "path": "/modules/custom_blocks"
+ },
   {
     "name": "views",
     "path": "/modules/views"

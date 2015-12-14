@@ -1,0 +1,36 @@
+[{
+    "name": "sessions",
+    "path": "/modules/sessions"
+}, {
+    "name": "bunyan",
+    "path": "/modules/bunyan"
+}, {
+    "name": "entity_views",
+    "path": "/modules/entity_views"
+}, {
+    "name": "actions",
+    "path": "/modules/actions"
+}, {
+    "name": "headertags",
+    "path": "/modules/headertags"
+},
+  {
+    "name": "ckeditor",
+    "path": "/modules/ckeditor"
+},
+  {
+    "name": "page",
+    "path": "/modules/page"
+},
+  {
+    "name": "blocks",
+    "path": "/modules/blocks"
+},
+  {
+    "name": "views",
+    "path": "/modules/views"
+},
+{
+    "name": "custom_blocks",
+    "path": "/modules/custom_blocks"
+}]

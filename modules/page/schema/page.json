@@ -1,27 +1,23 @@
 {
   "title": {
-    "fieldTypeType": "string",
     "fieldTypeName": "string",
     "required": true,
     "title": "Page title",
     "description": "This is the title field"
   },
   "body": {
-    "fieldTypeType": "string",
-    "fieldTypeName": "long",
+    "fieldTypeName": "longstring",
     "long": true,
     "required": true,
     "title": "Body field",
     "description": "This is the main text area for this page"
   },
   "class": {
-    "fieldTypeType": "ofstring",
-    "fieldTypeName": "string",
+    "fieldTypeName": "multistring",
     "required": false,
     "title": "Body class"
   },
   "path": {
-    "fieldTypeType": "string",
     "fieldTypeName": "string",
     "required": true,
     "title": "Path",

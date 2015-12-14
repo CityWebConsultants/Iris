@@ -1,60 +1,75 @@
-<!doctype HTML>
-<html>
+<h1>Logs</h1>
 
-<head>
+<style>
+  table {width:100%;}
+  td {
+    color: black;
+  }
+  /* Trace */
 
-  <link rel="stylesheet" style="text/css" href="/modules/admin_ui/jsonform/deps/opt/bootstrap.css" />
-  <link rel="stylesheet" href="/modules/admin_ui/admin.css" />
-  <script src="/modules/admin_ui/adminui.js"></script>
-  <script src="/modules/admin_ui/jquery.dynatable.js"></script>
-  <link rel="stylesheet" href="jquery.dynatable.css" />
+  .level10 {
+    background-color: #dfefff !important;
+  }
+  /* Debug */
 
-  <style>
+  .level20 {
+    background-color: #bdf !important;
+  }
+  /* Info */
 
-    header {margin-bottom:10px;}
-    #logs {margin:auto; width:580px;}
-    #logs-table {background-color: #3D79BD;  padding:10px; color:white;}
-    #logs-table th {padding:10px;}
+  .level30 {
+    background-color: #cf8 !important;
+  }
+  /* Warn */
 
-  </style>
+  .level40 {
+    background-color: #FCFCA7 !important;
+  }
+  /* Error */
 
-  <script>
-    $.get("/api/logs", function(data, status) {
+  .level50 {
+    background-color: #F8B5B5 !important;
+  }
+  /* Fatal */
 
-      data = JSON.parse(data);
+  .level60 {
+    background-color: #e68865 !important;
+  }
 
-      $('#logs-table').dynatable({
-        dataset: {
-          records: data.response
-        }
-      });
+</style>
 
-    });
+<table>
+  <thead>
 
-  </script>
+    <tr>
 
-</head>
+      {{#each keys}}
 
-<body>
+      <th>{{this}}</th>
 
-  <div id="logs">
+      {{/each}}
 
-  <table id="logs-table">
-    <thead>
-      <th>name</th>
-      <th>hostname</th>
-      <th>pid</th>
-      <th>level</th>
-      <th>msg</th>
-      <th>time</th>
-      <th>v</th>
-    </thead>
-    <tbody>
-    </tbody>
-  </table>
+    </tr>
 
-    </div>
+  </thead>
 
-</body>
+  {{#each logs}}
 
-</html>
+  <tr class="level{{this.level}}">
+
+    {{#each this}}
+
+    <td>
+
+      {{this}}
+
+    </td>
+
+    {{/each}}
+
+  </tr>
+
+  {{/each}}
+
+
+</table>

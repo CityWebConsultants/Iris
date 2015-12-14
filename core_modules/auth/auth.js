@@ -82,26 +82,7 @@ CM.auth.globals = {
 
       };
 
-      if (authCredentials && typeof authCredentials === "object" && authCredentials.secretkey && authCredentials.apikey) {
-
-        if (authCredentials.secretkey === C.config.secretkey && authCredentials.apikey === C.config.apikey) {
-
-          if (authCredentials.userid) {
-            authPass.userid = authCredentials.userid;
-          } else {
-            authPass.userid = "root";
-          }
-          authPass.roles.push("admin");
-          authPass.roles.push("authenticated");
-
-        } else {
-
-          no("Attempt at API key login with wrong credentials");
-          return false;
-
-        }
-
-      } else if (authCredentials && typeof authCredentials === "object" && authCredentials.userid && authCredentials.token) {
+      if (authCredentials && typeof authCredentials === "object" && authCredentials.userid && authCredentials.token) {
 
         if (CM.auth.globals.checkAccessToken(authCredentials.userid, authCredentials.token)) {
 

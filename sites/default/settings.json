@@ -1,7 +1,5 @@
 {
   "port": 4000,
-  "apikey": "letmein",
-  "secretkey": "letmein",
   "https": false,
   "https_key": "",
   "https_cert": "",

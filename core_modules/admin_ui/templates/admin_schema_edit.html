@@ -22,8 +22,20 @@
 
         if (index !== "choose") {
 
+          var title;
+
+          if (element.properties.fieldTypeName) {
+
+            title = element.properties.fieldTypeName.title;
+
+          } else {
+
+            title = index;
+
+          }
+
           fields.object.properties.subfields.items.properties[index] = JSON.parse(JSON.stringify(element));
-          select += "<option value='" + i + "'>" + index + "</option>";
+          select += "<option value='" + i + "'>" + title + "</option>";
 
           i += 1;
 

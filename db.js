@@ -44,6 +44,14 @@ var dbReady = false;
 
 C.dbPopulate = function () {
 
+  // Delete any existing schema so they can be re-written
+
+  Object.keys(C.dbSchema).forEach(function (oldSchema) {
+
+    delete C.dbSchema[oldSchema];
+
+  })
+
   // Loop over all enabled modules and check for schema files
 
   Object.keys(CM).forEach(function (moduleName) {
@@ -147,9 +155,17 @@ C.dbPopulate = function () {
 
       // Convert types
 
-      if (field.fieldTypeType && typeConverter(field.fieldTypeType)) {
+      CM.entity2.globals.fetchSchemaForm();
 
-        field.type = typeConverter(field.fieldTypeType);
+      if (CM.entity2.globals.fieldTypes[field.fieldTypeName] && CM.entity2.globals.fieldTypes[field.fieldTypeName].fieldTypeType) {
+
+        var fieldType = CM.entity2.globals.fieldTypes[field.fieldTypeName].fieldTypeType;
+
+      }
+
+      if (fieldType && typeConverter(fieldType)) {
+
+        field.type = typeConverter(fieldType);
 
       }
 
@@ -161,7 +177,7 @@ C.dbPopulate = function () {
 
     // Filter out universal fields
 
-    var universalFields = ["entityType", "entityAuthor", "eId"];
+    var universalFields = ["entityType", "entityAuthor", "eid"];
 
     Object.keys(C.dbSchemaJSON[schema]).forEach(function (field) {
 
@@ -195,7 +211,7 @@ C.dbPopulate = function () {
       required: true
     }
 
-    C.dbSchema[schema].eId = {
+    C.dbSchema[schema].eid = {
       type: Number,
       description: "Entity ID",
       title: "Unique ID",
@@ -213,7 +229,7 @@ C.dbPopulate = function () {
 
       readySchema.plugin(autoIncrement.plugin, {
         model: schema,
-        field: 'eId',
+        field: 'eid',
         startAt: 1,
       });
 
