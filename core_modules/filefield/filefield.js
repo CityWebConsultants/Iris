@@ -20,6 +20,8 @@ C.app.post('/admin/file/fileFieldUpload/:filename/:form', function (req, res) {
 
   mkdirSync(C.sitePath + "/" + "temp");
 
+  mkdirSync(C.sitePath + "/" + "files");
+
   var fstream;
 
 
@@ -187,25 +189,40 @@ CM.forms.globals.registerWidget(function () {
 
 // Field save handler
 
-CM.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
-
-  var fieldSchema = thisHook.const.schema,
-    value = thisHook.const.value,
-    fieldName = thisHook.const.schema.fieldTypeName,
-    fieldType = CM.entity2.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
-
-  if (fieldType === "string") {
-
-    thisHook.finish(true, thisHook.const.value)
-
-  } else if (fieldType === "ofstring") {
-
-    thisHook.finish(true, thisHook.const.value)
-
-  } else {
-
-    thisHook.finish(false, data);
-
-  }
-
-});
+//CM.filefield.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
+//
+//  var fieldSchema = thisHook.const.schema,
+//    value = thisHook.const.value,
+//    fieldName = thisHook.const.schema.fieldTypeName,
+//    fieldType = CM.entity2.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
+//
+//
+//  if (fieldName === "file") {
+//
+//    // Check if temp folder contains this file
+//
+//    fs.readFile(C.sitePath + '/temp/' + value, function (err, data) {
+//
+//      if (!err) {
+//
+//        fs.rename(C.sitePath + '/temp/' + value, C.sitePath + '/files/' + value, function () {
+//
+//          thisHook.finish(true, thisHook.const.value);
+//
+//        });
+//
+//      } else {
+//
+//        thisHook.finish(true, data);
+//
+//      }
+//
+//    });
+//
+//  } else {
+//
+//    thisHook.finish(false, data);
+//
+//  }
+//
+//});
