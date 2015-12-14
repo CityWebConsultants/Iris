@@ -135,6 +135,8 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
   CM.frontend.globals.parseBlock("form", data.html, function (form, next) {
 
+    var formParams = form.join(",");
+
     var renderForm = function (form, callback) {
 
       if (!form.schema) {
@@ -194,7 +196,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
         var output = "";
 
-        output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
+        output += "<form data-params="+formParams+" method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
 
         // Add in any custom widgets
 
@@ -227,7 +229,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
     }
 
     formTemplate.onSubmit = function (errors, values) {
-      
+
       $.post(window.location, values, function (data, err) {
 
         if (data.errors) {
