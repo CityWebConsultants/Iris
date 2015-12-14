@@ -66,7 +66,7 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
           // Stop form being submitted a second time
 
-          delete CM.forms.globals.formRenderCache[body.formToken];
+//          delete CM.forms.globals.formRenderCache[body.formToken];
 
         }, function (fail) {
 
