@@ -93,9 +93,7 @@ CM.admin_ui.registerHook("hook_form_submit_permissions", 0, function (thisHook, 
 
   data = function (res) {
 
-    res.send({
-      redirect: "/admin"
-    });
+    res.send("/admin");
 
   }
 

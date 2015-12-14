@@ -299,9 +299,7 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 
         data = function (res) {
 
-          res.send({
-            redirect: "/admin/entitylist/" + type
-          })
+          res.send("/admin/entitylist/" + type)
 
         }
 
@@ -340,7 +338,7 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 // Entity create form handler
 
 CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, data) {
-
+  
   console.log(thisHook.const.params);
 
   // Get type from url
@@ -389,9 +387,7 @@ CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, da
 
         var data = function (res) {
 
-          res.send({
-            redirect: "/admin/entitylist/" + type
-          })
+          res.send("/admin/entitylist/" + type)
 
         }
 

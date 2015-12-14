@@ -75,9 +75,7 @@ CM.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data
 
     data = function (res) {
 
-      res.send({
-        redirect: "/"
-      });
+      res.send("/");
 
     };
 
