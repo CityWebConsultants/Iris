@@ -78,6 +78,10 @@ CM.forms.globals.registerWidget(function () {
 
         for (var i in CKEDITOR.instances) {
 
+          var parent = $(CKEDITOR.instances[i].element.$);
+
+          parent.attr("required", parent.attr("data-required"));
+
           CKEDITOR.instances[i].on('change', function (e) {
 
             var data = e.editor.getData();
@@ -94,14 +98,17 @@ CM.forms.globals.registerWidget(function () {
 
   });
 
-  JSONForm.elementTypes['ckeditor'].template = '<textarea class="ckeditor" id="<%= id %>" name="<%= node.name %>" ' +
-    'style="height:<%= elt.height || "150px" %>;width:<%= elt.width || "100%" %>;"' +
-    '<%= (node.disabled? " disabled" : "")%>' +
-    '<%= (node.readOnly ? " readonly=\'readonly\'" : "") %>' +
-    '<%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %>' +
-    '<%= (node.schemaElement && node.schemaElement.required ? " required=\'required\'" : "") %>' +
-    '<%= (node.placeholder? "placeholder=" + \'"\' + escape(node.placeholder) + \'"\' : "")%>' +
-    '><%= value %></textarea>';
+  JSONForm.requiredFlip = function (required) {
+
+    if (required) {
+
+      return 'data-required="required"';
+
+    }
+
+  }
+
+  JSONForm.elementTypes['ckeditor'].template = '<textarea class="ckeditor" id="<%= id %>" name="<%= node.name %>" <%= JSONForm.requiredFlip(node.required) %> ><%= value %></textarea>';
   JSONForm.elementTypes['ckeditor'].fieldTemplate = true;
   JSONForm.elementTypes['ckeditor'].inputfield = true;
 
