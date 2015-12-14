@@ -146,7 +146,9 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
   var fields = [];
 
-  var fieldParse = function (field) {
+  var fieldParse = function (field, machinename) {
+
+    field.title = machinename;
 
     if (field.subfields) {
 
@@ -190,7 +192,7 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
     // Check if has subfields
 
-    fields.push(fieldParse(config[field]));
+    fields.push(fieldParse(config[field], field));
 
   })
 
