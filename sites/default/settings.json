@@ -6,5 +6,6 @@
   "db_server": "localhost",
   "db_port": 27017,
   "db_name": "pond",
-  "theme": "themes/purple"
+  "theme": "themes/purple",
+  "max_file_size": 10
 }
