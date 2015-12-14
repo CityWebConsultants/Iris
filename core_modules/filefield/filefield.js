@@ -6,7 +6,7 @@ C.app.use(busboy());
 
 var fs = require('fs');
 
-C.app.post('/admin/file/fileFieldUpload/:filename/:form', function (req, res) {
+C.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (req, res) {
 
   // Make temp file directory if it doesn't exist
 
@@ -27,7 +27,9 @@ C.app.post('/admin/file/fileFieldUpload/:filename/:form', function (req, res) {
 
   C.hook("hook_file_upload", req.authPass, {
     filename: req.params.filename,
-    form: req.params.form
+    form: req.params.form,
+    url: req.url,
+    formParams: req.params.parameters
   }, {}).then(function (info) {
 
     if (!C.config.max_file_size) {
@@ -103,7 +105,37 @@ CM.filefield.registerHook("hook_file_upload", 0, function (thisHook, data) {
 
   if (CM.auth.globals.checkPermissions(["Can upload files"], thisHook.authPass)) {
 
-    thisHook.finish(true, data);
+    // If entity form, check if file small enough
+
+    if (thisHook.const.form === "editEntity" || thisHook.const.form === "createEntity") {
+
+      var entityType = JSON.parse(thisHook.const.formParams)[1];
+
+      if (entityType) {
+
+        var schema = schema = C.dbCollections[entityType].schema.tree;
+
+        // Check if file size set in schema
+
+        if (schema[thisHook.const.filename] && schema[thisHook.const.filename]["size"]) {
+
+          thisHook.finish(true, {
+            maxSize: schema[thisHook.const.filename]["size"]
+          })
+
+        } else {
+
+          thisHook.finish(true, data)
+
+        }
+
+      }
+
+    } else {
+
+      thisHook.finish(true, data);
+
+    }
 
   } else {
 
@@ -163,12 +195,18 @@ CM.forms.globals.registerWidget(function () {
 
       var id = $(data.target).attr("id").replace("FILEFIELD", "");
 
-      var formID = $(fileInput).closest("form")[0];
+      var parentForm = $(fileInput).closest("form")[0];
 
-      formID = $(formID).attr("id");
+      // Get form paramaters
+
+      var params = $(parentForm).attr("data-params").split(",");;
+
+      var formID = $(parentForm).attr("id");
+
+      var id = id.substring(id.indexOf("elt-") + 4);
 
       $.ajax({
-        url: '/admin/file/fileFieldUpload/' + id + "/" + formID,
+        url: '/admin/file/fileFieldUpload/' + id + "/" + formID + "/" + JSON.stringify(params),
         type: 'POST',
         data: formData,
         processData: false,

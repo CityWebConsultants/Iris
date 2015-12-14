@@ -1,4 +1,8 @@
 {
   "fieldTypeName": "File field",
-  "fieldTypeType": "string"
+  "fieldTypeType": "string",
+  "size": {
+    "type": "number",
+    "title": "Max upload size in MB"
+  }
 }
