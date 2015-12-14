@@ -64,7 +64,7 @@ var moduleTemplate = (function () {
 
         } else {
 
-          console.log("Hook already defined in this module");
+          console.log("Hook " + hookname + " already defined in this module");
 
         }
 

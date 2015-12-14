@@ -146,7 +146,9 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
   var fields = [];
 
-  var fieldParse = function (field) {
+  var fieldParse = function (field, machinename) {
+
+    field.title = machinename;
 
     if (field.subfields) {
 
@@ -190,45 +192,11 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
     // Check if has subfields
 
-    fields.push(fieldParse(config[field]));
+    fields.push(fieldParse(config[field], field));
 
   })
 
   res.send(fields);
-
-});
-
-//CK Editor file upload
-
-var busboy = require('connect-busboy');
-
-C.app.use(busboy());
-
-var fs = require('fs');
-
-C.app.post('/admin/file/fileFieldUpload', function (req, res) {
-  
-  var mkdirSync = function (path) {
-    try {
-      fs.mkdirSync(path);
-    } catch (e) {
-      if (e.code != 'EEXIST') throw e;
-    }
-  }
-
-  mkdirSync(C.sitePath + "/" + "files");
-
-  var fstream;
-  req.pipe(req.busboy);
-  req.busboy.on('file', function (fieldname, file, filename) {
-    fstream = fs.createWriteStream(C.sitePath + '/files/' + filename);
-    file.pipe(fstream);
-    fstream.on('close', function () {
-
-      res.end(filename);
-
-    });
-  });
 
 });
 
