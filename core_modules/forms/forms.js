@@ -227,12 +227,12 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
     }
 
     formTemplate.onSubmit = function (errors, values) {
-
+      
       $.post(window.location, values, function (data, err) {
 
         if (data.errors) {
 
-          console.log(errors);
+          console.log(data.errors);
 
         } else {
 
