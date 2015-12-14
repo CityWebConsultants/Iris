@@ -175,7 +175,7 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
       C.hook("hook_entity_updated", thisHook.authPass, null, data)
 
-      C.log("info", data.entityType + " " + conditions.eid + " edited by " + validatedEntity.entityAuthor);
+      C.log("info", data.entityType + " " + conditions.eid + " edited by " + thisHook.authPass.userid);
 
     }
 
