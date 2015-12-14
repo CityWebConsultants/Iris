@@ -253,8 +253,6 @@ CM.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
 
 CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
 
-  console.log(thisHook.const.params);
-
   // Get type from url
   // Get the schema for the requested type to get the widgets
   // Get the submitted form values
