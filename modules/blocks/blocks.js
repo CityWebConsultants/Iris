@@ -337,23 +337,23 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
 CM.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook, data) {
 
-    if (!data.schema) {
+  if (!data.schema) {
 
-      data.schema = {};
+    data.schema = {};
 
-    }
+  }
 
-    data.schema["blockTitle"] = {
-      type: "hidden",
-      default: thisHook.const.params[2]
-    };
+  data.schema["blockTitle"] = {
+    type: "hidden",
+    default: thisHook.const.params[2]
+  };
 
-    data.schema["blockType"] = {
-      type: "hidden",
-      default: thisHook.const.params[1]
-    };
+  data.schema["blockType"] = {
+    type: "hidden",
+    default: thisHook.const.params[1]
+  };
 
-    thisHook.finish(true, data);
+  thisHook.finish(true, data);
 
 });
 
@@ -371,7 +371,7 @@ CM.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook
 
   }
 
-  C.deleteConfig("blocks/" + thisHook.const.params.blockType, C.sanitizeFileName(thisHook.const.params.blockTitle), function(err) {
+  C.deleteConfig("blocks/" + thisHook.const.params.blockType, C.sanitizeFileName(thisHook.const.params.blockTitle), function (err) {
 
     if (err) {
 
@@ -381,7 +381,9 @@ CM.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook
 
     var data = function (res) {
 
-      res.send("/admin/blocks");
+      res.send({
+        redirect: "/admin/blocks"
+      });
 
     };
 

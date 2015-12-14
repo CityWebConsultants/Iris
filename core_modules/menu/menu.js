@@ -114,7 +114,9 @@ CM.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
 
     var data = function (res) {
 
-      res.send("/admin")
+      res.send({
+        redirect: "/admin"
+      })
 
     }
 

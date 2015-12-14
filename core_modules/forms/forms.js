@@ -52,14 +52,16 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
             var callback = function (res) {
 
-              res.send(thisHook.const.req.url);
+              res.send({
+                redirect: thisHook.const.req.url
+              });
 
             }
 
             thisHook.finish(true, callback);
 
           } else {
-
+            
             thisHook.finish(true, callback);
 
           }
@@ -81,7 +83,9 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
               var callback = function (res) {
 
-                res.send(thisHook.const.req.url);
+                res.send({
+                  redirect: thisHook.const.req.url
+                });
 
               }
 
@@ -95,7 +99,13 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
           } else {
 
-            thisHook.finish(false, fail);
+            thisHook.finish(true, function () {
+
+              res.send({
+                errors: fail
+              })
+
+            });
 
           }
 
@@ -228,7 +238,21 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
       $.post(window.location, values, function (data, err) {
 
-        window.location.href = data;
+        if (data.errors) {
+
+          if (data.errors.join) {
+
+            alert(data.errors.join("\n"));
+
+          }
+
+        }
+
+        if (data.redirect) {
+
+          window.location.href = data.redirect;
+
+        }
 
       })
 
