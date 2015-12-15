@@ -6,6 +6,8 @@ require('./admin_routing.js');
 
 CM.menu.globals.registerMenu("admin-toolbar");
 
+CM.menu.globals.registerMenuLink("admin-toolbar", null, "/", "Home");
+
 CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/entities", "Entities");
 
 CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/structure", "Structure");
