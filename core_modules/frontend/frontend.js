@@ -645,7 +645,18 @@ C.app.use(function (req, res, next) {
 
         }, function (fail) {
 
-          next();
+          C.hook("hook_display_error_page", req.authPass, {
+            error: 500,
+            req: req
+          }).then(function (success) {
+
+            res.send(success);
+
+          }, function (fail) {
+
+            res.send("500");
+
+          });
 
         });
 
