@@ -39,6 +39,11 @@ process.on("dbReady", function () {
       // Add in fields
 
       var form = {
+        "limit": {
+          "type": "number",
+          "title": "Limit",
+          "default": 0
+        },
         "conditions": {
           "type": "array",
           "items": {
@@ -117,9 +122,10 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
 
     var fetch = {
       entities: [thisHook.const.type.replace("View-of-", "")],
-      queries: config.conditions
+      queries: config.conditions,
+      limit: config.limit
     }
-
+    
     C.hook("hook_entity_fetch", thisHook.authPass, null, {
       queryList: [fetch]
     }).then(function (result) {
@@ -128,7 +134,7 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
 
         if (!result || !result.length) {
 
-          thisHook.finish(false, false)
+          thisHook.finish(true, "<!-- No results for " + thisHook.const.type + " " + thisHook.const.id + "-->");
           return false;
 
         }
