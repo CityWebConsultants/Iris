@@ -197,7 +197,7 @@ CM.forms.globals.registerWidget(function () {
 
       var parentForm = $(fileInput).closest("form")[0];
 
-      // Get form paramaters
+      // Get form parameters
 
       var params = $(parentForm).attr("data-params").split(",");;
 

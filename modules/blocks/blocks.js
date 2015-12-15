@@ -192,11 +192,11 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
 
     } else {
 
-      // Correct paramaters, now let's see if we can load a block from config
+      // Correct parameters, now let's see if we can load a block from config
 
       if (CM.blocks.globals.blocks[blockType] && CM.blocks.globals.blocks[blockType][blockName]) {
 
-        var paramaters = {
+        var parameters = {
 
           id: blockName,
           type: blockType,
@@ -204,7 +204,7 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
 
         }
 
-        C.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
+        C.hook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
 
           if (!html) {
 

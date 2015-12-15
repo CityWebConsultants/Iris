@@ -149,31 +149,31 @@ module.exports = function (config) {
 
   mkdirSync(C.sitePath + "/" + "files");
 
-  //Fetch command line paramaters
+  //Fetch command line parameters
 
-  var paramaters = {};
+  var parameters = {};
 
   process.argv.forEach(function (val, index, array) {
 
     if (val.indexOf("=") !== -1) {
       val = val.split("=");
-      paramaters[val[0]] = val[1];
+      parameters[val[0]] = val[1];
     }
 
   });
 
-  //Get any config paramaters passed through via the command line and set them.
+  //Get any config parameters passed through via the command line and set them.
 
-  if (Object.keys(paramaters).length > 1) {
+  if (Object.keys(parameters).length > 1) {
 
     console.log("Command line arguments: ");
 
-    Object.keys(paramaters).forEach(function (paramater) {
+    Object.keys(parameters).forEach(function (paramater) {
 
       if (paramater !== "site") {
 
-        console.log(paramater, ":", paramaters[paramater]);
-        config[paramater] = paramaters[paramater];
+        console.log(paramater, ":", parameters[paramater]);
+        config[paramater] = parameters[paramater];
 
       }
 

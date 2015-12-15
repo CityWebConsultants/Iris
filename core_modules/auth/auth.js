@@ -33,7 +33,7 @@ CM.auth.globals = {
 
     if (!category || !permission) {
 
-      console.log("Invalid paramaters");
+      console.log("Invalid parameters");
       return false;
 
     }

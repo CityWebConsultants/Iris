@@ -1,10 +1,10 @@
-var paramaters = {};
+var parameters = {};
 
 process.argv.forEach(function (val, index, array) {
 
   if (val.indexOf("=") !== -1) {
     val = val.split("=");
-    paramaters[val[0]] = val[1];
+    parameters[val[0]] = val[1];
   }
 
 });
@@ -13,9 +13,9 @@ process.argv.forEach(function (val, index, array) {
 
 var sessions = {};
 
-if (paramaters.site) {
+if (parameters.site) {
 
-  var site = "/sites/" + paramaters.site + "/launch.js";
+  var site = "/sites/" + parameters.site + "/launch.js";
 
   var fork = require('child_process').fork;
 

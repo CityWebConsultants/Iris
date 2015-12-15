@@ -734,7 +734,7 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
 
 });
 
-// Helper function for parsing a template from a file with paramaters
+// Helper function for parsing a template from a file with parameters
 
 CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
 
