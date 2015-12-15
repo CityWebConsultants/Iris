@@ -103,6 +103,10 @@ CM.admin_ui.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
     }
 
+  } else {
+
+    thisHook.finish(true, data);
+
   }
 
 })
