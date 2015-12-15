@@ -253,8 +253,6 @@ CM.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
 
 CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
 
-  console.log(thisHook.const.params);
-
   // Get type from url
   // Get the schema for the requested type to get the widgets
   // Get the submitted form values
@@ -294,7 +292,7 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
     if (doneCount === widgetValues.length) {
 
       formData.entityType = type;
-      
+
       C.hook("hook_entity_create", thisHook.authPass, formData, formData).then(function (success) {
 
         data = function (res) {
@@ -307,7 +305,13 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 
       }, function (fail) {
 
-        thisHook.finish(false, fail);
+        thisHook.finish(true, function (res) {
+
+          res.send({
+            errors: fail
+          });
+
+        });
 
       });
 
@@ -338,7 +342,7 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 // Entity create form handler
 
 CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, data) {
-  
+
   // Get type from url
   // Get the schema for the requested type to get the widgets
   // Get the submitted form values
@@ -380,7 +384,7 @@ CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, da
 
       formData.entityType = type;
       formData.eid = eid;
-      
+
       C.hook("hook_entity_edit", thisHook.authPass, formData, formData).then(function (success) {
 
         var data = function (res) {

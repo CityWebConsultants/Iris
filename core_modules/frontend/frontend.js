@@ -703,8 +703,6 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
 
   try {
 
-    console.log(data.vars);
-
     data.html = Handlebars.compile(data.html)(data.vars);
 
     // Run through parse template again to see if any new templates can be loaded.

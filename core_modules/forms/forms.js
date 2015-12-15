@@ -66,7 +66,7 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
           // Stop form being submitted a second time
 
-//          delete CM.forms.globals.formRenderCache[body.formToken];
+          //          delete CM.forms.globals.formRenderCache[body.formToken];
 
         }, function (fail) {
 
@@ -81,7 +81,9 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
               var callback = function (res) {
 
-                res.send(thisHook.const.req.url);
+                res.send({
+                  errors: fail
+                });
 
               }
 
@@ -132,6 +134,8 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
   var variables = data.variables;
 
   CM.frontend.globals.parseBlock("form", data.html, function (form, next) {
+
+    var formParams = form.join(",");
 
     var renderForm = function (form, callback) {
 
@@ -192,7 +196,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
         var output = "";
 
-        output += "<form method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
+        output += "<form data-params="+formParams+" method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
 
         // Add in any custom widgets
 
@@ -228,7 +232,15 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
       $.post(window.location, values, function (data, err) {
 
-        window.location.href = data;
+        if (data.errors) {
+
+          console.log(data.errors);
+
+        } else {
+
+          window.location.href = data;
+
+        }
 
       })
 
