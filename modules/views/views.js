@@ -8,7 +8,7 @@ process.on("dbReady", function () {
 
   Object.keys(C.dbCollections).forEach(function (entityType) {
 
-    var fields = [];
+    var fields = ["Pick a condition"];
 
     Object.keys(C.dbCollections[entityType].schema.tree).forEach(function (fieldName) {
 
@@ -46,6 +46,7 @@ process.on("dbReady", function () {
         },
         "conditions": {
           "type": "array",
+          "default": [],
           "items": {
             "type": "object",
             "title": "Conditions",
@@ -120,12 +121,26 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
 
     var config = thisHook.const.config;
 
+    if (config.conditions) {
+
+      config.conditions.forEach(function (condition, index) {
+
+        if (condition.field === "Pick a condition") {
+
+          config.conditions.splice(index, 1); 
+
+        }
+
+      })
+
+    }
+    
     var fetch = {
       entities: [thisHook.const.type.replace("View-of-", "")],
       queries: config.conditions,
       limit: config.limit
     }
-    
+
     C.hook("hook_entity_fetch", thisHook.authPass, null, {
       queryList: [fetch]
     }).then(function (result) {
