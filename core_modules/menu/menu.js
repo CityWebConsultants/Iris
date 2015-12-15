@@ -250,7 +250,7 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
 
         }, function (noaccess) {
 
-          next(false);
+          next("<!-- " + menuName + "-->");
 
         })
 
