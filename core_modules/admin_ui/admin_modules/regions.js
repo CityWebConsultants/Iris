@@ -3,7 +3,7 @@ var fs = require('fs');
 C.registerModule("regions");
 
 CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
-  
+
   // Loop over available block types and add their blocks to a list for the form
 
   var blocks = [];
@@ -48,11 +48,11 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
       }
 
     })
-        
-    Object.keys(form).forEach(function(property){
-      
+
+    Object.keys(form).forEach(function (property) {
+
       data.schema[property] = form[property];
-      
+
     })
 
     // Load in past values
@@ -75,7 +75,7 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
     thisHook.finish(true, data);
 
   }
-  
+
   thisHook.finish(true, data);
 
 });
@@ -116,7 +116,7 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
           var blockPromises = [];
           var blockData = {};
 
-          output[regionName].forEach(function (block) {
+          output[regionName].forEach(function (block, index) {
 
             if (block.toLowerCase() === "none") {
 
@@ -128,6 +128,7 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
               blockType = block.split("|")[1];
 
             var paramaters = {
+              index: index,
               id: blockName,
               type: blockType,
               config: CM.blocks.globals.blocks[blockType][blockName]
@@ -139,7 +140,7 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
 
                 C.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
 
-                  blockData[blockType + "|" + blockName] = html;
+                  blockData[blockType + "|" + blockName + "|" + index] = html;
 
                   yes(blockData);
 
@@ -153,13 +154,13 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
           })
 
           C.promiseChain(blockPromises, {}, function (pass) {
-            
+
             // Run parse template file for a regions template
 
             CM.frontend.globals.parseTemplateFile(["region", regionName], null, {
               blocks: pass
             }, thisHook.authPass, null).then(function (success) {
-              
+
               next(success);
 
             }, function (fail) {
