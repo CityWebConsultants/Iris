@@ -4,5 +4,10 @@
   "size": {
     "type": "number",
     "title": "Max upload size in MB"
+  },
+  "extensions": {
+    "type": "text",
+    "title": "Allowed extensions",
+    "description": "List allowed file extensions (no . required) seperated by a comma"
   }
 }

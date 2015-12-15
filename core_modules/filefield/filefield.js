@@ -32,70 +32,86 @@ C.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (
     formParams: req.params.parameters
   }, {}).then(function (info) {
 
-    if (!C.config.max_file_size) {
+      if (!C.config.max_file_size) {
 
-      C.config.max_file_size = 0;
+        C.config.max_file_size = 0;
 
-    }
+      }
 
-    var maxSize = C.config.max_file_size * 1000000;
+      var maxSize = C.config.max_file_size * 1000000;
 
-    if (info.maxSize) {
+      if (info.maxSize) {
 
-      maxSize = info.maxSize * 1000000;
+        maxSize = info.maxSize * 1000000;
 
-    }
+      }
 
-    req.pipe(req.busboy);
+      req.pipe(req.busboy);
 
-    req.busboy.on('file', function (fieldname, file, filename) {
+      req.busboy.on('file', function (fieldname, file, filename) {
 
-      var failed = false;
+        var failed = false;
 
-      var size = 0;
+        if (info.extensions) {
 
-      // Get the size of the file being uploaded
+          var path = require('path')
 
-      file.on('data', function (data) {
+          var ext = path.extname(filename).replace(".", "");
 
-        if (size > maxSize) {
+          if (info.extensions.indexOf(ext) === -1) {
 
-          file.resume();
-          failed = true;
+            failed = "File extension has to be one of " + info.extensions.join(",");
+            file.resume();
 
-        }
-
-        size += data.length;
-
-      });
-
-      file.on('end', function () {
-
-        if (failed) {
-
-          res.send("File should be smaller than " + maxSize / 1000000 + "MB");
-
-          return false;
+          }
 
         }
 
-        fstream = fs.createWriteStream(C.sitePath + '/temp/' + filename);
-        file.pipe(fstream);
-        fstream.on('close', function () {
+        var size = 0;
 
-          res.end(filename);
+        // Get the size of the file being uploaded
+
+        file.on('data', function (data) {
+
+          if (size > maxSize) {
+
+            failed = "File should be smaller than " + maxSize / 1000000 + "MB";
+            file.resume();
+
+          }
+
+          size += data.length;
+
+        });
+
+        file.on('end', function () {
+
+          if (failed) {
+
+            res.send(failed);
+
+            return false;
+
+          }
+
+          fstream = fs.createWriteStream(C.sitePath + '/temp/' + filename);
+          file.pipe(fstream);
+          fstream.on('close', function () {
+
+            res.end(filename);
+
+          });
 
         });
 
       });
 
+    },
+    function (fail) {
+
+      res.send(fail);
+
     });
-
-  }, function (fail) {
-
-    res.send(fail);
-
-  });
 
 });
 
@@ -117,17 +133,21 @@ CM.filefield.registerHook("hook_file_upload", 0, function (thisHook, data) {
 
         // Check if file size set in schema
 
+        var arguments = {};
+
         if (schema[thisHook.const.filename] && schema[thisHook.const.filename]["size"]) {
 
-          thisHook.finish(true, {
-            maxSize: schema[thisHook.const.filename]["size"]
-          })
-
-        } else {
-
-          thisHook.finish(true, data)
+          arguments.maxSize = schema[thisHook.const.filename]["size"];
 
         }
+
+        if (schema[thisHook.const.filename] && schema[thisHook.const.filename]["extensions"]) {
+
+          arguments.extensions = schema[thisHook.const.filename]["extensions"].split(",");
+
+        }
+
+        thisHook.finish(true, arguments)
 
       }
 
