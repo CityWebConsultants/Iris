@@ -90,7 +90,7 @@ CM.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data
 // Default menu view function
 
 CM.admin_ui.registerHook("hook_view_menu", 0, function (thisHook, data) {
-
+console.log(thisHook.const);
   if (thisHook.const === "admin-toolbar") {
 
     if (thisHook.authPass.roles.indexOf("admin") === -1) {

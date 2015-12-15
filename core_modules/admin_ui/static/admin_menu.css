@@ -1,3 +1,7 @@
+nav.menu-admin-toolbar {
+    position:relative;
+    z-index:3;
+}
 nav.menu-admin-toolbar .menu {
   width: 100%;
   background-color: black;
