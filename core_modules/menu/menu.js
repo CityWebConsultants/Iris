@@ -75,7 +75,6 @@ CM.menu.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
           },
           "children": {
             "type": "array",
-            "default": [],
             "title": "Children",
             "items": {
               "type": "object",
