@@ -757,6 +757,10 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
         CM.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
 
+            // Add wrapper paramaters for filename
+
+            success.html = "<!-- " + currentTemplateName + "-->" + "\n" + success.html;
+
             callback(success);
 
           },
