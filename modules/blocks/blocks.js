@@ -394,9 +394,9 @@ CM.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook
 // Default form submit for block forms
 
 CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
-
-  var formId = thisHook.const.params.formid;
-
+  
+  var formId = thisHook.const.formid;
+  
   if (formId.split("_")[0] === "blockForm") {
 
     thisHook.const.params.blockTitle = C.sanitizeFileName(thisHook.const.params.blockTitle);

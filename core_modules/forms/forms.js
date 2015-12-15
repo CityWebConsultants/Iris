@@ -11,7 +11,7 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
   if (thisHook.const.req.method === "POST") {
 
     var body = thisHook.const.req.body;
-
+    
     if (body && body.formid && body.formToken) {
 
       // Check if form id exists in cache, if not stop
@@ -36,13 +36,24 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
       }
 
+      delete body.formToken;
+      
+      var formid = body.formid;
+      
+      delete body.formid;
+      
+      delete thisHook.const.req.body.formToken;
+      delete thisHook.const.req.body.formid;
+            
       C.hook("hook_form_submit", thisHook.authPass, {
-        params: thisHook.const.req.body,
+        params: body,
+        formid: formid,
         req: thisHook.const.req
       }).then(function (gremlin) {
 
-        C.hook("hook_form_submit_" + body.formid, thisHook.authPass, {
-          params: thisHook.const.req.body,
+        C.hook("hook_form_submit_" + formid, thisHook.authPass, {
+          params: body,
+          formid: formid,
           req: thisHook.const.req
         }, null).then(function (callback) {
 
@@ -192,11 +203,16 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
           }
 
+        } else {
+          
+          form.value.formid = formName;
+          form.value.formToken = token;
+          
         }
-
+        
         var output = "";
 
-        output += "<form data-params="+formParams+" method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
+        output += "<form data-params=" + formParams + " method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
 
         // Add in any custom widgets
 

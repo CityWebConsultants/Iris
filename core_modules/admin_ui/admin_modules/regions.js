@@ -3,7 +3,7 @@ var fs = require('fs');
 C.registerModule("regions");
 
 CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
-
+  
   // Loop over available block types and add their blocks to a list for the form
 
   var blocks = [];
@@ -48,8 +48,12 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
       }
 
     })
-
-    data.schema = form;
+        
+    Object.keys(form).forEach(function(property){
+      
+      data.schema[property] = form[property];
+      
+    })
 
     // Load in past values
 
@@ -71,7 +75,7 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
     thisHook.finish(true, data);
 
   }
-
+  
   thisHook.finish(true, data);
 
 });
