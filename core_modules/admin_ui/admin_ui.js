@@ -91,13 +91,17 @@ CM.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data
 
 CM.admin_ui.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
-  if (thisHook.authPass.roles.indexOf("admin") === -1) {
+  if (thisHook.const === "admin-toolbar") {
 
-    thisHook.finish(false, data);
+    if (thisHook.authPass.roles.indexOf("admin") === -1) {
 
-  } else {
+      thisHook.finish(false, data);
 
-    thisHook.finish(true, data);
+    } else {
+
+      thisHook.finish(true, data);
+
+    }
 
   }
 
