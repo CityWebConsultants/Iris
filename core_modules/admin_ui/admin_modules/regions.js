@@ -153,13 +153,13 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
           })
 
           C.promiseChain(blockPromises, {}, function (pass) {
-
+            
             // Run parse template file for a regions template
 
-            CM.frontend.globals.parseTemplateFile(["regions"], null, {
+            CM.frontend.globals.parseTemplateFile(["region", regionName], null, {
               blocks: pass
             }, thisHook.authPass, null).then(function (success) {
-
+              
               next(success);
 
             }, function (fail) {
