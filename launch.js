@@ -15,13 +15,11 @@ var sessions = {};
 
 if (parameters.site) {
 
-  var site = "/sites/" + parameters.site + "/launch.js";
-
   var fork = require('child_process').fork;
 
   start = function () {
 
-    var sub = fork(__dirname + site, process.argv.slice(2), {
+    var sub = fork(__dirname + "/launch_site.js", process.argv.slice(2), {
       env: {
         'NODE_ENV': process.env.NODE_ENV
       }
