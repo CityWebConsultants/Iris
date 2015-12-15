@@ -157,23 +157,24 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
 
             }
 
-            output.push(viewOutput);
-
           })
 
-          CM.frontend.globals.parseTemplateFile(["views", thisHook.const.type], null, {
-            view: output
-          }, thisHook.authPass).then(function (success) {
+          output.push(viewOutput);
 
-            thisHook.finish(true, success);
+        });
 
-          }, function (fail) {
+        CM.frontend.globals.parseTemplateFile(["views", thisHook.const.type], null, {
+          view: output
+        }, thisHook.authPass).then(function (success) {
 
-            thisHook.finish(true, fail);
+          thisHook.finish(true, success);
 
-          })
+        }, function (fail) {
+
+          thisHook.finish(true, fail);
 
         })
+
       },
       function (fail) {
 
