@@ -64,12 +64,16 @@ iris.modules.admin_ui.registerHook("hook_form_render_permissions", 0, function (
 
   });
 
-  permissionSchema.form2id = {
+  permissionSchema.formid = {
     "type": "hidden"
   }
 
   form.push({
     "key": "formid"
+  });
+  
+  form.push({
+    "key": "formToken"
   });
 
   form.push({
@@ -77,7 +81,12 @@ iris.modules.admin_ui.registerHook("hook_form_render_permissions", 0, function (
     "type": "submit"
   });
 
-  data.schema = permissionSchema;
+  Object.keys(permissionSchema).forEach(function (item) {
+
+    data.schema[item] = permissionSchema[item];
+
+  })
+
   data.form = form;
   data.value = current;
 
