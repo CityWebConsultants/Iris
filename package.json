@@ -1,8 +1,8 @@
 {
-  "name": "chat-app",
+  "name": "iris",
   "version": "0.0.1",
   "description": "Core server for an extensible, modular chat application",
-  "main": "sites/launch_default.js",
+  "main": "iris.js",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.13.3",
@@ -25,8 +25,8 @@
     "frisby": "^0.8.5"
   },
   "scripts": {
-    "test": "node server.js",
-    "start": "node server.js"
+    "test": "node iris.js site=default",
+    "start": "node iris.js site=default"
   },
   "repository": {
     "type": "git",
