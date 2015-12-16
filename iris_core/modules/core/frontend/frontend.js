@@ -22,6 +22,8 @@ iris.modules.frontend.globals.templateRegistry = {
   external: []
 };
 
+iris.app.use("/site/static", express.static(iris.sitePath + '/static'));
+
 // Add theme folders from modules to external list
 
 process.on("dbReady", function () {
@@ -46,7 +48,7 @@ if (iris.config.theme) {
 
     fs.readdirSync(themePath);
 
-    iris.app.use("/static", express.static(themePath + '/static'));
+    iris.app.use("/theme/static", express.static(themePath + '/static'));
 
     iris.modules.frontend.globals.templateRegistry.theme.push(themePath + "/templates");
 
