@@ -1,36 +1,36 @@
-C.registerModule("admin_ui");
+iris.registerModule("admin_ui");
 
 require('./admin_modules.js');
 
 require('./admin_routing.js');
 
-CM.menu.globals.registerMenu("admin-toolbar");
+iris.modules.menu.globals.registerMenu("admin-toolbar");
 
-CM.menu.globals.registerMenuLink("admin-toolbar", null, "/", "Home");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/", "Home");
 
-CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/entities", "Entities");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/entities", "Entities");
 
-CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/structure", "Structure");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/structure", "Structure");
 
-CM.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/regions", "Regions");
-CM.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/blocks", "Blocks");
-CM.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/menu", "Menus");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/regions", "Regions");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/blocks", "Blocks");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/menu", "Menus");
 
-CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/config", "Config");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/config", "Config");
 
-CM.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/export", "Export config");
-CM.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/import", "Import config");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/export", "Export config");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/import", "Import config");
 
-CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/permissions", "Permissions");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/permissions", "Permissions");
 
-CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs");
-CM.menu.globals.registerMenuLink("admin-toolbar", null, "/logout", "Log Out");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/logout", "Log Out");
 
-CM.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/restart", "Restart server");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/restart", "Restart server");
 
-CM.auth.globals.registerPermission("can view admin menu", "admin");
+iris.modules.auth.globals.registerPermission("can view admin menu", "admin");
 
-CM.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
+iris.modules.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
 
   if (menuName !== "admin-toolbar") {
 
@@ -40,7 +40,7 @@ CM.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
 
   }
 
-  if (CM.auth.globals.checkPermissions(["can view admin menu"], thisHook.authPass)) {
+  if (iris.modules.auth.globals.checkPermissions(["can view admin menu"], thisHook.authPass)) {
 
     thisHook.finish(true, menuName);
 
@@ -52,7 +52,7 @@ CM.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
 
 });
 
-CM.admin_ui.registerHook("hook_form_render_restart", 0, function (thisHook, data) {
+iris.modules.admin_ui.registerHook("hook_form_render_restart", 0, function (thisHook, data) {
 
   data.onSubmit = function (errors, values) {
 
@@ -69,7 +69,7 @@ CM.admin_ui.registerHook("hook_form_render_restart", 0, function (thisHook, data
 
 });
 
-CM.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data) {
+iris.modules.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data) {
 
   process.send("restart");
 
@@ -91,7 +91,7 @@ CM.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data
 
 // Default menu view function
 
-CM.admin_ui.registerHook("hook_view_menu", 0, function (thisHook, data) {
+iris.modules.admin_ui.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
   if (thisHook.const === "admin-toolbar") {
 

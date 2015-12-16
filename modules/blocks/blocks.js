@@ -1,24 +1,24 @@
-C.registerModule("blocks");
+iris.registerModule("blocks");
 
-CM.blocks.globals.blockTypes = {};
+iris.modules.blocks.globals.blockTypes = {};
 
 // Object in which to store all blocks
 
-CM.blocks.globals.blocks = {};
+iris.modules.blocks.globals.blocks = {};
 
 var fs = require('fs');
 var glob = require("glob");
 
 // Form for making new blocks
 
-CM.forms.registerHook("hook_form_render_newBlockForm", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_render_newBlockForm", 0, function (thisHook, data) {
 
   data.schema = {
     "blockType": {
       type: 'string',
       title: 'Block type',
       required: true,
-      enum: Object.keys(CM.blocks.globals.blockTypes)
+      enum: Object.keys(iris.modules.blocks.globals.blockTypes)
     }
   };
 
@@ -26,7 +26,7 @@ CM.forms.registerHook("hook_form_render_newBlockForm", 0, function (thisHook, da
 
 });
 
-CM.forms.registerHook("hook_form_submit_newBlockForm", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_submit_newBlockForm", 0, function (thisHook, data) {
 
   data = function (res) {
 
@@ -38,19 +38,19 @@ CM.forms.registerHook("hook_form_submit_newBlockForm", 0, function (thisHook, da
 
 });
 
-C.app.get("/admin/blocks/create/:type", function (req, res) {
+iris.app.get("/admin/blocks/create/:type", function (req, res) {
 
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
 
-    CM.frontend.globals.displayErrorPage(403, req, res);
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
 
     return false;
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
     blocktype: req.params.type,
   }, req.authPass, req).then(function (success) {
 
@@ -58,27 +58,27 @@ C.app.get("/admin/blocks/create/:type", function (req, res) {
 
   }, function (fail) {
 
-    CM.frontend.globals.displayErrorPage(500, req, res);
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    C.log("error", e);
+    iris.log("error", e);
 
   });
 
 });
 
-C.app.get("/admin/blocks/edit/:type/:id", function (req, res) {
+iris.app.get("/admin/blocks/edit/:type/:id", function (req, res) {
 
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
 
-    CM.frontend.globals.displayErrorPage(403, req, res);
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
 
     return false;
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
     blocktype: req.params.type,
     blockid: req.params.id
   }, req.authPass, req).then(function (success) {
@@ -87,27 +87,27 @@ C.app.get("/admin/blocks/edit/:type/:id", function (req, res) {
 
   }, function (fail) {
 
-    CM.frontend.globals.displayErrorPage(500, req, res);
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    C.log("error", e);
+    iris.log("error", e);
 
   });
 
 });
 
-C.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
+iris.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
 
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
 
-    CM.frontend.globals.displayErrorPage(403, req, res);
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
 
     return false;
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["admin_blockdelete"], ['admin_wrapper'], {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_blockdelete"], ['admin_wrapper'], {
     blocktype: req.params.type,
     blockid: req.params.id
   }, req.authPass, req).then(function (success) {
@@ -116,9 +116,9 @@ C.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
 
   }, function (fail) {
 
-    CM.frontend.globals.displayErrorPage(500, req, res);
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    C.log("error", e);
+    iris.log("error", e);
 
   });
 
@@ -126,21 +126,21 @@ C.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
 
 // Function for registering system blocks
 
-CM.blocks.globals.registerBlock = function (config) {
+iris.modules.blocks.globals.registerBlock = function (config) {
 
-  if (!CM.blocks.globals.blocks[config.type]) {
+  if (!iris.modules.blocks.globals.blocks[config.type]) {
 
-    CM.blocks.globals.blocks[config.type] = {};
+    iris.modules.blocks.globals.blocks[config.type] = {};
 
   }
 
-  CM.blocks.globals.blocks[config.type][config.id] = config;
+  iris.modules.blocks.globals.blocks[config.type][config.id] = config;
 
 }
 
 // Read all blocks saved by the user
 
-glob(C.configPath + "/blocks/*/*.json", function (er, files) {
+glob(iris.configPath + "/blocks/*/*.json", function (er, files) {
 
   files.forEach(function (file) {
 
@@ -154,15 +154,15 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
         // Make object for block type if it doesn't already exist
 
-        if (!CM.blocks.globals.blocks[config.blockType]) {
+        if (!iris.modules.blocks.globals.blocks[config.blockType]) {
 
-          CM.blocks.globals.blocks[config.blockType] = {};
+          iris.modules.blocks.globals.blocks[config.blockType] = {};
 
         }
 
-        CM.blocks.globals.blocks[config.blockType][config.blockTitle] = config;
+        iris.modules.blocks.globals.blocks[config.blockType][config.blockTitle] = config;
 
-        C.saveConfig(config, "blocks" + "/" + config.blockType, config.blockTitle, function () {
+        iris.saveConfig(config, "blocks" + "/" + config.blockType, config.blockTitle, function () {
 
         })
 
@@ -170,7 +170,7 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
     } catch (e) {
 
-      C.log("error", e)
+      iris.log("error", e)
 
     }
 
@@ -178,9 +178,9 @@ glob(C.configPath + "/blocks/*/*.json", function (er, files) {
 
 })
 
-CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  CM.frontend.globals.parseBlock("block", data.html, function (block, next) {
+  iris.modules.frontend.globals.parseBlock("block", data.html, function (block, next) {
 
     var blockType = block[0],
       blockName = block[1];
@@ -194,17 +194,17 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
 
       // Correct parameters, now let's see if we can load a block from config
 
-      if (CM.blocks.globals.blocks[blockType] && CM.blocks.globals.blocks[blockType][blockName]) {
+      if (iris.modules.blocks.globals.blocks[blockType] && iris.modules.blocks.globals.blocks[blockType][blockName]) {
 
         var parameters = {
 
           id: blockName,
           type: blockType,
-          config: CM.blocks.globals.blocks[blockType][blockName]
+          config: iris.modules.blocks.globals.blocks[blockType][blockName]
 
         }
 
-        C.hook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
+        iris.hook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
 
           if (!html) {
 
@@ -246,23 +246,23 @@ CM.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, da
 
 });
 
-CM.blocks.globals.registerBlockType = function (name) {
+iris.modules.blocks.globals.registerBlockType = function (name) {
 
   if (!name) {
 
-    C.log("error", "block types must have a name")
+    iris.log("error", "block types must have a name")
 
   } else {
 
     // Add to global object of blockTypes
 
-    CM.blocks.globals.blockTypes[name] = {};
+    iris.modules.blocks.globals.blockTypes[name] = {};
 
   }
 
 };
 
-CM.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
 
   if (!thisHook.const.id) {
 
@@ -286,7 +286,7 @@ CM.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
 
 // Add title field to block forms
 
-CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
   var formTitle = thisHook.const.formId;
 
@@ -311,7 +311,7 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
     // Check if a config file has already been saved for this block. If so, load in the current settings.
 
-    C.readConfig("blocks/" + formTitle.split("_")[1], thisHook.const.params[1]).then(function (output) {
+    iris.readConfig("blocks/" + formTitle.split("_")[1], thisHook.const.params[1]).then(function (output) {
 
       data.value = output;
 
@@ -335,7 +335,7 @@ CM.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
 });
 
-CM.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook, data) {
 
     if (!data.schema) {
 
@@ -357,7 +357,7 @@ CM.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook
 
 });
 
-CM.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook, data) {
 
   if (thisHook.const.params.blockTitle === 'starting-up') {
 
@@ -365,13 +365,13 @@ CM.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook
 
   }
 
-  if (CM.blocks.globals.blocks[thisHook.const.params.blockType] && CM.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle]) {
+  if (iris.modules.blocks.globals.blocks[thisHook.const.params.blockType] && iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle]) {
 
-    delete CM.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle];
+    delete iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle];
 
   }
 
-  C.deleteConfig("blocks/" + thisHook.const.params.blockType, C.sanitizeFileName(thisHook.const.params.blockTitle), function(err) {
+  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeFileName(thisHook.const.params.blockTitle), function(err) {
 
     if (err) {
 
@@ -393,23 +393,23 @@ CM.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook
 
 // Default form submit for block forms
 
-CM.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
   
   var formId = thisHook.const.formid;
   
   if (formId.split("_")[0] === "blockForm") {
 
-    thisHook.const.params.blockTitle = C.sanitizeFileName(thisHook.const.params.blockTitle);
+    thisHook.const.params.blockTitle = iris.sanitizeFileName(thisHook.const.params.blockTitle);
 
-    if (!CM.blocks.globals.blocks[thisHook.const.params.blockType]) {
+    if (!iris.modules.blocks.globals.blocks[thisHook.const.params.blockType]) {
 
-      CM.blocks.globals.blocks[thisHook.const.params.blockType] = {};
+      iris.modules.blocks.globals.blocks[thisHook.const.params.blockType] = {};
 
     }
 
-    CM.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle] = thisHook.const.params;
+    iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle] = thisHook.const.params;
 
-    C.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, C.sanitizeFileName(thisHook.const.params.blockTitle), function () {
+    iris.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, iris.sanitizeFileName(thisHook.const.params.blockTitle), function () {
 
       var data = function (res) {
 

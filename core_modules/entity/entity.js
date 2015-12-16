@@ -2,7 +2,7 @@
 
 "use strict";
 
-C.registerModule("entity", true);
+iris.registerModule("entity", true);
 
 require('./entity_create');
 

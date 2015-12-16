@@ -1,12 +1,12 @@
-C.registerModule("filefield");
+iris.registerModule("filefield");
 
 var busboy = require('connect-busboy');
 
-C.app.use(busboy());
+iris.app.use(busboy());
 
 var fs = require('fs');
 
-C.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (req, res) {
+iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (req, res) {
 
   // Make temp file directory if it doesn't exist
 
@@ -18,27 +18,27 @@ C.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (
     }
   }
 
-  mkdirSync(C.sitePath + "/" + "temp");
+  mkdirSync(iris.sitePath + "/" + "temp");
 
-  mkdirSync(C.sitePath + "/" + "files");
+  mkdirSync(iris.sitePath + "/" + "files");
 
   var fstream;
 
 
-  C.hook("hook_file_upload", req.authPass, {
+  iris.hook("hook_file_upload", req.authPass, {
     filename: req.params.filename,
     form: req.params.form,
     url: req.url,
     formParams: req.params.parameters
   }, {}).then(function (info) {
 
-      if (!C.config.max_file_size) {
+      if (!iris.config.max_file_size) {
 
-        C.config.max_file_size = 0;
+        iris.config.max_file_size = 0;
 
       }
 
-      var maxSize = C.config.max_file_size * 1000000;
+      var maxSize = iris.config.max_file_size * 1000000;
 
       if (info.maxSize) {
 
@@ -94,7 +94,7 @@ C.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (
 
           }
 
-          fstream = fs.createWriteStream(C.sitePath + '/temp/' + filename);
+          fstream = fs.createWriteStream(iris.sitePath + '/temp/' + filename);
           file.pipe(fstream);
           fstream.on('close', function () {
 
@@ -115,11 +115,11 @@ C.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (
 
 });
 
-CM.auth.globals.registerPermission("Can upload files", "files");
+iris.modules.auth.globals.registerPermission("Can upload files", "files");
 
-CM.filefield.registerHook("hook_file_upload", 0, function (thisHook, data) {
+iris.modules.filefield.registerHook("hook_file_upload", 0, function (thisHook, data) {
 
-  if (CM.auth.globals.checkPermissions(["Can upload files"], thisHook.authPass)) {
+  if (iris.modules.auth.globals.checkPermissions(["Can upload files"], thisHook.authPass)) {
 
     // If entity form, check if file small enough
 
@@ -129,7 +129,7 @@ CM.filefield.registerHook("hook_file_upload", 0, function (thisHook, data) {
 
       if (entityType) {
 
-        var schema = schema = C.dbCollections[entityType].schema.tree;
+        var schema = schema = iris.dbCollections[entityType].schema.tree;
 
         // Check if file size set in schema
 
@@ -165,7 +165,7 @@ CM.filefield.registerHook("hook_file_upload", 0, function (thisHook, data) {
 
 })
 
-CM.filefield.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
+iris.modules.filefield.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
   var name = thisHook.const.field.fieldTypeName;
 
@@ -188,7 +188,7 @@ CM.filefield.registerHook("hook_render_entityfield_form", 0, function (thisHook,
 
 // Register file field widget
 
-CM.forms.globals.registerWidget(function () {
+iris.modules.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['file'] = Object.create(JSONForm.elementTypes['text']);
 
@@ -247,23 +247,23 @@ CM.forms.globals.registerWidget(function () {
 
 // Field save handler
 
-CM.filefield.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
+iris.modules.filefield.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
 
   var fieldSchema = thisHook.const.schema,
     value = thisHook.const.value,
     fieldName = thisHook.const.schema.fieldTypeName,
-    fieldType = CM.entity2.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
+    fieldType = iris.modules.entity2.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
 
 
   if (fieldName === "file") {
 
     // Check if temp folder contains this file
 
-    fs.readFile(C.sitePath + '/temp/' + value, function (err, data) {
+    fs.readFile(iris.sitePath + '/temp/' + value, function (err, data) {
 
       if (!err) {
 
-        fs.rename(C.sitePath + '/temp/' + value, C.sitePath + '/files/' + value, function () {
+        fs.rename(iris.sitePath + '/temp/' + value, iris.sitePath + '/files/' + value, function () {
 
           thisHook.finish(true, thisHook.const.value);
 

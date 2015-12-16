@@ -1,30 +1,30 @@
 var express = require('express'),
   bodyParser = require('body-parser');
 
-C.app = express();
+iris.app = express();
 
 //Set up bodyParser
 
-C.app.use(bodyParser.json());
+iris.app.use(bodyParser.json());
 
-C.app.use(bodyParser.urlencoded({
+iris.app.use(bodyParser.urlencoded({
   extended: true
 }));
 
 var cookieParser = require('cookie-parser')
-C.app.use(cookieParser());
+iris.app.use(cookieParser());
 
 //Set up bodyParser
 
-C.app.use(bodyParser.json());
+iris.app.use(bodyParser.json());
 
-C.app.use(bodyParser.urlencoded({
+iris.app.use(bodyParser.urlencoded({
   extended: true
 }));
 
 //Error helper function
 
-C.error = function (code, message, notes) {
+iris.error = function (code, message, notes) {
 
   return {
     code: code,
@@ -38,11 +38,11 @@ C.error = function (code, message, notes) {
 
 var fs = require("fs");
 
-C.app.use(function (req, res, next) {
+iris.app.use(function (req, res, next) {
 
-  if (!C.status.ready) {
+  if (!iris.status.ready) {
 
-    fs.readFile(C.sitePath + "/" + C.config.theme + "/templates/startup.html", "utf8", function (err, file) {
+    fs.readFile(iris.sitePath + "/" + iris.config.theme + "/templates/startup.html", "utf8", function (err, file) {
 
       if (!err) {
 
@@ -50,7 +50,7 @@ C.app.use(function (req, res, next) {
 
       } else {
 
-        fs.readFile(C.rootPath + "/core_modules/frontend/templates/startup.html", "utf8", function (err, file) {
+        fs.readFile(iris.rootPath + "/core_modules/frontend/templates/startup.html", "utf8", function (err, file) {
 
           if (!err) {
 
@@ -79,7 +79,7 @@ C.app.use(function (req, res, next) {
 
 //Set up response sending
 
-C.app.use(function (req, res, next) {
+iris.app.use(function (req, res, next) {
 
   res.respond = function (code, msg, notes) {
 
@@ -109,7 +109,7 @@ C.app.use(function (req, res, next) {
 });
 
 
-C.app.use(function (req, res, next) {
+iris.app.use(function (req, res, next) {
 
   if (Object.keys(req.query).length) {
 
@@ -130,7 +130,7 @@ C.app.use(function (req, res, next) {
     }
 
   });
-  CM.auth.globals.credentialsToPass(req.body.credentials, req).then(function (authPass) {
+  iris.modules.auth.globals.credentialsToPass(req.body.credentials, req).then(function (authPass) {
 
     delete req.body.credentials;
 
@@ -147,29 +147,29 @@ C.app.use(function (req, res, next) {
 
 //Public files folder
 
-C.app.use("/files", express.static(C.sitePath + '/files'));
+iris.app.use("/files", express.static(iris.sitePath + '/files'));
 
 //Server and request function router
 
-if (C.config.https) {
+if (iris.config.https) {
 
   var https = require('https');
 
   var tls_options = {
-    key: fs.readFileSync(C.config.https_key),
-    cert: fs.readFileSync(C.config.https_cert)
+    key: fs.readFileSync(iris.config.https_key),
+    cert: fs.readFileSync(iris.config.https_cert)
   };
 
-  C.server = https.createServer(tls_options, C.app);
+  iris.server = https.createServer(tls_options, iris.app);
 
-  C.server.listen(C.config.port);
+  iris.server.listen(iris.config.port);
 
 } else {
 
   var http = require('http');
 
-  C.server = http.createServer(C.app);
+  iris.server = http.createServer(iris.app);
 
-  C.server.listen(C.config.port);
+  iris.server.listen(iris.config.port);
 
 }

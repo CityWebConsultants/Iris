@@ -2,15 +2,15 @@
 
 "use strict";
 
-C.registerModule("messages");
+iris.registerModule("messages");
 
 //Additional includes
 
 require('./message_validate');
 
-C.registerDbModel("message");
+iris.registerDbModel("message");
 
-C.registerDbSchema("message", {
+iris.registerDbSchema("message", {
   userid: {
     type: String,
     required: true
@@ -38,11 +38,11 @@ C.registerDbSchema("message", {
 
 });
 
-CM.messages.globals = {
+iris.modules.messages.globals = {
 
-  fetchMessageById: C.promise(function (_id, yes, no) {
+  fetchMessageById: iris.promise(function (_id, yes, no) {
 
-    C.dbCollections.message.findOne({
+    iris.dbCollections.message.findOne({
       '_id': _id
     }, function (err, doc) {
 

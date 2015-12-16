@@ -1,8 +1,8 @@
-C.registerModule("ckeditor");
+iris.registerModule("ckeditor");
 
 // Check if a form contains a CKeditor field, if yes, add a special class
 
-CM.ckeditor.registerHook("hook_form_render", 1, function (thisHook, form) {
+iris.modules.ckeditor.registerHook("hook_form_render", 1, function (thisHook, form) {
 
   thisHook.finish(true, form);
 
@@ -10,9 +10,9 @@ CM.ckeditor.registerHook("hook_form_render", 1, function (thisHook, form) {
 
 var sanitizeHtml = require('sanitize-html');
 
-CM.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {
+iris.modules.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {
 
-  var schema = C.dbCollections[data.entityType].schema.tree;
+  var schema = iris.dbCollections[data.entityType].schema.tree;
 
   Object.keys(data).forEach(function (field) {
 
@@ -35,7 +35,7 @@ CM.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {
 
 });
 
-CM.ckeditor.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
+iris.modules.ckeditor.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
   var name = thisHook.const.field.fieldTypeName;
 
@@ -61,7 +61,7 @@ CM.ckeditor.registerHook("hook_render_entityfield_form", 0, function (thisHook, 
 
 // Register CKeditor widget
 
-CM.forms.globals.registerWidget(function () {
+iris.modules.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['ckeditor'] = Object.create(JSONForm.elementTypes['text']);
 
@@ -121,7 +121,7 @@ CM.forms.globals.registerWidget(function () {
 
 var fs = require('fs');
 
-C.app.post('/admin/file/ckeditorupload', function (req, res) {
+iris.app.post('/admin/file/ckeditorupload', function (req, res) {
 
   var mkdirSync = function (path) {
     try {
@@ -131,13 +131,13 @@ C.app.post('/admin/file/ckeditorupload', function (req, res) {
     }
   }
 
-  mkdirSync(C.sitePath + "/" + "files");
+  mkdirSync(iris.sitePath + "/" + "files");
 
   var fstream;
   req.pipe(req.busboy);
   req.busboy.on('file', function (fieldname, file, filename) {
 
-    fstream = fs.createWriteStream(C.sitePath + '/files/' + filename);
+    fstream = fs.createWriteStream(iris.sitePath + '/files/' + filename);
     file.pipe(fstream);
     fstream.on('close', function () {
 

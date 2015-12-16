@@ -1,6 +1,6 @@
-C.registerModule("example");
+iris.registerModule("example");
 
-CM.example.registerHook("hook_entity_view_example", 0, function (thisHook, entity) {
+iris.modules.example.registerHook("hook_entity_view_example", 0, function (thisHook, entity) {
 
   var sanitizeHtml = require('sanitize-html');
 

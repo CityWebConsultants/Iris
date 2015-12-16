@@ -1,8 +1,8 @@
 var ncp = require('ncp').ncp;
 
-C.app.get("/admin/api/config/export", function (req, res) {
+iris.app.get("/admin/api/config/export", function (req, res) {
 
-  ncp(C.configPath, C.sitePath + "/staging", function (err) {
+  ncp(iris.configPath, iris.sitePath + "/staging", function (err) {
     if (err) {
       return console.error(err);
     }
@@ -11,9 +11,9 @@ C.app.get("/admin/api/config/export", function (req, res) {
 
 });
 
-C.app.get("/admin/api/config/import", function (req, res) {
+iris.app.get("/admin/api/config/import", function (req, res) {
 
-  ncp(C.sitePath + "/staging", C.configPath, function (err) {
+  ncp(iris.sitePath + "/staging", iris.configPath, function (err) {
     if (err) {
       return console.error(err);
     }

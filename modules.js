@@ -1,4 +1,4 @@
-CM = {};
+iris.modules = {};
 
 var moduleTemplate = (function () {
 
@@ -34,13 +34,13 @@ var moduleTemplate = (function () {
 
         socketListeners[name] = callback;
 
-        if (!C.socketListeners[name]) {
+        if (!iris.socketListeners[name]) {
 
-          C.socketListeners[name] = [];
+          iris.socketListeners[name] = [];
 
         }
 
-        C.socketListeners[name].push(callback);
+        iris.socketListeners[name].push(callback);
 
       } else {
 
@@ -111,17 +111,17 @@ function _getCallerFile() {
 var path = require('path');
 var express = require('express');
 
-C.registerModule = function (name, directory) {
+iris.registerModule = function (name, directory) {
 
-  if (CM[name]) {
+  if (iris.modules[name]) {
 
     console.log("Module already exists");
     return false;
 
   } else {
 
-    CM[name] = new moduleTemplate;
-    CM[name].path = path.parse(_getCallerFile()).dir;
+    iris.modules[name] = new moduleTemplate;
+    iris.modules[name].path = path.parse(_getCallerFile()).dir;
 
     if (directory) {
 
@@ -137,23 +137,23 @@ C.registerModule = function (name, directory) {
         }
       }
 
-      mkdirSync(C.configPath + "/" + name);
+      mkdirSync(iris.configPath + "/" + name);
 
-      CM[name].configPath = C.configPath + "/" + name;
+      iris.modules[name].configPath = iris.configPath + "/" + name;
 
     }
 
-    C.app.use('/modules/' + name, express.static(CM[name].path + "/static"));
+    iris.app.use('/modules/' + name, express.static(iris.modules[name].path + "/static"));
 
-    Object.seal(CM[name]);
+    Object.seal(iris.modules[name]);
 
   }
-
-  return CM[name];
+  
+  return iris.modules[name];
 
 };
 
-C.include = function (defaultLocation, customLocation) {
+iris.include = function (defaultLocation, customLocation) {
 
   var customLocation = customLocation;
 

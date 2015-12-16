@@ -1,11 +1,11 @@
-C.registerModule("menu");
+iris.registerModule("menu");
 
 // Get any already saved config
 
 var fs = require('fs');
 var glob = require("glob");
 
-glob(C.configPath + "/menu/*.json", function (er, files) {
+glob(iris.configPath + "/menu/*.json", function (er, files) {
 
   files.forEach(function (file) {
 
@@ -15,7 +15,7 @@ glob(C.configPath + "/menu/*.json", function (er, files) {
 
     if (config.menuName) {
 
-      C.saveConfig(config, "menu", C.sanitizeFileName(config.menuName), function () {
+      iris.saveConfig(config, "menu", iris.sanitizeFileName(config.menuName), function () {
 
         },
         function (fail) {
@@ -30,7 +30,7 @@ glob(C.configPath + "/menu/*.json", function (er, files) {
 
 // Function for getting menu form
 
-CM.menu.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
+iris.modules.menu.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
 
   // Check if menu name supplied and previous values available
 
@@ -43,9 +43,9 @@ CM.menu.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
 
     } else {
 
-      if (C.configStore["menu"] && C.configStore["menu"][thisHook.const.params[1]]) {
+      if (iris.configStore["menu"] && iris.configStore["menu"][thisHook.const.params[1]]) {
 
-        data.value = C.configStore["menu"][thisHook.const.params[1]];
+        data.value = iris.configStore["menu"][thisHook.const.params[1]];
 
       }
 
@@ -107,9 +107,9 @@ CM.menu.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
 
 })
 
-CM.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
+iris.modules.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
 
-  C.saveConfig(thisHook.const.params, "menu", C.sanitizeFileName(thisHook.const.params.menuName), function () {
+  iris.saveConfig(thisHook.const.params, "menu", iris.sanitizeFileName(thisHook.const.params.menuName), function () {
 
     var data = function (res) {
 
@@ -129,27 +129,27 @@ CM.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
 
 // Page for creating a new menu
 
-C.app.get("/admin/menu/create", function (req, res) {
+iris.app.get("/admin/menu/create", function (req, res) {
 
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
 
-    CM.frontend.globals.displayErrorPage(403, req, res);
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
 
     return false;
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["admin_menu_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_menu_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
   }, function (fail) {
 
-    CM.frontend.globals.displayErrorPage(500, req, res);
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    C.log("error", e);
+    iris.log("error", e);
 
   });
 
@@ -157,19 +157,19 @@ C.app.get("/admin/menu/create", function (req, res) {
 
 // Page for editing an existing menu
 
-C.app.get("/admin/menu/edit/:menuName", function (req, res) {
+iris.app.get("/admin/menu/edit/:menuName", function (req, res) {
 
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
 
-    CM.frontend.globals.displayErrorPage(403, req, res);
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
 
     return false;
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["admin_menu_form_edit"], ['admin_wrapper'], {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_menu_form_edit"], ['admin_wrapper'], {
     menuName: req.params.menuName
   }, req.authPass, req).then(function (success) {
 
@@ -177,9 +177,9 @@ C.app.get("/admin/menu/edit/:menuName", function (req, res) {
 
   }, function (fail) {
 
-    CM.frontend.globals.displayErrorPage(500, req, res);
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    C.log("error", e);
+    iris.log("error", e);
 
   });
 
@@ -189,29 +189,29 @@ C.app.get("/admin/menu/edit/:menuName", function (req, res) {
 
 // Page for editing an existing menu
 
-C.app.get("/admin/menu", function (req, res) {
+iris.app.get("/admin/menu", function (req, res) {
 
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
 
-    CM.frontend.globals.displayErrorPage(403, req, res);
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
 
     return false;
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["admin_menu_list"], ['admin_wrapper'], {
-    menuList: C.configStore["menu"]
+  iris.modules.frontend.globals.parseTemplateFile(["admin_menu_list"], ['admin_wrapper'], {
+    menuList: iris.configStore["menu"]
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
 
   }, function (fail) {
 
-    CM.frontend.globals.displayErrorPage(500, req, res);
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    C.log("error", e);
+    iris.log("error", e);
 
   });
 
@@ -219,7 +219,7 @@ C.app.get("/admin/menu", function (req, res) {
 
 // Default menu view function
 
-CM.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
+iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
 
@@ -227,23 +227,23 @@ CM.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
 // Parse menu templates
 
-CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   var variables = data.variables;
 
-  CM.frontend.globals.parseBlock("menu", data.html, function (menu, next) {
+  iris.modules.frontend.globals.parseBlock("menu", data.html, function (menu, next) {
 
     var menuName = menu[0];
 
-    C.readConfig("menu", menuName).then(function (output) {
+    iris.readConfig("menu", menuName).then(function (output) {
 
-      CM.frontend.globals.parseTemplateFile(["menu", menuName], null, {
+      iris.modules.frontend.globals.parseTemplateFile(["menu", menuName], null, {
         menu: output
       }, thisHook.authPass).then(function (html) {
 
         // Check if user can view menu
 
-        C.hook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
+        iris.hook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
 
           next(html);
 
@@ -281,33 +281,33 @@ CM.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data
 
 // Programatic menu generation functions
 
-CM.menu.globals.registerMenu = function (menuName) {
+iris.modules.menu.globals.registerMenu = function (menuName) {
 
-  if (!C.configStore["menu"]) {
-    C.configStore['menu'] = {};
+  if (!iris.configStore["menu"]) {
+    iris.configStore['menu'] = {};
   }
 
-  C.configStore['menu'][C.sanitizeFileName(menuName)] = {
+  iris.configStore['menu'][iris.sanitizeFileName(menuName)] = {
     "menuName": menuName,
     "items": []
   };
 
 }
 
-CM.menu.globals.registerMenuLink = function (menuName, parentPath, path, title) {
+iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, path, title) {
 
-  if (!C.configStore["menu"]) {
+  if (!iris.configStore["menu"]) {
 
     return false;
 
   }
 
-  if (!C.configStore['menu'][C.sanitizeFileName(menuName)]) {
-    C.log("error", "no such menu - " + menuName)
+  if (!iris.configStore['menu'][iris.sanitizeFileName(menuName)]) {
+    iris.log("error", "no such menu - " + menuName)
     return false;
   } else {
 
-    var menuConfig = C.configStore['menu'][C.sanitizeFileName(menuName)];
+    var menuConfig = iris.configStore['menu'][iris.sanitizeFileName(menuName)];
 
     if (parentPath) {
 

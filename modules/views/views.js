@@ -1,4 +1,4 @@
-C.registerModule("views");
+iris.registerModule("views");
 
 var fs = require("fs");
 
@@ -6,15 +6,15 @@ process.on("dbReady", function () {
 
   // Create a view block type for each entity
 
-  Object.keys(C.dbCollections).forEach(function (entityType) {
+  Object.keys(iris.dbCollections).forEach(function (entityType) {
 
     var fields = ["Pick a condition"];
 
-    Object.keys(C.dbCollections[entityType].schema.tree).forEach(function (fieldName) {
+    Object.keys(iris.dbCollections[entityType].schema.tree).forEach(function (fieldName) {
 
       // Only push in string and number fields
 
-      var field = C.dbCollections[entityType].schema.tree[fieldName];
+      var field = iris.dbCollections[entityType].schema.tree[fieldName];
 
       if (field.type === String || field.type === Number) {
 
@@ -24,13 +24,13 @@ process.on("dbReady", function () {
 
     });
 
-    CM.blocks.globals.registerBlockType('View-of-' + entityType);
+    iris.modules.blocks.globals.registerBlockType('View-of-' + entityType);
 
-    CM.views.registerHook("hook_form_render_blockForm_View-of-" + entityType, 0, function (thisHook, data) {
+    iris.modules.views.registerHook("hook_form_render_blockForm_View-of-" + entityType, 0, function (thisHook, data) {
 
-      if (thisHook.const.params[1] && CM.blocks.globals.blocks["View-of-" + entityType] && CM.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]]) {
+      if (thisHook.const.params[1] && iris.modules.blocks.globals.blocks["View-of-" + entityType] && iris.modules.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]]) {
 
-        var existingView = CM.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]];
+        var existingView = iris.modules.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]];
 
         data.value = existingView;
 
@@ -115,7 +115,7 @@ process.on("dbReady", function () {
 
 // Render blocks
 
-CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
+iris.modules.views.registerHook("hook_block_render", 0, function (thisHook, data) {
 
   if (thisHook.const.type.split("-")[0] === "View") {
 
@@ -141,7 +141,7 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
       limit: config.limit
     }
 
-    C.hook("hook_entity_fetch", thisHook.authPass, null, {
+    iris.hook("hook_entity_fetch", thisHook.authPass, null, {
       queryList: [fetch]
     }).then(function (result) {
 
@@ -184,7 +184,7 @@ CM.views.registerHook("hook_block_render", 0, function (thisHook, data) {
 
         });
 
-        CM.frontend.globals.parseTemplateFile(["views", thisHook.const.type], null, {
+        iris.modules.frontend.globals.parseTemplateFile(["views", thisHook.const.type], null, {
           view: output
         }, thisHook.authPass).then(function (success) {
 

@@ -2,16 +2,16 @@
 
 "use strict";
 
-C.registerModule("group_manager", true);
+iris.registerModule("group_manager", true);
 
 //Additional includes
 
 require('./group_validate');
 require('./group_membership');
 
-C.registerDbModel("group");
+iris.registerDbModel("group");
 
-C.registerDbSchema("group", {
+iris.registerDbSchema("group", {
 
   name: {
     type: String,
@@ -66,11 +66,11 @@ C.registerDbSchema("group", {
   }
 });
 
-CM.group_manager.globals = {
+iris.modules.group_manager.globals = {
 
-  fetchGroupById: C.promise(function (_id, yes, no) {
+  fetchGroupById: iris.promise(function (_id, yes, no) {
 
-    C.dbCollections.group.findOne({
+    iris.dbCollections.group.findOne({
       '_id': _id
     }, function (err, doc) {
 
@@ -93,8 +93,8 @@ CM.group_manager.globals = {
 
     })
   }),
-  checkGroupMembership: C.promise(function (data, yes, no) {
-    C.dbCollections.group.findOne({
+  checkGroupMembership: iris.promise(function (data, yes, no) {
+    iris.dbCollections.group.findOne({
       '_id': data._id,
       'members': {
         '$elemMatch': {
@@ -132,7 +132,7 @@ CM.group_manager.globals = {
 
     })
   }),
-  groupTypes: C.include(__dirname + "/group_types.js", C.configPath + "/group_manager/group_types.js"),
+  groupTypes: iris.include(__dirname + "/group_types.js", iris.configPath + "/group_manager/group_types.js"),
 
   checkGroupPermission: function (groupPermissionType, permissionsArray, GroupRolesArray) {
 
@@ -140,9 +140,9 @@ CM.group_manager.globals = {
 
     GroupRolesArray.forEach(function (role) {
 
-      if (CM.group_manager.globals.groupTypes[groupPermissionType] && CM.group_manager.globals.groupTypes[groupPermissionType].permissions[role]) {
+      if (iris.modules.group_manager.globals.groupTypes[groupPermissionType] && iris.modules.group_manager.globals.groupTypes[groupPermissionType].permissions[role]) {
 
-        CM.group_manager.globals.groupTypes[groupPermissionType].permissions[role].forEach(function (permission) {
+        iris.modules.group_manager.globals.groupTypes[groupPermissionType].permissions[role].forEach(function (permission) {
 
           rolePermissions.push(permission);
 

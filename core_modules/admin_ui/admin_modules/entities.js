@@ -1,10 +1,10 @@
 var path = require('path');
 
-C.app.get("/admin/api/entitytypes", function (req, res) {
+iris.app.get("/admin/api/entitytypes", function (req, res) {
 
   if (req.authPass.roles.indexOf('admin') !== -1) {
 
-    res.send(Object.keys(C.dbCollections));
+    res.send(Object.keys(iris.dbCollections));
 
   } else {
 
@@ -14,7 +14,7 @@ C.app.get("/admin/api/entitytypes", function (req, res) {
 
 });
 
-C.app.post("/admin/api/schema/save/:type", function (req, res) {
+iris.app.post("/admin/api/schema/save/:type", function (req, res) {
 
   if (req.body.entityname) {
 
@@ -84,9 +84,9 @@ C.app.post("/admin/api/schema/save/:type", function (req, res) {
 
   });
 
-  C.saveConfig(savedSchema, "entity", C.sanitizeFileName(type), function () {
+  iris.saveConfig(savedSchema, "entity", iris.sanitizeFileName(type), function () {
 
-    C.dbPopulate();
+    iris.dbPopulate();
 
     res.redirect("/admin/entities");
 
@@ -98,11 +98,11 @@ C.app.post("/admin/api/schema/save/:type", function (req, res) {
 
 // Get list of fields
 
-C.app.get("/admin/api/schema/fieldtypes", function (req, res) {
+iris.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
   if (req.authPass.roles.indexOf('admin') !== -1) {
 
-    var fields = JSON.parse(JSON.stringify(CM.entity2.globals.fetchSchemaForm()));
+    var fields = JSON.parse(JSON.stringify(iris.modules.entity2.globals.fetchSchemaForm()));
 
     Object.keys(fields).forEach(function (field) {
 
@@ -128,19 +128,19 @@ C.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
 // Fetch existing schema
 
-C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
+iris.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
   // Get field types for referencing drop down choice numbers in form
 
   var fieldTypes = {};
 
-  Object.keys(CM.entity2.globals.fetchSchemaForm()).forEach(function (fieldType, index) {
+  Object.keys(iris.modules.entity2.globals.fetchSchemaForm()).forEach(function (fieldType, index) {
 
     fieldTypes[fieldType] = index;
 
   })
 
-  var config = C.dbSchemaJSON[req.params.type];
+  var config = iris.dbSchemaJSON[req.params.type];
 
   var util = require("util");
 
@@ -201,15 +201,15 @@ C.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 });
 
 
-CM.admin_ui.globals.prepareEntitylist = function (type, callback) {
+iris.modules.admin_ui.globals.prepareEntitylist = function (type, callback) {
 
   // Query for all entities of this type
 
-  if (C.dbCollections[type]) {
+  if (iris.dbCollections[type]) {
 
     var fields = [];
 
-    C.dbCollections[type].find({}, function (err, doc) {
+    iris.dbCollections[type].find({}, function (err, doc) {
 
       if (!err) {
 
@@ -220,7 +220,7 @@ CM.admin_ui.globals.prepareEntitylist = function (type, callback) {
 
       } else {
 
-        C.log("error", "Database error while fetching entities");
+        iris.log("error", "Database error while fetching entities");
 
         callback({});
 
@@ -230,7 +230,7 @@ CM.admin_ui.globals.prepareEntitylist = function (type, callback) {
 
   } else {
 
-    C.log("error", "Request for invalid entity type");
+    iris.log("error", "Request for invalid entity type");
 
     callback({});
 

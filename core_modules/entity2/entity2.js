@@ -1,21 +1,21 @@
-C.registerModule("entity2");
+iris.registerModule("entity2");
 
 var fs = require("fs");
 
 // Store field types in memory
 
-CM.entity2.globals.fieldTypes = {};
+iris.modules.entity2.globals.fieldTypes = {};
 
 // Generate form for schema edit/create
 
-CM.entity2.globals.fetchSchemaForm = function () {
+iris.modules.entity2.globals.fetchSchemaForm = function () {
 
   // Search all enabled module paths for fieldSchema directories and schema
 
-  Object.keys(CM).forEach(function (moduleName) {
+  Object.keys(iris.modules).forEach(function (moduleName) {
 
     try {
-      fs.readdirSync(CM[moduleName].path + "/schema_fields").forEach(function (schemafile) {
+      fs.readdirSync(iris.modules[moduleName].path + "/schema_fields").forEach(function (schemafile) {
 
         // Cut off .json part
 
@@ -46,7 +46,7 @@ CM.entity2.globals.fetchSchemaForm = function () {
 
         // Parse file
 
-        var filedSchema = JSON.parse(fs.readFileSync(CM[moduleName].path + "/schema_fields/" + schemafile + ".json"));
+        var filedSchema = JSON.parse(fs.readFileSync(iris.modules[moduleName].path + "/schema_fields/" + schemafile + ".json"));
 
         if (filedSchema.fieldTypeName) {
 
@@ -76,9 +76,9 @@ CM.entity2.globals.fetchSchemaForm = function () {
         // Add fieldtype to memory index if it doesn't already exist
 
 
-        if (!CM.entity2.globals.fieldTypes[fieldTypeMachineName]) {
+        if (!iris.modules.entity2.globals.fieldTypes[fieldTypeMachineName]) {
 
-          CM.entity2.globals.fieldTypes[fieldTypeMachineName] = fieldSchema;
+          iris.modules.entity2.globals.fieldTypes[fieldTypeMachineName] = fieldSchema;
 
         } else {
 
@@ -86,7 +86,7 @@ CM.entity2.globals.fetchSchemaForm = function () {
 
           Object.keys(fieldSchema).forEach(function (field) {
 
-            CM.entity2.globals.fieldTypes[fieldTypeMachineName][field] = fieldSchema[field];
+            iris.modules.entity2.globals.fieldTypes[fieldTypeMachineName][field] = fieldSchema[field];
 
           })
 
@@ -116,9 +116,9 @@ CM.entity2.globals.fetchSchemaForm = function () {
     "type": "choose"
   };
 
-  Object.keys(CM.entity2.globals.fieldTypes).forEach(function (field) {
+  Object.keys(iris.modules.entity2.globals.fieldTypes).forEach(function (field) {
 
-    var fieldConfig = CM.entity2.globals.fieldTypes[field];
+    var fieldConfig = iris.modules.entity2.globals.fieldTypes[field];
 
     schemaFormFields[field] = {
 
@@ -184,10 +184,10 @@ CM.entity2.globals.fetchSchemaForm = function () {
 
 // Base level widgets
 
-CM.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
+iris.modules.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
   var name = thisHook.const.field.fieldTypeName;
-  var type = CM.entity2.globals.fieldTypes[thisHook.const.field.fieldTypeName].fieldTypeType;
+  var type = iris.modules.entity2.globals.fieldTypes[thisHook.const.field.fieldTypeName].fieldTypeType;
 
   if (type === "string") {
 
@@ -226,12 +226,12 @@ CM.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, d
 
 // Field save handler
 
-CM.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
+iris.modules.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
 
   var fieldSchema = thisHook.const.schema,
     value = thisHook.const.value,
     fieldName = thisHook.const.schema.fieldTypeName,
-    fieldType = CM.entity2.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
+    fieldType = iris.modules.entity2.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
 
   if (fieldType === "string") {
 
@@ -251,14 +251,14 @@ CM.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
 
 // Entity create form handler
 
-CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
+iris.modules.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
 
   // Get type from url
   // Get the schema for the requested type to get the widgets
   // Get the submitted form values
 
   var type = thisHook.const.req.url.split("/")[3],
-    schema = C.dbSchemaJSON[type],
+    schema = iris.dbSchemaJSON[type],
     values = thisHook.const.params;
 
   // Gather array of field value/widgets pairs
@@ -293,7 +293,7 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 
       formData.entityType = type;
 
-      C.hook("hook_entity_create", thisHook.authPass, formData, formData).then(function (success) {
+      iris.hook("hook_entity_create", thisHook.authPass, formData, formData).then(function (success) {
 
         data = function (res) {
 
@@ -321,7 +321,7 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 
   widgetValues.forEach(function (widget) {
 
-    C.hook("hook_entityfield_save", thisHook.authPass, widget, {}).then(function (result) {
+    iris.hook("hook_entityfield_save", thisHook.authPass, widget, {}).then(function (result) {
 
       formData[widget.fieldName] = result;
 
@@ -341,14 +341,14 @@ CM.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, 
 
 // Entity create form handler
 
-CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, data) {
+iris.modules.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, data) {
 
   // Get type from url
   // Get the schema for the requested type to get the widgets
   // Get the submitted form values
 
   var type = thisHook.const.req.url.split("/")[3],
-    schema = C.dbSchemaJSON[type],
+    schema = iris.dbSchemaJSON[type],
     eid = thisHook.const.req.url.split("/")[4],
     values = thisHook.const.params;
 
@@ -385,7 +385,7 @@ CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, da
       formData.entityType = type;
       formData.eid = eid;
 
-      C.hook("hook_entity_edit", thisHook.authPass, formData, formData).then(function (success) {
+      iris.hook("hook_entity_edit", thisHook.authPass, formData, formData).then(function (success) {
 
         var data = function (res) {
 
@@ -409,7 +409,7 @@ CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, da
 
   widgetValues.forEach(function (widget) {
 
-    C.hook("hook_entityfield_save", thisHook.authPass, widget, {}).then(function (result) {
+    iris.hook("hook_entityfield_save", thisHook.authPass, widget, {}).then(function (result) {
 
       formData[widget.fieldName] = result;
 
@@ -429,12 +429,12 @@ CM.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, da
 
 // Create entity form
 
-CM.entity2.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
+iris.modules.entity2.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
 
   // Check if entity type exists
 
   var type = thisHook.const.params[1],
-    schema = C.dbSchemaJSON[type];
+    schema = iris.dbSchemaJSON[type];
 
   var widgets = {};
 
@@ -458,7 +458,7 @@ CM.entity2.registerHook("hook_form_render_createEntity", 0, function (thisHook, 
 
     Object.keys(schema).forEach(function (fieldName) {
 
-      C.hook("hook_render_entityfield_form", thisHook.authPass, {
+      iris.hook("hook_render_entityfield_form", thisHook.authPass, {
         field: schema[fieldName],
         value: null
       }, {}).then(function (form) {
@@ -487,13 +487,13 @@ CM.entity2.registerHook("hook_form_render_createEntity", 0, function (thisHook, 
 
 // Create entity form
 
-CM.entity2.registerHook("hook_form_render_editEntity", 0, function (thisHook, data) {
+iris.modules.entity2.registerHook("hook_form_render_editEntity", 0, function (thisHook, data) {
 
   // Check if entity type exists
 
   var type = thisHook.const.params[1],
     id = thisHook.const.params[2],
-    schema = C.dbSchemaJSON[type];
+    schema = iris.dbSchemaJSON[type];
 
   if (!schema) {
 
@@ -504,7 +504,7 @@ CM.entity2.registerHook("hook_form_render_editEntity", 0, function (thisHook, da
 
   // Load in entity to get defaults
 
-  C.dbCollections[type].findOne({
+  iris.dbCollections[type].findOne({
     eid: id
   }, function (err, current) {
 
@@ -535,7 +535,7 @@ CM.entity2.registerHook("hook_form_render_editEntity", 0, function (thisHook, da
 
     Object.keys(schema).forEach(function (fieldName) {
 
-      C.hook("hook_render_entityfield_form", thisHook.authPass, {
+      iris.hook("hook_render_entityfield_form", thisHook.authPass, {
         field: schema[fieldName],
         value: current[fieldName]
       }, {}).then(function (form) {

@@ -1,40 +1,40 @@
 //Making a post to edit an entity with an _id
 
 
-CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
   if (!data.eid) {
 
-    thisHook.finish(false, C.error(400, "Have to have an ID to edit something"));
+    thisHook.finish(false, iris.error(400, "Have to have an ID to edit something"));
     return false;
 
   };
 
   //Set entity type
 
-  if (!data.entityType || !C.dbCollections[data.entityType]) {
+  if (!data.entityType || !iris.dbCollections[data.entityType]) {
 
-    thisHook.finish(false, C.error(400, "Needs to have a valid entityType"));
+    thisHook.finish(false, iris.error(400, "Needs to have a valid entityType"));
     return false;
 
   }
 
   //Check entity actually exists
 
-  C.dbCollections[data.entityType].findOne({
+  iris.dbCollections[data.entityType].findOne({
     eid: data.eid
   }, function (err, doc) {
 
     if (err) {
 
-      thisHook.finish(false, C.error(500, "Database error"));
+      thisHook.finish(false, iris.error(500, "Database error"));
       return false;
 
     }
 
     if (!doc) {
 
-      thisHook.finish(false, C.error(400, "Trying to update an entity which doesn't exist"));
+      thisHook.finish(false, iris.error(400, "Trying to update an entity which doesn't exist"));
       return false;
 
     }
@@ -51,9 +51,9 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
   var runUpdate = function () {
 
-    C.hook("hook_entity_access_edit", thisHook.authPass, null, data).then(function (success) {
+    iris.hook("hook_entity_access_edit", thisHook.authPass, null, data).then(function (success) {
 
-      C.hook("hook_entity_access_edit_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
+      iris.hook("hook_entity_access_edit_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
 
         validate()
 
@@ -90,9 +90,9 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
     //    Object.freeze(dummyBody);
 
-    C.hook("hook_entity_validate", thisHook.authPass, null, dummyBody).then(function (successData) {
+    iris.hook("hook_entity_validate", thisHook.authPass, null, dummyBody).then(function (successData) {
 
-      C.hook("hook_entity_validate_" + data.entityType, thisHook.authPass, null, dummyBody).then(function (pass) {
+      iris.hook("hook_entity_validate_" + data.entityType, thisHook.authPass, null, dummyBody).then(function (pass) {
 
         preSave(data);
 
@@ -124,9 +124,9 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
   var preSave = function () {
 
-    C.hook("hook_entity_presave", thisHook.authPass, null, data).then(function (successData) {
+    iris.hook("hook_entity_presave", thisHook.authPass, null, data).then(function (successData) {
 
-      C.hook("hook_entity_presave_" + data.entityType, thisHook.authPass, null, data).then(function (pass) {
+      iris.hook("hook_entity_presave_" + data.entityType, thisHook.authPass, null, data).then(function (pass) {
 
         update(pass);
 
@@ -165,7 +165,7 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
     var update = validatedEntity;
 
     update.entityType = data.entityType;
-    C.dbCollections[data.entityType].update(conditions, update, callback);
+    iris.dbCollections[data.entityType].update(conditions, update, callback);
 
     function callback(err, numAffected) {
 
@@ -173,9 +173,9 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
       data.eid = conditions.eid;
 
-      C.hook("hook_entity_updated", thisHook.authPass, null, data)
+      iris.hook("hook_entity_updated", thisHook.authPass, null, data)
 
-      C.log("info", data.entityType + " " + conditions.eid + " edited by " + thisHook.authPass.userid);
+      iris.log("info", data.entityType + " " + conditions.eid + " edited by " + thisHook.authPass.userid);
 
     }
 
@@ -183,18 +183,18 @@ CM.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
 });
 
-C.app.post("/entity/edit/:type/:_id", function (req, res) {
+iris.app.post("/entity/edit/:type/:_id", function (req, res) {
 
   //  var busboy = require('connect-busboy');
   //
-  //  C.app.use(busboy());
+  //  iris.app.use(busboy());
   //
   //  var fs = require('fs');
   //
   //  var fstream;
   //  req.pipe(req.busboy);
   //  req.busboy.on('file', function (fieldname, file, filename) {
-  //    fstream = fs.createWriteStream(C.sitePath + '/files/' + filename);
+  //    fstream = fs.createWriteStream(iris.sitePath + '/files/' + filename);
   //    file.pipe(fstream);
   //    fstream.on('close', function () {
   //
@@ -206,7 +206,7 @@ C.app.post("/entity/edit/:type/:_id", function (req, res) {
   req.body.entityType = req.params.type;
   req.body._id = req.params._id;
 
-  C.hook("hook_entity_edit", req.authPass, null, req.body).then(function (success) {
+  iris.hook("hook_entity_edit", req.authPass, null, req.body).then(function (success) {
 
     res.respond(200, success);
 
@@ -220,11 +220,11 @@ C.app.post("/entity/edit/:type/:_id", function (req, res) {
 
 //Checking access and if entity type and entity exist
 
-CM.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, data) {
 
-  if (!CM.auth.globals.checkPermissions(["can edit any " + data.entityType], thisHook.authPass)) {
+  if (!iris.modules.auth.globals.checkPermissions(["can edit any " + data.entityType], thisHook.authPass)) {
 
-    if (!CM.auth.globals.checkPermissions(["can edit own " + data.entityType], thisHook.authPass)) {
+    if (!iris.modules.auth.globals.checkPermissions(["can edit own " + data.entityType], thisHook.authPass)) {
 
       thisHook.finish(false, "Access denied");
       return false;

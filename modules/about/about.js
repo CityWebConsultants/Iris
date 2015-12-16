@@ -1,11 +1,11 @@
 var express = require('express');
 
-C.registerModule("about");
+iris.registerModule("about");
 
-C.app.use("/about", express.static(__dirname + '/static'));
+iris.app.use("/about", express.static(__dirname + '/static'));
 
-C.app.get("/about/readme.md", function (req, res) {
+iris.app.get("/about/readme.md", function (req, res) {
 
-  res.sendFile(C.rootPath + '/readme.md');
+  res.sendFile(iris.rootPath + '/readme.md');
 
 })

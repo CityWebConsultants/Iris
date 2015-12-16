@@ -1,12 +1,12 @@
-C.registerModule("user");
+iris.registerModule("user");
 
 var bcrypt = require("bcrypt-nodejs");
 
 // First ever login form
 
-CM.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
+iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
 
-  C.dbCollections["user"].count({}, function (err, count) {
+  iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
 
       data.schema.username = {
@@ -31,9 +31,9 @@ CM.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, d
 
 })
 
-CM.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, data) {
+iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, data) {
 
-  C.dbCollections["user"].count({}, function (err, count) {
+  iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
 
       var user = {
@@ -45,7 +45,7 @@ CM.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, d
         roles: ["admin"]
       }
 
-      C.hook("hook_entity_create", "root", user, user).then(function (user) {
+      iris.hook("hook_entity_create", "root", user, user).then(function (user) {
 
         thisHook.finish(true, data);
 
@@ -67,20 +67,20 @@ CM.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, d
 
 // First ever login page (should only show if no user has been set up)
 
-C.app.get("/", function (req, res, next) {
+iris.app.get("/", function (req, res, next) {
 
-  C.dbCollections["user"].count({}, function (err, count) {
+  iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
 
-      CM.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
+      iris.modules.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
 
         res.send(success)
 
       }, function (fail) {
 
-        CM.frontend.globals.displayErrorPage(500, req, res);
+        iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-        C.log("error", e);
+        iris.log("error", e);
 
       });
 
@@ -92,9 +92,9 @@ C.app.get("/", function (req, res, next) {
   })
 })
 
-CM.user.globals.login = function (auth, res, callback) {
+iris.modules.user.globals.login = function (auth, res, callback) {
 
-  C.dbCollections['user'].findOne({
+  iris.dbCollections['user'].findOne({
     "username": auth.username
   }, function (err, doc) {
 
@@ -106,11 +106,11 @@ CM.user.globals.login = function (auth, res, callback) {
 
         if (!err && match === true) {
 
-          C.hook("hook_auth_maketoken", "root", null, {
+          iris.hook("hook_auth_maketoken", "root", null, {
             userid: userid
           }).then(function (token) {
 
-            CM.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
+            iris.modules.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
 
             callback(userid);
 
@@ -138,7 +138,7 @@ CM.user.globals.login = function (auth, res, callback) {
 
 };
 
-C.app.get("/logout", function (req, res) {
+iris.app.get("/logout", function (req, res) {
 
   res.clearCookie('userid');
   res.clearCookie('token');
@@ -149,7 +149,7 @@ C.app.get("/logout", function (req, res) {
 
 });
 
-CM.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
+iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
   if (entity.password && entity.password !== '') {
 
@@ -183,23 +183,23 @@ CM.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
 });
 
-CM.user.globals.userRoles = {};
+iris.modules.user.globals.userRoles = {};
 
-CM.user.globals.getRole = function (userid, callback) {
+iris.modules.user.globals.getRole = function (userid, callback) {
 
-  if (CM.user.globals.userRoles[userid]) {
+  if (iris.modules.user.globals.userRoles[userid]) {
 
-    callback(CM.user.globals.userRoles[userid]);
+    callback(iris.modules.user.globals.userRoles[userid]);
 
   } else {
 
-    C.dbCollections['user'].findOne({
+    iris.dbCollections['user'].findOne({
       eid: parseInt(userid)
     }, function (err, doc) {
 
       if (!err && doc && doc.roles) {
 
-        CM.user.globals.userRoles[userid] = doc.roles;
+        iris.modules.user.globals.userRoles[userid] = doc.roles;
 
         callback(doc.roles);
 
@@ -215,11 +215,11 @@ CM.user.globals.getRole = function (userid, callback) {
 
 };
 
-CM.user.registerHook("hook_auth_authpass", 5, function (thisHook, data) {
+iris.modules.user.registerHook("hook_auth_authpass", 5, function (thisHook, data) {
 
   if (data.roles && data.roles.indexOf('authenticated') !== -1) {
 
-    CM.user.globals.getRole(thisHook.req.cookies.userid, function (roles) {
+    iris.modules.user.globals.getRole(thisHook.req.cookies.userid, function (roles) {
 
       data.roles = data.roles.concat(roles);
 
@@ -235,13 +235,13 @@ CM.user.registerHook("hook_auth_authpass", 5, function (thisHook, data) {
 
 });
 
-CM.user.registerHook("hook_entity_updated", 1, function (thisHook, entity) {
+iris.modules.user.registerHook("hook_entity_updated", 1, function (thisHook, entity) {
 
   if (entity.entityType === 'user' && entity.userid) {
 
-    if (CM.user.globals.userRoles[entity.userid]) {
+    if (iris.modules.user.globals.userRoles[entity.userid]) {
 
-      delete CM.user.globals.userRoles[entity.userid];
+      delete iris.modules.user.globals.userRoles[entity.userid];
 
     }
 
@@ -255,7 +255,7 @@ require('./login_form.js');
 
 // Login form
 
-C.app.get("/login", function (req, res) {
+iris.app.get("/login", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -267,15 +267,15 @@ C.app.get("/login", function (req, res) {
 
   }
 
-  CM.frontend.globals.parseTemplateFile(["login"], ['html'], {}, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["login"], ['html'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
   }, function (fail) {
 
-    CM.frontend.globals.displayErrorPage(500, req, res);
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    C.log("error", e);
+    iris.log("error", e);
 
   });
 

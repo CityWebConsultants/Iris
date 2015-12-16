@@ -156,7 +156,7 @@ The Iris directory structure is separated into four main areas.
 
 The first is the root directory that contains files crucial to the running of the system. These should not be edited or removed.
 
-* __boot.js__ – This is run when the server starts and initiates the global C object and the global CM modules objects that are used throughout the system. It runs through many of the other core files, loads modules and initiates the files launching the HTTP server, web socket server and the database. It is not run directly but run through a config file for a particular site (more on this later).
+* __boot.js__ – This is run when the server starts and initiates the global C object and the global iris.modules modules objects that are used throughout the system. It runs through many of the other core files, loads modules and initiates the files launching the HTTP server, web socket server and the database. It is not run directly but run through a config file for a particular site (more on this later).
 * __db.js__ – This loads in database schema files and models created by modules and through the entity management system and sets them up for use in the MongoDB database.
 * modules.js – This file contains the parent objects all Iris modules are based on and defines all their functionality.
 * __hook.js__ – This contains the core hook and event system functionality that is used by the module system.
@@ -216,16 +216,16 @@ All the core functionality is stored in the C JavaScript object. This is frozen 
 
 ###Modules
 
-#### C.registerModule()
+#### iris.registerModule()
 
 Use this function within a module file to register a new Iris module. This initates the module, assigns functions global to all modules and creates a configuration folder for that module in the sites directory.
 
 ```javascript
 
-C.registerModule("mymodule");
+iris.registerModule("mymodule");
 
 // This would create a /sites/yoursite/configurations/mymodule folder
-// and a CM.mymodule object where the module's functions can be accessed.
+// and a iris.modules.mymodule object where the module's functions can be accessed.
 
 ```
 
@@ -235,12 +235,12 @@ The module object contains some helper variables for getting the path of the mod
 
 ```javascript
 
-CM.mymodule.path // This returns the system path for the module
-CM.mymodule.configPath //This returns the path to the configuration folder for this module
+iris.modules.mymodule.path // This returns the system path for the module
+iris.modules.mymodule.configPath //This returns the path to the configuration folder for this module
 
 ```
 
-#### CM.*modulename*.registerHook()
+#### iris.modules.*modulename*.registerHook()
 
 Hooks are named event chains that run through the system when they are triggered. Modules register hooks, assign the hook a rank and then when an event with that hook name is fired, the ranked hooks with that name of all modules fire in order and pass data between each other in a chain.
 
@@ -251,7 +251,7 @@ To finish a hook in failure, use ** thisHook.finish(false, *data to pass to next
 
 ```javascript
 
-CM.mymodule.registerHook("entity_blog_save",2,function(thisHook, data){
+iris.modules.mymodule.registerHook("entity_blog_save",2,function(thisHook, data){
 
   //Finish the hook and pass the data through to the next hook without doing anything to the data
 
@@ -261,13 +261,13 @@ CM.mymodule.registerHook("entity_blog_save",2,function(thisHook, data){
 
 ```
 
-#### CM.*modulename*.globals
+#### iris.modules.*modulename*.globals
 
-The CM.*modulename* object for registered modules is sealed from editing to prevent it being accidentally destroyed or polluted. All custom variables and methods can be namespaced under the CM.*modulename*.globals object and they will be available for any other module to use.
+The iris.modules.*modulename* object for registered modules is sealed from editing to prevent it being accidentally destroyed or polluted. All custom variables and methods can be namespaced under the iris.modules.*modulename*.globals object and they will be available for any other module to use.
 
 ```javascript
 
-CM.mymodule.globals = {
+iris.modules.mymodule.globals = {
 
   "hello": function(name){
 
@@ -279,17 +279,17 @@ CM.mymodule.globals = {
 
 // In any module in the system
 
-CM.mymodule.globals.hello("Rachel"); // Returns "hello Rachel".
+iris.modules.mymodule.globals.hello("Rachel"); // Returns "hello Rachel".
 
 ```
 
-#### CM.*modulename*.registerSocketListener()
+#### iris.modules.*modulename*.registerSocketListener()
 
 Listen for a specific web socket message and run the function in the callback when the message is sent.
 
 ```javascript
 
-CM.mymodule.registerSocketListener("package", function(socket,data){
+iris.modules.mymodule.registerSocketListener("package", function(socket,data){
 
   socket.emit("received", data); //Sends the data back to the socket that sent it with a received message
 
@@ -300,7 +300,7 @@ CM.mymodule.registerSocketListener("package", function(socket,data){
 
 ###Entities
 
-#### C.registerDbCollection();
+#### iris.registerDbCollection();
 
 Register a database model name (a MongoDB collection) that is used for a specific entity type.
 
@@ -310,17 +310,17 @@ Database collections can also be created directly in the entity management user 
 
 ```javascript
 
-C.registerDbCollection("blog");
+iris.registerDbCollection("blog");
 
 ```
 
-#### C.registerDbSchema()
+#### iris.registerDbSchema()
 
 Associate fields (as Mongoose database schema) with a specific database collection. See the Mongoose documentation for more information. Additional fields for title and description are provided for the entity UI.
 
 ```javascript
 
-C.registerDbSchema("blog", {
+iris.registerDbSchema("blog", {
 
   name: {
     type: String,
@@ -348,7 +348,7 @@ The authPass is automatically added to the Express.js req object under req.Authp
 
 ```javascript
 
-C.app.get("/hello", function(req, res){
+iris.app.get("/hello", function(req, res){
 
   console.log(req.authPass)  // returns {userid:1, roles: ["authenticated", "administrator"]} for example
 
@@ -358,35 +358,35 @@ C.app.get("/hello", function(req, res){
 
 ```
 
-#### C.registerRole()
+#### iris.registerRole()
 
 Register a role to be used in the permission system. This instantly makes it visible and usable in the permissions user interface. How a role is assigned to a user is up to you and your module.
 
 ```javascript
 
-C.registerRole("contributor");
+iris.registerRole("contributor");
 
 ```
 
-#### C.registerPermission()
+#### iris.registerPermission()
 
 Register a permission to be used in the permission system. Permissions are categorised to make them easier to filter on the permissions administration page.
 
 ```javascript
 
-C.registerPermission("games", "can play games");
+iris.registerPermission("games", "can play games");
 
 ```
 
-#### CM.auth.checkPermissions()
+#### iris.modules.auth.checkPermissions()
 
 Takes an authPass (see above), an array of permissions to check for and returns true or false depending on whether the user has that permission.
 
 ```javascript
 
-  C.app.get("/games", function(req, res){
+  iris.app.get("/games", function(req, res){
 
-  if(CM.auth.checkPermissions(["can play games"], req.authPass){
+  if(iris.modules.auth.checkPermissions(["can play games"], req.authPass){
 
     res.send("Go play outside");
 
@@ -403,11 +403,11 @@ Takes an authPass (see above), an array of permissions to check for and returns 
 
 ### Web sockets
 
-Note: For registering web socket event handlers, look at the module documentation for CM.*modulename*.registerSocketListener().
+Note: For registering web socket event handlers, look at the module documentation for iris.modules.*modulename*.registerSocketListener().
 
 To broadcast a socket message to an array of users (current logged in users)
 
-#### C.sendSocketMessage()
+#### iris.sendSocketMessage()
 
 Send a web socket message to an array of userids. “*” means send to all connected websockets.
 
@@ -415,19 +415,19 @@ Send a web socket message to an array of userids. “*” means send to all conn
 
 var greetingMessage = "hello";
 
-C.sendSocketMessage(["1","5","17"], "greeting", greetingMessage);
+iris.sendSocketMessage(["1","5","17"], "greeting", greetingMessage);
 
 ```
 
 ### Hooks
 
-#### C.hook()
+#### iris.hook()
 
-Trigger a hook (or a series of hooks) registered by modules through CM.*modulename*.registerHook. This returns a JavaScript promise with the result of the hook chain (whether it passed or failed).
+Trigger a hook (or a series of hooks) registered by modules through iris.modules.*modulename*.registerHook. This returns a JavaScript promise with the result of the hook chain (whether it passed or failed).
 
 ```javascript
 
-C.hook("game_save", req.authPass, constants, variables).then(function (success) {
+iris.hook("game_save", req.authPass, constants, variables).then(function (success) {
 
   res.send(success);
 
@@ -442,69 +442,69 @@ C.hook("game_save", req.authPass, constants, variables).then(function (success) 
 
 ### Translations
 
-#### C.registerTranslation();
+#### iris.registerTranslation();
 
-Register a translation of a string that is passed through the C.translate function. The context is a condition function that is checked before the translation is run.
+Register a translation of a string that is passed through the iris.translate function. The context is a condition function that is checked before the translation is run.
 
 ```javascript
 
-C.registerTranslation("hello %s", "hola %s, function(){
+iris.registerTranslation("hello %s", "hola %s, function(){
 
   return authPass.roles.indexOf("spanish");
 
 });
 
 ```
-#### C.translate()
+#### iris.translate()
 
 Pass in a string with placeholders for %s string, %n number and %j json. Provide these variables as the second and subsequent arguments. These are then placed in and also run through the translation system. Finally put in an authPass object that can be checked to see if translation contexts should apply.
 
 ```javascript
 
-C.translate("hello %s", "Michael", req.authPass);
+iris.translate("hello %s", "Michael", req.authPass);
 
 ```
 
 ### Global variables
 
-* __C.sitePath__ - The path of the current application’s sites folder.
-* __C.app__ - The express application, used for creating HTTP paths.
+* __iris.sitePath__ - The path of the current application’s sites folder.
+* __iris.app__ - The express application, used for creating HTTP paths.
 
 ### Assorted global functions
 
-#### C.log.info C.log.warn C.log.error
+#### iris.log.info iris.log.warn iris.log.error
 
 Use this to record an entry to the system log.
 
 ```javascript
 
-C.log("info", "User" + userid + " " + "logged in");
+iris.log("info", "User" + userid + " " + "logged in");
 
 ```
 
-#### C.include()
+#### iris.include()
 
 Attempt to load a file from the one location (a user configuration directory for example), if it is not present, load from the default directory.
 
 ```javascript
 
-C.include(__dirname + "/group_types.js", C.configPath + "/group_manager/group_types.js");
+iris.include(__dirname + "/group_types.js", iris.configPath + "/group_manager/group_types.js");
 
 ```
 
-#### C.promise and C.promisechain
+#### iris.promise and iris.promisechain
 
 Helper functions for creating JavaScript promises functions wrapped in an error catching service.
 
-C.promise takes a function which passes through three arguments, a yes function for if the promise completes successfully, a no function for when it fails and a data object.
+iris.promise takes a function which passes through three arguments, a yes function for if the promise completes successfully, a no function for when it fails and a data object.
 
-C.promiseChain takes and runs through an array of promises, data to pass through and success and fail functions to use when the chain succeeds or fails.
+iris.promiseChain takes and runs through an array of promises, data to pass through and success and fail functions to use when the chain succeeds or fails.
 
 ```javascript
 
-var promiseOne = C.promise(function (_id, yes, no) {
+var promiseOne = iris.promise(function (_id, yes, no) {
 
-    C.dbCollections.message.findOne({
+    iris.dbCollections.message.findOne({
       '_id': _id
     }, function (err, doc) {
 
@@ -531,17 +531,17 @@ var promiseTwo // another promise
 
 var success = function(successData){
 
-  C.log("info", successData);
+  iris.log("info", successData);
 
 };
 
 var success = function(failData){
 
-  C.log("info", data);
+  iris.log("info", data);
 
 };
 
-C.promiseChain([promiseOne, promiseTwo], data, success, fail);
+iris.promiseChain([promiseOne, promiseTwo], data, success, fail);
 
 // Runs both functions, passes through the data
 // then runs the success function if they both pass or the fail function if either of them fail.
@@ -552,11 +552,11 @@ C.promiseChain([promiseOne, promiseTwo], data, success, fail);
 
 ```javascript
 
-  C.saveConfig({
+  iris.saveConfig({
     "hello": "world"
   }, "test/hello", "thisisatest", function () {
 
-    C.readConfig("test/hello", "thisisatest").then(function (output) {
+    iris.readConfig("test/hello", "thisisatest").then(function (output) {
 
       console.log("read", output);
 
@@ -580,7 +580,7 @@ Fired on creating an authPass, latch onto this hook to add items to the authPass
 
 ```javascript
 
-CM.auth.registerHook("hook_auth_authpass",0,function(thisHook, authPass) {
+iris.modules.auth.registerHook("hook_auth_authpass",0,function(thisHook, authPass) {
 
   //Check if a user is in the editors array and add an "editor" role if yes.
 
@@ -608,7 +608,7 @@ On receiving an object with a userid (data.userid for example), generates, retur
 
 ```javascript
 
-CM.auth.registerHook("hook_auth_maketoken",0,function(thisHook, token) {
+iris.modules.auth.registerHook("hook_auth_maketoken",0,function(thisHook, token) {
 
   //Add a timestamp to the token
 

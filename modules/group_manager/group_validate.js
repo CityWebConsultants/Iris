@@ -1,8 +1,8 @@
 //Validate creation of group
 
-CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHook, entity) {
+iris.modules.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHook, entity) {
 
-  var typeChecking = C.promise(function (data, yes, no) {
+  var typeChecking = iris.promise(function (data, yes, no) {
 
     //Field type checking
 
@@ -15,7 +15,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
       "is121": "boolean"
     };
 
-    var typeCheck = C.typeCheck(allowed, entity, data);
+    var typeCheck = iris.typeCheck(allowed, entity, data);
 
     if (typeCheck.valid) {
       yes(data);
@@ -25,7 +25,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
 
   });
   
-  var check121Permission = C.promise(function (data, yes, no) {
+  var check121Permission = iris.promise(function (data, yes, no) {
     
     if (!data.is121) {
 
@@ -33,7 +33,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
 
     } else {
 
-      if (CM.auth.globals.checkPermissions(["can create 121 group"], thisHook.authPass)) {
+      if (iris.modules.auth.globals.checkPermissions(["can create 121 group"], thisHook.authPass)) {
 
         yes(data);
 
@@ -47,7 +47,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
 
   });
 
-  var check121Duplicates = C.promise(function (data, yes, no) {
+  var check121Duplicates = iris.promise(function (data, yes, no) {
 
     if (data.is121) {
 
@@ -60,7 +60,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
 
       };
 
-      C.dbCollections.group.findOne({
+      iris.dbCollections.group.findOne({
         'is121': true,
         '$and': [{
           'members': {
@@ -112,7 +112,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
 
   })
 
-  var checkEntityRefPermission = C.promise(function (data, yes, no) {
+  var checkEntityRefPermission = iris.promise(function (data, yes, no) {
         
     if (!data.entityRef) {
 
@@ -120,7 +120,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
 
     } else {
 
-      if (CM.auth.globals.checkPermissions(["can create group with entityref"], thisHook.authPass)) {
+      if (iris.modules.auth.globals.checkPermissions(["can create group with entityref"], thisHook.authPass)) {
 
         yes(data);
 
@@ -134,7 +134,7 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
 
   });
 
-  var noEntityRefand121 = C.promise(function (data, yes, no) {
+  var noEntityRefand121 = iris.promise(function (data, yes, no) {
     
     if (data.is121 && data.entityRef) {
 
@@ -160,6 +160,6 @@ CM.group_manager.registerHook("hook_entity_validate_group", 0, function (thisHoo
 
   }
 
-  C.promiseChain([typeChecking, check121Permission, check121Duplicates, checkEntityRefPermission], entity, pass, fail);
+  iris.promiseChain([typeChecking, check121Permission, check121Duplicates, checkEntityRefPermission], entity, pass, fail);
 
 });

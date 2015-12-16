@@ -1,9 +1,9 @@
-CM.auth.globals.registerPermission("can post to group without membership", "messages")
-CM.auth.globals.registerPermission("can bypass group permissions", "messages")
+iris.modules.auth.globals.registerPermission("can post to group without membership", "messages")
+iris.modules.auth.globals.registerPermission("can bypass group permissions", "messages")
 
 //Validate creation of message
 
-CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, entity) {
+iris.modules.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, entity) {
 
   var group;
   var member;
@@ -14,9 +14,9 @@ CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, 
 
   // Check group exists
 
-  var checkGroupExists = C.promise(function (data, yes, no) {
+  var checkGroupExists = iris.promise(function (data, yes, no) {
 
-    CM.group_manager.globals.fetchGroupById(entity.groupid).then(function (fetchedGroup) {
+    iris.modules.group_manager.globals.fetchGroupById(entity.groupid).then(function (fetchedGroup) {
 
       group = fetchedGroup;
 
@@ -32,18 +32,18 @@ CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, 
 
   // Check user is member of group
 
-  var checkMembership = C.promise(function (data, yes, no) {
+  var checkMembership = iris.promise(function (data, yes, no) {
 
-    CM.group_manager.globals.checkGroupMembership({
+    iris.modules.group_manager.globals.checkGroupMembership({
       userid: thisHook.authPass.userid,
       _id: entity.groupid,
     }, thisHook.authPass.userid).then(function (fetchedMember) {
 
       member = fetchedMember;
 
-      if (!CM.auth.globals.checkPermissions(['can bypass group permissions'], thisHook.authPass)) {
+      if (!iris.modules.auth.globals.checkPermissions(['can bypass group permissions'], thisHook.authPass)) {
 
-        if (CM.group_manager.globals.checkGroupPermission(group.type, ['can post message'], member.roles)) {
+        if (iris.modules.group_manager.globals.checkGroupPermission(group.type, ['can post message'], member.roles)) {
 
           yes(data);
 
@@ -61,7 +61,7 @@ CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, 
 
     }, function (fail) {
 
-      if (!CM.auth.globals.checkPermissions(['can post to group without membership'], thisHook.authPass)) {
+      if (!iris.modules.auth.globals.checkPermissions(['can post to group without membership'], thisHook.authPass)) {
 
         no("Cannot post to groups you are not a member of");
 
@@ -87,6 +87,6 @@ CM.messages.registerHook("hook_entity_validate_message", 0, function (thisHook, 
 
   }
 
-  C.promiseChain([checkGroupExists, checkMembership], entity, pass, fail);
+  iris.promiseChain([checkGroupExists, checkMembership], entity, pass, fail);
 
 });

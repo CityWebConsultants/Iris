@@ -1,4 +1,4 @@
-CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
   var req = {};
   req.body = data;
@@ -32,7 +32,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
     req.body.entities.forEach(function (entity) {
 
-      if (C.dbCollections[entity]) {
+      if (iris.dbCollections[entity]) {
 
         entityTypes.push(entity);
 
@@ -127,17 +127,17 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
       //First check if the user can view those entities.
 
-      if (!CM.auth.globals.checkPermissions(["can view any " + type], thisHook.authPass)) {
+      if (!iris.modules.auth.globals.checkPermissions(["can view any " + type], thisHook.authPass)) {
 
         return false;
 
       }
 
-      dbActions.push(C.promise(function (data, yes, no) {
+      dbActions.push(iris.promise(function (data, yes, no) {
 
           var fetch = function (query) {
 
-            C.dbCollections[type].find(query).lean().sort(req.body.sort).skip(req.body.skip).limit(req.body.limit).exec(function (err, doc) {
+            iris.dbCollections[type].find(query).lean().sort(req.body.sort).skip(req.body.skip).limit(req.body.limit).exec(function (err, doc) {
 
               if (err) {
 
@@ -159,9 +159,9 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
           };
 
-          C.hook("hook_entity_query_alter", thisHook.authPass, null, query).then(function (query) {
+          iris.hook("hook_entity_query_alter", thisHook.authPass, null, query).then(function (query) {
 
-            C.hook("hook_entity_query_alter_" + type, thisHook.authPass, null, query).then(function (query) {
+            iris.hook("hook_entity_query_alter_" + type, thisHook.authPass, null, query).then(function (query) {
 
               fetch(query);
 
@@ -197,15 +197,15 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
       Object.keys(entities).forEach(function (_id) {
 
-        viewHooks.push(C.promise(function (data, yes, no) {
+        viewHooks.push(iris.promise(function (data, yes, no) {
 
           //General entity view hook
 
-          C.hook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
+          iris.hook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
 
             entities[_id] = viewChecked;
 
-            C.hook("hook_entity_view_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
+            iris.hook("hook_entity_view_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
 
               entities[entity._id] = validated;
               yes();
@@ -234,7 +234,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
       });
 
-      C.promiseChain(viewHooks, null, function () {
+      iris.promiseChain(viewHooks, null, function () {
 
         var output = [];
 
@@ -244,7 +244,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
         }
 
-        C.hook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
+        iris.hook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
 
           thisHook.finish(true, output);
 
@@ -274,7 +274,7 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
     }
 
-    C.promiseChain(dbActions, null, success, fail);
+    iris.promiseChain(dbActions, null, success, fail);
 
   } else {
 
@@ -284,9 +284,9 @@ CM.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
 });
 
-C.app.get("/fetch", function (req, res) {
+iris.app.get("/fetch", function (req, res) {
 
-  C.hook("hook_entity_fetch", req.authPass, null, req.body).then(function (success) {
+  iris.hook("hook_entity_fetch", req.authPass, null, req.body).then(function (success) {
 
     res.respond(200, success);
 
@@ -299,13 +299,13 @@ C.app.get("/fetch", function (req, res) {
 });
 
 
-CM.entity.registerHook("hook_entity_query_alter", 0, function (thisHook, query) {
+iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHook, query) {
 
   thisHook.finish(true, query);
 
 });
 
-CM.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
+iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
 
   // Add timestamp
 
@@ -317,9 +317,9 @@ CM.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
 
   // Check if user can see entity type
 
-  if (!CM.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass)) {
+  if (!iris.modules.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass)) {
 
-    if (!CM.auth.globals.checkPermissions(["can view own " + entity.entityType], thisHook.authPass)) {
+    if (!iris.modules.auth.globals.checkPermissions(["can view own " + entity.entityType], thisHook.authPass)) {
 
       //Can't view any of this type, delete it
 
@@ -342,7 +342,7 @@ CM.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
 
 });
 
-CM.entity.registerHook("hook_entity_view_bulk", 0, function (thisHook, entityList) {
+iris.modules.entity.registerHook("hook_entity_view_bulk", 0, function (thisHook, entityList) {
 
   thisHook.finish(true, entityList);
 

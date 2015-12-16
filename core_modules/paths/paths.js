@@ -1,12 +1,12 @@
-C.registerModule("paths", true);
+iris.registerModule("paths", true);
 
-CM.paths.globals.entityPaths = {};
+iris.modules.paths.globals.entityPaths = {};
 
 process.on("dbReady", function () {
 
-  for (var collection in C.dbCollections) {
+  for (var collection in iris.dbCollections) {
 
-    C.dbCollections[collection].find({
+    iris.dbCollections[collection].find({
       path: {
         $exists: true
       }
@@ -16,7 +16,7 @@ process.on("dbReady", function () {
 
         doc.forEach(function (element) {
 
-          CM.paths.globals.entityPaths[element.path] = {
+          iris.modules.paths.globals.entityPaths[element.path] = {
             eid: element.eid,
             entityType: element.entityType
           };
@@ -31,7 +31,7 @@ process.on("dbReady", function () {
 
 });
 
-CM.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
+iris.modules.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
   // Skip if no path on entity
 
@@ -47,9 +47,9 @@ CM.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
   var path = data.path;
   var eid = data.eid;
 
-  if (CM.paths.globals.entityPaths[path] && CM.paths.globals.entityPaths[path].eid.toString() !== eid.toString()) {
+  if (iris.modules.paths.globals.entityPaths[path] && iris.modules.paths.globals.entityPaths[path].eid.toString() !== eid.toString()) {
 
-    C.log("notice", "entity with that path already exists");
+    iris.log("notice", "entity with that path already exists");
     thisHook.finish(false, "Entity with that path already exists");
 
   } else {
@@ -60,7 +60,7 @@ CM.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
 });
 
-CM.paths.registerHook("hook_entity_created", 0, function (thisHook, data) {
+iris.modules.paths.registerHook("hook_entity_created", 0, function (thisHook, data) {
 
   if (data.path) {
 
@@ -68,7 +68,7 @@ CM.paths.registerHook("hook_entity_created", 0, function (thisHook, data) {
     var eid = data.eid;
     var entityType = data.entityType;
 
-    CM.paths.globals.entityPaths[path] = {
+    iris.modules.paths.globals.entityPaths[path] = {
       eid: eid,
       entityType: entityType
     };
@@ -83,17 +83,17 @@ CM.paths.registerHook("hook_entity_created", 0, function (thisHook, data) {
 
 });
 
-CM.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
+iris.modules.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 
   // Remove any paths in the list that point to this entity
 
-  Object.keys(CM.paths.globals.entityPaths).forEach(function (path) {
+  Object.keys(iris.modules.paths.globals.entityPaths).forEach(function (path) {
 
-    var currentPath = CM.paths.globals.entityPaths[path];
+    var currentPath = iris.modules.paths.globals.entityPaths[path];
 
     if (currentPath.eid.toString() === data.eid.toString()) {
 
-      delete CM.paths.globals.entityPaths[path];
+      delete iris.modules.paths.globals.entityPaths[path];
 
     }
 
@@ -107,7 +107,7 @@ CM.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
     var eid = data.eid;
     var entityType = data.entityType;
 
-    CM.paths.globals.entityPaths[path] = {
+    iris.modules.paths.globals.entityPaths[path] = {
       eid: eid,
       entityType: entityType
     };
@@ -124,7 +124,7 @@ CM.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 
 // Handle custom paths
 
-C.app.use(function (req, res, next) {
+iris.app.use(function (req, res, next) {
 
   if (req.method !== "GET") {
 
@@ -135,15 +135,15 @@ C.app.use(function (req, res, next) {
 
   // Look up entity with the current 'path'
   
-  if (CM.paths.globals.entityPaths[req.url]) {
+  if (iris.modules.paths.globals.entityPaths[req.url]) {
 
-    C.dbCollections[CM.paths.globals.entityPaths[req.url].entityType].findOne({
-      eid: CM.paths.globals.entityPaths[req.url].eid
+    iris.dbCollections[iris.modules.paths.globals.entityPaths[req.url].entityType].findOne({
+      eid: iris.modules.paths.globals.entityPaths[req.url].eid
     }, function (err, doc) {
 
       if (!err && doc) {
 
-        CM.frontend.globals.getTemplate(doc, req.authPass, {
+        iris.modules.frontend.globals.getTemplate(doc, req.authPass, {
           req: req
         }).then(function (html) {
 
@@ -153,7 +153,7 @@ C.app.use(function (req, res, next) {
 
         }, function (fail) {
 
-          C.hook("hook_display_error_page", req.authPass, {
+          iris.hook("hook_display_error_page", req.authPass, {
             error: 500,
             req: req
           }).then(function (success) {

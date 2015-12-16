@@ -1,12 +1,12 @@
-C.registerModule("forms");
+iris.registerModule("forms");
 
 // Store of rendered form keys to check if form has already been submitted and stop cross site scripting problems with re-rendered forms
 
-CM.forms.globals.formRenderCache = {};
+iris.modules.forms.globals.formRenderCache = {};
 
 var toSource = require('tosource');
 
-CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
   if (thisHook.const.req.method === "POST") {
 
@@ -16,9 +16,9 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
       // Check if form id exists in cache, if not stop
 
-      if (CM.forms.globals.formRenderCache[body.formToken]) {
+      if (iris.modules.forms.globals.formRenderCache[body.formToken]) {
 
-        var token = CM.forms.globals.formRenderCache[body.formToken];
+        var token = iris.modules.forms.globals.formRenderCache[body.formToken];
 
         if (token.authPass.userid === thisHook.authPass.userid && body.formid === token.formid) {
 
@@ -45,13 +45,13 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
       delete thisHook.const.req.body.formToken;
       delete thisHook.const.req.body.formid;
             
-      C.hook("hook_form_submit", thisHook.authPass, {
+      iris.hook("hook_form_submit", thisHook.authPass, {
         params: body,
         formid: formid,
         req: thisHook.const.req
       }).then(function (gremlin) {
 
-        C.hook("hook_form_submit_" + formid, thisHook.authPass, {
+        iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
           params: body,
           formid: formid,
           req: thisHook.const.req
@@ -77,7 +77,7 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
           // Stop form being submitted a second time
 
-          //          delete CM.forms.globals.formRenderCache[body.formToken];
+          //          delete iris.modules.forms.globals.formRenderCache[body.formToken];
 
         }, function (fail) {
 
@@ -134,17 +134,17 @@ CM.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
 });
 
-CM.forms.registerHook("hook_form_submit", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
 
 });
 
-CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   var variables = data.variables;
 
-  CM.frontend.globals.parseBlock("form", data.html, function (form, next) {
+  iris.modules.frontend.globals.parseBlock("form", data.html, function (form, next) {
 
     var formParams = form.join(",");
 
@@ -171,7 +171,7 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
         var token = buf.toString('hex');
 
-        CM.forms.globals.formRenderCache[token] = {
+        iris.modules.forms.globals.formRenderCache[token] = {
           formid: formName,
           authPass: thisHook.authPass
         };
@@ -220,9 +220,9 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
         output += "<script>";
 
-        Object.keys(CM.forms.globals.widgets).forEach(function (widget) {
+        Object.keys(iris.modules.forms.globals.widgets).forEach(function (widget) {
 
-          output += "var " + widget + " = " + CM.forms.globals.widgets[widget] + "()";
+          output += "var " + widget + " = " + iris.modules.forms.globals.widgets[widget] + "()";
           output += "\n";
 
         });
@@ -262,12 +262,12 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
     };
 
-    C.hook("hook_form_render", thisHook.authPass, {
+    iris.hook("hook_form_render", thisHook.authPass, {
       formId: form[0],
       params: form
     }, formTemplate).then(function (formTemplate) {
 
-      C.hook("hook_form_render_" + formName, thisHook.authPass, {
+      iris.hook("hook_form_render_" + formName, thisHook.authPass, {
         formId: form[0],
         params: form
       }, formTemplate).then(function (form) {
@@ -311,18 +311,18 @@ CM.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, dat
 
 // Default hook form render
 
-CM.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
 
 })
 
-CM.forms.globals.widgets = {};
+iris.modules.forms.globals.widgets = {};
 
 // Allow custom form widget types
 
-CM.forms.globals.registerWidget = function (widgetFunction, name) {
+iris.modules.forms.globals.registerWidget = function (widgetFunction, name) {
 
-  CM.forms.globals.widgets[name] = toSource(widgetFunction);
+  iris.modules.forms.globals.widgets[name] = toSource(widgetFunction);
 
 }

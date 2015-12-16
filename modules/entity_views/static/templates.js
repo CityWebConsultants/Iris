@@ -124,8 +124,8 @@ T.initTemplate = function (element) {
 
       } catch (e) {
 
-        C.log("debug", query[2]);
-        C.log("error", e);
+        iris.log("debug", query[2]);
+        iris.log("error", e);
         return false;
 
       };

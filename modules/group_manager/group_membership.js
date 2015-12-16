@@ -1,13 +1,13 @@
 //Register add member hook and post call to send to it
 
-CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisHook, data) {
+iris.modules.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisHook, data) {
 
   //First check if group exists
 
   //Placeholder for group
 
   var group = {}
-  CM.group_manager.globals.fetchGroupById(data._id).then(function (found) {
+  iris.modules.group_manager.globals.fetchGroupById(data._id).then(function (found) {
 
     group = found;
 
@@ -17,11 +17,11 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
   });
 
-  var checkInput = C.promise(function (data, yes, no) {
+  var checkInput = iris.promise(function (data, yes, no) {
 
     if (!(data.member && data.member.userid && typeof data.member.userid === "string")) {
 
-      no(C.error(400, "Member must have a userid, and it must be a string"));
+      no(iris.error(400, "Member must have a userid, and it must be a string"));
 
     } else {
 
@@ -31,16 +31,16 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
   });
 
-  var checkPermission = C.promise(function (data, yes, no) {
+  var checkPermission = iris.promise(function (data, yes, no) {
 
-    CM.group_manager.globals.checkGroupMembership({
+    iris.modules.group_manager.globals.checkGroupMembership({
       _id: data._id,
       userid: thisHook.authPass.userid
     }, thisHook.authPass.userid).then(function (member) {
 
-      if (!CM.group_manager.globals.checkGroupPermission(group.type, ["can add member"], member.roles)) {
+      if (!iris.modules.group_manager.globals.checkGroupPermission(group.type, ["can add member"], member.roles)) {
 
-        no(C.error(403, "Not allowed to add group member"));
+        no(iris.error(403, "Not allowed to add group member"));
 
       } else {
 
@@ -54,13 +54,13 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
       //Check if user can add members to a group they aren't a member of
 
-      if (CM.auth.globals.checkPermissions(["can add member to group without membership"], thisHook.authPass)) {
+      if (iris.modules.auth.globals.checkPermissions(["can add member to group without membership"], thisHook.authPass)) {
 
         yes(data);
 
       } else {
 
-        no(C.error(403, "Cannot add member to group you aren't a member of"));
+        no(iris.error(403, "Cannot add member to group you aren't a member of"));
 
       };
 
@@ -68,14 +68,14 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
   });
 
-  var checkDuplicates = C.promise(function (data, yes, no) {
+  var checkDuplicates = iris.promise(function (data, yes, no) {
 
-    CM.group_manager.globals.checkGroupMembership({
+    iris.modules.group_manager.globals.checkGroupMembership({
       _id: data._id,
       userid: data.member.userid
     }, thisHook.authPass.userid).then(function (member) {
 
-      no(C.error(400, "Member already exists"));
+      no(iris.error(400, "Member already exists"));
 
     }, function (nomember) {
 
@@ -85,9 +85,9 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
   });
 
-  var addMember = C.promise(function (data, yes, no) {
+  var addMember = iris.promise(function (data, yes, no) {
 
-    C.dbCollections.group.update({
+    iris.dbCollections.group.update({
       "_id": data._id
     }, {
       $addToSet: {
@@ -97,7 +97,7 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
       if (err) {
 
-        no(C.error(500, "Database error"));
+        no(iris.error(500, "Database error"));
 
       } else if (doc) {
 
@@ -121,13 +121,13 @@ CM.group_manager.registerHook("hook_group_manager_addmember", 0, function (thisH
 
   };
 
-  C.promiseChain([checkInput, checkPermission, checkDuplicates, addMember], data, pass, fail);
+  iris.promiseChain([checkInput, checkPermission, checkDuplicates, addMember], data, pass, fail);
 
 });
 
-C.app.post("/group/addmember", function (req, res) {
+iris.app.post("/group/addmember", function (req, res) {
 
-  C.hook("hook_group_manager_addmember", req.authPass, null, req.body).then(function (pass) {
+  iris.hook("hook_group_manager_addmember", req.authPass, null, req.body).then(function (pass) {
 
     res.respond(200, pass);
 
@@ -150,14 +150,14 @@ C.app.post("/group/addmember", function (req, res) {
 
 // Register remove member hook and api endpoint
 
-CM.group_manager.registerHook("hook_group_manager_removemember", 0, function (thisHook, data) {
+iris.modules.group_manager.registerHook("hook_group_manager_removemember", 0, function (thisHook, data) {
 
   //First check if group exists
 
   //Placeholder for group
 
   var group = {}
-  CM.group_manager.globals.fetchGroupById(data._id).then(function (found) {
+  iris.modules.group_manager.globals.fetchGroupById(data._id).then(function (found) {
 
     group = found;
 
@@ -167,11 +167,11 @@ CM.group_manager.registerHook("hook_group_manager_removemember", 0, function (th
 
   });
 
-  var checkInput = C.promise(function (data, yes, no) {
+  var checkInput = iris.promise(function (data, yes, no) {
 
     if (!(data.member && typeof data.member === "string")) {
 
-      no(C.error(400, "Member must be a userid string"));
+      no(iris.error(400, "Member must be a userid string"));
 
     } else {
 
@@ -181,16 +181,16 @@ CM.group_manager.registerHook("hook_group_manager_removemember", 0, function (th
 
   });
 
-  var checkPermission = C.promise(function (data, yes, no) {
+  var checkPermission = iris.promise(function (data, yes, no) {
 
-    CM.group_manager.globals.checkGroupMembership({
+    iris.modules.group_manager.globals.checkGroupMembership({
       _id: data._id,
       userid: thisHook.authPass.userid
     }, thisHook.authPass.userid).then(function (member) {
 
-      if (!CM.group_manager.globals.checkGroupPermission(group.type, ["can remove member"], member.roles)) {
+      if (!iris.modules.group_manager.globals.checkGroupPermission(group.type, ["can remove member"], member.roles)) {
 
-        no(C.error(403, "Not allowed to remove group member"));
+        no(iris.error(403, "Not allowed to remove group member"));
 
       } else {
 
@@ -204,13 +204,13 @@ CM.group_manager.registerHook("hook_group_manager_removemember", 0, function (th
 
       //Check if user can add members to a group they aren't a member of
 
-      if (CM.auth.globals.checkPermissions(["can remove member from group without membership"], thisHook.authPass)) {
+      if (iris.modules.auth.globals.checkPermissions(["can remove member from group without membership"], thisHook.authPass)) {
 
         yes(data);
 
       } else {
 
-        no(C.error(403, "Cannot remove member from group you aren't a member of"));
+        no(iris.error(403, "Cannot remove member from group you aren't a member of"));
 
       };
 
@@ -218,9 +218,9 @@ CM.group_manager.registerHook("hook_group_manager_removemember", 0, function (th
 
   });
 
-  var removeMember = C.promise(function (data, yes, no) {
+  var removeMember = iris.promise(function (data, yes, no) {
 
-    C.dbCollections.group.update({
+    iris.dbCollections.group.update({
       "_id": data._id
     }, {
       $pull: {
@@ -230,7 +230,7 @@ CM.group_manager.registerHook("hook_group_manager_removemember", 0, function (th
 
       if (err) {
 
-        no(C.error(500, "Database error"));
+        no(iris.error(500, "Database error"));
 
       } else if (doc) {
 
@@ -254,13 +254,13 @@ CM.group_manager.registerHook("hook_group_manager_removemember", 0, function (th
 
   };
 
-  C.promiseChain([checkInput, checkPermission, removeMember], data, pass, fail);
+  iris.promiseChain([checkInput, checkPermission, removeMember], data, pass, fail);
 
 });
 
-C.app.post("/group/removemember", function (req, res) {
+iris.app.post("/group/removemember", function (req, res) {
 
-  C.hook("hook_group_manager_removemember", req.authPass, null, req.body).then(function (pass) {
+  iris.hook("hook_group_manager_removemember", req.authPass, null, req.body).then(function (pass) {
 
     res.respond(200, pass);
 

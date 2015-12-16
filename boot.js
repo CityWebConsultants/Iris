@@ -5,14 +5,14 @@ module.exports = function (config) {
 
   //Create global object for the application, remove existing
 
-  global.C = {};
+  global.iris = {};
 
   var path = require('path');
 
   //Store helper paths
 
-  C.rootPath = __dirname;
-  C.sitePath = process.cwd();
+  iris.rootPath = __dirname;
+  iris.sitePath = process.cwd();
 
   //Make config folder
 
@@ -26,15 +26,15 @@ module.exports = function (config) {
     }
   }
 
-  mkdirSync(C.sitePath + "/" + "configurations");
+  mkdirSync(iris.sitePath + "/" + "configurations");
 
-  C.configStore = {};
+  iris.configStore = {};
 
-  C.configPath = path.join(C.sitePath, "/configurations");
+  iris.configPath = path.join(iris.sitePath, "/configurations");
 
-  C.saveConfig = function (contents, directory, filename, callback) {
+  iris.saveConfig = function (contents, directory, filename, callback) {
 
-    var current = C.configStore;
+    var current = iris.configStore;
 
     directory.split("/").forEach(function (path) {
 
@@ -50,7 +50,7 @@ module.exports = function (config) {
 
     current[filename] = contents;
 
-    var filePath = path.join(C.sitePath, "/configurations", directory);
+    var filePath = path.join(iris.sitePath, "/configurations", directory);
 
     var mkdirp = require('mkdirp');
 
@@ -64,7 +64,7 @@ module.exports = function (config) {
 
   };
 
-  C.deleteConfig = function (directory, filename, callback) {
+  iris.deleteConfig = function (directory, filename, callback) {
     var splitDirectory = directory.split('/');
 
     // Get last parts of the directory, used as key in config store
@@ -72,15 +72,15 @@ module.exports = function (config) {
     var configStoreInstance = splitDirectory[splitDirectory.length - 1];
 
     // Delete it from config store, if present
-    if (C.configStore[configStoreCategory][configStoreInstance][filename]) {
+    if (iris.configStore[configStoreCategory][configStoreInstance][filename]) {
 
-      delete C.configStore[configStoreCategory][configStoreInstance][filename];
+      delete iris.configStore[configStoreCategory][configStoreInstance][filename];
 
     }
 
 
 
-    var filePath = path.join(C.sitePath, "/configurations", directory);
+    var filePath = path.join(iris.sitePath, "/configurations", directory);
 
     filePath = filePath + '/' + filename + '.json';
 
@@ -101,7 +101,7 @@ module.exports = function (config) {
 
   };
 
-  C.readConfig = function (directory, filename) {
+  iris.readConfig = function (directory, filename) {
 
     return new Promise(function (yes, no) {
 
@@ -117,7 +117,7 @@ module.exports = function (config) {
         return ref;
       }
 
-      var exists = defined(C.configStore, directory + "/" + filename);
+      var exists = defined(iris.configStore, directory + "/" + filename);
 
       if (exists) {
 
@@ -127,9 +127,9 @@ module.exports = function (config) {
 
         try {
 
-          var contents = JSON.parse(fs.readFileSync(C.sitePath + "/configurations" + "/" + directory + "/" + filename + ".json", "utf8"));
+          var contents = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations" + "/" + directory + "/" + filename + ".json", "utf8"));
 
-          C.saveConfig(contents, directory, filename);
+          iris.saveConfig(contents, directory, filename);
 
           yes(contents);
 
@@ -147,7 +147,7 @@ module.exports = function (config) {
 
   //Make files directory
 
-  mkdirSync(C.sitePath + "/" + "files");
+  mkdirSync(iris.sitePath + "/" + "files");
 
   //Fetch command line parameters
 
@@ -183,13 +183,13 @@ module.exports = function (config) {
 
   //Store config object for global use
 
-  C.config = config;
+  iris.config = config;
 
   console.log("\nLaunching server");
 
   //Hook system
 
-  C.hook = require('./hook');
+  iris.hook = require('./hook');
 
   //Load in helper utilities
 
@@ -211,11 +211,15 @@ module.exports = function (config) {
 
   require('./db');
 
-  C.status = {
+  iris.status = {
 
     ready: false
 
   };
+
+  // Create iris modules object
+
+  iris.modules = {};
 
   mongoose.connection.once("open", function () {
 
@@ -223,7 +227,7 @@ module.exports = function (config) {
 
     require('./core_modules/auth/auth.js');
 
-    C.hook("hook_module_init_auth", "root", null, null).then(function (success) {
+    iris.hook("hook_module_init_auth", "root", null, null).then(function (success) {
 
       console.log("Auth module loaded")
 
@@ -243,7 +247,7 @@ module.exports = function (config) {
 
     require('./core_modules/entity/entity.js');
 
-    C.hook("hook_module_init_entity", "root", null, null).then(function (success) {
+    iris.hook("hook_module_init_entity", "root", null, null).then(function (success) {
 
       console.log("Auth module loaded")
 
@@ -285,11 +289,11 @@ module.exports = function (config) {
 
     console.log("Loading modules.");
 
-    C.enabledModules = JSON.parse(fs.readFileSync(process.cwd() + '/enabled_modules.json'));
+    iris.enabledModules = JSON.parse(fs.readFileSync(process.cwd() + '/enabled_modules.json'));
 
     console.log(" ");
 
-    C.enabledModules.forEach(function (enabledModule, index) {
+    iris.enabledModules.forEach(function (enabledModule, index) {
 
       try {
 
@@ -304,7 +308,7 @@ module.exports = function (config) {
 
       require(__dirname + enabledModule.path + "/" + enabledModule.name + ".js");
 
-      C.hook("hook_module_init_" + enabledModule.name, "root", null, null).then(function (success) {
+      iris.hook("hook_module_init_" + enabledModule.name, "root", null, null).then(function (success) {
 
         console.log(enabledModule.name + " loaded")
 
@@ -324,17 +328,17 @@ module.exports = function (config) {
 
     });
 
-    C.status.ready = true;
+    iris.status.ready = true;
 
     // Free C object, no longer extensible
 
-    Object.freeze(C);
+    Object.freeze(iris);
 
-    C.log("info", "Server started");
+    iris.log("info", "Server started");
 
-    C.app.use(function (req, res) {
+    iris.app.use(function (req, res) {
 
-      C.hook("hook_catch_request", req.authPass, {
+      iris.hook("hook_catch_request", req.authPass, {
         req: req
       }, null).then(function (success) {
 
@@ -356,7 +360,7 @@ module.exports = function (config) {
 
           } else {
 
-            C.hook("hook_display_error_page", req.authPass, {
+            iris.hook("hook_display_error_page", req.authPass, {
               error: 404,
               req: req,
               res: res
@@ -375,7 +379,7 @@ module.exports = function (config) {
         },
         function (fail) {
 
-          C.hook("hook_display_error_page", req.authPass, {
+          iris.hook("hook_display_error_page", req.authPass, {
             error: 404,
             req: req,
             res: res
@@ -393,10 +397,10 @@ module.exports = function (config) {
 
     });
 
-    C.app.use(function (err, req, res, next) {
+    iris.app.use(function (err, req, res, next) {
       console.log(err);
 
-      C.hook("hook_display_error_page", req.authPass, {
+      iris.hook("hook_display_error_page", req.authPass, {
         error: 500,
         req: req,
         res: res
@@ -412,7 +416,7 @@ module.exports = function (config) {
 
     });
 
-    C.dbPopulate();
+    iris.dbPopulate();
 
     // Send server ready message and get sessions
 
@@ -424,7 +428,7 @@ module.exports = function (config) {
 
         Object.keys(m.sessions).forEach(function (user) {
 
-          CM.auth.globals.userList[user] = m.sessions[user];
+          iris.modules.auth.globals.userList[user] = m.sessions[user];
 
         });
 

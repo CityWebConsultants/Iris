@@ -1,4 +1,4 @@
-C.promiseChain = function (tasks, parameters, success, fail) {
+iris.promiseChain = function (tasks, parameters, success, fail) {
 
   tasks.reduce(function (cur, next) {
     return cur.then(next);
@@ -6,7 +6,7 @@ C.promiseChain = function (tasks, parameters, success, fail) {
 
 };
 
-C.promise = function (callback) {
+iris.promise = function (callback) {
 
   return function (data) {
 
@@ -22,7 +22,7 @@ C.promise = function (callback) {
         console.log(e);
         console.log("---       END        ---");
 
-        C.log("warn", e);
+        iris.log("warn", e);
         no("error");
 
       }
@@ -35,19 +35,19 @@ C.promise = function (callback) {
 
 var util = require('util');
 
-C.translations = {};
+iris.translations = {};
 
-C.registerTranslation = function (string, output) {
+iris.registerTranslation = function (string, output) {
 
-  C.translations[string] = output;
+  iris.translations[string] = output;
 
 };
 
-C.translate = function (translationString, arguments) {
+iris.translate = function (translationString, arguments) {
 
-  if (C.translations[translationString]) {
+  if (iris.translations[translationString]) {
 
-    translationString = C.translations[translationString];
+    translationString = iris.translations[translationString];
 
   }
 
@@ -55,7 +55,7 @@ C.translate = function (translationString, arguments) {
 
 }
 
-C.typeCheck = function (allowed, entity, data) {
+iris.typeCheck = function (allowed, entity, data) {
 
   //Field type checking
 
@@ -91,7 +91,7 @@ C.typeCheck = function (allowed, entity, data) {
 
 };
 
-C.sanitizeFileName = function (name) {
+iris.sanitizeFileName = function (name) {
 
   // Doesn't currently support anything not English
   return name.split(/\W/).join('-').toLowerCase();

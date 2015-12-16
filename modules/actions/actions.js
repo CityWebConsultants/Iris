@@ -1,10 +1,10 @@
-C.registerModule("actions");
+iris.registerModule("actions");
 
 //Make actions directory
 
 var fs = require("fs");
 
-CM.actions.globals = {
+iris.modules.actions.globals = {
 
   events: {},
   conditions: {},
@@ -13,13 +13,13 @@ CM.actions.globals = {
 
   registerEvent: function (name, event, variables, outputfunction) {
 
-    CM.actions.globals.events[name] = {
+    iris.modules.actions.globals.events[name] = {
       variables: variables
     };
 
     process.on(event, function (data) {
 
-      var events = fs.readdirSync(C.sitePath + "/configurations/" + "actions");
+      var events = fs.readdirSync(iris.sitePath + "/configurations/" + "actions");
 
       events.forEach(function (file) {
 
@@ -27,7 +27,7 @@ CM.actions.globals = {
 
         if (event === name) {
 
-          var file = fs.readFileSync(C.sitePath + "/configurations/actions/" + file, "utf8");
+          var file = fs.readFileSync(iris.sitePath + "/configurations/actions/" + file, "utf8");
 
           ruleSet = JSON.parse(file);
 
@@ -71,9 +71,9 @@ CM.actions.globals = {
 
                   });
 
-                  tests.push(C.promise(function (data, yes, no) {
+                  tests.push(iris.promise(function (data, yes, no) {
 
-                    CM.actions.globals.conditions[condition.name].test(condition.variables).then(function () {
+                    iris.modules.actions.globals.conditions[condition.name].test(condition.variables).then(function () {
 
                       yes();
 
@@ -101,7 +101,7 @@ CM.actions.globals = {
 
               };
 
-              C.promiseChain(tests, null, success, fail);
+              iris.promiseChain(tests, null, success, fail);
 
             }
 
@@ -117,7 +117,7 @@ CM.actions.globals = {
 
   registerCondition: function (name, variables, testPromise) {
 
-    CM.actions.globals.conditions[name] = {
+    iris.modules.actions.globals.conditions[name] = {
       variables: variables,
       test: testPromise
     };
@@ -131,7 +131,7 @@ CM.actions.globals = {
 
 }
 
-CM.actions.globals.registerEvent("newblogpost", "New blog post", [{
+iris.modules.actions.globals.registerEvent("newblogpost", "New blog post", [{
   type: "String",
   name: "Blog title"
 }], function (data, callback) {
@@ -144,10 +144,10 @@ CM.actions.globals.registerEvent("newblogpost", "New blog post", [{
 
 });
 
-CM.actions.globals.registerCondition("Check title", [{
+iris.modules.actions.globals.registerCondition("Check title", [{
   type: "String",
   name: "Title"
-}], C.promise(function (data, yes, no) {
+}], iris.promise(function (data, yes, no) {
 
   if (data.name === "hello") {
 

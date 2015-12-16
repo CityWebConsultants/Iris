@@ -1,4 +1,4 @@
-C.registerModule("frontend");
+iris.registerModule("frontend");
 
 var fs = require('fs');
 var express = require('express');
@@ -19,9 +19,9 @@ var mkdirSync = function (path) {
 
 process.on("dbReady", function () {
 
-  Object.keys(CM).forEach(function (moduleName) {
+  Object.keys(iris.modules).forEach(function (moduleName) {
 
-    CM.frontend.globals.templateRegistry.external.push(CM[moduleName].path + '/templates');
+    iris.modules.frontend.globals.templateRegistry.external.push(iris.modules[moduleName].path + '/templates');
 
   })
 
@@ -29,35 +29,35 @@ process.on("dbReady", function () {
 
 try {
 
-  fs.readdirSync(C.sitePath + '/' + C.config.theme + "/templates");
-  fs.readdirSync(C.sitePath + '/' + C.config.theme + "/static");
+  fs.readdirSync(iris.sitePath + '/' + iris.config.theme + "/templates");
+  fs.readdirSync(iris.sitePath + '/' + iris.config.theme + "/static");
 
 } catch (e) {
 
   // Make theme settings if not set
 
-  mkdirSync(C.sitePath + '/' + "themes");
-  mkdirSync(C.sitePath + '/' + C.config.theme);
+  mkdirSync(iris.sitePath + '/' + "themes");
+  mkdirSync(iris.sitePath + '/' + iris.config.theme);
 
-  mkdirSync(C.sitePath + '/' + C.config.theme + "/templates");
-  mkdirSync(C.sitePath + '/' + C.config.theme + "/static");
+  mkdirSync(iris.sitePath + '/' + iris.config.theme + "/templates");
+  mkdirSync(iris.sitePath + '/' + iris.config.theme + "/static");
 
-  fs.writeFileSync(C.sitePath + '/' + C.config.theme + "/theme.json", '{}', 'utf8');
+  fs.writeFileSync(iris.sitePath + '/' + iris.config.theme + "/theme.json", '{}', 'utf8');
 
 }
 
 // Template Registry. Contains arrays of directories to look for templates in.
-CM.frontend.globals.templateRegistry = {
-  theme: [C.sitePath + '/' + C.config.theme + "/templates"],
+iris.modules.frontend.globals.templateRegistry = {
+  theme: [iris.sitePath + '/' + iris.config.theme + "/templates"],
   external: [__dirname + '/templates']
 };
 
 // Theme static setup
-C.app.use("/static", express.static(C.sitePath + '/' + C.config.theme + '/static'));
+iris.app.use("/static", express.static(iris.sitePath + '/' + iris.config.theme + '/static'));
 
 // Function for returning a parsed HTML template for an entity, including sub templates
 
-CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
+iris.modules.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
   var req = optionalContext.req;
 
@@ -89,11 +89,11 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
     // Check if the current person can access the entity itself
 
-    C.hook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
+    iris.hook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
 
       if (!viewChecked) {
 
-        C.hook("hook_display_error_page", req.authPass, {
+        iris.hook("hook_display_error_page", req.authPass, {
           error: 403,
           req: req
         }).then(function (success) {
@@ -114,7 +114,7 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
       }
 
-      C.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, entity).then(function (validated) {
+      iris.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, entity).then(function (validated) {
 
         if (validated) {
 
@@ -146,13 +146,13 @@ CM.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
 
     var renderTemplate = function () {
 
-      CM.frontend.globals.parseTemplateFile([entity.entityType, entity.eid], ["html", entity.entityType, entity.eid], context, authPass, context.req).then(function (success) {
+      iris.modules.frontend.globals.parseTemplateFile([entity.entityType, entity.eid], ["html", entity.entityType, entity.eid], context, authPass, context.req).then(function (success) {
 
         yes(success);
 
       }, function (fail) {
 
-        C.log("error", fail);
+        iris.log("error", fail);
 
         no("Could not parse template");
 
@@ -213,7 +213,7 @@ var findTemplate = function (paths, extension) {
 
     var found = [];
 
-    CM.frontend.globals.templateRegistry.theme.forEach(function (directory) {
+    iris.modules.frontend.globals.templateRegistry.theme.forEach(function (directory) {
 
       var files = fs.readdirSync(directory);
 
@@ -231,7 +231,7 @@ var findTemplate = function (paths, extension) {
 
     });
 
-    CM.frontend.globals.templateRegistry.external.forEach(function (directory) {
+    iris.modules.frontend.globals.templateRegistry.external.forEach(function (directory) {
 
       try {
         var files = fs.readdirSync(directory)
@@ -309,9 +309,9 @@ var findTemplate = function (paths, extension) {
 
     } else {
 
-      if (Object.keys(C.dbCollections).indexOf(paths[0]) !== -1) {
+      if (Object.keys(iris.dbCollections).indexOf(paths[0]) !== -1) {
 
-        CM.frontend.globals.findTemplate(["entity"], "html").then(function (html) {
+        iris.modules.frontend.globals.findTemplate(["entity"], "html").then(function (html) {
 
           yes(html);
 
@@ -333,11 +333,11 @@ var findTemplate = function (paths, extension) {
 
 };
 
-CM.frontend.globals.findTemplate = findTemplate;
+iris.modules.frontend.globals.findTemplate = findTemplate;
 
 // Helper function for parsing blocks
 
-CM.frontend.globals.parseBlock = function (prefix, html, action) {
+iris.modules.frontend.globals.parseBlock = function (prefix, html, action) {
 
   return new Promise(function (yes, no) {
 
@@ -445,7 +445,7 @@ var parseTemplate = function (html, authPass, context) {
 
       } else {
 
-        C.hook("hook_frontend_template_parse", authPass, {
+        iris.hook("hook_frontend_template_parse", authPass, {
           context: context
         }, {
           html: HTML,
@@ -535,7 +535,7 @@ var parseTemplate = function (html, authPass, context) {
 
             if (counter === 0) {
 
-              C.hook("hook_frontend_template_context", authPass, output, context.custom).then(function (newContext) {
+              iris.hook("hook_frontend_template_context", authPass, output, context.custom).then(function (newContext) {
 
                 complete(output);
 
@@ -547,7 +547,7 @@ var parseTemplate = function (html, authPass, context) {
 
         }, function (fail) {
 
-          C.log("error", "Cannot find template " + element);
+          iris.log("error", "Cannot find template " + element);
 
           // Remove template if it can't be found
 
@@ -565,13 +565,13 @@ var parseTemplate = function (html, authPass, context) {
 
     } else {
 
-      C.hook("hook_frontend_template_context", authPass, output, context.custom).then(function (newContext) {
+      iris.hook("hook_frontend_template_context", authPass, output, context.custom).then(function (newContext) {
 
         complete(output);
 
       }, function (fail) {
 
-        C.log("error", fail);
+        iris.log("error", fail);
 
       });
 
@@ -581,21 +581,21 @@ var parseTemplate = function (html, authPass, context) {
 
 };
 
-CM.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
 
 });
 
-CM.frontend.registerHook("hook_frontend_template_context", 0, function (thisHook, data) {
+iris.modules.frontend.registerHook("hook_frontend_template_context", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
 
 });
 
-CM.frontend.globals.parseTemplate = parseTemplate;
+iris.modules.frontend.globals.parseTemplate = parseTemplate;
 
-C.app.use(function (req, res, next) {
+iris.app.use(function (req, res, next) {
 
   if (req.method !== "GET") {
 
@@ -608,11 +608,11 @@ C.app.use(function (req, res, next) {
 
   var splitUrl = req.url.split('/');
 
-  if (splitUrl && splitUrl.length === 3 && Object.keys(C.dbCollections).indexOf(splitUrl[1]) !== -1) {
+  if (splitUrl && splitUrl.length === 3 && Object.keys(iris.dbCollections).indexOf(splitUrl[1]) !== -1) {
 
-    for (var path in CM.paths.globals.entityPaths) {
+    for (var path in iris.modules.paths.globals.entityPaths) {
 
-      if (CM.paths.globals.entityPaths[path].eid && CM.paths.globals.entityPaths[path].eid.toString() === splitUrl[2] && CM.paths.globals.entityPaths[path].entityType === splitUrl[1]) {
+      if (iris.modules.paths.globals.entityPaths[path].eid && iris.modules.paths.globals.entityPaths[path].eid.toString() === splitUrl[2] && iris.modules.paths.globals.entityPaths[path].entityType === splitUrl[1]) {
 
         res.redirect(path)
 
@@ -622,7 +622,7 @@ C.app.use(function (req, res, next) {
 
     }
 
-    C.hook("hook_entity_fetch", req.authPass, null, {
+    iris.hook("hook_entity_fetch", req.authPass, null, {
       queryList: [{
         entities: [splitUrl[1]],
         queries: [{
@@ -635,7 +635,7 @@ C.app.use(function (req, res, next) {
 
       if (result && result[0]) {
 
-        CM.frontend.globals.getTemplate(result[0], req.authPass, {
+        iris.modules.frontend.globals.getTemplate(result[0], req.authPass, {
           req: req
         }).then(function (html) {
 
@@ -645,7 +645,7 @@ C.app.use(function (req, res, next) {
 
         }, function (fail) {
 
-          C.hook("hook_display_error_page", req.authPass, {
+          iris.hook("hook_display_error_page", req.authPass, {
             error: 500,
             req: req
           }).then(function (success) {
@@ -682,7 +682,7 @@ C.app.use(function (req, res, next) {
 
 });
 
-CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data) {
+iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data) {
 
   var isFront = false;
 
@@ -692,7 +692,7 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
 
   }
 
-  CM.frontend.globals.parseTemplateFile([thisHook.const.error], null, {
+  iris.modules.frontend.globals.parseTemplateFile([thisHook.const.error], null, {
     front: isFront
   }, thisHook.const.req.authPass, thisHook.const.req).then(function (success) {
 
@@ -708,7 +708,7 @@ CM.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data)
 
 // Handlebars templating
 
-CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
+iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
 
   var Handlebars = require('handlebars');
 
@@ -720,7 +720,7 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
 
     if (data.html.indexOf("[[[") !== -1) {
 
-      CM.frontend.globals.parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
+      iris.modules.frontend.globals.parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
 
         success.html = Handlebars.compile(success.html)(success.variables);
 
@@ -747,15 +747,15 @@ CM.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) 
 
 // Helper function for parsing a template from a file with parameters
 
-CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
+iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
 
   return new Promise(function (yes, no) {
 
     var parseTemplateFile = function (currentTemplateName, parameters, callback) {
 
-      CM.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
+      iris.modules.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
 
-        CM.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
+        iris.modules.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
 
             // Add wrapper paramaters for filename
 
@@ -787,7 +787,7 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
           var output = wrapperOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput.html);
 
-          C.hook("hook_frontend_template", authPass || "root", {
+          iris.hook("hook_frontend_template", authPass || "root", {
             html: output,
             vars: innerOutput.variables
           }, {
@@ -811,7 +811,7 @@ CM.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateN
 
       parseTemplateFile(templateName, parameters, function (output) {
 
-        C.hook("hook_frontend_template", authPass || "root", {
+        iris.hook("hook_frontend_template", authPass || "root", {
           html: output.html,
           vars: output.variables
         }, {

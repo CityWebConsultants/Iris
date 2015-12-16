@@ -6,24 +6,24 @@ var io = require('socket.io');
 
 //Function for registering socket events
 
-C.socketListeners = {};
+iris.socketListeners = {};
 
 // Loop over all installed node.js modules and check if hook is present
 
-C.socketServer = io(C.server);
+iris.socketServer = io(iris.server);
 
-C.sendSocketMessage = function (userids, message, data) {
+iris.sendSocketMessage = function (userids, message, data) {
 
   if (userids.indexOf("*") !== -1) {
 
-    C.socketServer.emit(message, data);
+    iris.socketServer.emit(message, data);
     return false;
 
   }
 
   userids.forEach(function (userid) {
 
-    var user = CM.auth.globals.userList[userid];
+    var user = iris.modules.auth.globals.userList[userid];
 
     if (user && user.sockets) {
       Object.keys(user.sockets).forEach(function (socket) {
@@ -38,9 +38,9 @@ C.sendSocketMessage = function (userids, message, data) {
 
 };
 
-C.socketServer.on("connection", function (socket) {
+iris.socketServer.on("connection", function (socket) {
 
-  if (!C.status.ready) {
+  if (!iris.status.ready) {
 
     socket.emit("Error", "Starting up");
     return false;
@@ -51,13 +51,13 @@ C.socketServer.on("connection", function (socket) {
 
   socket.on("pair", function (credentials) {
 
-    CM.auth.globals.credentialsToPass(credentials).then(function (authPass) {
+    iris.modules.auth.globals.credentialsToPass(credentials).then(function (authPass) {
 
       //Paired
 
       //Check if a user object exists
 
-      socket.user = CM.auth.globals.userList[authPass.userid];
+      socket.user = iris.modules.auth.globals.userList[authPass.userid];
 
       socket.authPass = authPass;
 
@@ -69,7 +69,7 @@ C.socketServer.on("connection", function (socket) {
 
         }
 
-        CM.auth.globals.userList[authPass.userid].sockets[socket.id] = {
+        iris.modules.auth.globals.userList[authPass.userid].sockets[socket.id] = {
           socket: socket,
           timestamp: Date.now()
         };
@@ -98,15 +98,15 @@ C.socketServer.on("connection", function (socket) {
 
     //Run hook for disconnected socket
 
-    C.hook("hook_socket_disconnected", socket.authPass, null, Date.now())
+    iris.hook("hook_socket_disconnected", socket.authPass, null, Date.now())
 
   });
 
   //Register all custom listeners from modules
 
-  Object.keys(C.socketListeners).forEach(function (event, index) {
+  Object.keys(iris.socketListeners).forEach(function (event, index) {
 
-    C.socketListeners[event].forEach(function (trigger) {
+    iris.socketListeners[event].forEach(function (trigger) {
 
       var callback = function (data) {
 

@@ -1,16 +1,16 @@
-C.registerModule("sessions");
+iris.registerModule("sessions");
 
-C.app.get("/checkauth", function (req, res) {
+iris.app.get("/checkauth", function (req, res) {
 
   res.respond(200, req.authPass.userid);
 
 });
 
-CM.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, data) {
+iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, data) {
 
   if (thisHook.req && thisHook.req.cookies && thisHook.req.cookies.userid && thisHook.req.cookies.token) {
 
-    if (CM.auth.globals.checkAccessToken(thisHook.req.cookies.userid, thisHook.req.cookies.token)) {
+    if (iris.modules.auth.globals.checkAccessToken(thisHook.req.cookies.userid, thisHook.req.cookies.token)) {
 
       data.userid = thisHook.req.cookies.userid;
       data.roles.push("authenticated");
@@ -23,7 +23,7 @@ CM.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, data) {
 
 });
 
-CM.sessions.globals.writeCookies = function (userid, token, res, maxAge, options) {
+iris.modules.sessions.globals.writeCookies = function (userid, token, res, maxAge, options) {
 
   var cookieOptions = {};
 

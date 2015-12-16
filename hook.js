@@ -39,9 +39,9 @@ var hook = function (hookname, authPass, static, variables) {
 
     // Loop over all installed modules and check if hook is present
 
-    Object.keys(CM).forEach(function (element) {
+    Object.keys(iris.modules).forEach(function (element) {
 
-      var moduleHooks = CM[element].hooks;
+      var moduleHooks = iris.modules[element].hooks;
 
       if (moduleHooks[hookname]) {
 
@@ -152,7 +152,7 @@ var hook = function (hookname, authPass, static, variables) {
 
     //Hookcalls are now sorted, ready to be run
 
-    C.promiseChain(hookCallPromises, data, yes, no);
+    iris.promiseChain(hookCallPromises, data, yes, no);
 
   });
 

@@ -8,13 +8,13 @@ var autoIncrement = require('mongoose-auto-increment');
 
 var fs = require('fs');
 
-var connectionUri = 'mongodb://' + C.config.db_server + ':' + C.config.db_port + '/' + C.config.db_name;
+var connectionUri = 'mongodb://' + iris.config.db_server + ':' + iris.config.db_port + '/' + iris.config.db_name;
 
-if (C.config.db_username && C.config.db_password) {
+if (iris.config.db_username && iris.config.db_password) {
 
   mongoose.connect(connectionUri, {
-    user: C.config.db_username,
-    pass: C.config.db_password
+    user: iris.config.db_username,
+    pass: iris.config.db_password
   });
 
 } else {
@@ -34,46 +34,46 @@ mongoose.connection.on('error', function (error) {
 
 });
 
-C.dbCollections = {};
+iris.dbCollections = {};
 
-C.dbSchemaJSON = {};
+iris.dbSchemaJSON = {};
 
-C.dbSchema = {};
+iris.dbSchema = {};
 
 var dbReady = false;
 
-C.dbPopulate = function () {
+iris.dbPopulate = function () {
 
   // Delete any existing schema so they can be re-written
 
-  Object.keys(C.dbSchema).forEach(function (oldSchema) {
+  Object.keys(iris.dbSchema).forEach(function (oldSchema) {
 
-    delete C.dbSchema[oldSchema];
+    delete iris.dbSchema[oldSchema];
 
   })
 
   // Loop over all enabled modules and check for schema files
-
-  Object.keys(CM).forEach(function (moduleName) {
+  
+  Object.keys(iris.modules).forEach(function (moduleName) {
 
     try {
-      fs.readdirSync(CM[moduleName].path + "/schema").forEach(function (schemafile) {
+      fs.readdirSync(iris.modules[moduleName].path + "/schema").forEach(function (schemafile) {
 
         schemafile = schemafile.toLowerCase().replace(".json", "");
 
         //Check if schema already exists for entity type, if not, add it
 
-        if (!C.dbSchema[schemafile]) {
+        if (!iris.dbSchema[schemafile]) {
 
-          C.dbSchema[schemafile] = {};
+          iris.dbSchema[schemafile] = {};
 
         }
 
-        var file = JSON.parse(fs.readFileSync(CM[moduleName].path + "/schema/" + schemafile + ".json"));
+        var file = JSON.parse(fs.readFileSync(iris.modules[moduleName].path + "/schema/" + schemafile + ".json"));
 
         Object.keys(file).forEach(function (field) {
 
-          C.dbSchema[schemafile][field] = file[field];
+          iris.dbSchema[schemafile][field] = file[field];
 
         });
 
@@ -89,21 +89,21 @@ C.dbPopulate = function () {
 
   // See if site config has added any schema or schemafields
 
-  fs.readdirSync(C.sitePath + "/configurations/entity").forEach(function (schemafile) {
+  fs.readdirSync(iris.sitePath + "/configurations/entity").forEach(function (schemafile) {
 
     var schemaName = schemafile.toLowerCase().replace(".json", "");
 
-    var file = JSON.parse(fs.readFileSync(C.sitePath + "/configurations/entity/" + schemafile, "UTF8"));
+    var file = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations/entity/" + schemafile, "UTF8"));
 
-    if (!C.dbSchema[schemaName]) {
+    if (!iris.dbSchema[schemaName]) {
 
-      C.dbSchema[schemaName] = {};
+      iris.dbSchema[schemaName] = {};
 
     }
 
     Object.keys(file).forEach(function (field) {
 
-      C.dbSchema[schemaName][field] = file[field];
+      iris.dbSchema[schemaName][field] = file[field];
 
     });
 
@@ -129,7 +129,7 @@ C.dbPopulate = function () {
 
   };
 
-  Object.keys(C.dbSchema).forEach(function (schema) {
+  Object.keys(iris.dbSchema).forEach(function (schema) {
 
     var parseField = function (field) {
 
@@ -155,11 +155,11 @@ C.dbPopulate = function () {
 
       // Convert types
 
-      CM.entity2.globals.fetchSchemaForm();
+      iris.modules.entity2.globals.fetchSchemaForm();
 
-      if (CM.entity2.globals.fieldTypes[field.fieldTypeName] && CM.entity2.globals.fieldTypes[field.fieldTypeName].fieldTypeType) {
+      if (iris.modules.entity2.globals.fieldTypes[field.fieldTypeName] && iris.modules.entity2.globals.fieldTypes[field.fieldTypeName].fieldTypeType) {
 
-        var fieldType = CM.entity2.globals.fieldTypes[field.fieldTypeName].fieldTypeType;
+        var fieldType = iris.modules.entity2.globals.fieldTypes[field.fieldTypeName].fieldTypeType;
 
       }
 
@@ -173,45 +173,45 @@ C.dbPopulate = function () {
 
     // Make JSON copy of complete schema
 
-    C.dbSchemaJSON[schema] = JSON.parse(JSON.stringify(C.dbSchema[schema]));
+    iris.dbSchemaJSON[schema] = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
 
     // Filter out universal fields
 
     var universalFields = ["entityType", "entityAuthor", "eid"];
 
-    Object.keys(C.dbSchemaJSON[schema]).forEach(function (field) {
+    Object.keys(iris.dbSchemaJSON[schema]).forEach(function (field) {
 
       if (universalFields.indexOf(field) !== -1) {
 
-        delete C.dbSchemaJSON[schema][field];
+        delete iris.dbSchemaJSON[schema][field];
 
       }
 
     })
 
-    Object.keys(C.dbSchema[schema]).forEach(function (field) {
+    Object.keys(iris.dbSchema[schema]).forEach(function (field) {
 
-      parseField(C.dbSchema[schema][field]);
+      parseField(iris.dbSchema[schema][field]);
 
     });
 
     //Push in universal type fields if not already in.
 
-    C.dbSchema[schema].entityType = {
+    iris.dbSchema[schema].entityType = {
       type: String,
       description: "The type of entity this is",
       title: "Entity type",
       required: true
     }
 
-    C.dbSchema[schema].entityAuthor = {
+    iris.dbSchema[schema].entityAuthor = {
       type: String,
       description: "The name of the author",
       title: "Author",
       required: true
     }
 
-    C.dbSchema[schema].eid = {
+    iris.dbSchema[schema].eid = {
       type: Number,
       description: "Entity ID",
       title: "Unique ID",
@@ -219,7 +219,7 @@ C.dbPopulate = function () {
     }
 
     try {
-      var readySchema = mongoose.Schema(C.dbSchema[schema]);
+      var readySchema = mongoose.Schema(iris.dbSchema[schema]);
 
       if (mongoose.models[schema]) {
 
@@ -233,7 +233,7 @@ C.dbPopulate = function () {
         startAt: 1,
       });
 
-      C.dbCollections[schema] = mongoose.model(schema, readySchema);
+      iris.dbCollections[schema] = mongoose.model(schema, readySchema);
 
     } catch (e) {
 
@@ -243,13 +243,13 @@ C.dbPopulate = function () {
 
     //Create permissions for this entity type
 
-    CM.auth.globals.registerPermission("can create " + schema, "entity")
-    CM.auth.globals.registerPermission("can edit any " + schema, "entity")
-    CM.auth.globals.registerPermission("can edit own " + schema, "entity")
-    CM.auth.globals.registerPermission("can view any " + schema, "entity")
-    CM.auth.globals.registerPermission("can view own " + schema, "entity")
-    CM.auth.globals.registerPermission("can delete any " + schema, "entity")
-    CM.auth.globals.registerPermission("can delete own " + schema, "entity")
+    iris.modules.auth.globals.registerPermission("can create " + schema, "entity")
+    iris.modules.auth.globals.registerPermission("can edit any " + schema, "entity")
+    iris.modules.auth.globals.registerPermission("can edit own " + schema, "entity")
+    iris.modules.auth.globals.registerPermission("can view any " + schema, "entity")
+    iris.modules.auth.globals.registerPermission("can view own " + schema, "entity")
+    iris.modules.auth.globals.registerPermission("can delete any " + schema, "entity")
+    iris.modules.auth.globals.registerPermission("can delete own " + schema, "entity")
 
   });
 

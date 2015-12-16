@@ -1,16 +1,16 @@
 var fs = require('fs');
 
-C.registerModule("regions");
+iris.registerModule("regions");
 
-CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
   // Loop over available block types and add their blocks to a list for the form
 
   var blocks = [];
 
-  Object.keys(CM.blocks.globals.blocks).forEach(function (blockType) {
+  Object.keys(iris.modules.blocks.globals.blocks).forEach(function (blockType) {
 
-    Object.keys(CM.blocks.globals.blocks[blockType]).forEach(function (block) {
+    Object.keys(iris.modules.blocks.globals.blocks[blockType]).forEach(function (block) {
 
       blocks.push(block + "|" + blockType)
 
@@ -22,7 +22,7 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
   try {
 
-    var themeSettings = fs.readFileSync(C.sitePath + "/" + C.config.theme + "/theme.json", "utf8");
+    var themeSettings = fs.readFileSync(iris.sitePath + "/" + iris.config.theme + "/theme.json", "utf8");
 
     themeSettings = JSON.parse(themeSettings);
 
@@ -57,7 +57,7 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
     // Load in past values
 
-    C.readConfig("regions", "regions").then(function (output) {
+    iris.readConfig("regions", "regions").then(function (output) {
 
       data.value = output;
 
@@ -80,11 +80,11 @@ CM.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
 });
 
-CM.forms.registerHook("hook_form_submit_regions", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_submit_regions", 0, function (thisHook, data) {
 
   try {
 
-    C.saveConfig(thisHook.const.params, "regions", "regions", function () {
+    iris.saveConfig(thisHook.const.params, "regions", "regions", function () {
 
       thisHook.finish(true, data);
 
@@ -100,15 +100,15 @@ CM.forms.registerHook("hook_form_submit_regions", 0, function (thisHook, data) {
 
 // Load regions
 
-CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  CM.frontend.globals.parseBlock("region", data.html, function (region, next) {
+  iris.modules.frontend.globals.parseBlock("region", data.html, function (region, next) {
 
     var regionName = region[0];
 
     // Get list of regions
 
-    C.readConfig("regions", "regions").then(function (output) {
+    iris.readConfig("regions", "regions").then(function (output) {
 
         if (output[regionName]) {
           // Render each block in the region
@@ -131,14 +131,14 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
               index: index,
               id: blockName,
               type: blockType,
-              config: CM.blocks.globals.blocks[blockType][blockName]
+              config: iris.modules.blocks.globals.blocks[blockType][blockName]
             }
 
             blockPromises.push(function (object) {
 
               return new Promise(function (yes, no) {
 
-                C.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
+                iris.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
 
                   blockData[blockType + "|" + blockName + "|" + index] = html;
 
@@ -153,11 +153,11 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
 
           })
 
-          C.promiseChain(blockPromises, {}, function (pass) {
+          iris.promiseChain(blockPromises, {}, function (pass) {
 
             // Run parse template file for a regions template
 
-            CM.frontend.globals.parseTemplateFile(["region", regionName], null, {
+            iris.modules.frontend.globals.parseTemplateFile(["region", regionName], null, {
               blocks: pass
             }, thisHook.authPass, null).then(function (success) {
 
@@ -167,7 +167,7 @@ CM.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, d
 
               next(false);
 
-              C.log("error", e);
+              iris.log("error", e);
 
             });
 

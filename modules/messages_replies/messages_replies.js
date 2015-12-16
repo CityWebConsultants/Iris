@@ -4,12 +4,12 @@
 
 require('mongoose').Types;
 
-C.registerModule("messages_replies");
+iris.registerModule("messages_replies");
 
 /* ------- */
 
 // Add parents to message schema
-C.registerDbSchema("message", {
+iris.registerDbSchema("message", {
   parents: {
     type: [String],
     required: false
@@ -23,7 +23,7 @@ C.registerDbSchema("message", {
 /* ------- */
 
 
-CM.messages_replies.registerHook("hook_entity_view_bulk", 1, function (thisHook, data) {
+iris.modules.messages_replies.registerHook("hook_entity_view_bulk", 1, function (thisHook, data) {
   
   // Prepare threaded message
 
@@ -125,7 +125,7 @@ CM.messages_replies.registerHook("hook_entity_view_bulk", 1, function (thisHook,
 });
 
 
-CM.messages_replies.registerHook("hook_entity_validate_message", 1, function (thisHook, entity) {
+iris.modules.messages_replies.registerHook("hook_entity_validate_message", 1, function (thisHook, entity) {
 
   var pass = function (data) {
 
@@ -141,21 +141,21 @@ CM.messages_replies.registerHook("hook_entity_validate_message", 1, function (th
 
   if (entity.replyTo) {
 
-    var prepareReplies = C.promise(function (data, yes, no) {
+    var prepareReplies = iris.promise(function (data, yes, no) {
 
-      CM.messages.globals.fetchMessageById(entity.replyTo).then(function (fetchedMessage) {
+      iris.modules.messages.globals.fetchMessageById(entity.replyTo).then(function (fetchedMessage) {
 
         yes(data);
 
       }, function (fail) {
 
-        no(C.error(400, "Cannot reply to a message that does not exist"));
+        no(iris.error(400, "Cannot reply to a message that does not exist"));
 
       });
 
     });
 
-    C.promiseChain([prepareReplies], entity, pass, fail);
+    iris.promiseChain([prepareReplies], entity, pass, fail);
 
   } else {
     pass(entity);
@@ -163,11 +163,11 @@ CM.messages_replies.registerHook("hook_entity_validate_message", 1, function (th
 
 });
 
-CM.messages_replies.registerHook("hook_entity_presave_message", 1, function (thisHook, entity) {
+iris.modules.messages_replies.registerHook("hook_entity_presave_message", 1, function (thisHook, entity) {
 
   if (entity.replyTo) {
 
-    CM.messages.globals.fetchMessageById(entity.replyTo).then(function (fetchedMessage) {
+    iris.modules.messages.globals.fetchMessageById(entity.replyTo).then(function (fetchedMessage) {
 
       if (fetchedMessage.parents.length > 0) {
 
@@ -185,7 +185,7 @@ CM.messages_replies.registerHook("hook_entity_presave_message", 1, function (thi
 
     }, function (fail) {
 
-      thisHook.finish(false, C.error(400, "Cannot reply to a message that does not exist"));
+      thisHook.finish(false, iris.error(400, "Cannot reply to a message that does not exist"));
 
     });
 
@@ -198,9 +198,9 @@ CM.messages_replies.registerHook("hook_entity_presave_message", 1, function (thi
 });
 
 // Tell user to update message thread
-CM.messages_replies.registerHook("hook_entity_created_message", 1, function (thisHook, data) {
+iris.modules.messages_replies.registerHook("hook_entity_created_message", 1, function (thisHook, data) {
 
-  C.sendSocketMessage(["*"], "updateMessageThread", null);
+  iris.sendSocketMessage(["*"], "updateMessageThread", null);
 
   thisHook.finish(true, data);
 

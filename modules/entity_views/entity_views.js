@@ -1,11 +1,11 @@
-C.registerModule("entity_views");
+iris.registerModule("entity_views");
 
 var express = require('express');
 
 
-CM.entity_views.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.entity_views.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  CM.frontend.globals.parseBlock("entity", data.html, function (entity, next) {
+  iris.modules.frontend.globals.parseBlock("entity", data.html, function (entity, next) {
 
     var entityType = entity[0];
     var variableName = entity[1];
@@ -38,8 +38,8 @@ CM.entity_views.registerHook("hook_frontend_template_parse", 0, function (thisHo
 
           } catch (e) {
 
-            C.log("debug", query[2]);
-            C.log("error", e);
+            iris.log("debug", query[2]);
+            iris.log("error", e);
 
             queries[index] = undefined;
             return false;
@@ -63,7 +63,7 @@ CM.entity_views.registerHook("hook_frontend_template_parse", 0, function (thisHo
         entities: [entityType]
       };
 
-      C.hook("hook_entity_fetch", thisHook.authPass, null, {
+      iris.hook("hook_entity_fetch", thisHook.authPass, null, {
         queryList: [fetch]
       }).then(function (result) {
 
@@ -102,13 +102,13 @@ CM.entity_views.registerHook("hook_frontend_template_parse", 0, function (thisHo
 
 //Register static directory
 
-C.app.use("/entity_views", express.static(__dirname + '/static'));
+iris.app.use("/entity_views", express.static(__dirname + '/static'));
 
-CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, entity) {
+iris.modules.entity_views.registerHook("hook_entity_created", 0, function (thisHook, entity) {
 
-  C.hook("hook_entity_view", thisHook.authPass, null, entity).then(function (filtered) {
+  iris.hook("hook_entity_view", thisHook.authPass, null, entity).then(function (filtered) {
 
-    C.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, filtered).then(function (filtered) {
+    iris.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, filtered).then(function (filtered) {
 
       send(filtered);
 
@@ -132,9 +132,9 @@ CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, entit
 
     if (data) {
 
-      C.hook("hook_entity_view_bulk", thisHook.authPass, null, [data]).then(function (data) {
+      iris.hook("hook_entity_view_bulk", thisHook.authPass, null, [data]).then(function (data) {
 
-        C.sendSocketMessage(["*"], "entityCreate", data[0]);
+        iris.sendSocketMessage(["*"], "entityCreate", data[0]);
 
       });
 
@@ -146,11 +146,11 @@ CM.entity_views.registerHook("hook_entity_created", 0, function (thisHook, entit
 
 });
 
-CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
+iris.modules.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
 
-  C.hook("hook_entity_view", thisHook.authPass, null, entity).then(function (filtered) {
+  iris.hook("hook_entity_view", thisHook.authPass, null, entity).then(function (filtered) {
 
-    C.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, filtered).then(function (filtered) {
+    iris.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, filtered).then(function (filtered) {
 
       send(filtered);
 
@@ -178,9 +178,9 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entit
 
     if (data) {
 
-      C.hook("hook_entity_view_bulk", thisHook.authPass, null, [data]).then(function (data) {
+      iris.hook("hook_entity_view_bulk", thisHook.authPass, null, [data]).then(function (data) {
 
-        C.sendSocketMessage(["*"], "entityUpdate", data[0]);
+        iris.sendSocketMessage(["*"], "entityUpdate", data[0]);
 
       });
 
@@ -188,7 +188,7 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entit
 
       // When access permissions change or somesuch event happens
       // act as though the entity was deleted.
-      C.sendSocketMessage(["*"], "entityDelete", {
+      iris.sendSocketMessage(["*"], "entityDelete", {
         _id: entityId
       });
 
@@ -200,8 +200,8 @@ CM.entity_views.registerHook("hook_entity_updated", 0, function (thisHook, entit
 
 });
 
-CM.entity_views.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
+iris.modules.entity_views.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
 
-  C.sendSocketMessage(["*"], "entityDelete", data);
+  iris.sendSocketMessage(["*"], "entityDelete", data);
 
 });

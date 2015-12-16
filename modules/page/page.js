@@ -1,1 +1,1 @@
-C.registerModule("page");
+iris.registerModule("page");

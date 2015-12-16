@@ -4,22 +4,22 @@
 
 var crypto = require('crypto');
 
-C.registerModule("auth", true);
+iris.registerModule("auth", true);
 
-CM.auth.globals = {
+iris.modules.auth.globals = {
 
   permissions: {},
 
   registerRole: function (name) {
 
-    if (CM.auth.globals.roles[name]) {
+    if (iris.modules.auth.globals.roles[name]) {
 
-      C.log("warn", "Role already exists");
+      iris.log("warn", "Role already exists");
       return false;
 
     } else {
 
-      CM.auth.globals.roles[name] = {
+      iris.modules.auth.globals.roles[name] = {
 
         name: name
 
@@ -38,19 +38,19 @@ CM.auth.globals = {
 
     }
 
-    if (!CM.auth.globals.permissions[category]) {
+    if (!iris.modules.auth.globals.permissions[category]) {
 
-      CM.auth.globals.permissions[category] = {};
+      iris.modules.auth.globals.permissions[category] = {};
 
     }
 
-    if (CM.auth.globals.permissions[category][permission]) {
+    if (iris.modules.auth.globals.permissions[category][permission]) {
 
       return false;
 
     } else {
 
-      CM.auth.globals.permissions[category][permission] = {
+      iris.modules.auth.globals.permissions[category][permission] = {
 
         name: permission
 
@@ -84,7 +84,7 @@ CM.auth.globals = {
 
       if (authCredentials && typeof authCredentials === "object" && authCredentials.userid && authCredentials.token) {
 
-        if (CM.auth.globals.checkAccessToken(authCredentials.userid, authCredentials.token)) {
+        if (iris.modules.auth.globals.checkAccessToken(authCredentials.userid, authCredentials.token)) {
 
           authPass.userid = authCredentials.userid;
           authPass.roles.push("authenticated");
@@ -105,7 +105,7 @@ CM.auth.globals = {
 
       //Run any hooks that latch onto this one to extend the authpass
 
-      C.hook('hook_auth_authpass', authPass, {
+      iris.hook('hook_auth_authpass', authPass, {
           req: req
         }, authPass)
         .then(function (authPass) {
@@ -130,7 +130,7 @@ CM.auth.globals = {
 
   checkAccessToken: function (userid, token) {
 
-    var user = CM.auth.globals.userList[userid],
+    var user = iris.modules.auth.globals.userList[userid],
       token = token,
       authenticated = false;
 
@@ -163,13 +163,13 @@ CM.auth.globals = {
     var permissions = {};
 
     try {
-      var currentPermissions = fs.readFileSync(CM.auth.configPath + "/permissions.JSON", "utf8");
+      var currentPermissions = fs.readFileSync(iris.modules.auth.configPath + "/permissions.JSON", "utf8");
 
       permissions = JSON.parse(currentPermissions);
 
     } catch (e) {
 
-      fs.writeFileSync(CM.auth.configPath + "/permissions.JSON", JSON.stringify({}), "utf8");
+      fs.writeFileSync(iris.modules.auth.configPath + "/permissions.JSON", JSON.stringify({}), "utf8");
 
     }
 
@@ -200,11 +200,11 @@ CM.auth.globals = {
   },
 };
 
-CM.auth.globals.registerPermission("can make access token", "auth")
-CM.auth.globals.registerPermission("can delete access token", "auth")
-CM.auth.globals.registerPermission("can delete user access", "auth")
+iris.modules.auth.globals.registerPermission("can make access token", "auth")
+iris.modules.auth.globals.registerPermission("can delete access token", "auth")
+iris.modules.auth.globals.registerPermission("can delete user access", "auth")
 
-CM.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data) {
+iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data) {
 
   //Check if a lone userid was passed and convert it to an authenticated authPass
 
@@ -229,35 +229,35 @@ CM.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data) {
 });
 
 
-CM.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
+iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
   if (!data.userid || typeof data.userid !== "string") {
 
-    thisHook.finish(false, C.error(400, "No user ID"));
+    thisHook.finish(false, iris.error(400, "No user ID"));
     return false;
 
   }
 
   var authToken;
 
-  if (CM.auth.globals.checkPermissions(["can make access token"], thisHook.authPass)) {
+  if (iris.modules.auth.globals.checkPermissions(["can make access token"], thisHook.authPass)) {
 
     crypto.randomBytes(16, function (ex, buf) {
       authToken = buf.toString('hex');
 
       //Create new user if not in existence
 
-      if (!CM.auth.globals.userList[data.userid]) {
+      if (!iris.modules.auth.globals.userList[data.userid]) {
 
-        CM.auth.globals.userList[data.userid] = {};
+        iris.modules.auth.globals.userList[data.userid] = {};
 
       }
 
       //Check if no tokens already set and create array
 
-      if (!CM.auth.globals.userList[data.userid].tokens) {
+      if (!iris.modules.auth.globals.userList[data.userid].tokens) {
 
-        CM.auth.globals.userList[data.userid].tokens = {};
+        iris.modules.auth.globals.userList[data.userid].tokens = {};
 
       }
 
@@ -268,36 +268,36 @@ CM.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
       }
 
-      CM.auth.globals.userList[data.userid].tokens[authToken] = token;
+      iris.modules.auth.globals.userList[data.userid].tokens[authToken] = token;
       thisHook.finish(true, token);
 
     });
 
   } else {
 
-    thisHook.finish(false, C.error(403, "Access denied"));
+    thisHook.finish(false, iris.error(403, "Access denied"));
 
   }
 
 });
 
-CM.auth.registerHook("hook_auth_deletetoken", 0, function (thisHook, data) {
+iris.modules.auth.registerHook("hook_auth_deletetoken", 0, function (thisHook, data) {
 
-  if (CM.auth.globals.checkPermissions(["can delete access token"], thisHook.authPass)) {
+  if (iris.modules.auth.globals.checkPermissions(["can delete access token"], thisHook.authPass)) {
 
-    if (CM.auth.globals.userList[data.userid] && CM.auth.globals.userList[data.userid].tokens) {
+    if (iris.modules.auth.globals.userList[data.userid] && iris.modules.auth.globals.userList[data.userid].tokens) {
 
       //Remove the token if present
 
-      if (CM.auth.globals.userList[data.userid].tokens[data.token]) {
+      if (iris.modules.auth.globals.userList[data.userid].tokens[data.token]) {
 
-        delete CM.auth.globals.userList[data.userid].tokens[data.token];
+        delete iris.modules.auth.globals.userList[data.userid].tokens[data.token];
 
         //Clear user if no more tokens left
 
-        if (!Object.keys(CM.auth.globals.userList[data.userid].tokens).length) {
+        if (!Object.keys(iris.modules.auth.globals.userList[data.userid].tokens).length) {
 
-          C.hook("hook_auth_clearauth", data.userid, thisHook.authPass);
+          iris.hook("hook_auth_clearauth", data.userid, thisHook.authPass);
 
         }
 
@@ -323,13 +323,13 @@ CM.auth.registerHook("hook_auth_deletetoken", 0, function (thisHook, data) {
 
 });
 
-CM.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, userid) {
+iris.modules.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, userid) {
 
-  if (CM.auth.globals.checkPermissions(["can delete user access"], thisHook.authPass)) {
+  if (iris.modules.auth.globals.checkPermissions(["can delete user access"], thisHook.authPass)) {
 
-    if (CM.auth.globals.userList[userid]) {
+    if (iris.modules.auth.globals.userList[userid]) {
 
-      delete CM.auth.globals.userList[userid];
+      delete iris.modules.auth.globals.userList[userid];
 
       thisHook.finish(true, userid);
 
@@ -347,23 +347,9 @@ CM.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, userid) {
 
 });
 
-C.app.post('/auth/clearauth', function (req, res) {
+iris.app.post('/auth/clearauth', function (req, res) {
 
-  C.hook("hook_auth_clearauth", req.body.userid, req.authPass).then(function (success) {
-
-    res.send(success);
-
-  }, function (fail) {
-
-    res.send(fail);
-
-  });
-
-});
-
-C.app.post('/auth/deletetoken', function (req, res) {
-
-  C.hook("hook_auth_deletetoken", req.body, req.authPass).then(function (success) {
+  iris.hook("hook_auth_clearauth", req.body.userid, req.authPass).then(function (success) {
 
     res.send(success);
 
@@ -375,9 +361,23 @@ C.app.post('/auth/deletetoken', function (req, res) {
 
 });
 
-C.app.post('/auth/maketoken', function (req, res) {
+iris.app.post('/auth/deletetoken', function (req, res) {
 
-  C.hook("hook_auth_maketoken", req.body, req.authPass).then(function (success) {
+  iris.hook("hook_auth_deletetoken", req.body, req.authPass).then(function (success) {
+
+    res.send(success);
+
+  }, function (fail) {
+
+    res.send(fail);
+
+  });
+
+});
+
+iris.app.post('/auth/maketoken', function (req, res) {
+
+  iris.hook("hook_auth_maketoken", req.body, req.authPass).then(function (success) {
 
     res.respond(200, success);
 
@@ -389,23 +389,23 @@ C.app.post('/auth/maketoken', function (req, res) {
 
 });
 
-C.app.get('/auth/checkauth', function (req, res) {
+iris.app.get('/auth/checkauth', function (req, res) {
 
   res.send(req.authPass);
 
 });
 
-Object.observe(CM.auth.globals.userList, function (data) {
+Object.observe(iris.modules.auth.globals.userList, function (data) {
 
   process.send({
-    sessions: CM.auth.globals.userList
+    sessions: iris.modules.auth.globals.userList
   });
 
 });
 
-C.app.post("/logout", function (req, res) {
+iris.app.post("/logout", function (req, res) {
 
-  C.hook("hook_auth_clearauth", "root", null, req.authPass.userid);
+  iris.hook("hook_auth_clearauth", "root", null, req.authPass.userid);
 
   res.send("logged out");
 
