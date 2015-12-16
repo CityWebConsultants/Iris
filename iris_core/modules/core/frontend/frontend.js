@@ -44,17 +44,27 @@ if (iris.config.theme) {
 
     // Theme static setup
 
+    fs.readdirSync(themePath);
+
     iris.app.use("/static", express.static(themePath + '/static'));
 
     iris.modules.frontend.globals.templateRegistry.theme.push(themePath + "/templates");
 
+    fs.readFile(themePath + "/theme.json", function (err, file) {
+
+      if (err) {
+
+        fs.writeFileSync(themePath + "/theme.json", '{}', 'utf8');
+
+        iris.log("info", "Couldn't find theme.json file, creating one");
+
+      }
+
+    });
+
   } catch (e) {
 
     throw "Could not load theme";
-
-    // Make theme settings if not set
-
-    fs.writeFileSync(iris.sitePath + '/' + iris.config.theme + "/theme.json", '{}', 'utf8');
 
   }
 
@@ -217,7 +227,6 @@ var findTemplate = function (paths, extension) {
     // without restarting or clearing caches.
 
     var found = [];
-
 
     iris.modules.frontend.globals.templateRegistry.theme.forEach(function (directory) {
 
