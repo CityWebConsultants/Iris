@@ -135,8 +135,6 @@ C.app.use(function (req, res, next) {
 
   // Look up entity with the current 'path'
   
-  console.log(CM.paths.globals.entityPaths);
-
   if (CM.paths.globals.entityPaths[req.url]) {
 
     C.dbCollections[CM.paths.globals.entityPaths[req.url].entityType].findOne({
