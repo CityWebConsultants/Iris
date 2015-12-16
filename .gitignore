@@ -1,7 +1,10 @@
-.git-backup/
 node_modules/
-/loc.sh
 home/*
-!home/sites/default
-!home/themes/base
-/nbproject/private/
+home/sites/*
+!home/sites
+!home/sites/default/
+!home/sites/default/*
+home/themes/*
+!home/themes
+!home/themes/base/
+!home/themes/base/*
