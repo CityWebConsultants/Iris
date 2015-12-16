@@ -27,33 +27,40 @@ process.on("dbReady", function () {
 
 });
 
-try {
+var path = require("path");
 
-  fs.readdirSync(iris.sitePath + '/' + iris.config.theme + "/templates");
-  fs.readdirSync(iris.sitePath + '/' + iris.config.theme + "/static");
-
-} catch (e) {
-
-  // Make theme settings if not set
-
-  mkdirSync(iris.sitePath + '/' + "themes");
-  mkdirSync(iris.sitePath + '/' + iris.config.theme);
-
-  mkdirSync(iris.sitePath + '/' + iris.config.theme + "/templates");
-  mkdirSync(iris.sitePath + '/' + iris.config.theme + "/static");
-
-  fs.writeFileSync(iris.sitePath + '/' + iris.config.theme + "/theme.json", '{}', 'utf8');
-
-}
 
 // Template Registry. Contains arrays of directories to look for templates in.
 iris.modules.frontend.globals.templateRegistry = {
-  theme: [iris.sitePath + '/' + iris.config.theme + "/templates"],
-  external: [__dirname + '/templates']
+  theme: [],
+  external: []
 };
 
-// Theme static setup
-iris.app.use("/static", express.static(iris.sitePath + '/' + iris.config.theme + '/static'));
+if (iris.config.theme) {
+
+  var themePath = path.resolve(iris.sitePath + '/../../' + iris.config.theme);
+
+  try {
+
+    fs.readdirSync(themePath + "/templates");
+
+    // Theme static setup
+
+    iris.app.use("/static", express.static(themePath + '/static'));
+
+    iris.modules.frontend.globals.templateRegistry.theme.push(themePath + "/templates");
+
+  } catch (e) {
+
+    throw "Could not load theme";
+
+    // Make theme settings if not set
+
+    fs.writeFileSync(iris.sitePath + '/' + iris.config.theme + "/theme.json", '{}', 'utf8');
+
+  }
+
+}
 
 // Function for returning a parsed HTML template for an entity, including sub templates
 
