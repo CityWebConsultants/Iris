@@ -1,1 +1,0 @@
-{"blockTitle":"page-view","blockType":"View-of-page","limit":2,"fields":[{"field":"title","wrapper":"h1","allowhtml":"true"},{"field":"body","wrapper":"div","allowhtml":"true","class":"test-page"}]}

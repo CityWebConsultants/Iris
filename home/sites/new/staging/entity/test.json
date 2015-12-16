@@ -1,1 +1,0 @@
-{"test":{"title":"test","label":"tests","required":true,"fieldTypeName":"longstring","allowedTags":["html"]},"File":{"title":"File","label":"Put a file here","required":true,"fieldTypeName":"file","size":"1"}}
