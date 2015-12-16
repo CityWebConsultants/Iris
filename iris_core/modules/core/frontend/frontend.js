@@ -15,7 +15,14 @@ var mkdirSync = function (path) {
  *  Load theme
  */
 
-// Add theme folders from modules
+// Template Registry. Contains arrays of directories to look for templates in.
+
+iris.modules.frontend.globals.templateRegistry = {
+  theme: [],
+  external: []
+};
+
+// Add theme folders from modules to external list
 
 process.on("dbReady", function () {
 
@@ -29,20 +36,11 @@ process.on("dbReady", function () {
 
 var path = require("path");
 
-
-// Template Registry. Contains arrays of directories to look for templates in.
-iris.modules.frontend.globals.templateRegistry = {
-  theme: [],
-  external: []
-};
-
 if (iris.config.theme) {
 
   var themePath = path.resolve(iris.sitePath + '/../../' + iris.config.theme);
 
   try {
-
-    fs.readdirSync(themePath + "/templates");
 
     // Theme static setup
 
@@ -220,19 +218,25 @@ var findTemplate = function (paths, extension) {
 
     var found = [];
 
+
     iris.modules.frontend.globals.templateRegistry.theme.forEach(function (directory) {
 
-      var files = fs.readdirSync(directory);
+      try {
+        var files = fs.readdirSync(directory);
 
-      var result = lookForTemplate(files, args);
+        var result = lookForTemplate(files, args);
 
-      if (result) {
+        if (result) {
 
-        found.push({
-          directory: directory,
-          filename: result,
-          rank: 1
-        });
+          found.push({
+            directory: directory,
+            filename: result,
+            rank: 1
+          });
+
+        }
+
+      } catch (e) {
 
       }
 
