@@ -312,6 +312,11 @@ T.runTemplateQuery = function (template, isNew) {
 
       var data = JSON.parse(request.responseText);
 
+      if(!data || !data.response){
+        
+        return false;
+        
+      }
 
       data.response.forEach(function (entity) {
 
