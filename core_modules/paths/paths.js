@@ -17,7 +17,6 @@ process.on("dbReady", function () {
         doc.forEach(function (element) {
 
           CM.paths.globals.entityPaths[element.path] = {
-            _id: element._id,
             eid: element.eid,
             entityType: element.entityType
           };
@@ -32,70 +31,26 @@ process.on("dbReady", function () {
 
 });
 
-// Format a path automatically, e.g. from an entity's title
+CM.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
-CM.paths.globals.makePath = function (title) {
+  // Skip if no path on entity
 
-  title = title.replace(/[\W_]+/g, "-");
+  if (!data.path) {
 
-  return title;
-
-};
-
-// Enable AJAX fetching of formatted path so that the edit form can prefill
-
-C.app.get('/admin/api/makepath', function (req, res) {
-
-  res.send(CM.paths.globals.makePath(req.body.title));
-
-});
-
-// Append number to duplicate paths
-
-CM.paths.globals.makePathUnique = function (path) {
-
-  var isDuplicate = true;
-  var counter = 1;
-
-  var workingPath = path;
-
-  while (isDuplicate) {
-
-    if (CM.paths.globals.entityPaths[workingPath]) {
-
-      // This is a duplicate
-
-      workingPath = path + '-' + counter;
-
-      counter++;
-
-    } else {
-
-      isDuplicate = false;
-
-    }
+    thisHook.finish(true, data);
+    return false;
 
   }
-
-  return workingPath;
-
-};
-
-CM.paths.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
   // Check that path is not a duplicate
 
   var path = data.path;
   var eid = data.eid;
 
-  // If path already listed, and
-  //   - Entity is new and has no id, or
-  //   - Entity id being edited does not match
+  if (CM.paths.globals.entityPaths[path] && CM.paths.globals.entityPaths[path].eid.toString() !== eid.toString()) {
 
-
-  if (false && CM.paths.globals.entityPaths[path] && (!eid || CM.paths.globals.entityPaths[path].eid.toString() !== eid.toString())) {
-
-    thisHook.finish(false, "Entity with that path already exists")
+    C.log("notice", "entity with that path already exists");
+    thisHook.finish(false, "Entity with that path already exists");
 
   } else {
 
@@ -110,12 +65,10 @@ CM.paths.registerHook("hook_entity_created", 0, function (thisHook, data) {
   if (data.path) {
 
     var path = data.path;
-    var id = data._id;
     var eid = data.eid;
     var entityType = data.entityType;
 
     CM.paths.globals.entityPaths[path] = {
-      _id: id,
       eid: eid,
       entityType: entityType
     };
@@ -134,27 +87,27 @@ CM.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 
   // Remove any paths in the list that point to this entity
 
-  for (var path in CM.paths.globals.entityPaths) {
+  Object.keys(CM.paths.globals.entityPaths).forEach(function (path) {
 
-    if (CM.paths.globals.entityPaths[path]._id === id) {
+    var currentPath = CM.paths.globals.entityPaths[path];
+
+    if (currentPath.eid.toString() === data.eid.toString()) {
 
       delete CM.paths.globals.entityPaths[path];
 
     }
 
-  }
+  });
 
   // Recreate them or create anew
 
   if (data.path) {
 
     var path = data.path;
-    var id = data._id;
     var eid = data.eid;
     var entityType = data.entityType;
 
     CM.paths.globals.entityPaths[path] = {
-      _id: id,
       eid: eid,
       entityType: entityType
     };
@@ -181,6 +134,8 @@ C.app.use(function (req, res, next) {
   }
 
   // Look up entity with the current 'path'
+  
+  console.log(CM.paths.globals.entityPaths);
 
   if (CM.paths.globals.entityPaths[req.url]) {
 
@@ -206,7 +161,7 @@ C.app.use(function (req, res, next) {
           }).then(function (success) {
 
             res.send(success);
-            
+
           }, function (fail) {
 
             res.send("500");
