@@ -1,7 +1,7 @@
 .git-backup/
 node_modules/
 /loc.sh
-sites/*
-!sites/default
-!sites/base
+home/*
+!home/sites/default
+!home/themes/base
 /nbproject/private/
