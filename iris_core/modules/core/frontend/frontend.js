@@ -18,7 +18,7 @@ var mkdirSync = function (path) {
 // Template Registry. Contains arrays of directories to look for templates in.
 
 iris.modules.frontend.globals.templateRegistry = {
-  theme: [],
+  theme: [iris.sitePath + "/templates"],
   external: []
 };
 
