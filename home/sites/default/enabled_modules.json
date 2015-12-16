@@ -1,35 +1,35 @@
 [{
     "name": "sessions",
-    "path": "/modules/sessions"
+    "path": "/iris_core/modules/extra/sessions"
 }, {
     "name": "bunyan",
-    "path": "/modules/bunyan"
+    "path": "/iris_core/modules/extra/bunyan"
 }, {
     "name": "entity_views",
-    "path": "/modules/entity_views"
+    "path": "/iris_core/modules/extra/entity_views"
 }, {
     "name": "actions",
-    "path": "/modules/actions"
+    "path": "/iris_core/modules/extra/actions"
 }, {
     "name": "headertags",
-    "path": "/modules/headertags"
+    "path": "/iris_core/modules/extra/headertags"
 },
   {
     "name": "ckeditor",
-    "path": "/modules/ckeditor"
+    "path": "/iris_core/modules/extra/ckeditor"
 },
   {
     "name": "page",
-    "path": "/modules/page"
+    "path": "/iris_core/modules/extra/page"
 }, {
     "name": "blocks",
-    "path": "/modules/blocks"
+    "path": "/iris_core/modules/extra/blocks"
 },
  {
     "name": "custom_blocks",
-    "path": "/modules/custom_blocks"
+    "path": "/iris_core/modules/extra/custom_blocks"
  },
   {
     "name": "views",
-    "path": "/modules/views"
+    "path": "/iris_core/modules/extra/views"
 }]
