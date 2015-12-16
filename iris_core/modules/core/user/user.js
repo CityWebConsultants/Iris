@@ -280,3 +280,20 @@ iris.app.get("/login", function (req, res) {
   });
 
 })
+
+// Blank password field on entity edit
+
+iris.modules.user.registerHook("hook_form_render_editEntity", 1, function (thisHook, data) {
+
+  if (thisHook.const.params[1] === "user" && data.schema && data.schema.password) {
+
+    data.schema.password.default = null;
+    data.schema.password.required = false;
+    data.schema.password.title = "Change password";
+    data.schema.password.description = "Change your password by typing a new one into the form below";
+
+  }
+
+  thisHook.finish(true, data);
+
+});
