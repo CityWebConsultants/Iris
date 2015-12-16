@@ -1,1 +1,0 @@
-{"title":{"title":"title","required":true,"fieldTypeName":"string"},"body":{"title":"body","required":true,"fieldTypeName":"longstring","allowedTags":["div","ul","li","p","caption","img","h1","h3","h2","span"]},"class":{"title":"class","required":true,"fieldTypeName":"multistring"},"path":{"title":"path","required":true,"fieldTypeName":"string"}}
