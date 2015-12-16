@@ -1,0 +1,131 @@
+<div id="content" class="container">
+  <article>
+
+    <h1>{{current.title}}</h1>
+
+    <div class="body-content">{{{ current.body }}}</div>
+
+    <div ng-controller="auth">
+
+      <form ng-submit="login()" ng-show='!$root.loggedin'>
+
+        <label>Sign in</label>
+        <br />
+        <label>Username</label>
+        <input ng-model="username">
+        <label>Password</label>
+        <input type="password" ng-model="password">
+        <input type="submit" value="send" />
+
+      </form>
+
+      <form ng-submit="logout()" ng-show='$root.loggedin'>
+
+        <input type="submit" value="logout" />
+
+      </form>
+
+    </div>
+
+    <br />
+
+    <div class="chat chat-container" ng-controller="groups" ng-show="$root.loggedin">
+
+      <section class="chat-conversations">
+
+        <section class="chat-tabs">
+
+          <a id="chat-window-button" ng-class="(section == 'chat') ? 'chat-tab active' : 'chat-tab'" ng-click="section = 'chat'">Chat</a>
+          <a ng-class="(section == 'recent') ? 'chat-tab active' : 'chat-tab'" ng-click="section = 'recent'">Recent</a>
+          <a ng-class="(section == 'people') ? 'chat-tab active' : 'chat-tab'" ng-click="section = 'people'">People</a>
+
+        </section>
+
+        <section class="chat-list" ng-show="section == 'people'">
+
+          <div id="userlist" ng-controller="C" data-entities="user">
+
+            <ul>
+
+              <label>User search</label>
+              <input id="search_users" />
+
+              <li ng-repeat='user in data' ng-if="user.userid != $root.loggedin" ng-click="check121(user.userid);">{{user.name}}</li>
+
+            </ul>
+
+          </div>
+
+        </section>
+
+        <section class="chat-list" ng-show="section == 'recent'">
+
+          <div ng-controller="C" data-entities="group" data-queries='members|IN|{"userid":"{{$root.loggedin}}"}'>
+
+            <ul>
+
+              <li ng-class="{'active': $parent.$parent.activegroup == group._id}" ng-repeat="group in data | orderBy:'-lastUpdated'" ng-click="$parent.$parent.activegroup = group._id">
+
+                <span class="chat-group-name">
+                  <span ng-repeat="member in group.members">
+
+                    <span ng-controller="C" data-entities="user" data-queries='userid|IS|"{{member.userid}}"'>
+
+                      <span ng-repeat="user in data">
+
+                        <span ng-if="user.userid !== $root.loggedin">{{user.name}}</span>
+
+                </span>
+
+                </span>
+
+                </span>
+                </span>
+              </li>
+
+            </ul>
+
+          </div>
+
+        </section>
+
+      </section>
+
+      <section class="chat-window" ng-show="activegroup && section == 'chat' || mobile == false">
+
+        <div ng-controller="C" id="messages" data-entities="message" data-queries='groupid|IS|"{{$parent.activegroup}}"'>
+
+          <ul class="chat-thread">
+
+            <li class="chat-message" ng-repeat="message in data| orderBy:timestamp" on-finish-render="ngRepeatFinished" ng-class="(message.userid === $root.loggedin) ? 'editable' : ''">
+
+              <b class="message-user">{{message.username}}: </b>
+
+              <span ng-if="message.userid == $root.loggedin" class="message-content" data-id="{{message._id}}" contenteditable="true">{{message.content}}</span>
+
+              <span ng-if="message.userid != $root.loggedin" class="message-content" data-id="{{message._id}}" contenteditable="false">{{message.content}}</span>
+
+              <span ng-if="message.userid == $root.loggedin" class="message-tools" data-id="{{message._id}}">
+                <span class="message-tools__edit">Edit</span>
+              <span class="message-tools__delete">Delete</span>
+              </span>
+
+
+            </li>
+
+          </ul>
+
+          <form class="chat-new-message" ng-submit="newMessage($parent.activegroup, $parent.newpost)">
+            <label>Post a new message</label>
+            <input ng-model="$parent.newpost" autocomplete="off">
+            <input type="submit" value="send" />
+          </form>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </article>
+</div>

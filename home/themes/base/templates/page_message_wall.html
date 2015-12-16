@@ -1,0 +1,81 @@
+<div id="content" class="container">
+  <article>
+
+    <h1>{{current.title}}</h1>
+
+    <div class="body-content">{{{ current.body }}}</div>
+
+    <section id="timeline-wrapper" ng-controller="C" data-entities="group" data-queries="is121|IS|false|JSON">
+
+      <div ng-controller="C" data-entities="message" data-queries='groupid|IS|"{{$parent.data[0]._id}}"'>
+
+        <ul id="timeline" ng-controller="messages">
+
+          <form ng-submit="newMessage()">
+            <label>Post a new message</label>
+            <input ng-model="newpost" autocomplete="off">
+            <input type="submit" value="send" />
+          </form>
+
+          <li ng-repeat="message in data| orderBy:'_id':true" class="chat-timeline-item">
+
+            <div class="chat-timeline-content" ng-bind-html="message.content | html_filter">{{message.content}}</div>
+            <div class="chat-timeline-actions">
+              <a class="chat-timeline-reply" ng-click="showReplyForm = !showReplyForm">Reply</a>
+              <a class="chat-timeline-delete" ng-if="message.userid === userid" ng-click="editMessage(message._id, message.content)">Edit</a>
+              <a class="chat-timeline-delete" ng-if="message.userid === userid" ng-click="deleteMessage(message._id, message.content)">Delete</a>
+            </div>
+            <div class="chat-timeline-footer">
+              <div class="chat-timeline-time">{{message.timestamp| date:"dd/MM/yyyy 'at' HH:mm"}}</div>
+            </div>
+
+            <div class="chat-timeline-reply-form" ng-show="showReplyForm">
+              <form ng-submit="sendReply(message._id, message.groupid);
+                            showReplyForm = !showReplyForm">
+                <h3>Reply to this message:</h3>
+                <input id="message" ng-model="reply.content[message._id]" />
+                <input type="submit" value="send" />
+              </form>
+            </div>
+
+            <ul class="chat-timeline-replies">
+              <message-reply message="message.replies" send-reply="sendReply" reply="reply" userid="userid"></message-reply>
+            </ul>
+
+          </li>
+
+        </ul>
+
+      </div>
+
+    </section>
+
+
+  </article>
+</div>
+
+<script>
+  // We want to override entityCreate with the one that reloads everything.
+  T.receiver.removeListener("entityCreate");
+
+  T.receiver.on("updateMessageThread", function() {
+
+    // Reload message thread.
+
+    for (template in T.templates) {
+
+      if (T.templates[template].data) {
+
+        T.templates[template].elements.forEach(function(element) {
+
+          T.initTemplate(element);
+
+        });
+
+      }
+
+    }
+
+  });
+
+</script>

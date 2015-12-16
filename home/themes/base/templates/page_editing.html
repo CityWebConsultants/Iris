@@ -1,0 +1,33 @@
+<div id="content" class="container">
+  <article>
+
+    <h1>{{current.title}}</h1>
+
+    <div class="body-content">{{{ current.body }}}</div>
+
+    <div ng-controller="C" data-entities="example">
+
+      <div class="content-pane">
+        <h2>{{data[0].title}}</h2>
+
+        <article ng-bind-html="data[0].body | html_filter"></article>
+
+      </div>
+
+      <div class="edit-pane" ng-controller="live-update">
+        <h2>Edit &quot;{{data[0].title}}&quot;</h2>
+
+        <form ng-submit="updatePost()">
+          <label>Title:</label>
+          <input ng-model="newPostTitle" class="textbox">
+          <label>Body:</label>
+          <textarea id="example-editor" ng-model="newPostBody"></textarea>
+          <input type="submit" value="Update Post" />
+        </form>
+      </div>
+
+    </div>
+
+  </article>
+
+</div>
