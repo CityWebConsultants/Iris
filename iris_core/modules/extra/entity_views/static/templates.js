@@ -1,12 +1,16 @@
 var T = {};
 
 (function () {
-  function CustomEvent ( event, params ) {
-    params = params || { bubbles: false, cancelable: false, detail: undefined };
-    var evt = document.createEvent( 'CustomEvent' );
-    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+  function CustomEvent(event, params) {
+    params = params || {
+      bubbles: false,
+      cancelable: false,
+      detail: undefined
+    };
+    var evt = document.createEvent('CustomEvent');
+    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
     return evt;
-   }
+  }
 
   CustomEvent.prototype = window.Event.prototype;
 
@@ -46,9 +50,9 @@ T.findRoot = function () {
 
     var script = scripts[i];
 
-    if (script.src.indexOf("entity_views/templates.js") !== -1) {
+    if (script.src.indexOf("modules/entity_views/templates.js") !== -1) {
 
-      var root = script.src.replace("entity_views/templates.js", "");
+      var root = script.src.replace("modules/entity_views/templates.js", "");
 
     };
 
@@ -458,11 +462,11 @@ T.receiver.on('entityDelete', function (data) {
 
     //Check if template data contains the right kind of entity
 
-      if (template.data[data._id]) {
+    if (template.data[data._id]) {
 
-        delete template.data[data._id];
+      delete template.data[data._id];
 
-      };
+    };
 
   };
 
@@ -473,37 +477,3 @@ T.receiver.on('entityDelete', function (data) {
   });
 
 });
-
-//Angular stuff, split off into another file
-
-angular.element(document).ready(function () {
-  angular.bootstrap(document, ['app']);
-});
-
-var app = angular.module("app", []);
-
-app.controller("C", ["$scope", "$element", "$attrs", "$timeout", function ($scope, $element, $attrs, $timeout) {
-
-  $attrs.$observe("queries", function (val) {
-
-    T.initTemplate($element[0]);
-
-  })
-
-  $element[0].addEventListener('newdata', function () {
-
-    $scope.fetched = T.getTemplate($element[0]).getDataArray();
-    $scope.data = T.getTemplate($element[0]).getDataArray();
-
-    $scope.$apply();
-
-  }, false);
-
-      }]);
-
-
-app.filter('html_filter', ['$sce', function ($sce) {
-  return function (text) {
-    return $sce.trustAsHtml(text);
-  };
-}]);

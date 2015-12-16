@@ -2,9 +2,7 @@ iris.registerModule("entity_views");
 
 var express = require('express');
 
-
 iris.modules.entity_views.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-
   iris.modules.frontend.globals.parseBlock("entity", data.html, function (entity, next) {
 
     var entityType = entity[0];
