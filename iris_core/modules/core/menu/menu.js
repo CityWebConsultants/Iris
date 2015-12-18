@@ -109,6 +109,32 @@ iris.modules.menu.registerHook("hook_form_render_menu", 0, function (thisHook, d
 
 iris.modules.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
 
+  // Remove blank items. TODO, this should be automatic. How come it's getting stuck?
+
+  if (thisHook.const.params.items) {
+
+    thisHook.const.params.items.forEach(function (menuitem, index) {
+
+      var item = thisHook.const.params.items[index];
+
+      if (item.children) {
+
+        item.children.forEach(function (child, childindex) {
+
+          if (!child.path || !child.title) {
+
+            item.children.splice(childindex, 1);
+
+          }
+
+        })
+
+      }
+
+    })
+
+  }
+
   iris.saveConfig(thisHook.const.params, "menu", iris.sanitizeFileName(thisHook.const.params.menuName), function () {
 
     var data = function (res) {
