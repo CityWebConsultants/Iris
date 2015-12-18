@@ -53,7 +53,7 @@ iris.dbPopulate = function () {
   })
 
   // Loop over all enabled modules and check for schema files
-  
+
   Object.keys(iris.modules).forEach(function (moduleName) {
 
     try {
@@ -93,7 +93,15 @@ iris.dbPopulate = function () {
 
     var schemaName = schemafile.toLowerCase().replace(".json", "");
 
-    var file = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations/entity/" + schemafile, "UTF8"));
+    try {
+      var file = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations/entity/" + schemafile, "UTF8"));
+    } catch (e) {
+
+      iris.log("error", schemaName + " failed db schema insertion valid JSON");
+      iris.log("error", e);
+      return false;
+
+    }
 
     if (!iris.dbSchema[schemaName]) {
 
