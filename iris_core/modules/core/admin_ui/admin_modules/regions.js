@@ -22,7 +22,11 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
 
   try {
 
-    var themeSettings = fs.readFileSync(iris.sitePath + "/" + iris.config.theme + "/theme.json", "utf8");
+    var path = require("path");
+
+    var themePath = path.resolve(iris.sitePath + '/../../' + iris.config.theme);
+
+    var themeSettings = fs.readFileSync(themePath + "/theme.json", "utf8");
 
     themeSettings = JSON.parse(themeSettings);
 
@@ -42,8 +46,28 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
         "type": "array",
         "title": regionName.toUpperCase(),
         "items": {
-          "type": "string",
-          "enum": blocks
+          "type": "object",
+          "properties": {
+            "block": {
+              "type": "string",
+              "enum": blocks
+            },
+            "settings": {
+              "type": "object",
+              "properties": {
+                "pathVisibility": {
+                  "type": "text",
+                  "title": "Paths",
+                  "description": "Paths this block is visible at"
+                }
+
+              }
+
+            }
+
+
+          },
+
         }
       }
 
@@ -118,6 +142,10 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
 
           output[regionName].forEach(function (block, index) {
 
+            var settings = block.settings;
+
+            var block = block.block;
+
             if (block.toLowerCase() === "none") {
 
               return false;
@@ -131,7 +159,9 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
               index: index,
               id: blockName,
               type: blockType,
-              config: iris.modules.blocks.globals.blocks[blockType][blockName]
+              instanceSettings: settings,
+              config: iris.modules.blocks.globals.blocks[blockType][blockName],
+              context: thisHook.const.context
             }
 
             blockPromises.push(function (object) {
@@ -143,6 +173,10 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
                   blockData[blockType + "|" + blockName + "|" + index] = html;
 
                   yes(blockData);
+
+                }, function (fail) {
+
+                  yes("");
 
                 });
 
@@ -201,5 +235,50 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
     thisHook.finish(true, data)
 
   });
+
+});
+
+// Block path visibility
+
+iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, data) {
+
+  if (thisHook.const.instanceSettings) {
+
+    if (thisHook.const.instanceSettings.pathVisibility) {
+
+      var visibility = thisHook.const.instanceSettings.pathVisibility.split(",");
+
+      if (thisHook.const.context && thisHook.const.context.req && thisHook.const.context.req.url) {
+
+        if (visibility.indexOf(thisHook.const.context.req.url) === -1) {
+
+          thisHook.finish(false, data);
+
+        } else {
+
+          thisHook.finish(true, data);
+
+        }
+
+
+      } else {
+
+        // No url, safer to not show
+
+        thisHook.finish(false, data);
+
+      }
+
+    } else {
+
+      thisHook.finish(true, data);
+
+    }
+
+  } else {
+
+    thisHook.finish(true, data);
+
+  }
 
 });
