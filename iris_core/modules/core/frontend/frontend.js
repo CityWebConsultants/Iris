@@ -181,6 +181,8 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
 };
 
+var glob = require("glob");
+
 //Function for finding most specific matching template
 
 var findTemplate = function (paths, extension) {
@@ -209,9 +211,23 @@ var findTemplate = function (paths, extension) {
 
         var lookingFor = searchArgs.join("_") + "." + extension;
 
-        if (files.indexOf(lookingFor) !== -1) {
+        // Loop over found files to check basename
 
-          return lookingFor;
+        var found = false;
+
+        files.forEach(function (fileName) {
+                    
+          if (path.basename(fileName) === lookingFor) {
+            
+            found = fileName;
+
+          }
+
+        })
+
+        if (found) {
+          
+          return found;
 
         }
 
@@ -233,14 +249,14 @@ var findTemplate = function (paths, extension) {
     iris.modules.frontend.globals.templateRegistry.theme.forEach(function (directory) {
 
       try {
-        var files = fs.readdirSync(directory);
+
+        var files = glob.sync(directory + "/" + "**");
 
         var result = lookForTemplate(files, args);
 
         if (result) {
 
           found.push({
-            directory: directory,
             filename: result,
             rank: 1
           });
@@ -256,7 +272,9 @@ var findTemplate = function (paths, extension) {
     iris.modules.frontend.globals.templateRegistry.external.forEach(function (directory) {
 
       try {
-        var files = fs.readdirSync(directory)
+
+        var files = glob.sync(directory + "/" + "**");
+
       } catch (e) {
 
         return false;
@@ -268,7 +286,6 @@ var findTemplate = function (paths, extension) {
       if (result) {
 
         found.push({
-          directory: directory,
           filename: result,
           rank: 0
         });
@@ -291,7 +308,7 @@ var findTemplate = function (paths, extension) {
       return 0;
 
     };
-
+    
     found.sort(sortLength);
 
     // Filter out filenames less specific than the top
@@ -321,9 +338,9 @@ var findTemplate = function (paths, extension) {
     };
 
     found.sort(sortRank);
-
+    
     if (found[0]) {
-      fs.readFile(found[0].directory + '/' + found[0].filename, "utf-8", function (err, data) {
+      fs.readFile(found[0].filename, "utf-8", function (err, data) {
 
         yes(data);
 
