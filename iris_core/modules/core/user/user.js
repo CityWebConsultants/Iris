@@ -297,3 +297,23 @@ iris.modules.user.registerHook("hook_form_render_editEntity", 1, function (thisH
   thisHook.finish(true, data);
 
 });
+
+// When creating user, change the author to the entity ID
+
+iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook, data) {
+
+  var conditions = {
+    eid: data.eid
+  };
+
+  var update = {
+    entityAuthor: data.eid
+  };
+
+  iris.dbCollections["user"].update(conditions, update, function (err, doc) {
+
+    thisHook.finish(true, doc);
+
+  });
+
+});
