@@ -66,7 +66,7 @@ T.data = {};
 T.templates = {};
 
 T.initTemplate = function (element) {
-
+  
   if (!element.getAttribute("data-entities")) {
 
     console.error("Query must have an element");
@@ -303,7 +303,7 @@ T.runTemplateQuery = function (template, isNew) {
   var request = new XMLHttpRequest();
 
   request.open('GET', T.findRoot() + "fetch" + template.querystring, true);
-
+  
   request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
   request.onload = function () {
@@ -312,10 +312,10 @@ T.runTemplateQuery = function (template, isNew) {
 
       var data = JSON.parse(request.responseText);
 
-      if(!data || !data.response){
-        
+      if (!data || !data.response) {
+
         return false;
-        
+
       }
 
       data.response.forEach(function (entity) {
@@ -362,123 +362,136 @@ T.getTemplate = function (domElement) {
 
 };
 
-$(document).ready(function () {
+function ready(fn) {
+  if (document.readyState != 'loading') {
+    fn();
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
+  }
+}
 
-  $.each($("*[data-entities]"), function (index, element) {
+ready(function () {
+  
+  var fetchList = document.querySelectorAll("*[data-entities]");
+  
+  for (var i = 0; i < fetchList.length; i += 1) {
+    
+    T.initTemplate(fetchList[i]);
 
-    T.initTemplate(element);
-
-  });
+  }
 
 });
 
 //Set up socket.io listener
 
-T.receiver = io(T.findRoot());
+if (window.io) {
+  T.receiver = io(T.findRoot());
 
-T.upsertEntity = function (data) {
+  T.upsertEntity = function (data) {
 
-  var relevant = false;
+    var relevant = false;
 
-  // Update in global data if entity already in global data
+    // Update in global data if entity already in global data
 
-  if (T.data[data._id]) {
+    if (T.data[data._id]) {
 
-    for (property in data) {
+      for (property in data) {
 
-      T.data[data._id][property] = data[property];
+        T.data[data._id][property] = data[property];
 
-    };
-
-  }
-
-  for (template in T.templates) {
-
-    template = T.templates[template];
-
-    if (template.checkQuery(data)) {
-
-      relevant = true;
-
-      // If the template query does match the entity and the entity is not in the template, add it. Also add to global data.
-
-      if (!template.data[data._id]) {
-
-        var entity = data;
-
-        T.data[data._id] = entity;
-        template.data[data._id] = T.data[data._id];
-
-      }
-
-    } else if (template.data[data._id]) {
-
-      // If the entity doesn't match the template query and is present in the template's list of entities, remove it
-
-      delete template.data[data._id];
+      };
 
     }
 
-  };
+    for (template in T.templates) {
 
-  // Clean up unused entities from global data
+      template = T.templates[template];
 
-  if (!relevant && T.data[data._id]) {
+      if (template.checkQuery(data)) {
 
-    delete T.data[data._id];
+        relevant = true;
 
-  }
+        // If the template query does match the entity and the entity is not in the template, add it. Also add to global data.
 
-  $.each($("*[data-entities]"), function (index, element) {
+        if (!template.data[data._id]) {
 
-    element.dispatchEvent(T.newData);
+          var entity = data;
 
-  });
+          T.data[data._id] = entity;
+          template.data[data._id] = T.data[data._id];
 
-};
+        }
 
-T.receiver.on('entityCreate', function (data) {
+      } else if (template.data[data._id]) {
 
-  if (data) {
+        // If the entity doesn't match the template query and is present in the template's list of entities, remove it
 
-    T.upsertEntity(data);
+        delete template.data[data._id];
 
-  }
-
-});
-
-T.receiver.on('entityUpdate', function (data) {
-
-  if (data) {
-
-    T.upsertEntity(data);
-
-  }
-
-});
-
-T.receiver.on('entityDelete', function (data) {
-
-  delete T.data[data._id];
-
-  for (template in T.templates) {
-
-    var template = T.templates[template];
-
-    //Check if template data contains the right kind of entity
-
-    if (template.data[data._id]) {
-
-      delete template.data[data._id];
+      }
 
     };
 
+    // Clean up unused entities from global data
+
+    if (!relevant && T.data[data._id]) {
+
+      delete T.data[data._id];
+
+    }
+
+    $.each($("*[data-entities]"), function (index, element) {
+
+      element.dispatchEvent(T.newData);
+
+    });
+
   };
 
-  $.each($("*[data-entities]"), function (index, element) {
+  T.receiver.on('entityCreate', function (data) {
 
-    element.dispatchEvent(T.newData);
+    if (data) {
+
+      T.upsertEntity(data);
+
+    }
 
   });
 
-});
+  T.receiver.on('entityUpdate', function (data) {
+
+    if (data) {
+
+      T.upsertEntity(data);
+
+    }
+
+  });
+
+  T.receiver.on('entityDelete', function (data) {
+
+    delete T.data[data._id];
+
+    for (template in T.templates) {
+
+      var template = T.templates[template];
+
+      //Check if template data contains the right kind of entity
+
+      if (template.data[data._id]) {
+
+        delete template.data[data._id];
+
+      };
+
+    };
+
+    $.each($("*[data-entities]"), function (index, element) {
+
+      element.dispatchEvent(T.newData);
+
+    });
+
+  });
+
+}
