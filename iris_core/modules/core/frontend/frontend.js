@@ -75,7 +75,7 @@ if (iris.config.theme) {
 // Function for returning a parsed HTML template for an entity, including sub templates
 
 iris.modules.frontend.globals.getTemplate = function (entity, authPass, optionalContext) {
-
+  
   var req = optionalContext.req;
 
   if (entity.toObject) {
@@ -105,7 +105,7 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
   return new Promise(function (yes, no) {
 
     // Check if the current person can access the entity itself
-
+    
     iris.hook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
 
       if (!viewChecked) {
@@ -114,7 +114,7 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
           error: 403,
           req: req
         }).then(function (success) {
-
+          
           yes(success);
 
         }, function (fail) {
@@ -130,8 +130,8 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
         entity = viewChecked;
 
       }
-
-      iris.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, entity).then(function (validated) {
+      
+      iris.hook("hook_entity_view_" + entity.entityType, req.authPass, null, entity).then(function (validated) {
 
         if (validated) {
 
@@ -730,11 +730,11 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
     isFront = true;
 
   }
-
+  
   iris.modules.frontend.globals.parseTemplateFile([thisHook.const.error], null, {
     front: isFront
   }, thisHook.const.req.authPass, thisHook.const.req).then(function (success) {
-
+    
     thisHook.finish(true, success)
 
   }, function (fail) {
@@ -787,15 +787,15 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 // Helper function for parsing a template from a file with parameters
 
 iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
-
+  
   return new Promise(function (yes, no) {
 
     var parseTemplateFile = function (currentTemplateName, parameters, callback) {
 
       iris.modules.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
-
+        
         iris.modules.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
-
+          
             // Add wrapper paramaters for filename
 
             success.html = "<!-- " + currentTemplateName + "-->" + "\n" + success.html;

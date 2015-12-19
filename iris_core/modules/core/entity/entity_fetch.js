@@ -294,7 +294,7 @@ iris.app.get("/fetch", function (req, res) {
 
     req.body.queryList[0].entities.forEach(function (entityType) {
 
-      if (!iris.modules.auth.globals.checkPermissions(["can fetch " + entityType], thisHook.authPass)) {
+      if (!iris.modules.auth.globals.checkPermissions(["can fetch " + entityType], req.authPass)) {
 
         iris.log("info", "User " + req.authPass.userid + " was denied access to fetch " + entityType + " list ");
 
