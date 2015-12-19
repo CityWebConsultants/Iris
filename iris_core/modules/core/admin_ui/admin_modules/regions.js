@@ -250,7 +250,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
 
       if (thisHook.const.context && thisHook.const.context.req && thisHook.const.context.req.url) {
 
-        if (visibility.indexOf(thisHook.const.context.req.url) === -1) {
+        if (visibility.indexOf(thisHook.const.context.req.url) === -1 && visibility.indexOf("*") === -1) {
 
           thisHook.finish(false, data);
 
