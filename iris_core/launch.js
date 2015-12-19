@@ -56,6 +56,6 @@ if (parameters.site) {
 
 } else {
 
-  console.log("Please provide a site");
+  console.log("* Failed to launch. Please provide a site with a paramater. For example 'node iris.js site=YOURSITENAME' *");
 
 }
