@@ -28,7 +28,7 @@ iris.app.use("/site/static", express.static(iris.sitePath + '/static'));
 
 process.on("dbReady", function () {
 
-  Object.keys(iris.modules).forEach(function (moduleName) {
+  Object.keys(iris.modules).reverse().forEach(function (moduleName) {
 
     iris.modules.frontend.globals.templateRegistry.external.push(iris.modules[moduleName].path + '/templates');
 
@@ -216,9 +216,9 @@ var findTemplate = function (paths, extension) {
         var found = false;
 
         files.forEach(function (fileName) {
-                    
+
           if (path.basename(fileName) === lookingFor) {
-            
+
             found = fileName;
 
           }
@@ -226,7 +226,7 @@ var findTemplate = function (paths, extension) {
         })
 
         if (found) {
-          
+
           return found;
 
         }
@@ -308,7 +308,7 @@ var findTemplate = function (paths, extension) {
       return 0;
 
     };
-    
+
     found.sort(sortLength);
 
     // Filter out filenames less specific than the top
@@ -338,7 +338,7 @@ var findTemplate = function (paths, extension) {
     };
 
     found.sort(sortRank);
-    
+
     if (found[0]) {
       fs.readFile(found[0].filename, "utf-8", function (err, data) {
 
