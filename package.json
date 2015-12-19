@@ -17,6 +17,7 @@
     "mongoose-auto-increment": "^5.0.1",
     "mustache": "^2.1.3",
     "ncp": "^2.0.0",
+    "npm": "^3.5.2",
     "sanitize-html": "^1.10.0",
     "socket.io": "^1.2.1",
     "tosource": "^1.0.0"
@@ -25,8 +26,7 @@
     "frisby": "^0.8.5"
   },
   "scripts": {
-    "test": "node iris.js site=default",
-    "start": "node iris.js site=default"
+    "install": "node iris_core/install.js"
   },
   "repository": {
     "type": "git",
