@@ -26,7 +26,7 @@ try {
 
 }
 
-JSON.parse(config);
+var config = JSON.parse(config);
 
 process.chdir(__dirname + "/../home/sites/" + parameters.site);
 
