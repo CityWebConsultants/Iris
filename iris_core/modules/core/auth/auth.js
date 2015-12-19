@@ -89,6 +89,14 @@ iris.modules.auth.globals = {
           authPass.userid = authCredentials.userid;
           authPass.roles.push("authenticated");
 
+          // Remove anonymous role
+
+          if (authPass.roles.indexOf("anonymous") !== -1) {
+
+            authPass.roles.splice(authPass.roles.indexOf("anonymous"), 1);
+
+          }
+
         } else {
 
           no("Attempt at token and userid login with wrong credentials");

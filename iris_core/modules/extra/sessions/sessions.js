@@ -15,6 +15,14 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
       data.userid = thisHook.req.cookies.userid;
       data.roles.push("authenticated");
 
+      // Remove anonymous role
+
+      if (data.roles.indexOf("anonymous") !== -1) {
+
+        data.roles.splice(data.roles.indexOf("anonymous"), 1);
+
+      }
+
     }
 
   }
