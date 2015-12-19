@@ -227,43 +227,7 @@ module.exports = function (config) {
 
     require('./modules/core/auth/auth.js');
 
-    iris.hook("hook_module_init_auth", "root", null, null).then(function (success) {
-
-      console.log("Auth module loaded")
-
-    }, function (fail) {
-
-      if (fail === "No such hook exists") {
-
-        console.log("Auth module loaded")
-
-      } else {
-
-        console.log("Failed to initialise auth module", fail)
-
-      }
-
-    });
-
     require('./modules/core/entity/entity.js');
-
-    iris.hook("hook_module_init_entity", "root", null, null).then(function (success) {
-
-      console.log("Auth module loaded")
-
-    }, function (fail) {
-
-      if (fail === "No such hook exists") {
-
-        console.log("Entity module loaded")
-
-      } else {
-
-        console.log("Failed to initialise entity module", fail)
-
-      }
-
-    });
 
     require('./modules/core/frontend/frontend.js');
 
@@ -298,7 +262,7 @@ module.exports = function (config) {
     iris.enabledModules.forEach(function (enabledModule, index) {
 
       var modulePath = path.resolve(__dirname + "/../" + enabledModule.path + "/" + enabledModule.name + ".js");
-      
+
       try {
 
         fs.readFileSync(modulePath);
