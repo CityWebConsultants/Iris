@@ -4,12 +4,35 @@ var glob = require("glob");
 var npm = require("npm");
 var npm = require("npm");
 var fs = require("fs");
+var path = require("path");
 
-var coreModuleFiles = glob.sync(__dirname + "/modules/" + "**/package.json");
+// Core module folder first
+
+var moduleFiles = glob.sync(__dirname + "/modules/" + "**/package.json");
+
+// Check custom modules folder if exists in sites folder
+
+try {
+
+  var customModulePath = path.resolve(__dirname + "/../home/modules/");
+
+  var customModuleFiles = glob.sync(customModulePath + "**/package.json");
+
+  moduleFiles = moduleFiles.concat(customModuleFiles);
+
+} catch (e) {
+
+  console.log("No custom modules folder, skipping");
+
+}
 
 var toInstall = [];
 
-coreModuleFiles.forEach(function (file) {
+console.log(moduleFiles);
+
+process.exit();
+
+moduleFiles.forEach(function (file) {
 
   var file = fs.readFileSync(file, "utf-8");
 
