@@ -72,32 +72,9 @@ iris.app.use(function (req, res, next) {
 
   }
 
-  // Run request intercept in case anything
-
-  iris.hook("hook_request_intercept", thisHook.authPass, {
-    req: req
-  }).then(function () {
-
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-
-  }, function (error) {
-
-    if (error === "No such hook exists") {
-
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-      next();
-
-    } else {
-
-      res.status(400);
-      res.send(error);
-
-    }
-
-  });
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
 
 });
 
@@ -154,12 +131,35 @@ iris.app.use(function (req, res, next) {
     }
 
   });
+
   iris.modules.auth.globals.credentialsToPass(req.body.credentials, req).then(function (authPass) {
 
     delete req.body.credentials;
 
     req.authPass = authPass;
-    next();
+
+    // Run request intercept in case anything
+
+    iris.hook("hook_request_intercept", req.authPass, {
+      req: req
+    }).then(function () {
+
+      next();
+
+    }, function (error) {
+
+      if (error === "No such hook exists") {
+
+        next();
+        
+      } else {
+
+        res.status(400);
+        res.send(error);
+
+      }
+
+    });
 
   }, function (error) {
 

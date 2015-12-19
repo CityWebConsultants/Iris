@@ -1,6 +1,8 @@
 var hook = function (hookname, authPass, static, variables) {
 
   var auth = authPass;
+  
+  var thisHook;
 
   var constants = static;
 
@@ -9,7 +11,7 @@ var hook = function (hookname, authPass, static, variables) {
   return new Promise(function (yes, no) {
 
     //Check auth
-
+    
     if (typeof auth === 'string' || auth instanceof String) {
 
       if (auth === "root") {
@@ -29,7 +31,7 @@ var hook = function (hookname, authPass, static, variables) {
       }
 
     } else if (!auth || !auth.roles || !auth.userid) {
-
+      
       no("invalid authPass");
       return false;
 
@@ -123,7 +125,7 @@ var hook = function (hookname, authPass, static, variables) {
           thisHook.path = hookcall.parentModule;
           thisHook.rank = hookcall.rank;
           thisHook.index = index;
-
+          
           try {
             hookcall.event(thisHook, vars);
           } catch (e) {
