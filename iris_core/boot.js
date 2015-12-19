@@ -366,21 +366,26 @@ module.exports = function (config) {
     });
 
     iris.app.use(function (err, req, res, next) {
-      console.log(err);
 
-      iris.hook("hook_display_error_page", req.authPass, {
-        error: 500,
-        req: req,
-        res: res
-      }).then(function (success) {
+      if (err) {
 
-        res.status(500).send(success);
+        iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
 
-      }, function (fail) {
+        iris.hook("hook_display_error_page", req.authPass, {
+          error: 500,
+          req: req,
+          res: res
+        }).then(function (success) {
 
-        res.status(500).send('Something went wrong');;
+          res.status(500).send(success);
 
-      });
+        }, function (fail) {
+
+          res.status(500).send('Something went wrong');;
+
+        });
+
+      }
 
     });
 
