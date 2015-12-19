@@ -12,23 +12,13 @@ var moduleFiles = glob.sync(__dirname + "/modules/" + "**/package.json");
 
 // Check custom modules folder if exists in sites folder
 
-try {
+var customModulePath = path.resolve(__dirname + "/../home/modules/");
 
-  var customModulePath = path.resolve(__dirname + "/../home/modules/");
+var customModuleFiles = glob.sync(customModulePath + "**/package.json");
 
-  var customModuleFiles = glob.sync(customModulePath + "**/package.json");
-
-  moduleFiles = moduleFiles.concat(customModuleFiles);
-
-} catch (e) {
-
-  console.log("No custom modules folder, skipping");
-
-}
+moduleFiles = moduleFiles.concat(customModuleFiles);
 
 var toInstall = [];
-
-console.log(moduleFiles);
 
 process.exit();
 
