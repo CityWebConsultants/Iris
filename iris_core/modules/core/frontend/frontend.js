@@ -313,8 +313,8 @@ var findTemplate = function (paths, extension) {
 
     // Filter out filenames less specific than the top
     found = found.filter(function (value) {
-
-      if (value.filename.split('_').length < found[0].filename.split('_').length) {
+      
+      if (path.basename(value.filename).split('_').length < path.basename(found[0].filename).split('_').length) {
         return false;
       } else {
         return true;
