@@ -20,7 +20,8 @@
     "npm": "^3.5.2",
     "sanitize-html": "^1.10.0",
     "socket.io": "^1.2.1",
-    "tosource": "^1.0.0"
+    "tosource": "^1.0.0",
+    "uglify-js": "^2.6.1"
   },
   "devDependencies": {
     "frisby": "^0.8.5"

@@ -2,6 +2,8 @@ iris.registerModule("entity_views");
 
 var express = require('express');
 
+var UglifyJS = require("uglify-js");
+
 iris.modules.entity_views.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
   iris.modules.frontend.globals.parseBlock("entity", data.html, function (entity, next) {
 
@@ -67,7 +69,26 @@ iris.modules.entity_views.registerHook("hook_frontend_template_parse", 0, functi
 
         data.variables[variableName] = result;
 
-        next("");
+        var toSource = require('tosource');
+
+        var clientSideScript = toSource(function entityLoad(result, variableName) {
+
+          if (variableName) {
+            result ? null : result = [];
+            window.iris ? null : window.iris = {};
+            window.iris.fetched ? null : window.iris.fetched = {};
+            window.iris.fetched[variableName] = result;
+          }
+
+        });
+
+        var loader = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "')";
+
+        var loader = UglifyJS.minify(loader, {
+          fromString: true
+        });
+
+        next("<script>" + loader.code + "</script>");
 
       }, function (error) {
 
