@@ -286,6 +286,38 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
 iris.app.get("/fetch", function (req, res) {
 
+  // Check if user can fetch this entity type
+
+  var failed;
+
+  if (req.body.queryList && req.body.queryList[0] && req.body.queryList[0].entities) {
+
+    req.body.queryList[0].entities.forEach(function (entityType) {
+
+      if (!iris.modules.auth.globals.checkPermissions(["can fetch " + entityType], thisHook.authPass)) {
+
+        iris.log("info", "User " + req.authPass.userid + " was denied access to fetch " + entityType + " list ");
+
+        res.status(403).send("Cannot fetch");
+        failed = true;
+
+      };
+
+    })
+
+  } else {
+
+    res.respond(500, "Invalid entity fetch")
+
+  }
+
+  if (failed) {
+
+    return false;
+
+  }
+
+
   iris.hook("hook_entity_fetch", req.authPass, null, req.body).then(function (success) {
 
     res.respond(200, success);
