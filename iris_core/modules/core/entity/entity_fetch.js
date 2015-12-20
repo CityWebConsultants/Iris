@@ -379,3 +379,5 @@ iris.modules.entity.registerHook("hook_entity_view_bulk", 0, function (thisHook,
   thisHook.finish(true, entityList);
 
 });
+
+require("./entity_views.js")
