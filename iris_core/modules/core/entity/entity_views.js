@@ -1,4 +1,5 @@
 var UglifyJS = require("uglify-js");
+var fs = require("fs");
 
 iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
   iris.modules.frontend.globals.parseBlock("entity", data.html, function (entity, next) {
@@ -110,14 +111,24 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
         }
 
       });
+      
+      var preLoader = "";
+      
+      if (!data.variables.entityLoader) {
 
-      var loader = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
+        data.variables.entityLoader = true;
 
-      var loader = UglifyJS.minify(loader, {
+        preLoader += "<script src='/modules/entity/templates.js'></script>";
+
+      }
+      
+      var entityPackage = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
+            
+      var loader = UglifyJS.minify(entityPackage, {
         fromString: true
       });
 
-      next("<script>" + loader.code + "</script>");
+      next(preLoader + "<script>" + loader.code + "</script>");
 
     }, function (error) {
 

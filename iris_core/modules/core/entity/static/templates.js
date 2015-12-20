@@ -6,40 +6,10 @@ if (!window.iris) {
 
 }
 
-// Get root object
-
-iris.findRoot = function () {
-
-  //Get location of node.js server
-
-  var root = "";
-
-  //get location of node.js server
-
-  var scripts = document.getElementsByTagName('script');
-
-  var i;
-
-  for (i = 0; i < scripts.length; i += 1) {
-
-    var script = scripts[i];
-
-    if (script.src.indexOf("modules/entity_views/templates_angular.js") !== -1) {
-
-      var root = script.src.replace("modules/entity_views/templates_angular.js", "");
-
-    };
-
-  };
-
-  return root;
-
-};
-
 // Make socket connection and listen for events
 
 if (window.io) {
-  iris.socketreceiver = io(iris.findRoot());
+  iris.socketreceiver = io(document.location.protocol + "//" + document.location.hostname + ":" + document.location.port);
 
   iris.socketreceiver.on('entityCreate', function (data) {
 
@@ -68,48 +38,6 @@ if (window.io) {
   });
 
 }
-
-// Bootstrap angular app automatically. Put in new start and end symbols so as not to clash with handlebars
-
-angular.element(document).ready(function () {
-  angular.bootstrap(document, ['iris']);
-});
-
-iris.angular = angular.module("iris", [], function ($interpolateProvider) {
-  $interpolateProvider.startSymbol('##');
-  $interpolateProvider.endSymbol('##');
-});
-
-
-iris.angular.controller("iris-template", ["$scope", "$element", "$attrs", "$timeout", function ($scope, $element, $attrs, $timeout) {
-
-  // Read ng-template property and see if template exists
-
-  var template = $element[0].getAttribute("ng-iris-template");
-
-  if (iris.fetched && iris.fetched[template]) {
-
-    $scope.data = iris.fetched[template].entities;
-
-  }
-
-  // Listen for the event.
-  document.addEventListener('entityListUpdate', function (e) {
-
-    $scope.data = iris.fetched[template].entities;
-    $scope.$apply();
-
-  }, false);
-
-}]);
-
-//   HTML Filter for showing HTML
-
-iris.angular.filter('html_filter', ['$sce', function ($sce) {
-  return function (text) {
-    return $sce.trustAsHtml(text);
-  };
-}]);
 
 // Function for checking if a query is active
 
@@ -194,6 +122,24 @@ iris.checkQuery = function (entity, updating) {
 
             });
 
+            // Loop over entities in loader and check it's not already there as this can happen with more than one similar loader on the page
+
+            var present;
+
+            loader.entities.forEach(function (currentEntity) {
+
+              if (currentEntity === iris.fetchedEntities[entity.entityType][entity.eid]) {
+
+                present = true;
+
+              }
+
+            })
+
+            if (!present) {
+              loader.entities.push(iris.fetchedEntities[entity.entityType][entity.eid]);
+            }
+
             updated.push(entity);
 
           } else {
@@ -255,7 +201,11 @@ iris.checkQuery = function (entity, updating) {
 
           if (loader.query && loader.query.limit) {
 
-            loader.entities.length = parseInt(loader.query.limit);
+            if (loader.entities.length > parseInt(loader.query.limit)) {
+
+              loader.entities.length = parseInt(loader.query.limit);
+
+            }
 
           }
 
