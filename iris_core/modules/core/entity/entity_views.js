@@ -6,6 +6,8 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
     var entityType = entity[0];
     var variableName = entity[1];
     var query = entity[2];
+    var limit = entity[3];
+    var sort = entity[4];
 
     if (query) {
 
@@ -58,8 +60,24 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 
     var fetch = {
       queries: queries,
-      entities: [entityType]
+      entities: [entityType],
     };
+
+    if (limit) {
+
+      fetch.limit = limit;
+
+    }
+
+    if (sort) {
+
+      var expandedSort = {};
+
+      expandedSort[sort.split("|")[0]] = sort.split("|")[1];
+
+      fetch.sort = expandedSort;
+
+    }
 
     iris.hook("hook_entity_fetch", thisHook.authPass, null, {
       queryList: [fetch]

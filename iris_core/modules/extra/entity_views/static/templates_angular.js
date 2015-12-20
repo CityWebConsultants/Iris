@@ -144,7 +144,7 @@ iris.checkQuery = function (entity, updating) {
         }
 
         queries.forEach(function (query) {
-
+                    
           //Process query based on operator
 
           switch (query.comparison) {
@@ -168,7 +168,7 @@ iris.checkQuery = function (entity, updating) {
 
             case "CONTAINS":
 
-              if (entity[query.field].toLowerCase().indexOf(query.compare.toLowerCase()) === -1) {
+              if (entity[query.field].toString().toLowerCase().indexOf(query.compare.toString().toLowerCase()) === -1) {
 
                 outcome = false;
 
