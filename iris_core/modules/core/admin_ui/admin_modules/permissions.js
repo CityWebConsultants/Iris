@@ -41,6 +41,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_permissions", 0, function (
       permissionSchema[permission] = {
         "type": "array",
         "title": permission.toUpperCase(),
+        "description": iris.modules.auth.globals.permissions[category][permissionName].description,
         "items": {
           "type": "string",
           "enum": Object.keys(roles)
@@ -71,7 +72,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_permissions", 0, function (
   form.push({
     "key": "formid"
   });
-  
+
   form.push({
     "key": "formToken"
   });

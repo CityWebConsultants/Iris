@@ -29,7 +29,7 @@ iris.modules.auth.globals = {
 
   },
 
-  registerPermission: function (permission, category) {
+  registerPermission: function (permission, category, description) {
 
     if (!category || !permission) {
 
@@ -52,7 +52,8 @@ iris.modules.auth.globals = {
 
       iris.modules.auth.globals.permissions[category][permission] = {
 
-        name: permission
+        name: permission,
+        description: description
 
       }
 
