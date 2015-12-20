@@ -144,7 +144,7 @@ iris.checkQuery = function (entity, updating) {
         }
 
         queries.forEach(function (query) {
-                    
+
           //Process query based on operator
 
           switch (query.comparison) {
@@ -208,6 +208,48 @@ iris.checkQuery = function (entity, updating) {
             loader.entities.push(iris.fetchedEntities[entity.entityType][entity.eid]);
 
             inserted.push(entity);
+
+          }
+
+          // Check if sort is present and run it if so
+
+          var sort = function (property, direction) {
+
+            if (direction === "asc") {
+
+              loader.entities.sort(function asc(a, b) {
+                if (a[property] < b[property]) {
+                  return -1;
+                }
+                if (a[property] > b[property]) {
+                  return 1;
+                }
+                return 0;
+              })
+
+            } else if (direction === "desc") {
+
+              loader.entities.sort(function asc(a, b) {
+                if (a[property] > b[property]) {
+                  return -1;
+                }
+                if (a[property] < b[property]) {
+                  return 1;
+                }
+                return 0;
+              })
+
+            }
+
+          }
+
+          if (loader.query && loader.query.sort) {
+
+            Object.keys(loader.query.sort).forEach(function (sorter) {
+
+              sort(sorter, loader.query.sort[sorter])
+
+            })
 
           }
 
