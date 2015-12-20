@@ -216,10 +216,10 @@ iris.modules.user.globals.getRole = function (userid, callback) {
 };
 
 iris.modules.user.registerHook("hook_auth_authpass", 5, function (thisHook, data) {
-
+  
   if (data.roles && data.roles.indexOf('authenticated') !== -1) {
 
-    iris.modules.user.globals.getRole(thisHook.req.cookies.userid, function (roles) {
+    iris.modules.user.globals.getRole(thisHook.authPass.userid, function (roles) {
 
       data.roles = data.roles.concat(roles);
 
@@ -315,5 +315,36 @@ iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook
     thisHook.finish(true, doc);
 
   });
+
+});
+
+// Check if websocket connection has authentication cookies
+
+iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, data) {
+  
+  var cookies = parse_cookies(thisHook.const.socket.handshake.headers.cookie);
+
+  function parse_cookies(_cookies) {
+    var cookies = {};
+
+    _cookies && _cookies.split(';').forEach(function (cookie) {
+      var parts = cookie.split('=');
+      cookies[parts[0].trim()] = (parts[1] || '').trim();
+    });
+
+    return cookies;
+  }
+
+  if (cookies && cookies.userid && cookies.token) {
+
+    // Check access token and userid are valid
+
+    if (iris.modules.auth.globals.checkAccessToken(cookies.userid, cookies.token)) {
+
+      iris.socketLogin(cookies.userid, cookies.token, thisHook.const.socket);
+
+    }
+
+  };
 
 });

@@ -38,6 +38,46 @@ iris.sendSocketMessage = function (userids, message, data) {
 
 };
 
+iris.socketLogin = function (userid, token, socket) {
+
+  //Paired
+
+  iris.modules.auth.globals.credentialsToPass({
+    userid: userid,
+    token: token
+  }).then(function (authPass) {
+
+    //Check if a user object exists
+
+    socket.user = iris.modules.auth.globals.userList[userid];
+
+    socket.authPass = authPass;
+
+    if (socket.user) {
+
+      if (!socket.user.sockets) {
+
+        socket.user.sockets = {};
+
+      }
+
+      iris.modules.auth.globals.userList[userid].sockets[socket.id] = {
+        socket: socket,
+        timestamp: Date.now()
+      };
+
+    };
+
+    socket.emit("pair");
+
+  }, function (fail) {
+
+    iris.log("error", fail);
+
+  });
+
+}
+
 iris.socketServer.on("connection", function (socket) {
 
   if (!iris.status.ready) {
@@ -47,42 +87,30 @@ iris.socketServer.on("connection", function (socket) {
 
   }
 
+  // Run socket through connection hook for things like getting user data from cookies
+
+  iris.hook("hook_socket_connect", "root", {
+    socket: socket
+  }, null).then(function () {
+
+
+  }, function (fail) {
+
+    if (fail !== "No such hook exists") {
+
+      iris.log("error", fail);
+
+    }
+
+  });
+
   //Register pair listener
 
   socket.on("pair", function (credentials) {
 
-    iris.modules.auth.globals.credentialsToPass(credentials).then(function (authPass) {
+    // Pairing for non cookie based login
 
-      //Paired
-
-      //Check if a user object exists
-
-      socket.user = iris.modules.auth.globals.userList[authPass.userid];
-
-      socket.authPass = authPass;
-
-      if (socket.user) {
-
-        if (!socket.user.sockets) {
-
-          socket.user.sockets = {};
-
-        }
-
-        iris.modules.auth.globals.userList[authPass.userid].sockets[socket.id] = {
-          socket: socket,
-          timestamp: Date.now()
-        };
-
-      };
-
-      socket.emit("pair", authPass);
-
-    }, function (error) {
-
-      socket.emit("error", error);
-
-    });
+    iris.socketLogin(credentials.userid, credentials.token, socket);
 
   });
 
