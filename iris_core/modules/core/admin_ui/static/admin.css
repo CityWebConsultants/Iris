@@ -4,7 +4,6 @@ header {
   width: 100%;
   border-color: #6258A4;
 }
-
 h1,
 h2 {
   text-align: center;
@@ -21,21 +20,22 @@ img {
 }
 table {
   background-color: transparent;
-    margin:20px 0;
+  margin: 20px 0;
 }
-th, td {
-  padding:10px;
+th,
+td {
+  padding: 10px;
 }
 tr:nth-child(even) {
   background-color: #E9E6FF;
 }
 #main {
-  max-width:1120px;
-  margin:auto;
+  max-width: 1120px;
+  margin: auto;
 }
 @media screen and (max-width:1130px) {
   #main {
-    padding:0 20px;
+    padding: 0 20px;
   }
 }
 #logo {
@@ -57,11 +57,11 @@ ul.main-menu {
 #permissions td.permission {
   text-align: left;
 }
-tr#roles, thead tr {
+tr#roles,
+thead tr {
   color: #fff;
   background-color: #6258A4;
 }
-
 #login-page {
   width: 100%;
   height: 100%;
@@ -109,42 +109,48 @@ tr#roles, thead tr {
 }
 
 /* Entities page */
+
 #entity-types {
-  width:100%;
+  width: 100%;
 }
-#entity-types .dropdown{
-    overflow: hidden;
-    background: #fff;
-    width: auto;
-    display: inline-block;
-    padding:3px 10px 0 10px;
-    border-radius:10px;
-    border:1px solid #999;
-    position:absolute;
-    margin-top:-15px;
-    z-index:2;
+#entity-types .dropdown {
+  overflow: hidden;
+  background: #fff;
+  width: auto;
+  display: inline-block;
+  padding: 3px 10px 0 10px;
+  border-radius: 10px;
+  border: 1px solid #999;
+  position: absolute;
+  margin-top: -15px;
+  z-index: 2;
 }
 #entity-types .dropdown.closed {
-    height:30px;
-    z-index:1;
+  height: 30px;
+  z-index: 1;
 }
 #entity-types .glyphicon {
-    float:left;
-    padding-top:3px;
-    cursor:pointer;
+  float: left;
+  padding-top: 3px;
+  cursor: pointer;
 }
 #entity-types ul {
-    list-style:none;
-    padding-left:25px;
+  list-style: none;
+  padding-left: 25px;
 }
 #entity-types ul a {
-    white-space:nowrap;
+  white-space: nowrap;
 }
-
 .expandable > legend:before {
   content: '\25B8';
   padding-right: 5px;
 }
 .expanded > legend:before {
   content: '\25BE';
+}
+.jsonform-required label:after {
+  content: "*";
+  color: red;
+  font-size: 100%;
+  margin-left: 2px;
 }
