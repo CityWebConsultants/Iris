@@ -253,6 +253,12 @@ iris.checkQuery = function (entity, updating) {
 
           }
 
+          if (loader.query && loader.query.limit) {
+
+            loader.entities.length = parseInt(loader.query.limit);
+
+          }
+
         }
 
       }
