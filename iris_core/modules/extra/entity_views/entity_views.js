@@ -71,20 +71,23 @@ iris.modules.entity_views.registerHook("hook_frontend_template_parse", 0, functi
 
         var toSource = require('tosource');
 
-        var clientSideScript = toSource(function entityLoad(result, variableName) {
-
+        var clientSideScript = toSource(function entityLoad(result, variableName, query) {
+          
           if (variableName) {
             result ? null : result = [];
             window.iris ? null : window.iris = {};
             window.iris.fetchedEntities ? null : window.iris.fetchedEntities = {};
             window.iris.fetched ? null : window.iris.fetched = {};
-            window.iris.fetched[variableName] = [];
+            window.iris.fetched[variableName] = {
+              query: query,
+              entities: []
+            };
             result.forEach(function (entity) {
 
               window.iris.fetchedEntities[entity.entityType] ? null : window.iris.fetchedEntities[entity.entityType] = {};
 
               window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
-              window.iris.fetched[variableName].push(entity);
+              window.iris.fetched[variableName].entities.push(entity);
 
             })
 
@@ -92,8 +95,8 @@ iris.modules.entity_views.registerHook("hook_frontend_template_parse", 0, functi
 
         });
 
-        var loader = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "')";
-
+        var loader = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
+        
         var loader = UglifyJS.minify(loader, {
           fromString: true
         });
