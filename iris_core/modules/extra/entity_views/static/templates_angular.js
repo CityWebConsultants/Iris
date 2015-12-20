@@ -1,35 +1,38 @@
-//Angular stuff, split off into another file
+// Bootstrap angular app automatically. Put in new start and end symbols so as not to clash with handlebars
 
 angular.element(document).ready(function () {
-  angular.bootstrap(document, ['app']);
+  angular.bootstrap(document, ['iris']);
 });
 
-var app = angular.module("app", [], function ($interpolateProvider) {
+var irisAngular = angular.module("iris", [], function ($interpolateProvider) {
   $interpolateProvider.startSymbol('##');
   $interpolateProvider.endSymbol('##');
 });
 
-app.controller("C", ["$scope", "$element", "$attrs", "$timeout", function ($scope, $element, $attrs, $timeout) {
 
-  $attrs.$observe("queries", function (val) {
+irisAngular.controller("iris-template", ["$scope", "$element", "$attrs", "$timeout", function ($scope, $element, $attrs, $timeout) {
 
-    T.initTemplate($element[0]);
+  // Read ng-template property and see if template exists
 
-  })
+  var template = $element[0].getAttribute("ng-iris-template");
+  
+  if(iris.fetched && iris.fetched[template]){
+    
+    $scope.data = iris.fetched[template];
+    
+  }
 
-  $element[0].addEventListener('newdata', function () {
+  //        document.addEventListener('newdata', function () {
+  //
+  //          $scope.$apply();
+  //
+  //        }, false);
 
-    $scope.fetched = T.getTemplate($element[0]).getDataArray();
-    $scope.data = T.getTemplate($element[0]).getDataArray();
+}]);
 
-    $scope.$apply();
+//   HTML Filter for showing HTML
 
-  }, false);
-
-      }]);
-
-
-app.filter('html_filter', ['$sce', function ($sce) {
+iris.filter('html_filter', ['$sce', function ($sce) {
   return function (text) {
     return $sce.trustAsHtml(text);
   };
