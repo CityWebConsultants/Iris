@@ -119,11 +119,12 @@ iris.checkQuery = function (entity, updating) {
 
   if (iris.fetched) {
 
-    var outcome = true;
     var updated = [];
     var inserted = [];
 
     Object.keys(iris.fetched).forEach(function (loader) {
+
+      var outcome = true;
 
       var loader = iris.fetched[loader],
         query = loader.query,
@@ -136,9 +137,8 @@ iris.checkQuery = function (entity, updating) {
 
         // check if there is a queries object
 
-        if (!queries) {
+        if (!queries || !queries.length) {
 
-          outcome = true;
           queries = [];
 
         }

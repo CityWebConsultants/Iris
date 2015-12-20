@@ -54,64 +54,60 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 
       }
 
-      var fetch = {
-        queries: queries,
-        entities: [entityType]
-      };
+    }
 
-      iris.hook("hook_entity_fetch", thisHook.authPass, null, {
-        queryList: [fetch]
-      }).then(function (result) {
+    var fetch = {
+      queries: queries,
+      entities: [entityType]
+    };
 
-        data.variables[variableName] = result;
+    iris.hook("hook_entity_fetch", thisHook.authPass, null, {
+      queryList: [fetch]
+    }).then(function (result) {
 
-        var toSource = require('tosource');
+      data.variables[variableName] = result;
 
-        var clientSideScript = toSource(function entityLoad(result, variableName, query) {
-          
-          if (variableName) {
-            result ? null : result = [];
-            window.iris ? null : window.iris = {};
-            window.iris.fetchedEntities ? null : window.iris.fetchedEntities = {};
-            window.iris.fetched ? null : window.iris.fetched = {};
-            window.iris.fetched[variableName] = {
-              query: query,
-              entities: []
-            };
-            result.forEach(function (entity) {
+      var toSource = require('tosource');
 
-              window.iris.fetchedEntities[entity.entityType] ? null : window.iris.fetchedEntities[entity.entityType] = {};
+      var clientSideScript = toSource(function entityLoad(result, variableName, query) {
 
-              window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
-              window.iris.fetched[variableName].entities.push(entity);
+        if (variableName) {
+          result ? null : result = [];
+          window.iris ? null : window.iris = {};
+          window.iris.fetchedEntities ? null : window.iris.fetchedEntities = {};
+          window.iris.fetched ? null : window.iris.fetched = {};
+          window.iris.fetched[variableName] = {
+            query: query,
+            entities: []
+          };
+          result.forEach(function (entity) {
 
-            })
+            window.iris.fetchedEntities[entity.entityType] ? null : window.iris.fetchedEntities[entity.entityType] = {};
 
-          }
+            window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
+            window.iris.fetched[variableName].entities.push(entity);
 
-        });
+          })
 
-        var loader = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
-        
-        var loader = UglifyJS.minify(loader, {
-          fromString: true
-        });
-
-        next("<script>" + loader.code + "</script>");
-
-      }, function (error) {
-
-        console.log(error);
-
-        next("");
+        }
 
       });
 
-    } else {
+      var loader = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
+
+      var loader = UglifyJS.minify(loader, {
+        fromString: true
+      });
+
+      next("<script>" + loader.code + "</script>");
+
+    }, function (error) {
+
+      console.log(error);
 
       next("");
 
-    }
+    });
 
   }).then(function (html) {
 
