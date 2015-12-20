@@ -89,15 +89,17 @@ iris.angular.controller("iris-template", ["$scope", "$element", "$attrs", "$time
 
   if (iris.fetched && iris.fetched[template]) {
 
-    $scope.data = iris.fetched[template];
+    $scope.data = iris.fetched[template].entities;
 
   }
 
-  //        document.addEventListener('newdata', function () {
-  //
-  //          $scope.$apply();
-  //
-  //        }, false);
+  // Listen for the event.
+  document.addEventListener('entityListUpdate', function (e) {
+
+    $scope.data = iris.fetched[template].entities;
+    $scope.$apply();
+
+  }, false);
 
 }]);
 
@@ -223,6 +225,10 @@ iris.checkQuery = function (entity, updating) {
 
     }
 
+    // Send event
+
+    document.dispatchEvent(iris.entityListUpdate);
+
   }
 
 }
@@ -265,4 +271,10 @@ iris.deleteEntity = function (entity) {
 
   }
 
+  // Send event
+
+  document.dispatchEvent(iris.entityListUpdate);
+
 }
+
+iris.entityListUpdate = new Event('entityListUpdate');
