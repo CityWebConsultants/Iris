@@ -72,17 +72,33 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
       }
 
-      if (fieldQuery.comparison === "IS") {
+      if (fieldQuery.comparison.indexOf("IS") !== -1) {
 
         var queryItem = {};
 
         queryItem[fieldQuery["field"]] = fieldQuery.compare
 
-        query.$and.push(queryItem);
+        // Check if negative
+
+        if (fieldQuery.comparison.indexOf("not") === -1) {
+          query.$and.push(queryItem);
+        } else {
+
+          negativeQueryItem = {};
+
+          negativeQueryItem[Object.keys(queryItem)[0]] = {
+
+            $ne: queryItem[Object.keys(queryItem)[0]]
+
+          }
+
+          query.$and.push(negativeQueryItem);
+
+        }
 
       }
 
-      if (fieldQuery.comparison === "IN") {
+      if (fieldQuery.comparison.indexOf("INCLUDES") !== -1) {
 
         var queryItem = {};
 
@@ -90,20 +106,47 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
           '$elemMatch': fieldQuery.compare
         }
 
-        query.$and.push(queryItem);
+        // Check if negative
+
+        if (fieldQuery.comparison.indexOf("not") === -1) {
+          query.$and.push(queryItem);
+        } else {
+
+          negativeQueryItem = {};
+
+          negativeQueryItem[Object.keys(queryItem)[0]] = {
+
+            $ne: queryItem[Object.keys(queryItem)[0]]
+
+          }
+
+          query.$and.push(negativeQueryItem);
+        }
 
       };
 
-      if (fieldQuery.comparison === 'CONTAINS') {
+      if (fieldQuery.comparison.indexOf("CONTAINS") !== -1) {
 
         var queryItem = {};
 
+        var regex = new RegExp(fieldQuery.compare);
+
         queryItem[fieldQuery["field"]] = {
-          '$regex': fieldQuery.compare,
-          '$options': 'i'
+          '$regex': regex
         }
 
-        query.$and.push(queryItem);
+        // Check if negative
+
+        if (fieldQuery.comparison.indexOf("not") === -1) {
+          query.$and.push(queryItem);
+        } else {
+
+          queryItem[fieldQuery["field"]].$not = regex;
+          delete queryItem[fieldQuery["field"]].$regex;
+          
+          query.$and.push(queryItem);
+
+        }
 
       }
 
@@ -371,13 +414,13 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
   }
 
   // Strip out any fields on the entity that a user shouldn't be able to see according to field permissions
-  
+
   if (entity) {
-    
+
     var type = entity.entityType;
 
     Object.keys(entity).forEach(function (field) {
-          
+
       var schemaField = iris.dbCollections[type].schema.tree[field];
 
       if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
