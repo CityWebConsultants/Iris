@@ -4,7 +4,7 @@ var fs = require("fs");
 iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
   iris.modules.frontend.globals.parseBlock("entity", data.html, function (entity, next) {
 
-    var entityType = entity[0];
+    var entityTypes = entity[0].split("+");
     var variableName = entity[1];
     var query = entity[2];
     var limit = entity[3];
@@ -61,7 +61,7 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 
     var fetch = {
       queries: queries,
-      entities: [entityType],
+      entities: entityTypes,
     };
 
     if (limit) {
