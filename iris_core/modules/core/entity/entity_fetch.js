@@ -143,7 +143,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
           queryItem[fieldQuery["field"]].$not = regex;
           delete queryItem[fieldQuery["field"]].$regex;
-          
+
           query.$and.push(queryItem);
 
         }
@@ -288,6 +288,12 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
         }
 
         iris.hook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
+
+          if (req.body.limit && output.length > req.body.limit) {
+
+            output.length = req.body.limit;
+
+          }
 
           thisHook.finish(true, output);
 
