@@ -8,6 +8,262 @@ iris.modules.ckeditor.registerHook("hook_form_render", 1, function (thisHook, fo
 
 });
 
+iris.modules.ckeditor.registerHook("hook_form_render_textformat", 0, function (thisHook, data) {
+
+  if (!data.schema) {
+
+    data.schema = {};
+
+  }
+
+
+  // Check if editing and form exists in config
+
+  if (thisHook.const.params[1] && thisHook.const.params[1].indexOf("{{") !== -1) {
+
+    thisHook.finish(false);
+
+  } else {
+        
+
+    if (iris.configStore.textformats && iris.configStore.textformats[iris.sanitizeFileName(thisHook.const.params[1])]) {
+      
+      var config = iris.configStore.textformats[iris.sanitizeFileName(thisHook.const.params[1])];
+
+    }
+
+  }
+
+  data.schema.name = {
+
+    "type": "text",
+    "title": "Format name",
+    "required": true
+  };
+
+
+  data.schema.elements = {
+
+    "type": "text",
+    "title": "Allowed attributes",
+    "required": true,
+  }
+
+  // Hide name if editing and set default values
+
+  if (config) {
+
+    data.schema.name.type = "hidden";
+    data.schema.name.default = config.name;
+    data.schema.elements.default = config.elements;
+
+  }
+
+  thisHook.finish(true, data);
+
+})
+
+// Load all textformats on start
+
+var fs = require('fs');
+var glob = require("glob");
+
+glob(iris.configPath + "/textformats/*.json", function (er, files) {
+
+  files.forEach(function (file) {
+
+    var config = fs.readFileSync(file, "utf8");
+
+    config = JSON.parse(config);
+
+    if (config.name) {
+
+      iris.saveConfig(config, "textformats", iris.sanitizeFileName(config.name), function () {
+
+        },
+        function (fail) {
+
+          console.log(fail);
+
+        });
+    }
+  })
+
+})
+
+iris.modules.ckeditor.registerHook("hook_form_submit_textformat", 0, function (thisHook, data) {
+
+  iris.saveConfig(thisHook.const.params, "textformats", iris.sanitizeFileName(thisHook.const.params.name), function (response) {
+
+    thisHook.finish(true, data);
+
+  });
+
+})
+
+iris.app.get("/admin/textformats", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_textformats"], ['admin_wrapper'], {
+    textformats: iris.configStore.textformats,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+iris.app.get("/admin/textformats/create", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_textformats_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+iris.app.get("/admin/textformats/edit/:name", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_textformats_form"], ['admin_wrapper'], {
+    formatname: req.params.name
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+iris.app.get("/admin/textformats/delete/:name", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_textformats_delete"], ['admin_wrapper'], {
+    formatname: req.params.name
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
+iris.modules.ckeditor.registerHook("hook_form_render_texformat_delete", 0, function (thisHook, data) {
+
+    if (!data.schema) {
+
+      data.schema = {};
+
+    }
+
+    data.schema["textformat"] = {
+      type: "hidden",
+      default: thisHook.const.params[1]
+    };
+
+    thisHook.finish(true, data);
+
+});
+
+iris.modules.ckeditor.registerHook("hook_form_submit_texformat_delete", 0, function (thisHook, data) {
+  
+  var format = iris.sanitizeFileName(thisHook.const.params.textformat);
+      
+  if(iris.configStore.textformats && iris.configStore.textformats[format]){
+      
+  } else {
+    
+    return false;
+    
+  }
+  
+  return false;
+  
+  iris.deleteConfig("textformats", format, function(err) {
+
+    if (err) {
+
+      thisHook.finish(false, data);
+
+    }
+
+    var data = function (res) {
+
+      res.send("/admin/textformats");
+
+    };
+
+    thisHook.finish(true, data);
+
+  });
+
+});
+
+
+
 var sanitizeHtml = require('sanitize-html');
 
 iris.modules.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook, data) {

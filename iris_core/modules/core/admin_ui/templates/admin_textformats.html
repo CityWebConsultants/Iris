@@ -1,0 +1,8 @@
+<h1>Text formats</h1>
+
+<ul>
+
+  {{#each textformats}} <li>{{this.name}} - <a href="/admin/textformats/edit/{{this.name}}">edit</a> - <a href="/admin/textformats/delete/{{this.name}}">delete</a></li> {{/each}} 
+</ul>
+
+<a class="btn btn-primary" href="/admin/textformats/create">Make new text format</a>

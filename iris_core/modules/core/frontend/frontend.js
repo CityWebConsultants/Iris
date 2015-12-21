@@ -393,7 +393,7 @@ iris.modules.frontend.globals.parseBlock = function (prefix, html, action) {
         return x.match(internal)[1];
 
       });
-
+      
       var counter = 0;
 
       var runthrough = function (choice) {
