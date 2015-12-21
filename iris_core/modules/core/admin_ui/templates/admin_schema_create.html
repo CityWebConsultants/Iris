@@ -99,7 +99,7 @@
           "properties": fields
         }
       }
-      
+
       // Add in form presentation fields
 
       if (schema.schema.fields.items) {
@@ -108,11 +108,19 @@
 
           if (fieldName !== "choose" && fieldName !== "object") {
 
-            schema.schema.fields.items.properties[fieldName].properties.canViewField.type = "checkboxbuttons";
-            schema.schema.fields.items.properties[fieldName].properties.canViewField.activeClass = "btn-success";
+            if (schema.schema.fields.items.properties[fieldName].properties.canViewField) {
 
-            schema.schema.fields.items.properties[fieldName].properties.canEditField.type = "checkboxbuttons";
-            schema.schema.fields.items.properties[fieldName].properties.canEditField.activeClass = "btn-success";
+              schema.schema.fields.items.properties[fieldName].properties.canViewField.type = "checkboxbuttons";
+              schema.schema.fields.items.properties[fieldName].properties.canViewField.activeClass = "btn-success";
+
+            }
+
+            if (schema.schema.fields.items.properties[fieldName].properties.canEditField) {
+
+              schema.schema.fields.items.properties[fieldName].properties.canEditField.type = "checkboxbuttons";
+              schema.schema.fields.items.properties[fieldName].properties.canEditField.activeClass = "btn-success";
+
+            }
 
           }
 

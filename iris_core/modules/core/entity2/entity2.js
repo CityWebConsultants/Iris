@@ -39,13 +39,18 @@ iris.modules.entity2.globals.fetchSchemaForm = function () {
           "title": "Label"
         }
 
+        fieldSchema.description = {
+          "type": "string",
+          "title": "Field Description"
+        }
+
         fieldSchema.required = {
           "title": "Required",
           "type": "boolean"
         }
 
         // Add in field permissions
-        
+
         fieldSchema.canViewField = {
           "type": "array",
           "selector": "permission",
@@ -56,17 +61,17 @@ iris.modules.entity2.globals.fetchSchemaForm = function () {
             "enum": Object.keys(iris.modules.auth.globals.roles)
           }
         };
-        
-//        fieldSchema.canEditField = {
-//          "type": "array",
-//          "selector": "permission",
-//          "title": "Can view field on edit/delete forms",
-//          "description": "If you disable this permission on a required field a user may not be able to save the entity properly",
-//          "items": {
-//            "type": "string",
-//            "enum": Object.keys(iris.modules.auth.globals.roles)
-//          }
-//        };
+
+        //        fieldSchema.canEditField = {
+        //          "type": "array",
+        //          "selector": "permission",
+        //          "title": "Can view field on edit/delete forms",
+        //          "description": "If you disable this permission on a required field a user may not be able to save the entity properly",
+        //          "items": {
+        //            "type": "string",
+        //            "enum": Object.keys(iris.modules.auth.globals.roles)
+        //          }
+        //        };
 
 
         // Parse file
@@ -218,7 +223,7 @@ iris.modules.entity2.registerHook("hook_render_entityfield_form", 0, function (t
 
     data = {
       type: "string",
-      title: thisHook.const.field.title,
+      title: thisHook.const.field.label || thisHook.const.field.title,
       required: thisHook.const.field.required,
       description: thisHook.const.field.description,
       default: thisHook.const.value
@@ -231,7 +236,7 @@ iris.modules.entity2.registerHook("hook_render_entityfield_form", 0, function (t
     data = {
       type: "array",
       required: thisHook.const.field.required,
-      title: thisHook.const.field.title,
+      title: thisHook.const.field.label || thisHook.const.field.title,
       "description": thisHook.const.field.description,
       items: {
         type: "string"

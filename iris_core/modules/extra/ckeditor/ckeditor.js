@@ -23,7 +23,7 @@ iris.modules.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook,
       data[field] = sanitizeHtml(data[field], {
         allowedTags: tags,
         allowedAttributes: {
-            '*': ['src', 'href', 'align', 'alt', 'center', 'bgcolor', 'class', 'id']
+          '*': ['src', 'href', 'align', 'alt', 'center', 'bgcolor', 'class', 'id']
         }
       });
 
@@ -43,7 +43,7 @@ iris.modules.ckeditor.registerHook("hook_render_entityfield_form", 0, function (
 
     data = {
       "type": "ckeditor",
-      "title": thisHook.const.field.title,
+      "title": thisHook.const.field.label || thisHook.const.field.label,
       "required": thisHook.const.field.required,
       "description": thisHook.const.field.description,
       "default": thisHook.const.value
