@@ -87,11 +87,40 @@
         "description": "Fields on this entity type",
         "required": true,
         "items": {
-          type: "object",
+          "type": "object",
           "properties": fields
         }
       }
 
+      // Add in form fields
+
+      if (schema.schema.fields.items) {
+
+        Object.keys(schema.schema.fields.items.properties).forEach(function(fieldName) {
+
+          if (fieldName !== "choose" && fieldName !== "object") {
+
+            schema.schema.fields.items.properties[fieldName].properties.canViewField.type = "checkboxbuttons";
+            schema.schema.fields.items.properties[fieldName].properties.canViewField.activeClass = "btn-success";
+
+            schema.schema.fields.items.properties[fieldName].properties.canEditField.type = "checkboxbuttons";
+            schema.schema.fields.items.properties[fieldName].properties.canEditField.activeClass = "btn-success";
+
+          }
+
+        })
+
+        schema.form.push({
+          key: "fields",
+          properties: schema.schema.fields
+        });
+
+        schema.form.push({
+          "type": "submit",
+          "title": "Save"
+        });
+
+      }
 
       //Get type from url
 
@@ -119,10 +148,7 @@
 <script>
   var schema = {
     "schema": {},
-    "form": ["*", {
-      "type": "submit",
-      "title": "Submit"
-    }],
+    "form": [],
     onSubmit: function(errors, values) {
 
       if (errors) {
