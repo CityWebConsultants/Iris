@@ -26,7 +26,7 @@ iris.modules.ckeditor.registerHook("hook_form_render_textformat", 0, function (t
   } else {
         
 
-    if (iris.configStore.textformats && iris.configStore.textformats[iris.sanitizeFileName(thisHook.const.params[1])]) {
+    if (iris.configStore.textformats && thisHook.const.params[1] && iris.configStore.textformats[iris.sanitizeFileName(thisHook.const.params[1])]) {
       
       var config = iris.configStore.textformats[iris.sanitizeFileName(thisHook.const.params[1])];
 
@@ -239,8 +239,6 @@ iris.modules.ckeditor.registerHook("hook_form_submit_texformat_delete", 0, funct
     return false;
     
   }
-  
-  return false;
   
   iris.deleteConfig("textformats", format, function(err) {
 

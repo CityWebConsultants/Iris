@@ -65,20 +65,22 @@ module.exports = function (config) {
   };
 
   iris.deleteConfig = function (directory, filename, callback) {
+
     var splitDirectory = directory.split('/');
+    
+    if (splitDirectory.length > 1) {
 
-    // Get last parts of the directory, used as key in config store
-    var configStoreCategory = splitDirectory[splitDirectory.length - 2];
-    var configStoreInstance = splitDirectory[splitDirectory.length - 1];
-
-    // Delete it from config store, if present
-    if (iris.configStore[configStoreCategory][configStoreInstance][filename]) {
+      // Get last parts of the directory, used as key in config store
+      var configStoreCategory = splitDirectory[splitDirectory.length - 2];
+      var configStoreInstance = splitDirectory[splitDirectory.length - 1];
 
       delete iris.configStore[configStoreCategory][configStoreInstance][filename];
 
+    } else {
+
+      delete iris.configStore[directory][filename];
+
     }
-
-
 
     var filePath = path.join(iris.sitePath, "/configurations", directory);
 

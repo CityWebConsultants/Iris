@@ -113,6 +113,10 @@ iris.app.get("/admin/api/schema/fieldtypes", function (req, res) {
         delete fields[field].properties.fieldTypeType;
 
       }
+      
+      // Run schemafield preprocess hook
+      
+      
 
     })
 
