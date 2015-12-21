@@ -289,19 +289,63 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
         iris.hook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
 
-          if (req.body.limit && output.length > req.body.limit) {
+            // Apply sort if one is set
 
-            output.length = req.body.limit;
+            // Check if sort is present and run it if so
 
-          }
+            var sort = function (property, direction) {
 
-          thisHook.finish(true, output);
+              if (direction === "asc") {
 
-        }, function (fail) {
+                output.sort(function asc(a, b) {
+                  if (a[property] < b[property]) {
+                    return -1;
+                  }
+                  if (a[property] > b[property]) {
+                    return 1;
+                  }
+                  return 0;
+                })
 
-          thisHook.finish(false, fail);
+              } else if (direction === "desc") {
 
-        });
+                output.sort(function asc(a, b) {
+                  if (a[property] > b[property]) {
+                    return -1;
+                  }
+                  if (a[property] < b[property]) {
+                    return 1;
+                  }
+                  return 0;
+                })
+
+              }
+
+            }
+
+            if (req.body.sort) {
+
+              Object.keys(req.body.sort).forEach(function (sorter) {
+                sort(sorter, req.body.sort[sorter])
+
+              })
+
+            }
+
+            if (req.body.limit && output.length > req.body.limit) {
+
+              output.length = req.body.limit;
+
+            }
+
+            thisHook.finish(true, output);
+
+          },
+          function (fail) {
+
+            thisHook.finish(false, fail);
+
+          });
 
       }, function (fail) {
 
