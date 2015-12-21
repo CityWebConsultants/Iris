@@ -370,6 +370,52 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
     }
   }
 
+  // Strip out any fields on the entity that a user shouldn't be able to see according to field permissions
+  
+  if (entity) {
+    
+    var type = entity.entityType;
+
+    Object.keys(entity).forEach(function (field) {
+          
+      var schemaField = iris.dbCollections[type].schema.tree[field];
+
+      if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
+
+        if (!schemaField.canViewField) {
+
+          delete entity[field];
+
+        } else {
+
+          var canView = false;
+
+          thisHook.authPass.roles.forEach(function (role) {
+
+
+            if (schemaField.canViewField.indexOf(role) !== -1) {
+
+              canView = true;
+
+            }
+
+          })
+
+          if (!canView) {
+
+            delete entity[field];
+
+          }
+
+        }
+
+
+      }
+
+    })
+
+  }
+
   thisHook.finish(true, entity);
 
 });

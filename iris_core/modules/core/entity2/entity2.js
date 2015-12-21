@@ -46,27 +46,28 @@ iris.modules.entity2.globals.fetchSchemaForm = function () {
 
         // Add in field permissions
         
-        fieldSchema.canEditField = {
-          "type": "array",
-          "selector": "permission",
-          "title": "Can view field on create form",
-          "description": "If you disable this permission on a required field a user may not be able to save the entity properly",
-          "items": {
-            "type": "string",
-            "enum": Object.keys(iris.modules.auth.globals.roles)
-          }
-        };
-
         fieldSchema.canViewField = {
           "type": "array",
           "selector": "permission",
-          "title": "Can view field on create form",
-          "description": "If you disable this permission on a required field a user may not be able to save the entity properly",
+          "title": "Can view field on the client side",
+          "description": "If you disable this permission, even if a role has access to an entity type they will not be able to view this field when it is rendered in a template or fetched via the API",
           "items": {
             "type": "string",
             "enum": Object.keys(iris.modules.auth.globals.roles)
           }
         };
+        
+//        fieldSchema.canEditField = {
+//          "type": "array",
+//          "selector": "permission",
+//          "title": "Can view field on edit/delete forms",
+//          "description": "If you disable this permission on a required field a user may not be able to save the entity properly",
+//          "items": {
+//            "type": "string",
+//            "enum": Object.keys(iris.modules.auth.globals.roles)
+//          }
+//        };
+
 
         // Parse file
 
