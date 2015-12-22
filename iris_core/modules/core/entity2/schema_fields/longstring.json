@@ -1,14 +1,9 @@
 {
   "fieldTypeType": "string",
   "fieldTypeName": "Formatted long text field",
-  "allowedTags": {
-    "title": "Allowed tags",
-    "type": "array",
-    "description": "Insert supported tags here",
-    "items": {
-
-      "type": "string"
-
-    }
+  "textFilter": {
+    "title": "Text format",
+    "type": "string",
+      "enum": ["none"]
   }
 }

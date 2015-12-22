@@ -16,7 +16,6 @@ iris.modules.ckeditor.registerHook("hook_form_render_textformat", 0, function (t
 
   }
 
-
   // Check if editing and form exists in config
 
   if (thisHook.const.params[1] && thisHook.const.params[1].indexOf("{{") !== -1) {
@@ -24,10 +23,10 @@ iris.modules.ckeditor.registerHook("hook_form_render_textformat", 0, function (t
     thisHook.finish(false);
 
   } else {
-        
+
 
     if (iris.configStore.textformats && thisHook.const.params[1] && iris.configStore.textformats[iris.sanitizeFileName(thisHook.const.params[1])]) {
-      
+
       var config = iris.configStore.textformats[iris.sanitizeFileName(thisHook.const.params[1])];
 
     }
@@ -45,6 +44,13 @@ iris.modules.ckeditor.registerHook("hook_form_render_textformat", 0, function (t
   data.schema.elements = {
 
     "type": "text",
+    "title": "Allowed elements",
+    "required": true,
+  }
+
+  data.schema.attributes = {
+
+    "type": "text",
     "title": "Allowed attributes",
     "required": true,
   }
@@ -56,6 +62,8 @@ iris.modules.ckeditor.registerHook("hook_form_render_textformat", 0, function (t
     data.schema.name.type = "hidden";
     data.schema.name.default = config.name;
     data.schema.elements.default = config.elements;
+    data.schema.attributes.default = config.attributes;
+
 
   }
 
@@ -213,34 +221,34 @@ iris.app.get("/admin/textformats/delete/:name", function (req, res) {
 
 iris.modules.ckeditor.registerHook("hook_form_render_texformat_delete", 0, function (thisHook, data) {
 
-    if (!data.schema) {
+  if (!data.schema) {
 
-      data.schema = {};
+    data.schema = {};
 
-    }
+  }
 
-    data.schema["textformat"] = {
-      type: "hidden",
-      default: thisHook.const.params[1]
-    };
+  data.schema["textformat"] = {
+    type: "hidden",
+    default: thisHook.const.params[1]
+  };
 
-    thisHook.finish(true, data);
+  thisHook.finish(true, data);
 
 });
 
 iris.modules.ckeditor.registerHook("hook_form_submit_texformat_delete", 0, function (thisHook, data) {
-  
+
   var format = iris.sanitizeFileName(thisHook.const.params.textformat);
-      
-  if(iris.configStore.textformats && iris.configStore.textformats[format]){
-      
+
+  if (iris.configStore.textformats && iris.configStore.textformats[format]) {
+
   } else {
-    
+
     return false;
-    
+
   }
-  
-  iris.deleteConfig("textformats", format, function(err) {
+
+  iris.deleteConfig("textformats", format, function (err) {
 
     if (err) {
 
@@ -260,7 +268,29 @@ iris.modules.ckeditor.registerHook("hook_form_submit_texformat_delete", 0, funct
 
 });
 
+// Add text formats to text format field
 
+iris.modules.ckeditor.registerHook("hook_schemafield_render", 0, function (thisHook, data) {
+
+  var filters = [];
+
+  Object.keys(iris.configStore.textformats).forEach(function (format) {
+
+    filters.push(iris.configStore.textformats[format].name);
+
+  });
+
+  if (data.properties && data.properties.textFilter) {
+
+    data.properties.textFilter.enum.push(filters);
+
+  };
+
+  thisHook.finish(true, data);
+
+});
+
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/textformats", "Text formats");
 
 var sanitizeHtml = require('sanitize-html');
 
@@ -270,16 +300,21 @@ iris.modules.ckeditor.registerHook("hook_entity_presave", 0, function (thisHook,
 
   Object.keys(data).forEach(function (field) {
 
-    if (schema[field] && schema[field].allowedTags) {
+    if (schema[field] && schema[field].textFilter) {
 
-      var tags = schema[field].allowedTags;
+      var filter = iris.sanitizeFileName(schema[field].textFilter);
 
-      data[field] = sanitizeHtml(data[field], {
-        allowedTags: tags,
-        allowedAttributes: {
-          '*': ['src', 'href', 'align', 'alt', 'center', 'bgcolor', 'class', 'id']
-        }
-      });
+      if (iris.configStore.textformats && iris.configStore.textformats[filter]) {
+
+        data[field] = sanitizeHtml(data[field], {
+          allowedTags: iris.configStore.textformats[filter].elements.split(" ").join("").split(","),
+          allowedAttributes: {
+            "*": iris.configStore.textformats[filter].attributes.split(" ").join("").split(",")
+          }
+
+        });
+
+      }
 
     }
 

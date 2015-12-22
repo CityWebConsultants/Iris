@@ -104,6 +104,24 @@ iris.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
     var fields = JSON.parse(JSON.stringify(iris.modules.entity2.globals.fetchSchemaForm()));
 
+    // Schema fields prerender promises for prepopulating data
+
+    var fieldCounter = 0;
+
+    var next = function () {
+
+      if (fieldCounter === Object.keys(fields).length - 2) {
+
+        res.respond(200, fields);
+
+      } else {
+
+        fieldCounter += 1;
+
+      }
+
+    };
+
     Object.keys(fields).forEach(function (field) {
 
       if (fields[field].properties && fields[field].properties.fieldTypeType) {
@@ -113,20 +131,36 @@ iris.app.get("/admin/api/schema/fieldtypes", function (req, res) {
         delete fields[field].properties.fieldTypeType;
 
       }
-      
-      // Run schemafield preprocess hook
-      
-      
+
+      // Run schemafield preprocess hook for each field
+
+      iris.hook("hook_schemafield_render", "root", {
+        field: fields[field]
+      }, fields[field]).then(function (fieldOutput) {
+
+        fields[field] = fieldOutput;
+
+        next();
+
+      }, function (fail) {
+
+        res.respond(500);
+
+      });
 
     })
-
-    res.respond(200, fields);
 
   } else {
 
     res.redirect("/admin");
 
   }
+
+});
+
+iris.modules.admin_ui.registerHook("hook_schemafield_render", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
 
 });
 
