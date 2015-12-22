@@ -142,7 +142,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
       var entity = new iris.dbCollections[preparedEntity.entityType](preparedEntity);
 
       entity.save(function (err, doc) {
-        
+
         if (err) {
 
           console.log(err);
@@ -208,6 +208,38 @@ iris.modules.entity.registerHook("hook_entity_access_create", 0, function (thisH
 });
 
 iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, data) {
+
+  // Strip out any embed tags
+
+  Object.keys(data).forEach(function (field) {
+
+    if (typeof field === "string") {
+
+      if (data[field].indexOf("[[[") !== -1 || data[field].indexOf("{{") !== -1) {
+
+        data[field] = data[field].split("[[[").join("").split("]]]").join("");
+        data[field] = data[field].split("{{").join("").split("}}").join("");
+
+      }
+
+      if (Array.isArray(data[field])) {
+
+        data[field].forEach(function (currentField, index) {
+
+          if (typeof currentField === "string") {
+
+            data[field][index] = data[field][index].split("[[[").join("").split("]]]").join("");
+            data[field][index] = data[field][index].split("{{").join("").split("}}").join("");
+
+          }
+
+        })
+
+      }
+
+    }
+
+  })
 
   thisHook.finish(true, data);
 
