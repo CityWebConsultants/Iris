@@ -2,7 +2,6 @@ iris.registerModule("actions");
 
 iris.modules.actions.globals.actions = {};
 iris.modules.actions.globals.events = {};
-iris.modules.actions.globals.rules = {};
 
 // Load in all actions on start
 
@@ -71,14 +70,6 @@ iris.modules.actions.globals.registerEvent = function (name, parametersArray) {
 
 }
 
-iris.modules.actions.registerHook("hook_actions_event_ping", 0, function (thisHook, data) {
-
-  data = thisHook.const.params;
-
-  thisHook.finish(true, data);
-
-})
-
 iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
 
   if (typeof params !== "object") {
@@ -87,85 +78,135 @@ iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
 
   }
 
-  iris.hook("hook_actions_event_" + name, authPass, {
-    params: params
+  iris.hook("hook_actions_event", authPass, {
+    params: params,
+    event: name,
   }).then(function (params) {
 
-    // Check if any rules have been registered that grab this stuff
+      // Check if any rules have been registered that grab this stuff
 
-    Object.keys(iris.modules.actions.globals.rules).forEach(function (rule) {
+      Object.keys(iris.configStore.actions).forEach(function (rule) {
 
-      // Flag for whether rule fires or not
+        // Flag for whether rule fires or not
 
-      var fires = true;
+        var fires = true;
 
-      if (iris.modules.actions.globals.rules[rule].event === name) {
+        if (iris.configStore.actions[rule].events.event === name) {
 
-        var rule = iris.modules.actions.globals.rules[rule];
+          var rule = iris.configStore.actions[rule];
 
-        // Check if any conditions
+          // Check if any conditions
 
-        if (rule.conditions) {
+          if (rule.events.conditions) {
 
-          rule.conditions.forEach(function (condition) {
+            rule.events.conditions.forEach(function (condition) {
 
-            // Slot in values if present
+              // Slot in values if present
 
-            Object.keys(params).forEach(function (parameter) {
+              Object.keys(params).forEach(function (parameter) {
 
-              if (condition.value.indexOf("[" + parameter + "]") !== -1) {
+                if (condition.value.indexOf("[" + parameter + "]") !== -1) {
 
-                condition.value = params[parameter];
-
-              }
-
-              if (condition.thing.indexOf("[" + parameter + "]") !== -1) {
-
-                condition.thing = params[parameter];
-
-              }
-
-            })
-
-            //Process query based on operator
-
-            switch (condition.operator) {
-
-              case "is":
-
-                if (condition.thing.toString() !== condition.value.toString()) {
-
-                  fires = false;
+                  condition.value = params[parameter];
 
                 }
-                break;
 
-              case "contains":
+                if (condition.thing.indexOf(parameter) !== -1) {
 
-                if (condition.thing.toLowerCase().indexOf(condition.value.toString().toLowerCase()) === -1) {
-
-                  fires = false;
+                  condition.thing = params[parameter];
 
                 }
-                break;
+
+              })
+
+              //Process query based on operator
+
+              switch (condition.operator) {
+
+                case "is":
+
+                  if (condition.thing.toString() !== condition.value.toString()) {
+
+                    fires = false;
+
+                  }
+                  break;
+
+                case "contains":
+
+                  if (condition.thing.toLowerCase().indexOf(condition.value.toString().toLowerCase()) === -1) {
+
+                    fires = false;
+
+                  }
+                  break;
+              }
+
+            });
+
+          }
+
+          if (fires) {
+
+            // Loop over all the actions and fire them!
+
+            if (rule.actions) {
+
+              rule.actions.forEach(function (currentAction, index) {
+
+                var actionName = currentAction.action;
+
+                // Swap out any tokens in the properties
+
+                Object.keys(currentAction.parameters).forEach(function (parameterName) {
+
+                  var parameter = currentAction.parameters[parameterName];
+
+                  // Slot in values if present
+
+                  Object.keys(params).forEach(function (variable) {
+
+                    if (parameter.indexOf("[" + variable + "]") !== -1) {
+
+                      parameter = parameter.split("[" + variable + "]").join(params[variable]);
+
+                      rule.actions[index].parameters[parameterName] = parameter
+
+                    }
+
+                  })
+
+                })
+
+                iris.hook("hook_action_" + actionName, authPass, {
+                  params: rule.actions[index].parameters
+                }).then(function (success) {
+
+                  iris.log("info", actionName + " fired successfully." + " " + JSON.stringify(success));
+
+                }, function (fail) {
+
+                  iris.log("error", actionName + " " + fail);
+
+                })
+
+              })
+
             }
 
-          });
+          }
 
         }
 
-        console.log(fires);
 
-      }
+      })
 
+    },
+    function (fail) {
 
-    })
+      iris.log("error", fail + " " + name);
 
-  }, function (fail) {
-
-    iris.log("error", fail + " " + name);
-
-  });
+    });
 
 };
 
@@ -446,31 +487,6 @@ iris.app.get("/admin/actions/edit/:action", function (req, res) {
 
 })
 
-
-iris.modules.actions.globals.registerEvent("ping", ["hello"]);
-iris.modules.actions.globals.registerEvent("page", ["path", "userid"]);
-
-iris.modules.actions.globals.registerAction("test", {
-
-  message: {
-    "type": "text",
-    "title": "Message",
-    "required": true
-  }
-
-});
-
-iris.modules.actions.globals.registerAction("escape", {
-
-  message: {
-    "type": "textarea",
-    "title": "ESCAPE THIS!",
-    "description": "WHEN?!",
-    "required": true
-  }
-
-});
-
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/actions", "Actions");
 
 // Main actions landing page
@@ -692,3 +708,54 @@ iris.modules.forms.globals.registerWidget(function () {
   };
 
 }, "choose");
+
+// Default hook
+
+iris.modules.actions.registerHook("hook_actions_event", 0, function (thisHook, data) {
+
+  data = thisHook.const.params;
+
+  thisHook.finish(true, data);
+
+})
+
+// Testing
+
+//iris.modules.actions.globals.registerEvent("ping", ["hello"]);
+//
+//iris.modules.actions.globals.registerAction("test", {
+//
+//  message: {
+//    "type": "text",
+//    "title": "Message",
+//    "required": true
+//  }
+//
+//});
+//
+//iris.modules.actions.globals.registerAction("escape", {
+//
+//  message: {
+//    "type": "textarea",
+//    "title": "ESCAPE THIS!",
+//    "description": "WHEN?!",
+//    "required": true
+//  }
+//
+//});
+//
+//setInterval(function () {
+//
+//  iris.modules.actions.globals.triggerEvent("ping", "root", {
+//    hello: "world"
+//  });
+//
+//}, 1000)
+//
+//iris.modules.actions.registerHook("hook_action_escape", 0, function (thisHook, data) {
+//
+//  data = thisHook.const.params;
+//
+//  thisHook.finish(true, data);
+//
+//})
