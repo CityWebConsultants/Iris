@@ -1,0 +1,8 @@
+<h1>Actions</h1>
+
+<ul>
+
+  {{#each actions}} <li>{{this.name}} - <a href="/admin/actions/edit/{{this.name}}">edit</a> - <a href="/admin/actions/delete/{{this.name}}">delete</a></li> {{/each}} 
+</ul>
+
+<a class="btn btn-primary" href="/admin/actions/create">Make new action</a>

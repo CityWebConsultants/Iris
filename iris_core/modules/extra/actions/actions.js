@@ -4,6 +4,34 @@ iris.modules.actions.globals.actions = {};
 iris.modules.actions.globals.events = {};
 iris.modules.actions.globals.rules = {};
 
+// Load in all actions on start
+
+var fs = require('fs');
+var glob = require("glob");
+
+glob(iris.configPath + "/actions/*.json", function (er, files) {
+
+  files.forEach(function (file) {
+
+    var config = fs.readFileSync(file, "utf8");
+
+    config = JSON.parse(config);
+
+    if (config.name) {
+
+      iris.saveConfig(config, "actions", iris.sanitizeFileName(config.name), function () {
+
+        },
+        function (fail) {
+
+          console.log(fail);
+
+        });
+    }
+  })
+
+})
+
 iris.modules.actions.globals.registerAction = function (name, parametersArray) {
 
   if (!parametersArray) {
@@ -216,6 +244,7 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
 
   data.schema.events.properties.event = {
     "type": "choose",
+    "required": true,
     "options": Object.keys(events),
     "title": "Choose an event type"
   }
@@ -246,15 +275,13 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
   })
 
   data.schema.actions = {
-    "type": "object"
+    "type": "array"
   }
 
-  data.schema.actions.properties = {};
-
-  data.schema.actions.properties.action = {
+  data.schema.actions.items = {
     "type": "object",
     "properties": {
-      "actions": {
+      "action": {
         "type": "choose",
         "options": Object.keys(actions),
         "title": "Choose an action type"
@@ -264,7 +291,7 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
 
   Object.keys(actions).forEach(function (action) {
 
-    data.schema.actions.properties[action] = actions[action];
+    data.schema.actions.items.properties[action] = actions[action];
 
   })
 
@@ -279,6 +306,38 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
     title: "Save action"
   });
 
+  // Check if already submitted form exists
+
+  if (thisHook.const.params[1] && thisHook.const.params[1].indexOf("{{") !== -1) {
+
+    thisHook.finish(false);
+    return false;
+
+  }
+
+  if (thisHook.const.params[1] && iris.configStore.actions[thisHook.const.params[1]]) {
+
+    data.value = iris.configStore.actions[thisHook.const.params[1]];
+
+    // Swap values back into format schema understands. This is madness. 
+
+    data.value.events[data.value.events.event] = {
+      conditions: data.value.events.conditions
+    };
+
+    data.value.actions.forEach(function (action, index) {
+
+      data.value.actions[index] = {
+
+        action: action.action
+
+      }
+
+      data.value.actions[index][action.action] = action.parameters;
+
+    });
+  }
+
   thisHook.finish(true, data);
 
 })
@@ -287,21 +346,41 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
 
 iris.modules.actions.registerHook("hook_form_submit_actions", 0, function (thisHook, data) {
 
-  // Loop over action parameters and store in a better way
+  // Juggle around schema for saving to make it more human readable
 
-  Object.keys(thisHook.const.params).forEach(function (paramName) {
+  Object.keys(thisHook.const.params).forEach(function (fieldName) {
 
-    var param = thisHook.const.params[paramName];
+    var field = thisHook.const.params[fieldName];
 
-    if (param.event) {
+    if (field.event) {
 
-      console.log(param[param.event])
+      field.conditions = field[field.event].conditions;
+
+      delete field[field.event];
+
+    }
+
+    if (fieldName === "actions") {
+
+      field.forEach(function (subField) {
+
+        subField.parameters = subField[subField.action];
+
+        delete subField[subField.action];
+
+      })
 
     }
 
   })
 
   iris.saveConfig(thisHook.const.params, "actions", iris.sanitizeFileName(thisHook.const.params.name), function (saved) {
+
+    var data = function (res) {
+
+      res.send("/admin/actions");
+
+    };
 
     thisHook.finish(true, data);
 
@@ -337,6 +416,36 @@ iris.app.get("/admin/actions/create", function (req, res) {
 
 })
 
+// Register actions create form
+
+iris.app.get("/admin/actions/edit/:action", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_actions_form"], ['admin_wrapper'], {
+    action: req.params.action
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
 
 iris.modules.actions.globals.registerEvent("ping", ["hello"]);
 iris.modules.actions.globals.registerEvent("page", ["path", "userid"]);
@@ -359,6 +468,117 @@ iris.modules.actions.globals.registerAction("escape", {
     "description": "WHEN?!",
     "required": true
   }
+
+});
+
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/actions", "Actions");
+
+// Main actions landing page
+
+iris.app.get("/admin/actions", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_actions"], ['admin_wrapper'], {
+    actions: iris.configStore.actions,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+// Delete action
+
+iris.app.get("/admin/actions/delete/:name", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_actions_delete"], ['admin_wrapper'], {
+    action: req.params.name
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
+iris.modules.actions.registerHook("hook_form_render_action_delete", 0, function (thisHook, data) {
+
+  if (!data.schema) {
+
+    data.schema = {};
+
+  }
+
+  data.schema["action"] = {
+    type: "hidden",
+    default: thisHook.const.params[1]
+  };
+
+  thisHook.finish(true, data);
+
+});
+
+iris.modules.actions.registerHook("hook_form_submit_action_delete", 0, function (thisHook, data) {
+
+  var action = iris.sanitizeFileName(thisHook.const.params.action);
+
+  if (iris.configStore.actions && iris.configStore.actions[action]) {
+
+  } else {
+
+    return false;
+
+  }
+
+  iris.deleteConfig("actions", action, function (err) {
+
+    if (err) {
+
+      thisHook.finish(false, data);
+
+    }
+
+    var data = function (res) {
+
+      res.send("/admin/actions");
+
+    };
+
+    thisHook.finish(true, data);
+
+  });
 
 });
 
@@ -408,10 +628,9 @@ iris.modules.forms.globals.registerWidget(function () {
       var fields = $(parent).find(".jsonform-node");
       var start = 0;
 
-      if (fields.length === 1) {
+      if (fields.length === 2) {
 
-        parent = $(parent).parent();
-
+        $(parent).css("color", "red");
         fields = $(parent).find(".jsonform-node");
         start = 1;
 
@@ -442,12 +661,9 @@ iris.modules.forms.globals.registerWidget(function () {
 
     var start = 0;
 
-    if (fields.length === 1) {
+    if (fields.length === 2) {
 
-      parent = $(parent).parent();
 
-      fields = $(parent).find(".jsonform-node");
-      start = 1;
 
     }
 
