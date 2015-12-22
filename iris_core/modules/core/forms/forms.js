@@ -11,7 +11,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
   if (thisHook.const.req.method === "POST") {
 
     var body = thisHook.const.req.body;
-    
+
     if (body && body.formid && body.formToken) {
 
       // Check if form id exists in cache, if not stop
@@ -37,14 +37,14 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       }
 
       delete body.formToken;
-      
+
       var formid = body.formid;
-      
+
       delete body.formid;
-      
+
       delete thisHook.const.req.body.formToken;
       delete thisHook.const.req.body.formid;
-            
+
       iris.hook("hook_form_submit", thisHook.authPass, {
         params: body,
         formid: formid,
@@ -183,13 +183,22 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         // Unset form render object if not set (JSON form provides a default)
 
-        if (!form.form || !Object.keys(form.form).length) {
+        if (!form.form || !form.form.length) {
 
           if (form.form) {
 
             delete form.form;
 
           }
+
+        } else {
+
+          form.form.push({
+            key: "formToken"
+          });
+          form.form.push({
+            key: "formid"
+          });
 
         }
 
@@ -204,12 +213,12 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
           }
 
         } else {
-          
+
           form.value.formid = formName;
           form.value.formToken = token;
-          
+
         }
-        
+
         var output = "";
 
         output += "<form data-params=" + formParams + " method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
