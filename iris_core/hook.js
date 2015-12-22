@@ -139,8 +139,7 @@ var hook = function (hookname, authPass, static, variables) {
             console.log(thisHook.authPass);
             console.log("message:");
             if (e.stack) {
-              console.log(e.stack);
-              console.log(e);
+              iris.log("error", "Error on line " + e.stack[0].getLineNumber() + " of " + e.stack[0].getFileName() + " " + e.message);
             }
             console.log("***********");
             no("ERROR");
