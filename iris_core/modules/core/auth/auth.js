@@ -172,13 +172,13 @@ iris.modules.auth.globals = {
     var permissions = {};
 
     try {
-      var currentPermissions = fs.readFileSync(iris.modules.auth.configPath + "/permissions.JSON", "utf8");
+      var currentPermissions = fs.readFileSync(iris.modules.auth.configPath + "/permissions.json", "utf8");
 
       permissions = JSON.parse(currentPermissions);
 
     } catch (e) {
 
-      fs.writeFileSync(iris.modules.auth.configPath + "/permissions.JSON", JSON.stringify({}), "utf8");
+      fs.writeFileSync(iris.modules.auth.configPath + "/permissions.json", JSON.stringify({}), "utf8");
 
     }
 
