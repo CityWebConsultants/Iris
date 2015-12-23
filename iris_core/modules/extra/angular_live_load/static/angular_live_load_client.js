@@ -6,6 +6,14 @@ if (!window.iris) {
 
 }
 
+function irisReady(fn) {
+  if (document.readyState != 'loading') {
+    fn();
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
+  }
+}
+
 irisReady(function () {
 
   // Hide angular-view
