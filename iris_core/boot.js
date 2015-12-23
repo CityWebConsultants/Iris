@@ -62,12 +62,20 @@ module.exports = function (config) {
       }
     });
 
+    // Fire config saved hook
+
+    iris.hook("hook_config_saved", "root", {
+      contents: contents,
+      directory: directory,
+      filename: filename
+    });
+
   };
 
   iris.deleteConfig = function (directory, filename, callback) {
 
     var splitDirectory = directory.split('/');
-    
+
     if (splitDirectory.length > 1) {
 
       // Get last parts of the directory, used as key in config store
