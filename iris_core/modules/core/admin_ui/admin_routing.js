@@ -595,7 +595,7 @@ iris.app.get("/admin/config/diff", function (req, res) {
     args = {
       source: current,
       diff: staging,
-      lang: "auto"
+      lang: "json"
     },
     output = prettydiff.api(args);
   
