@@ -49,7 +49,6 @@ iris.modules.paths.registerHook("hook_entity_validate", 0, function (thisHook, d
 
   if (iris.modules.paths.globals.entityPaths[path] && iris.modules.paths.globals.entityPaths[path].eid.toString() !== eid.toString()) {
 
-    iris.log("notice", "entity with that path already exists");
     thisHook.finish(false, "Entity with that path already exists");
 
   } else {
