@@ -34,10 +34,6 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
 
     var form = {};
 
-    // Merge in custom blocks
-
-    blocks = blocks.concat(Object.keys(iris.modules.blocks.globals.customBlocks));
-
     // Push in N/A option
 
     blocks.push("None");
@@ -146,40 +142,25 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
 
           output[regionName].forEach(function (block, index) {
 
-            // Check if custom block
+            var settings = block.settings;
 
-            if (!iris.modules.blocks.globals.customBlocks) {
+            var block = block.block;
 
-              var settings = block.settings;
+            if (block.toLowerCase() === "none") {
 
-              var block = block.block;
-
-              if (block.toLowerCase() === "none") {
-
-                return false;
-
-              }
-
-              var blockName = block.split("|")[0],
-                blockType = block.split("|")[1];
-
-              var config = iris.modules.blocks.globals.blocks[blockType][blockName];
-
-            } else {
-
-              var blockType = "custom",
-                blockName = block,
-                settings = {},
-                config = {};
+              return false;
 
             }
+
+            var blockName = block.split("|")[0],
+              blockType = block.split("|")[1];
 
             var paramaters = {
               index: index,
               id: blockName,
               type: blockType,
               instanceSettings: settings,
-              config: config,
+              config: iris.modules.blocks.globals.blocks[blockType][blockName],
               context: thisHook.const.context
             }
 
@@ -282,7 +263,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
         paths.forEach(function (path) {
 
           var showing = minimatch(currentUrl, path);
-
+                    
         })
 
         thisHook.finish(showing, data);

@@ -262,16 +262,6 @@ iris.modules.blocks.globals.registerBlockType = function (name) {
 
 };
 
-// Function for registering custom code blocks that don't have any config
-
-iris.modules.blocks.globals.customBlocks = {};
-
-iris.modules.blocks.globals.registerCustomBlock = function (name) {
-
-  iris.modules.blocks.globals.customBlocks[name] = {};
-
-};
-
 iris.modules.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
 
   if (!thisHook.const.id) {
@@ -347,23 +337,23 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
 iris.modules.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook, data) {
 
-  if (!data.schema) {
+    if (!data.schema) {
 
-    data.schema = {};
+      data.schema = {};
 
-  }
+    }
 
-  data.schema["blockTitle"] = {
-    type: "hidden",
-    default: thisHook.const.params[2]
-  };
+    data.schema["blockTitle"] = {
+      type: "hidden",
+      default: thisHook.const.params[2]
+    };
 
-  data.schema["blockType"] = {
-    type: "hidden",
-    default: thisHook.const.params[1]
-  };
+    data.schema["blockType"] = {
+      type: "hidden",
+      default: thisHook.const.params[1]
+    };
 
-  thisHook.finish(true, data);
+    thisHook.finish(true, data);
 
 });
 
@@ -381,7 +371,7 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
 
   }
 
-  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeFileName(thisHook.const.params.blockTitle), function (err) {
+  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeFileName(thisHook.const.params.blockTitle), function(err) {
 
     if (err) {
 
@@ -404,9 +394,9 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
 // Default form submit for block forms
 
 iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
-
+  
   var formId = thisHook.const.formid;
-
+  
   if (formId.split("_")[0] === "blockForm") {
 
     thisHook.const.params.blockTitle = iris.sanitizeFileName(thisHook.const.params.blockTitle);
