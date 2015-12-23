@@ -182,7 +182,13 @@ iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
                   params: rule.actions[index].parameters
                 }).then(function (success) {
 
-                  iris.log("info", actionName + " fired successfully." + " " + JSON.stringify(success));
+                  iris.log("info", actionName + " fired successfully.");
+
+                  if (success) {
+
+                    iris.log("info", actionName + " returned message " + JSON.stringify(success));
+
+                  }
 
                 }, function (fail) {
 
@@ -472,7 +478,7 @@ iris.app.get("/admin/actions/edit/:action", function (req, res) {
   }
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_actions_form"], ['admin_wrapper'], {
-    action: req.params.action
+    action: iris.sanitizeFileName(req.params.action)
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
