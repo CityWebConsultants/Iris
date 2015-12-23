@@ -253,8 +253,17 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
 
   Object.keys(iris.modules.actions.globals.events).forEach(function (eventType) {
 
+    var tokens = [];
+
+    iris.modules.actions.globals.events[eventType].parameters.forEach(function (token) {
+
+      tokens.push("<small><b>[" + token + "]</b></small>");
+
+    })
+
     events[eventType] = {
       "type": "object",
+      "title": "This event provides the tokens " + tokens.join(",") + " which can be used as placeholders in the actions and conditions section of this form",
       "properties": {
         "conditions": {
           "title": "Conditions",
