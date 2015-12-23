@@ -128,7 +128,7 @@ iris.modules.admin_ui.registerHook("hook_log", 0, function (thisHook, data) {
       token: token
     }).then(function (authPass) {
 
-      console.log(authPass);
+//      console.log(authPass);
 
     });
 
