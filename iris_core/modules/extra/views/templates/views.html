@@ -1,9 +1,22 @@
 {{#each view}}
 
-{{#each this}}
+  {{#each this}}
 
-<{{this.wrapper}} class="{{this.class}}">{{this.value}}</{{this.wrapper}}>
+  <{{this.wrapper}} class="{{this.class}}">
 
-{{/each}}
+    {{#if this.allowhtml}}
+
+      {{{this.value}}}
+
+    {{else}}
+
+      {{this.value}}
+
+    {{/if}}
+
+
+  </{{this.wrapper}}>
+
+  {{/each}}
 
 {{/each}}

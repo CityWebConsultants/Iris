@@ -1,24 +1,37 @@
 // Bootstrap angular app automatically. Put in new start and end symbols so as not to clash with handlebars
 
-function irisReady(fn) {
-  if (document.readyState != 'loading') {
-    fn();
-  } else {
-    document.addEventListener('DOMContentLoaded', fn);
-  }
+if (!window.iris) {
+
+  window.iris = {};
+
 }
 
 irisReady(function () {
 
-  angular.element(document).ready(function () {
-    angular.bootstrap(document, ['iris']);
-  });
+  // Hide angular-view
+
+  var hidden = document.querySelectorAll(".hide-angular-view");
+
+  for (var i = 0; i < hidden.length; i += 1) {
+
+    hidden[i].style.display = "none";
+
+  }
+
+  // Show angular bits
+
+  var shown = document.querySelectorAll(".show-angular-view");
+
+  for (var i = 0; i < shown.length; i += 1) {
+
+    shown[i].style.display = "block";
+
+  }
 
   iris.angular = angular.module("iris", [], function ($interpolateProvider) {
     $interpolateProvider.startSymbol('##');
     $interpolateProvider.endSymbol('##');
   });
-
 
   iris.angular.controller("iris-template", ["$scope", "$element", "$attrs", "$timeout", function ($scope, $element, $attrs, $timeout) {
 
@@ -40,6 +53,7 @@ irisReady(function () {
 
     }, false);
 
+
 }]);
 
   //   HTML Filter for showing HTML
@@ -48,6 +62,8 @@ irisReady(function () {
     return function (text) {
       return $sce.trustAsHtml(text);
     };
+    
 }])
+    angular.bootstrap(document, ['iris']);
 
 })

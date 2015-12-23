@@ -127,14 +127,14 @@ iris.modules.views.registerHook("hook_block_render", 0, function (thisHook, data
 
         if (condition.field === "Pick a condition") {
 
-          config.conditions.splice(index, 1); 
+          config.conditions.splice(index, 1);
 
         }
 
       })
 
     }
-    
+
     var fetch = {
       entities: [thisHook.const.type.replace("View-of-", "")],
       queries: config.conditions,
@@ -185,10 +185,42 @@ iris.modules.views.registerHook("hook_block_render", 0, function (thisHook, data
         });
 
         iris.modules.frontend.globals.parseTemplateFile(["views", thisHook.const.type], null, {
-          view: output
+          view: output,
+          viewName: thisHook.const.id
         }, thisHook.authPass).then(function (success) {
 
-          thisHook.finish(true, success);
+          // Add in entity embed template
+
+
+          // Generate entity fetch template
+
+          var embed = "[[[entity ";
+
+          embed += fetch.entities.join("+");
+
+          embed += ",";
+
+          embed += "view_" + thisHook.const.id;
+
+          embed += ",";
+
+          // Add in queries
+
+          fetch.queries.forEach(function (query) {
+
+            embed += query.field + "|" + query.comparison + "|" + JSON.stringify(query.compare) + "+";
+
+          })
+
+          // Remove final +
+
+          embed = embed.substring(0, embed.length - 1);
+
+          embed += ",";
+
+          embed += "]]]"
+
+          thisHook.finish(true, embed + "\n" + success);
 
         }, function (fail) {
 
