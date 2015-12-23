@@ -12,6 +12,7 @@
     "express": "^4.13.3",
     "glob": "^5.0.15",
     "handlebars": "^4.0.4",
+    "minimatch": "^3.0.0",
     "mkdirp": "^0.5.1",
     "mongoose": "^4.1.0",
     "mongoose-auto-increment": "^5.0.1",

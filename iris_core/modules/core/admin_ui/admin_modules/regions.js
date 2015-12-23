@@ -56,9 +56,9 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
               "type": "object",
               "properties": {
                 "pathVisibility": {
-                  "type": "text",
-                  "title": "Paths",
-                  "description": "Paths this block is visible at"
+                  "type": "textarea",
+                  "title": "Path visibility",
+                  "description": "Paths this block is visible at (each on a new line). <a href='https://github.com/isaacs/minimatch'><small>Read information on accepted patterns from the minimatch documentation</small></a>",
                 }
 
               }
@@ -240,26 +240,33 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
 
 // Block path visibility
 
+var minimatch = require("minimatch");
+
 iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, data) {
 
   if (thisHook.const.instanceSettings) {
 
     if (thisHook.const.instanceSettings.pathVisibility) {
 
-      var visibility = thisHook.const.instanceSettings.pathVisibility.split(",");
+      // Flag to see if showing the block or not
+
+      var showing = true;
+
+      var paths = thisHook.const.instanceSettings.pathVisibility.replace(/\r\n/g, '\n').split("\n");
 
       if (thisHook.const.context && thisHook.const.context.req && thisHook.const.context.req.url) {
 
-        if (visibility.indexOf(thisHook.const.context.req.url) === -1 && visibility.indexOf("*") === -1) {
+        var currentUrl = thisHook.const.context.req.url;
 
-          thisHook.finish(false, data);
+        // Loop over paths
 
-        } else {
+        paths.forEach(function (path) {
 
-          thisHook.finish(true, data);
+          var showing = minimatch(currentUrl, path);
+                    
+        })
 
-        }
-
+        thisHook.finish(showing, data);
 
       } else {
 

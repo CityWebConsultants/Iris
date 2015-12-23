@@ -115,10 +115,9 @@ iris.app.get("/admin/regions", function (req, res) {
     return false;
 
   }
-
+  
   iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {
     blocks: iris.modules.blocks.globals.blocks,
-    hello: "world"
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
