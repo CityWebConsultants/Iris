@@ -272,8 +272,6 @@ iris.modules.blocks.globals.registerCustomBlock = function (name) {
 
 };
 
-iris.modules.blocks.globals.registerCustomBlock("hello");
-
 iris.modules.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
 
   if (!thisHook.const.id) {
