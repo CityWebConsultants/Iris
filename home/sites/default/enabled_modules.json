@@ -5,8 +5,8 @@
     "name": "bunyan",
     "path": "/iris_core/modules/extra/bunyan"
 }, {
-    "name": "entity_views",
-    "path": "/iris_core/modules/extra/entity_views"
+    "name": "angular_live_load",
+    "path": "/iris_core/modules/extra/angular_live_load"
 }, {
     "name": "actions",
     "path": "/iris_core/modules/extra/actions"
@@ -25,11 +25,22 @@
     "name": "blocks",
     "path": "/iris_core/modules/extra/blocks"
 },
- {
+  {
     "name": "custom_blocks",
     "path": "/iris_core/modules/extra/custom_blocks"
  },
   {
     "name": "views",
     "path": "/iris_core/modules/extra/views"
+}, {
+    "name": "blocklist",
+    "path": "/iris_core/modules/extra/blocklist"
+},
+  {
+    "name": "menu_block",
+    "path": "/iris_core/modules/extra/menu_block"
+},
+  {
+    "name": "email",
+    "path": "/iris_core/modules/extra/email"
 }]
