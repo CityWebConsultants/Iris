@@ -115,7 +115,7 @@ iris.app.get("/admin/regions", function (req, res) {
     return false;
 
   }
-  
+
   iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {
     blocks: iris.modules.blocks.globals.blocks,
   }, req.authPass, req).then(function (success) {
@@ -486,11 +486,82 @@ iris.app.get("/admin/structure/", function (req, res) {
 
 })
 
-// Config page
+// Get diffs of config
 
-iris.app.get("/admin/config/", function (req, res) {
+var fs = require('fs');
+var glob = require("glob");
+var path = require("path");
 
-  // If not admin, present 403 page
+var showConfigDiff = function (callback) {
+
+  var output = [];
+
+  var liveFiles = glob.sync(iris.configPath + "/**/*.json");
+  var stagingFiles = glob.sync(iris.sitePath + "/staging" + "/**/*.json");
+
+  liveFiles.forEach(function (file) {
+
+    var tailPath = path.normalize(file).replace(path.normalize(iris.configPath), "");
+
+    var liveConfig = fs.readFileSync(file, "utf8");
+
+    var stagingLocation = path.normalize(iris.sitePath + "/staging" + tailPath);
+
+    var stagingConfig = "";
+
+    try {
+
+      stagingConfig = fs.readFileSync(stagingLocation, "utf8");
+
+    } catch (e) {
+
+    }
+
+    if (stagingConfig !== liveConfig) {
+
+      output.push({
+        file: tailPath
+      });
+
+    }
+
+  })
+
+  stagingFiles.forEach(function (file) {
+
+    var tailPath = path.normalize(file).replace(path.normalize(iris.sitePath + "/staging/"), "");
+
+    var stagingConfig = fs.readFileSync(file, "utf8");
+
+    var liveLocation = path.normalize(iris.configPath + "/" + tailPath);
+
+    var liveConfig = "";
+
+    try {
+
+      liveConfig = fs.readFileSync(liveLocation, "utf8");
+
+    } catch (e) {
+
+    }
+
+    if (stagingConfig !== liveConfig) {
+
+      output.push({
+        file: tailPath
+      });
+
+    }
+
+  })
+
+  callback(output);
+
+}
+
+// Show diffs between config files
+
+iris.app.get("/admin/config/diff", function (req, res) {
 
   if (req.authPass.roles.indexOf('admin') === -1) {
 
@@ -500,33 +571,90 @@ iris.app.get("/admin/config/", function (req, res) {
 
   }
 
-  // Load in admin menu
+  var current = "Empty";
+  var staging = "Empty";
 
-  var structureMenu = {};
+  try {
 
-  if (iris.configStore["menu"]["admin-toolbar"]) {
+    current = fs.readFileSync(iris.configPath + req.body.path, "utf8")
 
-    iris.configStore["menu"]["admin-toolbar"].items.forEach(function (item) {
+  } catch (e) {
 
-      if (item.path === "/admin/config") {
-
-        configMenu = item;
-
-      }
-
-    })
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_config"], ['admin_wrapper'], {
-    configMenu: configMenu
-  }, req.authPass, req).then(function (success) {
-    res.send(success)
-  }, function (fail) {
+  try {
 
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+    staging = fs.readFileSync(iris.sitePath + "/staging" + req.body.path, "utf8")
 
-    iris.log("error", e);
+  } catch (e) {
+
+  }
+  
+  var prettydiff = require("prettydiff"),
+    args = {
+      source: current,
+      diff: staging,
+      lang: "auto"
+    },
+    output = prettydiff.api(args);
+  
+  res.send(output[0]);
+
+});
+
+// Config page
+
+iris.app.get("/admin/config/", function (req, res) {
+
+  // Get list of config clashes
+
+  showConfigDiff(function (clashes) {
+
+    // If not admin, present 403 page
+
+    if (req.authPass.roles.indexOf('admin') === -1) {
+
+      iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+      return false;
+
+    }
+
+    // Load in admin menu
+
+    var structureMenu = {};
+
+    if (iris.configStore["menu"]["admin-toolbar"]) {
+
+      iris.configStore["menu"]["admin-toolbar"].items.forEach(function (item) {
+
+        if (item.path === "/admin/config") {
+
+          configMenu = item;
+
+        }
+
+      })
+
+    }
+
+    var fs = require('fs');
+
+    iris.modules.frontend.globals.parseTemplateFile(["admin_config"], ['admin_wrapper'], {
+      configMenu: configMenu,
+      clashes: clashes
+    }, req.authPass, req).then(function (success) {
+
+      res.send(success);
+
+    }, function (fail) {
+
+      iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+      iris.log("error", e);
+
+    });
 
   });
 
