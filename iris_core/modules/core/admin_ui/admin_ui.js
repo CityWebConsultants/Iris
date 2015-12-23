@@ -112,3 +112,28 @@ iris.modules.admin_ui.registerHook("hook_view_menu", 0, function (thisHook, data
   }
 
 })
+
+// Placeholder hook TODO for sending socket message to update log page
+
+iris.modules.admin_ui.registerHook("hook_log", 0, function (thisHook, data) {
+
+  // Loop over users to see if they have the view log permission
+
+  Object.keys(iris.modules.auth.globals.userList).forEach(function (user) {
+
+    var token = Object.keys(iris.modules.auth.globals.userList[user].tokens)[0];
+
+    iris.modules.auth.globals.credentialsToPass({
+      userid: user,
+      token: token
+    }).then(function (authPass) {
+
+      console.log(authPass);
+
+    });
+
+  });
+
+  thisHook.finish(true, data);
+
+});
