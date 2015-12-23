@@ -1,0 +1,10 @@
+{
+  "name": "iris-email",
+  "version": "0.0.1",
+  "description": "Email",
+  "main": "email.js",
+  "dependencies": {
+    "nodemailer": "^1.10.0"
+  },
+  "author": "City Web Consultants"
+}
