@@ -48,8 +48,8 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
           queries[index] = ({
 
             field: query[0],
-            comparison: query[1],
-            compare: JSON.parse(query[2])
+            operator: query[1],
+            value: JSON.parse(query[2])
 
           });
 

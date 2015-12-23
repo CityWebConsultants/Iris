@@ -66,21 +66,21 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
       try {
 
-        fieldQuery.compare = JSON.parse(fieldQuery.compare);
+        fieldQuery.value = JSON.parse(fieldQuery.value);
 
       } catch (e) {
 
       }
-
-      if (fieldQuery.comparison.indexOf("IS") !== -1) {
+      
+      if (fieldQuery.operator.toLowerCase().indexOf("is") !== -1) {
 
         var queryItem = {};
 
-        queryItem[fieldQuery["field"]] = fieldQuery.compare
+        queryItem[fieldQuery["field"]] = fieldQuery.value
 
         // Check if negative
 
-        if (fieldQuery.comparison.indexOf("not") === -1) {
+        if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
           query.$and.push(queryItem);
         } else {
 
@@ -98,17 +98,17 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
       }
 
-      if (fieldQuery.comparison.indexOf("INCLUDES") !== -1) {
+      if (fieldQuery.operator.toLowerCase().indexOf("includes") !== -1) {
 
         var queryItem = {};
 
         queryItem[fieldQuery["field"]] = {
-          '$elemMatch': fieldQuery.compare
+          '$elemMatch': fieldQuery.value
         }
 
         // Check if negative
 
-        if (fieldQuery.comparison.indexOf("not") === -1) {
+        if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
           query.$and.push(queryItem);
         } else {
 
@@ -125,11 +125,11 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
       };
 
-      if (fieldQuery.comparison.indexOf("CONTAINS") !== -1) {
-                
+      if (fieldQuery.operator.toLowerCase().indexOf("contains") !== -1) {
+
         var queryItem = {};
 
-        var regex = new RegExp(fieldQuery.compare, "i");
+        var regex = new RegExp(fieldQuery.value, "i");
 
         queryItem[fieldQuery["field"]] = {
           '$regex': regex
@@ -137,7 +137,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
         // Check if negative
 
-        if (fieldQuery.comparison.indexOf("not") === -1) {
+        if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
           query.$and.push(queryItem);
         } else {
 
@@ -157,7 +157,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
       query = [];
 
     }
-
+    
     var entities = {};
 
     //Query complete, now run on all entities and collect them
@@ -177,6 +177,8 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
       }
 
       dbActions.push(iris.promise(function (data, yes, no) {
+
+          var util = require("util");
 
           var fetch = function (query) {
 
