@@ -736,7 +736,7 @@ iris.modules.actions.registerHook("hook_actions_event", 0, function (thisHook, d
 
 // Some default events and actions for logging messages on page view
 
-iris.modules.actions.globals.registerEvent("page_visit", ["url", "userid", "role"]);
+iris.modules.actions.globals.registerEvent("page_visit", ["url", "userid", "roles"]);
 
 iris.modules.actions.registerHook("hook_request_intercept", 0, function (thisHook, data) {
 
