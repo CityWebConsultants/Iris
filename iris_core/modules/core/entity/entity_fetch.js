@@ -126,10 +126,10 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
       };
 
       if (fieldQuery.comparison.indexOf("CONTAINS") !== -1) {
-
+                
         var queryItem = {};
 
-        var regex = new RegExp(fieldQuery.compare);
+        var regex = new RegExp(fieldQuery.compare, "i");
 
         queryItem[fieldQuery["field"]] = {
           '$regex': regex
