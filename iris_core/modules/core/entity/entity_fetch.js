@@ -471,37 +471,41 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     Object.keys(entity).forEach(function (field) {
 
-      var schemaField = iris.dbCollections[type].schema.tree[field];
+      if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id") {
 
-      if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
+        var schemaField = iris.dbCollections[type].schema.tree[field];
 
-        if (!schemaField.canViewField) {
+        if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 
-          delete entity[field];
-
-        } else {
-
-          var canView = false;
-
-          thisHook.authPass.roles.forEach(function (role) {
-
-
-            if (schemaField.canViewField.indexOf(role) !== -1) {
-
-              canView = true;
-
-            }
-
-          })
-
-          if (!canView) {
+          if (!schemaField.canViewField) {
 
             delete entity[field];
 
+          } else {
+
+            var canView = false;
+
+            thisHook.authPass.roles.forEach(function (role) {
+
+
+              if (schemaField.canViewField.indexOf(role) !== -1) {
+
+                canView = true;
+
+              }
+
+            })
+
+            if (!canView) {
+
+              delete entity[field];
+
+            }
+
           }
 
-        }
 
+        }
 
       }
 
