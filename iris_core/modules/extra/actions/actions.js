@@ -74,7 +74,7 @@ iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
 
   if (typeof params !== "object") {
 
-    params = {};
+    var params = {};
 
   }
 
@@ -719,43 +719,44 @@ iris.modules.actions.registerHook("hook_actions_event", 0, function (thisHook, d
 
 })
 
-// Testing
+// Some default events and actions for logging messages on page view
 
-//iris.modules.actions.globals.registerEvent("ping", ["hello"]);
-//
-//iris.modules.actions.globals.registerAction("test", {
-//
-//  message: {
-//    "type": "text",
-//    "title": "Message",
-//    "required": true
-//  }
-//
-//});
-//
-//iris.modules.actions.globals.registerAction("escape", {
-//
-//  message: {
-//    "type": "textarea",
-//    "title": "ESCAPE THIS!",
-//    "description": "WHEN?!",
-//    "required": true
-//  }
-//
-//});
-//
-//setInterval(function () {
-//
-//  iris.modules.actions.globals.triggerEvent("ping", "root", {
-//    hello: "world"
-//  });
-//
-//}, 1000)
-//
-//iris.modules.actions.registerHook("hook_action_escape", 0, function (thisHook, data) {
-//
-//  data = thisHook.const.params;
-//
-//  thisHook.finish(true, data);
-//
-//})
+iris.modules.actions.globals.registerEvent("page_visit", ["url", "userid", "role"]);
+
+iris.modules.actions.registerHook("hook_request_intercept", 0, function (thisHook, data) {
+
+  var params = {
+    "url": thisHook.const.req.url,
+    "userid": thisHook.authPass.userid,
+    "roles": thisHook.authPass.roles.join(",")
+  }
+
+  iris.modules.actions.globals.triggerEvent("page_visit", thisHook.authPass, params);
+
+  thisHook.finish(true, data);
+
+})
+
+iris.modules.actions.globals.registerAction("log", {
+
+  message: {
+    "type": "textarea",
+    "title": "Message",
+    "required": true
+  },
+  level: {
+    "type": "text",
+    "title": "Log level",
+    "required": true,
+    "enum": ["error", "info"]
+  }
+
+});
+
+iris.modules.actions.registerHook("hook_action_log", 0, function (thisHook, data) {
+
+  iris.log(thisHook.const.params.level, thisHook.const.params.message)
+
+  thisHook.finish(true, data);
+
+})
