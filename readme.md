@@ -181,3 +181,105 @@ Then add fields to the entity type. Different field types have their own setting
 To create a new entity, visit the entities page in the administration toolbar and use the dropdown next to each one to create a new entity of that type.
 
 To edit/delete entities of a type, select the "View content" option for an entity type.
+
+## Blocks
+
+Blocks are reusable elements that produce HTML and can be slotted into a region in a theme. 
+
+The initial distrubution of Iris comes with the following types of block, each provided by an extra, optional module.
+
+Blocks can be created via the admin system by going to structure > blocks.
+
+If you do not want to use the region system you can simply add a block to an HTML template with a block embed code.
+
+For example:
+
+```
+[[[block blockname]]]
+
+```
+
+### Custom blocks
+
+Custom blocks are allow you to insert custom text/HTML into your theme. 
+
+### Menu blocks
+
+Select a menu (after creating one using the menu system) and create a block using it for an easy way of adding a menu to your theme.
+
+### Views
+
+Views allow you to make a formatted lists of entities of an entity type, filtered and limited to your specification and add it to your theme. If using the angular_live_load module and socket.io they can also automatically refresh this list if an entity is added, deleted or edited.
+
+To create a view:
+
+* In the blocks window select the block type for the entity type you wish to create a list of.
+* Give it a title and a limit of how many entities you wish to show (0 is no limit).
+* Add conditions for when a field has or contains a certain value.
+* Add a list of fields to show, in order and give them wrapper CSS classes and elements.
+* Select if the field should strip HTML tags or not from its output.
+
+## Adding blocks to regions
+
+Regions are elements in a theme that contain a list of instances of a block type.
+
+Once you have created some block instances from the available block types (see the blocks section) you can add them to a region in your theme using the form on the regions page within the structure section of the administration system.
+
+Each block has a path visibility section. This uses the minimatch system to list (each on a new line) the paths the block is visible at on the site. Full documentation on how this works can be found on the Minimatch project page at https://github.com/isaacs/minimatch .
+
+Which regions are available depends on the contents of the theme.json file in your theme folder. To add a new region, add it to the region section o that file.
+
+### Adding a region to your theme
+
+To add a region to your theme, use a regions embed code giving it your region name. For example:
+
+```
+[[[region regionname]]]
+```
+
+## Menus
+
+Menus are lists of links and sublinks that can be used for navigating through your site.
+
+To create a menu, go to the menu interface in the structure section of the administration toolbar.
+
+Hit edit next to an existing menu or create a new one by selecting the create new menu button.
+
+### Embedding menus in a theme
+
+To embed a menu in the theme either use a menu block if the menu block module is enabled or use a menu embed template in an HTML template:
+
+```
+[[[menu menuname]]]
+```
+
+### Theming menus
+
+The default menu.html template can be found in the menu module's template folder. iris_core/modules/core/menu/templates/menu.html
+
+This can be overriden by a theme or module (for more informaton look at the template naming and lookup documentation).
+
+The menu template lookup also takes an additional parameter of the menu name so you can create a template for a specific menu using menu_menuname.html
+
+## Configuration diff, export and import
+
+Configuration in Iris covers things like blocks you have created, menus, entity types and permissions. All configuration is in JSON format.
+
+So that you don't accidentally overwrite changes you have made live on a server by uploading new configuration it is stored in two directories.
+
+* Configuration
+* Staging
+
+The configuration directory and its sub folders (usually named after the module that provides the configuration) stores the live configuration that is being used by the site/application. If you make a change in the administrative interface it will automatically be pushed into this folder.
+
+The staging directory is for saving to a version control system and importing to another instance of your site when deploying/developing.
+
+You shouldn't need to add your live configuration folder to your version control system.
+
+Moving configuration between these two folders can be done through the administration interface under the config option in the menu.
+
+To move all your live configuration to the staging folder hit the export config button. To import any configuration in the staging folder into your live configuration folder hit the import config button.
+
+The configuration user interface also comes with a system for seeing which files are different between these folders and for seeing the differences between them in a graphical diff. Any files that are different will show at the top of the configuration screen. To view what is different press the view diff button.
+
+
