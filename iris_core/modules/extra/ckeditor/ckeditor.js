@@ -274,17 +274,21 @@ iris.modules.ckeditor.registerHook("hook_schemafield_render", 0, function (thisH
 
   var filters = [];
 
-  Object.keys(iris.configStore.textformats).forEach(function (format) {
+  if (iris.configStore.textFormats) {
 
-    filters.push(iris.configStore.textformats[format].name);
+    Object.keys(iris.configStore.textformats).forEach(function (format) {
 
-  });
+      filters.push(iris.configStore.textformats[format].name);
 
-  if (data.properties && data.properties.textFilter) {
+    });
 
-    data.properties.textFilter.enum.push(filters);
+    if (data.properties && data.properties.textFilter) {
 
-  };
+      data.properties.textFilter.enum.push(filters);
+
+    };
+
+  }
 
   thisHook.finish(true, data);
 
