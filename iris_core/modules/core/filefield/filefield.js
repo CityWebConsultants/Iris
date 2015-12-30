@@ -1,3 +1,7 @@
+/**
+ * @file Provides a file upload field for entity forms
+ */
+
 iris.registerModule("filefield");
 
 var busboy = require('connect-busboy');
@@ -117,6 +121,9 @@ iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', functio
 
 iris.modules.auth.globals.registerPermission("Can upload files", "files");
 
+/**
+ * Uploads a file to the server after validating and checking user's permissions
+ */
 iris.modules.filefield.registerHook("hook_file_upload", 0, function (thisHook, data) {
 
   if (iris.modules.auth.globals.checkPermissions(["Can upload files"], thisHook.authPass)) {
