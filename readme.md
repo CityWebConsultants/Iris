@@ -260,3 +260,26 @@ The default menu.html template can be found in the menu module's template folder
 This can be overriden by a theme or module (for more informaton look at the template naming and lookup documentation).
 
 The menu template lookup also takes an additional parameter of the menu name so you can create a template for a specific menu using menu_menuname.html
+
+## Configuration diff, export and import
+
+Configuration in Iris covers things like blocks you have created, menus, entity types and permissions. All configuration is in JSON format.
+
+So that you don't accidentally overwrite changes you have made live on a server by uploading new configuration it is stored in two directories.
+
+* Configuration
+* Staging
+
+The configuration directory and its sub folders (usually named after the module that provides the configuration) stores the live configuration that is being used by the site/application. If you make a change in the administrative interface it will automatically be pushed into this folder.
+
+The staging directory is for saving to a version control system and importing to another instance of your site when deploying/developing.
+
+You shouldn't need to add your live configuration folder to your version control system.
+
+Moving configuration between these two folders can be done through the administration interface under the config option in the menu.
+
+To move all your live configuration to the staging folder hit the export config button. To import any configuration in the staging folder into your live configuration folder hit the import config button.
+
+The configuration user interface also comes with a system for seeing which files are different between these folders and for seeing the differences between them in a graphical diff. Any files that are different will show at the top of the configuration screen. To view what is different press the view diff button.
+
+
