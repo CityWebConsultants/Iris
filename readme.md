@@ -322,4 +322,12 @@ To restart the server go to the restart page in the administration toolbar and h
 
 The text format section of the administration menu can be used to select which HTML elements and attributes are allowed to be used in a field. Once created the filter can be added to a long text field in the entity type create/edit interface. Any HTML element or attribute not allowed by a text format will be wiped out before the entity is saved to the database.
 
+List attributes and elements by commas. Don't put in opening or closing brackets.
+
+Example: 
+
+```
+H2, P, B
+
+```
 
