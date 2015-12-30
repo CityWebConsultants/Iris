@@ -8,7 +8,7 @@ process.on("dbReady", function () {
 
   Object.keys(iris.dbCollections).forEach(function (entityType) {
 
-    var fields = ["Pick a condition"];
+    var fields = ["Pick a field"];
 
     Object.keys(iris.dbCollections[entityType].schema.tree).forEach(function (fieldName) {
 
@@ -46,7 +46,6 @@ process.on("dbReady", function () {
         },
         "conditions": {
           "type": "array",
-          "default": [],
           "items": {
             "type": "object",
             "title": "Conditions",
@@ -125,7 +124,7 @@ iris.modules.views.registerHook("hook_block_render", 0, function (thisHook, data
 
       config.conditions.forEach(function (condition, index) {
 
-        if (condition.field === "Pick a condition") {
+        if (condition.field === "Pick a field") {
 
           config.conditions.splice(index, 1);
 
