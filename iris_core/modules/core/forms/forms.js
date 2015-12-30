@@ -1,3 +1,7 @@
+/**
+ * @file Provides hooks and functions to create forms for use on the frontend
+ */
+
 iris.registerModule("forms");
 
 // Store of rendered form keys to check if form has already been submitted and stop cross site scripting problems with re-rendered forms
@@ -6,6 +10,14 @@ iris.modules.forms.globals.formRenderCache = {};
 
 var toSource = require('tosource');
 
+/**
+ * Request handler hook
+ *
+ * Used to respond to an HTTP request.
+ */
+/*
+ * hook_catch_request is used here to respond to form submissions.
+ */
 iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
   if (thisHook.const.req.method === "POST") {
@@ -134,12 +146,26 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
 });
 
+/**
+ * Generic form submission handler
+ *
+ * Use this hook to implement a handler on all submitted forms.
+ *
+ * The form fields are available keyed under thisHook.const.params.
+ *
+ * It is easier to handle submission of a single form by appending _ followed by the form name to this hook.
+ *
+ * @see hook_form_submit_<form_name>
+ */
 iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
 
 });
 
+/*
+ * This implementation of hook_frontend_template_parse adds a "form" block.
+ */
 iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   var variables = data.variables;
@@ -318,8 +344,9 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
 });
 
-// Default hook form render
-
+/**
+ * Prepare a form for display by adding or changing fields at the render stage
+ */
 iris.modules.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
@@ -328,8 +355,14 @@ iris.modules.forms.registerHook("hook_form_render", 0, function (thisHook, data)
 
 iris.modules.forms.globals.widgets = {};
 
-// Allow custom form widget types
-
+/**
+ * Register a new form widget type
+ *
+ * Widgets consist of a name and a function that is sent to the client to implement a custom form item.
+ *
+ * @param {function} widgetFunction - Function that is executed client-side when the form is displayed.
+ * @param {string} name - The widget name.
+ */
 iris.modules.forms.globals.registerWidget = function (widgetFunction, name) {
 
   iris.modules.forms.globals.widgets[name] = toSource(widgetFunction);
