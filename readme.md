@@ -120,6 +120,10 @@ When you first load Iris you will be shown a form where you can create an initia
 
 To log in to the administration system, visit /admin or /login and type in your access details.
 
+### Logging out
+
+To log out, either visit /logout or hit the logout button on the administration toolbar.
+
 ### The user entity
 
 The user entity is a fieldable entity like any other, except for the password field (which is hashed and stored securely in the database), and a roles field where users can be given roles to allow various permissions.
