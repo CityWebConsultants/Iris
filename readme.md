@@ -1,29 +1,105 @@
 # Iris
 
-Iris is a modular content management system and web application framework built using JavaScript (Node.js) and MongoDB.
+Iris is a modular content management system and web application framework built using JavaScript and MongoDB. It comes with a user, role and permission system, a flexible theme, block, field and entity system and an administrative UI so you can get started without writing any JavaScript or dive deep into it by using its hook system to build custom modules.
 
-Alongside its own block, region, form and embed system, Iris supports any templating language you'd want to use with it (even plain HTML). Handlebars is packaged in, as is a module for simple to use front-end HTML widgets (powered by Angular.js) that fetch, sort and filter the exact content you want without you having to play around with server-side database queries. These templates also live update when something changes without page refresh (via websockets) so you can use them for news feeds, social media websites and chat rooms. Without writing any server side code.
+Iris comes with its own form system, powered by simple JSON form schema and one line widgets for fetching, filtering and sotritng entities (pages for example) that not only handle all the database queries and access permissions for you but can automatically live update without page refresh so you can use them for news feeds, social media websites and chat rooms. Without writing any server side code.
 
 Iris comes with an extendable user, profile, role and permission system with a graphical admin interface so you can make sure only people with the right permissions can access content you want or perform actions.
 
 Although we'd love you to build and share custom modules, and provide a full hook based API for doing so (meaning you can override or extend anything you'd want to override), a lot of Iris is built to be used without writing masses of extra JavaScript. The admin interface will allow you to build up blocks, regions, users, views/lists of content, make custom content types, attach fields to them and create, edit and delete content all through a graphical user interface.
 
-Iris was built with version control in mind so, instead of storing blocks, regions, fields and entity types, views and other configuration in the database, all configuration you'd want to put through Git or another version control system is stored in easily exportable/importable JSON files. You can even edit these manually if you want as they're written to be human-readable. The exporting and importing is again done through the user interface, though if you prefer drag and drop you can do that too and nothing will break.
+Iris was built with version control in mind so, instead of storing blocks, regions, fields and entity types, views and other configuration in the database, all configuration you'd want to put through Git or another version control system is stored in easily exportable/importable JSON files. You can see if and what has changed through the graphical interface. You can even edit these configuration files manually if you want as they're written to be human-readable. The exporting and importing is again done through the user interface, though if you prefer drag and drop exporting and importing you can do that too and nothing will break.
 
-After a year of keeping it to ourselves, we'd love you to try out Iris, let us know what we've done right and wrong and perhaps help us build it by contributing to its source code and building modules.
+After a year of keeping it to ourselves, we'd love you to try out Iris, let us know what we've done right and wrong and help us build it by contributing to its source code and building modules.
 
 ## System requirements
 
-Iris runs on Node.js so you'll need the latest version of that installed (5.0 at the time of writing). It will also need a connection to a MongoDB database. Iris was created and tested on Windows, Linux and OSX systems so hopefully it should work on your setup. Put in an issue in the issue queue if it doesn't and we'll try to help.
+Iris runs on Node.js so you'll need the latest version of that installed (5.0 at the time of writing). It will also need a connection to a MongoDB database. Iris was created and tested on Windows, Linux and OSX systems so hopefully it will work on your setup. Put in an issue in the issue queue if it doesn't and we'll try to help.
 
-## Quick start for site builders
+## Features and functionality tour and set up instructions
 
 This first version of Iris is bundled with useful modules so that you can get started using it as a content management system and web site builder as quickly as possible. Here's how to get started.
 
 * Clone the repository.
-* Run NPM install to install dependencies
+* Run NPM install to install any dependencies
 * Make sure you have access to a MongoDB database instance
-* Go to the sites folder and copy the default folder into a folder named after your site/application
+
+### Directory structure
+
+In the root directory you should find the core package.json file, this readme and an iris.js launch file. Once you have run NPM install you should have the following three directories.
+
+* iris_core
+* node_modules
+* home
+
+### iris_core
+
+This is where the core iris files are stored along with core modules and the optional modules that are bundled with Iris. You should not edit these files as future updates to the Iris system would overwrite your changes. We have built a hook and template prioity system that should allow you to do all the overriding you want outside of this directory.
+
+### node_modules
+
+This is where all the extra node.js packages are installed. Iris modules themselves also install their dependencies into this folder automatically when running npm install from the root directory.
+
+### home
+
+This is your folder! All your custom code, themes, templates, configuration and modules can go in here. It will be the one you put in a git repository.
+
+Step into it and you'll find three directories.
+
+* themes
+* sites
+* modules
+
+#### Theme structure
+
+The themes directory is where you will put a theme that your site/application will use on the front end. We have bundled in a base theme.
+
+Theme folders contain three parts.
+
+* __static folder__ - Everything in this folder will be accessible directly through a URL. It's for CSS files, image files such as logos and front end JavaScript files for your theme. The url for anything in this directory will be: **your app url + /theme/static/...**
+* __theme.json__ - This file is the configuration for the theme you are using. It currently contains a list of regions. These are the regions supported by the theme that you can put blocks into. You can override the setttings in this file by putting your own theme.json file in your site's folder inside the home/sites directory.
+* __templates__ folder. This is where HTML templates (including Handlebars template code) are stored. See **Template lookups, naming and overrides** section for more inforamtion about how templates work.
+
+#### Template lookups, naming and overrides
+
+Template lookups in Iris are done using a system based on folder location and underscore divided sections. Here's how this works:
+
+##### Template naming
+
+A theming function within the Iris system requests a template, passing through a list of parameters. For example, when requesting the template for an entity display (a page for example), these are:
+
+* The entity type (page)
+* The entity ID
+
+A generic **page.html** template would match this lookup. If you wanted to use a different template for a specific page, you could simply add an underscore and the entity ID to this filename. So **page_5.html** for example.
+
+Menus and other templates work in a similar way. **menu.html** is the general menu template **menu_menuname.html** is more specific and takes priority.
+
+##### Where Iris looks for templates.
+
+The template system starts looking through the file system by looking at core and contributed Iris modules for a /templates folder. If a module has a templates folder it is checked for relevant templates. The later the module is loaded, the higher a priority it takes.
+
+After checking modules, the system looks through the current theme in its home/themes/THEMENAME/templates folder.
+
+Finally, the system checks the sites/SITENAME/templates folder. These files take the top priority.
+
+So modules, themes and sites can easily override any other template files set in the system or fall back to defaults.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### Settings.json
 
