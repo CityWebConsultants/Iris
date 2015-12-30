@@ -1,5 +1,17 @@
+/**
+ * @file Manages routing for the admin configuration pages.
+ */
 var fs = require('fs');
 
+/**
+ * Respond to a request with an error page.
+ *
+ * Wrapper for hook_display_error_page; returns error page HTML on response automatically.
+ *
+ * @param {number} code - The HTTP error code to return the page for
+ * @param {object} req - The current Express request object
+ * @param {object} res - The current Express response object
+ */
 iris.modules.frontend.globals.displayErrorPage = function (code, req, res) {
 
   iris.hook("hook_display_error_page", req.authPass, {
@@ -590,7 +602,7 @@ iris.app.get("/admin/config/diff", function (req, res) {
   } catch (e) {
 
   }
-  
+
   var prettydiff = require("prettydiff"),
     args = {
       source: current,
@@ -598,7 +610,7 @@ iris.app.get("/admin/config/diff", function (req, res) {
       lang: "json"
     },
     output = prettydiff.api(args);
-  
+
   res.send(output[0]);
 
 });

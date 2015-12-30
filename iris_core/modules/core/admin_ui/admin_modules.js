@@ -1,3 +1,7 @@
+/**
+ * @file Includes for the admin system
+ */
+
 var express = require('express');
 
 require('./admin_modules/regions.js');
