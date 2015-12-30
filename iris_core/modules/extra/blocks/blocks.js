@@ -1,9 +1,13 @@
 iris.registerModule("blocks");
 
+/**
+ * Block types store. Keeps a record of all available block types; this is also stored in config files.
+ */
 iris.modules.blocks.globals.blockTypes = {};
 
-// Object in which to store all blocks
-
+/**
+ * Blocks store. Keeps a record of all block instances; this is also stored in config files.
+ */
 iris.modules.blocks.globals.blocks = {};
 
 var fs = require('fs');
@@ -124,8 +128,11 @@ iris.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
 
 });
 
-// Function for registering system blocks
-
+/**
+ * Register a block in code
+ *
+ * @param {object} config - The block configuration object to save
+ */
 iris.modules.blocks.globals.registerBlock = function (config) {
 
   if (!iris.modules.blocks.globals.blocks[config.type]) {
@@ -246,6 +253,11 @@ iris.modules.blocks.registerHook("hook_frontend_template_parse", 0, function (th
 
 });
 
+/**
+ * Register a new block type
+ *
+ * @param {string} name - The name of the block type
+ */
 iris.modules.blocks.globals.registerBlockType = function (name) {
 
   if (!name) {
@@ -262,6 +274,13 @@ iris.modules.blocks.globals.registerBlockType = function (name) {
 
 };
 
+/**
+ * Block render hook
+ *
+ * Expects to have thisHook.const contain an id, type and config pertaining to the block that is being rendered.
+ *
+ * May be hooked into to change the display of blocks.
+ */
 iris.modules.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
 
   if (!thisHook.const.id) {
@@ -394,9 +413,9 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
 // Default form submit for block forms
 
 iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
-  
+
   var formId = thisHook.const.formid;
-  
+
   if (formId.split("_")[0] === "blockForm") {
 
     thisHook.const.params.blockTitle = iris.sanitizeFileName(thisHook.const.params.blockTitle);
