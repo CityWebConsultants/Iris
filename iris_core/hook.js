@@ -1,7 +1,22 @@
+/**
+ * Invokes a hook.
+ *
+ * All implementations of this hook, across all modules, will be run in order.
+ *
+ * The 'variables' object is passed between each hook and is mutable - it can be assigned different values by each hook.
+ * The other parameters are kept static. 'Variables' are what is returned once the hook is complete.
+ *
+ * @param {string} hookname - The unique name of the hook to run
+ * @param {object} authPass - The authPass object, which includes permissions information about the current user. Use string "root" to run with all permissions.
+ * @param {object} static - Variables provided to the hook implementations which should not be mutable
+ * @param {object} variables - Variables provided to the hook implementations which are mutable
+ *
+ * @returns a promise which, if successful, contains the final hook variables as its first argument
+ */
 var hook = function (hookname, authPass, static, variables) {
 
   var auth = authPass;
-  
+
   var thisHook;
 
   var constants = static;
@@ -11,7 +26,7 @@ var hook = function (hookname, authPass, static, variables) {
   return new Promise(function (yes, no) {
 
     //Check auth
-    
+
     if (typeof auth === 'string' || auth instanceof String) {
 
       if (auth === "root") {
@@ -31,7 +46,7 @@ var hook = function (hookname, authPass, static, variables) {
       }
 
     } else if (!auth || !auth.roles || !auth.userid) {
-      
+
       no("invalid authPass");
       return false;
 
@@ -125,7 +140,7 @@ var hook = function (hookname, authPass, static, variables) {
           thisHook.path = hookcall.parentModule;
           thisHook.rank = hookcall.rank;
           thisHook.index = index;
-          
+
           try {
             hookcall.event(thisHook, vars);
           } catch (e) {

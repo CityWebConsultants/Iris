@@ -111,6 +111,14 @@ function _getCallerFile() {
 var path = require('path');
 var express = require('express');
 
+/**
+ * Register a module to make its hooks and handlers active.
+ *
+ * @param {string} name - The name of the module; this should match the filename
+ * @param {boolean} [directory] - Flag for whether a config directory should be created for this module.
+ *
+ * @returns the internal module object that was created, if succesful.
+ */
 iris.registerModule = function (name, directory) {
 
   if (iris.modules[name]) {
@@ -148,11 +156,19 @@ iris.registerModule = function (name, directory) {
     Object.seal(iris.modules[name]);
 
   }
-  
+
   return iris.modules[name];
 
 };
 
+/**
+ * Attempt to load a file from a given location or fall back to a default location.
+ *
+ * @param {string} defaultLocation - Fallback location of file
+ * @param {string} customLocation - Preferred custom location of file
+ *
+ * @returns the file as a module, as the output of require()
+ */
 iris.include = function (defaultLocation, customLocation) {
 
   var customLocation = customLocation;

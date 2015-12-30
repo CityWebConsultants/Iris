@@ -32,6 +32,18 @@ module.exports = function (config) {
 
   iris.configPath = path.join(iris.sitePath, "/configurations");
 
+  /**
+   * Saves a JavaScript object as a JSON configuration file.
+   *
+   * Additionally, adds the config to the configStore in memory.
+   *
+   * @param {object} contents - The object (of key-value pairs) to be saved
+   * @param {string} directory - The directory, under "<site path>/configurations", in which to store the file
+   * @param {string} filename - The name of the file
+   * @param {function} callback - The callback to run once the file has been saved
+   *
+   * @returns Runs callback with 'err' boolean (false if operation successful)
+   */
   iris.saveConfig = function (contents, directory, filename, callback) {
 
     var current = iris.configStore;
@@ -72,6 +84,17 @@ module.exports = function (config) {
 
   };
 
+  /**
+   * Deletes a saved JSON config file
+   *
+   * Additionally, the saved configStore for the file will be deleted
+   *
+   * @param {string} directory - The directory, under "<site path>/configurations", in which the file is stored
+   * @param {string} filename - The name of the file
+   * @param {string} callback - The callback to run once completed
+   *
+   * @returns Runs callback with 'err' boolean (false if operation successful)
+   */
   iris.deleteConfig = function (directory, filename, callback) {
 
     var splitDirectory = directory.split('/');
@@ -111,6 +134,16 @@ module.exports = function (config) {
 
   };
 
+  /**
+   * Reads a stored JSON configuration file
+   *
+   * Will attempt to read from the configStore cache.
+   *
+   * @param {string} directory - The directory, under "<site path>/configurations", in which the file is stored
+   * @param {string} filename - The name of the file
+   *
+   * @returns A promise which, if successful, has the config file as a JavaScript object as its first argument
+   */
   iris.readConfig = function (directory, filename) {
 
     return new Promise(function (yes, no) {
