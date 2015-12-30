@@ -16,15 +16,7 @@ After a year of keeping it to ourselves, we'd love you to try out Iris, let us k
 
 Iris runs on Node.js so you'll need the latest version of that installed (5.0 at the time of writing). It will also need a connection to a MongoDB database. Iris was created and tested on Windows, Linux and OSX systems so hopefully it will work on your setup. Put in an issue in the issue queue if it doesn't and we'll try to help.
 
-## Features and functionality tour and set up instructions
-
-This first version of Iris is bundled with useful modules so that you can get started using it as a content management system and web site builder as quickly as possible. Here's how to get started.
-
-* Clone the repository.
-* Run NPM install to install any dependencies
-* Make sure you have access to a MongoDB database instance
-
-### Directory structure
+## Directory structure
 
 In the root directory you should find the core package.json file, this readme and an iris.js launch file. Once you have run NPM install you should have the following three directories.
 
@@ -116,19 +108,53 @@ This is where you will put the main configuration for your site including databa
 * __db_password__: The password (if relevant) to be used when connecting to the database.
 * __theme__: The relative path to the current theme (we've put in a default __base__ theme to get you started).
 
+## User system
 
+Iris comes with a user system which allows people to log in to your website/application and see/do different things depending on their role.
 
-### Post launch config
+### First time login and root user
 
-If everything's gone to plan you should be able to visit the server via your web browser (http://localhost:3000 for example) where you will see a page telling you to set up a root user account.
+When you first load Iris you will be shown a form where you can create an initial user account. This will be your root administrative user. Don't forget this username and password to stop yourself being locked out of the system.
 
-Pick a secure but memorable password and note it down somewhere safe. You will be able to create multiple accounts later but before you do you'll need this one to access the site.
+### Logging in
 
-### The administration system
+To log in to the administration system, visit /admin or /login and type in your access details.
 
-Once you've created an administrator account you should be able to vist /admin with it and access the administration system.
+### The user entity
 
-### Creating and managing entities
+The user entity is a fieldable entity like any other, except for the password field (which is hashed and stored securely in the database), and a roles field where users can be given roles to allow various permissions.
+
+### Roles and permissions
+
+The base installation comes with three roles, anonymous (given automatically to not logged in users), authenticated (users that have logged in but have no extra roles (again given automatically)) and "admin". Admin allows a user to administrate the whole system so should be given sparingly.
+
+More roles can be added with one line of code in a custom module. 
+
+```javascript
+
+iris.modules.auth.globals.registerRole("contributor");
+
+```
+
+This instantly makes it visible and usable in the permissions user interface. How a role is assigned to a user is up to you and your module.
+
+Some permissions have already been created such as permissions to create, delete, view and edit entities of various types. Modules can register additional permissions.
+
+```javascript
+
+iris.modules.auth.globals.registerPermission("can make access token", "auth", "this allows a user to make access tokens for other users to access the system")
+
+```
+
+To grant or revoke a permission for a role, visit the permissions tab in the administration toolbar and select/unselect the relevat box for the role/permission. Then hit save at the bottom on of the form.
+
+### Access tokens
+
+Every time a user is given access to the system an access token/authPass is generated for them. This contains a list of access tokens with timestamps (allowing them to be logged in from different devices for example), their user id and a list of roles. All authentication is managed through this system of authentication passes.
+
+Once a user logs in using the user system, the optional sessions module saves the token and userid as a cookie in the user's browser so that they can make repeated requests to the system without having to log in every time.
+
+## Creating and managing entities
 
 Content in Iris, from users to pages to menus, is based around a concept of entities.
 
@@ -154,22 +180,6 @@ First pick a name for your entity type. This won't usually be shown outside of t
 To create a new entity, visit the entities page in the administration toolbar and use the dropdown next to each one to create a new entity of that type.
 
 To edit/delete entities of a type, select the "View content" option for an entity type. 
-
-## Users
-
-Iris comes with a user system which allows people to log in to your website/application and see/do different things depending on their position.
-
-The user entity is simply a fieldable entity like the others, except for the password field (which is hashed and stored securely in the database), and a roles field where users can be given roles to allow various permissions.
-
-## Roles and permissions
-
-The base installation comes with three roles, anonymous (given automatically to not logged in users), authenticated (users that have logged in but have no extra roles (again given automatically)) and "admin". Admin allows a user to administrate the whole system.
-
-More roles can be added with one line of code in a custom module. More of this in the advanced section.
-
-Some permissions have already been created such as permissions to create, delete, view and edit entities of various types. Modules can register additional permissions.
-
-To grant or revoke a permission for a role, visit the permissions tab in the administration toolbar and tick/untick the relevat box for the role/permission. Then hit save at the bottom on of the form.
 
 # Pages
 
