@@ -1,3 +1,7 @@
+/**
+ * @file Forms and form handlers for creating and editing forms, plus string widgets
+ */
+
 iris.registerModule("entity2");
 
 var fs = require("fs");
@@ -6,8 +10,9 @@ var fs = require("fs");
 
 iris.modules.entity2.globals.fieldTypes = {};
 
-// Generate form for schema edit/create
-
+/**
+ * Generate form for schema edit/create
+ */
 iris.modules.entity2.globals.fetchSchemaForm = function () {
 
   // Search all enabled module paths for fieldSchema directories and schema
