@@ -2,6 +2,10 @@
 
 "use strict";
 
+/**
+ * @file Socket.io server setup and management functions
+ */
+
 var io = require('socket.io');
 
 //Function for registering socket events
@@ -12,6 +16,13 @@ iris.socketListeners = {};
 
 iris.socketServer = io(iris.server);
 
+/**
+ * Sends a socket message to any specified users
+ *
+ * @param {string[]} userids - Array of userids. If it contains '*', the message is sent to all users.
+ * @param {string} message - Socket event name on which the message will be sent.
+ * @param data - Any variable to be sent as a message.
+ */
 iris.sendSocketMessage = function (userids, message, data) {
 
   if (userids.indexOf("*") !== -1) {
@@ -38,6 +49,13 @@ iris.sendSocketMessage = function (userids, message, data) {
 
 };
 
+/**
+ * Authentication of a user via sockets
+ *
+ * @param {string} userid - The userid of the authenticating user.
+ * @param {string} token - The session token that the authenticating user should possess.
+ * @param {object} socket - The socket object being used for the request.
+ */
 iris.socketLogin = function (userid, token, socket) {
 
   //Paired

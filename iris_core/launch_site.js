@@ -1,3 +1,7 @@
+/**
+ * @file Launches Iris with the settings and context of the given site.
+ */
+
 // Change process directory to current site
 
 var parameters = {};

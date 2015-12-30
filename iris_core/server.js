@@ -1,3 +1,6 @@
+/**
+ * @file Express HTTP server setup and management functions.
+ */
 var express = require('express'),
   bodyParser = require('body-parser');
 
@@ -22,8 +25,11 @@ iris.app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-//Error helper function
-
+/**
+ * Error helper function
+ *
+ * Converts parameters code, message and notes into a keyed object.
+ */
 iris.error = function (code, message, notes) {
 
   return {
@@ -151,7 +157,7 @@ iris.app.use(function (req, res, next) {
       if (error === "No such hook exists") {
 
         next();
-        
+
       } else {
 
         res.status(400);

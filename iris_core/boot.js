@@ -1,6 +1,10 @@
 /*jslint nomen: true, node:true */
 "use strict";
 
+/**
+ * @file Boot-up process for Iris - prepares all modules, manages HTTP requests, provides config storage functions.
+ */
+
 module.exports = function (config) {
 
   //Create global object for the application, remove existing

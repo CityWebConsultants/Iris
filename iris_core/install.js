@@ -1,4 +1,6 @@
-// Install script to load in module dependencies of other iris modules
+/**
+ * @file Install script to load in module dependencies of other iris modules
+ */
 
 var glob = require("glob");
 var npm = require("npm");

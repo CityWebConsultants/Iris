@@ -1,3 +1,7 @@
+/**
+ * @file Launch script run by user to start an Iris site. Keeps sessions persistent by managing a sub-process.
+ */
+
 var parameters = {};
 
 process.argv.forEach(function (val, index, array) {

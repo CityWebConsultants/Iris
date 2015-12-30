@@ -1,4 +1,8 @@
 /**
+ * @file Implements the hook invocation function for the hook system.
+ */
+
+/**
  * Invokes a hook.
  *
  * All implementations of this hook, across all modules, will be run in order.

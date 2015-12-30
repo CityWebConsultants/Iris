@@ -1,3 +1,7 @@
+/**
+ * @file Base for the module system. Provides functions for module registration and management.
+ */
+
 iris.modules = {};
 
 var moduleTemplate = (function () {

@@ -1,3 +1,9 @@
+/**
+ * @file Manages the database connection and schemas for entity types.
+ *
+ * Uses Mongoose.
+ */
+
 var fs = require('fs');
 
 //Connect to database

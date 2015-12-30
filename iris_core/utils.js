@@ -1,3 +1,17 @@
+/**
+ * @file General utility functions used throughout
+ */
+
+/**
+ * Run a series of promises in sequence
+ *
+ * If any promise fails, the chain is stopped and the failure callback is run.
+ *
+ * @param {promise[]} - array of promises to be resolved
+ * @param parameters - arguments to pass to each promise
+ * @param success - success callback to run if all promises are successful
+ * @param fail - failure callback to run if any promise is unsuccessful
+ */
 iris.promiseChain = function (tasks, parameters, success, fail) {
 
   tasks.reduce(function (cur, next) {
@@ -6,6 +20,15 @@ iris.promiseChain = function (tasks, parameters, success, fail) {
 
 };
 
+/**
+ * Run given callback as a promise.
+ *
+ * Pretty prints any errors that occur inside the callback.
+ *
+ * @params {function} callback - callback to run
+ *
+ * @returns a promise that runs the specified callback
+ */
 iris.promise = function (callback) {
 
   return function (data) {
@@ -37,12 +60,28 @@ var util = require('util');
 
 iris.translations = {};
 
+/**
+ * Register a translation to be used by the translate function
+ *
+ * @params {string} string - string that should be translated
+ * @params {string} output - string to replace the initial string with in order to translate it
+ */
 iris.registerTranslation = function (string, output) {
 
   iris.translations[string] = output;
 
 };
 
+/**
+ * Translate a string
+ *
+ * If a translation for the given string has been registered, the input string will be replaced with that one.
+ *
+ * @param {string} translationString - string that should be translated
+ * @param arguments - util.format arguments to replace inside string
+ *
+ * @returns Translated string with arguments processed by util.format
+ */
 iris.translate = function (translationString, arguments) {
 
   if (iris.translations[translationString]) {
@@ -55,6 +94,15 @@ iris.translate = function (translationString, arguments) {
 
 }
 
+/**
+ * Field data type check
+ *
+ * @param {object} allowed - object containing key-value pairs of the field name and its allowed type
+ * @param {object} entity - the entity to check
+ * @param {object} data#
+ *
+ * @returns an object with parameter 'valid' as a boolean; if invalid, an array of invalidFields is also provided
+ */
 iris.typeCheck = function (allowed, entity, data) {
 
   //Field type checking
@@ -91,6 +139,15 @@ iris.typeCheck = function (allowed, entity, data) {
 
 };
 
+/**
+ * Sanitize file name
+ *
+ * Replaces all non alphanumeric characters with '-'. This is a problem with non-Latin scripts.
+ *
+ * @param {string} name - string to convert into a sanitized filename
+ *
+ * @returns a sanitized string ready for use as a filename
+ */
 iris.sanitizeFileName = function (name) {
 
   // Doesn't currently support anything not English
