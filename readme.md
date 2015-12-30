@@ -154,7 +154,7 @@ Every time a user is given access to the system an access token/authPass is gene
 
 Once a user logs in using the user system, the optional sessions module saves the token and userid as a cookie in the user's browser so that they can make repeated requests to the system without having to log in every time.
 
-## Creating and managing entities
+## Creating and managing entity types and entities
 
 Content in Iris, from users to pages to menus, is based around a concept of entities.
 
@@ -168,59 +168,19 @@ You will be presented with a form to create your new entity type.
 
 First pick a name for your entity type. This won't usually be shown outside of the administration system but it cannot be changed easily after creation.
 
-##### Field types
- 
-* string_string - A simple text field for short lines of text.
-* string_long - A long formatted, rich text field with a CKeditor text editor.
-* string_file - A file upload
-* ofstring_string - A field containing multiple simple text strings
+Then add fields to the entity type. Different field types have their own settings but every field has the following settings:
+
+* __Field title__ - The system title of this field. This should only be set once as it's what is stored in the database.
+* __Label__ - The name of the field as it appears to a user on the edit/create entity forms
+* __Field description__ - Appears next to the field in the edit/create forms
+* __Required__ - is this field required?
+* __Can view of the client side__ - A permissions form showing whether a user of a certain role is able to see this field. If they can't it will be automatically stripped out when an entity is fetched/viewed by them. Users of the admin role can see all fields. 
 
 ##### Editing and creating entities
 
 To create a new entity, visit the entities page in the administration toolbar and use the dropdown next to each one to create a new entity of that type.
 
-To edit/delete entities of a type, select the "View content" option for an entity type. 
-
-# Pages
-
-A page entity type has already been created for you in the default distribution. To create/edit and delete pages visit the entities screen and under page either view content or create a new one.
-
-## Page paths
-
-To make a page appear at a path/url relative to your organisation simply put the relative path (with a leading slash) in the path field of the page entity. "/" on its own is the home page. 
-
-# Basic templates and theming
-
-Iris comes with its own templating language for embeded elements such as blocks, forms and menus but also uses and comes with support for Mustache and AngularJS templates. Other template languages can be easily slotted in instead.
-
-## Theme location and structure
-
-Themes are stored in the "themes" folder of a site (so sites/YOURSITE/themes/THEMENAME).
-
-The default "Purple" theme has some basic page templates you can use to get started. The name of the theme folder is set in the main site configuration.json file.
-
-## Static files
-
-Static files can be placed within the "static" directory in the themes folder. This can include frontend JavaScript files, CSS files, static assets and others. 
-
-The contents of this directory will be publicly available at /static
-
-Note that uploaded files stored as part of the entites will not be stored in this folder but instead in the /files folder of the site folder.
-
-## Templates
-
-### Template naming
-
-Iris uses a template lookup and override engine to find and process the right template from the theme folder, falling back to a relevant default template if no such template is present in the theme folder.
-
-### Template extensions
-
-Templates can be simple HTML pages but if you want to use a server-side templating system such as Mustache you should give them an extension based on this templating language. The setting for the extension itself is set in configurations.json .  .mustache files will be treated as mustache templates for example.
-
-### The HTML wrapper template
-
-Each rendered page is wrapped in a special template with a file beginning with HTML. This is where you can place the main HTML wrapper around which entity pages and others sit.
-
+To edit/delete entities of a type, select the "View content" option for an entity type.
 
 # API documentation
 
