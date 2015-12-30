@@ -318,4 +318,8 @@ Sessions are persistent after using the restart function, so no one who is logge
 
 To restart the server go to the restart page in the administration toolbar and hit the restart button. Your site will not be available while the restart takes place but it should be a process taking at most a few seconds.
 
+## Text filters/formats
+
+The text format section of the administration menu can be used to select which HTML elements and attributes are allowed to be used in a field. Once created the filter can be added to a long text field in the entity type create/edit interface. Any HTML element or attribute not allowed by a text format will be wiped out before the entity is saved to the database.
+
 
