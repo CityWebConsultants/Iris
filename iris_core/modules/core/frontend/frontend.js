@@ -405,7 +405,7 @@ iris.modules.frontend.globals.findTemplate = findTemplate;
  *
  * @returns a promise which, if successful, takes the processed HTML as its first argument.
  */
-iris.modules.frontend.globals.parseBlock = function (prefix, html, action) {
+iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
   return new Promise(function (yes, no) {
 
@@ -479,7 +479,7 @@ iris.modules.frontend.globals.parseBlock = function (prefix, html, action) {
  * @param {object} context - extra variables to pass to templating engine. The property 'custom' is passed to hook_frontend_template_context
  *
  * There are other functions that are intended to make parsing templates easier.
- * @see parseBlock
+ * @see parseEmbed
  * @see parseTemplateFile
  *
  * @returns a promise which, if successful, takes an object with properties 'html' and 'variables',for the processed HTML and variables ready to pass to the templating engine, respectively.
@@ -665,7 +665,7 @@ var parseTemplate = function (html, authPass, context) {
 /**
  * Parse frontend template
  *
- * Hook into the template parsing process using this. Inside, one can run functions such as parseBlock on the current state of the template.
+ * Hook into the template parsing process using this. Inside, one can run functions such as parseEmbed on the current state of the template.
  */
 iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 

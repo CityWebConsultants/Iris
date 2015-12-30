@@ -257,7 +257,7 @@ iris.modules.menu.registerHook("hook_frontend_template_parse", 0, function (this
 
   var variables = data.variables;
 
-  iris.modules.frontend.globals.parseBlock("menu", data.html, function (menu, next) {
+  iris.modules.frontend.globals.parseEmbed("menu", data.html, function (menu, next) {
 
     var menuName = menu[0];
 

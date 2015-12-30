@@ -180,7 +180,7 @@ glob(iris.configPath + "/blocks/*/*.json", function (er, files) {
 
 iris.modules.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  iris.modules.frontend.globals.parseBlock("block", data.html, function (block, next) {
+  iris.modules.frontend.globals.parseEmbed("block", data.html, function (block, next) {
 
     var blockType = block[0],
       blockName = block[1];

@@ -91,5 +91,5 @@ Theming
 
 #### Template parsing process
   hook_frontend_template_parse
-  findTemplate, parseTemplate, parseBlock
+  findTemplate, parseTemplate, parseEmbed
   hook_frontend_template and custom parsers

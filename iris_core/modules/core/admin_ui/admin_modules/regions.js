@@ -126,7 +126,7 @@ iris.modules.forms.registerHook("hook_form_submit_regions", 0, function (thisHoo
 
 iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  iris.modules.frontend.globals.parseBlock("region", data.html, function (region, next) {
+  iris.modules.frontend.globals.parseEmbed("region", data.html, function (region, next) {
 
     var regionName = region[0];
 

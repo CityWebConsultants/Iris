@@ -29,7 +29,7 @@ iris.modules.headertags.registerHook("hook_frontend_template_context", 0, functi
 
 iris.modules.headertags.registerHook("hook_frontend_template_parse", 1, function (thisHook, data) {
 
-  iris.modules.frontend.globals.parseBlock("tags", data.html, function (tagCollectionName, next) {
+  iris.modules.frontend.globals.parseEmbed("tags", data.html, function (tagCollectionName, next) {
     
     tagCollectionName = tagCollectionName[0];
 

@@ -170,7 +170,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
   var variables = data.variables;
 
-  iris.modules.frontend.globals.parseBlock("form", data.html, function (form, next) {
+  iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
 
     var formParams = form.join(",");
 

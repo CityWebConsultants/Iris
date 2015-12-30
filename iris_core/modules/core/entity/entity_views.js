@@ -9,7 +9,7 @@ var fs = require("fs");
  * This specific implementation of hook_frontend_template_parse processes entity blocks.
  */
 iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-  iris.modules.frontend.globals.parseBlock("entity", data.html, function (entity, next) {
+  iris.modules.frontend.globals.parseEmbed("entity", data.html, function (entity, next) {
 
     var entityTypes = entity[0].split("+");
     var variableName = entity[1];
