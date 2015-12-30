@@ -2,6 +2,10 @@
 
 "use strict";
 
+/**
+ * @file Includes for the entity module
+ */
+
 iris.registerModule("entity", true);
 
 require('./entity_create');

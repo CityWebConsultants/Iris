@@ -1,6 +1,14 @@
-//Making a post to edit an entity with an _id
+/**
+ * @file Functions and hooks for editing entities
+ */
 
-
+/**
+ * Entity editing hook
+ *
+ * Updates an entity in the database, and any other stores.
+ *
+ * Hook variables must include an entity ID (eid) and entity type.
+ */
 iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
   if (!data.eid) {
@@ -218,8 +226,11 @@ iris.app.post("/entity/edit/:type/:_id", function (req, res) {
 
 });
 
-//Checking access and if entity type and entity exist
-
+/**
+ * Checks permission for editing an entity
+ *
+ * This hook returns successfully only if the authPass allows for the entity provided to be created.
+ */
 iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, data) {
 
   if (!iris.modules.auth.globals.checkPermissions(["can edit any " + data.entityType], thisHook.authPass)) {

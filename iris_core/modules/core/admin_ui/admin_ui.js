@@ -1,3 +1,7 @@
+/**
+ * @file General hooks and functions for the admin system.
+ */
+
 iris.registerModule("admin_ui");
 
 require('./admin_modules.js');

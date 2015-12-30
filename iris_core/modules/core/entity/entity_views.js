@@ -1,6 +1,13 @@
+/**
+ * @file Functions and handlers for rendering and displaying entities to the user.
+ */
+
 var UglifyJS = require("uglify-js");
 var fs = require("fs");
 
+/*
+ * This specific implementation of hook_frontend_template_parse processes entity blocks.
+ */
 iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
   iris.modules.frontend.globals.parseBlock("entity", data.html, function (entity, next) {
 
@@ -111,9 +118,9 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
         }
 
       });
-      
+
       var preLoader = "";
-      
+
       if (!data.variables.entityLoader) {
 
         data.variables.entityLoader = true;
@@ -121,9 +128,9 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
         preLoader += "<script src='/modules/entity/templates.js'></script>";
 
       }
-      
+
       var entityPackage = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
-            
+
       var loader = UglifyJS.minify(entityPackage, {
         fromString: true
       });
@@ -152,7 +159,11 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 
 });
 
-
+/**
+ * Event handling for when entities are created
+ *
+ * This hook is run once an entity has been created; useful for live updates or keeping track of changes
+ */
 iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, entity) {
 
   iris.hook("hook_entity_view", thisHook.authPass, null, entity).then(function (filtered) {
@@ -195,6 +206,11 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 
 });
 
+/**
+ * Event handling for when entities are updated
+ *
+ * This hook is run when an entity is updated/edited; useful for live updates or keeping track of changes
+ */
 iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
 
   iris.hook("hook_entity_view", thisHook.authPass, null, entity).then(function (filtered) {
@@ -249,6 +265,11 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 
 });
 
+/**
+ * Event handling for when entities are deleted
+ *
+ * This hook is run when an entity is deleted; useful for live updates or keeping track of changes
+ */
 iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
 
   iris.sendSocketMessage(["*"], "entityDelete", data);

@@ -1,3 +1,16 @@
+/**
+ * @file Hooks, functions and endpoints for fetching entities.
+ */
+
+/**
+ * Entity fetch hook
+ *
+ * @param {object[]} queryList - array of queries to search database with
+ *
+ * Currently, only one query at a time is supported.
+ *
+ * @returns the fetched entities
+ */
 iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
 
   var req = {};
@@ -71,7 +84,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
       } catch (e) {
 
       }
-      
+
       if (fieldQuery.operator.toLowerCase().indexOf("is") !== -1) {
 
         var queryItem = {};
@@ -157,7 +170,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
       query = [];
 
     }
-    
+
     var entities = {};
 
     //Query complete, now run on all entities and collect them
@@ -425,13 +438,22 @@ iris.app.get("/fetch", function (req, res) {
 
 });
 
-
+/**
+ * Allows altering and overriding entity fetch queries
+ *
+ * Runs before hook_entity_fetch actually searches the database.
+ */
 iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHook, query) {
 
   thisHook.finish(true, query);
 
 });
 
+/**
+ * Entity view processing
+ *
+ * Allows for altering and overriding an entity when it is prepared for view by a user.
+ */
 iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
 
   // Add timestamp
@@ -519,6 +541,11 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
 });
 
+/**
+ * @see hook_entity_view
+ *
+ * Bulk view processing for loading many entities at once.
+ */
 iris.modules.entity.registerHook("hook_entity_view_bulk", 0, function (thisHook, entityList) {
 
   thisHook.finish(true, entityList);

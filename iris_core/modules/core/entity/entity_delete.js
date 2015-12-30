@@ -1,6 +1,14 @@
-//Making a post to delete an entity with an _id
+/**
+ * @file Functions and hooks for managing deletion of entities
+ */
 
-
+/**
+ * Entity deletion hook
+ *
+ * Deletes an entity from the database, and any other stores.
+ *
+ * Hook variables must include an entity ID (eid) and entity type.
+ */
 iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, data) {
 
   // Check for supplied ID and type
@@ -127,8 +135,11 @@ iris.app.post("/entity/delete/:type/:eid", function (req, res) {
 
 });
 
-//Checking access and if entity type and entity exist
-
+/**
+ * Checks permission for deleting an entity
+ *
+ * This hook returns successfully only if the authPass allows for the entity provided to be created.
+ */
 iris.modules.entity.registerHook("hook_entity_access_delete", 0, function (thisHook, data) {
 
   if (!iris.modules.auth.globals.checkPermissions(["can delete any " + data.entityType], thisHook.authPass)) {
