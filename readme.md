@@ -40,9 +40,9 @@ This is where the core iris files are stored along with core modules and the opt
 
 This is where all the extra node.js packages are installed. Iris modules themselves also install their dependencies into this folder automatically when running npm install from the root directory.
 
-### home
+### Home directory
 
-This is your folder! All your custom code, themes, templates, configuration and modules can go in here. It will be the one you put in a git repository.
+This is your folder! All your custom code, themes, templates, configuration and modules can go in here. It will be the one you put in a version control repository.
 
 Step into it and you'll find three directories.
 
@@ -50,7 +50,9 @@ Step into it and you'll find three directories.
 * sites
 * modules
 
-#### Theme structure
+### Home - Theme folder
+
+#### Themes and theme structure
 
 The themes directory is where you will put a theme that your site/application will use on the front end. We have bundled in a base theme.
 
@@ -64,7 +66,7 @@ Theme folders contain three parts.
 
 Template lookups in Iris are done using a system based on folder location and underscore divided sections. Here's how this works:
 
-##### Template naming
+#### Template naming
 
 A theming function within the Iris system requests a template, passing through a list of parameters. For example, when requesting the template for an entity display (a page for example), these are:
 
@@ -75,7 +77,7 @@ A generic **page.html** template would match this lookup. If you wanted to use a
 
 Menus and other templates work in a similar way. **menu.html** is the general menu template **menu_menuname.html** is more specific and takes priority.
 
-##### Where Iris looks for templates.
+#### Where Iris looks for templates.
 
 The template system starts looking through the file system by looking at core and contributed Iris modules for a /templates folder. If a module has a templates folder it is checked for relevant templates. The later the module is loaded, the higher a priority it takes.
 
@@ -85,25 +87,23 @@ Finally, the system checks the sites/SITENAME/templates folder. These files take
 
 So modules, themes and sites can easily override any other template files set in the system or fall back to defaults.
 
+### Home - Sites folder
 
+The sites folder is where you put your sites/applications. When you clone Iris you should find a default site. Make your own by copying this default directory to its own folder named after your site. This directory name is important as you'll use it to launch the site.
 
+Inside you'll find the following:
 
+* __configurations__ - importable and exportable JSON configuration files for entity types, blocks, views and more are stored here.
+* __files__ - Files uploaded into your site by its users are put here.
+* __logs__ - This is where logs such as error or debug logs are stored. These can be viewed in the administrative interface. Feel free to back them up to another location or delete them when needed.
+* __static__ - As with a themes or module's static folder, all files here are visible via a url. YOUSITEURL/static/...
+* __templates__ - This is where template overrides go. See template naming in the themes section to see how this works.
+* __enabled_modules.json__ - This lists all the optional Iris modules that are enabled on this site (essential core modules are enabled automatically). The order is important as they are loaded in this order.
+* __settings.json__ - The global settings for the site can be found here.
 
+#### settings.json
 
-
-
-
-
-
-
-
-
-
-
-
-### Settings.json
-
-* Within your sites folder, edit settings.json and put in details for the following information:
+This is where you will put the main configuration for your site including database connection details and the server port the application runs on.
 
 * __port__: The port the Node.JS web server runs on. (80 or 3000 for example)
 * __https__: set to true or false depending on whether the site is running on HTTPS.
@@ -114,15 +114,9 @@ So modules, themes and sites can easily override any other template files set in
 * __db_name__: The name of the MongoDB database used for this application.
 * __db_username__: The username (if relevant) to be used when connecting to the database.
 * __db_password__: The password (if relevant) to be used when connecting to the database.
-* __theme__: The relative path to the current theme (we've put in a default Purple theme to get you started, you can copy this to another folder to make your own and put that folder name here)
+* __theme__: The relative path to the current theme (we've put in a default __base__ theme to get you started).
 
-* Once done, return to the root folder in your command line and run:
 
-```
-node launch.js site=YOURSITENAME
-
-```
-replacing YOURSITENAME with the name of your site/application folder.
 
 ### Post launch config
 
