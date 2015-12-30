@@ -236,3 +236,27 @@ To add a region to your theme, use a regions embed code giving it your region na
 ```
 [[[region regionname]]]
 ```
+
+## Menus
+
+Menus are lists of links and sublinks that can be used for navigating through your site.
+
+To create a menu, go to the menu interface in the structure section of the administration toolbar.
+
+Hit edit next to an existing menu or create a new one by selecting the create new menu button.
+
+### Embedding menus in a theme
+
+To embed a menu in the theme either use a menu block if the menu block module is enabled or use a menu embed template in an HTML template:
+
+```
+[[[menu menuname]]]
+```
+
+### Theming menus
+
+The default menu.html template can be found in the menu module's template folder. iris_core/modules/core/menu/templates/menu.html
+
+This can be overriden by a theme or module (for more informaton look at the template naming and lookup documentation).
+
+The menu template lookup also takes an additional parameter of the menu name so you can create a template for a specific menu using menu_menuname.html
