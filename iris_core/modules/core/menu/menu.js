@@ -307,6 +307,11 @@ iris.modules.menu.registerHook("hook_frontend_template_parse", 0, function (this
 
 // Programatic menu generation functions
 
+/**
+ * Function to register a new menu
+ *
+ * @param {string} menuName - the name of the new menu
+ */
 iris.modules.menu.globals.registerMenu = function (menuName) {
 
   if (!iris.configStore["menu"]) {
@@ -320,6 +325,16 @@ iris.modules.menu.globals.registerMenu = function (menuName) {
 
 }
 
+/**
+ * Function to register a menu item as part of a menu
+ *
+ * It is possible to nest menu items by providing the path of the desired parent menu item that the new item should be inserted under
+ *
+ * @param {string} menuName - the name of the menu under which this item should be saved
+ * @param {string} [parentPath] - optional; if this menu item has a parent, the path that the parent item links to
+ * @param {string} path - the path to which this menu item links
+ * @param {string} title - the title of this menu item displayed to the user
+ */
 iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, path, title) {
 
   if (!iris.configStore["menu"]) {

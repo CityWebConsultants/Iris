@@ -1,3 +1,7 @@
+/**
+ * @file User management module
+ */
+
 iris.registerModule("user");
 
 var bcrypt = require("bcrypt-nodejs");
@@ -92,6 +96,13 @@ iris.app.get("/", function (req, res, next) {
   })
 })
 
+/**
+ * Login a user given a login object (containing username and password)
+ *
+ * @param {object} auth - Auth object consisting of key-value pairs username and password
+ * @param {object} res - Express response object
+ * @param {function} callback - Callback which is run with the userid of the logged in user (if successful) as its first argument, or, if unsuccessful, an error message
+ */
 iris.modules.user.globals.login = function (auth, res, callback) {
 
   iris.dbCollections['user'].findOne({
@@ -185,6 +196,12 @@ iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, ent
 
 iris.modules.user.globals.userRoles = {};
 
+/**
+ * Fetch the roles that a user has given their userid.
+ *
+ * @param {string} userid - The userid
+ * @param {function} callback - The callback which is run with the user's roles as its first argument
+ */
 iris.modules.user.globals.getRole = function (userid, callback) {
 
   if (iris.modules.user.globals.userRoles[userid]) {
@@ -216,7 +233,7 @@ iris.modules.user.globals.getRole = function (userid, callback) {
 };
 
 iris.modules.user.registerHook("hook_auth_authpass", 5, function (thisHook, data) {
-  
+
   if (data.roles && data.roles.indexOf('authenticated') !== -1) {
 
     iris.modules.user.globals.getRole(thisHook.authPass.userid, function (roles) {
@@ -321,7 +338,7 @@ iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook
 // Check if websocket connection has authentication cookies
 
 iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, data) {
-  
+
   var cookies = parse_cookies(thisHook.const.socket.handshake.headers.cookie);
 
   function parse_cookies(_cookies) {
