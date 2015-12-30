@@ -1,6 +1,15 @@
-//Checking if a user can create an entity of a particular type
+/**
+ * @file Functions and hooks for creating entities
+ */
 
-
+/**
+ * Creates an entity and saves it to the database
+ *
+ * The hook variables should be the entity object, including fields and entity type.
+ *
+ * @param {string} entityType - the entity type
+ * @param {string} [author] - the entity author
+ */
 iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
   //Not allowed to send _id when creating as it is set automatically
@@ -186,14 +195,22 @@ iris.app.post("/entity/create/:type", function (req, res) {
 
 });
 
+/**
+ * Validates an entity
+ *
+ * This hook returns successfully only if the entity provided passes all the checks implemented by the hook.
+ */
 iris.modules.entity.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
 
 });
 
-//Checking access and if entity exists
-
+/**
+ * Checks permission for creating an entity
+ *
+ * This hook returns successfully only if the authPass allows for the entity provided to be created.
+ */
 iris.modules.entity.registerHook("hook_entity_access_create", 0, function (thisHook, data) {
 
   if (!iris.modules.auth.globals.checkPermissions(["can create " + data.entityType], thisHook.authPass)) {
@@ -207,6 +224,12 @@ iris.modules.entity.registerHook("hook_entity_access_create", 0, function (thisH
 
 });
 
+/**
+ * Entity presave processing
+ *
+ * Before saving, implementations of this hook may make changes to the entity such as sanitization
+ * or addition of extra fields.
+ */
 iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, data) {
 
   // Strip out any embed tags
