@@ -31,6 +31,12 @@ glob(iris.configPath + "/actions/*.json", function (er, files) {
 
 })
 
+/**
+ * Function to register a new action
+ *
+ * @param {string} name - The name of the action
+ * @param parametersArray - Array of parameters to add to the action
+ */
 iris.modules.actions.globals.registerAction = function (name, parametersArray) {
 
   if (!parametersArray) {
@@ -47,6 +53,12 @@ iris.modules.actions.globals.registerAction = function (name, parametersArray) {
 
 }
 
+/**
+ * Function to register a new event
+ *
+ * @param {string} name - The name of the event
+ * @param parametersArray - Array of parameters to add to the action
+ */
 iris.modules.actions.globals.registerEvent = function (name, parametersArray) {
 
   if (!parametersArray) {
@@ -70,6 +82,13 @@ iris.modules.actions.globals.registerEvent = function (name, parametersArray) {
 
 }
 
+/**
+ * Function to trigger a given event
+ *
+ * @param {string} name - The name of the event to trigger
+ * @param {object} authPass - The authPass of the current user
+ * @param {object} [params] - The parameters to pass to the event
+ */
 iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
 
   if (typeof params !== "object") {

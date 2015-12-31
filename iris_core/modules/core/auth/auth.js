@@ -213,6 +213,11 @@ iris.modules.auth.globals.registerPermission("can make access token", "auth")
 iris.modules.auth.globals.registerPermission("can delete access token", "auth")
 iris.modules.auth.globals.registerPermission("can delete user access", "auth")
 
+/**
+ * Get or update an authpass
+ *
+ * If data is a string, it will be treated as a userid and an authPass will be prepared from it.
+ */
 iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data) {
 
   //Check if a lone userid was passed and convert it to an authenticated authPass
