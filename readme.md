@@ -331,3 +331,91 @@ H2, P, B
 
 ```
 
+## Actions
+
+The actions module allows you to trigger actions that happen when a specific event and specific conditions occur.
+
+Actions have to be triggered by events. Events provide variables that can be used in conditions.
+
+For example, the __page visit__ action provides the variables __[url]__, __[userid]__ and __[roles]__ referring to the path that was visited, the userid of the user visiting the page and a list of roles they have.
+
+You can use these in the conditons section of the actions interface by pasting in the token (including the square brackets).
+
+For example, if your condition is __[url] is /news__ the action would only fire if the page /news was visited.
+
+Actions themselves, for example a log action also take parameters. For example a log action would take the log type (error, info...) and the log message. The variables from the event can also be used in this part of the form.
+
+### Actions API - defining events in modules
+
+Registering an event in a custom module is done by calling a simple one line function that defines white name of the event and an array of variables it provides.
+
+For example:
+
+```JavaScript
+iris.modules.actions.globals.registerEvent("page_visit", ["url", "userid", "roles"]);
+
+```
+
+### Actions API - triggering events in modules
+
+To trigger an event within an Iris module, run the Actions module's triggerEvent function. Passing in the name of the event, the authPass for the user triggering the event and an object containing the variables listed when the event was defined. 
+
+```JavaScript
+
+  iris.modules.actions.globals.triggerEvent("page_visit", thisHook.authPass, {
+    "url": thisHook.const.req.url,
+    "userid": thisHook.authPass.userid,
+    "roles": thisHook.authPass.roles.join(",")
+  });
+
+```
+
+### Actions API - defining actions in modules
+
+To define an action you will first need to create a JSON schema for a form (see form system documenation or the JSONform docs). This is the form that will be presented in the actions user interface. This form is for putting in the parameters that this action takes.
+
+The registration of the log event looks like this:
+
+```JavaScript
+
+iris.modules.actions.globals.registerAction("log", {
+
+  message: {
+    "type": "textarea",
+    "title": "Message",
+    "required": true
+  },
+  level: {
+    "type": "text",
+    "title": "Log level",
+    "required": true,
+    "enum": ["error", "info"]
+  }
+
+});
+
+```
+
+### Actions API - Acting on actions 
+
+Once an API action has been registered, if it is successfuly triggered by a action set a hook fires passing in any parameters that have been passed to the action.
+
+__thisHook.const.params__ stores the parameters of the action.
+
+The log action, for example, looks like this:
+
+```JavaScript
+
+iris.modules.actions.registerHook("hook_action_log", 0, function (thisHook, data) {
+
+  iris.log(thisHook.const.params.level, thisHook.const.params.message)
+
+  thisHook.finish(true, data);
+
+})
+
+
+```
+
+As it is an ordinary hook (see the hook system documentaion), responses to actions can be chained into multiple actions.
+
