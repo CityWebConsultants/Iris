@@ -22,8 +22,6 @@ moduleFiles = moduleFiles.concat(customModuleFiles);
 
 var toInstall = [];
 
-process.exit();
-
 moduleFiles.forEach(function (file) {
 
   var file = fs.readFileSync(file, "utf-8");
