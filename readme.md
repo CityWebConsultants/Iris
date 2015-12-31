@@ -419,3 +419,41 @@ iris.modules.actions.registerHook("hook_action_log", 0, function (thisHook, data
 
 As it is an ordinary hook (see the hook system documentaion), responses to actions can be chained into multiple actions.
 
+## Creating modules
+
+To extend Iris by creating a new module, create a directory in your sites/modules folder named after the module (lowercase letters and underscores only are recommended).
+
+Within this file, put in a JavaScript file named the same thing as your module folder.
+
+mymodule/mymodule.js for example.
+
+In this file, register the file as an Iris module by using the iris.registerModule function.
+
+```javascript
+
+iris.registerModule("mymodule");
+
+```
+
+### Enable a module
+
+To enable a module, go to your site's folder and edit its enabled_modules.json file.
+
+Put in the path to and name of the module you are enabling in the enabled_modules list.
+
+Then restart or start the server and the module should be loaded.
+
+### Defining functions and properties of a module
+
+When a module is created and enabled it is automatically added to the global iris.modules object.
+
+For example: iris.modules.mymodule
+
+This object has the following properties.
+
+* __path__ - fixed, non-editable path to the module's folder
+* __registerSocketListener__ - allows a module to register a websocket listener. See the documenation on websockets.
+* __registerHook__ allows a module to register a hook (see the documenation on the hook system)
+* __globals__ - An object for a modules custom properties and functions. This is the only part of a module that is directly writeable. It is also accessible by other modules. For example _iris.modules.mymodule.myfunction()_
+
+Modules can also have their own package.json files for defining dependencies. These dependencies are installed into the root node_modules folder when calling the root _NPM install_. See node.js/npm documenation for information on writing package.json files.
