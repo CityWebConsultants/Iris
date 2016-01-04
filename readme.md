@@ -513,7 +513,42 @@ The following code is used in the admin system to embed a block edit form for a 
 
 ```
 
+## Entity fetch embeds
 
+To embed an entity or list of entities on a page you can use a special Iris embed template which look something like:
+
+```
+[[[entity page,myVariable,title|contains|"hello world",5,Title|asc]]]
+```
+
+The first parameter is the type of entity you are fetching. Multiple entity types can be specified separated by + signs (page+blog for example).
+
+The second parameter is the name you want to give to the variable that stores the list of fetched entities. Once fetched this variable will be available in Handlebars.
+
+The third parameter is an optional list of conditions (separated by + signs) for whether to fetch the entity. This takes the form of a field followed by a pipe character followed by an operator of the following:
+
+* is
+* notis
+* contains (for text searches)
+* notcontains 
+* includes (for checking if a list contains an item)
+* notincludes
+
+then comes another pipe, followed by the value to check the field and operator against.
+
+The next parameter is a limit of how many items to fetch.
+
+Then comes a sort which takes the form of a field name a pipe character and "asc" for ascending and "desc" for descending.
+
+Going back to the previous example:
+
+```
+[[[entity page,myVariable,title|contains|"hello world",5,Title|asc]]]
+```
+
+Would make the {{myvariable}} handlebars parameter contain, if they exist, up to 5 pages whose title contains the words "hello world". Only entities a user is allowed to view are displayed, along with only suitable fields.
+
+### Using results of entity fetch embeds on the client side
 
 
 
