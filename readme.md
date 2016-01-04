@@ -152,6 +152,21 @@ iris.modules.auth.globals.registerPermission("can make access token", "auth", "t
 
 To grant or revoke a permission for a role, visit the permissions tab in the administration toolbar and select/unselect the relevat box for the role/permission. Then hit save at the bottom on of the form.
 
+#### Checking permissions
+
+To check a permission within a module use the iris.modules.auth.globals.checkPermissions function. This takes an array of permissions and an authPass to check against. It returns true or false.
+
+```
+
+if (iris.modules.auth.globals.checkPermissions(["my permission"], thisHook.authPass)) {
+
+// This is run if the authPass has the "my permission" permission.
+
+}
+
+
+```
+
 ### Access tokens
 
 Every time a user is given access to the system an access token/authPass is generated for them. This contains a list of access tokens with timestamps (allowing them to be logged in from different devices for example), their user id and a list of roles. All authentication is managed through this system of authentication passes.
@@ -756,3 +771,5 @@ thisHook.finish(true, function(res) {
 })
 
 ```
+
+
