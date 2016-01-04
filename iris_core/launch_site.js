@@ -30,6 +30,54 @@ try {
 
 }
 
+process.on("unhandledRejection", function (e) {
+
+  if (e.stack) {
+
+    e.stack.forEach(function (error, index) {
+
+      var error = "Error on line " + e.stack[index].getLineNumber() + " of " + e.stack[index].getFileName() + " " + e.message;
+
+      console.error(error);
+
+      if (iris.log) {
+
+        iris.log("info", error);
+
+      }
+
+    })
+
+
+  }
+
+})
+
+process.on("uncaughtException", function (e) {
+
+  if (e.stack) {
+
+    e.stack.forEach(function (error, index) {
+
+      var error = "Error on line " + e.stack[index].getLineNumber() + " of " + e.stack[index].getFileName() + " " + e.message;
+
+      console.error(error);
+
+      if (iris.log) {
+
+        iris.log("fatal", error);
+
+      }
+
+    })
+
+  }
+
+
+  process.exit();
+
+})
+
 var config = JSON.parse(config);
 
 process.chdir(__dirname + "/../home/sites/" + parameters.site);
