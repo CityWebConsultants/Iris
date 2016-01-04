@@ -381,11 +381,20 @@ module.exports = function (config) {
               res: res
             }).then(function (success) {
 
-              res.status(404).send(success);
+              if (!res.headersSent) {
+
+                res.status(404).send(success);
+
+              };
+
 
             }, function (fail) {
 
-              res.status(404).send("404");
+              if (!res.headersSent) {
+
+                res.status(404).send("404");
+
+              };
 
             });
 
