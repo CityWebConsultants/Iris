@@ -152,6 +152,21 @@ iris.modules.auth.globals.registerPermission("can make access token", "auth", "t
 
 To grant or revoke a permission for a role, visit the permissions tab in the administration toolbar and select/unselect the relevat box for the role/permission. Then hit save at the bottom on of the form.
 
+#### Checking permissions
+
+To check a permission within a module use the iris.modules.auth.globals.checkPermissions function. This takes an array of permissions and an authPass to check against. It returns true or false.
+
+```
+
+if (iris.modules.auth.globals.checkPermissions(["my permission"], thisHook.authPass)) {
+
+// This is run if the authPass has the "my permission" permission.
+
+}
+
+
+```
+
 ### Access tokens
 
 Every time a user is given access to the system an access token/authPass is generated for them. This contains a list of access tokens with timestamps (allowing them to be logged in from different devices for example), their user id and a list of roles. All authentication is managed through this system of authentication passes.
@@ -185,6 +200,21 @@ Then add fields to the entity type. Different field types have their own setting
 To create a new entity, visit the entities page in the administration toolbar and use the dropdown next to each one to create a new entity of that type.
 
 To edit/delete entities of a type, select the "View content" option for an entity type.
+
+##### Viewing entities
+
+If an entity has a "path" field it can be viewed directly at the path specified in this field.
+
+Any entity can also be viewed at the address /entityType/entityID 
+
+For example:
+
+```
+/page/1 
+
+```
+
+Would show a page with the entity ID of 1.
 
 ## Blocks
 
@@ -457,3 +487,376 @@ This object has the following properties.
 * __globals__ - An object for a modules custom properties and functions. This is the only part of a module that is directly writeable. It is also accessible by other modules. For example _iris.modules.mymodule.myfunction()_
 
 Modules can also have their own package.json files for defining dependencies. These dependencies are installed into the root node_modules folder when calling the root _NPM install_. See node.js/npm documenation for information on writing package.json files.
+
+## Templating
+
+Iris uses a combination of Handlebars (http://handlebarsjs.com/) templating and its own embed language. Normal HTML, JavaScript and CSS is fine as well. Handlebars information will not be repeated here so please look at the Handlebars documentation for that.
+
+### Using other templating languages
+
+You can slot in any other templating language after these such as client side Angular js or React templates as long as they don't clash with the delimeters of the handebars or Iris templates. So you will have to use something other than curly or square brackets. Most templating languages allow you to pick custom delimeters to avoid clashes.
+
+### Seeing available Handlebars variables
+
+An easy way of seeing which handlebars variables are available for you to use the following Handlebars snippet:
+
+```
+{{#each this}}
+{{@key}}
+{{/each}}
+
+```
+
+### The "{{current}}" variable
+
+When viewing an entity page directly through its path, a handlebars variable of _current_ will be made available. The fields visible on this will depend on the field view permissions of the current user viewing the page. 
+
+### Iris embed codes
+
+Iris embed codes for items such as blocks, regions, forms and fetched entities always take the form of a pair of triple square brackets. The first item inside these square brackets is the type of embed you are using. Some examples:
+
+* block
+* file
+* form
+* region
+* entity
+* menu
+
+Modules can provide their own embed codes.
+
+#### Passing parameters to iris embed codes
+
+Following the type of embed and a space you can pass a list of parameters to an embed code separated by commas.
+
+##### Examples
+
+The following embeds the admin toolbar on a page (if the person is allowed to view it):
+
+```
+[[[menu admin-toolbar]]]
+```
+
+The following code is used in the admin system to embed a block edit form for a block called myExampleBlock 
+
+```
+[[[form blockForm,myExampleBlock]]]
+
+```
+
+## Entity fetch embeds
+
+To embed an entity or list of entities on a page you can use a special Iris embed template which look something like:
+
+```
+[[[entity page,myVariable,title|contains|"hello world",5,Title|asc]]]
+```
+
+The first parameter is the type of entity you are fetching. Multiple entity types can be specified separated by + signs (page+blog for example).
+
+The second parameter is the name you want to give to the variable that stores the list of fetched entities. Once fetched this variable will be available in Handlebars.
+
+The third parameter is an optional list of conditions (separated by + signs) for whether to fetch the entity. This takes the form of a field followed by a pipe character followed by an operator of the following:
+
+* is
+* notis
+* contains (for text searches)
+* notcontains 
+* includes (for checking if a list contains an item)
+* notincludes
+
+then comes another pipe, followed by the value to check the field and operator against.
+
+The next parameter is a limit of how many items to fetch.
+
+Then comes a sort which takes the form of a field name a pipe character and "asc" for ascending and "desc" for descending.
+
+Going back to the previous example:
+
+```
+[[[entity page,myVariable,title|contains|"hello world",5,Title|asc]]]
+```
+
+Would make the {{myvariable}} handlebars parameter contain, if they exist, up to 5 pages whose title contains the words "hello world". Only entities a user is allowed to view are displayed, along with only suitable fields.
+
+### Using results of entity fetch embeds on the client side
+
+If you want to use any fetched entities on the client side (in Angular or React templates for example) they are automatically made available for you.
+
+After using an entities embed you will find an __iris__ object which contains a fetched sub object.
+
+Within this object you will find a list of the entity fetching variables. For example
+
+iris.fetched.myVariable would contain an array of fetched and sorted entities. 
+
+#### Live updating via websockets
+
+If you include the client side socket.io library on your page, whenever this entity list is updated (an entity is deleted, edited, created), the client side variables will automatically update.
+
+##### The angular live load module 
+
+Enabling the Angular Live Load module will allow you to use angular.js templating for entities that automatically updates on database changes.
+
+You will need to include Angular.js and the Angular Live Load client file over at __/modules/angular_live_load/angular_live_load_client.js__
+
+As Angular template notation clashes with handlebars, this module uses double ## symbols as a template delimiter.
+
+Use HTML elements running "iris-template" controllers and ng-template attributes to load a specific entity fetch variable.
+
+For example:
+
+```HTML
+
+<ul ng-controller="iris-template" ng-iris-template="myVariable">
+
+<li ng-repeat="page in data">
+##page.title##
+</li>
+
+</ul>
+
+
+```
+
+##### Bypass HTML sanitize in Angular templates
+
+This list of page titles will update automatically.
+
+To allow HTML in your template, the angular_live_load module comes with a helper HTML filter.
+
+For example:
+
+```
+<div ng-bind-html="page.body | html_filter"></div>
+
+```
+
+## The hook system
+
+Most of the core Iris functionality is based around a system of hooks.
+
+Hooks are chains of events that a module can latch onto and optionally pass/change parameters passed to subsequent hooks in the chain.
+
+### Registering a hook
+
+Hooks need to be registered by Iris modules (see the section on creating Iris modules).
+
+Only one instance of the same hookcan be registered by a single Iris module using its registerHook function.
+
+Here's an example:
+
+```JavaScript
+
+iris.modules.myModule.registerHook("hook_my_hook", 0, function(thisHook, data){
+
+  if(thisHook.const.good === true) {
+
+    thisHook.finish(true, data);
+  
+  } else {
+  
+    thisHook.finish(false, data);
+  
+  }
+
+})
+
+```
+
+The first parameter to registerHook is then name of the hook. The second is the weight/rank of the hook instance (higher weights get called later in the chain), the final parameter is the function that contains the actual hook callback.
+
+This always gets two parameters.
+
+#### thisHook
+
+The thisHook parameter stores information about the currently called hook, any parameters passed to it by the first triggering of the hook, the user that triggered the initial the hook and callbacks for success or fail actions.
+
+* __thisHook.const__ - This stores parameters that are accessible to every hook in the chain. Its contents cannot be changed.
+* __thisHook.authPass__ - This is the authPass of the user that called the hook, containing their user id and roles.
+* __thisHook.finish__ - This is a function that allows a user to finish the current hook instance in either a pass or a fail.
+
+##### Finishing a hook call
+
+In order for a hook to move along in the chain, each instance __must__ finish or the hook will stall forever. It can either pass or fail. Both pass and fail are triggered through the thisHook.finish function.
+
+This function takes two parameters. The first is a boolean (true/false) that states whether the hook succeeds or fails. If it fails, any subsequent hooks in the chain will not be called and the hook's fail function will run. The second parameter is a data object (usually the same or modified data object as the hook instance was passed) to pass to the next hook or the hook's fail function.
+
+For example
+
+```
+data.hello = "world";
+
+thisHook.finish(true, data);
+
+```
+
+adds the hello property to the data object and passes that to the next hook in the chain.
+
+
+#### data
+
+This is the optional, mutable data object that is passed between hooks in a chain.
+
+### Triggering a hook
+
+To trigger a hook, use the iris.hook function.
+
+For example
+
+```
+iris.hook("hook_example", req.authPass, contants, variables).then(function(success){
+
+  iris.log("info", success);
+
+}, function(fail){
+
+  iris.log("error", fail)
+
+})
+
+```
+
+The parameters, in order are:
+
+* The name of the hook
+* The authPass of the user calling the hook. You can also pass in the string "root" to run the hook as an admin user.
+* An object of constants to pass through to the hook.
+* Additional variables to pass through the hook (this forms the data parameter for the first hook instance in the chain)
+
+The hook returns a JavaScript ECMASCRIPT 5 promise so you can respond with a different function after the hook chain completes depending on if it passes or fails. This complete function gets the final data object that was passed to the final thisHook.finish function in the chain.
+
+## The form system
+
+### Registering a form
+
+To register a form in Iris, use the hook_form_render_FORMNAME hook. Forms in Iris are rendered using the JSON Form library (ulion.github.io/jsonform/). The hook_form_render hook gets a data object containing a schema, form and value object that can be added to using the JSON Form field types. For example:
+
+``` JavaScript
+
+iris.myModule.registerHook("hook_form_render_myForm", 0, function(thisHook, data){
+
+data.schema.title = {
+
+  "type": "text",
+  "title": "My title",
+  "description": "Put a title here"
+
+}
+
+thisHook.finish(true,data)
+
+})
+
+```
+
+Additional hooks in the chain can add additional fields so modules can alter this form or one provided by the core system if they need to.
+
+### Rendering a form
+
+To render a form on a page simply use an embed like:
+
+```
+
+[[[form formName]]]
+
+```
+
+Additional parameters can also be passed through which are available in the thisHook object of the render function.
+
+```
+[[[form formName,helloworld]]]
+
+```
+
+### Registering a submit handler
+
+The hook_form_submit_FORMNAME hook can be used to register an action. Its optional data object is a function that acts on the express res object and returns a url to redirect to. Parameters from the form are stored in thisHook.const.params
+
+``` JavaScript
+
+iris.myModule.registerHook("hook_form_submit_myForm", 0, function(thisHook, data){
+
+// Do something with the form data stored in thisHook.const.params
+
+thisHook.finish(true, function(res) {
+  
+  res.send("/home")
+  
+})
+
+})
+
+```
+
+### Registering a custom page in a module
+
+The frontend module's parseTemplateFile function can be used to run a custom module page through the Iris theme system.
+
+Create an HTML template in your modules /templates folder.
+
+Then set up a standard express handler for the page.
+
+iris.modules.frontend.globals.parseTemplateFile takes the following parameters in order.
+
+* An array of template suggestions to look for (page, helloworld) would look for page_helloworld.html, then page.html
+* An array of HTML wrapper template suggestions to look for
+* An object to be passed to the handlebars templating engine which can then be used on the HTML page templates.
+* An authPass with which to run the page.
+* The express req object (for cookies and other request information)
+
+This returns a JavaScript promise. 
+
+Here's an example from the regions page in the admin system.
+
+```JavaScript
+
+iris.app.get("/admin/regions", function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {
+    blocks: iris.modules.blocks.globals.blocks,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+
+```
+
+## Websockets
+
+### Registering websocket listeners in an Iris module
+
+An iris module's registerSocketListener function can be used to listen to a socket event. It takes the name of the socket event to listen for and a callback function which contains both the socket calling it and the data in the original socket event.
+
+```javascript
+
+iris.modules.mymodule.registerSocketListener("myMessage", function(socket,data){
+
+  socket.emit("received", data); //Sends the data back to the socket that sent it with a received message
+
+})
+
+```
+
+### Sending socket messages to users
+
+The iris.sendSocketMessage function can be used to send a message to a list of user ids or all connected users.
+
+This takes three parameters.
+
+* An array of userids. The string "*" is a wildcard that sends to all users.
+* The name of the socket message to send.
+* Data to send with the message.
+
+```
+iris.sendSocketMessage(["*"], "entityCreate", data[0]);
+
+```
