@@ -457,3 +457,63 @@ This object has the following properties.
 * __globals__ - An object for a modules custom properties and functions. This is the only part of a module that is directly writeable. It is also accessible by other modules. For example _iris.modules.mymodule.myfunction()_
 
 Modules can also have their own package.json files for defining dependencies. These dependencies are installed into the root node_modules folder when calling the root _NPM install_. See node.js/npm documenation for information on writing package.json files.
+
+## Templating
+
+Iris uses a combination of Handlebars (http://handlebarsjs.com/) templating and its own embed language. Normal HTML, JavaScript and CSS is fine as well. Handlebars information will not be repeated here so please look at the Handlebars documentation for that.
+
+### Using other templating languages
+
+You can slot in any other templating language after these such as client side Angular js or React templates as long as they don't clash with the delimeters of the handebars or Iris templates. So you will have to use something other than curly or square brackets. Most templating languages allow you to pick custom delimeters to avoid clashes.
+
+### Seeing available Handlebars variables
+
+An easy way of seeing which handlebars variables are available for you to use the following Handlebars snippet:
+
+```
+{{#each this}}
+{{@key}}
+{{/each}}
+
+```
+
+### The "{{current}}" variable
+
+When viewing an entity page directly through its path, a handlebars variable of _current_ will be made available. The fields visible on this will depend on the field view permissions of the current user viewing the page. 
+
+### Iris embed codes
+
+Iris embed codes for items such as blocks, regions, forms and fetched entities always take the form of a pair of triple square brackets. The first item inside these square brackets is the type of embed you are using. Some examples:
+
+* block
+* file
+* form
+* region
+* entity
+* menu
+
+Modules can provide their own embed codes.
+
+#### Passing parameters to iris embed codes
+
+Following the type of embed and a space you can pass a list of parameters to an embed code separated by commas.
+
+##### Examples
+
+The following embeds the admin toolbar on a page (if the person is allowed to view it):
+
+```
+[[[menu admin-toolbar]]]
+```
+
+The following code is used in the admin system to embed a block edit form for a block called myExampleBlock 
+
+```
+[[[form blockForm,myExampleBlock]]]
+
+```
+
+
+
+
+
