@@ -201,6 +201,21 @@ To create a new entity, visit the entities page in the administration toolbar an
 
 To edit/delete entities of a type, select the "View content" option for an entity type.
 
+##### Viewing entities
+
+If an entity has a "path" field it can be viewed directly at the path specified in this field.
+
+Any entity can also be viewed at the address /entityType/entityID 
+
+For example:
+
+```
+/page/1 
+
+```
+
+Would show a page with the entity ID of 1.
+
 ## Blocks
 
 Blocks are reusable elements that produce HTML and can be slotted into a region in a theme. 
