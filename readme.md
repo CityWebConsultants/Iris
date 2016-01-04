@@ -550,5 +550,52 @@ Would make the {{myvariable}} handlebars parameter contain, if they exist, up to
 
 ### Using results of entity fetch embeds on the client side
 
+If you want to use any fetched entities on the client side (in Angular or React templates for example) they are automatically made available for you.
+
+After using an entities embed you will find an __iris__ object which contains a fetched sub object.
+
+Within this object you will find a list of the entity fetching variables. For example
+
+iris.fetched.myVariable would contain an array of fetched and sorted entities. 
+
+#### Live updating via websockets
+
+If you include the client side socket.io library on your page, whenever this entity list is updated (an entity is deleted, edited, created), the client side variables will automatically update.
+
+##### The angular live load module 
+
+Enabling the Angular Live Load module will allow you to use angular.js templating for entities that automatically updates on database changes.
+
+You will need to include Angular.js and the Angular Live Load client file over at __/modules/angular_live_load/angular_live_load_client.js__
+
+As Angular template notation clashes with handlebars, this module uses double ## symbols as a template delimiter.
+
+Use HTML elements running "iris-template" controllers and ng-template attributes to load a specific entity fetch variable.
+
+For example:
+
+```HTML
+
+<ul ng-controller="iris-template" ng-iris-template="myVariable">
+
+<li ng-repeat="page in data">
+##page.title##
+</li>
+
+</ul>
 
 
+```
+
+##### Bypass HTML sanitize in Angular templates
+
+This list of page titles will update automatically.
+
+To allow HTML in your template, the angular_live_load module comes with a helper HTML filter.
+
+For example:
+
+```
+<div ng-bind-html="page.body | html_filter"></div>
+
+```
