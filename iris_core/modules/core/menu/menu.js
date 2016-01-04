@@ -342,7 +342,7 @@ iris.modules.menu.globals.registerMenu = function (menuName) {
  *
  * @desc Function to register a menu item as part of a menu
  *
- * It is possible to nest menu items by providing the path of the desired parent menu item that the new item should be inserted under
+ * It is possible to nest menu items by providing the path of the desired parent menu item that the new item should be inserted under.
  *
  * @param {string} menuName - the name of the menu under which this item should be saved
  * @param {string} [parentPath] - optional; if this menu item has a parent, the path that the parent item links to

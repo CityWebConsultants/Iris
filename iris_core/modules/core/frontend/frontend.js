@@ -203,8 +203,10 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 var glob = require("glob");
 
 /**
- * @function Function for finding most specific matching template
+ * @function findTemplate
  * @memberof frontend
+ *
+ * @desc Function for finding most specific matching template
  *
  * @param {string[]} paths - Paths to search for templates in
  * @param {extension} [string] - File extension to search for. Defaults to html.
@@ -404,10 +406,12 @@ iris.modules.frontend.globals.findTemplate = findTemplate;
  * @function parseEmbed
  * @memberof frontend
  *
- * @desc Parse embeds in template HTML
+ * @desc Parse `embeds` in *template* _HTML_
  *
- * An 'embed' is a type of directive, embedded in HTML, of the form [[[prefix <data>]]]
+ * An 'embed' is a type of directive, embedded in HTML, of the form [[[prefix <data>]]].
+ *
  * Embeds are intended to be replaced with code generated from the data provided.
+ *
  * For example, the embed [[[form example]]] would render the form named 'example.'
  *
  * @param {string} prefix - the 'prefix' used to identify the embed type
@@ -879,7 +883,9 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
  * @desc Parse a template from a file with parameters
  *
  * Wraps and simplifies the process of loading a template file and parsing it.
+ *
  * Allows for processing two templates: a wrapper and an inner template. Wrapper is optional.
+ *
  * The inner template is inserted into the wrapper with the embed [[[MAINCONTENT]]].
  *
  * @param {string} templateName - file name of inner template file

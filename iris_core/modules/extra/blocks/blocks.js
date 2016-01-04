@@ -1,12 +1,26 @@
+/**
+ * @file Methods and hooks used to implement the Blocks layout system
+ */
+
+/**
+ * @namespace blocks
+ */
+
 iris.registerModule("blocks");
 
 /**
- * Block types store. Keeps a record of all available block types; this is also stored in config files.
+ * @member blockTypes
+ * @memberof blocks
+ *
+ * @desc Block types store. Keeps a record of all available block types; this is also stored in config files.
  */
 iris.modules.blocks.globals.blockTypes = {};
 
 /**
- * Blocks store. Keeps a record of all block instances; this is also stored in config files.
+ * @member blocks
+ * @memberof blocks
+ *
+ * @desc Blocks store. Keeps a record of all block instances; this is also stored in config files.
  */
 iris.modules.blocks.globals.blocks = {};
 
@@ -129,7 +143,10 @@ iris.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
 });
 
 /**
- * Register a block in code
+ * @function registerBlock
+ * @memberof blocks
+ *
+ * @desc Register a block in code
  *
  * @param {object} config - The block configuration object to save
  */
@@ -254,7 +271,10 @@ iris.modules.blocks.registerHook("hook_frontend_template_parse", 0, function (th
 });
 
 /**
- * Register a new block type
+ * @function registerBlockType
+ * @memberof blocks
+ *
+ * @desc Register a new block type
  *
  * @param {string} name - The name of the block type
  */
@@ -275,7 +295,10 @@ iris.modules.blocks.globals.registerBlockType = function (name) {
 };
 
 /**
- * Block render hook
+ * @member hook_block_render
+ * @memberof blocks
+ *
+ * @desc Block render hook
  *
  * Expects to have thisHook.const contain an id, type and config pertaining to the block that is being rendered.
  *
