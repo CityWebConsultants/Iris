@@ -814,3 +814,34 @@ iris.app.get("/admin/regions", function (req, res) {
 
 
 ```
+
+## Websockets
+
+### Registering websocket listeners in an Iris module
+
+An iris module's registerSocketListener function can be used to listen to a socket event. It takes the name of the socket event to listen for and a callback function which contains both the socket calling it and the data in the original socket event.
+
+```javascript
+
+iris.modules.mymodule.registerSocketListener("myMessage", function(socket,data){
+
+  socket.emit("received", data); //Sends the data back to the socket that sent it with a received message
+
+})
+
+```
+
+### Sending socket messages to users
+
+The iris.sendSocketMessage function can be used to send a message to a list of user ids or all connected users.
+
+This takes three parameters.
+
+* An array of userids. The string "*" is a wildcard that sends to all users.
+* The name of the socket message to send.
+* Data to send with the message.
+
+```
+iris.sendSocketMessage(["*"], "entityCreate", data[0]);
+
+```
