@@ -693,3 +693,66 @@ The parameters, in order are:
 * Additional variables to pass through the hook (this forms the data parameter for the first hook instance in the chain)
 
 The hook returns a JavaScript ECMASCRIPT 5 promise so you can respond with a different function after the hook chain completes depending on if it passes or fails. This complete function gets the final data object that was passed to the final thisHook.finish function in the chain.
+
+## The form system
+
+### Registering a form
+
+To register a form in Iris, use the hook_form_render_FORMNAME hook. Forms in Iris are rendered using the JSON Form library (ulion.github.io/jsonform/). The hook_form_render hook gets a data object containing a schema, form and value object that can be added to using the JSON Form field types. For example:
+
+``` JavaScript
+
+iris.myModule.registerHook("hook_form_render_myForm", 0, function(thisHook, data){
+
+data.schema.title = {
+
+  "type": "text",
+  "title": "My title",
+  "description": "Put a title here"
+
+}
+
+thisHook.finish(true,data)
+
+})
+
+```
+
+Additional hooks in the chain can add additional fields so modules can alter this form or one provided by the core system if they need to.
+
+### Rendering a form
+
+To render a form on a page simply use an embed like:
+
+```
+
+[[[form formName]]]
+
+```
+
+Additional parameters can also be passed through which are available in the thisHook object of the render function.
+
+```
+[[[form formName,helloworld]]]
+
+```
+
+### Registering a submit handler
+
+The hook_form_submit_FORMNAME hook can be used to register an action. Its optional data object is a function that acts on the express res object and returns a url to redirect to. Parameters from the form are stored in thisHook.const.params
+
+``` JavaScript
+
+iris.myModule.registerHook("hook_form_submit_myForm", 0, function(thisHook, data){
+
+// Do something with the form data stored in thisHook.const.params
+
+thisHook.finish(true, function(res) {
+  
+  res.send("/home")
+  
+})
+
+})
+
+```
