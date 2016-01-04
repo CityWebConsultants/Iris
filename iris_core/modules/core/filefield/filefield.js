@@ -2,6 +2,10 @@
  * @file Provides a file upload field for entity forms
  */
 
+/**
+ * @namespace filefield
+ */
+
 iris.registerModule("filefield");
 
 var busboy = require('connect-busboy');
@@ -122,8 +126,8 @@ iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', functio
 iris.modules.auth.globals.registerPermission("Can upload files", "files");
 
 /**
- * @function hook_file_upload
- * @memberof hooks
+ * @member hook_file_upload
+ * @memberof filefield
  *
  * @desc Uploads a file to the server after validating and checking user's permissions
  */

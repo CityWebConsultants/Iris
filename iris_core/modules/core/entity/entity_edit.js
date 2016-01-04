@@ -3,7 +3,10 @@
  */
 
 /**
- * Entity editing hook
+ * @member hook_entity_edit
+ * @memberof entity
+ *
+ * @desc Entity editing hook
  *
  * Updates an entity in the database, and any other stores.
  *
@@ -227,7 +230,10 @@ iris.app.post("/entity/edit/:type/:_id", function (req, res) {
 });
 
 /**
- * Checks permission for editing an entity
+ * @member hook_entity_access_edit
+ * @memberof entity
+ *
+ * @desc Checks permission for editing an entity
  *
  * This hook returns successfully only if the authPass allows for the entity provided to be created.
  */

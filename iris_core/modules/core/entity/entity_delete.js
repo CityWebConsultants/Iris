@@ -3,7 +3,10 @@
  */
 
 /**
- * Entity deletion hook
+ * @member hook_entity_delete
+ * @memberof entity
+ *
+ * @desc Entity deletion hook
  *
  * Deletes an entity from the database, and any other stores.
  *
@@ -136,7 +139,10 @@ iris.app.post("/entity/delete/:type/:eid", function (req, res) {
 });
 
 /**
- * Checks permission for deleting an entity
+ * @member hook_entity_access_delete
+ * @memberof entity
+ *
+ * @desc Checks permission for deleting an entity
  *
  * This hook returns successfully only if the authPass allows for the entity provided to be created.
  */

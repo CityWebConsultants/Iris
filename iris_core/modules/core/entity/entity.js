@@ -6,6 +6,10 @@
  * @file Includes for the entity module
  */
 
+/**
+ * @namespace entity
+ */
+
 iris.registerModule("entity", true);
 
 require('./entity_create');

@@ -3,7 +3,10 @@
  */
 
 /**
- * Entity fetch hook
+ * @member hook_entity_fetch
+ * @memberof entity
+ *
+ * @desc Entity fetch hook
  *
  * @param {object[]} queryList - array of queries to search database with
  *
@@ -439,7 +442,10 @@ iris.app.get("/fetch", function (req, res) {
 });
 
 /**
- * Allows altering and overriding entity fetch queries
+ * @member hook_entity_query_alter
+ * @memberof entity
+ *
+ * @desc Allows altering and overriding entity fetch queries
  *
  * Runs before hook_entity_fetch actually searches the database.
  */
@@ -450,7 +456,10 @@ iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHoo
 });
 
 /**
- * Entity view processing
+ * @member hook_entity_view
+ * @memberof entity
+ *
+ * @desc Entity view processing
  *
  * Allows for altering and overriding an entity when it is prepared for view by a user.
  */
@@ -542,9 +551,12 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 });
 
 /**
- * @see hook_entity_view
+ * @member hook_entity_view_bulk
+ * @memberof entity
  *
- * Bulk view processing for loading many entities at once.
+ * @desc Bulk view processing for loading many entities at once.
+ *
+ * @see hook_entity_view
  */
 iris.modules.entity.registerHook("hook_entity_view_bulk", 0, function (thisHook, entityList) {
 

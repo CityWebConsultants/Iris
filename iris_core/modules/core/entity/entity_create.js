@@ -3,7 +3,10 @@
  */
 
 /**
- * Creates an entity and saves it to the database
+ * @member hook_entity_create
+ * @memberof entity
+ *
+ * @desc Creates an entity and saves it to the database
  *
  * The hook variables should be the entity object, including fields and entity type.
  *
@@ -196,7 +199,10 @@ iris.app.post("/entity/create/:type", function (req, res) {
 });
 
 /**
- * Validates an entity
+ * @member hook_entity_validate
+ * @memberof entity
+ *
+ * @desc Validates an entity
  *
  * This hook returns successfully only if the entity provided passes all the checks implemented by the hook.
  */
@@ -207,7 +213,10 @@ iris.modules.entity.registerHook("hook_entity_validate", 0, function (thisHook, 
 });
 
 /**
- * Checks permission for creating an entity
+ * @member hook_entity_access_create
+ * @memberof entity
+ *
+ * @desc Checks permission for creating an entity
  *
  * This hook returns successfully only if the authPass allows for the entity provided to be created.
  */
@@ -225,7 +234,10 @@ iris.modules.entity.registerHook("hook_entity_access_create", 0, function (thisH
 });
 
 /**
- * Entity presave processing
+ * @member hook_entity_presave
+ * @memberof entity
+ *
+ * @desc Entity presave processing
  *
  * Before saving, implementations of this hook may make changes to the entity such as sanitization
  * or addition of extra fields.

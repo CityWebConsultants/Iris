@@ -2,6 +2,14 @@
 
 "use strict";
 
+/**
+ * @file Methods and hooks for managing user authentication
+ */
+
+/**
+ * @namespace auth
+ */
+
 var crypto = require('crypto');
 
 iris.registerModule("auth", true);
@@ -214,8 +222,8 @@ iris.modules.auth.globals.registerPermission("can delete access token", "auth")
 iris.modules.auth.globals.registerPermission("can delete user access", "auth")
 
 /**
- * @function hook_auth_authpass
- * @memberof hooks
+ * @member hook_auth_authpass
+ * @memberof auth
  *
  * @desc Get or update an authpass
  *

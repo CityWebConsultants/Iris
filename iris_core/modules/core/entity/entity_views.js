@@ -160,7 +160,10 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 });
 
 /**
- * Event handling for when entities are created
+ * @member hook_entity_created
+ * @memberof entity
+ *
+ * @desc Event handling for when entities are created
  *
  * This hook is run once an entity has been created; useful for live updates or keeping track of changes
  */
@@ -207,8 +210,8 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 });
 
 /**
- * @function hook_entity_updated
- * @memberof hooks
+ * @member hook_entity_updated
+ * @memberof entity
  *
  * @desc Event handling for when entities are updated
  *
@@ -269,7 +272,10 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 });
 
 /**
- * Event handling for when entities are deleted
+ * @member hook_entity_deleted
+ * @memberof entity
+ *
+ * @desc Event handling for when entities are deleted
  *
  * This hook is run when an entity is deleted; useful for live updates or keeping track of changes
  */

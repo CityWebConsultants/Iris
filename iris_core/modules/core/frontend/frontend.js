@@ -677,8 +677,8 @@ var parseTemplate = function (html, authPass, context) {
 };
 
 /**
- * @function hook_frontend_template_parse
- * @memberof hooks
+ * @member hook_frontend_template_parse
+ * @memberof frontend
  *
  * @desc Parse frontend template
  *
@@ -691,8 +691,8 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 });
 
 /**
- * @function hook_frontend_template_context
- * @memberof hooks
+ * @member hook_frontend_template_context
+ * @memberof frontend
  *
  * @desc Prepare context for template from custom template variables
  */
@@ -792,8 +792,8 @@ iris.app.use(function (req, res, next) {
 });
 
 /**
- * @function hook_display_error_page
- * @memberof hooks
+ * @member hook_display_error_page
+ * @memberof frontend
  *
  * @desc Return a friendly error page to the user
  *
@@ -826,8 +826,8 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 });
 
 /**
- * @function hook_frontend_template
- * @memberof hooks
+ * @member hook_frontend_template
+ * @memberof frontend
  *
  * @desc Template engine processing - Handlebars templating
  *

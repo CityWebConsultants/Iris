@@ -1,3 +1,4 @@
+
 /**
  * @file Provides hooks and functions to create forms for use on the frontend
  */
@@ -151,8 +152,8 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 });
 
 /**
- * @function hook_form_submit
- * @memberof hooks
+ * @member hook_form_submit
+ * @memberof forms
  *
  * @desc Generic form submission handler
  *
@@ -352,8 +353,8 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 });
 
 /**
- * @function hook_frontend_template_context
- * @memberof hooks
+ * @member hook_frontend_template_context
+ * @memberof forms
  *
  * @desc Prepare a form for display by adding or changing fields at the render stage
  */
