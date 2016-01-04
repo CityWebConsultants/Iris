@@ -599,3 +599,97 @@ For example:
 <div ng-bind-html="page.body | html_filter"></div>
 
 ```
+
+## The hook system
+
+Most of the core Iris functionality is based around a system of hooks.
+
+Hooks are chains of events that a module can latch onto and optionally pass/change parameters passed to subsequent hooks in the chain.
+
+### Registering a hook
+
+Hooks need to be registered by Iris modules (see the section on creating Iris modules).
+
+Only one instance of the same hookcan be registered by a single Iris module using its registerHook function.
+
+Here's an example:
+
+```JavaScript
+
+iris.modules.myModule.registerHook("hook_my_hook", 0, function(thisHook, data){
+
+  if(thisHook.const.good === true) {
+
+    thisHook.finish(true, data);
+  
+  } else {
+  
+    thisHook.finish(false, data);
+  
+  }
+
+})
+
+```
+
+The first parameter to registerHook is then name of the hook. The second is the weight/rank of the hook instance (higher weights get called later in the chain), the final parameter is the function that contains the actual hook callback.
+
+This always gets two parameters.
+
+#### thisHook
+
+The thisHook parameter stores information about the currently called hook, any parameters passed to it by the first triggering of the hook, the user that triggered the initial the hook and callbacks for success or fail actions.
+
+* __thisHook.const__ - This stores parameters that are accessible to every hook in the chain. Its contents cannot be changed.
+* __thisHook.authPass__ - This is the authPass of the user that called the hook, containing their user id and roles.
+* __thisHook.finish__ - This is a function that allows a user to finish the current hook instance in either a pass or a fail.
+
+##### Finishing a hook call
+
+In order for a hook to move along in the chain, each instance __must__ finish or the hook will stall forever. It can either pass or fail. Both pass and fail are triggered through the thisHook.finish function.
+
+This function takes two parameters. The first is a boolean (true/false) that states whether the hook succeeds or fails. If it fails, any subsequent hooks in the chain will not be called and the hook's fail function will run. The second parameter is a data object (usually the same or modified data object as the hook instance was passed) to pass to the next hook or the hook's fail function.
+
+For example
+
+```
+data.hello = "world";
+
+thisHook.finish(true, data);
+
+```
+
+adds the hello property to the data object and passes that to the next hook in the chain.
+
+
+#### data
+
+This is the optional, mutable data object that is passed between hooks in a chain.
+
+### Triggering a hook
+
+To trigger a hook, use the iris.hook function.
+
+For example
+
+```
+iris.hook("hook_example", req.authPass, contants, variables).then(function(success){
+
+  iris.log("info", success);
+
+}, function(fail){
+
+  iris.log("error", fail)
+
+})
+
+```
+
+The parameters, in order are:
+
+* The name of the hook
+* The authPass of the user calling the hook. You can also pass in the string "root" to run the hook as an admin user.
+* An object of constants to pass through to the hook.
+* Additional variables to pass through the hook (this forms the data parameter for the first hook instance in the chain)
+
+The hook returns a JavaScript ECMASCRIPT 5 promise so you can respond with a different function after the hook chain completes depending on if it passes or fails. This complete function gets the final data object that was passed to the final thisHook.finish function in the chain.
