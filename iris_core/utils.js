@@ -78,11 +78,11 @@ iris.registerTranslation = function (string, output) {
  * If a translation for the given string has been registered, the input string will be replaced with that one.
  *
  * @param {string} translationString - string that should be translated
- * @param arguments - util.format arguments to replace inside string
+ * @param args - util.format arguments to replace inside string
  *
  * @returns Translated string with arguments processed by util.format
  */
-iris.translate = function (translationString, arguments) {
+iris.translate = function (translationString, args) {
 
   if (iris.translations[translationString]) {
 
@@ -90,7 +90,7 @@ iris.translate = function (translationString, arguments) {
 
   }
 
-  return util.format(translationString, arguments)
+  return util.format(translationString, args)
 
 }
 

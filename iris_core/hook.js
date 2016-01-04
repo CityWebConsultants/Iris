@@ -12,18 +12,18 @@
  *
  * @param {string} hookname - The unique name of the hook to run
  * @param {object} authPass - The authPass object, which includes permissions information about the current user. Use string "root" to run with all permissions.
- * @param {object} static - Variables provided to the hook implementations which should not be mutable
+ * @param {object} staticVariables - Variables provided to the hook implementations which should not be mutable
  * @param {object} variables - Variables provided to the hook implementations which are mutable
  *
  * @returns a promise which, if successful, contains the final hook variables as its first argument
  */
-var hook = function (hookname, authPass, static, variables) {
+var hook = function (hookname, authPass, staticVariables, variables) {
 
   var auth = authPass;
 
   var thisHook;
 
-  var constants = static;
+  var constants = staticVariables;
 
   var data = variables;
 

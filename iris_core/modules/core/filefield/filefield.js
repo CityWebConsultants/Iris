@@ -140,21 +140,21 @@ iris.modules.filefield.registerHook("hook_file_upload", 0, function (thisHook, d
 
         // Check if file size set in schema
 
-        var arguments = {};
+        var args = {};
 
         if (schema[thisHook.const.filename] && schema[thisHook.const.filename]["size"]) {
 
-          arguments.maxSize = schema[thisHook.const.filename]["size"];
+          args.maxSize = schema[thisHook.const.filename]["size"];
 
         }
 
         if (schema[thisHook.const.filename] && schema[thisHook.const.filename]["extensions"]) {
 
-          arguments.extensions = schema[thisHook.const.filename]["extensions"].split(",");
+          args.extensions = schema[thisHook.const.filename]["extensions"].split(",");
 
         }
 
-        thisHook.finish(true, arguments)
+        thisHook.finish(true, args)
 
       }
 
