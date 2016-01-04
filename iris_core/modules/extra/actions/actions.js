@@ -104,6 +104,12 @@ iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
 
       // Check if any rules have been registered that grab this stuff
 
+      if (!iris.configStore.actions) {
+
+        return false;
+
+      }
+
       Object.keys(iris.configStore.actions).forEach(function (rule) {
 
         // Flag for whether rule fires or not
