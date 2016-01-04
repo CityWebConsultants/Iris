@@ -2,6 +2,10 @@
  * @file Provides hooks and functions to create forms for use on the frontend
  */
 
+/**
+ * @namespace forms
+ */
+
 iris.registerModule("forms");
 
 // Store of rendered form keys to check if form has already been submitted and stop cross site scripting problems with re-rendered forms
@@ -147,7 +151,10 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 });
 
 /**
- * Generic form submission handler
+ * @function hook_form_submit
+ * @memberof hooks
+ *
+ * @desc Generic form submission handler
  *
  * Use this hook to implement a handler on all submitted forms.
  *
@@ -345,7 +352,10 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 });
 
 /**
- * Prepare a form for display by adding or changing fields at the render stage
+ * @function hook_frontend_template_context
+ * @memberof hooks
+ *
+ * @desc Prepare a form for display by adding or changing fields at the render stage
  */
 iris.modules.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
 
@@ -356,7 +366,10 @@ iris.modules.forms.registerHook("hook_form_render", 0, function (thisHook, data)
 iris.modules.forms.globals.widgets = {};
 
 /**
- * Register a new form widget type
+ * @function registerWidget
+ * @memberof forms
+ *
+ * @desc Register a new form widget type
  *
  * Widgets consist of a name and a function that is sent to the client to implement a custom form item.
  *

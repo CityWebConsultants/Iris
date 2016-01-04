@@ -1,5 +1,9 @@
 /**
- * Hooks and functions for the templating and routing systems that make up the frontend module
+ * @file Hooks and functions for the templating and routing systems that make up the frontend module
+ */
+
+/**
+ * @namespace frontend
  */
 
 iris.registerModule("frontend");
@@ -78,7 +82,10 @@ if (iris.config.theme) {
 }
 
 /**
- * Returns a parsed HTML template for an entity, including sub templates
+ * @function getTemplate
+ * @memberof frontend
+ *
+ * @desc Returns a parsed HTML template for an entity, including sub templates
  *
  * @param {object} entity - the entity to work from
  * @param {object} authPass - the current user's authPass (use "root" for full access)
@@ -196,7 +203,8 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 var glob = require("glob");
 
 /**
- * Function for finding most specific matching template
+ * @function Function for finding most specific matching template
+ * @memberof frontend
  *
  * @param {string[]} paths - Paths to search for templates in
  * @param {extension} [string] - File extension to search for. Defaults to html.
@@ -393,7 +401,10 @@ var findTemplate = function (paths, extension) {
 iris.modules.frontend.globals.findTemplate = findTemplate;
 
 /**
- * Parse embeds in template HTML
+ * @function parseEmbed
+ * @memberof frontend
+ *
+ * @desc Parse embeds in template HTML
  *
  * An 'embed' is a type of directive, embedded in HTML, of the form [[[prefix <data>]]]
  * Embeds are intended to be replaced with code generated from the data provided.
@@ -472,7 +483,10 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 };
 
 /**
- * Parse a template recursively (to catch nested embeds). Internal function for Frontend.
+ * @function parseTemplace
+ * @memberof frontend
+ *
+ * @desc Parse a template recursively (to catch nested embeds). Internal function for Frontend.
  *
  * @param {string} html - HTML of template to process
  * @param {object} authPass - authPass of current user
@@ -663,7 +677,10 @@ var parseTemplate = function (html, authPass, context) {
 };
 
 /**
- * Parse frontend template
+ * @function hook_frontend_template_parse
+ * @memberof hooks
+ *
+ * @desc Parse frontend template
  *
  * Hook into the template parsing process using this. Inside, one can run functions such as parseEmbed on the current state of the template.
  */
@@ -674,7 +691,10 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 });
 
 /**
- * Prepare context for template from custom template variables
+ * @function hook_frontend_template_context
+ * @memberof hooks
+ *
+ * @desc Prepare context for template from custom template variables
  */
 iris.modules.frontend.registerHook("hook_frontend_template_context", 0, function (thisHook, data) {
 
@@ -772,7 +792,10 @@ iris.app.use(function (req, res, next) {
 });
 
 /**
- * Return a friendly error page to the user
+ * @function hook_display_error_page
+ * @memberof hooks
+ *
+ * @desc Return a friendly error page to the user
  *
  * Expects thisHook.const.error to be an HTTP error code.
  *
@@ -803,7 +826,10 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 });
 
 /**
- * Template engine processing - Handlebars templating
+ * @function hook_frontend_template
+ * @memberof hooks
+ *
+ * @desc Template engine processing - Handlebars templating
  *
  * Parses data.html through a templating library: Handlebars in the default handler.
  *
@@ -847,7 +873,10 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 });
 
 /**
- * Parse a template from a file with parameters
+ * @function parseTemplateFile
+ * @memberof frontend
+ *
+ * @desc Parse a template from a file with parameters
  *
  * Wraps and simplifies the process of loading a template file and parsing it.
  * Allows for processing two templates: a wrapper and an inner template. Wrapper is optional.

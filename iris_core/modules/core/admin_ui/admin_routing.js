@@ -4,7 +4,10 @@
 var fs = require('fs');
 
 /**
- * Respond to a request with an error page.
+ * @function displayErrorPage
+ * @memberof frontend
+ *
+ * @desc Respond to a request with an error page.
  *
  * Wrapper for hook_display_error_page; returns error page HTML on response automatically.
  *

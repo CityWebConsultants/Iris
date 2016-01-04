@@ -207,7 +207,10 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 });
 
 /**
- * Event handling for when entities are updated
+ * @function hook_entity_updated
+ * @memberof hooks
+ *
+ * @desc Event handling for when entities are updated
  *
  * This hook is run when an entity is updated/edited; useful for live updates or keeping track of changes
  */

@@ -3,6 +3,10 @@
  */
 
 /**
+ * @namespace hooks
+ */
+
+/**
  * Invokes a hook.
  *
  * All implementations of this hook, across all modules, will be run in order.

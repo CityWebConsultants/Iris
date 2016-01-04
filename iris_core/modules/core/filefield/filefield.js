@@ -122,7 +122,10 @@ iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', functio
 iris.modules.auth.globals.registerPermission("Can upload files", "files");
 
 /**
- * Uploads a file to the server after validating and checking user's permissions
+ * @function hook_file_upload
+ * @memberof hooks
+ *
+ * @desc Uploads a file to the server after validating and checking user's permissions
  */
 iris.modules.filefield.registerHook("hook_file_upload", 0, function (thisHook, data) {
 

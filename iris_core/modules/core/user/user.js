@@ -2,6 +2,10 @@
  * @file User management module
  */
 
+/**
+ * @namespace user
+ */
+
 iris.registerModule("user");
 
 var bcrypt = require("bcrypt-nodejs");
@@ -97,7 +101,10 @@ iris.app.get("/", function (req, res, next) {
 })
 
 /**
- * Login a user given a login object (containing username and password)
+ * @function login
+ * @memberof user
+ *
+ * @desc Login a user given a login object (containing username and password)
  *
  * @param {object} auth - Auth object consisting of key-value pairs username and password
  * @param {object} res - Express response object
@@ -197,7 +204,10 @@ iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, ent
 iris.modules.user.globals.userRoles = {};
 
 /**
- * Fetch the roles that a user has given their userid.
+ * @function getRole
+ * @memberof user
+ *
+ * @desc Fetch the roles that a user has given their userid.
  *
  * @param {string} userid - The userid
  * @param {function} callback - The callback which is run with the user's roles as its first argument

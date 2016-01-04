@@ -214,7 +214,10 @@ iris.modules.auth.globals.registerPermission("can delete access token", "auth")
 iris.modules.auth.globals.registerPermission("can delete user access", "auth")
 
 /**
- * Get or update an authpass
+ * @function hook_auth_authpass
+ * @memberof hooks
+ *
+ * @desc Get or update an authpass
  *
  * If data is a string, it will be treated as a userid and an authPass will be prepared from it.
  */
