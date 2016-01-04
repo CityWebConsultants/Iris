@@ -772,4 +772,45 @@ thisHook.finish(true, function(res) {
 
 ```
 
+### Registering a custom page in a module
 
+The frontend module's parseTemplateFile function can be used to run a custom module page through the Iris theme system.
+
+Create an HTML template in your modules /templates folder.
+
+Then set up a standard express handler for the page.
+
+iris.modules.frontend.globals.parseTemplateFile takes the following parameters in order.
+
+* An array of template suggestions to look for (page, helloworld) would look for page_helloworld.html, then page.html
+* An array of HTML wrapper template suggestions to look for
+* An object to be passed to the handlebars templating engine which can then be used on the HTML page templates.
+* An authPass with which to run the page.
+* The express req object (for cookies and other request information)
+
+This returns a JavaScript promise. 
+
+Here's an example from the regions page in the admin system.
+
+```JavaScript
+
+iris.app.get("/admin/regions", function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {
+    blocks: iris.modules.blocks.globals.blocks,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+
+```
