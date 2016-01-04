@@ -25,6 +25,9 @@ iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/config
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/export", "Export config");
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/import", "Import config");
 
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/modules", "Modules");
+
+
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/permissions", "Permissions");
 
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs");

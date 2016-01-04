@@ -308,7 +308,7 @@ module.exports = function (config) {
 
     iris.enabledModules.forEach(function (enabledModule, index) {
 
-      var modulePath = path.resolve(__dirname + "/../" + enabledModule.path + "/" + enabledModule.name + ".js");
+      var modulePath = path.resolve(__dirname + "/../" + enabledModule.path + ".js");
 
       try {
 
@@ -323,7 +323,7 @@ module.exports = function (config) {
 
       require(modulePath);
 
-      iris.hook("hook_module_init_" + enabledModule.name, "root", null, null).then(function (success) {
+      iris.hook("hook_module_init_" + enabledModule.name.toLowerCase(), "root", null, null).then(function (success) {
 
         console.log(enabledModule.name + " loaded")
 
@@ -335,7 +335,7 @@ module.exports = function (config) {
 
         } else {
 
-          console.log(enabledModule.name + " failed to initialise", fail)
+          console.log(moduleName + " failed to initialise", fail)
 
         }
 

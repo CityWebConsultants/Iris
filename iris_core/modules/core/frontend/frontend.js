@@ -781,8 +781,6 @@ iris.app.use(function (req, res, next) {
 
     }, function (error) {
 
-      console.log(error);
-
       next();
 
     });
