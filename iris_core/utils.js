@@ -3,13 +3,13 @@
  */
 
 /**
- * @namespace utils
- * @desc General utility functions
+ * @namespace iris
+ * @desc Utility functions and Iris system calls
  */
 
 /**
  * @function promiseChain
- * @memberof utils
+ * @memberof iris
  *
  * @desc Run a series of promises in sequence.
  *
@@ -30,7 +30,7 @@ iris.promiseChain = function (tasks, parameters, success, fail) {
 
 /**
  * @function promise
- * @memberof utils
+ * @memberof iris
  *
  * @desc Run given callback as a promise.
  *
@@ -73,7 +73,7 @@ iris.translations = {};
 
 /**
  * @function registerTranslation
- * @memberof utils
+ * @memberof iris
  *
  * @desc Register a translation to be used by the translate function
  *
@@ -88,7 +88,7 @@ iris.registerTranslation = function (string, output) {
 
 /**
  * @function translate
- * @memberof utils
+ * @memberof iris
  *
  * @desc Translate a string
  *
@@ -113,7 +113,7 @@ iris.translate = function (translationString, args) {
 
 /**
  * @function typeCheck
- * @memberof utils
+ * @memberof iris
  *
  * @desc Field data type check
  *
@@ -161,7 +161,7 @@ iris.typeCheck = function (allowed, entity, data) {
 
 /**
  * @function sanitizeFileName
- * @memberof utils
+ * @memberof iris
  *
  * @desc Sanitize file name
  *

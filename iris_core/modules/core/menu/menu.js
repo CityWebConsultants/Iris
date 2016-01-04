@@ -1,3 +1,11 @@
+/**
+ * @file Methods and hooks to implement menus for navigation and categorisation
+ */
+
+/**
+ * @namespace menu
+ */
+
 iris.registerModule("menu");
 
 // Get any already saved config
@@ -308,7 +316,10 @@ iris.modules.menu.registerHook("hook_frontend_template_parse", 0, function (this
 // Programatic menu generation functions
 
 /**
- * Function to register a new menu
+ * @function registerMenu
+ * @memberof menu
+ *
+ * @desc Function to register a new menu
  *
  * @param {string} menuName - the name of the new menu
  */
@@ -326,7 +337,10 @@ iris.modules.menu.globals.registerMenu = function (menuName) {
 }
 
 /**
- * Function to register a menu item as part of a menu
+ * @function registerMenuLink
+ * @memberof menu
+ *
+ * @desc Function to register a menu item as part of a menu
  *
  * It is possible to nest menu items by providing the path of the desired parent menu item that the new item should be inserted under
  *
