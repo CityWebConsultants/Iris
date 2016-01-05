@@ -273,6 +273,8 @@ module.exports = function (config) {
     //Core modules
 
     require('./modules/core/auth/auth.js');
+    
+    require('./modules/core/sessions/sessions.js');
 
     require('./modules/core/entity/entity.js');
 
