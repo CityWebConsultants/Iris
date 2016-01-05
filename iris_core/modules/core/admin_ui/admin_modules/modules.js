@@ -177,7 +177,7 @@ iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (this
 
   fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));
 
-  process.send("restart");
+  iris.restart(thisHook.authPass.userid, "modules page");
 
   thisHook.finish(true, data)
 

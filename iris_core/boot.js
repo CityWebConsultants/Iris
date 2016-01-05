@@ -13,6 +13,16 @@ module.exports = function (config) {
 
   var path = require('path');
 
+  // Restart function
+
+  iris.restart = function (userid, where) {
+
+    iris.log("info", "Server restarted " + (userid ? " by user " + userid : "") + (where ? " via " + where : ""));
+
+    process.send("restart");
+
+  }
+
   //Store helper paths
 
   iris.rootPath = __dirname;
@@ -504,7 +514,7 @@ module.exports = function (config) {
       if (m.sessions) {
 
         Object.keys(m.sessions).forEach(function (user) {
-                    
+
           iris.modules.auth.globals.userList[user] = m.sessions[user];
 
         });

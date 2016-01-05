@@ -77,7 +77,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_restart", 0, function (this
 
 iris.modules.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data) {
 
-  process.send("restart");
+  iris.restart(thisHook.authPass.userid, "restart button");
 
   thisHook.finish(true, data);
 
