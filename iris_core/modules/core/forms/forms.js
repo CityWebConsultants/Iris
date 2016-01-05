@@ -300,7 +300,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         if (data.errors) {
 
-          console.error(data.errors);
+          alert(data.errors);
 
         } else {
 
