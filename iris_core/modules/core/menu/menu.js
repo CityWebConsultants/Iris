@@ -418,7 +418,5 @@ iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, pat
 
     menuConfig.items.sort(compare);
 
-    console.log(menuConfig.items);
-
   }
 }
