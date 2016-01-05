@@ -1,0 +1,7 @@
+{
+  "name": "Regions",
+  "rank": 2,
+  "dependencies": {
+    "blocks": "1"
+  }
+}

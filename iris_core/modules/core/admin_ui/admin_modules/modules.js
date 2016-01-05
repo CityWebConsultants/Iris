@@ -44,7 +44,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
 
       var moduleName = path.normalize(path.basename(file).replace(".iris", ""));
       var fileDir = path.normalize(path.dirname(file));
-
+      
       fileDir = path.normalize(fileDir.replace(iris.rootPath.replace("iris_core", ""), "") + "/" + moduleName);
 
       try {
@@ -59,7 +59,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
         availableModules[file.modueName] = file;
 
       } catch (e) {
-
+        
         iris.log("error", e);
 
       }
