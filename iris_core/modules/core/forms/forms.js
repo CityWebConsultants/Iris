@@ -300,7 +300,11 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         if (data.errors) {
 
-          alert(data.errors);
+          $("html, body").animate({
+            scrollTop: 0
+          }, "slow");
+
+          $("#" + values.formid).prepend("<div class='form-errors'>" + data.errors + "</div>")
 
         } else {
 
