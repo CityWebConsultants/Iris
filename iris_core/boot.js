@@ -18,6 +18,10 @@ module.exports = function (config) {
   iris.rootPath = __dirname;
   iris.sitePath = process.cwd();
 
+  // Launch logging module
+
+  require("./log")(config.logdays);
+
   //Make config folder
 
   var fs = require('fs');
@@ -293,10 +297,6 @@ module.exports = function (config) {
     require('./modules/core/user/user.js');
 
     require('./modules/core/paths/paths.js');
-
-    //Load logging module
-
-    require('./log');
 
     //Read enabled modules
 

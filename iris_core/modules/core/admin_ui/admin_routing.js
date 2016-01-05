@@ -245,7 +245,17 @@ iris.app.get("/admin/logs", function (req, res) {
 
   }
 
-  var rawLogs = fs.readFileSync(iris.sitePath + '/' + "/logs/main.log", "utf8");
+  try {
+
+    var rawLogs = fs.readFileSync(iris.sitePath + '/' + "/logs/main.log", "utf8");
+
+  } else {
+
+    fs.writeFileSync("", iris.sitePath + '/' + "/logs/main.log");
+
+    var rawLogs = "";
+
+  }
 
   //Remove last line
 
