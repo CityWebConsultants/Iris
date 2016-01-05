@@ -139,7 +139,7 @@ iris.app.use(function (req, res, next) {
 
   });
 
-  iris.modules.auth.globals.credentialsToPass(req.body.credentials, req).then(function (authPass) {
+  iris.modules.auth.globals.credentialsToPass(req.body.credentials, req, res).then(function (authPass) {
 
     delete req.body.credentials;
 

@@ -18,6 +18,14 @@ module.exports = function (config) {
   iris.rootPath = __dirname;
   iris.sitePath = process.cwd();
 
+  // Launch logging module
+
+  require("./log")(config.logdays);
+
+  // Launch user messaging module
+
+  require("./message")
+
   //Make config folder
 
   var fs = require('fs');
@@ -294,10 +302,6 @@ module.exports = function (config) {
 
     require('./modules/core/paths/paths.js');
 
-    //Load logging module
-
-    require('./log');
-
     //Read enabled modules
 
     console.log("Loading modules...");
@@ -375,7 +379,7 @@ module.exports = function (config) {
 
     iris.status.ready = true;
 
-    // Free C object, no longer extensible
+    // Free iris object, no longer extensible
 
     Object.freeze(iris);
 
@@ -389,7 +393,25 @@ module.exports = function (config) {
 
           if (typeof success === "function") {
 
-            success(res).then(function () {
+            var output = success(res);
+
+            if (output && output.then) {
+
+              success(res).then(function () {
+
+                if (!res.headersSent) {
+
+                  res.redirect(req.url);
+
+                };
+
+              }, function (fail) {
+
+                res.send(fail);
+
+              })
+
+            } else {
 
               if (!res.headersSent) {
 
@@ -397,11 +419,7 @@ module.exports = function (config) {
 
               };
 
-            }, function (fail) {
-
-              res.send(fail);
-
-            })
+            }
 
           } else {
 
