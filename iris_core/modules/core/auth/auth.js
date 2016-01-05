@@ -80,7 +80,7 @@ iris.modules.auth.globals = {
   //List of logged in users/access tokens
   userList: {},
 
-  credentialsToPass: function (authCredentials, req) {
+  credentialsToPass: function (authCredentials, req, res) {
 
     return new Promise(function (yes, no) {
 
@@ -123,9 +123,12 @@ iris.modules.auth.globals = {
       //Run any hooks that latch onto this one to extend the authpass
 
       iris.hook('hook_auth_authpass', authPass, {
-          req: req
+          req: req,
+          res: res
         }, authPass)
         .then(function (authPass) {
+
+          console.log(authPass);
 
           //Complete access pass received.
 

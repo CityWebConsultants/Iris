@@ -8,6 +8,7 @@ iris.app.get("/checkauth", function (req, res) {
 
 iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, data) {
 
+
   if (thisHook.req && thisHook.req.cookies && thisHook.req.cookies.userid && thisHook.req.cookies.token) {
 
     if (iris.modules.auth.globals.checkAccessToken(thisHook.req.cookies.userid, thisHook.req.cookies.token)) {
@@ -27,7 +28,47 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
 
   }
 
-  thisHook.finish(true, data);
+  // Check if anonymous cookie written
+
+  if (data.userid === "anonymous" && thisHook.const.res) {
+
+    if (thisHook.const.req && thisHook.const.req.cookies && !thisHook.const.req.cookies.anonID) {
+
+      var crypto = require("crypto");
+
+      crypto.randomBytes(16, function (ex, buf) {
+
+        var anonID = "anon" + "_" + buf.toString('hex');
+
+        thisHook.const.res.cookie('anonID', anonID);
+
+      })
+
+      thisHook.finish(true, data);
+
+    } else if (thisHook.const.req && thisHook.const.req.cookies && thisHook.const.req.cookies.anonID) {
+
+      data.userid = thisHook.const.req.cookies.anonID;
+
+      thisHook.finish(true, data);
+
+    } else {
+
+      thisHook.finish(true, data);
+
+    }
+
+  } else {
+
+    if (thisHook.const.req && thisHook.const.req.cookies && thisHook.const.req.cookies.anonID) {
+
+      thisHook.const.res.cookie('anonID', "");
+
+    }
+
+    thisHook.finish(true, data);
+
+  }
 
 });
 
