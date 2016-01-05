@@ -47,6 +47,14 @@ iris.modules.paths.registerHook("hook_entity_validate", 0, function (thisHook, d
   var path = data.path;
   var eid = data.eid;
 
+  if (!eid) {
+
+    // Must be creating
+
+    eid = "new";
+
+  }
+
   if (iris.modules.paths.globals.entityPaths[path] && iris.modules.paths.globals.entityPaths[path].eid.toString() !== eid.toString()) {
 
     thisHook.finish(false, "Entity with that path already exists");
@@ -133,7 +141,7 @@ iris.app.use(function (req, res, next) {
   }
 
   // Look up entity with the current 'path'
-  
+
   if (iris.modules.paths.globals.entityPaths[req.url]) {
 
     iris.dbCollections[iris.modules.paths.globals.entityPaths[req.url].entityType].findOne({
