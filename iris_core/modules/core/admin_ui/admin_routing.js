@@ -249,7 +249,7 @@ iris.app.get("/admin/logs", function (req, res) {
 
     var rawLogs = fs.readFileSync(iris.sitePath + '/' + "/logs/main.log", "utf8");
 
-  } else {
+  } catch (e) {
 
     fs.writeFileSync("", iris.sitePath + '/' + "/logs/main.log");
 
