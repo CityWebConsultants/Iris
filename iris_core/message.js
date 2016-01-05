@@ -2,7 +2,7 @@ var messageStore = {};
 
 iris.messageStore = {};
 
-iris.message = function (userid, message, type, parameters) {
+iris.message = function (userid, message, type) {
 
   if (!iris.messageStore[userid]) {
 
@@ -13,8 +13,7 @@ iris.message = function (userid, message, type, parameters) {
   iris.messageStore[userid].push({
 
     message: message,
-    type: type,
-    parameters: parameters
+    type: type
 
   })
 
@@ -46,10 +45,10 @@ iris.readMessages = function (userid) {
 
     messages.forEach(function (searchmessage) {
 
-      if(message.message === searchmessage.message){
-        
+      if (message.message === searchmessage.message) {
+
         messages.splice(index, 1);
-        
+
       }
 
     })
