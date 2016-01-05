@@ -115,3 +115,11 @@ Under the tools for the *page* entity, select *Create new*.
 Fill out a title and some body text for the front page, and set the path to `/`. Save the entity.
 
 Your site is now set up.
+
+## Restarting the server
+
+Whenever you change the JavaScript code of a module or enable or disable a module you will need to restart the node.js process. This does not apply to changes made to template, theme and configuration files.
+
+Sessions are persistent after using the restart function, so no one who is logged in will be logged out when you restart.
+
+To restart the server go to the restart page in the administration toolbar and hit the restart button. Your site will not be available while the restart takes place but it should be a process taking at most a few seconds.
