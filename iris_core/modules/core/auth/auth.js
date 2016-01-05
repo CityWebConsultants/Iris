@@ -128,8 +128,6 @@ iris.modules.auth.globals = {
         }, authPass)
         .then(function (authPass) {
 
-          console.log(authPass);
-
           //Complete access pass received.
 
           yes(authPass);
