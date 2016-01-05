@@ -10,30 +10,30 @@ require('./admin_routing.js');
 
 iris.modules.menu.globals.registerMenu("admin-toolbar");
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/", "Home");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/", "Home", 0);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/entities", "Entities");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/entities", "Entities", 1);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/structure", "Structure");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/structure", "Structure", 1);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/regions", "Regions");
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/blocks", "Blocks");
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/menu", "Menus");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/regions", "Regions", 1);
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/blocks", "Blocks", 1);
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/menu", "Menus", 1);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/config", "Config");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/config", "Config", 1);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/export", "Export config");
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/import", "Import config");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/export", "Export config", 1);
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/import", "Import config", 1);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/modules", "Modules");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/modules", "Modules", 1);
 
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/permissions", "Permissions", 1);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/permissions", "Permissions");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs", 1);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs");
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/logout", "Log Out");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/logout", "Log Out", 6);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/restart", "Restart server");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/restart", "Restart server", 5);
 
 iris.modules.auth.globals.registerPermission("can view admin menu", "admin");
 

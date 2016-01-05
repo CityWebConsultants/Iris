@@ -348,8 +348,15 @@ iris.modules.menu.globals.registerMenu = function (menuName) {
  * @param {string} [parentPath] - optional; if this menu item has a parent, the path that the parent item links to
  * @param {string} path - the path to which this menu item links
  * @param {string} title - the title of this menu item displayed to the user
+ * @param {number} weight - the weight of this menu item. Lower weights are displayed first.
  */
-iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, path, title) {
+iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, path, title, weight) {
+
+  if (!weight) {
+
+    weight = 0;
+
+  }
 
   if (!iris.configStore["menu"]) {
 
@@ -378,7 +385,8 @@ iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, pat
 
           item.children.push({
             title: title,
-            path: path
+            path: path,
+            weight: weight
           });
 
         }
@@ -389,9 +397,28 @@ iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, pat
 
       menuConfig.items.push({
         title: title,
-        path: path
+        path: path,
+        weight: weight
       });
 
     }
+
+    // Order menu items by rank
+
+    function compare(a, b) {
+      if (a.weight < b.weight) {
+        return -1;
+      }
+      if (a.weight > b.weight) {
+        return 1;
+      }
+      // a must be equal to b
+      return 0;
+    }
+
+    menuConfig.items.sort(compare);
+
+    console.log(menuConfig.items);
+
   }
 }

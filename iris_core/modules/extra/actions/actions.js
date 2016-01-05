@@ -527,7 +527,7 @@ iris.app.get("/admin/actions/edit/:action", function (req, res) {
 
 })
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/actions", "Actions");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/actions", "Actions", 1);
 
 // Main actions landing page
 
