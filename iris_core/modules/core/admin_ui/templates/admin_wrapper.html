@@ -1,12 +1,6 @@
 <!doctype html>
 
 <html>
-  
-{{#each iris_messages}}
-
-  {{this.message}}
-  
-{{/each}}
 
 <!-- CSS and JS common to all pages --->
 
@@ -20,7 +14,18 @@
 
   <!--- This is intended as a general wrapper for all admin pages. --->
 
-  [[[menu admin-toolbar]]]
+  [[[menu admin-toolbar]]] 
+  
+  <ul id="messages">
+ 
+  {{#each iris_messages}} 
+  
+    <li class="message {{this.type}}">{{this.message}}</li> 
+  
+  {{/each}}
+      
+  </ul>
+    
   <section id="main">[[[MAINCONTENT]]]</section>
 
 </body>
