@@ -79,8 +79,9 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
         "properties": {
           "enabled": {
             "type": "boolean",
-            "title": currentModule.name,
-            "description": currentModule.description,
+            "title": currentModule.name + (currentModule.dependencies ? " - requires " + Object.keys(currentModule.dependencies).join(",") : "")
+,
+            "description": (currentModule.description ? currentModule.description : ""),
             "default": iris.modules[moduleName] ? true : false
           },
           "rank": {
@@ -97,7 +98,6 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
       data.form.push({
         "key": currentModule.name,
         "inlinetitle": "Enable the <b>" + currentModule.name + "</b> module",
-
       })
 
     })
@@ -107,9 +107,15 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
       title: "submit"
     })
 
-    // Check which modules are already enabled
+    data.onSubmit = function (errors, values) {
 
+      $.post(window.location, values, function (data, err) {
 
+        alert("Saved.")
+
+      })
+
+    };
 
     thisHook.finish(true, data);
 

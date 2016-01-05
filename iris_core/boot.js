@@ -273,7 +273,7 @@ module.exports = function (config) {
     //Core modules
 
     require('./modules/core/auth/auth.js');
-    
+
     require('./modules/core/sessions/sessions.js');
 
     require('./modules/core/entity/entity.js');
@@ -300,7 +300,7 @@ module.exports = function (config) {
 
     //Read enabled modules
 
-    console.log("Loading modules.");
+    console.log("Loading modules...");
 
     iris.enabledModules = JSON.parse(fs.readFileSync(process.cwd() + '/enabled_modules.json'));
 
@@ -311,15 +311,43 @@ module.exports = function (config) {
     iris.enabledModules.forEach(function (enabledModule, index) {
 
       var modulePath = path.resolve(__dirname + "/../" + enabledModule.path + ".js");
+      var moduleInfoPath = path.resolve(__dirname + "/../" + enabledModule.path + ".iris");
 
       try {
 
         fs.readFileSync(modulePath);
 
+        var moduleInfo = JSON.parse(fs.readFileSync(moduleInfoPath));
+
       } catch (e) {
 
-        console.log("can't find module " + enabledModule.name)
+        // Read config file to check if dependencies satisfied
+
+        console.error("error loading module " + enabledModule.name, e)
         return false;
+
+      }
+
+      if (moduleInfo.dependencies) {
+
+        var unmet = [];
+
+        Object.keys(moduleInfo.dependencies).forEach(function (dep) {
+
+          if (!iris.modules[dep]) {
+
+            unmet.push(dep);
+
+          }
+
+        })
+
+        if (unmet.length) {
+
+          iris.log("error", "Module " + enabledModule.name + " requires the following modules: " + JSON.stringify(unmet));
+          return false;
+
+        }
 
       }
 

@@ -1,4 +1,8 @@
 {
   "name": "Email",
-  "rank": 0
+  "rank": 0,
+  "description": "Action for sending email",
+  "dependencies": {
+    "actions": "1"
+  }
 }
