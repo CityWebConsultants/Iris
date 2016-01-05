@@ -73,8 +73,7 @@ process.on("uncaughtException", function (e) {
 
   }
 
-
-  process.exit();
+  process.send("restart");
 
 })
 

@@ -21,6 +21,10 @@ if (parameters.site) {
 
   var fork = require('child_process').fork;
 
+  // Check how many restarts have been performed to catch startup restart loops
+
+  var restartCounter = 2;
+
   start = function () {
 
     var sub = fork(__dirname + "/launch_site.js", process.argv.slice(2), {
@@ -33,6 +37,8 @@ if (parameters.site) {
 
       if (cmd === 'started') {
 
+        restartCounter = 0;
+
         sub.send({
           sessions: sessions
         });
@@ -41,7 +47,20 @@ if (parameters.site) {
 
       if (cmd === 'restart') {
         sub.on('exit', function () {
-          start();
+
+          if (restartCounter > 1) {
+
+            console.error("Too many restarts. Error on startup.")
+            process.exit();
+
+          } else {
+
+            start();
+
+          }
+
+          restartCounter += 1;
+
         });
         sub.kill();
       }
