@@ -306,6 +306,10 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
           $("#" + values.formid).prepend("<div class='form-errors'>" + data.errors + "</div>")
 
+        } else if (data.redirect) {
+
+          window.location.href = data.redirect;
+
         } else {
 
           if (data && data.indexOf("doctype") === -1) {
