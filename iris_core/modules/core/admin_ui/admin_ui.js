@@ -65,12 +65,11 @@ iris.modules.admin_ui.registerHook("hook_form_render_restart", 0, function (this
 
     $.post(window.location, values, function (data, err) {
 
-      $("#restart").remove();
-      $(".restart-information").text("Refresh this page to restart another time.")
+      window.location.href = window.location.href;
 
-    })
+    });
 
-  };
+  }
 
   thisHook.finish(true, data);
 
@@ -79,16 +78,6 @@ iris.modules.admin_ui.registerHook("hook_form_render_restart", 0, function (this
 iris.modules.admin_ui.registerHook("hook_form_submit_restart", 0, function (thisHook, data) {
 
   process.send("restart");
-
-  setTimeout(function () {
-
-    data = function (res) {
-
-      res.send("/");
-
-    };
-
-  }, 5000);
 
   thisHook.finish(true, data);
 
@@ -135,7 +124,7 @@ iris.modules.admin_ui.registerHook("hook_log", 0, function (thisHook, data) {
       token: token
     }).then(function (authPass) {
 
-//      console.log(authPass);
+      //      console.log(authPass);
 
     });
 

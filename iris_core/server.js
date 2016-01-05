@@ -56,14 +56,15 @@ iris.app.use(function (req, res, next) {
 
       } else {
 
-        fs.readFile(iris.rootPath + "/core_modules/frontend/templates/startup.html", "utf8", function (err, file) {
-
+        fs.readFile(iris.rootPath + "/startup.html", "utf8", function (err, file) {
+          
           if (!err) {
 
             res.send(file);
 
           } else {
 
+            console.log(err);
             res.send("Starting up");
 
           }

@@ -55,7 +55,7 @@ process.on("unhandledRejection", function (e) {
 
 process.on("uncaughtException", function (e) {
 
-  if (e.stack) {
+  if (Array.isArray(e.stack)) {
 
     e.stack.forEach(function (error, index) {
 
@@ -70,6 +70,10 @@ process.on("uncaughtException", function (e) {
       }
 
     })
+
+  } else {
+
+    console.log(e);
 
   }
 

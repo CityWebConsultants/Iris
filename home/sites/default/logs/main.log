@@ -150,3 +150,42 @@
 {"name":"C","hostname":"Josephine-XPS15","pid":3236,"level":30,"msg":"Error on line 138 of C:\\xampp\\htdocs\\iris\\node_modules\\express\\lib\\response.js Can't set headers after they are sent.","time":"2016-01-04T19:23:07.156Z","v":0}
 {"name":"C","hostname":"Josephine-XPS15","pid":3236,"level":30,"msg":"Error on line 386 of C:\\xampp\\htdocs\\iris\\iris_core\\boot.js Can't set headers after they are sent.","time":"2016-01-04T19:23:07.157Z","v":0}
 {"name":"C","hostname":"Josephine-XPS15","pid":7084,"level":30,"msg":"Server started","time":"2016-01-04T19:25:00.080Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":13292,"level":50,"msg":"Module Email requires the following modules: [\"actions\"]","time":"2016-01-05T11:02:57.926Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":13292,"level":30,"msg":"Server started","time":"2016-01-05T11:02:57.927Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":4772,"level":30,"msg":"Server started","time":"2016-01-05T11:03:18.218Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":5896,"level":30,"msg":"Server started","time":"2016-01-05T11:04:11.875Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":9428,"level":30,"msg":"Server started","time":"2016-01-05T11:04:22.129Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":624,"level":30,"msg":"Server started","time":"2016-01-05T11:05:14.350Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":13160,"level":30,"msg":"Server started","time":"2016-01-05T11:05:25.865Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":11360,"level":30,"msg":"Server started","time":"2016-01-05T11:07:19.486Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":14100,"level":30,"msg":"Server started","time":"2016-01-05T11:07:24.886Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":6380,"level":30,"msg":"Server started","time":"2016-01-05T11:07:39.560Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":12152,"level":50,"msg":"Module menu block requires the following modules: [\"views\"]","time":"2016-01-05T11:13:56.599Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":12152,"level":30,"msg":"Server started","time":"2016-01-05T11:13:56.601Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":12760,"level":30,"msg":"Server started","time":"2016-01-05T11:14:14.929Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":9524,"level":30,"msg":"Server started","time":"2016-01-05T11:15:58.567Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":9076,"level":30,"msg":"Server started","time":"2016-01-05T11:16:06.040Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":4172,"level":30,"msg":"Server started","time":"2016-01-05T11:17:46.557Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":12472,"level":30,"msg":"Server started","time":"2016-01-05T11:19:01.141Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":13104,"level":30,"msg":"Server started","time":"2016-01-05T11:19:08.555Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":6000,"level":30,"msg":"Server started","time":"2016-01-05T11:19:38.808Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":4300,"level":30,"msg":"Server started","time":"2016-01-05T11:19:44.316Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":14088,"level":30,"msg":"Server started","time":"2016-01-05T11:19:59.530Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":2908,"level":30,"msg":"Server started","time":"2016-01-05T11:20:04.375Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":11540,"level":30,"msg":"Server started","time":"2016-01-05T11:20:18.008Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":6136,"level":30,"msg":"Server started","time":"2016-01-05T11:20:27.796Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":12360,"level":30,"msg":"Server started","time":"2016-01-05T11:20:33.541Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":11244,"level":30,"msg":"Server started","time":"2016-01-05T11:24:34.484Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":12832,"level":30,"msg":"Server started","time":"2016-01-05T11:24:47.526Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":9720,"level":30,"msg":"Server started","time":"2016-01-05T11:26:18.518Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":9276,"level":30,"msg":"Server started","time":"2016-01-05T11:26:33.876Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":9460,"level":30,"msg":"Server started","time":"2016-01-05T11:26:44.322Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":13388,"level":30,"msg":"Server started","time":"2016-01-05T11:26:58.089Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":13480,"level":30,"msg":"Server started","time":"2016-01-05T11:27:18.527Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":13440,"level":30,"msg":"Server started","time":"2016-01-05T11:27:26.033Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":932,"level":50,"msg":"Module Email requires the following modules: [\"actions\"]","time":"2016-01-05T11:27:36.697Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":932,"level":30,"msg":"Server started","time":"2016-01-05T11:27:36.698Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":9440,"level":50,"msg":"Module Email requires the following modules: [\"actions\"]","time":"2016-01-05T11:29:27.227Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":9440,"level":30,"msg":"Server started","time":"2016-01-05T11:29:27.229Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":4004,"level":50,"msg":"Module Email requires the following modules: [\"actions\"]","time":"2016-01-05T11:29:37.280Z","v":0}
+{"name":"C","hostname":"Josephine-XPS15","pid":4004,"level":30,"msg":"Server started","time":"2016-01-05T11:29:37.281Z","v":0}

@@ -1,4 +1,8 @@
 {
   "name": "menu block",
-  "rank": 1
+  "rank": 1,
+  "dependencies": {
+    "blocks": "1",
+    "views": "1"
+  }
 }

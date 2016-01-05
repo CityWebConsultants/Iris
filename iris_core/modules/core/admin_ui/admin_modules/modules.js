@@ -34,7 +34,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
 
   // Search for iris files
 
-  glob("{" + iris.rootPath + "/modules/extra/**/*.iris" + "," + iris.sitePath + "/modules/**/*.iris" + "}", function (er, files) {
+  glob("{" + iris.rootPath + "/modules/extra/**/*.iris" + "," + iris.sitePath + "/modules/**/*.iris" + "," + iris.rootPath + "/home/modules/**/*.iris" + "}", function (er, files) {
 
     var availableModules = {};
 
@@ -79,8 +79,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
         "properties": {
           "enabled": {
             "type": "boolean",
-            "title": currentModule.name + (currentModule.dependencies ? " - requires " + Object.keys(currentModule.dependencies).join(",") : "")
-,
+            "title": currentModule.name + (currentModule.dependencies ? " - requires " + Object.keys(currentModule.dependencies).join(",") : ""),
             "description": (currentModule.description ? currentModule.description : ""),
             "default": iris.modules[moduleName] ? true : false
           },
@@ -102,20 +101,20 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
 
     })
 
-    data.form.push({
-      type: "submit",
-      title: "submit"
-    })
-
     data.onSubmit = function (errors, values) {
 
       $.post(window.location, values, function (data, err) {
 
-        alert("Saved.")
+        window.location.href = window.location.href;
 
       })
 
     };
+
+    data.form.push({
+      type: "submit",
+      title: "submit"
+    })
 
     thisHook.finish(true, data);
 
