@@ -74,7 +74,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
 
       var currentModule = availableModules[moduleName];
 
-      data.schema[currentModule.name] = {
+      data.schema[moduleName] = {
         "type": "object",
         "properties": {
           "enabled": {
@@ -90,26 +90,20 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
           "path": {
             "type": "hidden",
             "default": currentModule.path
+          },
+          "dependencies": {
+            "type": "hidden",
+            "default": (currentModule.dependencies ? Object.keys(currentModule.dependencies).join(",") : null)
           }
         }
       }
 
       data.form.push({
-        "key": currentModule.name,
+        "key": moduleName,
         "inlinetitle": "Enable the <b>" + currentModule.name + "</b> module",
       })
 
     })
-
-    data.onSubmit = function (errors, values) {
-
-      $.post(window.location, values, function (data, err) {
-
-        window.location.href = window.location.href;
-
-      })
-
-    };
 
     data.form.push({
       type: "submit",
@@ -125,6 +119,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
 iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (thisHook, data) {
 
   var enabled = [];
+  var unmet = [];
 
   Object.keys(thisHook.const.params).forEach(function (moduleName) {
 
@@ -132,13 +127,39 @@ iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (this
 
       thisHook.const.params[moduleName].name = moduleName;
 
+      // Check dependencies
+
+      if (thisHook.const.params[moduleName].dependencies) {
+
+        var dependencies = thisHook.const.params[moduleName].dependencies.split(",");
+
+        dependencies.forEach(function (dependency) {
+
+          if (!thisHook.const.params[dependency] || thisHook.const.params[dependency].enabled === "false") {
+
+            unmet.push(moduleName + " requires " + dependency, "error");
+
+          }
+
+        })
+
+      }
+
       delete thisHook.const.params[moduleName].enabled;
+      delete thisHook.const.params[moduleName].dependencies;
 
       enabled.push(thisHook.const.params[moduleName]);
 
     }
 
   })
+
+  if (unmet.length) {
+
+    thisHook.finish(false, JSON.stringify(unmet));
+    return false;
+
+  }
 
   enabled.sort(function (a, b) {
     if (a.rank < b.rank)
