@@ -308,7 +308,15 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         } else {
 
-          window.location.href = data;
+          if (data && data.indexOf("doctype") === -1) {
+
+            window.location.href = data;
+
+          } else {
+
+            window.location.href = window.location.href;
+
+          }
 
         }
 

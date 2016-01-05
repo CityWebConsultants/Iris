@@ -44,7 +44,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
 
       var moduleName = path.normalize(path.basename(file).replace(".iris", ""));
       var fileDir = path.normalize(path.dirname(file));
-      
+
       fileDir = path.normalize(fileDir.replace(iris.rootPath.replace("iris_core", ""), "") + "/" + moduleName);
 
       try {
@@ -59,7 +59,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
         availableModules[file.modueName] = file;
 
       } catch (e) {
-        
+
         iris.log("error", e);
 
       }
@@ -177,8 +177,8 @@ iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (this
 
   fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));
 
-  iris.restart(thisHook.authPass.userid, "modules page");
+  thisHook.finish(true, data);
 
-  thisHook.finish(true, data)
+  iris.restart(thisHook.authPass.userid, "modules page");
 
 });
