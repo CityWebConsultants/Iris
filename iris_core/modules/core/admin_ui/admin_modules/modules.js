@@ -137,7 +137,7 @@ iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (this
 
           if (!thisHook.const.params[dependency] || thisHook.const.params[dependency].enabled === "false") {
 
-            unmet.push(moduleName + " requires " + dependency, "error");
+            unmet.push(moduleName + " requires " + dependency);
 
           }
 
@@ -156,7 +156,7 @@ iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (this
 
   if (unmet.length) {
 
-    thisHook.finish(false, JSON.stringify(unmet));
+    thisHook.finish(false, unmet.join("/n"));
     return false;
 
   }
