@@ -397,7 +397,7 @@ module.exports = function (config) {
 
             if (output && output.then) {
 
-              success(res).then(function () {
+              output.then(function () {
 
                 if (!res.headersSent) {
 
@@ -504,7 +504,7 @@ module.exports = function (config) {
       if (m.sessions) {
 
         Object.keys(m.sessions).forEach(function (user) {
-
+                    
           iris.modules.auth.globals.userList[user] = m.sessions[user];
 
         });
