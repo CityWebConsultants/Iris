@@ -1,4 +1,3 @@
-
 /**
  * @file Provides hooks and functions to create forms for use on the frontend
  */
@@ -66,7 +65,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         params: body,
         formid: formid,
         req: thisHook.const.req
-      }).then(function (gremlin) {
+      }).then(function (callbackfunction) {
 
         iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
           params: body,
@@ -103,7 +102,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
             // Default form if not handler
 
-            if (typeof gremlin !== "function") {
+            if (typeof callbackfunction !== "function") {
 
               // If no callback is supplied provide a basic redirect to the same page
 
@@ -115,17 +114,25 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
               }
 
-              thisHook.finish(true, gremlin);
+              thisHook.finish(true, callbackfunction);
 
             } else {
 
-              thisHook.finish(true, gremlin);
+              thisHook.finish(true, callbackfunction);
 
             }
 
           } else {
 
-            thisHook.finish(false, fail);
+            var callback = function (res) {
+
+              res.send({
+                errors: fail
+              });
+
+            }
+
+            thisHook.finish(true, callback);
 
           }
 
@@ -293,7 +300,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         if (data.errors) {
 
-          console.log(data.errors);
+          console.error(data.errors);
 
         } else {
 
