@@ -839,6 +839,16 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
  */
 iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
 
+  // Load in any messsages left for the user
+
+  if (!data.vars) {
+
+    data.vars = {};
+
+  }
+
+  data.vars.iris_messages = iris.readMessages(thisHook.authPass.userid);
+
   var Handlebars = require('handlebars');
 
   try {

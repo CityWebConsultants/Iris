@@ -41,6 +41,8 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
         var anonID = "anon" + "_" + buf.toString('hex');
 
         thisHook.const.res.cookie('anonID', anonID);
+        
+        data.userid = anonID;
 
       })
 

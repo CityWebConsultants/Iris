@@ -21,6 +21,10 @@ module.exports = function (config) {
   // Launch logging module
 
   require("./log")(config.logdays);
+  
+  // Launch user messaging module
+  
+  require("./message")
 
   //Make config folder
 
