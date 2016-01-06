@@ -44,10 +44,10 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
 
     files.forEach(function (file) {
 
-      var moduleName = path.normalize(path.basename(file).replace(".iris.module", ""));
-      var fileDir = path.normalize(path.dirname(file));
+      var moduleName = path.basename(file).replace(".iris.module", "");
+      var fileDir = path.dirname(file);
 
-      fileDir = path.normalize(fileDir.replace(iris.rootPath, "") + "/" + moduleName);
+      fileDir = fileDir.replace(iris.rootPath, "") + "/" + moduleName;
 
       try {
 
@@ -73,7 +73,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
     data.form = [];
 
     Object.keys(availableModules).forEach(function (moduleName) {
-      
+
       var currentModule = availableModules[moduleName];
 
       data.schema[moduleName] = {
