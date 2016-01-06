@@ -1,5 +1,3 @@
-var messageStore = {};
-
 iris.messageStore = {};
 
 iris.message = function (userid, message, type) {
