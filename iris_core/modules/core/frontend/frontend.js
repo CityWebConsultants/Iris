@@ -28,7 +28,7 @@ var mkdirSync = function (path) {
  */
 iris.modules.frontend.globals.templateRegistry = {
   external: [],
-  theme: [iris.sitePath + "/templates"]
+  theme: []
 };
 
 // Static folder in site's root directory
@@ -51,6 +51,10 @@ var path = require("path");
 
 iris.modules.frontend.globals.setActiveTheme = function (themePath) {
 
+  // Reset theme lookup registry
+
+  iris.modules.frontend.globals.templateRegistry.theme = [];
+
   var themeName = path.basename(themePath).replace(".iris.theme", "");
 
   var result = {};
@@ -60,7 +64,7 @@ iris.modules.frontend.globals.setActiveTheme = function (themePath) {
     var unmet = [];
     var loadedDeps = [];
 
-    themeInfo = JSON.parse(fs.readFileSync(iris.rootPath + "/" + themePath, "utf8"));
+    themeInfo = JSON.parse(fs.readFileSync(themePath, "utf8"));
 
     // Make config into a variable accessible by other modules
 

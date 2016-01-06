@@ -52,11 +52,12 @@ iris.modules.admin_ui.registerHook("hook_form_render_themes", 0, function (thisH
         names[file] = info.name;
 
       });
-
+      
       data.schema.activeTheme = {
         type: "string",
         title: "Active theme",
-        enum: Object.keys(themes)
+        enum: Object.keys(themes),
+        default: iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.path : ""
       }
 
       data.form = [];
@@ -85,7 +86,23 @@ iris.modules.admin_ui.registerHook("hook_form_render_themes", 0, function (thisH
 
 })
 
+var path = require("path");
+var fs = require("fs");
+
 iris.modules.admin_ui.registerHook("hook_form_submit_themes", 0, function (thisHook, data) {
+
+  // Try to set theme
+
+  var themePath = thisHook.const.params.activeTheme.replace(iris.rootPath, "");
+
+  themeName = path.basename(themePath).replace(".iris.theme", "");
+
+  fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify({
+    name: themeName,
+    path: themePath
+  }))
+
+  var setTheme = iris.modules.frontend.globals.setActiveTheme(themePath);
 
   thisHook.finish(true);
 
