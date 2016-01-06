@@ -49,31 +49,27 @@ process.on("dbReady", function () {
 
 var path = require("path");
 
-try {
+iris.modules.frontend.globals.setActiveTheme = function (themeName, themePath) {
 
-  var themeFile = fs.readFileSync(iris.sitePath + "/active_theme.json", "utf8");
+  var problems;
 
   try {
 
     var unmet = [];
     var loadedDeps = [];
 
-    var activeTheme = JSON.parse(themeFile)[0];
-
-    themeInfo = JSON.parse(fs.readFileSync(iris.rootPath + "/" + activeTheme.path + "/" + activeTheme.name + ".iris.theme", "utf8"));
+    themeInfo = JSON.parse(fs.readFileSync(iris.rootPath + "/" + themePath + "/" + themeName + ".iris.theme", "utf8"));
 
     // Read themes this is dependent on
 
     var glob = require("glob");
-
+    
     if (themeInfo.dependencies) {
-
-      themeInfo.dependencies.forEach(function (dep) {
-
-        var dep = Object.keys(dep)[0];
+      
+      Object.keys(themeInfo.dependencies).forEach(function (dep) {
 
         var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.sitePath + "/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + dep + "/" + dep + ".iris.theme" + "}");
-
+        
         if (!found.length) {
 
           unmet.push(dep);
@@ -95,12 +91,12 @@ try {
     // Push in theme templates to template lookup registry 
 
     if (!unmet.length) {
-
-      iris.modules.frontend.globals.templateRegistry.theme.push(iris.rootPath + "/" + activeTheme.path + "/templates");
+      
+      iris.modules.frontend.globals.templateRegistry.theme.push(iris.rootPath + "/" + themePath + "/templates");
 
       // Push in theme's static folder
 
-      iris.app.use("/themes/" + activeTheme.name, express.static(iris.rootPath + "/" + activeTheme.path + "/static"));
+      iris.app.use("/themes/" + themeName, express.static(iris.rootPath + "/" + themePath + "/static"));
 
       loadedDeps.forEach(function (loadedDep) {
 
@@ -113,6 +109,8 @@ try {
       })
 
     } else {
+      
+      problems = true;
 
       iris.log("error", "Active theme has unmet dependencies: " + unmet.join(","));
 
@@ -120,7 +118,39 @@ try {
 
   } catch (e) {
 
-    console.log(e);
+    iris.log("error", e);
+
+    problems = true;
+
+  }
+
+  if (!problems) {
+
+    return true;
+
+  } else {
+
+    return false;
+
+  }
+
+}
+
+try {
+
+  var themeFile = fs.readFileSync(iris.sitePath + "/active_theme.json", "utf8");
+
+  try {
+
+    var activeTheme = JSON.parse(themeFile)[0];
+
+    if (!iris.modules.frontend.globals.setActiveTheme(activeTheme.name, activeTheme.path)) {
+
+      iris.log("error", "Could not enable " + activeTheme.name);
+
+    }
+
+  } catch (e) {
 
     iris.log("error", e);
 
