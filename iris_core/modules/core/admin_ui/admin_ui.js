@@ -4,8 +4,6 @@
 
 iris.registerModule("admin_ui");
 
-require('./admin_modules.js');
-
 require('./admin_routing.js');
 
 iris.modules.menu.globals.registerMenu("admin-toolbar");
@@ -25,8 +23,6 @@ iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/config
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/export", "Export config", 1);
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/import", "Import config", 1);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/modules", "Modules", 1);
-
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/permissions", "Permissions", 1);
 
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs", 1);
@@ -36,6 +32,8 @@ iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/logout", "Lo
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/restart", "Restart server", 5);
 
 iris.modules.auth.globals.registerPermission("can view admin menu", "admin");
+
+require('./admin_modules.js');
 
 iris.modules.admin_ui.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
 

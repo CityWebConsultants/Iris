@@ -49,7 +49,9 @@ process.on("dbReady", function () {
 
 var path = require("path");
 
-iris.modules.frontend.globals.setActiveTheme = function (themeName, themePath) {
+iris.modules.frontend.globals.setActiveTheme = function (themePath) {
+
+  var themeName = path.basename(themePath).replace(".iris.theme", "");
 
   var result = {};
 
@@ -58,7 +60,15 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName, themePath) {
     var unmet = [];
     var loadedDeps = [];
 
-    themeInfo = JSON.parse(fs.readFileSync(iris.rootPath + "/" + themePath + "/" + themeName + ".iris.theme", "utf8"));
+    themeInfo = JSON.parse(fs.readFileSync(iris.rootPath + "/" + themePath, "utf8"));
+
+    // Make config into a variable accessible by other modules
+
+    iris.modules.frontend.globals.activeTheme = {
+      name: themeName,
+      path: themePath,
+      config: themeInfo
+    }
 
     // Read themes this is dependent on
 
@@ -134,7 +144,7 @@ try {
 
     var activeTheme = JSON.parse(themeFile)[0];
 
-    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.name, activeTheme.path);
+    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.path);
 
     if (setTheme.errors) {
 
