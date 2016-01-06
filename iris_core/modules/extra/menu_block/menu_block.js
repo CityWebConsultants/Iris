@@ -2,7 +2,7 @@ iris.registerModule("menu_block");
 
 iris.modules.blocks.globals.registerBlockType("menu");
 
-iris.modules.views.registerHook("hook_form_render_blockForm_menu", 0, function (thisHook, data) {
+iris.modules.menu_block.registerHook("hook_form_render_blockForm_menu", 0, function (thisHook, data) {
 
   var availableMenus = {};
 
