@@ -93,7 +93,7 @@ iris.modules.admin_ui.registerHook("hook_form_submit_themes", 0, function (thisH
 
   // Try to set theme
 
-  var themePath = thisHook.const.params.activeTheme.replace(iris.rootPath, "");
+  var themePath = thisHook.const.params.activeTheme;
 
   themeName = path.basename(themePath).replace(".iris.theme", "");
 
