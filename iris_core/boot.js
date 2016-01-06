@@ -25,7 +25,8 @@ module.exports = function (config) {
 
   //Store helper paths
 
-  iris.rootPath = __dirname;
+  iris.rootPath = path.resolve(__dirname + "/../");
+    
   iris.sitePath = process.cwd();
 
   // Launch logging module
