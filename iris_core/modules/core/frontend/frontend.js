@@ -27,11 +27,13 @@ var mkdirSync = function (path) {
  * Template Registry. Contains arrays of directories to look for templates in.
  */
 iris.modules.frontend.globals.templateRegistry = {
-  theme: [iris.sitePath + "/templates"],
-  external: []
+  external: [],
+  theme: [iris.sitePath + "/templates"]
 };
 
-iris.app.use("/site/static", express.static(iris.sitePath + '/static'));
+// Static folder in site's root directory
+
+iris.app.use("/", express.static(iris.sitePath + '/static'));
 
 // Add theme folders from modules to external list
 
@@ -47,37 +49,86 @@ process.on("dbReady", function () {
 
 var path = require("path");
 
-if (iris.config.theme) {
+try {
 
-  var themePath = path.resolve(iris.sitePath + '/../../' + iris.config.theme);
+  var themeFile = fs.readFileSync(iris.sitePath + "/active_theme.json", "utf8");
 
   try {
 
-    // Theme static setup
+    var unmet = [];
+    var loadedDeps = [];
 
-    fs.readdirSync(themePath);
+    var activeTheme = JSON.parse(themeFile)[0];
 
-    iris.app.use("/theme/static", express.static(themePath + '/static'));
+    themeInfo = JSON.parse(fs.readFileSync(iris.rootPath + "/" + activeTheme.path + "/" + activeTheme.name + ".iris.theme", "utf8"));
 
-    iris.modules.frontend.globals.templateRegistry.theme.push(themePath + "/templates");
+    // Read themes this is dependent on
 
-    fs.readFile(themePath + "/theme.json", function (err, file) {
+    var glob = require("glob");
 
-      if (err) {
+    if (themeInfo.dependencies) {
 
-        fs.writeFileSync(themePath + "/theme.json", '{}', 'utf8');
+      themeInfo.dependencies.forEach(function (dep) {
 
-        iris.log("info", "Couldn't find theme.json file, creating one");
+        var dep = Object.keys(dep)[0];
 
-      }
+        var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.sitePath + "/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + dep + "/" + dep + ".iris.theme" + "}");
 
-    });
+        if (!found.length) {
+
+          unmet.push(dep);
+
+        } else {
+
+          found.forEach(function (loadedDep) {
+
+            loadedDeps.push(loadedDep);
+
+          })
+
+        }
+
+      })
+
+    }
+
+    // Push in theme templates to template lookup registry 
+
+    if (!unmet.length) {
+
+      iris.modules.frontend.globals.templateRegistry.theme.push(iris.rootPath + "/" + activeTheme.path + "/templates");
+
+      // Push in theme's static folder
+
+      iris.app.use("/themes/" + activeTheme.name, express.static(iris.rootPath + "/" + activeTheme.path + "/static"));
+
+      loadedDeps.forEach(function (loadedDep) {
+
+        var depName = path.basename(loadedDep).replace(".iris.theme", "");
+
+        iris.app.use("/themes/" + depName, express.static(path.dirname(loadedDep) + "/static"));
+
+        iris.modules.frontend.globals.templateRegistry.theme.push(path.dirname(loadedDep) + "/templates");
+
+      })
+
+    } else {
+
+      iris.log("error", "Active theme has unmet dependencies: " + unmet.join(","));
+
+    }
 
   } catch (e) {
 
-    throw "Could not load theme";
+    console.log(e);
+
+    iris.log("error", e);
 
   }
+
+} catch (e) {
+
+  iris.log("info", "No theme enabled");
 
 }
 

@@ -56,7 +56,7 @@ iris.app.use(function (req, res, next) {
 
       } else {
 
-        fs.readFile(iris.rootPath + "/startup.html", "utf8", function (err, file) {
+        fs.readFile(iris.rootPath + "/iris_core/startup.html", "utf8", function (err, file) {
           
           if (!err) {
 
