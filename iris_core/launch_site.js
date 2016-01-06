@@ -57,19 +57,21 @@ process.on("uncaughtException", function (e) {
 
   if (Array.isArray(e.stack)) {
 
+    var errorMessage = '';
+
     e.stack.forEach(function (error, index) {
 
-      var error = "Error on line " + e.stack[index].getLineNumber() + " of " + e.stack[index].getFileName() + " " + e.message;
-
-      console.error(error);
-
-      if (iris.log) {
-
-        iris.log("fatal", error);
-
-      }
+      errorMessage += "Error on line " + e.stack[index].getLineNumber() + " of " + e.stack[index].getFileName() + " " + e.message + '\n';
 
     })
+
+    console.error(errorMessage);
+
+    if (iris.log) {
+
+      iris.log("fatal", errorMessage);
+
+    }
 
   } else {
 
