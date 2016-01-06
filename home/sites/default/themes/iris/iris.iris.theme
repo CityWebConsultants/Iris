@@ -1,7 +1,0 @@
-{
-  "name": "Iris theme",
-  "description": "A theme",
-  "dependencies": {
-    "book": "5"
-  }
-}
