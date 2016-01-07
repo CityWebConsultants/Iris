@@ -54,7 +54,7 @@ iris.app.get("/admin/config/export", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -81,7 +81,7 @@ iris.app.get("/admin/config/import", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -108,7 +108,7 @@ iris.app.get("/admin", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -135,7 +135,7 @@ iris.app.get("/admin/permissions", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -163,7 +163,7 @@ iris.app.get("/admin/entities", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -224,7 +224,7 @@ iris.app.get("/admin/logs", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -250,7 +250,7 @@ iris.app.get("/admin/schema/create", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -276,7 +276,7 @@ iris.app.get("/admin/schema/edit/:type", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -305,7 +305,7 @@ iris.app.get("/admin/edit/:type/:eid", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -333,7 +333,7 @@ iris.app.get("/admin/create/:type", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -360,7 +360,7 @@ iris.app.get("/admin/delete/:type/:id", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -391,7 +391,7 @@ iris.app.get("/admin/entitylist/:type", function (req, res) {
 
       iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-      iris.log("error", e);
+      iris.log("error", fail);
 
     });
 
@@ -439,7 +439,7 @@ iris.app.get("/admin/structure/", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -611,7 +611,7 @@ iris.app.get("/admin/config/", function (req, res) {
 
       iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-      iris.log("error", e);
+      iris.log("error", fail);
 
     });
 
@@ -641,7 +641,7 @@ iris.app.get("/admin/restart", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
