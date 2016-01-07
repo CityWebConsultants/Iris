@@ -74,11 +74,11 @@ Want to only allow certain HTML elements or attributes? Register a text filter a
 
 A block is a piece of content that renders on a page. They can be placed (via the admin interface) in an Iris theme's regions (header, sidebar...) Iris modules can register block types. We've put in two such modules to get you started:
 
-### Custom block
+#### Custom block
 
 A simple piece of template HTML.
 
-### List block
+#### List block
 
 Pick an entity type, list some conditions you want to display (where the title contains "Hello" maybe?), pick which fields you want to display, add HTML classes and elements around them and hit save in the UI. You have a list block. Oh, and if you enable the Angular Live Load module it will automatically update when new content fits the criteria. Without a page refresh.
 
