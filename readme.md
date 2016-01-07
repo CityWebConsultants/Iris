@@ -16,14 +16,11 @@ Iris is a modular content management system and web application framework built 
 * An actions module for registering events, conditions and actions to fire at certain times
 * A logs page for viewing messages and errors
 * Database entity queries done through simple widgets placed in HTML that handle all access permissions for you.
+* Iris was built with version control in mind with congiguration stored in easily exportable/importable JSON files. You can even view difs and export/import config through the UI.
 
 ## Runs on Linux, Mac OS and Windows
 
 Iris was built on Windows, Linux and Mac OS so should work on all three.
-
-## Built with version control in mind
-
-Iris was built with version control in mind so, instead of storing blocks, regions, fields and entity types, views and other configuration in the database, all configuration you'd want to put through Git or another version control system is stored in easily exportable/importable JSON files. You can see what has changed through the graphical interface. You can even edit these configuration files manually if you want as they're written to be human-readable. The exporting and importing is again done through the user interface, though if you prefer drag and drop exporting and importing you can do that too.
 
 ## Read the docs
 
