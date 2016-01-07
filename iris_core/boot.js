@@ -339,8 +339,8 @@ module.exports = function (config) {
 
     iris.enabledModules.forEach(function (enabledModule, index) {
 
-      var modulePath = path.resolve(path.normalize(__dirname + "/../" + enabledModule.path + ".js"));
-      var moduleInfoPath = path.resolve(path.normalize(__dirname + "/../" + enabledModule.path + ".iris.module"));
+      var modulePath = path.resolve(enabledModule.path + ".js");
+      var moduleInfoPath = path.resolve(enabledModule.path + ".iris.module");
 
       try {
 

@@ -150,8 +150,6 @@ iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (this
       delete thisHook.const.params[moduleName].enabled;
       delete thisHook.const.params[moduleName].dependencies;
       
-      thisHook.const.params[moduleName].path = thisHook.const.params[moduleName].path + ".js";
-
       enabled.push(thisHook.const.params[moduleName]);
 
     }
