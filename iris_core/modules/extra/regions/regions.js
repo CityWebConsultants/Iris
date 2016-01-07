@@ -24,14 +24,12 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
 
     var path = require("path");
 
-    var themePath = path.resolve(iris.sitePath + '/../../' + iris.config.theme);
-
-    var themeSettings = fs.readFileSync(themePath + "/theme.json", "utf8");
+    var themeSettings = fs.readFileSync(iris.modules.frontend.globals.activeTheme.path + "/" + iris.modules.frontend.globals.activeTheme.name + ".iris.theme", "utf8");
 
     themeSettings = JSON.parse(themeSettings);
 
     var regions = themeSettings.regions;
-
+    
     var form = {};
 
     // Push in N/A option
@@ -41,7 +39,7 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
     blocks.reverse();
 
     regions.forEach(function (regionName) {
-
+      
       form[regionName] = {
         "type": "array",
         "title": regionName.toUpperCase(),

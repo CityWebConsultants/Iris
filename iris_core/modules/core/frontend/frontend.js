@@ -68,8 +68,7 @@ iris.modules.frontend.globals.setActiveTheme = function (themePath, themeName) {
 
     iris.modules.frontend.globals.activeTheme = {
       name: themeName,
-      path: iris.rootPath + themePath,
-      config: themeInfo
+      path: iris.rootPath + themePath
     }
 
     // Read themes this is dependent on
