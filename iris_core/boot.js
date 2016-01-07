@@ -317,7 +317,21 @@ module.exports = function (config) {
 
     console.log("Loading modules...");
 
-    iris.enabledModules = JSON.parse(fs.readFileSync(process.cwd() + '/enabled_modules.json'));
+    try {
+
+      var file = fs.readFileSync(process.cwd() + '/enabled_modules.json');
+
+      iris.enabledModules = JSON.parse(file);
+
+    } catch (e) {
+      
+      fs.writeFileSync(process.cwd() + '/enabled_modules.json', "[]");
+
+      iris.enabledModules = [];
+      
+      console.log(iris.enabledModules);
+
+    }
 
     console.log(" ");
 

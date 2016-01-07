@@ -46,7 +46,6 @@ iris.app.get("/admin/config/export", function (req, res) {
   }
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_export_config"], ['admin_wrapper'], {
-    blocks: iris.modules.blocks.globals.blocks
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -74,8 +73,6 @@ iris.app.get("/admin/config/import", function (req, res) {
   }
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_import_config"], ['admin_wrapper'], {
-    blocks: iris.modules.blocks.globals.blocks,
-    hello: "world"
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -132,7 +129,6 @@ iris.app.get("/admin/regions", function (req, res) {
   }
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {
-    blocks: iris.modules.blocks.globals.blocks,
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -189,8 +185,6 @@ iris.app.get("/admin/permissions", function (req, res) {
   }
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {
-    blocks: iris.modules.blocks.globals.blocks,
-    hello: "world"
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -416,8 +410,6 @@ iris.app.get("/admin/delete/:type/:id", function (req, res) {
   }
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_entity_delete"], ['admin_wrapper'], {
-    blocks: iris.modules.blocks.globals.blocks,
-    hello: "world"
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
