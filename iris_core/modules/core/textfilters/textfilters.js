@@ -32,7 +32,7 @@ iris.modules.textfilters.registerHook("hook_form_render_textformat", 0, function
   data.schema.name = {
 
     "type": "text",
-    "title": "Format name",
+    "title": "Filter name",
     "required": true
   };
 
@@ -40,15 +40,15 @@ iris.modules.textfilters.registerHook("hook_form_render_textformat", 0, function
   data.schema.elements = {
 
     "type": "text",
-    "title": "Allowed elements",
-    "required": true,
+    "title": "Allowed HTML elements",
+    "description": "Divided by commas. List without brackets.",
   }
 
   data.schema.attributes = {
 
     "type": "text",
-    "title": "Allowed attributes",
-    "required": true,
+    "title": "Allowed HTML attributes",
+    "description": "Divided by commas",
   }
 
   // Hide name if editing and set default values
@@ -99,13 +99,19 @@ iris.modules.textfilters.registerHook("hook_form_submit_textformat", 0, function
 
   iris.saveConfig(thisHook.const.params, "textformats", iris.sanitizeFileName(thisHook.const.params.name), function (response) {
 
+    data = function (res) {
+
+      res.send("/admin/textfilters")
+
+    }
+
     thisHook.finish(true, data);
 
   });
 
 })
 
-iris.app.get("/admin/textformats", function (req, res) {
+iris.app.get("/admin/textfilters", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -133,7 +139,7 @@ iris.app.get("/admin/textformats", function (req, res) {
 
 })
 
-iris.app.get("/admin/textformats/create", function (req, res) {
+iris.app.get("/admin/textfilters/create", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -159,7 +165,7 @@ iris.app.get("/admin/textformats/create", function (req, res) {
 
 })
 
-iris.app.get("/admin/textformats/edit/:name", function (req, res) {
+iris.app.get("/admin/textfilters/edit/:name", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -187,7 +193,7 @@ iris.app.get("/admin/textformats/edit/:name", function (req, res) {
 
 })
 
-iris.app.get("/admin/textformats/delete/:name", function (req, res) {
+iris.app.get("/admin/textfilters/delete/:name", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -254,7 +260,7 @@ iris.modules.textfilters.registerHook("hook_form_submit_texformat_delete", 0, fu
 
     var data = function (res) {
 
-      res.send("/admin/textformats");
+      res.send("/admin/textfilters");
 
     };
 
@@ -290,7 +296,7 @@ iris.modules.textfilters.registerHook("hook_schemafield_render", 0, function (th
 
 });
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/textformats", "Text formats");
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/textfilters", "Text filters");
 
 var sanitizeHtml = require('sanitize-html');
 

@@ -2,6 +2,10 @@ var fs = require('fs');
 
 iris.registerModule("regions");
 
+// Register menu item
+
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/regions", "Regions", 1);
+
 iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
   // Loop over available block types and add their blocks to a list for the form
