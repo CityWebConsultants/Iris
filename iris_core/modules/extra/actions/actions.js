@@ -118,7 +118,7 @@ iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
 
         if (iris.configStore.actions[rule].events.event === name) {
 
-          var rule = iris.configStore.actions[rule];
+          var rule = JSON.parse(JSON.stringify(iris.configStore.actions[rule]));
 
           // Check if any conditions
 
