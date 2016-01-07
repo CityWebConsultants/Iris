@@ -341,8 +341,6 @@ module.exports = function (config) {
 
       iris.enabledModules = [];
 
-      console.log(iris.enabledModules);
-
     }
 
     console.log(" ");
