@@ -16,9 +16,9 @@ function irisReady(fn) {
 
 irisReady(function () {
 
-  // Hide angular-view
+  // Hide angular-list
 
-  var hidden = document.querySelectorAll(".hide-angular-view");
+  var hidden = document.querySelectorAll(".hide-angular-list");
 
   for (var i = 0; i < hidden.length; i += 1) {
 
@@ -28,7 +28,7 @@ irisReady(function () {
 
   // Show angular bits
 
-  var shown = document.querySelectorAll(".show-angular-view");
+  var shown = document.querySelectorAll(".show-angular-list");
 
   for (var i = 0; i < shown.length; i += 1) {
 
@@ -70,7 +70,7 @@ irisReady(function () {
     return function (text) {
       return $sce.trustAsHtml(text);
     };
-    
+
 }])
     angular.bootstrap(document, ['iris']);
 

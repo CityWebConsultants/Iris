@@ -2,9 +2,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0-rc.0/angular.js"></script>
 <script src="http://localhost:4000/modules/angular_live_load/angular_live_load_client.js"></script>
 
-<div class="hide-angular-view">
+<div class="hide-angular-list">
 
-  {{#each view}} {{#each this}}
+  {{#each list}} {{#each this}}
 
   <{{this.wrapper}} class="{{this.class}}">
 
@@ -17,28 +17,28 @@
 
 </div>
 
-<div class="show-angular-view" style="display:none;">
-  
-  <div ng-controller="iris-template" ng-iris-template="view_{{viewName}}">
+<div class="show-angular-list" style="display:none;">
+
+  <div ng-controller="iris-template" ng-iris-template="list_{{listName}}">
 
     <div ng-repeat="entity in data">
-      
-       {{#each view.[0]}}      
-        
+
+       {{#each list.[0]}}
+
     {{#if this.allowhtml}}
-    
+
   <{{this.wrapper}} ng-bind-html="entity.{{@key}} | html_filter" class="{{this.class}}"> </{{this.wrapper}}>
-     
-    {{else}} 
-    
+
+    {{else}}
+
     <{{this.wrapper}} class="{{this.class}}">##entity.{{@key}}## </{{this.wrapper}}>
-    
-    {{/if}}  
+
+    {{/if}}
 
   {{/each}}
 
     </div>
 
   </div>
-  
+
 </div>

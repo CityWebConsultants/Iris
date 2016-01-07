@@ -1,0 +1,7 @@
+{
+  "name": "lists",
+  "dependencies": {
+    "blocks": "1"
+  },
+  "rank": 3
+}

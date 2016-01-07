@@ -1,4 +1,4 @@
-iris.registerModule("views");
+iris.registerModule("lists");
 
 var fs = require("fs");
 
@@ -24,13 +24,13 @@ process.on("dbReady", function () {
 
     });
 
-    iris.modules.blocks.globals.registerBlockType('View-of-' + entityType);
+    iris.modules.blocks.globals.registerBlockType('List-of-' + entityType);
 
-    iris.modules.views.registerHook("hook_form_render_blockForm_View-of-" + entityType, 0, function (thisHook, data) {
+    iris.modules.lists.registerHook("hook_form_render_blockForm_List-of-" + entityType, 0, function (thisHook, data) {
 
-      if (thisHook.const.params[1] && iris.modules.blocks.globals.blocks["View-of-" + entityType] && iris.modules.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]]) {
+      if (thisHook.const.params[1] && iris.modules.blocks.globals.blocks["List-of-" + entityType] && iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.const.params[1]]) {
 
-        var existingView = iris.modules.blocks.globals.blocks["View-of-" + entityType][thisHook.const.params[1]];
+        var existingView = iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.const.params[1]];
 
         data.value = existingView;
 
@@ -55,12 +55,12 @@ process.on("dbReady", function () {
                 "title": "Field to check",
                 "enum": fields
               },
-              "comparison": {
+              "operator": {
                 "type": "string",
                 "title": "Operator",
                 "enum": ["IS", "IN", "CONTAINS"]
               },
-              "compare": {
+              "value": {
                 "type": "string",
                 "title": "Value to check for",
                 "description": "This value can be altered dynamically later on"
@@ -114,9 +114,9 @@ process.on("dbReady", function () {
 
 // Render blocks
 
-iris.modules.views.registerHook("hook_block_render", 0, function (thisHook, data) {
+iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data) {
 
-  if (thisHook.const.type.split("-")[0] === "View") {
+  if (thisHook.const.type.split("-")[0] === "List") {
 
     var config = thisHook.const.config;
 
@@ -135,7 +135,7 @@ iris.modules.views.registerHook("hook_block_render", 0, function (thisHook, data
     }
 
     var fetch = {
-      entities: [thisHook.const.type.replace("View-of-", "")],
+      entities: [thisHook.const.type.replace("List-of-", "")],
       queries: config.conditions,
       limit: config.limit
     }
@@ -183,9 +183,9 @@ iris.modules.views.registerHook("hook_block_render", 0, function (thisHook, data
 
         });
 
-        iris.modules.frontend.globals.parseTemplateFile(["views", thisHook.const.type], null, {
-          view: output,
-          viewName: thisHook.const.id
+        iris.modules.frontend.globals.parseTemplateFile(["lists", thisHook.const.type], null, {
+          list: output,
+          listName: thisHook.const.id
         }, thisHook.authPass).then(function (success) {
 
           // Add in entity embed template
@@ -199,7 +199,7 @@ iris.modules.views.registerHook("hook_block_render", 0, function (thisHook, data
 
           embed += ",";
 
-          embed += "view_" + thisHook.const.id;
+          embed += "list_" + thisHook.const.id;
 
           embed += ",";
 
@@ -207,7 +207,7 @@ iris.modules.views.registerHook("hook_block_render", 0, function (thisHook, data
 
           fetch.queries.forEach(function (query) {
 
-            embed += query.field + "|" + query.comparison + "|" + JSON.stringify(query.compare) + "+";
+            embed += query.field + "|" + query.operator + "|" + JSON.stringify(query.value) + "+";
 
           })
 
