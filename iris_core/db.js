@@ -169,11 +169,11 @@ iris.dbPopulate = function () {
 
       // Convert types
 
-      iris.modules.entity2.globals.fetchSchemaForm();
+      iris.modules.entityforms.globals.fetchSchemaForm();
 
-      if (iris.modules.entity2.globals.fieldTypes[field.fieldTypeName] && iris.modules.entity2.globals.fieldTypes[field.fieldTypeName].fieldTypeType) {
+      if (iris.modules.entityforms.globals.fieldTypes[field.fieldTypeName] && iris.modules.entityforms.globals.fieldTypes[field.fieldTypeName].fieldTypeType) {
 
-        var fieldType = iris.modules.entity2.globals.fieldTypes[field.fieldTypeName].fieldTypeType;
+        var fieldType = iris.modules.entityforms.globals.fieldTypes[field.fieldTypeName].fieldTypeType;
 
       }
 

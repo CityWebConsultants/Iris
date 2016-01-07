@@ -2,18 +2,18 @@
  * @file Forms and form handlers for creating and editing forms, plus string widgets
  */
 
-iris.registerModule("entity2");
+iris.registerModule("entityforms");
 
 var fs = require("fs");
 
 // Store field types in memory
 
-iris.modules.entity2.globals.fieldTypes = {};
+iris.modules.entityforms.globals.fieldTypes = {};
 
 /**
  * Generate form for schema edit/create
  */
-iris.modules.entity2.globals.fetchSchemaForm = function () {
+iris.modules.entityforms.globals.fetchSchemaForm = function () {
 
   // Search all enabled module paths for fieldSchema directories and schema
 
@@ -111,9 +111,9 @@ iris.modules.entity2.globals.fetchSchemaForm = function () {
         // Add fieldtype to memory index if it doesn't already exist
 
 
-        if (!iris.modules.entity2.globals.fieldTypes[fieldTypeMachineName]) {
+        if (!iris.modules.entityforms.globals.fieldTypes[fieldTypeMachineName]) {
 
-          iris.modules.entity2.globals.fieldTypes[fieldTypeMachineName] = fieldSchema;
+          iris.modules.entityforms.globals.fieldTypes[fieldTypeMachineName] = fieldSchema;
 
         } else {
 
@@ -121,7 +121,7 @@ iris.modules.entity2.globals.fetchSchemaForm = function () {
 
           Object.keys(fieldSchema).forEach(function (field) {
 
-            iris.modules.entity2.globals.fieldTypes[fieldTypeMachineName][field] = fieldSchema[field];
+            iris.modules.entityforms.globals.fieldTypes[fieldTypeMachineName][field] = fieldSchema[field];
 
           })
 
@@ -151,9 +151,9 @@ iris.modules.entity2.globals.fetchSchemaForm = function () {
     "type": "choose"
   };
 
-  Object.keys(iris.modules.entity2.globals.fieldTypes).forEach(function (field) {
+  Object.keys(iris.modules.entityforms.globals.fieldTypes).forEach(function (field) {
 
-    var fieldConfig = iris.modules.entity2.globals.fieldTypes[field];
+    var fieldConfig = iris.modules.entityforms.globals.fieldTypes[field];
 
     schemaFormFields[field] = {
 
@@ -219,10 +219,10 @@ iris.modules.entity2.globals.fetchSchemaForm = function () {
 
 // Base level widgets
 
-iris.modules.entity2.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
+iris.modules.entityforms.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
 
   var name = thisHook.const.field.fieldTypeName;
-  var type = iris.modules.entity2.globals.fieldTypes[thisHook.const.field.fieldTypeName].fieldTypeType;
+  var type = iris.modules.entityforms.globals.fieldTypes[thisHook.const.field.fieldTypeName].fieldTypeType;
   
   if (name === "longstring") {
 
@@ -273,12 +273,12 @@ iris.modules.entity2.registerHook("hook_render_entityfield_form", 0, function (t
 
 // Field save handler
 
-iris.modules.entity2.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
+iris.modules.entityforms.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
 
   var fieldSchema = thisHook.const.schema,
     value = thisHook.const.value,
     fieldName = thisHook.const.schema.fieldTypeName,
-    fieldType = iris.modules.entity2.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
+    fieldType = iris.modules.entityforms.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
 
   if (fieldType === "string") {
 
@@ -298,7 +298,7 @@ iris.modules.entity2.registerHook("hook_entityfield_save", 0, function (thisHook
 
 // Entity create form handler
 
-iris.modules.entity2.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
+iris.modules.entityforms.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
 
   // Get type from url
   // Get the schema for the requested type to get the widgets
@@ -388,7 +388,7 @@ iris.modules.entity2.registerHook("hook_form_submit_createEntity", 0, function (
 
 // Entity create form handler
 
-iris.modules.entity2.registerHook("hook_form_submit_editEntity", 0, function (thisHook, data) {
+iris.modules.entityforms.registerHook("hook_form_submit_editEntity", 0, function (thisHook, data) {
 
   // Get type from url
   // Get the schema for the requested type to get the widgets
@@ -476,7 +476,7 @@ iris.modules.entity2.registerHook("hook_form_submit_editEntity", 0, function (th
 
 // Create entity form
 
-iris.modules.entity2.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
+iris.modules.entityforms.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
 
   // Check if entity type exists
 
@@ -534,7 +534,7 @@ iris.modules.entity2.registerHook("hook_form_render_createEntity", 0, function (
 
 // Create entity form
 
-iris.modules.entity2.registerHook("hook_form_render_editEntity", 0, function (thisHook, data) {
+iris.modules.entityforms.registerHook("hook_form_render_editEntity", 0, function (thisHook, data) {
 
   // Check if entity type exists
 

@@ -311,7 +311,7 @@ module.exports = function (config) {
 
     require('./modules/core/forms/forms.js');
 
-    require('./modules/core/entity2/entity2.js');
+    require('./modules/core/entityforms/entityforms.js');
 
     require('./modules/core/filefield/filefield.js');
 

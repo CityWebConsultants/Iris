@@ -102,7 +102,7 @@ iris.app.get("/admin/api/schema/fieldtypes", function (req, res) {
 
   if (req.authPass.roles.indexOf('admin') !== -1) {
 
-    var fields = JSON.parse(JSON.stringify(iris.modules.entity2.globals.fetchSchemaForm()));
+    var fields = JSON.parse(JSON.stringify(iris.modules.entityforms.globals.fetchSchemaForm()));
 
     // Schema fields prerender promises for prepopulating data
 
@@ -172,7 +172,7 @@ iris.app.get("/admin/api/schema/edit/:type/form", function (req, res) {
 
   var fieldTypes = {};
 
-  Object.keys(iris.modules.entity2.globals.fetchSchemaForm()).forEach(function (fieldType, index) {
+  Object.keys(iris.modules.entityforms.globals.fetchSchemaForm()).forEach(function (fieldType, index) {
 
     fieldTypes[fieldType] = index;
 
