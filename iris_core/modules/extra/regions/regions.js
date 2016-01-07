@@ -33,7 +33,7 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
     themeSettings = JSON.parse(themeSettings);
 
     var regions = themeSettings.regions;
-    
+
     var form = {};
 
     // Push in N/A option
@@ -43,7 +43,7 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
     blocks.reverse();
 
     regions.forEach(function (regionName) {
-      
+
       form[regionName] = {
         "type": "array",
         "title": regionName.toUpperCase(),
@@ -291,3 +291,32 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
   }
 
 });
+
+// Regions admin system
+
+iris.app.get("/admin/regions", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
