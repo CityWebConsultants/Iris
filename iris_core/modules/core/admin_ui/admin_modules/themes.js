@@ -47,12 +47,14 @@ iris.modules.admin_ui.registerHook("hook_form_render_themes", 0, function (thisH
 
         var info = JSON.parse(fs.readFileSync(file, "utf8"));
 
+        file = path.dirname(file.replace(iris.rootPath, ""));
+
         themes[file] = info;
 
         names[file] = info.name;
 
       });
-      
+
       data.schema.activeTheme = {
         type: "string",
         title: "Active theme",
@@ -95,14 +97,14 @@ iris.modules.admin_ui.registerHook("hook_form_submit_themes", 0, function (thisH
 
   var themePath = thisHook.const.params.activeTheme;
 
-  themeName = path.basename(themePath).replace(".iris.theme", "");
+  var themeName = path.basename(themePath).replace(".iris.theme", "");
 
   fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify({
     name: themeName,
     path: themePath
   }))
 
-  var setTheme = iris.modules.frontend.globals.setActiveTheme(themePath);
+  var setTheme = iris.modules.frontend.globals.setActiveTheme(themePath, themeName);
 
   thisHook.finish(true);
 

@@ -49,13 +49,11 @@ process.on("dbReady", function () {
 
 var path = require("path");
 
-iris.modules.frontend.globals.setActiveTheme = function (themePath) {
+iris.modules.frontend.globals.setActiveTheme = function (themePath, themeName) {
 
   // Reset theme lookup registry
 
   iris.modules.frontend.globals.templateRegistry.theme = [];
-
-  var themeName = path.basename(themePath).replace(".iris.theme", "");
 
   var result = {};
 
@@ -64,13 +62,13 @@ iris.modules.frontend.globals.setActiveTheme = function (themePath) {
     var unmet = [];
     var loadedDeps = [];
 
-    themeInfo = JSON.parse(fs.readFileSync(themePath, "utf8"));
+    var themeInfo = JSON.parse(fs.readFileSync(iris.rootPath + themePath + '/' + themeName + '.iris.theme', "utf8"));
 
     // Make config into a variable accessible by other modules
 
     iris.modules.frontend.globals.activeTheme = {
       name: themeName,
-      path: themePath,
+      path: iris.rootPath + themePath,
       config: themeInfo
     }
 
@@ -102,15 +100,15 @@ iris.modules.frontend.globals.setActiveTheme = function (themePath) {
 
     }
 
-    // Push in theme templates to template lookup registry 
+    // Push in theme templates to template lookup registry
 
     if (!unmet.length) {
 
-      iris.modules.frontend.globals.templateRegistry.theme.push(iris.rootPath + "/" + themePath + "/templates");
+      iris.modules.frontend.globals.templateRegistry.theme.push(iris.rootPath + themePath + "/templates");
 
       // Push in theme's static folder
 
-      iris.app.use("/themes/" + themeName, express.static(iris.rootPath + "/" + themePath + "/static"));
+      iris.app.use("/themes/" + themeName, express.static(iris.rootPath + themePath + "/static"));
 
       loadedDeps.forEach(function (loadedDep) {
 
@@ -146,9 +144,9 @@ try {
 
   try {
 
-    var activeTheme = JSON.parse(themeFile)[0];
+    var activeTheme = JSON.parse(themeFile);
 
-    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.path);
+    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.path, activeTheme.name);
 
     if (setTheme.errors) {
 
