@@ -86,28 +86,6 @@ thead tr {
   color: #fff;
 }
 
-/* Regions page */
-
-.region {
-  background-color: lightgray;
-  list-style-type: none;
-  padding: 10px;
-  padding-bottom: 30px;
-  margin: 10px;
-}
-.region-blocks {
-  min-height: 20px;
-}
-.region-block__options {
-  list-style-type: none;
-}
-.region-blocks .region-block {
-  background-color: #f0f0f0;
-}
-.region-block__add {
-  cursor: pointer;
-}
-
 /* Entities page */
 
 #entity-types {
