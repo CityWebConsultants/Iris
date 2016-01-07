@@ -223,8 +223,20 @@ iris.modules.entity2.registerHook("hook_render_entityfield_form", 0, function (t
 
   var name = thisHook.const.field.fieldTypeName;
   var type = iris.modules.entity2.globals.fieldTypes[thisHook.const.field.fieldTypeName].fieldTypeType;
+  
+  if (name === "longstring") {
 
-  if (type === "string") {
+    data = {
+      "type": "textarea",
+      "title": thisHook.const.field.label || thisHook.const.field.label,
+      "required": thisHook.const.field.required,
+      "description": thisHook.const.field.description,
+      "default": thisHook.const.value
+    }
+
+    thisHook.finish(true, data);
+
+  } else if (type === "string") {
 
     data = {
       type: "string",
