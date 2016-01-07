@@ -25,6 +25,10 @@ Iris was built on Windows, Linux and Mac OS so should work on all three.
 
 Iris was built with version control in mind so, instead of storing blocks, regions, fields and entity types, views and other configuration in the database, all configuration you'd want to put through Git or another version control system is stored in easily exportable/importable JSON files. You can see what has changed through the graphical interface. You can even edit these configuration files manually if you want as they're written to be human-readable. The exporting and importing is again done through the user interface, though if you prefer drag and drop exporting and importing you can do that too.
 
+## Read the docs
+
+[Look at the Iris documentation](https://github.com/CityWebConsultants/Iris/wiki).
+
 ## Help build Iris
 
 After a year of keeping it to ourselves, we'd love you to try out Iris, let us know what we've done right and wrong and help us build it by contributing to its source code via pull requests and building modules and themes.
