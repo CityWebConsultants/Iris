@@ -28,10 +28,7 @@ var initLogger = function (daycount) {
   var bunyanSettings = {
     name: 'iris',
     streams: [{
-      type: 'rotating-file',
       path: iris.sitePath + '/logs/' + "main.log",
-      period: '1d', // daily rotation
-      count: daycount // keep 3 back copies
     }]
   };
 
