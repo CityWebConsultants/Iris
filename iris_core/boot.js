@@ -261,7 +261,7 @@ module.exports = function (config) {
 
   iris.config = config;
 
-  console.log("\nLaunching server");
+  console.log("\nStarting iris...");
 
   //Hook system
 
@@ -325,10 +325,6 @@ module.exports = function (config) {
 
     require('./modules/core/textfilters/textfilters.js');
 
-    //Read enabled modules
-
-    console.log("Loading modules...");
-
     try {
 
       var file = fs.readFileSync(process.cwd() + '/enabled_modules.json');
@@ -342,8 +338,6 @@ module.exports = function (config) {
       iris.enabledModules = [];
 
     }
-
-    console.log(" ");
 
     var path = require('path');
 
@@ -394,17 +388,14 @@ module.exports = function (config) {
 
       iris.hook("hook_module_init_" + enabledModule.name.toLowerCase(), "root", null, null).then(function (success) {
 
-        console.log(enabledModule.name + " loaded")
 
       }, function (fail) {
 
         if (fail === "No such hook exists") {
 
-          console.log(enabledModule.name + " loaded")
-
         } else {
 
-          console.log(moduleName + " failed to initialise", fail)
+          iris.log("error", fail)
 
         }
 
@@ -417,6 +408,8 @@ module.exports = function (config) {
     // Free iris object, no longer extensible
 
     Object.freeze(iris);
+
+    console.log("\nReady on port " + iris.config.port + ".");
 
     iris.log("info", "Server started");
 
