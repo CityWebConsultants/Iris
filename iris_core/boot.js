@@ -313,6 +313,8 @@ module.exports = function (config) {
 
     require('./modules/core/paths/paths.js');
 
+    require('./modules/core/textfilters/textfilters.js');
+
     //Read enabled modules
 
     console.log("Loading modules...");
