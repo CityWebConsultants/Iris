@@ -1,6 +1,6 @@
 # Iris
 
-Iris is a modular content management system and web application framework built using JavaScript and MongoDB. 
+Iris is a modular content management system and web application framework built using Node.js and MongoDB. 
 
 ## Key features
 
