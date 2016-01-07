@@ -409,7 +409,7 @@ module.exports = function (config) {
 
     Object.freeze(iris);
 
-    console.log("\nReady on port " + iris.config.port + ".");
+    console.log("Ready on port " + iris.config.port + ".");
 
     iris.log("info", "Server started");
 
