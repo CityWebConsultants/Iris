@@ -156,8 +156,6 @@ iris.app.get("/admin", function (req, res) {
   }
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_dashboard"], ['admin_wrapper'], {
-    blocks: iris.modules.blocks.globals.blocks,
-    hello: "world"
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
