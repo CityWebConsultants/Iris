@@ -16,7 +16,7 @@ Iris is a modular content management system and web application framework built 
 * [Built on an extensible Hook system](#hook-system)
 * [Entity and field management](#entity-and-field-management)
 * [Blocks and regions](#blocks-and-regions)
-* [Use your favourite frontend framework (React, Angular...) with Iris entities. But fallback to static HTML if JavaScript is disabled.](#progressive-enhancement)
+* [Use your favourite frontend framework with fallback to server-loaded HTML.](#progressive-enhancement)
 * [Automatic live loading/updating of content](#live-loading-and-updating)
 * [A JSON based form system](#form-system)
 * [Registering actions to trigger after certain events](#triggers)
