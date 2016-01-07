@@ -2,6 +2,10 @@
 
 Iris is a modular content management system and web application framework built using Node.js and MongoDB. 
 
+[Look at the Iris documentation](https://github.com/CityWebConsultants/Iris/wiki).
+
+After a year of keeping it to ourselves, we'd love for you to try out Iris, let us know what we've done right and wrong and help it grow by contributing to its source code via pull requests and by building modules and themes.
+
 ## Key features
 
 * [Admin interface](#admin-interface)
@@ -19,14 +23,6 @@ Iris is a modular content management system and web application framework built 
 * [Database entity queries through simple widgets placed in HTML.](#entity-queries)
 * [Simple export and import of configuration.](#made-for-version-control)
 * [Built using and for Windows, Linux and Mac OS.](#operating-system-support)
-
-## Read the docs
-
-[Look at the Iris documentation](https://github.com/CityWebConsultants/Iris/wiki).
-
-## Help build Iris
-
-After a year of keeping it to ourselves, we'd love for you to try out Iris, let us know what we've done right and wrong and help us build it by contributing to its source code via pull requests and by building modules and themes.
 
 ### Admin interface
 
