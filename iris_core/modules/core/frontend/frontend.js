@@ -826,8 +826,8 @@ iris.app.use(function (req, res, next) {
         entities: [splitUrl[1]],
         queries: [{
           field: 'eid',
-          comparison: 'IS',
-          compare: splitUrl[2]
+          operator: 'IS',
+          value: splitUrl[2]
         }]
       }]
     }).then(function (result) {
