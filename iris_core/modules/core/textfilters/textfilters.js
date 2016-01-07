@@ -270,7 +270,7 @@ iris.modules.textfilters.registerHook("hook_schemafield_render", 0, function (th
 
   var filters = [];
 
-  if (iris.configStore.textFormats) {
+  if (iris.configStore.textformats) {
 
     Object.keys(iris.configStore.textformats).forEach(function (format) {
 
