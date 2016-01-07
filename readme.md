@@ -20,6 +20,7 @@ Iris is a modular content management system and web application framework built 
 * Web socket (Socket.io) messaging and session support built in, including automatic live updating of content.
 * A quick to write and embed form system based on JSON schema 
 * An actions module for registering events, conditions and actions to fire at certain times
+* UI for creating HTML filters to strip out/allow specific attributes and elements 
 * A logs page for viewing messages and errors
 * Database entity queries done through simple widgets placed in HTML that handle all access permissions for you.
 * Iris was built with version control in mind with congiguration stored in easily exportable/importable JSON files. You can even view difs and export/import config through the UI.
