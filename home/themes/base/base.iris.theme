@@ -1,4 +1,5 @@
 {
+  "name": "Base theme",
   "regions": [
     "header",
     "above-content",
