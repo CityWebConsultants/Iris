@@ -1,14 +1,14 @@
-iris.registerModule("actions");
+iris.registerModule("triggers");
 
-iris.modules.actions.globals.actions = {};
-iris.modules.actions.globals.events = {};
+iris.modules.triggers.globals.actions = {};
+iris.modules.triggers.globals.events = {};
 
 // Load in all actions on start
 
 var fs = require('fs');
 var glob = require("glob");
 
-glob(iris.configPath + "/actions/*.json", function (er, files) {
+glob(iris.configPath + "/triggers/*.json", function (er, files) {
 
   files.forEach(function (file) {
 
@@ -18,7 +18,7 @@ glob(iris.configPath + "/actions/*.json", function (er, files) {
 
     if (config.name) {
 
-      iris.saveConfig(config, "actions", iris.sanitizeFileName(config.name), function () {
+      iris.saveConfig(config, "triggers", iris.sanitizeFileName(config.name), function () {
 
         },
         function (fail) {
@@ -37,7 +37,7 @@ glob(iris.configPath + "/actions/*.json", function (er, files) {
  * @param {string} name - The name of the action
  * @param parametersArray - Array of parameters to add to the action
  */
-iris.modules.actions.globals.registerAction = function (name, parametersArray) {
+iris.modules.triggers.globals.registerAction = function (name, parametersArray) {
 
   if (!parametersArray) {
 
@@ -45,7 +45,7 @@ iris.modules.actions.globals.registerAction = function (name, parametersArray) {
 
   }
 
-  iris.modules.actions.globals.actions[name] = {
+  iris.modules.triggers.globals.actions[name] = {
 
     parameters: parametersArray
 
@@ -59,7 +59,7 @@ iris.modules.actions.globals.registerAction = function (name, parametersArray) {
  * @param {string} name - The name of the event
  * @param parametersArray - Array of parameters to add to the action
  */
-iris.modules.actions.globals.registerEvent = function (name, parametersArray) {
+iris.modules.triggers.globals.registerEvent = function (name, parametersArray) {
 
   if (!parametersArray) {
 
@@ -74,7 +74,7 @@ iris.modules.actions.globals.registerEvent = function (name, parametersArray) {
 
   }
 
-  iris.modules.actions.globals.events[name] = {
+  iris.modules.triggers.globals.events[name] = {
 
     parameters: parametersArray
 
@@ -89,7 +89,7 @@ iris.modules.actions.globals.registerEvent = function (name, parametersArray) {
  * @param {object} authPass - The authPass of the current user
  * @param {object} [params] - The parameters to pass to the event
  */
-iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
+iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
   if (typeof params !== "object") {
 
@@ -97,28 +97,28 @@ iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
 
   }
 
-  iris.hook("hook_actions_event", authPass, {
+  iris.hook("hook_triggers_event", authPass, {
     params: params,
     event: name,
   }).then(function (params) {
 
       // Check if any rules have been registered that grab this stuff
 
-      if (!iris.configStore.actions) {
+      if (!iris.configStore.triggers) {
 
         return false;
 
       }
 
-      Object.keys(iris.configStore.actions).forEach(function (rule) {
+      Object.keys(iris.configStore.triggers).forEach(function (rule) {
 
         // Flag for whether rule fires or not
 
         var fires = true;
 
-        if (iris.configStore.actions[rule].events.event === name) {
+        if (iris.configStore.triggers[rule].events.event === name) {
 
-          var rule = JSON.parse(JSON.stringify(iris.configStore.actions[rule]));
+          var rule = JSON.parse(JSON.stringify(iris.configStore.triggers[rule]));
 
           // Check if any conditions
 
@@ -203,7 +203,7 @@ iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
 
                 })
 
-                iris.hook("hook_action_" + actionName, authPass, {
+                iris.hook("hook_triggers_" + actionName, authPass, {
                   params: rule.actions[index].parameters
                 }).then(function (success) {
 
@@ -241,7 +241,7 @@ iris.modules.actions.globals.triggerEvent = function (name, authPass, params) {
 
 };
 
-iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_form_render_actions", 0, function (thisHook, data) {
 
   if (!data.schema) {
 
@@ -276,11 +276,11 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
 
   var events = {};
 
-  Object.keys(iris.modules.actions.globals.events).forEach(function (eventType) {
+  Object.keys(iris.modules.triggers.globals.events).forEach(function (eventType) {
 
     var tokens = [];
 
-    iris.modules.actions.globals.events[eventType].parameters.forEach(function (token) {
+    iris.modules.triggers.globals.events[eventType].parameters.forEach(function (token) {
 
       tokens.push("<small><b>[" + token + "]</b></small>");
 
@@ -299,7 +299,7 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
               "thing": {
                 "type": "text",
                 "title": "property",
-                "enum": ["Pick a parameter"].concat(iris.modules.actions.globals.events[eventType].parameters)
+                "enum": ["Pick a parameter"].concat(iris.modules.triggers.globals.events[eventType].parameters)
               },
               "operator": {
                 "type": "text",
@@ -344,13 +344,13 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
 
   var actions = {};
 
-  Object.keys(iris.modules.actions.globals.actions).forEach(function (actionType) {
+  Object.keys(iris.modules.triggers.globals.actions).forEach(function (actionType) {
 
     var tokens = [];
 
     actions[actionType] = {
       "type": "object",
-      "properties": iris.modules.actions.globals.actions[actionType].parameters
+      "properties": iris.modules.triggers.globals.actions[actionType].parameters
     }
 
   })
@@ -396,11 +396,11 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
 
   }
 
-  if (thisHook.const.params[1] && iris.configStore.actions[thisHook.const.params[1]]) {
+  if (thisHook.const.params[1] && iris.configStore.triggers[thisHook.const.params[1]]) {
 
-    data.value = iris.configStore.actions[thisHook.const.params[1]];
+    data.value = iris.configStore.triggers[thisHook.const.params[1]];
 
-    // Swap values back into format schema understands. This is madness. 
+    // Swap values back into format schema understands. This is madness.
 
     data.value.events[data.value.events.event] = {
       conditions: data.value.events.conditions
@@ -425,7 +425,7 @@ iris.modules.actions.registerHook("hook_form_render_actions", 0, function (thisH
 
 // Register action save hook
 
-iris.modules.actions.registerHook("hook_form_submit_actions", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_form_submit_actions", 0, function (thisHook, data) {
 
   // Juggle around schema for saving to make it more human readable
 
@@ -455,11 +455,11 @@ iris.modules.actions.registerHook("hook_form_submit_actions", 0, function (thisH
 
   })
 
-  iris.saveConfig(thisHook.const.params, "actions", iris.sanitizeFileName(thisHook.const.params.name), function (saved) {
+  iris.saveConfig(thisHook.const.params, "triggers", iris.sanitizeFileName(thisHook.const.params.name), function (saved) {
 
     var data = function (res) {
 
-      res.send("/admin/actions");
+      res.send("/admin/triggers");
 
     };
 
@@ -471,7 +471,7 @@ iris.modules.actions.registerHook("hook_form_submit_actions", 0, function (thisH
 
 // Register actions create form
 
-iris.app.get("/admin/actions/create", function (req, res) {
+iris.app.get("/admin/triggers/create", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -483,7 +483,7 @@ iris.app.get("/admin/actions/create", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_actions_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
@@ -499,7 +499,7 @@ iris.app.get("/admin/actions/create", function (req, res) {
 
 // Register actions create form
 
-iris.app.get("/admin/actions/edit/:action", function (req, res) {
+iris.app.get("/admin/triggers/edit/:action", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -511,7 +511,7 @@ iris.app.get("/admin/actions/edit/:action", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_actions_form"], ['admin_wrapper'], {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {
     action: iris.sanitizeFileName(req.params.action)
   }, req.authPass, req).then(function (success) {
 
@@ -527,11 +527,11 @@ iris.app.get("/admin/actions/edit/:action", function (req, res) {
 
 })
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/actions", "Actions", 1);
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/triggers", "Triggers", 1);
 
 // Main actions landing page
 
-iris.app.get("/admin/actions", function (req, res) {
+iris.app.get("/admin/triggers", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -543,8 +543,8 @@ iris.app.get("/admin/actions", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_actions"], ['admin_wrapper'], {
-    actions: iris.configStore.actions,
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers"], ['admin_wrapper'], {
+    actions: iris.configStore.triggers,
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -561,7 +561,7 @@ iris.app.get("/admin/actions", function (req, res) {
 
 // Delete action
 
-iris.app.get("/admin/actions/delete/:name", function (req, res) {
+iris.app.get("/admin/triggers/delete/:name", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -573,7 +573,7 @@ iris.app.get("/admin/actions/delete/:name", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_actions_delete"], ['admin_wrapper'], {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_delete"], ['admin_wrapper'], {
     action: req.params.name
   }, req.authPass, req).then(function (success) {
 
@@ -589,7 +589,7 @@ iris.app.get("/admin/actions/delete/:name", function (req, res) {
 
 });
 
-iris.modules.actions.registerHook("hook_form_render_action_delete", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_form_render_action_delete", 0, function (thisHook, data) {
 
   if (!data.schema) {
 
@@ -606,11 +606,11 @@ iris.modules.actions.registerHook("hook_form_render_action_delete", 0, function 
 
 });
 
-iris.modules.actions.registerHook("hook_form_submit_action_delete", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_form_submit_action_delete", 0, function (thisHook, data) {
 
   var action = iris.sanitizeFileName(thisHook.const.params.action);
 
-  if (iris.configStore.actions && iris.configStore.actions[action]) {
+  if (iris.configStore.triggers && iris.configStore.triggers[action]) {
 
   } else {
 
@@ -628,7 +628,7 @@ iris.modules.actions.registerHook("hook_form_submit_action_delete", 0, function 
 
     var data = function (res) {
 
-      res.send("/admin/actions");
+      res.send("/admin/triggers");
 
     };
 
@@ -751,7 +751,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
 // Default hook
 
-iris.modules.actions.registerHook("hook_actions_event", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_triggers_event", 0, function (thisHook, data) {
 
   data = thisHook.const.params;
 
@@ -761,9 +761,9 @@ iris.modules.actions.registerHook("hook_actions_event", 0, function (thisHook, d
 
 // Some default events and actions for logging messages on page view
 
-iris.modules.actions.globals.registerEvent("page_visit", ["url", "userid", "roles"]);
+iris.modules.triggers.globals.registerEvent("page_visit", ["url", "userid", "roles"]);
 
-iris.modules.actions.registerHook("hook_request_intercept", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_request_intercept", 0, function (thisHook, data) {
 
   var params = {
     "url": thisHook.const.req.url,
@@ -771,13 +771,13 @@ iris.modules.actions.registerHook("hook_request_intercept", 0, function (thisHoo
     "roles": thisHook.authPass.roles.join(",")
   }
 
-  iris.modules.actions.globals.triggerEvent("page_visit", thisHook.authPass, params);
+  iris.modules.triggers.globals.triggerEvent("page_visit", thisHook.authPass, params);
 
   thisHook.finish(true, data);
 
 })
 
-iris.modules.actions.globals.registerAction("log", {
+iris.modules.triggers.globals.registerAction("log", {
 
   message: {
     "type": "textarea",
@@ -793,7 +793,7 @@ iris.modules.actions.globals.registerAction("log", {
 
 });
 
-iris.modules.actions.registerHook("hook_action_log", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_triggers_log", 0, function (thisHook, data) {
 
   iris.log(thisHook.const.params.level, thisHook.const.params.message)
 

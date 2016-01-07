@@ -2,7 +2,7 @@ iris.registerModule("email");
 
 var nodemailer = require('nodemailer');
 
-iris.modules.actions.globals.registerAction("email", {
+iris.modules.trigger.globals.registerAction("email", {
   "subject": {
     "type": "text",
     "title": "subject"
@@ -26,4 +26,4 @@ iris.modules.actions.globals.registerAction("email", {
   }
 });
 
-// Ready for this or others to latch onto hook_action_email
+// Ready for this or others to latch onto hook_triggers_email
