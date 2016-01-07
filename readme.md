@@ -2,6 +2,12 @@
 
 Iris is a modular content management system and web application framework built using Node.js and MongoDB. 
 
+## Who would use Iris?
+
+* Beginner web developer: This user would want to setup and manage a single or multi-page website with menus, content and blocks that can be arranged into regions all using a user-interface and no need for JavaScript coding. From this, they can learn to extend and customise their site if they so choose.
+* Intermediate HTML/JavaScript developer: This user wants a system that is simple to setup and create single or multi-page websites using customised html templates. They may want to create JavaScript modules and frontend frameworks like Angular or React to add dynamic content features.
+* Advanced JavaScript developer: This user would want a very flexible and customisable framework to create bespoke apps for communication, content and/or user management. They may want a base system to use for inter-connected web and mobile apps.
+
 ## Key features
 
 * Graphical admin interface
