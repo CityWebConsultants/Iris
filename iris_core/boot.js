@@ -324,11 +324,11 @@ module.exports = function (config) {
       iris.enabledModules = JSON.parse(file);
 
     } catch (e) {
-      
+
       fs.writeFileSync(process.cwd() + '/enabled_modules.json', "[]");
 
       iris.enabledModules = [];
-      
+
       console.log(iris.enabledModules);
 
     }
@@ -339,8 +339,8 @@ module.exports = function (config) {
 
     iris.enabledModules.forEach(function (enabledModule, index) {
 
-      var modulePath = path.resolve(enabledModule.path + ".js");
-      var moduleInfoPath = path.resolve(enabledModule.path + ".iris.module");
+      var modulePath = path.resolve(iris.rootPath + enabledModule.path + ".js");
+      var moduleInfoPath = path.resolve(iris.rootPath + enabledModule.path + ".iris.module");
 
       try {
 
