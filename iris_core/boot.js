@@ -25,9 +25,19 @@ module.exports = function (config) {
 
   //Store helper paths
 
+
   iris.rootPath = path.resolve(__dirname + "/../");
 
   iris.sitePath = process.cwd();
+
+  // Detect/change Windows file paths
+
+  if (path.sep === "\\") {
+
+    iris.rootPath = iris.rootPath.split("\\").join("/");
+    iris.sitePath = iris.sitePath.split("\\").join("/");
+
+  }
 
   // Launch logging module
 
