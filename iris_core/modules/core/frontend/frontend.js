@@ -925,6 +925,32 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 
 iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
 
+  Handlebars.registerHelper("iris_messages", function () {
+
+    var messages = iris.readMessages(thisHook.authPass.userid);
+
+    var output = "";
+
+    if (messages.length) {
+
+      output += "<ul class='iris-messages'>";
+
+      messages.forEach(function (message) {
+
+        output += "<li class='iris-message " + message.type + "'>" + message.message + "</li >";
+
+      });
+
+      output += "</ul>";
+
+      iris.clearMessages(thisHook.authPass.userid);
+
+    }
+
+    return output;
+
+  });
+
   thisHook.finish(true, Handlebars);
 
 });
@@ -948,8 +974,6 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     data.vars = {};
 
   }
-
-  data.vars.iris_messages = iris.readMessages(thisHook.authPass.userid);
 
   var Handlebars = require('handlebars');
 

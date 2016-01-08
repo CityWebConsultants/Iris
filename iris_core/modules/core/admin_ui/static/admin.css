@@ -86,11 +86,11 @@ thead tr {
   color: #fff;
 }
 
-.message {
+.iris-message {
   margin-left: 20px;
 }
 
-.message.success:before {
+.iris-message.success:before {
   content: "\2714";
   margin-right: 10px;
   background-color: #00aa00;
@@ -102,7 +102,7 @@ thead tr {
   padding-left: 4px;
 }
 
-.message.status:before {
+.iris-message.status:before {
   content: "i";
   margin-right: 10px;
   background-color: #797979;
@@ -114,7 +114,7 @@ thead tr {
   padding-left: 8px;
 }
 
-#messages {
+.iris-messages {
   border: 1px solid darkgrey;
   background: #ececec;
   margin: 25px;
