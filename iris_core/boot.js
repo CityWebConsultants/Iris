@@ -539,6 +539,16 @@ module.exports = function (config) {
 
       }
 
+      if (m.messages) {
+
+        Object.keys(m.messages).forEach(function (user) {
+
+          iris.messageStore[user] = m.messages[user];
+
+        });
+
+      }
+
     });
 
   });

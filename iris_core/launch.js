@@ -16,6 +16,7 @@ process.argv.forEach(function (val, index, array) {
 // Persistent sessions
 
 var sessions = {};
+var messages = {};
 
 if (parameters.site) {
 
@@ -40,7 +41,8 @@ if (parameters.site) {
         restartCounter = 0;
 
         sub.send({
-          sessions: sessions
+          sessions: sessions,
+          messages: messages
         });
 
       };
@@ -69,7 +71,13 @@ if (parameters.site) {
 
         sessions = cmd.sessions;
 
-      };
+      }
+
+      if (cmd.messages) {
+
+        messages = cmd.messages
+
+      }
 
     });
 

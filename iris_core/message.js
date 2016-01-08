@@ -15,6 +15,12 @@ iris.message = function (userid, message, type) {
 
   })
 
+  // Send messages to server for persistence
+
+  process.send({
+    messages: iris.messageStore
+  });
+
 }
 
 iris.readMessages = function (userid) {
@@ -29,30 +35,16 @@ iris.readMessages = function (userid) {
 
       messages.push(message);
 
-      // Delete message from global store
-
-      iris.messageStore[userid].splice(index, 1);
-
     })
 
   }
 
-  // Remove duplicate messages
-
-  messages.forEach(function (message, index) {
-
-    messages.forEach(function (searchmessage) {
-
-      if (message.message === searchmessage.message) {
-
-        messages.splice(index, 1);
-
-      }
-
-    })
-
-  })
-
   return messages;
+
+}
+
+iris.clearMessages = function (userid) {
+
+  iris.messageStore[userid] = [];
 
 }
