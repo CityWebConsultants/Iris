@@ -21,7 +21,7 @@ module.exports = function (config) {
 
     process.send("restart");
 
-  }
+  };
 
   //Store helper paths
 
@@ -45,7 +45,7 @@ module.exports = function (config) {
 
   // Launch user messaging module
 
-  require("./message")
+  require("./message");
 
   //Make config folder
 
@@ -55,9 +55,11 @@ module.exports = function (config) {
     try {
       fs.mkdirSync(path);
     } catch (e) {
-      if (e.code != 'EEXIST') throw e;
+      if (e.code !== 'EEXIST') {
+        throw e;
+      }
     }
-  }
+  };
 
   mkdirSync(iris.sitePath + "/" + "configurations");
 
@@ -101,7 +103,7 @@ module.exports = function (config) {
 
     mkdirp(filePath, function (err) {
       if (err) {
-        console.error(err)
+        console.error(err);
       } else {
         fs.writeFile(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8", callback);
       }
@@ -186,7 +188,9 @@ module.exports = function (config) {
         var arrNames = strNames.split('/');
 
         while (name = arrNames.shift()) {
-          if (!ref.hasOwnProperty(name)) return false;
+          if (!ref.hasOwnProperty(name)) {
+            return false;
+          }
           ref = ref[name];
         }
 
@@ -253,7 +257,7 @@ module.exports = function (config) {
 
       }
 
-    })
+    });
 
   }
 
@@ -356,7 +360,7 @@ module.exports = function (config) {
 
         // Read config file to check if dependencies satisfied
 
-        console.error("error loading module " + enabledModule.name, e)
+        console.error("error loading module " + enabledModule.name, e);
         return false;
 
       }
@@ -373,7 +377,7 @@ module.exports = function (config) {
 
           }
 
-        })
+        });
 
         if (unmet.length) {
 
@@ -391,11 +395,9 @@ module.exports = function (config) {
 
       }, function (fail) {
 
-        if (fail === "No such hook exists") {
+        if (fail !== "No such hook exists") {
 
-        } else {
-
-          iris.log("error", fail)
+          iris.log("error", fail);
 
         }
 
@@ -431,13 +433,13 @@ module.exports = function (config) {
 
                   res.redirect(req.url);
 
-                };
+                }
 
               }, function (fail) {
 
                 res.send(fail);
 
-              })
+              });
 
             } else {
 
@@ -445,7 +447,7 @@ module.exports = function (config) {
 
                 res.redirect(req.url);
 
-              };
+              }
 
             }
 
@@ -461,7 +463,7 @@ module.exports = function (config) {
 
                 res.status(404).send(success);
 
-              };
+              }
 
 
             }, function (fail) {
@@ -470,7 +472,7 @@ module.exports = function (config) {
 
                 res.status(404).send("404");
 
-              };
+              }
 
             });
 
