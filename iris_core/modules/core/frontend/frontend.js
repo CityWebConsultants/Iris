@@ -712,8 +712,14 @@ var parseTemplate = function (html, authPass, context) {
 
         }
 
-        var templates = element.split("_").concat([entity.entityType, entity.eid]);
-        
+        var templates = element.split("_");
+
+        if (entity.entityType) {
+
+          templates.concat([entity.entityType, entity.eid]);
+
+        }
+
         findTemplate(templates).then(function (subTemplate) {
 
           parseTemplate(subTemplate, authPass, context).then(function (contents) {
