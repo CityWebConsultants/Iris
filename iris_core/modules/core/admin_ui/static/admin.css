@@ -102,6 +102,18 @@ thead tr {
   padding-left: 4px;
 }
 
+.message.status:before {
+  content: "i";
+  margin-right: 10px;
+  background-color: #797979;
+  color: white;
+  border-radius: 100%;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  padding-left: 8px;
+}
+
 #messages {
   border: 1px solid darkgrey;
   background: #ececec;

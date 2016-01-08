@@ -93,7 +93,7 @@ var path = require("path");
 var fs = require("fs");
 
 iris.modules.admin_ui.registerHook("hook_form_submit_themes", 0, function (thisHook, data) {
-  
+
 
   // Try to set theme
 
@@ -101,7 +101,7 @@ iris.modules.admin_ui.registerHook("hook_form_submit_themes", 0, function (thisH
 
   var themeName = path.basename(themePath).replace(".iris.theme", "");
 
-  iris.message(thisHook.authPass.userid, themeName + " theme enabled ", "status");
+  iris.message(thisHook.authPass.userid, themeName + " theme enabled ", "success");
 
   fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify({
     name: themeName,
