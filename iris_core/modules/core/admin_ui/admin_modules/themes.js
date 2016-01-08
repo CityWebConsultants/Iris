@@ -16,6 +16,7 @@ iris.app.get("/admin/themes", function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_themes"], ['admin_wrapper'], null, req.authPass, req).then(function (success) {
 
+    iris.clearMessages(req.authPass.userid);
     res.send(success)
 
   }, function (fail) {
@@ -92,12 +93,15 @@ var path = require("path");
 var fs = require("fs");
 
 iris.modules.admin_ui.registerHook("hook_form_submit_themes", 0, function (thisHook, data) {
+  
 
   // Try to set theme
 
   var themePath = thisHook.const.params.activeTheme;
 
   var themeName = path.basename(themePath).replace(".iris.theme", "");
+
+  iris.message(thisHook.authPass.userid, themeName + " theme enabled ", "status");
 
   fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify({
     name: themeName,
