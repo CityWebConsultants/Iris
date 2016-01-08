@@ -149,8 +149,3 @@ footer {
     color:#fff !important;
   background: #666;
 }
-
-.page-1 #page-title {
-  position:absolute;
-  left:-1000px;
-}
