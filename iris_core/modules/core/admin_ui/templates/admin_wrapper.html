@@ -14,19 +14,27 @@
 
   <!--- This is intended as a general wrapper for all admin pages. --->
 
-  [[[menu admin-toolbar]]] 
-  
-  <ul id="messages">
- 
-  {{#each iris_messages}} 
-  
-    <li class="message {{this.type}}">{{this.message}}</li> 
-  
-  {{/each}}
-      
-  </ul>
-    
-  <section id="main">[[[MAINCONTENT]]]</section>
+  [[[menu admin-toolbar]]]
+
+  <section id="main">
+
+    {{#if iris_messages}}
+
+    <ul id="messages">
+
+    {{#each iris_messages}}
+
+      <li class="message {{this.type}}">{{this.message}}</li>
+
+    {{/each}}
+
+    </ul>
+
+    {{/if}}
+
+    [[[MAINCONTENT]]]
+
+  </section>
 
 </body>
 
