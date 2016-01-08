@@ -15,12 +15,13 @@
   "class": {
     "fieldTypeName": "multistring",
     "required": false,
-    "title": "Body class"
+    "title": "Body class",
+    "description": "This is a set of CSS classes that should be applied to this entity's body field. Where these classes are applied in the markup is dependent on the theme."
   },
   "path": {
     "fieldTypeName": "string",
     "required": true,
     "title": "Path",
-    "description": "This is the path field"
+    "description": "This is the URL path that this page will be accessible from. This includes a leading slash. The path should look something like '/mypage' or '/my/longer/path'. To make this page the front page of the site, use a path of '/'."
   }
 }
