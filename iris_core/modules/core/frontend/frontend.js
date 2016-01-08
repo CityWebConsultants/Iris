@@ -913,6 +913,23 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 });
 
 /**
+ * @member hook_frontend_handlebars_extend
+ * @memberof frontend
+ *
+ * @desc Template engine processing - Handlebars extending
+ *
+ * Attaches partials and extensions onto handlebars templating engine
+ *
+ * @returns Handlebars object
+ */
+
+iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
+
+  thisHook.finish(true, Handlebars);
+
+});
+
+/**
  * @member hook_frontend_template
  * @memberof frontend
  *
@@ -936,36 +953,44 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
   var Handlebars = require('handlebars');
 
-  try {
+  iris.hook("hook_frontend_handlebars_extend", thisHook.authPass, Handlebars, Handlebars).then(function () {
 
-    data.html = Handlebars.compile(data.html)(data.vars);
+    try {
 
-    // Run through parse template again to see if any new templates can be loaded.
+      data.html = Handlebars.compile(data.html)(data.vars);
 
-    if (data.html.indexOf("[[[") !== -1) {
+      // Run through parse template again to see if any new templates can be loaded.
 
-      iris.modules.frontend.globals.parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
+      if (data.html.indexOf("[[[") !== -1) {
 
-        success.html = Handlebars.compile(success.html)(success.variables);
+        iris.modules.frontend.globals.parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
 
-        success.html = success.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
+          success.html = Handlebars.compile(success.html)(success.variables);
 
-        thisHook.finish(true, success);
+          success.html = success.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
-      });
+          thisHook.finish(true, success);
 
-    } else {
+        });
 
-      thisHook.finish(true, data);
+      } else {
+
+        thisHook.finish(true, data);
+
+      }
+
+
+    } catch (e) {
+
+      thisHook.finish(false, e);
 
     }
 
+  }, function (fail) {
 
-  } catch (e) {
+    thisHook.finish(false, fail);
 
-    thisHook.finish(false, e);
-
-  }
+  })
 
 });
 
