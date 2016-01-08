@@ -40,7 +40,7 @@ iris.app.use("/", express.static(iris.sitePath + '/static'));
 process.on("dbReady", function () {
 
   Object.keys(iris.modules).reverse().forEach(function (moduleName) {
-
+    
     iris.modules.frontend.globals.templateRegistry.external.push(iris.modules[moduleName].path + '/templates');
 
   })
@@ -299,7 +299,7 @@ var glob = require("glob");
  * @returns promise which, if successful, takes the template HTML output as its first argument.
  */
 var findTemplate = function (paths, extension) {
-
+  
   if (!extension) {
 
     extension = "html";
@@ -383,7 +383,7 @@ var findTemplate = function (paths, extension) {
     });
 
     iris.modules.frontend.globals.templateRegistry.external.forEach(function (directory) {
-
+      
       try {
 
         var files = glob.sync(directory + "/" + "**");
@@ -601,10 +601,10 @@ var parseTemplate = function (html, authPass, context) {
 
     }
     var complete = function (HTML, final) {
-
+      
       // Check for embedded templates
 
-      var embeds = HTML.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
+      var embeds = HTML.match(/\[\[\[template\s[\w\.\-]+\s*\]\]\]/g);
 
       if (embeds) {
 
@@ -625,6 +625,9 @@ var parseTemplate = function (html, authPass, context) {
             variables: allVariables
           });
 
+        }, function(fail){
+          
+          
         })
 
       } else {
@@ -689,20 +692,20 @@ var parseTemplate = function (html, authPass, context) {
 
     //Get any embeded templates inside the template file
 
-    var embeds = output.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
+    var embeds = output.match(/\[\[\[template\s[\w\.\-]+\s*\]\]\]/g);
 
     if (embeds) {
 
       var embeds = embeds.map(function (x) {
 
-        return x.match(/file\s([\w\.\-]+)/)[1];
+        return x.match(/template\s([\w\.\-]+)/)[1];
 
       });
 
       var counter = embeds.length;
 
       embeds.forEach(function (element) {
-
+        
         if (!entity.eid) {
 
           entity.eid = entity._id;
@@ -710,10 +713,10 @@ var parseTemplate = function (html, authPass, context) {
         }
 
         findTemplate([element, entity.entityType, entity.eid]).then(function (subTemplate) {
-
+          
           parseTemplate(subTemplate, authPass, context).then(function (contents) {
 
-            output = output.split("[[[file " + element + "]]]").join(contents.html);
+            output = output.split("[[[template " + element + "]]]").join(contents.html);
 
             counter -= 1;
 
@@ -735,11 +738,11 @@ var parseTemplate = function (html, authPass, context) {
 
           // Remove template if it can't be found
 
-          output = output.split("[[[file " + element + "]]]").join("");
+          output = output.split("[[[template " + element + "]]]").join("");
 
           parseTemplate(output, authPass, context).then(function (contents) {
-
-            complete(contents);
+            
+            complete(contents.html);
 
           });
 
@@ -1039,13 +1042,13 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
  * @returns a promise which, if successful, takes the output HTML as its first argument.
  */
 iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
-
+  
   return new Promise(function (yes, no) {
 
     var parseTemplateFile = function (currentTemplateName, parameters, callback) {
-
+      
       iris.modules.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
-
+        
         iris.modules.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
 
             // Add wrapper paramaters for filename
@@ -1071,11 +1074,11 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
     };
 
     if (wrapperTemplateName) {
-
+    
       parseTemplateFile(wrapperTemplateName, parameters, function (wrapperOutput) {
-
+                
         parseTemplateFile(templateName, wrapperOutput.variables, function (innerOutput) {
-
+          
           var output = wrapperOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput.html);
 
           iris.hook("hook_frontend_template", authPass || "root", {
