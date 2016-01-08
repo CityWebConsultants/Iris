@@ -157,6 +157,10 @@ iris.modules.user.globals.login = function (auth, res, callback) {
 };
 
 iris.app.get("/logout", function (req, res) {
+  
+  // Delete session
+  
+  delete iris.modules.auth.globals.userList[req.authPass.userid];
 
   res.clearCookie('userid');
   res.clearCookie('token');
