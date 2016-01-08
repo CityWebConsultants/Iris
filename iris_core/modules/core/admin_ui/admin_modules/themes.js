@@ -59,7 +59,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_themes", 0, function (thisH
         type: "string",
         title: "Active theme",
         enum: Object.keys(themes),
-        default: iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.path : ""
+        default: iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.path.replace(iris.rootPath, "") : ""
       }
 
       data.form = [];
