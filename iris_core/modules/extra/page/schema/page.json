@@ -1,27 +1,31 @@
 {
   "title": {
-    "fieldTypeName": "string",
+    "title": "title",
+    "description": "This is the title field",
     "required": true,
-    "title": "Page title",
-    "description": "This is the title field"
+    "canViewField": ["anonymous", "authenticated"],
+    "fieldTypeName": "string"
   },
   "body": {
-    "fieldTypeName": "longstring",
-    "long": true,
+    "title": "body",
+    "description": "This is the main text area for this page",
     "required": true,
-    "title": "Body field",
-    "description": "This is the main text area for this page"
+    "canViewField": ["anonymous", "authenticated"],
+    "fieldTypeName": "longstring",
+    "textFilter": "none"
   },
   "class": {
+    "title": "class",
+    "description": "This is a set of CSS classes that should be applied to this entity's body field. Where these classes are applied in the markup is dependent on the theme.",
+    "canViewField": ["anonymous", "authenticated"],
     "fieldTypeName": "multistring",
-    "required": false,
-    "title": "Body class",
-    "description": "This is a set of CSS classes that should be applied to this entity's body field. Where these classes are applied in the markup is dependent on the theme."
+    "required": true
   },
   "path": {
-    "fieldTypeName": "string",
+    "title": "path",
+    "description": "This is the URL path that this page will be accessible from. This includes a leading slash. The path should look something like '/mypage' or '/my/longer/path'. To make this page the front page of the site, use a path of '/'.",
     "required": true,
-    "title": "Path",
-    "description": "This is the URL path that this page will be accessible from. This includes a leading slash. The path should look something like '/mypage' or '/my/longer/path'. To make this page the front page of the site, use a path of '/'."
+    "canViewField": ["anonymous", "authenticated"],
+    "fieldTypeName": "string"
   }
 }
