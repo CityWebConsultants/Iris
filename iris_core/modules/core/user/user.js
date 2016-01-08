@@ -199,6 +199,10 @@ iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, ent
 
   }
 
+  // Change roles in cache
+
+  iris.modules.user.globals.userRoles[entity.eid] = entity.roles;
+
 });
 
 iris.modules.user.globals.userRoles = {};
@@ -310,6 +314,8 @@ iris.app.get("/login", function (req, res) {
 
 // Blank password field on entity edit
 
+// Prepopulate roles
+
 iris.modules.user.registerHook("hook_form_render_editEntity", 1, function (thisHook, data) {
 
   if (thisHook.const.params[1] === "user" && data.schema && data.schema.password) {
@@ -318,6 +324,44 @@ iris.modules.user.registerHook("hook_form_render_editEntity", 1, function (thisH
     data.schema.password.required = false;
     data.schema.password.title = "Change password";
     data.schema.password.description = "Change your password by typing a new one into the form below";
+
+    var roles = ["none", "admin"];
+    Object.keys(iris.modules.auth.globals.roles).forEach(function (role) {
+
+      if (role !== "anonymous" && role !== "authenticated") {
+        roles.push(role)
+      }
+
+    })
+
+    data.schema.roles.items = {
+      type: "string",
+      enum: roles
+    };
+
+  }
+
+  thisHook.finish(true, data);
+
+});
+
+iris.modules.user.registerHook("hook_form_render_createEntity", 1, function (thisHook, data) {
+
+  if (thisHook.const.params[1] === "user") {
+
+    var roles = ["none", "admin"];
+    Object.keys(iris.modules.auth.globals.roles).forEach(function (role) {
+
+      if (role !== "anonymous" && role !== "authenticated") {
+        roles.push(role)
+      }
+
+    })
+
+    data.schema.roles.items = {
+      type: "string",
+      enum: roles
+    };
 
   }
 
