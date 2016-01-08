@@ -17,6 +17,12 @@ module.exports = function (config) {
 
   iris.restart = function (userid, where) {
 
+    if (userid) {
+
+      iris.message(userid, "Server restarted successfully", "success");
+
+    }
+
     iris.log("info", "Server restarted " + (userid ? " by user " + userid : "") + (where ? " via " + where : ""));
 
     process.send("restart");
