@@ -106,6 +106,8 @@ iris.modules.admin_ui.registerHook("hook_form_submit_themes", 0, function (thisH
 
   var setTheme = iris.modules.frontend.globals.setActiveTheme(themePath, themeName);
 
+  iris.restart(thisHook.authPass.userid, "themes page");
+
   thisHook.finish(true);
 
 });
