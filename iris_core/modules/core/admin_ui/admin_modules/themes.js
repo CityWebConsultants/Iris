@@ -52,7 +52,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_themes", 0, function (thisH
 
         themes[file] = info;
 
-        names[file] = info.name;
+        names[file] = info.name + " " + "(" + file + ")";
 
       });
 
