@@ -402,14 +402,16 @@ iris.app.post('/auth/deletetoken', function (req, res) {
 });
 
 iris.app.post('/auth/maketoken', function (req, res) {
-
-  iris.hook("hook_auth_maketoken", req.body, req.authPass).then(function (success) {
+  
+  iris.hook("hook_auth_maketoken", req.authPass, null, {
+    userid: req.body.userid
+  }).then(function (success) {
 
     res.respond(200, success);
 
   }, function (fail) {
 
-    res.respond(fail.code, fail.message);
+    res.send(fail);
 
   });
 
