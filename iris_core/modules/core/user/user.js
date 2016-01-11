@@ -440,13 +440,25 @@ iris.app.post("/api/login", function (req, res) {
 
     iris.modules.user.globals.login(req.body, null, function (userid, token) {
 
-      res.send({
-        userid: userid,
-        token: token
-      });
+      if (!userid) {
+
+        res.send(null);
+
+      } else {
+
+        res.send({
+          userid: userid,
+          token: token
+        });
+
+      }
 
     })
 
+  } else {
+
+    res.send(null);
+
   }
 
-})
+});
