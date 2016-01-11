@@ -128,9 +128,17 @@ iris.modules.user.globals.login = function (auth, res, callback) {
             userid: userid
           }).then(function (token) {
 
-            iris.modules.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
+            if (res) {
 
-            callback(userid);
+              iris.modules.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
+
+              callback(userid);
+
+            } else {
+
+              callback(userid, token.id);
+
+            }
 
           }, function (fail) {
 
@@ -157,9 +165,9 @@ iris.modules.user.globals.login = function (auth, res, callback) {
 };
 
 iris.app.get("/logout", function (req, res) {
-  
+
   // Delete session
-  
+
   delete iris.modules.auth.globals.userList[req.authPass.userid];
 
   res.clearCookie('userid');
@@ -423,3 +431,22 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
   };
 
 });
+
+// Username + password to token
+
+iris.app.post("/api/login", function (req, res) {
+
+  if (req.body.username && req.body.password) {
+
+    iris.modules.user.globals.login(req.body, null, function (userid, token) {
+
+      res.send({
+        userid: userid,
+        token: token
+      });
+
+    })
+
+  }
+
+})
