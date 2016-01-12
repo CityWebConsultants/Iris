@@ -43,10 +43,10 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
         thisHook.const.res.cookie('anonID', anonID);
         
         data.userid = anonID;
-
+        thisHook.finish(true, data);
+        
       })
 
-      thisHook.finish(true, data);
 
     } else if (thisHook.const.req && thisHook.const.req.cookies && thisHook.const.req.cookies.anonID) {
 
