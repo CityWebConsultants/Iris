@@ -182,7 +182,44 @@ iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data)
  * This implementation of hook_frontend_template_parse adds a "form" block.
  */
 iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-    
+
+  data.variables.tags.headTags["jquery"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/admin_ui/jsonform/deps/jquery.min.js"
+    },
+    rank: 0
+  }
+
+  data.variables.tags.headTags["underscore"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/admin_ui/jsonform/deps/underscore-min.js"
+    },
+    rank: 0
+  }
+  data.variables.tags.headTags["jqueryui"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/admin_ui/jsonform/deps/opt/jquery.ui.custom.js"
+    },
+    rank: 1
+  }
+  data.variables.tags.headTags["bootstrap-dropdown"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/admin_ui/jsonform/deps/opt/bootstrap-dropdown.js"
+    },
+    rank: 2
+  }
+  data.variables.tags.headTags["jsonform"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/admin_ui/jsonform/lib/jsonform.js"
+    },
+    rank: 3
+  }
+
   iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
 
     var formParams = form.join(",");

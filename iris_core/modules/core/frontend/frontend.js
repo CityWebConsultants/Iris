@@ -768,11 +768,14 @@ var parseTemplate = function (html, authPass, context) {
  */
 iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  // Add tags to context if doesn't exist
+  // Add tags to context if doesn't exist. Tags in this section should be in the format of an object with the properites: type (for the type of tag) and attributes (for a list of attributes) and a rank. headTags should be placed in the <head>, bodyTags in the <body> in your theme using {{{iris_tags headTags}}} for example.
 
   if (!data.variables.tags) {
 
-    data.variables.tags = {};
+    data.variables.tags = {
+      headTags: {},
+      bodyTags: {},
+    };
 
   }
 
@@ -914,6 +917,8 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 
 iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
 
+  // Handle for a user's messages
+
   Handlebars.registerHelper("iris_messages", function () {
 
     var messages = iris.readMessages(thisHook.authPass.userid);
@@ -937,6 +942,12 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
     }
 
     return output;
+
+  });
+
+  Handlebars.registerHelper("iris_tags", function (tagname) {
+
+    return tagname;
 
   });
 

@@ -2,21 +2,12 @@ iris.registerModule("headertags");
 
 iris.modules.headertags.globals.tags = {};
 
-iris.modules.headertags.globals.newTag = function (category, type, attributes, options) {
-
-
-  if (!iris.modules.headertags.globals.tags[category]) {
-
-    iris.modules.headertags.globals.tags[category] = [];
-
-  }
+iris.modules.headertags.globals.newTag = function (type, attributes, rank) {
 
   iris.modules.headertags.globals.tags[category].push({
-
     type: type,
     attributes: attributes,
-    options: options
-
+    rank: rank
   });
 
 };
@@ -24,7 +15,7 @@ iris.modules.headertags.globals.newTag = function (category, type, attributes, o
 iris.modules.headertags.registerHook("hook_frontend_template_parse", 1, function (thisHook, data) {
 
   iris.modules.frontend.globals.parseEmbed("tags", data.html, function (tagCollectionName, next) {
-    
+
     tagCollectionName = tagCollectionName[0];
 
     if (iris.modules.headertags.globals.tags[tagCollectionName]) {
@@ -74,7 +65,7 @@ iris.modules.headertags.registerHook("hook_frontend_template_parse", 1, function
     };
 
   }).then(function (html) {
-    
+
     data.html = html;
 
     thisHook.finish(true, data);
