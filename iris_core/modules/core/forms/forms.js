@@ -183,7 +183,11 @@ iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data)
  */
 iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  data.variables.tags.headTags["jQuery"] = {
+  iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
+    
+    // Add scripts for forms
+    
+    data.variables.tags.headTags["jQuery"] = {
     type: "script",
     attributes: {
       "src": "/modules/admin_ui/jsonform/deps/jquery.min.js"
@@ -219,8 +223,8 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
     },
     rank: 3
   }
-
-  iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
+  
+  //
 
     var formParams = form.join(",");
 
