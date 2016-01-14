@@ -945,9 +945,45 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   });
 
-  Handlebars.registerHelper("iris_tags", function (tagname) {
+  Handlebars.registerHelper("iris_tags", function (tagName) {
 
-    return tagname;
+    if (thisHook.const.variables && thisHook.const.variables.tags && thisHook.const.variables.tags[tagName]) {
+
+      var tagContainer = thisHook.const.variables.tags[tagName];
+
+      var output = "";
+
+      Object.keys(tagContainer).forEach(function (tagName) {
+
+        var tag = tagContainer[tagName];
+
+        output += "<" + tag.type;
+
+        if (tag.attributes) {
+
+          Object.keys(tag.attributes).forEach(function (element) {
+
+            output += " " + element + '=' + '"' + tag.attributes[element] + '"';
+
+          });
+
+        };
+
+        if (tag.type === "script") {
+
+          output += "></" + tag.type + ">"
+
+        } else {
+
+          output += "/>";
+
+        }
+
+      })
+
+    }
+
+    return output;
 
   });
 
@@ -967,8 +1003,6 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
  */
 iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
 
-  // Load in any messsages left for the user
-
   if (!data.vars) {
 
     data.vars = {};
@@ -977,7 +1011,9 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
   var Handlebars = require('handlebars');
 
-  iris.hook("hook_frontend_handlebars_extend", thisHook.authPass, Handlebars, Handlebars).then(function () {
+  iris.hook("hook_frontend_handlebars_extend", thisHook.authPass, {
+    variables: data.vars
+  }, Handlebars).then(function () {
 
     try {
 
