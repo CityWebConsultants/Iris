@@ -21,12 +21,6 @@ iris.modules.headertags.globals.newTag = function (category, type, attributes, o
 
 };
 
-iris.modules.headertags.registerHook("hook_frontend_template_context", 0, function (thisHook, data) {
-
-  thisHook.finish(true, data);
-
-});
-
 iris.modules.headertags.registerHook("hook_frontend_template_parse", 1, function (thisHook, data) {
 
   iris.modules.frontend.globals.parseEmbed("tags", data.html, function (tagCollectionName, next) {

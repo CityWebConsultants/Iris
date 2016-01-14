@@ -579,7 +579,7 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
  *
  * @param {string} html - HTML of template to process
  * @param {object} authPass - authPass of current user
- * @param {object} context - extra variables to pass to templating engine. The property 'custom' is passed to hook_frontend_template_context
+ * @param {object} context - extra variables to pass to templating engine.
  *
  * There are other functions that are intended to make parsing templates easier.
  * @see parseEmbed
@@ -680,12 +680,6 @@ var parseTemplate = function (html, authPass, context) {
 
     }
 
-    if (!context.custom) {
-
-      context.custom = {};
-
-    }
-
     var entity = context.entity;
 
     var output = html;
@@ -730,11 +724,7 @@ var parseTemplate = function (html, authPass, context) {
 
             if (counter === 0) {
 
-              iris.hook("hook_frontend_template_context", authPass, output, context.custom).then(function (newContext) {
-
-                complete(output);
-
-              });
+              complete(output);
 
             }
 
@@ -760,15 +750,7 @@ var parseTemplate = function (html, authPass, context) {
 
     } else {
 
-      iris.hook("hook_frontend_template_context", authPass, output, context.custom).then(function (newContext) {
-
-        complete(output);
-
-      }, function (fail) {
-
-        iris.log("error", fail);
-
-      });
+      complete(output);
 
     }
 
@@ -786,17 +768,13 @@ var parseTemplate = function (html, authPass, context) {
  */
 iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  thisHook.finish(true, data);
+  // Add tags to context if doesn't exist
 
-});
+  if (!data.variables.tags) {
 
-/**
- * @member hook_frontend_template_context
- * @memberof frontend
- *
- * @desc Prepare context for template from custom template variables
- */
-iris.modules.frontend.registerHook("hook_frontend_template_context", 0, function (thisHook, data) {
+    data.variables.tags = {};
+
+  }
 
   thisHook.finish(true, data);
 

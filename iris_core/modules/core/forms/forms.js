@@ -182,9 +182,7 @@ iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data)
  * This implementation of hook_frontend_template_parse adds a "form" block.
  */
 iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-
-  var variables = data.variables;
-
+    
   iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
 
     var formParams = form.join(",");
@@ -376,7 +374,6 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 });
 
 /**
- * @member hook_frontend_template_context
  * @memberof forms
  *
  * @desc Prepare a form for display by adding or changing fields at the render stage
