@@ -248,9 +248,9 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
   Object.keys(data).forEach(function (field) {
 
-    if (typeof field === "string") {
+    if (typeof data[field] === "string") {
 
-      if (data[field].indexOf("[[[") !== -1 || data[field].indexOf("{{") !== -1) {
+      if (data[field].indexOf("[[[") !== -1 || data[field].indexOf("{{") !== -1) {l
 
         data[field] = data[field].split("[[[").join("").split("]]]").join("");
         data[field] = data[field].split("{{").join("").split("}}").join("");

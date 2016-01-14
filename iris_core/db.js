@@ -134,8 +134,17 @@ iris.dbPopulate = function () {
       case "string":
         return String;
         break;
+      case "ofnumber":
+        return [Number];
+        break;
       case "number":
         return Number;
+        break;
+      case "ofboolean":
+        return [Boolean];
+        break;
+      case "boolean":
+        return Boolean;
         break;
     }
 
