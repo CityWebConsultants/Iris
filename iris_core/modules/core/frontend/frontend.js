@@ -1070,11 +1070,10 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
  * @param {string} wrapperTemplateName - file name of wrapper template file
  * @param {object} parameters - extra variables to pass through to the templating system (via parseTemplate)
  * @param {object} authPass - the current user's authPass
- * @param {object} req - the Express request object
  *
  * @returns a promise which, if successful, takes the output HTML as its first argument.
  */
-iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
+iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass) {
 
   return new Promise(function (yes, no) {
 
