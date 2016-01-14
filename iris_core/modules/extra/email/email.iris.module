@@ -1,8 +1,8 @@
 {
   "name": "Email",
-  "rank": 0,
+  "rank": 2,
   "description": "Action for sending email",
   "dependencies": {
-    "actions": "1"
+    "triggers": "1"
   }
 }

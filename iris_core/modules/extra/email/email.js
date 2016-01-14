@@ -2,7 +2,7 @@ iris.registerModule("email");
 
 var nodemailer = require('nodemailer');
 
-iris.modules.trigger.globals.registerAction("email", {
+iris.modules.triggers.globals.registerAction("email", {
   "subject": {
     "type": "text",
     "title": "subject"
