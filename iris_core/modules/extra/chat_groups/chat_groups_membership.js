@@ -83,12 +83,14 @@ iris.modules.chat_groups.registerHook("hook_chat_groups_removemember", 0, functi
   // Fetch requested group
   iris.modules.chat_groups.globals.fetchGroupById(data.group, thisHook.authPass).then(function (found) {
 
+    // Track whether a user actually was removed
     var changeMade = false;
 
-    found[0].forEach(function (element, index) {
+    found[0].members.forEach(function (element, index) {
 
       if (element === data.member.userid) {
 
+        // Remove member from array of members
         found[0].members.splice(index, 1);
 
         changeMade = true;
