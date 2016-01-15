@@ -492,22 +492,64 @@ iris.modules.entityforms.registerHook("hook_form_submit_editEntity", 0, function
 
 var schemaToForm = function (schema, entity) {
 
-  var fieldToSchema = function (fieldName) {
+  var fieldToSchema = function (fieldName, root) {
 
     return new Promise(function (yes, no) {
 
-      iris.hook("hook_render_entityfield_form", "root", {
-        field: schema[fieldName],
-        value: entity ? entity[fieldName] : null
-      }, {}).then(function (form) {
+      if (root[fieldName].subfields) {
 
-        yes(form);
+        // It's a field collection!
 
-      }, function (fail) {
+        var output = {
+          type: "object",
+          properties: {}
+        };
 
-        no(fail);
+        yes(output);
 
-      })
+        var subFieldCounter = 0;
+
+        var next = function () {
+
+          subFieldCounter += 1;
+
+          if (subFieldCounter === Object.keys(root[fieldName].subfields).length) {
+
+            yes(output);
+
+          }
+
+        }
+
+        // Loop over sub fields
+
+        Object.keys(root[fieldName].subfields).forEach(function (subFieldName) {
+
+          fieldToSchema(subFieldName, root[fieldName].subfields).then(function (result) {
+
+            output.properties[subFieldName] = result;
+            next();
+
+          })
+
+        })
+
+      } else {
+
+        iris.hook("hook_render_entityfield_form", "root", {
+          field: root[fieldName],
+          value: entity ? entity[fieldName] : null
+        }, {}).then(function (form) {
+
+          yes(form);
+
+        }, function (fail) {
+
+          no(fail);
+
+        })
+
+      }
 
     })
 
@@ -534,7 +576,7 @@ var schemaToForm = function (schema, entity) {
 
     Object.keys(schema).forEach(function (fieldName) {
 
-      fieldToSchema(fieldName).then(function (result) {
+      fieldToSchema(fieldName, schema).then(function (result) {
 
         output[fieldName] = result;
         done();
