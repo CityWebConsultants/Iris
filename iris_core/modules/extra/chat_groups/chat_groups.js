@@ -1,10 +1,12 @@
 iris.registerModule('chat_groups');
 
-iris.modules.chat_groups.globals.fetchGroupById = function (groupid) {
+require('./chat_groups_membership.js');
+
+iris.modules.chat_groups.globals.fetchGroupById = function (groupid, authPass) {
 
   return new Promise(function (yes, no) {
 
-    iris.hook("hook_entity_fetch", thisHook.authPass, null, {
+    iris.hook("hook_entity_fetch", authPass, null, {
       queryList: [{
         entities: ['group'],
         queries: [{
@@ -27,11 +29,11 @@ iris.modules.chat_groups.globals.fetchGroupById = function (groupid) {
 
 };
 
-iris.modules.chat_groups.globals.checkMembership = function (groupid, memberid) {
+iris.modules.chat_groups.globals.checkMembership = function (groupid, memberid, authPass) {
 
   return new Promise(function (yes, no) {
 
-    iris.hook("hook_entity_fetch", thisHook.authPass, null, {
+    iris.hook("hook_entity_fetch", authPass, null, {
       queryList: [{
         entities: ['group'],
         queries: [{
