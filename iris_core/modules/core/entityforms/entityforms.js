@@ -314,7 +314,7 @@ iris.modules.entityforms.registerHook("hook_entityfield_save", 0, function (this
 
 var saveEntityForm = function (fields, schema) {
 
-  var setValue = function (fieldName, root) {
+  var setValue = function (fieldName, fieldValue, root, sub) {
 
     return new Promise(function (yes, no) {
 
@@ -324,7 +324,7 @@ var saveEntityForm = function (fields, schema) {
 
         var output = {}
 
-        yes(output);
+        //        yes(output);
 
         var subFieldCounter = 0;
 
@@ -344,7 +344,7 @@ var saveEntityForm = function (fields, schema) {
 
         Object.keys(root[fieldName].subfields).forEach(function (subFieldName) {
 
-          fieldToSchema(subFieldName, root[fieldName].subfields).then(function (result) {
+          setValue(subFieldName, fieldValue[subFieldName], root[fieldName].subfields, true).then(function (result) {
 
             output[subFieldName] = result;
             next();
@@ -355,18 +355,37 @@ var saveEntityForm = function (fields, schema) {
 
       } else {
 
-        iris.hook("hook_entityfield_save", "root", {
-          value: fields[fieldName],
-          schema: root[fieldName]
-        }, {}).then(function (form) {
+        if (!sub) {
 
-          yes(form);
+          iris.hook("hook_entityfield_save", "root", {
+            value: fieldValue,
+            schema: root[fieldName]
+          }, {}).then(function (form) {
 
-        }, function (fail) {
+            yes(form);
 
-          no(fail);
+          }, function (fail) {
 
-        })
+            no(fail);
+
+          })
+
+        } else {
+
+          iris.hook("hook_entityfield_save", "root", {
+            value: fieldValue,
+            schema: root[fieldName]
+          }, {}).then(function (form) {
+
+            yes(form);
+
+          }, function (fail) {
+
+            no(fail);
+
+          })
+
+        }
 
       }
 
@@ -395,7 +414,7 @@ var saveEntityForm = function (fields, schema) {
 
     Object.keys(fields).forEach(function (fieldName) {
 
-      setValue(fieldName, schema).then(function (result) {
+      setValue(fieldName, fields[fieldName], schema).then(function (result) {
 
         output[fieldName] = result;
         done();
@@ -470,6 +489,8 @@ iris.modules.entityforms.registerHook("hook_form_submit_editEntity", 0, function
     values = thisHook.const.params;
 
   saveEntityForm(values, schema).then(function (result) {
+
+    console.log(result);
 
     result.eid = eid;
     result.entityType = type;
