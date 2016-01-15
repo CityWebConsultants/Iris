@@ -223,7 +223,7 @@ iris.modules.entityforms.registerHook("hook_render_entityfield_form", 0, functio
 
   var name = thisHook.const.field.fieldTypeName;
   var type = iris.modules.entityforms.globals.fieldTypes[thisHook.const.field.fieldTypeName].fieldTypeType;
-  
+
   if (name === "longstring") {
 
     data = {
@@ -472,7 +472,69 @@ iris.modules.entityforms.registerHook("hook_form_submit_editEntity", 0, function
 
 });
 
+// Function for converting schema field to form
 
+var schemaToForm = function (schema, entity) {
+
+  var fieldToSchema = function (fieldName) {
+
+    return new Promise(function (yes, no) {
+
+      iris.hook("hook_render_entityfield_form", "root", {
+        field: schema[fieldName],
+        value: entity ? entity[fieldName] : null
+      }, {}).then(function (form) {
+
+        yes(form);
+
+      }, function (fail) {
+
+        no(fail);
+
+      })
+
+    })
+
+  }
+
+
+  return new Promise(function (yes, no) {
+
+    var output = {};
+
+    var counter = 0;
+
+    var done = function () {
+
+      counter += 1;
+
+      if (counter === Object.keys(schema).length) {
+
+        yes(output);
+
+      }
+
+    }
+
+    Object.keys(schema).forEach(function (fieldName) {
+
+      fieldToSchema(fieldName).then(function (result) {
+
+        output[fieldName] = result;
+        done();
+
+      }, function (fail) {
+
+        no(fail);
+        iris.log("error", fail);
+
+      })
+
+    })
+
+  })
+
+};
 
 // Create entity form
 
@@ -483,42 +545,17 @@ iris.modules.entityforms.registerHook("hook_form_render_createEntity", 0, functi
   var type = thisHook.const.params[1],
     schema = iris.dbSchemaJSON[type];
 
-  var widgets = {};
+  if (schema) {
 
-  var doneCount = 0;
+    schemaToForm(schema).then(function (result) {
 
-  var done = function () {
-
-    doneCount += 1;
-
-    if (doneCount === Object.keys(schema).length) {
-
-      data.schema = widgets;
+      data.schema = result;
 
       thisHook.finish(true, data);
 
-    }
+    }, function (fail) {
 
-  }
-
-  if (schema) {
-
-    Object.keys(schema).forEach(function (fieldName) {
-
-      iris.hook("hook_render_entityfield_form", thisHook.authPass, {
-        field: schema[fieldName],
-        value: null
-      }, {}).then(function (form) {
-
-        widgets[fieldName] = form;
-
-        done();
-
-      }, function (fail) {
-
-        done();
-
-      })
+      console.log(fail);
 
     });
 
@@ -562,43 +599,17 @@ iris.modules.entityforms.registerHook("hook_form_render_editEntity", 0, function
 
     }
 
-    var widgets = {};
+    schemaToForm(schema, current).then(function (result) {
 
-    var doneCount = 0;
+      data.schema = result;
 
-    var done = function () {
+      thisHook.finish(true, data);
 
-      doneCount += 1;
+    }, function (fail) {
 
-      if (doneCount === Object.keys(schema).length) {
-
-        data.schema = widgets;
-
-        thisHook.finish(true, data);
-
-      }
-
-    }
-
-    Object.keys(schema).forEach(function (fieldName) {
-
-      iris.hook("hook_render_entityfield_form", thisHook.authPass, {
-        field: schema[fieldName],
-        value: current[fieldName]
-      }, {}).then(function (form) {
-
-        widgets[fieldName] = form;
-
-        done();
-
-      }, function (fail) {
-
-        done();
-
-      })
+      thisHook.finish(false, fail);
 
     });
 
-  });
-
-});
+  })
+})
