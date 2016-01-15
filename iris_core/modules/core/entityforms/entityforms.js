@@ -490,8 +490,6 @@ iris.modules.entityforms.registerHook("hook_form_submit_editEntity", 0, function
 
   saveEntityForm(values, schema).then(function (result) {
 
-    console.log(result);
-
     result.eid = eid;
     result.entityType = type;
 
@@ -637,7 +635,7 @@ iris.modules.entityforms.registerHook("hook_form_render_createEntity", 0, functi
   if (schema) {
 
     schemaToForm(schema).then(function (result) {
-
+      
       data.schema = result;
 
       thisHook.finish(true, data);
