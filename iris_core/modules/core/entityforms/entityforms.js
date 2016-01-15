@@ -263,6 +263,18 @@ iris.modules.entityforms.registerHook("hook_render_entityfield_form", 0, functio
 
     thisHook.finish(true, data);
 
+  } else if (type === "boolean") {
+
+    data = {
+      type: "boolean",
+      title: thisHook.const.field.label || thisHook.const.field.title,
+      required: thisHook.const.field.required,
+      description: thisHook.const.field.description,
+      default: thisHook.const.value
+    };
+
+    thisHook.finish(true, data);
+
   } else {
 
     thisHook.finish(false, data);
@@ -285,6 +297,10 @@ iris.modules.entityforms.registerHook("hook_entityfield_save", 0, function (this
     thisHook.finish(true, thisHook.const.value)
 
   } else if (fieldType === "ofstring") {
+
+    thisHook.finish(true, thisHook.const.value)
+
+  } else if (fieldType === "boolean") {
 
     thisHook.finish(true, thisHook.const.value)
 
