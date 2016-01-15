@@ -312,6 +312,108 @@ iris.modules.entityforms.registerHook("hook_entityfield_save", 0, function (this
 
 });
 
+var saveEntityForm = function (fields, schema) {
+
+  var setValue = function (fieldName, root) {
+
+    return new Promise(function (yes, no) {
+
+      if (root[fieldName].subfields) {
+
+        // It's a field collection!
+
+        var output = {}
+
+        yes(output);
+
+        var subFieldCounter = 0;
+
+        var next = function () {
+
+          subFieldCounter += 1;
+
+          if (subFieldCounter === Object.keys(root[fieldName].subfields).length) {
+
+            yes(output);
+
+          }
+
+        }
+
+        // Loop over sub fields
+
+        Object.keys(root[fieldName].subfields).forEach(function (subFieldName) {
+
+          fieldToSchema(subFieldName, root[fieldName].subfields).then(function (result) {
+
+            output[subFieldName] = result;
+            next();
+
+          })
+
+        })
+
+      } else {
+
+        iris.hook("hook_entityfield_save", "root", {
+          value: fields[fieldName],
+          schema: root[fieldName]
+        }, {}).then(function (form) {
+
+          yes(form);
+
+        }, function (fail) {
+
+          no(fail);
+
+        })
+
+      }
+
+    })
+
+  }
+
+
+  return new Promise(function (yes, no) {
+
+    var output = {};
+
+    var counter = 0;
+
+    var done = function () {
+
+      counter += 1;
+
+      if (counter === Object.keys(schema).length) {
+
+        yes(output);
+
+      }
+
+    }
+
+    Object.keys(fields).forEach(function (fieldName) {
+
+      setValue(fieldName, schema).then(function (result) {
+
+        output[fieldName] = result;
+        done();
+
+      }, function (fail) {
+
+        no(fail);
+        iris.log("error", fail);
+
+      })
+
+    })
+
+  })
+
+};
+
+
 // Entity create form handler
 
 iris.modules.entityforms.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
@@ -324,83 +426,35 @@ iris.modules.entityforms.registerHook("hook_form_submit_createEntity", 0, functi
     schema = iris.dbSchemaJSON[type],
     values = thisHook.const.params;
 
-  // Gather array of field value/widgets pairs
+  saveEntityForm(values, schema).then(function (result) {
 
-  var widgetValues = [];
+    result.entityType = type;
 
-  Object.keys(values).forEach(function (field) {
+    iris.hook("hook_entity_create", thisHook.authPass, result, result).then(function (success) {
 
-    if (schema[field]) {
+      data = function (res) {
 
-      widgetValues.push({
-        schema: schema[field],
-        value: values[field],
-        fieldName: field
-      });
+        res.send("/admin/entitylist/" + type)
 
-    }
+      }
 
-  });
-
-  // Loop over all widgets to assemble a saved entity
-
-  var formData = {};
-
-  var doneCount = 0;
-
-  var done = function () {
-
-    doneCount += 1;
-
-    if (doneCount === widgetValues.length) {
-
-      formData.entityType = type;
-
-      iris.hook("hook_entity_create", thisHook.authPass, formData, formData).then(function (success) {
-
-        data = function (res) {
-
-          res.send("/admin/entitylist/" + type)
-
-        }
-
-        thisHook.finish(true, data);
-
-      }, function (fail) {
-
-        thisHook.finish(true, function (res) {
-
-          res.send({
-            errors: fail
-          });
-
-        });
-
-      });
-
-    }
-
-  }
-
-  widgetValues.forEach(function (widget) {
-
-    iris.hook("hook_entityfield_save", thisHook.authPass, widget, {}).then(function (result) {
-
-      formData[widget.fieldName] = result;
-
-      done();
+      thisHook.finish(true, data);
 
     }, function (fail) {
 
-      done();
+      thisHook.finish(true, function (res) {
+
+        res.send({
+          errors: fail
+        });
+
+      });
 
     })
 
   });
 
 });
-
-// Entity edit form handler ( TODO: should merge this with create as they're pretty much the same thing)
 
 // Entity create form handler
 
@@ -415,72 +469,30 @@ iris.modules.entityforms.registerHook("hook_form_submit_editEntity", 0, function
     eid = thisHook.const.req.url.split("/")[4],
     values = thisHook.const.params;
 
-  // Gather array of field value/widgets pairs
+  saveEntityForm(values, schema).then(function (result) {
 
-  var widgetValues = [];
+    result.eid = eid;
+    result.entityType = type;
 
-  Object.keys(values).forEach(function (field) {
+    iris.hook("hook_entity_edit", thisHook.authPass, result, result).then(function (success) {
 
-    if (schema[field]) {
+      data = function (res) {
 
-      widgetValues.push({
-        schema: schema[field],
-        value: values[field],
-        fieldName: field
-      });
+        res.send("/admin/entitylist/" + type)
 
-    }
+      }
 
-  });
-
-  // Loop over all widgets to assemble a saved entity
-
-  var formData = {};
-
-  var doneCount = 0;
-
-  var done = function () {
-
-    doneCount += 1;
-
-    if (doneCount === widgetValues.length) {
-
-      formData.entityType = type;
-      formData.eid = eid;
-
-      iris.hook("hook_entity_edit", thisHook.authPass, formData, formData).then(function (success) {
-
-        var data = function (res) {
-
-          res.send("/admin/entitylist/" + type)
-
-        }
-
-        thisHook.finish(true, data);
-
-      }, function (fail) {
-
-        console.log(fail);
-
-        thisHook.finish(false, fail);
-
-      });
-
-    }
-
-  }
-
-  widgetValues.forEach(function (widget) {
-
-    iris.hook("hook_entityfield_save", thisHook.authPass, widget, {}).then(function (result) {
-
-      formData[widget.fieldName] = result;
-
-      done();
+      thisHook.finish(true, data);
 
     }, function (fail) {
 
-      done();
+      thisHook.finish(true, function (res) {
+
+        res.send({
+          errors: fail
+        });
+
+      });
 
     })
 
