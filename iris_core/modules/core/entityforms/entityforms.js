@@ -517,8 +517,6 @@ var schemaToForm = function (schema, entity) {
           properties: {}
         };
 
-        yes(output);
-
         var subFieldCounter = 0;
 
         var next = function () {
