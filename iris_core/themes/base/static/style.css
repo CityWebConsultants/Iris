@@ -14,7 +14,7 @@ h1, h2, h3, h4 {
 #site-name {
     font-size:40px;
 }
-#main-menu {
+.menu-Main {
     float:right;
 }
 .caption {
@@ -25,107 +25,49 @@ h1, h2, h3, h4 {
 #content {
     margin-bottom:30px;
 }
-header {
+#page-header {
     min-height:100px;
     position:relative;
     z-index:2;
     padding:20px;
+    overflow:hidden;
     margin-bottom:10px;
 }
-footer {
+#page-footer {
     background: #555;
     padding: 20px;
     color: #fff;
 }
 
-
-#hp-1 {
-    max-width:1120px;
-    margin:auto;
-}
-#hp-1 h2 {
-    color: #6258a4;
-}
-#hp-1-1 {
-  text-align:center;    
-}
-#hp-2 {
-    clear:both;
-    background: linear-gradient(90deg, #6258a4 66.7%, transparent 33.3%);
-    color:#fff;
-    width:100%;
-    position:relative;
-    top:20px;
-    overflow:hidden;
-}
-@media screen and (max-width:991px) {
-    #hp-2 {
-      background-color: #6258a4;
-    }
-}
-#hp-2-1 {
-    max-width:1120px;
-    margin:auto;
-}
-#hp-2-1 h2 {
-  color: #fff;   
-}
-#hp-2-1 li {
- margin:5px 0;   
-}
-#hp-2-1-1 {
-    background-color: #6258a4;
-    padding-bottom:20px;
-}
-#hp-3 {
-    clear: both;
-    overflow: hidden;
-    padding-top: 180px;
-    position: relative;
-    margin-top: -150px;
-    background: #eee;
-    z-index: -100;
-    padding-bottom: 20px;
-    overflow:hidden;
-    float:right;
-}
-#hp-3-1-1 {
-    padding-top:30px;
-    text-align:center;
-}
-
-#hp-3-1-1 img {
-    max-width:100%;
-}
-#main-menu li {
+.menu-Main li {
     list-style:none;
     display:inline-block;;
     padding:5px;
     font-size:1.2em;
     position:relative;
 }
-#main-menu nav ul li.has-children ul {
+.menu-Main nav ul li.has-children ul {
     padding: 0;
     position: absolute;
     top: 37px;
     display: none;    
 }
 
-#main-menu nav ul li.has-children:hover a, #main-menu nav ul li.has-children:focus a{
+.menu-Main nav ul li.has-children:hover a, .menu-Main nav ul li.has-children:focus a{
     color:#fff !important;
 } 
-#main-menu nav ul li.has-children:hover ul, #main-menu nav ul li.has-children:focus ul {
+.menu-Main nav ul li.has-children:hover ul, .menu-Main nav ul li.has-children:focus ul {
     display:block;
 }
 
-#main-menu nav ul li.has-children:after {
+.menu-Main nav ul li.has-children:after {
   content: '▼';
   font-size: 10px;
   position: relative;
   bottom: 3px;
 }
 
-#main-menu nav ul li.has-children ul li {
+.menu-Main nav ul li.has-children ul li {
     display: block;
     text-align: left;
     background: #666;
@@ -136,16 +78,16 @@ footer {
     font-size: 80%;
     white-space:nowrap;
 }
-#main-menu nav ul li.has-children ul li a {
+.menu-Main nav ul li.has-children ul li a {
     color: #fff;
 }
 
-#main-menu nav ul li.has-children ul li:hover,
-#main-menu nav ul li.has-children ul li:focus {
+.menu-Main nav ul li.has-children ul li:hover,
+.menu-Main nav ul li.has-children ul li:focus {
   background-color: #969696;
 }
-#main-menu nav ul li.has-children:hover,
-#main-menu nav ul li.has-children:focus {
+.menu-Main nav ul li.has-children:hover,
+.menu-Main nav ul li.has-children:focus {
     color:#fff !important;
   background: #666;
 }
