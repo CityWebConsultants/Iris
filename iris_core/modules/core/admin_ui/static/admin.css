@@ -29,6 +29,14 @@ td {
 tr:nth-child(even) {
   background-color: #E9E6FF;
 }
+#set_first_user {
+    width: 522px;
+    margin: auto;
+    border: 1px solid #eee;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
 #main {
   max-width: 1120px;
   margin: auto;
