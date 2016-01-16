@@ -1,4 +1,5 @@
 node_modules/
+docs
 home/*
 home/sites/*
 !home/sites
@@ -8,4 +9,4 @@ home/themes/*
 !home/themes
 !home/themes/base/
 !home/themes/base/*
-docs
+
