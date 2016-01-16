@@ -215,13 +215,13 @@ module.exports = function (config) {
 
           var contents = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations" + "/" + directory + "/" + filename + ".json", "utf8"));
 
-          iris.saveConfig(contents, directory, filename);
+          //iris.saveConfig(contents, directory, filename);
 
           yes(contents);
 
         } catch (e) {
-
-          no("No such config exists");
+          iris.log("error", e);
+          no("Error reading config");
 
         }
 
