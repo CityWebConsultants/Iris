@@ -1,0 +1,30 @@
+{
+  "title": {
+    "title": "title",
+    "description": "This is the group title",
+    "required": true,
+    "canViewField": ["anonymous", "authenticated"],
+    "fieldTypeName": "string"
+  },
+  "members": {
+    "title": "members",
+    "description": "This is the set of userids that are members of the group.",
+    "canViewField": ["anonymous", "authenticated"],
+    "fieldTypeName": "multistring",
+    "required": true
+  },
+  "entityRef": {
+    "title": "entityRef",
+    "description": "This is a reference to and internal or external entity ID.",
+    "required": false,
+    "canViewField": ["anonymous", "authenticated"],
+    "fieldTypeName": "string"
+  },
+  "isOneToOne": {
+    "title": "isOneToOne",
+    "description": "This is a flag to specify whether this group represents a one-to-one chat.",
+    "required": true,
+    "canViewField": ["anonymous", "authenticated"],
+    "fieldTypeName": "boolean"
+  }
+}
