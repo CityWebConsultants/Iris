@@ -159,6 +159,26 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 });
 
 /**
+ * @member hook_form_validate
+ * @memberof forms
+ *
+ * @desc Generic form validation handler
+ *
+ * Use this hook to implement a handler on all submitted forms.
+ *
+ * The form fields are available keyed under thisHook.const.params.
+ *
+ * It is easier to handle validation of a single form by appending _ followed by the form name to this hook.
+ *
+ * @see hook_form_submit_<form_name>
+ */
+iris.modules.forms.registerHook("hook_form_validate", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
+
+});
+
+/**
  * @member hook_form_submit
  * @memberof forms
  *
