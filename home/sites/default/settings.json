@@ -5,6 +5,6 @@
   "https_cert": "",
   "db_server": "localhost",
   "db_port": 27017,
-  "db_name": "iris",
+  "db_name": "test1",
   "max_file_size": 10
 }

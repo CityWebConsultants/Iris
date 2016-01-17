@@ -1,5 +1,6 @@
 body {
     font-size:16px;
+    background-color:#555;
 }
 a {
     color: #6258A4
@@ -24,6 +25,8 @@ h1, h2, h3, h4 {
 
 #content {
     margin-bottom:30px;
+    background-color:#fff;
+    padding-bottom:20px;
 }
 #page-header {
     min-height:100px;
@@ -31,7 +34,7 @@ h1, h2, h3, h4 {
     z-index:2;
     padding:20px;
     overflow:hidden;
-    margin-bottom:10px;
+    background-color:#fff;
 }
 #page-footer {
     background: #555;

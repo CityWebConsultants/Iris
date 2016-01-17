@@ -1,2 +1,8 @@
 {"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":10153,"level":30,"msg":"Server started","time":"2016-01-16T18:08:14.792Z","v":0}
 {"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11187,"level":30,"msg":"Server started","time":"2016-01-17T00:14:36.375Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11786,"level":30,"msg":"Server started","time":"2016-01-17T00:18:48.196Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11796,"level":30,"msg":"Server started","time":"2016-01-17T00:19:24.548Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11796,"level":30,"msg":"user created by system","time":"2016-01-17T00:19:38.243Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11796,"level":30,"msg":"page created by 1","time":"2016-01-17T00:20:42.668Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11796,"level":30,"msg":"Server restarted  by user 1 via modules page","time":"2016-01-17T00:24:07.396Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11840,"level":30,"msg":"Server started","time":"2016-01-17T00:24:08.145Z","v":0}
