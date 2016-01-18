@@ -1,9 +1,3 @@
-if (!window.iris) {
-
-  iris = {};
-
-}
-
 iris.fetchEntities = function (baseurl, variableName, query) {
 
   // Remove trailing slash
