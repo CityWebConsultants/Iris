@@ -121,12 +121,12 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 
       var preLoader = "";
 
-      if (!data.variables.entityLoader) {
-
-        data.variables.entityLoader = true;
-
-        preLoader += "<script src='/modules/entity/templates.js'></script>";
-
+      data.variables.tags.headTags["entity_fetch"] = {
+        type: "script",
+        attributes: {
+          "src": "/modules/entity/templates.js"
+        },
+        rank: 0
       }
 
       var entityPackage = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
