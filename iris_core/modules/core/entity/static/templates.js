@@ -18,11 +18,9 @@ if (!window.iris) {
 
 irisReady(function () {
 
-  if (window.io) {
+  if (window.io && iris.server) {
 
-    iris.socketreceiver = io(document.location.protocol + "//" + document.location.hostname + ":" + document.location.port, {
-      reconnectionAttempts: 1
-    });
+    iris.socketreceiver = io(iris.server);
 
     iris.socketreceiver.on('entityCreate', function (data) {
 
@@ -291,7 +289,18 @@ irisReady(function () {
 
 iris.entityListUpdate = new Event('entityListUpdate');
 
-iris.fetchEntities = function (baseurl, variableName, query) {
+iris.fetchEntities = function (variableName, query) {
+
+  if (!iris.server) {
+
+    console.error("You need to initialise Iris with a base url for entity fetching to work. Try setting iris.server to the location of the Iris server.");
+    return false;
+
+  } else {
+
+    baseurl = iris.server;
+
+  }
 
   // Remove trailing slash
 
@@ -371,38 +380,6 @@ iris.fetchEntities = function (baseurl, variableName, query) {
       }
 
     }
-
-  }
-
-  if (window.io) {
-
-    iris.socketreceiver = io(baseurl);
-
-    iris.socketreceiver.on('entityCreate', function (data) {
-
-      if (data) {
-
-        iris.checkQuery(data);
-
-      }
-
-    });
-
-    iris.socketreceiver.on('entityUpdate', function (data) {
-
-      if (data) {
-
-        iris.checkQuery(data, true);
-
-      }
-
-    });
-
-    iris.socketreceiver.on('entityDelete', function (data) {
-
-      iris.deleteEntity(data);
-
-    });
 
   }
 
