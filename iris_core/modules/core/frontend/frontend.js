@@ -525,16 +525,12 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
       // Skip embed if it contains Handlebars parameters
 
-      embeds.forEach(function (embed, index) {
+      embeds.filter(function (embed) {
 
-        if (embed.indexOf("{{") !== -1) {
-          
-          embeds.splice(index, 1);
-
-        }
+        return embed.indexOf("{{") === -1;
 
       })
-
+      
       var counter = 0;
 
       var runthrough = function (choice) {
