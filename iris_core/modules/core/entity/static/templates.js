@@ -365,8 +365,6 @@ iris.fetchEntities = function (variableName, query) {
             window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
             window.iris.fetched[variableName].entities.push(entity);
 
-
-
           })
 
         }
@@ -386,9 +384,3 @@ iris.fetchEntities = function (variableName, query) {
   request.send();
 
 }
-
-iris.changeQueryValue = function (variable, newValue) {
-
-
-
-};
