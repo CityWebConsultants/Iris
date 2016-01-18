@@ -20,7 +20,9 @@ irisReady(function () {
 
   if (window.io) {
 
-    iris.socketreceiver = io(document.location.protocol + "//" + document.location.hostname + ":" + document.location.port);
+    iris.socketreceiver = io(document.location.protocol + "//" + document.location.hostname + ":" + document.location.port, {
+      reconnectionAttempts: 1
+    });
 
     iris.socketreceiver.on('entityCreate', function (data) {
 
@@ -407,3 +409,9 @@ iris.fetchEntities = function (baseurl, variableName, query) {
   request.send();
 
 }
+
+iris.changeQueryValue = function (variable, newValue) {
+
+
+
+};
