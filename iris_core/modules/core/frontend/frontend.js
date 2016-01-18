@@ -777,6 +777,16 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
       bodyTags: {},
     };
 
+    // Default tags
+
+    data.variables.tags.headTags["iris_core"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/frontend/iris_core.js"
+      },
+      rank: 0
+    }
+
   }
 
   thisHook.finish(true, data);
