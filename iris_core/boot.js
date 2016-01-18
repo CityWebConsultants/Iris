@@ -85,7 +85,7 @@ module.exports = function (config) {
    *
    * @returns Runs callback with 'err' boolean (false if operation successful)
    */
-  iris.saveConfig = function (contents, directory, filename, callback) {
+  iris.saveConfig = function (contents, directory, filename, callback, writeToFile) {
 
     var current = iris.configStore;
 
@@ -103,17 +103,20 @@ module.exports = function (config) {
 
     current[filename] = contents;
 
-    var filePath = path.join(iris.sitePath, "/configurations", directory);
+    if (writeToFile !== false) {
 
-    var mkdirp = require('mkdirp');
+        var filePath = path.join(iris.sitePath, "/configurations", directory);
 
-    mkdirp(filePath, function (err) {
-      if (err) {
-        console.error(err);
-      } else {
-        fs.writeFile(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8", callback);
-      }
-    });
+        var mkdirp = require('mkdirp');
+
+        mkdirp(filePath, function (err) {
+            if (err) {
+                console.error(err);
+            } else {
+                fs.writeFile(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8", callback);
+            }
+        });
+    }
 
     // Fire config saved hook
 
@@ -215,7 +218,7 @@ module.exports = function (config) {
 
           var contents = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations" + "/" + directory + "/" + filename + ".json", "utf8"));
 
-          //iris.saveConfig(contents, directory, filename);
+          iris.saveConfig(contents, directory, filename, null, false);
 
           yes(contents);
 
