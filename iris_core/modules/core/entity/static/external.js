@@ -1,4 +1,10 @@
-var send = function (baseurl, variableName, query) {
+if (!window.iris) {
+
+  iris = {};
+
+}
+
+iris.fetchEntities = function (baseurl, variableName, query) {
 
   // Remove trailing slash
 
@@ -63,12 +69,12 @@ var send = function (baseurl, variableName, query) {
             window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
             window.iris.fetched[variableName].entities.push(entity);
 
-            
+
 
           })
 
         }
-        
+
         document.dispatchEvent(iris.entityListUpdate);
 
       } catch (e) {
