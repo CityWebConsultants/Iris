@@ -513,9 +513,9 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
     if (embeds) {
 
-      // Skip embed if it contains Handlebars parameters
+      //  Skip embed if it contains Handlebars parameters
 
-      embeds.filter(function (embed) {
+      embeds = embeds.filter(function (embed) {
 
         return embed.indexOf("{{") === -1;
 
@@ -596,7 +596,7 @@ var getEmbeds = function (type, text) {
 
     var embedEnd = restOfString.indexOf("]]]");
 
-    embeds.push(restOfString.substring(3 + type.length + 1,embedEnd));
+    embeds.push(restOfString.substring(3 + type.length + 1, embedEnd));
 
   })
 
@@ -622,6 +622,9 @@ var getEmbeds = function (type, text) {
  *
  * @returns a promise which, if successful, takes an object with properties 'html' and 'variables',for the processed HTML and variables ready to pass to the templating engine, respectively.
  */
+
+var merge = require("merge");
+
 var parseTemplate = function (html, authPass, context) {
 
   return new Promise(function (pass, fail) {
@@ -647,11 +650,7 @@ var parseTemplate = function (html, authPass, context) {
 
           if (data.variables) {
 
-            Object.keys(data.variables).forEach(function (variable) {
-
-              allVariables[variable] = data.variables[variable];
-
-            })
+            allVariables = merge.recursive(true, allVariables, data.variables);
 
           };
 
@@ -676,11 +675,7 @@ var parseTemplate = function (html, authPass, context) {
 
           if (parsedData.variables) {
 
-            Object.keys(parsedData.variables).forEach(function (variable) {
-
-              allVariables[variable] = parsedData.variables[variable];
-
-            })
+            allVariables = merge.recursive(true, allVariables, parsedData.variables);
 
           };
 
@@ -984,48 +979,6 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   });
 
-  Handlebars.registerHelper("iris_tags", function (tagName) {
-
-    if (thisHook.const.variables && thisHook.const.variables.tags && thisHook.const.variables.tags[tagName]) {
-
-      var tagContainer = thisHook.const.variables.tags[tagName];
-
-      var output = "";
-
-      Object.keys(tagContainer).forEach(function (tagName) {
-
-        var tag = tagContainer[tagName];
-
-        output += "<" + tag.type;
-
-        if (tag.attributes) {
-
-          Object.keys(tag.attributes).forEach(function (element) {
-
-            output += " " + element + '=' + '"' + tag.attributes[element] + '"';
-
-          });
-
-        };
-
-        if (tag.type === "script") {
-
-          output += "></" + tag.type + ">"
-
-        } else {
-
-          output += "/>";
-
-        }
-
-      })
-
-    }
-
-    return output;
-
-  });
-
   thisHook.finish(true, Handlebars);
 
 });
@@ -1066,8 +1019,6 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
           success.html = Handlebars.compile(success.html)(success.variables);
 
-          success.html = success.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
-
           thisHook.finish(true, success);
 
         });
@@ -1077,7 +1028,6 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
         thisHook.finish(true, data);
 
       }
-
 
     } catch (e) {
 
@@ -1092,6 +1042,66 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
   })
 
 });
+
+
+// Function for inserting tags into templates (run last). TODO: Make generic parseEmbed for embeds that run last. Same for Handlebars templates?
+
+var insertTags = function (html, vars) {
+  
+
+  if (!html || !vars) {
+
+    return html;
+
+  }
+  
+  var tags = getEmbeds("tags", html);
+
+  tags.forEach(function (tagName) {
+    
+    if (vars.tags && vars.tags[tagName]) {
+      
+      var tagContainer = vars.tags[tagName];
+      
+      var output = "";
+
+      Object.keys(tagContainer).forEach(function (tagName) {
+
+        var tag = tagContainer[tagName];
+
+        output += "<" + tag.type;
+
+        if (tag.attributes) {
+
+          Object.keys(tag.attributes).forEach(function (element) {
+
+            output += " " + element + '=' + '"' + tag.attributes[element] + '"';
+
+          });
+
+        };
+
+        if (tag.type === "script") {
+
+          output += "></" + tag.type + ">"
+
+        } else {
+
+          output += "/>";
+
+        }
+
+      })
+            
+      html = html.split("[[[tags " + tagName + "]]]").join(output);
+
+    }
+
+  })
+
+  return html;
+
+}
 
 /**
  * @function parseTemplateFile
@@ -1117,6 +1127,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
   return new Promise(function (yes, no) {
 
     var parseTemplateFile = function (currentTemplateName, parameters, callback) {
+
 
       iris.modules.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
 
@@ -1160,6 +1171,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
             vars: innerOutput.variables
           }).then(function (output) {
 
+            output.html = insertTags(output.html, innerOutput.variables);
+            
             yes(output.html);
 
           }, function (fail) {
@@ -1183,6 +1196,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
           html: output.html,
           vars: output.variables
         }).then(function (output) {
+
+          output.html = insertTags(output.html, output.variables);
 
           yes(output.html);
 
