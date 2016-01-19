@@ -508,7 +508,7 @@ iris.modules.frontend.globals.findTemplate = findTemplate;
 iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
   return new Promise(function (yes, no) {
-    
+
     var embeds = getEmbeds(prefix, html);
 
     if (embeds) {
@@ -588,7 +588,7 @@ var getEmbeds = function (type, text) {
 
   var start = getIndicesOf("[[[" + type, text, false);
   var end = getIndicesOf("]]]", text, false);
-  
+
   var embeds = [];
 
   start.forEach(function (element, index) {
@@ -597,12 +597,14 @@ var getEmbeds = function (type, text) {
       start: start[index] + 3 + type.length + 1,
       end: end[index]
     };
-    
+
     embeds.push(text.substring(embed.start, embed.end));
 
   })
 
-  return embeds;
+  if (embeds.length) {
+    return embeds;
+  }
 
 }
 
