@@ -99,8 +99,6 @@ iris.dbPopulate = function () {
 
   });
 
-  console.log(iris.fieldTypes)
-
   // Delete any existing schema so they can be re-written
 
   Object.keys(iris.dbSchema).forEach(function (oldSchema) {

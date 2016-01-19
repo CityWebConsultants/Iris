@@ -50,9 +50,13 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
             "type": "textarea",
             "title": "Field description"
           },
-          "description": {
-            "type": "textarea",
-            "title": "Field description"
+          "permissions": {
+            "type": "checkboxbuttons",
+            "activeClass": "btn-success",
+            "title": "Field view permissions",
+            "items": {
+              "enum": Object.keys(iris.modules.auth.globals.roles)
+            }
           }
         }
       }
