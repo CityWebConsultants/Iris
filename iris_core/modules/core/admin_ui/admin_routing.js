@@ -45,8 +45,7 @@ iris.app.get("/admin/config/export", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_export_config"], ['admin_wrapper'], {
-  }, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_export_config"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
@@ -72,8 +71,7 @@ iris.app.get("/admin/config/import", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_import_config"], ['admin_wrapper'], {
-  }, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_import_config"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
@@ -99,8 +97,7 @@ iris.app.get("/admin", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_dashboard"], ['admin_wrapper'], {
-  }, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_dashboard"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
@@ -126,8 +123,7 @@ iris.app.get("/admin/permissions", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {
-  }, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
@@ -199,9 +195,11 @@ iris.app.get("/admin/logs", function (req, res) {
 
   //Split logs by newline
 
-  var logs = rawLogs.split(/\r?\n/)
+  var logs = rawLogs.split(/\r?\n/);
 
   logs.forEach(function (element, index) {
+
+    logs[index] = iris.sanitizeEmbeds(logs[index]);
 
     logs[index] = JSON.parse(logs[index]);
 
@@ -351,8 +349,7 @@ iris.app.get("/admin/delete/:type/:id", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_entity_delete"], ['admin_wrapper'], {
-  }, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_entity_delete"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
