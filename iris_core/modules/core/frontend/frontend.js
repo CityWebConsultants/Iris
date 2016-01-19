@@ -508,20 +508,10 @@ iris.modules.frontend.globals.findTemplate = findTemplate;
 iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
   return new Promise(function (yes, no) {
-
-    var finder = new RegExp("\\[\\[\\[" + prefix + "\\s[^\\[\\]]+\\s*\\]\\]\\]", "g");
-
-    var embeds = html.match(finder);
+    
+    var embeds = getEmbeds(prefix, html);
 
     if (embeds) {
-
-      var embeds = embeds.map(function (x) {
-
-        var internal = new RegExp(prefix + "\\s([^\\[\\]]+)");
-
-        return x.match(internal)[1];
-
-      });
 
       // Skip embed if it contains Handlebars parameters
 
@@ -530,7 +520,7 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
         return embed.indexOf("{{") === -1;
 
       })
-      
+
       var counter = 0;
 
       var runthrough = function (choice) {
@@ -578,6 +568,43 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
   });
 
 };
+
+var getEmbeds = function (type, text) {
+
+  function getIndicesOf(searchStr, str, caseSensitive) {
+    var startIndex = 0,
+      searchStrLen = searchStr.length;
+    var index, indices = [];
+    if (!caseSensitive) {
+      str = str.toLowerCase();
+      searchStr = searchStr.toLowerCase();
+    }
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+      indices.push(index);
+      startIndex = index + searchStrLen;
+    }
+    return indices;
+  }
+
+  var start = getIndicesOf("[[[" + type, text, false);
+  var end = getIndicesOf("]]]", text, false);
+  
+  var embeds = [];
+
+  start.forEach(function (element, index) {
+
+    var embed = {
+      start: start[index] + 3 + type.length + 1,
+      end: end[index]
+    };
+    
+    embeds.push(text.substring(embed.start, embed.end));
+
+  })
+
+  return embeds;
+
+}
 
 /**
  * @function parseTemplace
