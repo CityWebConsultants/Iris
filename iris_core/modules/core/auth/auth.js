@@ -71,12 +71,13 @@ iris.modules.auth.globals = {
 
   roles: {
     anonymous: {
-      name: "anonymous"
-    },
-    authenticated: {
-      name: "authenticated"
-    },
+            name: "anonymous"
+        },
+        authenticated: {
+            name: "authenticated"
+        },
   },
+    
   //List of logged in users/access tokens
   userList: {},
 
