@@ -1047,22 +1047,22 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 // Function for inserting tags into templates (run last). TODO: Make generic parseEmbed for embeds that run last. Same for Handlebars templates?
 
 var insertTags = function (html, vars) {
-  
+
 
   if (!html || !vars) {
 
     return html;
 
   }
-  
+
   var tags = getEmbeds("tags", html);
 
   tags.forEach(function (tagName) {
-    
+
     if (vars.tags && vars.tags[tagName]) {
-      
+
       var tagContainer = vars.tags[tagName];
-      
+
       var output = "";
 
       Object.keys(tagContainer).forEach(function (tagName) {
@@ -1092,7 +1092,7 @@ var insertTags = function (html, vars) {
         }
 
       })
-            
+
       html = html.split("[[[tags " + tagName + "]]]").join(output);
 
     }
@@ -1172,7 +1172,9 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
           }).then(function (output) {
 
             output.html = insertTags(output.html, innerOutput.variables);
-            
+
+            output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
+
             yes(output.html);
 
           }, function (fail) {
@@ -1198,6 +1200,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
         }).then(function (output) {
 
           output.html = insertTags(output.html, output.variables);
+
+          output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
           yes(output.html);
 
