@@ -40,6 +40,8 @@ mongoose.connection.on('error', function (error) {
 
 });
 
+iris.fieldTypes = {};
+
 iris.dbCollections = {};
 
 iris.dbSchemaJSON = {};
@@ -49,6 +51,55 @@ iris.dbSchema = {};
 var dbReady = false;
 
 iris.dbPopulate = function () {
+
+  var glob = require("glob");
+
+  var merge = require("merge");
+
+  // Get field types
+
+  Object.keys(iris.modules).forEach(function (moduleName) {
+
+    var modulePath = iris.modules[moduleName].path;
+
+    var fields = glob.sync(modulePath + "/**/*.iris.field");
+
+    fields.forEach(function (fieldPath) {
+
+      try {
+
+        var field = fs.readFileSync(fieldPath, "utf8");
+
+        field = JSON.parse(field);
+
+        if (!iris.fieldTypes[field.name]) {
+
+          iris.fieldTypes[field.name] = field;
+
+        } else {
+
+          // Merge field's properties
+
+          var newObject = merge.recursive(true, iris.fieldTypes[field.name], field);
+
+          iris.fieldTypes[field.name] = newObject;
+
+        }
+
+      } catch (e) {
+
+        console.log(e);
+
+        iris.log("error", e);
+
+      }
+
+    })
+
+
+  });
+
+  console.log(iris.fieldTypes)
 
   // Delete any existing schema so they can be re-written
 
