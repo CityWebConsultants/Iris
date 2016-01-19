@@ -587,18 +587,16 @@ var getEmbeds = function (type, text) {
   }
 
   var start = getIndicesOf("[[[" + type, text, false);
-  var end = getIndicesOf("]]]", text, false);
 
   var embeds = [];
 
   start.forEach(function (element, index) {
 
-    var embed = {
-      start: start[index] + 3 + type.length + 1,
-      end: end[index]
-    };
+    var restOfString = text.substring(start[index], text.length);
 
-    embeds.push(text.substring(embed.start, embed.end));
+    var embedEnd = restOfString.indexOf("]]]");
+
+    embeds.push(restOfString.substring(3 + type.length + 1,embedEnd));
 
   })
 
@@ -641,7 +639,7 @@ var parseTemplate = function (html, authPass, context) {
 
       // Check for embedded templates
 
-      var embeds = HTML.match(/\[\[\[template\s[\w\.\-]+\s*\]\]\]/g);
+      var embeds = getEmbeds("template", HTML);
 
       if (embeds) {
 
@@ -723,15 +721,9 @@ var parseTemplate = function (html, authPass, context) {
 
     //Get any embeded templates inside the template file
 
-    var embeds = output.match(/\[\[\[template\s[\w\.\-]+\s*\]\]\]/g);
+    var embeds = getEmbeds("template", output);
 
     if (embeds) {
-
-      var embeds = embeds.map(function (x) {
-
-        return x.match(/template\s([\w\.\-]+)/)[1];
-
-      });
 
       var counter = embeds.length;
 
