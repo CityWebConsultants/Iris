@@ -282,5 +282,7 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
 
   iris.sendSocketMessage(["*"], "entityDelete", data);
+  
+  thisHook.finish(true, data);
 
 });
