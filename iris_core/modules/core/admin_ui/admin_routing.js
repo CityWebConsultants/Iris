@@ -111,8 +111,6 @@ iris.app.get("/admin", function (req, res) {
 
 })
 
-<<<<<<< HEAD
-=======
 iris.app.get("/admin/permissions", function (req, res) {
 
   // If not admin, present 403 page
@@ -138,7 +136,6 @@ iris.app.get("/admin/permissions", function (req, res) {
   });
 
 })
->>>>>>> 037345f1655b957c7568ed0f7245de3c6b2be82c
 
 iris.app.get("/admin/entities", function (req, res) {
 
