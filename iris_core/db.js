@@ -210,6 +210,12 @@ iris.dbPopulate = function () {
     // Loop over all fields and set their type.
 
     var finalSchema = {};
+    
+    if(!schemaConfig.fields){
+      
+      return false;
+      
+    }
 
     schemaConfig.fields.forEach(function (field) {
 
