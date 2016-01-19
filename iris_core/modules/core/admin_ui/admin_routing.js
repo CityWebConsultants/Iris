@@ -114,32 +114,6 @@ iris.app.get("/admin", function (req, res) {
 
 })
 
-iris.app.get("/admin/permissions", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", fail);
-
-  });
-
-})
 
 iris.app.get("/admin/entities", function (req, res) {
 
@@ -368,6 +342,16 @@ iris.app.get("/admin/delete/:type/:id", function (req, res) {
 
 iris.app.get("/admin/entitylist/:type", function (req, res) {
 
+  iris.modules.admin_ui.globals.listEntities(req, res, req.params.type);
+
+});
+
+/**
+ * Function used to list entites of a given type. Allows lists to be displayed from
+ * different urls.
+ */
+iris.modules.admin_ui.globals.listEntities = function (req, res, type) {
+    
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
@@ -378,11 +362,11 @@ iris.app.get("/admin/entitylist/:type", function (req, res) {
 
   }
 
-  iris.modules.admin_ui.globals.prepareEntitylist(req.params.type, function (output) {
+  iris.modules.admin_ui.globals.prepareEntitylist(type, function (output) {
 
     iris.modules.frontend.globals.parseTemplateFile(["admin_entitylist"], ['admin_wrapper'], {
       entities: output.entities,
-      type: req.params.type
+      type: type
     }, req.authPass, req).then(function (success) {
 
       res.send(success)
@@ -396,8 +380,7 @@ iris.app.get("/admin/entitylist/:type", function (req, res) {
     });
 
   })
-
-})
+};
 
 // Structure page
 

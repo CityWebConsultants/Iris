@@ -10,6 +10,9 @@ iris.registerModule("user");
 
 var bcrypt = require("bcrypt-nodejs");
 
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/users", "Users", 1);
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/users", "/admin/users/permissions", "Permissions", 1);
+
 // First ever login form
 
 iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
@@ -460,5 +463,33 @@ iris.app.post("/api/login", function (req, res) {
     res.send(null);
 
   }
+
+});
+
+
+iris.app.get("/admin/users/permissions", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
 
 });
