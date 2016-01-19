@@ -1,0 +1,10 @@
+{
+  "name": "Multiple boolean",
+  "type": "ofBoolean",
+  "form": {
+    "length": {
+      "type": "text",
+      "title": "Max length"
+    }
+  }
+}

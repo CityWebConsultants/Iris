@@ -80,7 +80,15 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
 
   })
 
-  //  iris.dbPopulate();
+  iris.dbPopulate();
+
+  data = function (res) {
+
+    res.send({
+      "redirect": "/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.title)
+    })
+
+  }
 
   thisHook.finish(true, data);
 
