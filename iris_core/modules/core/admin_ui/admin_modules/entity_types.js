@@ -42,6 +42,11 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
             "description": "This affects how this field is stored in the database.",
             "enum": Object.keys(iris.fieldTypes)
           },
+          "machineName": {
+            "type": "text",
+            "title": "Database name",
+            "description": "What this field will be called in the database. Lowercase letters and underscores only."
+          },
           "label": {
             "type": "text",
             "title": "Field label"
@@ -62,6 +67,20 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
       }
     }
   }
+
+  thisHook.finish(true, data);
+
+})
+
+iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
+
+  iris.saveConfig(thisHook.const.params, "entity", iris.sanitizeFileName(thisHook.const.params.title), function (data) {
+
+    console.log("saved");
+
+  })
+
+  //  iris.dbPopulate();
 
   thisHook.finish(true, data);
 

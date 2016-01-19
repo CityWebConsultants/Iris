@@ -177,22 +177,22 @@ iris.dbPopulate = function () {
   var typeConverter = function (type) {
 
     switch (type) {
-      case "ofstring":
+      case "ofString":
         return [String];
         break;
-      case "string":
+      case "String":
         return String;
         break;
-      case "ofnumber":
+      case "ofNumber":
         return [Number];
         break;
-      case "number":
+      case "Number":
         return Number;
         break;
-      case "ofboolean":
+      case "ofBoolean":
         return [Boolean];
         break;
-      case "boolean":
+      case "Boolean":
         return Boolean;
         break;
     }
@@ -203,69 +203,31 @@ iris.dbPopulate = function () {
 
   Object.keys(iris.dbSchema).forEach(function (schema) {
 
-    var parseField = function (field) {
-
-      // Check if it's an object with subfields
-
-      if (field.subfields) {
-
-        var type = {};
-
-        Object.keys(field.subfields).forEach(function (subfieldName) {
-
-          parseField(field.subfields[subfieldName]);
-
-          type[subfieldName] = field.subfields[subfieldName];
-
-        });
-
-        delete field.subfields;
-
-        field.type = type;
-
-      }
-
-      // Convert types
-
-      iris.modules.entityforms.globals.fetchSchemaForm();
-
-      if (iris.modules.entityforms.globals.fieldTypes[field.fieldTypeName] && iris.modules.entityforms.globals.fieldTypes[field.fieldTypeName].fieldTypeType) {
-
-        var fieldType = iris.modules.entityforms.globals.fieldTypes[field.fieldTypeName].fieldTypeType;
-
-      }
-
-      if (fieldType && typeConverter(fieldType)) {
-
-        field.type = typeConverter(fieldType);
-
-      }
-
-    }
-
     // Make JSON copy of complete schema
 
-    iris.dbSchemaJSON[schema] = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
+    var schemaConfig = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
 
-    // Filter out universal fields
+    // Loop over all fields and set their type.
 
-    var universalFields = ["entityType", "entityAuthor", "eid"];
+    var finalSchema = {};
 
-    Object.keys(iris.dbSchemaJSON[schema]).forEach(function (field) {
+    schemaConfig.fields.forEach(function (field) {
 
-      if (universalFields.indexOf(field) !== -1) {
+      var fieldType = field.fieldType;
 
-        delete iris.dbSchemaJSON[schema][field];
+      if (iris.fieldTypes[fieldType]) {
+
+        field.type = typeConverter(iris.fieldTypes[fieldType].type);
+
+        finalSchema[field.machineName] = field;
+        
+        delete field.machineName;
 
       }
 
     })
 
-    Object.keys(iris.dbSchema[schema]).forEach(function (field) {
-
-      parseField(iris.dbSchema[schema][field]);
-
-    });
+    iris.dbSchema[schema] = finalSchema;
 
     //Push in universal type fields if not already in.
 
