@@ -177,3 +177,12 @@ iris.sanitizeFileName = function (name) {
   return name.split(/\W/).join('-').toLowerCase();
 
 }
+
+iris.sanitizeEmbeds = function (html) {
+
+  html = html.split("[[[").join("&#91;&#91;&#91;");
+  html = html.split("]]]").join("&#93;&#93;&#93;");
+
+  return html;
+
+}
