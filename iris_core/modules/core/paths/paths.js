@@ -90,6 +90,26 @@ iris.modules.paths.registerHook("hook_entity_created", 0, function (thisHook, da
 
 });
 
+// Remove any paths listed for an entity if it's deleted
+
+iris.modules.paths.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
+
+  Object.keys(iris.modules.paths.globals.entityPaths).forEach(function (path) {
+
+    var currentPath = iris.modules.paths.globals.entityPaths[path];
+
+    if (currentPath.eid.toString() === data.eid.toString()) {
+
+      delete iris.modules.paths.globals.entityPaths[path];
+
+    }
+
+  })
+
+  thisHook.finish(true, data);
+
+})
+
 iris.modules.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 
   // Remove any paths in the list that point to this entity
