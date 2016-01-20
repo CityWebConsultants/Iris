@@ -1043,6 +1043,17 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
 });
 
+// Function for unescaping escaped curly brackets used in handlebars
+
+var unEscape = function (html) {
+
+  html = html.split("\\{").join("{");
+  html = html.split("\\}").join("}");
+
+  return html;
+
+}
+
 
 // Function for inserting tags into templates (run last). TODO: Make generic parseEmbed for embeds that run last. Same for Handlebars templates?
 
@@ -1199,6 +1210,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
             output.html = insertTags(output.html, innerOutput.variables);
 
+            output.html = unEscape(output.html);
+
             output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
             yes(output.html);
@@ -1226,6 +1239,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
         }).then(function (output) {
 
           output.html = insertTags(output.html, output.variables);
+
+          output.html = unEscape(output.html);
 
           output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
