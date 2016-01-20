@@ -227,8 +227,6 @@ iris.dbPopulate = function () {
 
         finalSchema[field.machineName] = field;
         
-        delete field.machineName;
-
       }
 
     })

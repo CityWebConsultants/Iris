@@ -60,8 +60,34 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
     if (!iris.dbSchema[entityType]) {
 
-      thisHook.finish(false, "No such entity type");
+      iris.message(thisHook.authPass.userid, "No such entity type", "error");
+
+      thisHook.finish(false, data);
+
       return false;
+
+    } else {
+
+      data.value.fields = [];
+
+      var specialFields = ["entityType", "entityAuthor", "eid"];
+
+      Object.keys(iris.dbSchema[entityType]).forEach(function (field) {
+
+        if (specialFields.indexOf(field) !== -1) {
+
+          return false;
+
+        }
+
+        var field = JSON.parse(JSON.stringify(iris.dbSchema[entityType][field]));
+
+        delete field.type;
+
+        data.value.fields.push(field);
+
+      })
+
 
     }
 
@@ -69,7 +95,7 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
   data.schema = {
     "title": {
-      "type": "text",
+      "type": entityType ? "hidden" : "text",
       "title": "Entity type name"
     },
     "fields": {
