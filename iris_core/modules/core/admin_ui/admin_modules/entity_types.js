@@ -186,6 +186,12 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
   if (iris.dbSchema[entityType] && iris.dbSchema[entityType][fieldName]) {
 
     var field = iris.dbSchema[entityType][fieldName];
+    
+    if(field.settings){
+      
+      data.value = field.settings;
+      
+    }
 
     var fieldTypeForm = iris.fieldTypes[field["fieldType"]].form;
 
