@@ -792,7 +792,7 @@ var parseTemplate = function (html, authPass, context) {
  */
 iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  // Add tags to context if doesn't exist. Tags in this section should be in the format of an object with the properites: type (for the type of tag) and attributes (for a list of attributes) and a rank. headTags should be placed in the <head>, bodyTags in the <body> in your theme using {{{iris_tags headTags}}} for example.
+  // Add tags to context if doesn't exist. Tags in this section should be in the format of an object with the properites: type (for the type of tag) and attributes (for a list of attributes) and a rank. headTags should be placed in the <head>, bodyTags in the <body> in your theme using [[[tags headTags]]] for example.
 
   if (!data.variables.tags) {
 
@@ -1047,27 +1047,53 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 // Function for inserting tags into templates (run last). TODO: Make generic parseEmbed for embeds that run last. Same for Handlebars templates?
 
 var insertTags = function (html, vars) {
-  
+
 
   if (!html || !vars) {
 
     return html;
 
   }
-  
+
   var tags = getEmbeds("tags", html);
 
-  tags.forEach(function (tagName) {
-    
+  tags.forEach(function (innerTag) {
+
+    var tagName = innerTag.split(",")[0];
+
+    var tagExclude = innerTag.split(",").slice(1, innerTag.split(",").length);
+
+    tagExclude = tagExclude[0];
+
+    if (tagExclude) {
+
+      tagExclude = tagExclude.split(" ").join("").split("-");
+
+    }
+
     if (vars.tags && vars.tags[tagName]) {
-      
+
       var tagContainer = vars.tags[tagName];
-      
-      var output = "";
+
+      var output = "<!-- " + tagName + " -->";
+
+      output += "\n";
 
       Object.keys(tagContainer).forEach(function (tagName) {
 
+        if (tagExclude && tagExclude.indexOf(tagName) !== -1) {
+
+          return false;
+
+        }
+
         var tag = tagContainer[tagName];
+
+        output += "\n";
+
+        output += "<!-- " + tagName + " -->";
+
+        output += "\n";
 
         output += "<" + tag.type;
 
@@ -1092,8 +1118,8 @@ var insertTags = function (html, vars) {
         }
 
       })
-            
-      html = html.split("[[[tags " + tagName + "]]]").join(output);
+
+      html = html.split("[[[tags " + innerTag + "]]]").join(output);
 
     }
 
@@ -1172,7 +1198,9 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
           }).then(function (output) {
 
             output.html = insertTags(output.html, innerOutput.variables);
-            
+
+            output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
+
             yes(output.html);
 
           }, function (fail) {
@@ -1198,6 +1226,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
         }).then(function (output) {
 
           output.html = insertTags(output.html, output.variables);
+
+          output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
           yes(output.html);
 
