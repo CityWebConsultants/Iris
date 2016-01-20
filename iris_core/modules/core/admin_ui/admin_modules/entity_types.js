@@ -127,9 +127,10 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
   };
 
   data.schema = {
-    "title": {
+    "entityTypeName": {
       "type": entityType ? "hidden" : "text",
-      "title": "Entity type name"
+      "title": "Entity type name",
+      "required": true
     },
     "fields": {
       "type": "array",
@@ -278,8 +279,8 @@ iris.modules.forms.globals.registerWidget(function () {
 }, "markup");
 
 iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
-
-  iris.saveConfig(thisHook.const.params, "entity", iris.sanitizeFileName(thisHook.const.params.title), function (data) {
+    
+  iris.saveConfig(thisHook.const.params, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
 
     console.log("saved");
 
@@ -290,7 +291,7 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
   data = function (res) {
 
     res.send({
-      "redirect": "/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.title)
+      "redirect": "/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName)
     })
 
   }
