@@ -1068,6 +1068,12 @@ var insertTags = function (html, vars) {
 
   var tags = getEmbeds("tags", html);
 
+  if (!tags) {
+
+    return false;
+
+  }
+
   tags.forEach(function (innerTag) {
 
     var tagName = innerTag.split(",")[0];
