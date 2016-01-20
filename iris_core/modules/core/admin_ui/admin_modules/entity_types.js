@@ -240,20 +240,21 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
 
   // Add field's extra info!
 
-  schema[fieldName].settings = delete thisHook.const.params;
+  schema[fieldName].settings = thisHook.const.params;
 
-  iris.saveConfig(schema, "entity", entityType).then(function (success) {
+  iris.saveConfig(schema, "entity", entityType, function (data) {
 
-    console.log(success);
+    thisHook.finish(true, function (res) {
 
-  }, function (fail) {
+      iris.message(thisHook.authPass.userid, "Field " + fieldName + " saved on entity " + entityType, "status");
 
-    console.log(fail);
+      res.send({
+        redirect: "/admin/schema/" + entityType
+      });
 
-  })
+    });
 
-
-  thisHook.finish(true, data);
+  });
 
 })
 
