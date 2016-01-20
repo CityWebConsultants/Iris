@@ -74,17 +74,19 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
       var specialFields = ["entityType", "entityAuthor", "eid"];
 
-      Object.keys(entityTypeSchema).forEach(function (field) {
+      Object.keys(entityTypeSchema).forEach(function (fieldName) {
 
-        if (specialFields.indexOf(field) !== -1) {
+        if (specialFields.indexOf(fieldName) !== -1) {
 
           return false;
 
         }
 
-        var field = JSON.parse(JSON.stringify(iris.dbSchema[entityType][field]));
+        var field = JSON.parse(JSON.stringify(iris.dbSchema[entityType][fieldName]));
 
         delete field.type;
+
+        field.about = "<br /><a class='btn btn-info' href='/admin/schema/" + entityType + "/" + fieldName + "'>Edit field settings</a>";
 
         data.value.fields.push(field);
 
@@ -107,7 +109,7 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
         "properties": {
           "about": {
             "type": "markup",
-            "value": "<b>HELLO!!!</b>"
+            "markup": ""
           },
           "fieldType": {
             "type": "text",
@@ -151,7 +153,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['markup'] = Object.create(JSONForm.elementTypes['text']);
 
-  JSONForm.elementTypes['markup'].template = '<%= node.schemaElement.value %>';
+  JSONForm.elementTypes['markup'].template = '<%= value ? value : node.schemaElement.markup  %>';
   JSONForm.elementTypes['markup'].fieldTemplate = true;
   JSONForm.elementTypes['markup'].inputfield = true;
 
