@@ -68,11 +68,13 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
     } else {
 
+      var entityTypeSchema = iris.dbSchema[entityType];
+
       data.value.fields = [];
 
       var specialFields = ["entityType", "entityAuthor", "eid"];
 
-      Object.keys(iris.dbSchema[entityType]).forEach(function (field) {
+      Object.keys(entityTypeSchema).forEach(function (field) {
 
         if (specialFields.indexOf(field) !== -1) {
 
