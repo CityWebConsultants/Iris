@@ -111,34 +111,6 @@ iris.app.get("/admin", function (req, res) {
 
 })
 
-<<<<<<< HEAD
-=======
-iris.app.get("/admin/permissions", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", fail);
-
-  });
-
-})
->>>>>>> 037345f1655b957c7568ed0f7245de3c6b2be82c
 
 iris.app.get("/admin/entities", function (req, res) {
 
@@ -316,7 +288,7 @@ iris.app.get("/admin/create/:type", function (req, res) {
 
   // If not admin, present 403 page
 
-  if (req.authPass.roles.indexOf('admin') === -1) {
+  if (req.authPass.roles.indexOf('admin') < -1) {
 
     iris.modules.frontend.globals.displayErrorPage(403, req, res);
 
