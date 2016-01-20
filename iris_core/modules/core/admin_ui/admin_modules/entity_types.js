@@ -25,7 +25,7 @@ iris.app.get("/admin/schema/create", function (req, res) {
 });
 
 iris.app.get("/admin/schema/edit/:type", function (req, res) {
-  
+
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
@@ -190,7 +190,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
 
   var entityType = thisHook.const.params[1];
   var fieldName = thisHook.const.params[2];
-  
+
   if (iris.dbSchema[entityType] && iris.dbSchema[entityType][fieldName]) {
 
     var field = iris.dbSchema[entityType][fieldName];
@@ -260,9 +260,9 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
 
   schema[fieldName].settings = thisHook.const.params;
 
-  iris.dbPopulate();
-
   iris.saveConfig(schema, "entity", entityType, function (data) {
+
+    iris.dbPopulate();
 
     thisHook.finish(true, function (res) {
 
