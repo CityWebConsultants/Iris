@@ -3,19 +3,14 @@
 <html>
   
 <!-- CSS and JS common to all pages --->
-  
-  [[[tags headTags]]]
-
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<link rel="stylesheet" href="/modules/admin_ui/admin.css" />
-
-  {{#unless tags.headTags.jQuery}}
-  
+  <head>
     <script src="/modules/admin_ui/jsonform/deps/jquery.min.js"></script>
-  
-  {{/unless}}
-  
-  <script type="text/javascript" src="/modules/admin_ui/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/modules/admin_ui/admin.css" />
+    <script type="text/javascript" src="/modules/admin_ui/bootstrap/js/bootstrap.min.js"></script>
+    [[[tags headTags,-jQuery]]]
+  </head>
+
 
 
 <body>

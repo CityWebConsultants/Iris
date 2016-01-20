@@ -86,3 +86,9 @@ iris.modules.sessions.globals.writeCookies = function (userid, token, res, maxAg
   res.cookie('token', token, cookieOptions);
 
 };
+
+iris.modules.sessions.registerHook("hook_entity_deleted", 1, function (thisHook, entity) {
+
+    delete iris.modules.auth.globals.userList[entity.eid];
+    
+});
