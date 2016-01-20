@@ -650,7 +650,7 @@ var parseTemplate = function (html, authPass, context) {
 
           if (data.variables) {
 
-            allVariables = merge.recursive(true, allVariables, data.variables);
+            allVariables = merge.recursive(false, allVariables, data.variables);
 
           };
 
@@ -675,7 +675,7 @@ var parseTemplate = function (html, authPass, context) {
 
           if (parsedData.variables) {
 
-            allVariables = merge.recursive(true, allVariables, parsedData.variables);
+            allVariables = merge.recursive(false, allVariables, parsedData.variables);
 
           };
 
