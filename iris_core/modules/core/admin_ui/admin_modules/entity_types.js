@@ -126,11 +126,18 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
   };
 
+  if (entityType) {
+
+    data.value.entityTypeName = entityType;
+
+  }
+
   data.schema = {
     "entityTypeName": {
       "type": entityType ? "hidden" : "text",
       "title": "Entity type name",
-      "required": true
+      "required": true,
+      "default": entityType
     },
     "fields": {
       "type": "array",
@@ -183,16 +190,20 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
 
   var entityType = thisHook.const.params[1];
   var fieldName = thisHook.const.params[2];
-
+  
   if (iris.dbSchema[entityType] && iris.dbSchema[entityType][fieldName]) {
 
     var field = iris.dbSchema[entityType][fieldName];
-    
-    if(field.settings){
-      
+
+
+    if (field.settings) {
+
       data.value = field.settings;
-      
+
     }
+
+    data.value.entityType = entityType;
+    data.value.fieldName = fieldName;
 
     var fieldTypeForm = iris.fieldTypes[field["fieldType"]].form;
 
@@ -249,6 +260,8 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
 
   schema[fieldName].settings = thisHook.const.params;
 
+  iris.dbPopulate();
+
   iris.saveConfig(schema, "entity", entityType, function (data) {
 
     thisHook.finish(true, function (res) {
@@ -279,23 +292,19 @@ iris.modules.forms.globals.registerWidget(function () {
 }, "markup");
 
 iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
-    
+
   iris.saveConfig(thisHook.const.params, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
 
-    console.log("saved");
+    iris.dbPopulate();
+
+    data = function (res) {
+
+      res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName));
+
+    }
+
+    thisHook.finish(true, data);
 
   })
-
-  iris.dbPopulate();
-
-  data = function (res) {
-
-    res.send({
-      "redirect": "/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName)
-    })
-
-  }
-
-  thisHook.finish(true, data);
 
 })
