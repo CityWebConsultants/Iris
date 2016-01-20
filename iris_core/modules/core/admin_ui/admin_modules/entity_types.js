@@ -10,7 +10,35 @@ iris.app.get("/admin/schema", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_schema_create"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_schema"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
+iris.app.get("/admin/schema/:type", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_schema"], ['admin_wrapper'], {
+    entityType: req.params.type
+  }, req.authPass, req).then(function (success) {
 
     res.send(success)
 
@@ -25,6 +53,19 @@ iris.app.get("/admin/schema", function (req, res) {
 });
 
 iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHook, data) {
+
+  if (thisHook.const.params[1]) {
+
+    var entityType = thisHook.const.params[1];
+
+    if (!iris.dbSchema[entityType]) {
+
+      thisHook.finish(false, "No such entity type");
+      return false;
+
+    }
+
+  };
 
   data.schema = {
     "title": {
