@@ -52,6 +52,35 @@ iris.app.get("/admin/schema/:type", function (req, res) {
 
 });
 
+iris.app.get("/admin/schema/:type/:field", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_schema_field"], ['admin_wrapper'], {
+    entityType: req.params.type,
+    field: req.params.field
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
 iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHook, data) {
 
   if (thisHook.const.params[1]) {
@@ -146,6 +175,32 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
   thisHook.finish(true, data);
 
 })
+
+// Register form for editing a field's deeper settings
+
+iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (thisHook, data) {
+
+  var entityType = thisHook.const.params[1];
+  var fieldName = thisHook.const.params[2];
+
+  if (iris.dbSchema[entityType] && iris.dbSchema[entityType][fieldName]) {
+
+    var field = iris.dbSchema[entityType][fieldName];
+
+    var fieldTypeForm = iris.fieldTypes[field["fieldType"]].form;
+    
+    data.schema = fieldTypeForm;
+    
+    thisHook.finish(true, data);
+
+  } else {
+
+    thisHook.finish(false, data);
+
+  }
+
+
+});
 
 // Register markup form field
 
