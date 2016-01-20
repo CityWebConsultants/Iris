@@ -1047,9 +1047,10 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
 var unEscape = function (html) {
 
-  html = html.split("\\{").join("{");
-  html = html.split("\\}").join("}");
-
+  if (typeof html === 'string') {
+    html = html.split("\\{").join("{");
+    html = html.split("\\}").join("}");
+  }
   return html;
 
 }
@@ -1070,7 +1071,7 @@ var insertTags = function (html, vars) {
 
   if (!tags) {
 
-    return false;
+    return html;
 
   }
 
