@@ -188,9 +188,19 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
     var field = iris.dbSchema[entityType][fieldName];
 
     var fieldTypeForm = iris.fieldTypes[field["fieldType"]].form;
-    
+
     data.schema = fieldTypeForm;
-    
+
+    data.schema.entityType = {
+      "type": "hidden",
+      "default": entityType
+    }
+
+    data.schema.fieldName = {
+      "type": "hidden",
+      "default": fieldName
+    }
+
     thisHook.finish(true, data);
 
   } else {
@@ -199,8 +209,53 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
 
   }
 
-
 });
+
+iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (thisHook, data) {
+
+  // Fetch current schema
+
+  var schema = JSON.parse(JSON.stringify(iris.dbSchema[thisHook.const.params.entityType]));
+  var fieldName = thisHook.const.params.fieldName;
+  var entityType = thisHook.const.params.entityType;
+
+  delete thisHook.const.params.entityType;
+  delete thisHook.const.params.fieldName;
+
+  // Prepare schema
+
+  Object.keys(schema).forEach(function (fieldName) {
+
+    delete schema[fieldName].type;
+
+    var specialFields = ["entityType", "entityAuthor", "eid"];
+
+    if (specialFields.indexOf(fieldName) !== -1) {
+
+      delete schema[fieldName];
+
+    }
+
+  })
+
+  // Add field's extra info!
+
+  schema[fieldName].settings = delete thisHook.const.params;
+
+  iris.saveConfig(schema, "entity", entityType).then(function (success) {
+
+    console.log(success);
+
+  }, function (fail) {
+
+    console.log(fail);
+
+  })
+
+
+  thisHook.finish(true, data);
+
+})
 
 // Register markup form field
 

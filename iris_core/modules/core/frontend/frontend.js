@@ -650,7 +650,7 @@ var parseTemplate = function (html, authPass, context) {
 
           if (data.variables) {
 
-            allVariables = merge.recursive(true, allVariables, data.variables);
+            allVariables = merge.recursive(false, allVariables, data.variables);
 
           };
 
@@ -675,7 +675,7 @@ var parseTemplate = function (html, authPass, context) {
 
           if (parsedData.variables) {
 
-            allVariables = merge.recursive(true, allVariables, parsedData.variables);
+            allVariables = merge.recursive(false, allVariables, parsedData.variables);
 
           };
 
@@ -1043,6 +1043,18 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
 });
 
+// Function for unescaping escaped curly brackets used in handlebars
+
+var unEscape = function (html) {
+
+  if (typeof html === 'string') {
+    html = html.split("\\{").join("{");
+    html = html.split("\\}").join("}");
+  }
+  return html;
+
+}
+
 
 // Function for inserting tags into templates (run last). TODO: Make generic parseEmbed for embeds that run last. Same for Handlebars templates?
 
@@ -1056,6 +1068,12 @@ var insertTags = function (html, vars) {
   }
 
   var tags = getEmbeds("tags", html);
+
+  if (!tags) {
+
+    return html;
+
+  }
 
   tags.forEach(function (innerTag) {
 
@@ -1199,6 +1217,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
             output.html = insertTags(output.html, innerOutput.variables);
 
+            output.html = unEscape(output.html);
+
             output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
             yes(output.html);
@@ -1226,6 +1246,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
         }).then(function (output) {
 
           output.html = insertTags(output.html, output.variables);
+
+          output.html = unEscape(output.html);
 
           output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
