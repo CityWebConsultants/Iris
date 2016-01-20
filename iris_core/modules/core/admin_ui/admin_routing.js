@@ -203,58 +203,6 @@ iris.app.get("/admin/logs", function (req, res) {
 
 })
 
-iris.app.get("/admin/schema/create", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_schema_create"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", fail);
-
-  });
-
-})
-
-iris.app.get("/admin/schema/edit/:type", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_schema_edit"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", fail);
-
-  });
-
-})
-
 iris.app.get("/admin/edit/:type/:eid", function (req, res) {
 
   // If not admin, present 403 page

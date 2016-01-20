@@ -1,4 +1,4 @@
-iris.app.get("/admin/schema", function (req, res) {
+iris.app.get("/admin/schema/create", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -24,8 +24,8 @@ iris.app.get("/admin/schema", function (req, res) {
 
 });
 
-iris.app.get("/admin/schema/:type", function (req, res) {
-
+iris.app.get("/admin/schema/edit/:type", function (req, res) {
+  
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
@@ -269,7 +269,7 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
       iris.message(thisHook.authPass.userid, "Field " + fieldName + " saved on entity " + entityType, "status");
 
       res.send({
-        redirect: "/admin/schema/" + entityType
+        redirect: "/admin/schema/edit/" + entityType
       });
 
     });
@@ -299,7 +299,7 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
 
     data = function (res) {
 
-      res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName));
+      res.send("/admin/schema/edit/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName));
 
     }
 
