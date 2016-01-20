@@ -105,6 +105,10 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
       "items": {
         "type": "object",
         "properties": {
+          "about": {
+            "type": "markup",
+            "value": "<b>HELLO!!!</b>"
+          },
           "fieldType": {
             "type": "text",
             "title": "Field type",
@@ -140,6 +144,19 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
   thisHook.finish(true, data);
 
 })
+
+// Register markup form field
+
+iris.modules.forms.globals.registerWidget(function () {
+
+  JSONForm.elementTypes['markup'] = Object.create(JSONForm.elementTypes['text']);
+
+  JSONForm.elementTypes['markup'].template = '<%= node.schemaElement.value %>';
+  JSONForm.elementTypes['markup'].fieldTemplate = true;
+  JSONForm.elementTypes['markup'].inputfield = true;
+
+
+}, "markup");
 
 iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
 
