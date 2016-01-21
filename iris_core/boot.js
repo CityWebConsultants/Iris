@@ -2,8 +2,10 @@
 "use strict";
 
 /**
- * @file Boot-up process for Iris - prepares all modules, manages HTTP requests, provides config storage functions.
+ * @file Boot-up process for Iris - prepares all modules, manages HTTP requests, provides config storage 
+ * functions.
  */
+
 
 module.exports = function (config) {
 
@@ -29,8 +31,7 @@ module.exports = function (config) {
 
   };
 
-  //Store helper paths
-
+  // Store helper paths
 
   iris.rootPath = path.resolve(__dirname + "/../");
 
@@ -423,6 +424,13 @@ module.exports = function (config) {
     console.log("Ready on port " + iris.config.port + ".");
 
     iris.log("info", "Server started");
+    
+    /**
+     * Catch all callback which is run last. If this is called then the GET request has not been defined 
+     * anywhere in the system and will therefore return 404 error. 
+     * This is also required for form submissions, POST requests are caught in hook_catch_request for example
+     * where they are then forwarded to the required submit handler function.
+     */
 
     iris.app.use(function (req, res) {
 
@@ -508,6 +516,11 @@ module.exports = function (config) {
 
     });
 
+    /**
+     * Used for catching express.js errors such as errors in handlebars etc. It logs the error in the system
+     * then returns a 500 error to the client.
+     */
+    
     iris.app.use(function (err, req, res, next) {
 
       if (err) {
@@ -524,6 +537,7 @@ module.exports = function (config) {
 
         }, function (fail) {
 
+          // Used if you don't have a 500 error template file.
           res.status(500).send('Something went wrong');;
 
         });
@@ -536,6 +550,11 @@ module.exports = function (config) {
 
     // Send server ready message and get sessions
 
+    // There are 2 processes, a master process which allows for persistant sessions and user messages even if
+    // the server is restarted via the admin form or there is a fatal error. The child process is the whole 
+    // system including templates and hooks etc. Changing a module file for instance would require a restart 
+    // to be used by the system. Restarting the child process flushes all files while the parent process
+    // maintains sessions so that everyone isn't logged out.
     process.send("started");
 
     process.on("message", function (m) {

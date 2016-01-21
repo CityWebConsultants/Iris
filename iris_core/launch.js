@@ -1,5 +1,7 @@
 /**
  * @file Launch script run by user to start an Iris site. Keeps sessions persistent by managing a sub-process.
+ * Launch.js is the parent process that remains persistant even if there is a fatal error or the server is 
+ * restarted via the admin form. The parent process forks a child process to load the actual site.
  */
 
 var parameters = {};
@@ -40,6 +42,7 @@ if (parameters.site) {
 
         restartCounter = 0;
 
+        // Passes persistant sessions and messages to child process.
         sub.send({
           sessions: sessions,
           messages: messages

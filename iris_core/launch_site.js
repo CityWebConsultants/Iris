@@ -1,5 +1,7 @@
 /**
  * @file Launches Iris with the settings and context of the given site.
+ * Launch_site.js is the child process that actually loads and runs the site. It is passed the user sessions
+ * and messages from the parent process if the site was restarted or encounted a fatal error.
  */
 
 // Change process directory to current site
@@ -21,6 +23,7 @@ var config;
 
 try {
 
+  // Read current sites' settings. 
   config = fs.readFileSync(__dirname + "/../home/sites/" + parameters.site + "/settings.json", "utf8");
 
 } catch (e) {
@@ -30,6 +33,9 @@ try {
 
 }
 
+/**
+ * Handle unhandledRejection.
+ */
 process.on("unhandledRejection", function (e) {
 
   if (e.stack) {
@@ -51,8 +57,11 @@ process.on("unhandledRejection", function (e) {
 
   }
 
-})
+});
 
+/**
+ * Handle uncaughtException.
+ */
 process.on("uncaughtException", function (e) {
 
   if (Array.isArray(e.stack)) {
