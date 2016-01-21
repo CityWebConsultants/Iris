@@ -66,7 +66,8 @@ iris.modules.entityforms.registerHook("hook_form_render_createEntity", 0, functi
 
       iris.hook("hook_entity_field_widget_render_" + field.widget.name, thisHook.authPass, {
         value: null,
-        fieldSettings: field
+        fieldSettings: field,
+        widgetSettings: field.widget.settings
       }).then(function (form) {
 
         data.schema[fieldName] = form;
