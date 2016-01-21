@@ -272,7 +272,7 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
     newSchema.fields.push(schema[fieldName]);
 
   })
-  
+
   // Save and repopulate database schemas
 
   iris.saveConfig(newSchema, "entity", entityType, function (data) {
@@ -323,3 +323,147 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
   })
 
 })
+
+// Form for widget selection and settings
+
+iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, function (thisHook, data) {
+
+  // Fetch current schema
+
+  var entityType = thisHook.const.params[1];
+  var fieldName = thisHook.const.params[2];
+
+  var schema = JSON.parse(JSON.stringify(iris.dbSchema[entityType]));
+
+  var fieldTypeName = schema[fieldName].fieldType;
+
+  var fieldTypeSettings = iris.fieldTypes[fieldTypeName];
+
+  if (fieldTypeSettings.widgets) {
+
+    var widgets = fieldTypeSettings.widgets;
+
+  } else {
+
+    return false;
+    thisHook.finish(false, "No widgets defined");
+
+  }
+
+  // Add widgets to form
+
+  data.schema = widgets;
+
+  data.schema.widgetChoice = {
+    "type": "string",
+    "title": "Make a choice",
+    "enum": Object.keys(widgets)
+  }
+
+  data.schema.entityType = {
+    "type": "hidden",
+    "default": entityType
+  }
+
+  data.schema.fieldName = {
+    "type": "hidden",
+    "default": fieldName
+  }
+
+  data.schema.widgetChoice = {
+    "type": "string",
+    "title": "Make a choice",
+    "enum": Object.keys(widgets)
+  }
+
+  data.form = [{
+    type: "help",
+    helpvalue: "<h2>Widgets</h2><p>Pick a widget to use to display this field to the user on entity forms</p>"
+  }, {
+    "type": "selectfieldset",
+    "title": "Make a choice",
+    "key": "widgetChoice",
+    "items": []
+    }];
+
+  Object.keys(widgets).forEach(function (widgetName) {
+
+    data.form[1].items.push({
+      key: widgetName,
+      "legend": widgetName
+    })
+
+  })
+
+  data.form.push({
+    key: "entityType",
+  })
+
+  data.form.push({
+    key: "fieldName",
+  })
+
+  data.form.push({
+    type: "submit",
+    value: "Save widget settings"
+  })
+
+  //  {
+  //    widgetChoice: 'A widget',
+  //    'A widget': {
+  //      hello: '6363'
+  //    },
+  //    entityType: 'test',
+  //    fieldName: 'username'
+  //  }
+
+  thisHook.finish(true, data);
+
+})
+
+iris.modules.entity.registerHook("hook_form_submit_schemafieldwidgets", 0, function (thisHook, data) {
+
+  var entityType = thisHook.const.params.entityType;
+  var fieldName = thisHook.const.params.fieldName
+
+  // Get current schema
+
+  var schema = iris.dbSchema[entityType];
+
+  // Slot in widget settings
+
+  var widgetChoice = thisHook.const.params.widgetChoice;
+
+  schema[fieldName].widget = {
+    name: widgetChoice,
+    settings: thisHook.const.params[widgetChoice]
+  }
+
+  // Prepare schema object for saving
+
+  var newSchema = {
+    entityTypeName: entityType,
+    fields: []
+  };
+
+  Object.keys(schema).forEach(function (fieldName) {
+
+    newSchema.fields.push(schema[fieldName]);
+
+  })
+
+  iris.saveConfig(newSchema, "entity", iris.sanitizeFileName(entityType), function (data) {
+
+    iris.dbPopulate();
+
+    data = function (res) {
+
+      res.send("/admin/schema/edit/" + iris.sanitizeFileName(entityType));
+
+    }
+
+    thisHook.finish(true, data);
+
+  })
+
+});
