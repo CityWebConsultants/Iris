@@ -6,7 +6,7 @@ iris.registerModule("entityforms");
 
 var fs = require("fs");
 
-iris.modules.entityforms.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
 
   // Check if entity type exists
 
@@ -43,6 +43,11 @@ iris.modules.entityforms.registerHook("hook_form_render_createEntity", 0, functi
   var widgetLoaded = function () {
 
     if (counter === fieldCount) {
+
+      data.schema.entityType = {
+        type: "hidden",
+        default: entityType
+      }
 
       thisHook.finish(true, data);
 
@@ -155,3 +160,171 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_ofStri
   thisHook.finish(true, data);
 
 });
+
+// Submit new entity form
+
+iris.modules.entity.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
+
+  // Store entity type and then delete from parameters object. Not needed any more there.
+
+  var entityType = thisHook.const.params.entityType;
+
+  delete thisHook.const.params.entityType;
+
+  // Fetch entity schmea
+
+  var schema = iris.dbSchema[entityType];
+
+  // Object for final values to be stored in
+
+  var finalValues = {};
+
+  // Get number of fields so we can tell once all the form widgets have been loaded
+
+  var fieldCount = Object.keys(thisHook.const.params).length;
+
+  // Function for checking if all the widgets have been loaded successfully
+
+  var counter = 1;
+
+  var widgetSaved = function () {
+
+    if (counter === fieldCount) {
+
+      finalValues.entityType = entityType;
+      finalValues.entityAuthor = thisHook.authPass.userid;
+
+      iris.hook("hook_entity_create", thisHook.authPass, finalValues, finalValues).then(function (success) {
+
+        thisHook.finish(true, function (res) {
+
+          res.send({
+            redirect: "/admin/entities"
+          })
+
+        });
+
+      }, function (fail) {
+
+        console.log(fail);
+        thisHook.finish(false, fail);
+
+      });
+
+    }
+
+    counter += 1;
+
+  }
+
+  // Run widget loading function for every field
+
+  Object.keys(thisHook.const.params).forEach(function (fieldName) {
+
+    var field = schema[fieldName];
+    var value = thisHook.const.params[fieldName];
+    var fieldType = field.fieldType;
+    var fieldTypeType = iris.fieldTypes[fieldType].type;
+
+    // Function for saving a field after the widget phase
+
+    var saveField = function (setValue) {
+
+      iris.hook("hook_entity_field_save_" + fieldType, thisHook.authPass, {
+        value: setValue,
+        fieldSettings: field
+      }).then(function (updatedValue) {
+
+          iris.hook("hook_entity_fieldType_save_" + fieldTypeType, thisHook.authPass, {
+            value: updatedValue
+          }).then(function (finalValue) {
+
+            finalValues[fieldName] = finalValue;
+            widgetSaved();
+
+          }, function (fail) {
+
+            thisHook.finish(false, fail);
+
+          })
+
+          // Finally pass to default save hook for the field type
+
+        },
+        function (fail) {
+
+          if (fail === "No such hook exists") {
+
+            iris.hook("hook_entity_fieldType_save_" + fieldTypeType, thisHook.authPass, {
+              value: setValue
+            }).then(function (finalValue) {
+
+              finalValues[fieldName] = finalValue;
+
+              widgetSaved();
+
+            }, function (fail) {
+
+              thisHook.finish(false, fail);
+
+            })
+
+          } else {
+
+            thisHook.finish(false, fail);
+          }
+
+        })
+
+    };
+
+    // Check if a widget has been set for the field
+
+    if (field.widget) {
+
+      iris.hook("hook_entity_field_widget_save_" + field.widget.name, thisHook.authPass, {
+        value: value,
+        fieldSettings: field,
+        widgetSettings: field.widget.settings
+      }).then(function (savedValue) {
+
+        value = savedValue;
+        saveField(value);
+
+      }, function (fail) {
+
+        if (fail === "No such hook exists") {
+
+          saveField(value);
+
+        } else {
+
+          thisHook.finish(false, fail);
+
+        }
+
+      })
+
+    } else {
+
+      saveField(value);
+
+    }
+
+  })
+
+});
+
+// Default entity save widgets
+
+iris.modules.entity.registerHook("hook_entity_fieldType_save_String", 0, function (thisHook, data) {
+
+  thisHook.finish(true, thisHook.const.value);
+
+})
+
+iris.modules.entity.registerHook("hook_entity_fieldType_save_ofString", 0, function (thisHook, data) {
+
+  thisHook.finish(true, thisHook.const.value);
+
+})
