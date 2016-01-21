@@ -1,5 +1,6 @@
 /**
- * @file Hooks and functions for the templating and routing systems that make up the frontend module
+ * @file Hooks and functions for the templating and routing systems that make up the 
+ * frontend module.
  */
 
 /**
@@ -31,11 +32,15 @@ iris.modules.frontend.globals.templateRegistry = {
   theme: []
 };
 
-// Static folder in site's root directory
+/**
+ * Static folder in site's root directory.
+ */
 
 iris.app.use("/", express.static(iris.sitePath + '/static'));
 
-// Add theme folders from modules to external list
+/**
+ * Add theme folders from modules to external list.
+ */
 
 process.on("dbReady", function () {
 
@@ -49,6 +54,17 @@ process.on("dbReady", function () {
 
 var path = require("path");
 
+/**
+ * @function setActiveTheme
+ * @memberof frontend
+ *
+ * @desc Sets the active name from the passed values.
+ *
+ * @param {string} themePath - path to the theme folder
+ * @param {string} themeName - name of the active theme
+ *
+ * @returns error message if it fails.
+ */
 iris.modules.frontend.globals.setActiveTheme = function (themePath, themeName) {
 
   // Reset theme lookup registry
@@ -569,6 +585,19 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
 };
 
+
+/**
+ * @function getEmbeds
+ * @memberof frontend
+ *
+ * @desc Given some `text`, if will search for all instances of a given embed `type` and return 
+ * an array of all such embeds. Embed types include form, menu, entity etc.
+ *
+ * @param {string} type - the type of embed to find, eg. form, menu
+ * @param {string} text - the HTML to process; that contains the embeds that need to be parsed
+ *
+ * @returns an array of embeds found in this snippet of `type`
+ */
 var getEmbeds = function (type, text) {
 
   function getIndicesOf(searchStr, str, caseSensitive) {
@@ -610,7 +639,10 @@ var getEmbeds = function (type, text) {
  * @function parseTemplace
  * @memberof frontend
  *
- * @desc Parse a template recursively (to catch nested embeds). Internal function for Frontend.
+ * @desc Parse a template recursively (to catch nested embeds). Internal function for Frontend. 
+ * It recursively loops through finding all variable tags to be inserted, saves them to a global 
+ * `context` array which is then present for rendering all templates. This means variables can be 
+ * used across all templates when rendering.
  *
  * @param {string} html - HTML of template to process
  * @param {object} authPass - authPass of current user
@@ -620,7 +652,8 @@ var getEmbeds = function (type, text) {
  * @see parseEmbed
  * @see parseTemplateFile
  *
- * @returns a promise which, if successful, takes an object with properties 'html' and 'variables',for the processed HTML and variables ready to pass to the templating engine, respectively.
+ * @returns a promise which, if successful, takes an object with properties 'html' and 'variables',
+ * for the processed HTML and variables ready to pass to the templating engine, respectively.
  */
 
 var merge = require("merge");
@@ -788,11 +821,15 @@ var parseTemplate = function (html, authPass, context) {
  *
  * @desc Parse frontend template
  *
- * Hook into the template parsing process using this. Inside, one can run functions such as parseEmbed on the current state of the template.
+ * Hook into the template parsing process using this. Inside, one can run functions such as parseEmbed 
+ * on the current state of the template.
  */
 iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  // Add tags to context if doesn't exist. Tags in this section should be in the format of an object with the properites: type (for the type of tag) and attributes (for a list of attributes) and a rank. headTags should be placed in the <head>, bodyTags in the <body> in your theme using [[[tags headTags]]] for example.
+  // Add tags to context if doesn't exist. Tags in this section should be in the format of an object with 
+  // the properites: type (for the type of tag) and attributes (for a list of attributes) and a rank. 
+  // headTags should be placed in the <head>, bodyTags in the <body> in your theme using [[[tags headTags]]] 
+  // for example.
 
   if (!data.variables.tags) {
 
@@ -817,7 +854,6 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 
 });
 
-iris.modules.frontend.globals.parseTemplate = parseTemplate;
 
 iris.app.use(function (req, res, next) {
 

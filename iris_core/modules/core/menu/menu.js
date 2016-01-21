@@ -50,40 +50,20 @@ iris.modules.menu.registerHook("hook_form_render_menu", 0, function (thisHook, d
       return false;
 
     } else {
+        
+      iris.readConfig('menu', thisHook.const.params[1]).then(function (config) {
+          
+        data.value = config;
+          
+        // Create form for menus
 
-      if (iris.configStore["menu"] && iris.configStore["menu"][thisHook.const.params[1]]) {
-
-        data.value = iris.configStore["menu"][thisHook.const.params[1]];
-
-      }
-
-    }
-
-  }
-
-  // Create form for menus
-
-  data.schema = {
-    "menuName": {
-      "type": "text",
-      "title": "Menu title"
-    },
-    "items": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "title": {
+        data.schema = {
+          "menuName": {
             "type": "text",
-            "title": "Title"
+            "title": "Menu title"
           },
-          "path": {
-            "type": "text",
-            "title": "path"
-          },
-          "children": {
+          "items": {
             "type": "array",
-            "title": "Children",
             "items": {
               "type": "object",
               "properties": {
@@ -95,25 +75,50 @@ iris.modules.menu.registerHook("hook_form_render_menu", 0, function (thisHook, d
                   "type": "text",
                   "title": "path"
                 },
+                "children": {
+                  "type": "array",
+                  "title": "Children",
+                  "items": {
+                    "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "text",
+                          "title": "Title"
+                        },
+                        "path": {
+                          "type": "text",
+                          "title": "path"
+                        },
+                      }
+                    }
+                  }
+                }
               }
             }
           }
+
+        // Hide menu title if editing
+
+        if (data.value.menuName) {
+
+          data.schema.menuName.type = "hidden";
+
         }
-      }
+
+        thisHook.finish(true, data);
+          
+      }, function (fail) {
+
+        iris.log("error", fail);
+        thisHook.finish(false, data);
+
+      });
+
     }
-  }
-
-  // Hide menu title if editing
-
-  if (data.value.menuName) {
-
-    data.schema.menuName.type = "hidden";
 
   }
 
-  thisHook.finish(true, data);
-
-})
+});
 
 iris.modules.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
 
