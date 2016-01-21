@@ -51,6 +51,59 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
           default: entityType
         }
 
+        // Put fields in the right order based on weight
+
+        var fieldList = [];
+
+        Object.keys(schema).forEach(function (fieldName) {
+
+          fieldList.push(schema[fieldName]);
+
+        });
+
+        fieldList.sort(function (a, b) {
+
+          if (a.weight > b.weight) {
+
+            return 1;
+
+          } else if (a.weight < b.weight) {
+
+            return -1;
+
+          } else {
+
+            return 0;
+
+          }
+
+        })
+
+        var fieldNamesList = [];
+
+        fieldList.forEach(function (fieldInList) {
+
+          fieldNamesList.push(fieldInList.machineName)
+
+        })
+
+        // Generate form
+
+        data.form = [];
+
+        fieldNamesList.forEach(function (currentFieldName) {
+
+          data.form.push(currentFieldName);
+
+        })
+
+        data.form.push("entityType");
+
+        data.form.push({
+          type: "submit",
+          value: "Save " + entityType
+        })
+
         thisHook.finish(true, data);
 
       }
@@ -58,6 +111,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
       counter += 1;
 
     }
+
 
     // Run widget loading function for every field
 
