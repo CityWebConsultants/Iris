@@ -256,11 +256,26 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
 
   })
 
-  // Add field's extra info!
+  // Add field's extra info
 
   schema[fieldName].settings = thisHook.const.params;
 
-  iris.saveConfig(schema, "entity", entityType, function (data) {
+  // Generate new schema file by merging in old schema with new field settings
+
+  var newSchema = {
+    entityTypeName: entityType,
+    fields: []
+  }
+
+  Object.keys(schema).forEach(function (fieldName) {
+
+    newSchema.fields.push(schema[fieldName]);
+
+  })
+  
+  // Save and repopulate database schemas
+
+  iris.saveConfig(newSchema, "entity", entityType, function (data) {
 
     iris.dbPopulate();
 

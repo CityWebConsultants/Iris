@@ -106,7 +106,7 @@ iris.dbPopulate = function () {
     delete iris.dbSchema[oldSchema];
 
   })
-
+  
   // Loop over all enabled modules and check for schema files
 
   Object.keys(iris.modules).forEach(function (moduleName) {
@@ -136,18 +136,17 @@ iris.dbPopulate = function () {
 
     } catch (e) {
 
-
     }
 
 
   });
-
+  
   // See if site config has added any schema or schemafields
 
   fs.readdirSync(iris.sitePath + "/configurations/entity").forEach(function (schemafile) {
 
     var schemaName = schemafile.toLowerCase().replace(".json", "");
-
+    
     try {
       var file = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations/entity/" + schemafile, "UTF8"));
     } catch (e) {
@@ -157,13 +156,13 @@ iris.dbPopulate = function () {
       return false;
 
     }
-
+    
     if (!iris.dbSchema[schemaName]) {
 
       iris.dbSchema[schemaName] = {};
 
     }
-
+    
     Object.keys(file).forEach(function (field) {
 
       iris.dbSchema[schemaName][field] = file[field];
@@ -171,7 +170,7 @@ iris.dbPopulate = function () {
     });
 
   });
-
+  
   // Schema ready, now unstringify it and save it as a database model
 
   var typeConverter = function (type) {
@@ -202,7 +201,7 @@ iris.dbPopulate = function () {
   };
 
   Object.keys(iris.dbSchema).forEach(function (schema) {
-
+    
     // Make JSON copy of complete schema
 
     var schemaConfig = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
@@ -218,19 +217,19 @@ iris.dbPopulate = function () {
     }
 
     schemaConfig.fields.forEach(function (field) {
-
+      
       var fieldType = field.fieldType;
 
       if (iris.fieldTypes[fieldType]) {
-
+        
         field.type = typeConverter(iris.fieldTypes[fieldType].type);
-
+        
         finalSchema[field.machineName] = field;
         
       }
 
-    })
-
+    });
+        
     iris.dbSchema[schema] = finalSchema;
 
     //Push in universal type fields if not already in.
@@ -270,7 +269,7 @@ iris.dbPopulate = function () {
         field: 'eid',
         startAt: 1,
       });
-
+      
       iris.dbCollections[schema] = mongoose.model(schema, readySchema);
 
     } catch (e) {
