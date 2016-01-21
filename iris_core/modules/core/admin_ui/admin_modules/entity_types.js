@@ -208,7 +208,7 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
             "type": "text",
             "title": "Field type",
             "description": "This affects how this field is stored in the database.",
-            "enum": Object.keys(iris.fieldTypes)
+            "enum": Object.keys(iris.fieldTypes).concat(["Fieldset"])
           },
           "machineName": {
             "type": "text",
