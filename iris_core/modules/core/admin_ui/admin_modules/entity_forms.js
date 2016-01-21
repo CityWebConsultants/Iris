@@ -38,6 +38,17 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
     var fieldCount = Object.keys(schema).length;
 
+    if (fieldCount === 0) {
+
+      data.schema.entityType = {
+        type: "hidden",
+        default: entityType
+      }
+
+      thisHook.finish(true, data);
+
+    }
+
     // Function for checking if all the widgets have been loaded successfully
 
     var counter = 1;
