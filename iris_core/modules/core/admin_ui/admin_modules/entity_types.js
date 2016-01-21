@@ -351,7 +351,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
   }
 
   // Add widgets to form
-
+  
   data.schema = widgets;
 
   data.schema.widgetChoice = {
@@ -368,12 +368,6 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
   data.schema.fieldName = {
     "type": "hidden",
     "default": fieldName
-  }
-
-  data.schema.widgetChoice = {
-    "type": "string",
-    "title": "Make a choice",
-    "enum": Object.keys(widgets)
   }
 
   data.form = [{
@@ -408,14 +402,20 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
     value: "Save widget settings"
   })
 
-  //  {
-  //    widgetChoice: 'A widget',
-  //    'A widget': {
-  //      hello: '6363'
-  //    },
-  //    entityType: 'test',
-  //    fieldName: 'username'
-  //  }
+  // Check if widgets already set and prepopulate form if so
+
+  if (schema[fieldName].widget) {
+
+    data.value = {};
+
+    data.value.widgetChocie = schema[fieldName].widget.name;
+
+    data.value[schema[fieldName].widget.name] = schema[fieldName].widget.settings;
+
+    data.value.entityType = entityType;
+    data.value.fieldName = fieldName;
+
+  }
 
   thisHook.finish(true, data);
 
