@@ -14,13 +14,6 @@
     "fieldTypeName": "longstring",
     "textFilter": "none"
   },
-  "class": {
-    "title": "Class",
-    "description": "This is a set of CSS classes that should be applied to this entity's body field. Where these classes are applied in the markup is dependent on the theme.",
-    "canViewField": ["anonymous", "authenticated"],
-    "fieldTypeName": "multistring",
-    "required": true
-  },
   "path": {
     "title": "Path",
     "description": "This is the URL path that this page will be accessible from. This includes a leading slash. The path should look something like '/mypage' or '/my/longer/path'. To make this page the front page of the site, use a path of '/'.",

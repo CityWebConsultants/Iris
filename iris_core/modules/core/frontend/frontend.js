@@ -1063,7 +1063,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
       if (data.html.indexOf("[[[") !== -1) {
 
-        iris.modules.frontend.globals.parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
+        parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
 
           success.html = Handlebars.compile(success.html)(success.variables);
 
@@ -1238,7 +1238,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
       iris.modules.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
 
-        iris.modules.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
+        parseTemplate(template, authPass || "root", parameters).then(function (success) {
 
             // Add wrapper paramaters for filename
 
