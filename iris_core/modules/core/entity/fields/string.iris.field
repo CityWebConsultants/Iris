@@ -1,0 +1,33 @@
+{
+  "name": "Textfield",
+  "type": "String",
+  "form": {
+    "length": {
+      "type": "text",
+      "title": "Max length"
+    }
+  },
+  "widgets": {
+    "A widget": {
+      "type": "object",
+      "title": "Test widget",
+      "properties": {
+        "hello": {
+          "type": "text",
+          "title": "hello?"
+        }
+      }
+    },
+    "Second": {
+      "type": "object",
+      "title": "Test widget",
+      "properties": {
+        "hello": {
+          "type": "text",
+          "title": "hello?",
+          "enum": ["hello", "world"]
+        }
+      }
+    }
+  }
+}
