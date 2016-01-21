@@ -44,7 +44,7 @@ iris.fieldTypes = {};
 
 iris.dbCollections = {};
 
-iris.dbSchemaJSON = {};
+iris.dbSchemaConfig = {};
 
 iris.dbSchema = {};
 
@@ -201,10 +201,12 @@ iris.dbPopulate = function () {
   };
 
   Object.keys(iris.dbSchema).forEach(function (schema) {
-
-    // Make JSON copy of complete schema
+    
+    // Make JSON copy of complete schema and save to non mongoosed object for reference
 
     var schemaConfig = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
+    
+    iris.dbSchemaConfig[schema] = iris.dbSchema[schema];
 
     // Loop over all fields and set their type.
 
