@@ -1,11 +1,21 @@
+<style>
+  .currentFields ._jsonform-array-addmore {
+    display: none;
+  }
+</style>
+
 {{#if entityType}}
 
 <h1>Edit entity type {{entityType}}</h1>
 
+<div class="currentFields">
+
+  [[[form schema,{{entityType}},4]]]
+
+</div>
+
 {{else}}
 
-<h1>Create new entity type</h1>
+<h1>Create new entity type</h1> {{/if}}
 
-{{/if}}
-
-[[[form schema,{{entityType}}]]]
+<h2>Add a field</h2> [[[form schema,{{entityType}}]]]

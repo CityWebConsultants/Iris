@@ -141,6 +141,8 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
   if (thisHook.const.params[1]) {
 
+    var newField = thisHook.const.params[2];
+
     var entityType = thisHook.const.params[1];
 
     if (!iris.dbSchema[entityType]) {
