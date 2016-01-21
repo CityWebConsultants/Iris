@@ -8,7 +8,9 @@
 
 iris.registerModule("menu");
 
-// Get any already saved config
+/**
+ * Get any already saved config.
+ */
 
 var fs = require('fs');
 var glob = require("glob");
@@ -36,7 +38,9 @@ glob(iris.configPath + "/menu/*.json", function (er, files) {
 
 })
 
-// Function for getting menu form
+/**
+ * Function for getting menu add/edit form.
+ */
 
 iris.modules.menu.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
 
@@ -120,6 +124,10 @@ iris.modules.menu.registerHook("hook_form_render_menu", 0, function (thisHook, d
 
 });
 
+/**
+ * Form submit handler for menu add/edit form.
+ */
+
 iris.modules.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
 
   // Remove blank items. TODO, this should be automatic. How come it's getting stuck?
@@ -166,7 +174,9 @@ iris.modules.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, d
 
 });
 
-// Page for creating a new menu
+/* 
+ * Page callback for creating a new menu.
+ */
 
 iris.app.get("/admin/menu/create", function (req, res) {
 
@@ -194,7 +204,9 @@ iris.app.get("/admin/menu/create", function (req, res) {
 
 });
 
-// Page for editing an existing menu
+/**
+ * Page for editing an existing menu.
+ */
 
 iris.app.get("/admin/menu/edit/:menuName", function (req, res) {
 
@@ -224,9 +236,10 @@ iris.app.get("/admin/menu/edit/:menuName", function (req, res) {
 
 });
 
-// List of menus page
-
-// Page for editing an existing menu
+/**
+ * List of menus page.
+ * Page for editing an existing menu.
+ */
 
 iris.app.get("/admin/menu", function (req, res) {
 
@@ -256,15 +269,21 @@ iris.app.get("/admin/menu", function (req, res) {
 
 });
 
-// Default menu view function
+/**
+ * Default menu view function.
+ * Used to check permissions.
+ */
 
 iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
   thisHook.finish(true, data);
 
-})
+});
 
-// Parse menu templates
+/**
+ * Parse menu templates.
+ * Here templates are parsed for [[[menu]]] embeds and substitues them for the desired menu markup.
+ */
 
 iris.modules.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
