@@ -372,7 +372,60 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
 
   });
 
-  iris.saveConfig(thisHook.const.params, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
+  // Get current config if exists
+
+  var schema = thisHook.const.params;
+
+  if (iris.dbSchema[iris.sanitizeFileName(thisHook.const.params.entityTypeName)]) {
+
+    var realSchema = JSON.parse(JSON.stringify(iris.dbSchemaConfig[iris.sanitizeFileName(thisHook.const.params.entityTypeName)]));
+
+    var util = require("util");
+
+    // Merge in new properties
+
+    schema.fields.forEach(function (field, fieldIndex) {
+
+      // Check if field is already present in schema
+
+      var inside;
+
+      realSchema.fields.forEach(function (schemaField, schemaFieldIndex) {
+
+        if (field.machineName === schemaField.machineName) {
+
+          // Merge in properties
+
+          Object.keys(field).forEach(function (fieldProperty) {
+
+            if (fieldProperty !== "subfields" && fieldProperty !== "settings") {
+
+              realSchema.fields[schemaFieldIndex][fieldProperty] = field[fieldProperty];
+
+            }
+
+          })
+
+          inside = true;
+
+        }
+
+      });
+
+      if (!inside) {
+
+        // Must be a new field
+
+        realSchema.fields.push(field);
+
+      }
+
+
+    })
+
+  }
+
+  iris.saveConfig(realSchema, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
 
     iris.dbPopulate();
 
