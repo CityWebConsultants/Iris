@@ -215,7 +215,7 @@ iris.app.get("/admin/edit/:type/:eid", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_entity_edit"], ['admin_wrapper'], {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_entity"], ['admin_wrapper'], {
     eid: req.params.eid,
     type: req.params.type
   }, req.authPass, req).then(function (success) {
@@ -244,7 +244,7 @@ iris.app.get("/admin/create/:type", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_entity_create"], ['admin_wrapper'], {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_entity"], ['admin_wrapper'], {
     type: req.params.type
   }, req.authPass, req).then(function (success) {
 

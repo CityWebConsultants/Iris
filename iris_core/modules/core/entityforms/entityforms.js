@@ -6,84 +6,107 @@ iris.registerModule("entityforms");
 
 var fs = require("fs");
 
-iris.modules.entity.registerHook("hook_form_render_createEntity", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHook, data) {
 
   // Check if entity type exists
 
   var entityType = thisHook.const.params[1],
     schema = iris.dbSchema[entityType];
 
-  if (!schema) {
+  var renderForm = function (currentEntity) {
 
-    thisHook.finish(false, data);
-    return false;
+    if (!schema) {
 
-  }
-
-  // Loop over all the fields and generate their forms based on the widgets available
-
-  // First make a clone of the schema 
-
-  schema = JSON.parse(JSON.stringify(schema));
-
-  // Remove universal fields. TODO: We're doing this in lots of places so should probably make it a util function. Also extendable that way if new fields come in.
-
-  delete schema.eid;
-  delete schema.entityAuthor;
-  delete schema.entityType;
-
-  // Get number of fields so we can tell once all the form widgets have been loaded
-
-  var fieldCount = Object.keys(schema).length;
-
-  // Function for checking if all the widgets have been loaded successfully
-
-  var counter = 1;
-
-  var widgetLoaded = function () {
-
-    if (counter === fieldCount) {
-
-      data.schema.entityType = {
-        type: "hidden",
-        default: entityType
-      }
-
-      thisHook.finish(true, data);
+      thisHook.finish(false, data);
+      return false;
 
     }
 
-    counter += 1;
+    // Loop over all the fields and generate their forms based on the widgets available
 
-  }
+    // First make a clone of the schema 
 
-  // Run widget loading function for every field
+    schema = JSON.parse(JSON.stringify(schema));
 
-  Object.keys(schema).forEach(function (fieldName) {
+    // Remove universal fields. TODO: We're doing this in lots of places so should probably make it a util function. Also extendable that way if new fields come in.
 
-    var field = schema[fieldName];
-    var fieldType = field.fieldType;
-    var fieldTypeType = iris.fieldTypes[fieldType].type;
+    delete schema.eid;
+    delete schema.entityAuthor;
+    delete schema.entityType;
 
-    // Check if a widget has been set for the field
+    // Get number of fields so we can tell once all the form widgets have been loaded
 
-    if (field.widget) {
+    var fieldCount = Object.keys(schema).length;
 
-      iris.hook("hook_entity_field_widget_render_" + field.widget.name, thisHook.authPass, {
-        value: null,
-        fieldSettings: field,
-        widgetSettings: field.widget.settings
-      }).then(function (form) {
+    // Function for checking if all the widgets have been loaded successfully
 
-        data.schema[fieldName] = form;
-        widgetLoaded();
+    var counter = 1;
 
-      }, function (fail) {
+    var widgetLoaded = function () {
 
-        // Load default widget as a fallback
+      if (counter === fieldCount) {
+
+        data.schema.entityType = {
+          type: "hidden",
+          default: entityType
+        }
+
+        thisHook.finish(true, data);
+
+      }
+
+      counter += 1;
+
+    }
+
+    // Run widget loading function for every field
+
+    Object.keys(schema).forEach(function (fieldName) {
+
+      var field = schema[fieldName];
+      var fieldType = field.fieldType;
+      var fieldTypeType = iris.fieldTypes[fieldType].type;
+
+      // Check if a widget has been set for the field
+
+      if (field.widget) {
+
+        iris.hook("hook_entity_field_widget_render_" + field.widget.name, thisHook.authPass, {
+          value: currentEntity ? currentEntity[fieldName] : null,
+          fieldSettings: field,
+          widgetSettings: field.widget.settings
+        }).then(function (form) {
+
+          data.schema[fieldName] = form;
+          widgetLoaded();
+
+        }, function (fail) {
+
+          // Load default widget as a fallback
+
+          iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
+            value: currentEntity ? currentEntity[fieldName] : null,
+            fieldSettings: field
+          }).then(function (form) {
+
+            data.schema[fieldName] = form;
+            widgetLoaded();
+
+          }, function (fail) {
+
+            iris.log("error", "Failed to load entity edit form. " + fail);
+            thisHook.finish(false, fail);
+
+          })
+
+        })
+
+      } else {
+
+        // Otherwise run a general hook for that field type
 
         iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
-          value: null,
+          value: currentEntity ? currentEntity[fieldName] : null,
           fieldSettings: field
         }).then(function (form) {
 
@@ -97,32 +120,44 @@ iris.modules.entity.registerHook("hook_form_render_createEntity", 0, function (t
 
         })
 
-      })
 
-    } else {
-
-      // Otherwise run a general hook for that field type
-
-      iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
-        value: null,
-        fieldSettings: field
-      }).then(function (form) {
-
-        data.schema[fieldName] = form;
-        widgetLoaded();
-
-      }, function (fail) {
-
-        iris.log("error", "Failed to load entity edit form. " + fail);
-        thisHook.finish(false, fail);
-
-      })
+      }
 
 
-    }
+    })
 
 
-  })
+  }
+
+  // Check if an entity id was provided
+
+  var eid = thisHook.const.params[2];
+
+  if (eid) {
+
+    // Fetch entity from database
+
+    iris.dbCollections[entityType].findOne({
+      eid: eid
+    }, function (err, doc) {
+
+      if (doc) {
+
+        renderForm(doc);
+
+      } else {
+
+        thisHook.finish(false, "No such entity");
+
+      }
+
+    })
+
+  } else {
+
+    renderForm();
+
+  }
 
 })
 
@@ -136,7 +171,8 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_String
   data = {
     "type": "text",
     title: fieldSettings.label,
-    "description": fieldSettings.description
+    "description": fieldSettings.description,
+    "default": value
   }
 
   thisHook.finish(true, data);
@@ -153,7 +189,8 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_ofStri
     "title": fieldSettings.label,
     "description": fieldSettings.description,
     "items": {
-      type: "text"
+      "type": "text",
+      "default": value
     }
   }
 
@@ -163,7 +200,7 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_ofStri
 
 // Submit new entity form
 
-iris.modules.entity.registerHook("hook_form_submit_createEntity", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHook, data) {
 
   // Store entity type and then delete from parameters object. Not needed any more there.
 
