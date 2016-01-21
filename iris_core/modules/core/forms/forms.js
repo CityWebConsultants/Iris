@@ -204,47 +204,47 @@ iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data)
 iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
   iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
-    
-    // Add scripts for forms
-    
-    data.variables.tags.headTags["jQuery"] = {
-    type: "script",
-    attributes: {
-      "src": "/modules/admin_ui/jsonform/deps/jquery.min.js"
-    },
-    rank: 0
-  }
 
-  data.variables.tags.headTags["underscore"] = {
-    type: "script",
-    attributes: {
-      "src": "/modules/admin_ui/jsonform/deps/underscore-min.js"
-    },
-    rank: 0
-  }
-  data.variables.tags.headTags["jQueryUI"] = {
-    type: "script",
-    attributes: {
-      "src": "/modules/admin_ui/jsonform/deps/opt/jquery.ui.custom.js"
-    },
-    rank: 1
-  }
-  data.variables.tags.headTags["bootstrap-dropdown"] = {
-    type: "script",
-    attributes: {
-      "src": "/modules/admin_ui/jsonform/deps/opt/bootstrap-dropdown.js"
-    },
-    rank: 2
-  }
-  data.variables.tags.headTags["jsonform"] = {
-    type: "script",
-    attributes: {
-      "src": "/modules/admin_ui/jsonform/lib/jsonform.js"
-    },
-    rank: 3
-  }
-  
-  //
+    // Add scripts for forms
+
+    data.variables.tags.headTags["jQuery"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/admin_ui/jsonform/deps/jquery.min.js"
+      },
+      rank: 0
+    }
+
+    data.variables.tags.headTags["underscore"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/admin_ui/jsonform/deps/underscore-min.js"
+      },
+      rank: 0
+    }
+    data.variables.tags.headTags["jQueryUI"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/admin_ui/jsonform/deps/opt/jquery.ui.custom.js"
+      },
+      rank: 1
+    }
+    data.variables.tags.headTags["bootstrap-dropdown"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/admin_ui/jsonform/deps/opt/bootstrap-dropdown.js"
+      },
+      rank: 2
+    }
+    data.variables.tags.headTags["jsonform"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/admin_ui/jsonform/lib/jsonform.js"
+      },
+      rank: 3
+    }
+
+    //
 
     var formParams = form.join(",");
 
@@ -321,7 +321,9 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         var output = "";
 
-        output += "<form data-params=" + formParams + " method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
+        var uniqueId = formName + Date.now().toString();
+
+        output += "<form data-params=" + formParams + " method='POST' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
         // Add in any custom widgets
 
@@ -336,7 +338,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         output += "</script>";
 
-        output += "<script>$('#" + formName + "').jsonForm(" + toSource(form) + ");</script>";
+        output += "<script>$('#" + uniqueId + "').jsonForm(" + toSource(form) + ");</script>";
         callback(output);
 
       });
