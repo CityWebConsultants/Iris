@@ -861,6 +861,12 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 });
 
 
+/**
+ * Catch all callback which will be triggered for all callbacks that are not specifically defined.
+ *
+ * It will check for entity paths for urls like /[entity_type]/[entity_id] and redirect to their
+ * pretty url if one is set.
+ */
 iris.app.use(function (req, res, next) {
 
   if (req.method !== "GET") {
@@ -870,7 +876,7 @@ iris.app.use(function (req, res, next) {
 
   }
 
-  // Lookup literal entity from path
+  // Lookup entity type & id from path
 
   var splitUrl = req.url.split('/');
 
@@ -1085,7 +1091,14 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
 });
 
-// Function for unescaping escaped curly brackets used in handlebars
+/**
+ * @function unEscape
+ * @memberof frontend
+ *
+ * @desc Function for unescaping escaped curly brackets used in handlebars.
+ *
+ * @returns un-escaped html.
+ */
 
 var unEscape = function (html) {
 
@@ -1098,7 +1111,15 @@ var unEscape = function (html) {
 }
 
 
-// Function for inserting tags into templates (run last). TODO: Make generic parseEmbed for embeds that run last. Same for Handlebars templates?
+/*
+ * @member hook_frontend_template
+ * @memberof frontend
+ *
+ * @desc Function for inserting tags into templates (run last). 
+ * TODO: Make generic parseEmbed for embeds that run last. Same for Handlebars templates?
+ *
+ * @returns html where all tags are substituted with their respective markup.
+ */
 
 var insertTags = function (html, vars) {
 
@@ -1275,7 +1296,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
       })
 
-    } else {
+    }
+    else {
 
       parseTemplateFile(templateName, parameters, function (output) {
 
