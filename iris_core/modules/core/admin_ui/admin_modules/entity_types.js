@@ -364,6 +364,14 @@ iris.modules.forms.globals.registerWidget(function () {
 
 iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
 
+  // Add weight fields
+
+  thisHook.const.params.fields.forEach(function (fieldName, index) {
+
+    thisHook.const.params.fields[index].weight = index;
+
+  });
+
   iris.saveConfig(thisHook.const.params, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
 
     iris.dbPopulate();
@@ -407,7 +415,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
   }
 
   // Add widgets to form
-  
+
   data.schema = widgets;
 
   data.schema.widgetChoice = {
