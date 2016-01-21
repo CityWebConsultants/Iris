@@ -233,8 +233,12 @@ iris.dbPopulate = function () {
         if (field.subfields) {
 
           field.subfields.forEach(function (fieldSetField, index) {
-
+            
             field.type = [fieldConverter(fieldSetField, fieldSetField)];
+            
+            // Don't add a Mongo ID field to nested fieldsets
+            
+            field.type[0]._id = false;
 
           });
 
@@ -253,7 +257,7 @@ iris.dbPopulate = function () {
       finalSchema[field.machineName] = fieldConverter(field);
 
     });
-    
+
     iris.dbSchema[schema] = finalSchema;
 
     //Push in universal type fields if not already in.
@@ -280,6 +284,7 @@ iris.dbPopulate = function () {
     }
 
     try {
+
       var readySchema = mongoose.Schema(iris.dbSchema[schema]);
 
       if (mongoose.models[schema]) {
