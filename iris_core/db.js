@@ -216,7 +216,7 @@ iris.dbPopulate = function () {
 
     }
 
-    var fieldConverter = function (field, parent) {
+    var fieldConverter = function (field, hello) {
 
       var fieldType = field.fieldType;
 
@@ -224,7 +224,25 @@ iris.dbPopulate = function () {
 
         field.type = typeConverter(iris.fieldTypes[fieldType].type);
 
-        parent[field.machineName] = field;
+        return field;
+
+      } else if (fieldType === "Fieldset") {
+
+        // Run parent function recursively on fieldsets
+
+        if (field.subfields) {
+
+          field.subfields.forEach(function (fieldSetField, index) {
+
+            field.type = [fieldConverter(fieldSetField, fieldSetField)];
+
+          });
+
+          delete field.subfields;
+
+          return field;
+
+        }
 
       }
 
@@ -232,10 +250,10 @@ iris.dbPopulate = function () {
 
     schemaConfig.fields.forEach(function (field) {
 
-      fieldConverter(field, finalSchema)
+      finalSchema[field.machineName] = fieldConverter(field);
 
     });
-
+    
     iris.dbSchema[schema] = finalSchema;
 
     //Push in universal type fields if not already in.
