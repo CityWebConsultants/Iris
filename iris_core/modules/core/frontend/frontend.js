@@ -683,7 +683,11 @@ var parseTemplate = function (html, authPass, context) {
 
           if (data.variables) {
 
-            allVariables = merge.recursive(false, allVariables, data.variables);
+            Object.keys(data.variables).forEach(function (variable) {
+
+              allVariables[variable] = data.variables[variable];
+
+            })
 
           };
 
@@ -708,7 +712,9 @@ var parseTemplate = function (html, authPass, context) {
 
           if (parsedData.variables) {
 
-            allVariables = merge.recursive(false, allVariables, parsedData.variables);
+            Object.keys(parsedData.variables).forEach(function (variable) {
+              allVariables[variable] = parsedData.variables[variable];
+            })
 
           };
 
