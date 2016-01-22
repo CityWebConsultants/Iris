@@ -508,6 +508,31 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
 
 })
 
+// Function for registering a widget
+
+iris.modules.entity.globals.fieldWidgets = {};
+
+iris.modules.entity.globals.registerFieldWidget = function (fieldType, name, schema) {
+
+  if (!iris.modules.entity.globals.fieldWidgets[fieldType]) {
+
+    iris.modules.entity.globals.fieldWidgets[fieldType] = {};
+
+  }
+
+  iris.modules.entity.globals.fieldWidgets[fieldType][name] = schema;
+
+};
+
+// Test
+
+iris.modules.entity.globals.registerFieldWidget("Textfield", "Look at me!", {
+  "hello": {
+    "type": "text",
+    "title": "Hi!"
+  }
+});
+
 // Form for widget selection and settings
 
 iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, function (thisHook, data) {
@@ -521,11 +546,9 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
 
   var fieldTypeName = schema[fieldName].fieldType;
 
-  var fieldTypeSettings = JSON.parse(JSON.stringify(iris.fieldTypes[fieldTypeName]));
+  if (iris.modules.entity.globals.fieldWidgets[fieldTypeName]) {
 
-  if (fieldTypeSettings.widgets) {
-
-    var widgets = fieldTypeSettings.widgets;
+    var widgets = iris.modules.entity.globals.fieldWidgets[fieldTypeName];
 
   } else {
 
@@ -536,7 +559,14 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
 
   // Add widgets to form
 
-  data.schema = widgets;
+  Object.keys(widgets).forEach(function (widgetName) {
+
+    data.schema[widgetName] = {
+      type: "object",
+      properties: widgets[widgetName]
+    }
+    
+  })
 
   data.schema.widgetChoice = {
     "type": "string",
