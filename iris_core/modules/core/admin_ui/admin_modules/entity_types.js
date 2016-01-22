@@ -109,7 +109,7 @@ iris.app.get("/admin/schema/:type", function (req, res) {
 });
 
 iris.app.get("/admin/schema/:type/:field", function (req, res) {
-  
+
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
@@ -165,6 +165,8 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
         var field = JSON.parse(JSON.stringify(iris.dbSchema[entityType][fieldName]));
 
+        delete field.type;
+
         field.about = "<br /><a class='btn btn-info' href='/admin/schema/" + entityType + "/" + fieldName + "'>Edit field settings</a><br />";
 
         field.about += "<br /><b>Machine name:</b> " + fieldName + "<br />";
@@ -172,11 +174,29 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
         field.machineName = fieldName;
 
+        field.weight = iris.dbSchema[entityType][fieldName].weight
+
         data.value.fields.push(field);
 
       })
 
+      data.value.fields.sort(function (a, b) {
 
+        if (a.weight > b.weight) {
+
+          return 1;
+
+        } else if (a.weight < b.weight) {
+
+          return -1;
+
+        } else {
+
+          return 0;
+
+        }
+
+      })
     }
 
   };
@@ -245,11 +265,11 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
 
   var entityType = thisHook.const.params[1];
   var fieldName = thisHook.const.params[2];
-  
+
   if (iris.dbSchema[entityType] && iris.dbSchema[entityType][fieldName]) {
 
     var field = iris.dbSchema[entityType][fieldName];
-    
+
     if (field.settings) {
 
       data.value = field.settings;
@@ -260,7 +280,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
     data.value.fieldName = fieldName;
 
     var fieldTypeForm = iris.fieldTypes[field["fieldType"]].form;
-    
+
     data.schema = fieldTypeForm;
 
     data.schema.entityType = {
@@ -272,7 +292,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
       "type": "hidden",
       "default": fieldName
     }
-    
+
     thisHook.finish(true, data);
 
   } else {
@@ -363,7 +383,7 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
 
   // Check if only one field is being saved
 
-  var singleField = (fields.length === 1)
+  var singleField = (fields && fields.length === 1)
 
   if (singleField) {
 
@@ -373,30 +393,71 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
 
   // Add weight fields
 
-  fields.forEach(function (fieldName, index) {
+  if (fields) {
 
-    fields[index].weight = index;
+    fields.forEach(function (fieldName, index) {
 
-  });
+      fields[index].weight = index;
 
-  // Initialise schema object
+    });
 
-  var finishedSchema = {
-    entityTypeName: entityType,
-    fields: iris.dbSchemaConfig[entityType] && iris.dbSchemaConfig[entityType].fields ? iris.dbSchemaConfig[entityType].fields : {}
-  };
+    // Initialise schema object
 
-  // Add fields
+    var finishedSchema = {
+      entityTypeName: entityType,
+      fields: iris.dbSchemaConfig[entityType] && iris.dbSchemaConfig[entityType].fields ? iris.dbSchemaConfig[entityType].fields : {}
+    };
 
-  fields.forEach(function (field, index) {
+    // Delete any fields that are in the original schema but not in the new one
 
-    finishedSchema.fields[field.machineName] = field;
+    if (!singleField) {
 
-    // Remove the machine name field. Not needed anymore.
+      Object.keys(finishedSchema.fields).forEach(function (fieldName) {
 
-    delete fields[index].machineName;
+        var present;
 
-  })
+        fields.forEach(function (newField) {
+
+          if (newField.machineName === fieldName) {
+
+            present = true;
+
+          }
+
+        })
+
+        if (!present) {
+
+          delete finishedSchema.fields[fieldName];
+
+        }
+
+      });
+
+    }
+
+    // Add fields
+
+    fields.forEach(function (field, index) {
+
+      // Check if field doesn't exist
+
+      finishedSchema.fields[field.machineName] = field;
+
+      // Remove the machine name field. Not needed anymore.
+
+      delete fields[index].machineName;
+
+    })
+
+  } else {
+
+    finishedSchema = {
+      "entityTypeName": entityType,
+      "fields": {}
+    }
+
+  }
 
   iris.saveConfig(finishedSchema, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
 
