@@ -139,9 +139,11 @@ iris.app.get("/admin/schema/:type/:field", function (req, res) {
 
 iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHook, data) {
 
-  if (thisHook.const.params[1]) {
+  // Is this a form for exisiting fields or an add a new field form?
 
-    var newField = thisHook.const.params[2];
+  var existing = thisHook.const.params[2];
+
+  if (thisHook.const.params[1]) {
 
     var entityType = thisHook.const.params[1];
 
@@ -153,7 +155,7 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
       return false;
 
-    } else {
+    } else if (existing) {
 
       var entityTypeSchema = iris.dbSchemaConfig[entityType];
 
@@ -163,7 +165,10 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
         var field = JSON.parse(JSON.stringify(iris.dbSchema[entityType][fieldName]));
 
-        field.about = "<br /><a class='btn btn-info' href='/admin/schema/" + entityType + "/" + fieldName + "'>Edit field settings</a>";
+        field.about = "<br /><a class='btn btn-info' href='/admin/schema/" + entityType + "/" + fieldName + "'>Edit field settings</a><br />";
+
+        field.about += "<br /><b>Machine name:</b> " + fieldName + "<br />";
+        field.about += "<b>Field type:</b> " + iris.dbSchema[entityType][fieldName].fieldType;
 
         field.machineName = fieldName;
 
@@ -200,12 +205,12 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
           },
           "fieldType": {
             "type": "text",
-            "title": "Field type",
-            "description": "This affects how this field is stored in the database.",
+            "title": existing ? "" : "Field type",
+            "description": existing ? "" : "This affects how this field is stored in the database and can't be changed easily later.",
             "enum": Object.keys(iris.fieldTypes).concat(["Fieldset"])
           },
           "machineName": {
-            "type": "text",
+            "type": existing ? "hidden" : "text",
             "title": "Database name",
             "description": "What this field will be called in the database. Lowercase letters and underscores only."
           },
