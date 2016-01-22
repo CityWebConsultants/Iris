@@ -1,22 +1,23 @@
 {
   "entityTypeName": "user",
-  "fields": [{
-    "machineName": "username",
-    "fieldType": "Textfield",
-    "label": "Title field",
-    "description": "This is the title field",
-    "permissions": ["anonymous", "authenticated"]
-  },{
-    "machineName": "roles",
-    "fieldType": "Multi text field",
-    "label": "Roles",
-    "description": "What roles does this user have",
-    "permissions": []
-  },{
-    "machineName": "password",
-    "fieldType": "Textfield",
-    "label": "Password",
-    "description": "Keep it strong",
-    "permissions": []
-  }]
+  "fields": {
+    "username": {
+      "fieldType": "Textfield",
+      "label": "Title field",
+      "description": "This is the title field",
+      "permissions": ["anonymous", "authenticated"]
+    },
+    "roles": {
+      "fieldType": "Multi text field",
+      "label": "Roles",
+      "description": "What roles does this user have",
+      "permissions": []
+    },
+    "password": {
+      "fieldType": "Textfield",
+      "label": "Password",
+      "description": "Keep it strong",
+      "permissions": []
+    }
+  }
 }

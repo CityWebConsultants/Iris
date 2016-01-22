@@ -201,24 +201,24 @@ iris.dbPopulate = function () {
   };
 
   Object.keys(iris.dbSchema).forEach(function (schema) {
-    
+
     // Make JSON copy of complete schema and save to non mongoosed object for reference
 
     var schemaConfig = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
-    
+
     iris.dbSchemaConfig[schema] = iris.dbSchema[schema];
 
     // Loop over all fields and set their type.
 
     var finalSchema = {};
-
+    
     if (!schemaConfig.fields) {
 
       return false;
 
     }
-
-    var fieldConverter = function (field, hello) {
+    
+    var fieldConverter = function (field) {
 
       var fieldType = field.fieldType;
 
@@ -235,11 +235,11 @@ iris.dbPopulate = function () {
         if (field.subfields) {
 
           field.subfields.forEach(function (fieldSetField, index) {
-            
+
             field.type = [fieldConverter(fieldSetField, fieldSetField)];
-            
+
             // Don't add a Mongo ID field to nested fieldsets
-            
+
             field.type[0]._id = false;
 
           });
@@ -253,13 +253,13 @@ iris.dbPopulate = function () {
       }
 
     }
-
-    schemaConfig.fields.forEach(function (field) {
-
-      finalSchema[field.machineName] = fieldConverter(field);
+    
+    Object.keys(schemaConfig.fields).forEach(function (fieldName) {
+            
+      finalSchema[fieldName] = fieldConverter(schemaConfig.fields[fieldName]);
 
     });
-
+    
     iris.dbSchema[schema] = finalSchema;
 
     //Push in universal type fields if not already in.

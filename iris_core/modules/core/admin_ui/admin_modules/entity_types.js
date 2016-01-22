@@ -366,68 +366,38 @@ iris.modules.forms.globals.registerWidget(function () {
 
 iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
 
+  var entityType = thisHook.const.params.entityTypeName;
+  var fields = thisHook.const.params.fields;
+
   // Add weight fields
 
-  thisHook.const.params.fields.forEach(function (fieldName, index) {
+  fields.forEach(function (fieldName, index) {
 
-    thisHook.const.params.fields[index].weight = index;
+    fields[index].weight = index;
 
   });
 
-  // Get current config if exists
+  // Initialise schema object
 
-  var schema = thisHook.const.params;
+  var finishedSchema = {};
 
-  if (iris.dbSchema[iris.sanitizeFileName(thisHook.const.params.entityTypeName)]) {
+  // Add entity title
 
-    var realSchema = JSON.parse(JSON.stringify(iris.dbSchemaConfig[iris.sanitizeFileName(thisHook.const.params.entityTypeName)]));
+  finishedSchema.entityTypeName = entityType;
 
-    var util = require("util");
+  // Add fields
 
-    // Merge in new properties
+  fields.forEach(function (field, index) {
 
-    schema.fields.forEach(function (field, fieldIndex) {
+    finishedSchema[field.machineName] = field;
 
-      // Check if field is already present in schema
+    // Remove the machine name field. Not needed anymore.
 
-      var inside;
+    delete fields[index].machineName;
 
-      realSchema.fields.forEach(function (schemaField, schemaFieldIndex) {
+  })
 
-        if (field.machineName === schemaField.machineName) {
-
-          // Merge in properties
-
-          Object.keys(field).forEach(function (fieldProperty) {
-
-            if (fieldProperty !== "subfields" && fieldProperty !== "settings") {
-
-              realSchema.fields[schemaFieldIndex][fieldProperty] = field[fieldProperty];
-
-            }
-
-          })
-
-          inside = true;
-
-        }
-
-      });
-
-      if (!inside) {
-
-        // Must be a new field
-
-        realSchema.fields.push(field);
-
-      }
-
-
-    })
-
-  }
-
-  iris.saveConfig(realSchema, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
+  iris.saveConfig(finishedSchema, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
 
     iris.dbPopulate();
 
