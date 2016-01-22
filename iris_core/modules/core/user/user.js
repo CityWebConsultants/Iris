@@ -466,6 +466,11 @@ iris.app.post("/api/login", function (req, res) {
 
 });
 
+iris.app.get("/admin/users", function (req, res) {
+    
+    iris.modules.admin_ui.globals.listEntities(req, res, 'user');
+    
+});
 
 iris.app.get("/admin/users/permissions", function (req, res) {
 

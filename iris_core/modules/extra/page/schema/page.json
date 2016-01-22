@@ -1,0 +1,24 @@
+{
+  "title": {
+    "title": "Title",
+    "description": "This is the title field",
+    "required": true,
+    "canViewField": ["anonymous", "authenticated"],
+    "fieldTypeName": "string"
+  },
+  "body": {
+    "title": "Body",
+    "description": "This is the main text area for this page",
+    "required": true,
+    "canViewField": ["anonymous", "authenticated"],
+    "fieldTypeName": "longstring",
+    "textFilter": "none"
+  },
+  "path": {
+    "title": "Path",
+    "description": "This is the URL path that this page will be accessible from. This includes a leading slash. The path should look something like '/mypage' or '/my/longer/path'. To make this page the front page of the site, use a path of '/'.",
+    "required": true,
+    "canViewField": ["anonymous", "authenticated"],
+    "fieldTypeName": "string"
+  }
+}

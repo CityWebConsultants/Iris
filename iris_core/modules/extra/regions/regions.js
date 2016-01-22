@@ -200,10 +200,10 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
               next(success);
 
             }, function (fail) {
-
+console.log(fail);
               next(false);
 
-              iris.log("error", e);
+              iris.log("error", fail);
 
             });
 
