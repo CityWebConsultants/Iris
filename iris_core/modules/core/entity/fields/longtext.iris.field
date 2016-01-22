@@ -1,6 +1,6 @@
 {
   "name": "Longtext",
-  "type": "Longstring",
+  "type": "String",
   "form": {
     "length": {
       "type": "text",

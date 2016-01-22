@@ -185,22 +185,19 @@ iris.dbPopulate = function () {
   var typeConverter = function (type) {
 
     switch (type) {
-      case "ofString":
+      case "[String]":
         return [String];
         break;
       case "String":
         return String;
         break;
-      case "Longstring":
-        return String;
-        break;
-      case "ofNumber":
+      case "[Number]":
         return [Number];
         break;
       case "Number":
         return Number;
         break;
-      case "ofBoolean":
+      case "[Boolean]":
         return [Boolean];
         break;
       case "Boolean":

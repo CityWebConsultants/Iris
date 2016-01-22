@@ -1,6 +1,6 @@
 {
   "name": "Multiple number",
-  "type": "ofNumber",
+  "type": "[Number]",
   "form": {
     "length": {
       "type": "text",

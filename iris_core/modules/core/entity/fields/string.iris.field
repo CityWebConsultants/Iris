@@ -20,12 +20,12 @@
     },
     "Second": {
       "type": "object",
-      "title": "Test widget",
+      "title": "Colour",
       "properties": {
         "hello": {
           "type": "text",
           "title": "hello?",
-          "enum": ["hello", "world"]
+          "enum": ["red", "blue"]
         }
       }
     }

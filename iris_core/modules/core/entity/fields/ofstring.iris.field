@@ -1,6 +1,6 @@
 {
   "name": "Multi text field",
-  "type": "ofString",
+  "type": "[String]",
   "form": {
     "length": {
       "type": "text",

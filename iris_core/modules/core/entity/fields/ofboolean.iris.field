@@ -1,6 +1,6 @@
 {
   "name": "Multiple boolean",
-  "type": "ofBoolean",
+  "type": "[Boolean]",
   "form": {
     "length": {
       "type": "text",

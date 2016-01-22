@@ -230,22 +230,6 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
 // Default field widget hooks
 
-iris.modules.entity.registerHook("hook_entity_field_widget_render_default_Longstring", 0, function (thisHook, data) {
-
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
-
-  data = {
-    "type": "textarea",
-    title: fieldSettings.label,
-    "description": fieldSettings.description,
-    "default": value
-  }
-
-  thisHook.finish(true, data);
-
-});
-
 iris.modules.entity.registerHook("hook_entity_field_widget_render_default_String", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
@@ -262,7 +246,7 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_String
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_widget_render_default_ofString", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_widget_render_default_[String]", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -443,7 +427,7 @@ iris.modules.entity.registerHook("hook_entity_fieldType_save_String", 0, functio
 
 })
 
-iris.modules.entity.registerHook("hook_entity_fieldType_save_ofString", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_fieldType_save_[String]", 0, function (thisHook, data) {
 
   thisHook.finish(true, thisHook.const.value);
 
