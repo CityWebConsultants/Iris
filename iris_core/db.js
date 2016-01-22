@@ -136,6 +136,15 @@ iris.dbPopulate = function () {
 
     } catch (e) {
 
+      // Catch errors if the file could be found (such as JSON errors)
+
+      if (e.code !== "ENOENT") {
+
+        iris.log("error", "Could not parse schema file in module " + moduleName );
+        iris.log("error", e);
+
+      }
+
     }
 
 
@@ -211,13 +220,13 @@ iris.dbPopulate = function () {
     // Loop over all fields and set their type.
 
     var finalSchema = {};
-    
+
     if (!schemaConfig.fields) {
 
       return false;
 
     }
-    
+
     var fieldConverter = function (field) {
 
       var fieldType = field.fieldType;
@@ -253,13 +262,13 @@ iris.dbPopulate = function () {
       }
 
     }
-    
+
     Object.keys(schemaConfig.fields).forEach(function (fieldName) {
-            
+
       finalSchema[fieldName] = fieldConverter(schemaConfig.fields[fieldName]);
 
     });
-    
+
     iris.dbSchema[schema] = finalSchema;
 
     //Push in universal type fields if not already in.
