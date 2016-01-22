@@ -413,7 +413,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
 
   var fieldTypeName = schema[fieldName].fieldType;
 
-  var fieldTypeSettings = iris.fieldTypes[fieldTypeName];
+  var fieldTypeSettings = JSON.parse(JSON.stringify(iris.fieldTypes[fieldTypeName]));
 
   if (fieldTypeSettings.widgets) {
 
@@ -510,23 +510,17 @@ iris.modules.entity.registerHook("hook_form_submit_schemafieldwidgets", 0, funct
 
   var widgetChoice = thisHook.const.params.widgetChoice;
 
-  schema[fieldName].widget = {
-    name: widgetChoice,
-    settings: thisHook.const.params[widgetChoice]
-  }
-
   // Prepare schema object for saving
 
   var newSchema = {
     entityTypeName: entityType,
-    fields: []
+    fields: iris.dbSchemaConfig[entityType].fields
   };
 
-  Object.keys(schema).forEach(function (fieldName) {
-
-    newSchema.fields.push(schema[fieldName]);
-
-  })
+  iris.dbSchemaConfig[entityType].fields[fieldName].widget = {
+    name: widgetChoice,
+    settings: thisHook.const.params[widgetChoice]
+  };
 
   iris.saveConfig(newSchema, "entity", iris.sanitizeFileName(entityType), function (data) {
 
