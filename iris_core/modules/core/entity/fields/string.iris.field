@@ -1,12 +1,6 @@
 {
   "name": "Textfield",
   "type": "String",
-  "form": {
-    "length": {
-      "type": "text",
-      "title": "Max length"
-    }
-  },
   "widgets": {
     "A widget": {
       "type": "object",

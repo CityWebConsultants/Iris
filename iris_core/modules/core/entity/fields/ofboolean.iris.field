@@ -1,10 +1,4 @@
 {
   "name": "Multiple boolean",
-  "type": "[Boolean]",
-  "form": {
-    "length": {
-      "type": "text",
-      "title": "Max length"
-    }
-  }
+  "type": "[Boolean]"
 }

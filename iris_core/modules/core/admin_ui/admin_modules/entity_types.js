@@ -279,21 +279,33 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
     data.value.entityType = entityType;
     data.value.fieldName = fieldName;
 
-    var fieldTypeForm = iris.fieldTypes[field["fieldType"]].form;
+    // Get field type form from the form system
 
-    data.schema = fieldTypeForm;
+    iris.hook("hook_form_render_field_settings_" + field["fieldType"], thisHook.authPass, {
+        entityType: entityType,
+        fieldName: fieldName
+      },
+      data
+    ).then(function (form) {
 
-    data.schema.entityType = {
-      "type": "hidden",
-      "default": entityType
-    }
+      form.schema.entityType = {
+        "type": "hidden",
+        "default": entityType
+      }
 
-    data.schema.fieldName = {
-      "type": "hidden",
-      "default": fieldName
-    }
+      form.schema.fieldName = {
+        "type": "hidden",
+        "default": fieldName
+      }
 
-    thisHook.finish(true, data);
+      thisHook.finish(true, form);
+
+    }, function (fail) {
+
+      thisHook.finish(false, data);
+
+    })
+
 
   } else {
 
@@ -302,6 +314,17 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
   }
 
 });
+
+iris.modules.entity.registerHook("hook_form_render_field_settings_Textfield", 0, function (thisHook, data) {
+
+  data.schema.title = {
+    type: "text",
+    "title": "An example setting"
+  }
+
+  thisHook.finish(true, data);
+
+})
 
 iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (thisHook, data) {
 
