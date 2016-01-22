@@ -166,7 +166,7 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
         field.about = "<br /><a class='btn btn-info' href='/admin/schema/" + entityType + "/" + fieldName + "'>Edit field settings</a>";
 
         field.machineName = fieldName;
-        
+
         data.value.fields.push(field);
 
       })
@@ -175,7 +175,7 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
     }
 
   };
-  
+
   if (entityType) {
 
     data.value.entityTypeName = entityType;
@@ -245,7 +245,6 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
 
     var field = iris.dbSchema[entityType][fieldName];
 
-
     if (field.settings) {
 
       data.value = field.settings;
@@ -314,14 +313,10 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
 
   var newSchema = {
     entityTypeName: entityType,
-    fields: []
+    fields: iris.dbSchemaConfig[entityType].fields
   }
 
-  Object.keys(schema).forEach(function (fieldName) {
-
-    newSchema.fields.push(schema[fieldName]);
-
-  })
+  newSchema.fields[fieldName] = schema[fieldName];
 
   // Save and repopulate database schemas
 
