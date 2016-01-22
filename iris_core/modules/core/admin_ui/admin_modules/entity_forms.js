@@ -68,6 +68,8 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
         Object.keys(schema).forEach(function (fieldName) {
 
+          schema[fieldName].machineName = fieldName;
+          
           fieldList.push(schema[fieldName]);
 
         });
@@ -92,7 +94,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
         var fieldNamesList = [];
 
-        fieldList.forEach(function (fieldInList) {
+        fieldList.forEach(function (fieldInList, index) {
 
           fieldNamesList.push(fieldInList.machineName)
 
