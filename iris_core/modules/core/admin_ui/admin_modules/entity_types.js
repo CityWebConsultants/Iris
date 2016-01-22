@@ -80,7 +80,7 @@ iris.app.get("/admin/schema/create", function (req, res) {
 
 });
 
-iris.app.get("/admin/schema/edit/:type", function (req, res) {
+iris.app.get("/admin/schema/:type", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -109,7 +109,7 @@ iris.app.get("/admin/schema/edit/:type", function (req, res) {
 });
 
 iris.app.get("/admin/schema/:type/:field", function (req, res) {
-
+  
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
@@ -245,11 +245,11 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
 
   var entityType = thisHook.const.params[1];
   var fieldName = thisHook.const.params[2];
-
+  
   if (iris.dbSchema[entityType] && iris.dbSchema[entityType][fieldName]) {
 
     var field = iris.dbSchema[entityType][fieldName];
-
+    
     if (field.settings) {
 
       data.value = field.settings;
@@ -260,7 +260,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
     data.value.fieldName = fieldName;
 
     var fieldTypeForm = iris.fieldTypes[field["fieldType"]].form;
-
+    
     data.schema = fieldTypeForm;
 
     data.schema.entityType = {
@@ -272,7 +272,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
       "type": "hidden",
       "default": fieldName
     }
-
+    
     thisHook.finish(true, data);
 
   } else {
@@ -334,7 +334,7 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
       iris.message(thisHook.authPass.userid, "Field " + fieldName + " saved on entity " + entityType, "status");
 
       res.send({
-        redirect: "/admin/schema/edit/" + entityType
+        redirect: "/admin/schema/" + entityType
       });
 
     });
@@ -361,6 +361,16 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
   var entityType = thisHook.const.params.entityTypeName;
   var fields = thisHook.const.params.fields;
 
+  // Check if only one field is being saved
+
+  var singleField = (fields.length === 1)
+
+  if (singleField) {
+
+    singleField = fields[0].machineName;
+
+  }
+
   // Add weight fields
 
   fields.forEach(function (fieldName, index) {
@@ -373,7 +383,7 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
 
   var finishedSchema = {
     entityTypeName: entityType,
-    fields: {}
+    fields: iris.dbSchemaConfig[entityType] && iris.dbSchemaConfig[entityType].fields ? iris.dbSchemaConfig[entityType].fields : {}
   };
 
   // Add fields
@@ -394,7 +404,17 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
 
     data = function (res) {
 
-      res.send("/admin/schema/edit/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName));
+      // Redirect to entity edit form or entity field settings form depending on how many fields are saved
+
+      if (singleField) {
+
+        res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName) + "/" + singleField);
+
+      } else {
+
+        res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName));
+
+      }
 
     }
 
@@ -425,8 +445,8 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
 
   } else {
 
-    return false;
     thisHook.finish(false, "No widgets defined");
+    return false;
 
   }
 
@@ -532,7 +552,7 @@ iris.modules.entity.registerHook("hook_form_submit_schemafieldwidgets", 0, funct
 
     data = function (res) {
 
-      res.send("/admin/schema/edit/" + iris.sanitizeFileName(entityType));
+      res.send("/admin/schema/" + iris.sanitizeFileName(entityType));
 
     }
 
