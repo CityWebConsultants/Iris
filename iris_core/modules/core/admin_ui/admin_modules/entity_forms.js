@@ -69,7 +69,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
         Object.keys(schema).forEach(function (fieldName) {
 
           schema[fieldName].machineName = fieldName;
-          
+
           fieldList.push(schema[fieldName]);
 
         });
@@ -149,7 +149,52 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
         }, function (fail) {
 
-          // Load default widget as a fallback
+          // Load default field widget as a fallback and finally fall back to field type widget if nothing else available
+
+          iris.hook("hook_entity_field_widget_render_field_" + fieldType, thisHook.authPass, {
+            value: currentEntity ? currentEntity[fieldName] : null,
+            fieldSettings: field
+          }).then(function (form) {
+
+            data.schema[fieldName] = form;
+            widgetLoaded();
+
+          }, function (fail) {
+
+
+            iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
+              value: currentEntity ? currentEntity[fieldName] : null,
+              fieldSettings: field
+            }).then(function (form) {
+
+              data.schema[fieldName] = form;
+              widgetLoaded();
+
+            }, function (fail) {
+
+              iris.log("error", "Failed to load entity edit form. " + fail);
+              thisHook.finish(false, fail);
+
+            })
+
+          });
+
+
+        })
+
+      } else {
+
+        // Otherwise run a general hook for that field type
+
+        iris.hook("hook_entity_field_widget_render_field_" + fieldType, thisHook.authPass, {
+          value: currentEntity ? currentEntity[fieldName] : null,
+          fieldSettings: field
+        }).then(function (form) {
+
+          data.schema[fieldName] = form;
+          widgetLoaded();
+
+        }, function (fail) {
 
           iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
             value: currentEntity ? currentEntity[fieldName] : null,
@@ -168,32 +213,10 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
         })
 
-      } else {
-
-        // Otherwise run a general hook for that field type
-
-        iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
-          value: currentEntity ? currentEntity[fieldName] : null,
-          fieldSettings: field
-        }).then(function (form) {
-
-          data.schema[fieldName] = form;
-          widgetLoaded();
-
-        }, function (fail) {
-
-          iris.log("error", "Failed to load entity edit form. " + fail);
-          thisHook.finish(false, fail);
-
-        })
-
-
       }
 
-
     })
-
-
+    
   }
 
   // Check if an entity id was provided
@@ -227,6 +250,24 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
   }
 
 })
+
+// Long string field hook
+
+iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Longtext", 0, function (thisHook, data) {
+
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
+
+  data = {
+    "type": "textarea",
+    title: fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": value
+  }
+
+  thisHook.finish(true, data);
+
+});
 
 // Default field widget hooks
 
