@@ -140,7 +140,7 @@ iris.dbPopulate = function () {
 
       if (e.code !== "ENOENT") {
 
-        iris.log("error", "Could not parse schema file in module " + moduleName );
+        iris.log("error", "Could not parse schema file in module " + moduleName);
         iris.log("error", e);
 
       }
@@ -189,6 +189,9 @@ iris.dbPopulate = function () {
         return [String];
         break;
       case "String":
+        return String;
+        break;
+      case "Longstring":
         return String;
         break;
       case "ofNumber":

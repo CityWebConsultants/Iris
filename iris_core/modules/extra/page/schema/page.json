@@ -9,7 +9,7 @@
       "weight": 0
     },
     "body": {
-      "fieldType": "Textfield",
+      "fieldType": "Longtext",
       "label": "Body",
       "description": "This is the main text area for this page",
       "permissions": ["anonymous", "authenticated"],

@@ -230,6 +230,22 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
 // Default field widget hooks
 
+iris.modules.entity.registerHook("hook_entity_field_widget_render_default_Longstring", 0, function (thisHook, data) {
+
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
+
+  data = {
+    "type": "textarea",
+    title: fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": value
+  }
+
+  thisHook.finish(true, data);
+
+});
+
 iris.modules.entity.registerHook("hook_entity_field_widget_render_default_String", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
