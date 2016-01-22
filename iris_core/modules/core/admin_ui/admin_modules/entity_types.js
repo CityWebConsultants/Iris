@@ -366,17 +366,16 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
 
   // Initialise schema object
 
-  var finishedSchema = {};
-
-  // Add entity title
-
-  finishedSchema.entityTypeName = entityType;
+  var finishedSchema = {
+    entityTypeName: entityType,
+    fields: {}
+  };
 
   // Add fields
 
   fields.forEach(function (field, index) {
 
-    finishedSchema[field.machineName] = field;
+    finishedSchema.fields[field.machineName] = field;
 
     // Remove the machine name field. Not needed anymore.
 
