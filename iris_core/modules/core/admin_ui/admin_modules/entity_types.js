@@ -145,7 +145,7 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
     var entityType = thisHook.const.params[1];
 
-    if (!iris.dbSchema[entityType]) {
+    if (!iris.dbSchemaConfig[entityType]) {
 
       iris.message(thisHook.authPass.userid, "No such entity type", "error");
 
@@ -155,26 +155,18 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
     } else {
 
-      var entityTypeSchema = iris.dbSchema[entityType];
+      var entityTypeSchema = iris.dbSchemaConfig[entityType];
 
       data.value.fields = [];
 
-      var specialFields = ["entityType", "entityAuthor", "eid"];
-
-      Object.keys(entityTypeSchema).forEach(function (fieldName) {
-
-        if (specialFields.indexOf(fieldName) !== -1) {
-
-          return false;
-
-        }
+      Object.keys(entityTypeSchema.fields).forEach(function (fieldName) {
 
         var field = JSON.parse(JSON.stringify(iris.dbSchema[entityType][fieldName]));
 
-        delete field.type;
-
         field.about = "<br /><a class='btn btn-info' href='/admin/schema/" + entityType + "/" + fieldName + "'>Edit field settings</a>";
 
+        field.machineName = fieldName;
+        
         data.value.fields.push(field);
 
       })
@@ -183,7 +175,7 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
     }
 
   };
-
+  
   if (entityType) {
 
     data.value.entityTypeName = entityType;
