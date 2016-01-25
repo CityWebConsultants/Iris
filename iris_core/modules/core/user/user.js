@@ -321,7 +321,7 @@ iris.app.get("/login", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 

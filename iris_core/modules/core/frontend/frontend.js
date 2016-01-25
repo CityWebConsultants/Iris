@@ -1235,7 +1235,6 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
     var parseTemplateFile = function (currentTemplateName, parameters, callback) {
 
-
       iris.modules.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
 
         parseTemplate(template, authPass || "root", parameters).then(function (success) {
