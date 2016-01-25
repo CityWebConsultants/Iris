@@ -14,7 +14,7 @@
       "permissions": []
     },
     "password": {
-      "fieldType": "Textfield",
+      "fieldType": "Password",
       "label": "Password",
       "description": "Keep it strong",
       "permissions": []

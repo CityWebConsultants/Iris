@@ -324,6 +324,24 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
 })
 
+// Password field hook
+
+iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Password", 0, function (thisHook, data) {
+
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
+
+  data = {
+    "type": "password",
+    title: fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": null
+  }
+
+  thisHook.finish(true, data);
+
+});
+
 // Long string field hook
 
 iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Longtext", 0, function (thisHook, data) {
@@ -602,7 +620,7 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
           // Fieldsets are arrays so loop over every item
 
           loader(field.subfields[subFieldName], subValue[subFieldName], function (finalValue) {
-            
+
             finalValues[fieldName][index][subFieldName] = finalValue;
             subComplete();
 
