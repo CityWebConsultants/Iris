@@ -1,0 +1,27 @@
+{
+  "name": "Textfield",
+  "type": "String",
+  "widgets": {
+    "A widget": {
+      "type": "object",
+      "title": "Test widget",
+      "properties": {
+        "hello": {
+          "type": "text",
+          "title": "hello?"
+        }
+      }
+    },
+    "Second": {
+      "type": "object",
+      "title": "Colour",
+      "properties": {
+        "hello": {
+          "type": "text",
+          "title": "hello?",
+          "enum": ["red", "blue"]
+        }
+      }
+    }
+  }
+}

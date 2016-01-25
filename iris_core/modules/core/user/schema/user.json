@@ -1,17 +1,23 @@
 {
-  "username": {
-    "title": "Username",
-    "required": true,
-    "fieldTypeName": "string"
-  },
-  "password": {
-    "title": "Password",
-    "required": true,
-    "fieldTypeName": "string"
-  },
-  "roles": {
-    "title": "Roles",
-    "required": false,
-    "fieldTypeName": "multistring"
+  "entityTypeName": "user",
+  "fields": {
+    "username": {
+      "fieldType": "Textfield",
+      "label": "Title field",
+      "description": "This is the title field",
+      "permissions": ["anonymous", "authenticated"]
+    },
+    "roles": {
+      "fieldType": "Multi text field",
+      "label": "Roles",
+      "description": "What roles does this user have",
+      "permissions": []
+    },
+    "password": {
+      "fieldType": "Textfield",
+      "label": "Password",
+      "description": "Keep it strong",
+      "permissions": []
+    }
   }
 }
