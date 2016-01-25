@@ -224,8 +224,8 @@ module.exports = function (config) {
           yes(contents);
 
         } catch (e) {
-          iris.log("error", e);
-          no("Error reading config");
+
+          no(e);
 
         }
 
