@@ -39,6 +39,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     if (err) {
 
       thisHook.finish(false, iris.error(500, "Database error"));
+      iris.log("error", err);
       return false;
 
     }
