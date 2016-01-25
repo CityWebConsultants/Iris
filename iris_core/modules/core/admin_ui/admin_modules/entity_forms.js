@@ -457,11 +457,10 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
 
   // Run widget loading function for every field
 
-  Object.keys(thisHook.const.params).forEach(function (fieldName) {
+  var loader = function (field, value, callback) {
 
-    var field = schema[fieldName];
-    var value = thisHook.const.params[fieldName];
     var fieldType = field.fieldType;
+
     var fieldTypeType = iris.fieldTypes[fieldType].type;
 
     // Function for saving a field after the widget phase
@@ -477,8 +476,7 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
             value: updatedValue
           }).then(function (finalValue) {
 
-            finalValues[fieldName] = finalValue;
-            widgetSaved();
+            callback(finalValue);
 
           }, function (fail) {
 
@@ -497,9 +495,7 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
               value: setValue
             }).then(function (finalValue) {
 
-              finalValues[fieldName] = finalValue;
-
-              widgetSaved();
+              callback(finalValue);
 
             }, function (fail) {
 
@@ -546,6 +542,86 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
     } else {
 
       saveField(value);
+
+    }
+
+  }
+
+  Object.keys(thisHook.const.params).forEach(function (fieldName) {
+
+    var field = schema[fieldName];
+    var value = thisHook.const.params[fieldName];
+    var fieldType = field.fieldType;
+
+    // Check if fieldset field
+
+    if (fieldType === "Fieldset") {
+
+      field = iris.dbSchemaConfig[entityType].fields[fieldName];
+
+      // Subfields length
+
+      var counter = 0;
+
+      var complete = function () {
+
+        counter += 1;
+        if (counter === Object.keys(field.subfields).length) {
+          widgetSaved();
+        }
+
+      }
+
+      // Create array to store final fieldset result in
+
+      finalValues[fieldName] = [];
+
+      // Add objects for every value in this form post
+
+      var subCounter = 0;
+
+      var subComplete = function () {
+
+        subCounter += 1;
+
+        if (subCounter === value.length) {
+
+          complete();
+
+        }
+
+      }
+
+      value.forEach(function (subValue, index) {
+
+        finalValues[fieldName].push({});
+
+        Object.keys(field.subfields).forEach(function (subFieldName) {
+
+          // Fieldsets are arrays so loop over every item
+
+          loader(field.subfields[subFieldName], subValue[subFieldName], function (finalValue) {
+            
+            finalValues[fieldName][index][subFieldName] = finalValue;
+            subComplete();
+
+          })
+
+        })
+
+      })
+
+
+
+
+    } else {
+
+      loader(field, value, function (value) {
+
+        finalValues[fieldName] = value;
+        widgetSaved();
+
+      })
 
     }
 

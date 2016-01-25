@@ -247,7 +247,7 @@ iris.dbPopulate = function () {
             
             var fieldSetField = field.subfields[fieldSetField];
 
-            field.type = [fieldConverter(fieldSetField)];
+            field.type = [mongoose.Schema.Types.Mixed];
 
             // Don't add a Mongo ID field to nested fieldsets
 
