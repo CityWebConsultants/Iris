@@ -245,6 +245,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
         data.schema[fieldName] = {
           type: "array",
           title: field.label,
+          default: currentEntity ? currentEntity[fieldName] : null,
           items: {
             type: "object",
             properties: {}
