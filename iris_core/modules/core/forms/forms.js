@@ -210,7 +210,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
     data.variables.tags.headTags["jQuery"] = {
       type: "script",
       attributes: {
-        "src": "/modules/admin_ui/jsonform/deps/jquery.min.js"
+        "src": "/modules/forms/jsonform/deps/jquery.min.js"
       },
       rank: 0
     }
@@ -218,28 +218,28 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
     data.variables.tags.headTags["underscore"] = {
       type: "script",
       attributes: {
-        "src": "/modules/admin_ui/jsonform/deps/underscore-min.js"
+        "src": "/modules/forms/jsonform/deps/underscore-min.js"
       },
       rank: 0
     }
     data.variables.tags.headTags["jQueryUI"] = {
       type: "script",
       attributes: {
-        "src": "/modules/admin_ui/jsonform/deps/opt/jquery.ui.custom.js"
+        "src": "/modules/forms/jsonform/deps/opt/jquery.ui.custom.js"
       },
       rank: 1
     }
     data.variables.tags.headTags["bootstrap-dropdown"] = {
       type: "script",
       attributes: {
-        "src": "/modules/admin_ui/jsonform/deps/opt/bootstrap-dropdown.js"
+        "src": "/modules/forms/jsonform/deps/opt/bootstrap-dropdown.js"
       },
       rank: 2
     }
     data.variables.tags.headTags["jsonform"] = {
       type: "script",
       attributes: {
-        "src": "/modules/admin_ui/jsonform/lib/jsonform.js"
+        "src": "/modules/forms/jsonform/lib/jsonform.js"
       },
       rank: 3
     }
