@@ -243,11 +243,14 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
       } else {
 
         data.schema[fieldName] = {
-          type: "object",
+          type: "array",
           title: field.label,
-          properties: {}
+          items: {
+            type: "object",
+            properties: {}
+          }
         }
-        
+
         field = iris.dbSchemaConfig[entityType].fields[fieldName];
 
         if (field.subfields) {
@@ -269,7 +272,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
             var subField = fieldLoader(field.subfields[subFieldName], function (form) {
 
-              data.schema[fieldName].properties[subFieldName] = form;
+              data.schema[fieldName].items.properties[subFieldName] = form;
               complete();
 
             });
