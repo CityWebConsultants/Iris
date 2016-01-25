@@ -77,12 +77,20 @@ iris.translations = {};
  *
  * @desc Register a translation to be used by the translate function
  *
- * @params {string} string - string that should be translated
+ * @params {string} language - output language of the translation
+ * @params {string} input - string that should be translated
  * @params {string} output - string to replace the initial string with in order to translate it
  */
-iris.registerTranslation = function (string, output) {
 
-  iris.translations[string] = output;
+iris.registerTranslation = function (language, input, output) {
+
+  if (!iris.translations[language]) {
+
+    iris.translations[language] = {};
+
+  }
+
+  iris.translations[language][input] = output;
 
 };
 
@@ -99,17 +107,47 @@ iris.registerTranslation = function (string, output) {
  *
  * @returns Translated string with arguments processed by util.format
  */
-iris.translate = function (translationString, args) {
+iris.t = function (translationString, args, language) {
 
-  if (iris.translations[translationString]) {
+  if (typeof args === "string") {
 
-    translationString = iris.translations[translationString];
+    language = args;
+    args = null;
 
   }
 
-  return util.format(translationString, args)
+  if (iris.translations[language] && iris.translations[language][translationString]) {
+
+    translationString = iris.translations[language][translationString];
+
+  }
+
+  if (!args) {
+
+    args = {};
+
+  }
+
+  Object.keys(args).forEach(function (argument) {
+
+    translationString = translationString.split("%" + argument).join(args[argument]);
+
+  })
+
+  return translationString;
 
 }
+
+// Example
+
+//iris.registerTranslation("german", "Hello %first %second", "Hallo %second %first");
+//iris.registerTranslation("german", "Hello user", "User hallo!");
+//
+//console.log(iris.t("Hello user", "german"));
+//console.log(iris.t("Hello %first %second", {
+//  first: "Filip",
+//  second: "Hnízdo"
+//}, "german"));
 
 /**
  * @function typeCheck

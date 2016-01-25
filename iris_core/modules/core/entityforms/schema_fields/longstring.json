@@ -1,9 +1,0 @@
-{
-  "fieldTypeType": "string",
-  "fieldTypeName": "Formatted long text field",
-  "textFilter": {
-    "title": "Text format",
-    "type": "string",
-      "enum": ["none"]
-  }
-}

@@ -106,17 +106,17 @@ module.exports = function (config) {
 
     if (writeToFile !== false) {
 
-        var filePath = path.join(iris.sitePath, "/configurations", directory);
+      var filePath = path.join(iris.sitePath, "/configurations", directory);
 
-        var mkdirp = require('mkdirp');
+      var mkdirp = require('mkdirp');
 
-        mkdirp(filePath, function (err) {
-            if (err) {
-                console.error(err);
-            } else {
-                fs.writeFile(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8", callback);
-            }
-        });
+      mkdirp(filePath, function (err) {
+        if (err) {
+          console.error(err);
+        } else {
+          fs.writeFile(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8", callback);
+        }
+      });
     }
 
     // Fire config saved hook
@@ -224,8 +224,8 @@ module.exports = function (config) {
           yes(contents);
 
         } catch (e) {
-          iris.log("error", e);
-          no("Error reading config");
+
+          no(e);
 
         }
 
@@ -324,9 +324,6 @@ module.exports = function (config) {
     require('./modules/core/frontend/frontend.js');
 
     require('./modules/core/forms/forms.js');
-
-    require('./modules/core/entityforms/entityforms.js');
-
     require('./modules/core/filefield/filefield.js');
 
     require('./modules/core/menu/menu.js');
@@ -355,10 +352,26 @@ module.exports = function (config) {
 
     var path = require('path');
 
+    var glob = require("glob");
+
     iris.enabledModules.forEach(function (enabledModule, index) {
 
-      var modulePath = path.resolve(iris.rootPath + enabledModule.path + ".js");
-      var moduleInfoPath = path.resolve(iris.rootPath + enabledModule.path + ".iris.module");
+      // Check if module path is a site path
+
+      var lookup = glob.sync("{" + iris.rootPath + "/iris_core/modules/extra/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "," + iris.rootPath + "/home/modules/**/" + enabledModule.name + ".iris.module" + "}");
+
+      lookup.reverse();
+      
+      if (!lookup.length) {
+
+        iris.log("error", "error loading module " + enabledModule.name);
+        return false;
+
+      }
+      
+      var moduleInfoPath = lookup[lookup.length - 1];
+
+      var modulePath = lookup[lookup.length - 1].replace(".iris.module", ".js");
 
       try {
 
@@ -424,7 +437,7 @@ module.exports = function (config) {
     console.log("Ready on port " + iris.config.port + ".");
 
     iris.log("info", "Server started");
-    
+
     /**
      * Catch all callback which is run last. If this is called then the GET request has not been defined 
      * anywhere in the system and will therefore return 404 error. 
@@ -520,7 +533,7 @@ module.exports = function (config) {
      * Used for catching express.js errors such as errors in handlebars etc. It logs the error in the system
      * then returns a 500 error to the client.
      */
-    
+
     iris.app.use(function (err, req, res, next) {
 
       if (err) {

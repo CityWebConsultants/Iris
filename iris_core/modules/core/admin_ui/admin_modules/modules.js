@@ -93,10 +93,6 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
             "type": "hidden",
             "default": currentModule.rank
           },
-          "path": {
-            "type": "hidden",
-            "default": currentModule.path
-          },
           "dependencies": {
             "type": "hidden",
             "default": (currentModule.dependencies ? Object.keys(currentModule.dependencies).join(",") : null)

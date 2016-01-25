@@ -14,6 +14,8 @@
  */
 iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
+  var util = require("util");
+
   if (!data.eid) {
 
     thisHook.finish(false, iris.error(400, "Have to have an ID to edit something"));
@@ -39,6 +41,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     if (err) {
 
       thisHook.finish(false, iris.error(500, "Database error"));
+      iris.log("error", err);
       return false;
 
     }
@@ -179,6 +182,13 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     iris.dbCollections[data.entityType].update(conditions, update, callback);
 
     function callback(err, numAffected) {
+
+      if (err) {
+
+        thisHook.finish(false, err);
+        return false;
+        
+      }
 
       thisHook.finish(true, "Updated");
 
