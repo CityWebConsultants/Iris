@@ -359,10 +359,10 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
       var hook;
 
       if (eid) {
-        
+
         finalValues.eid = parseInt(eid);
         hook = "hook_entity_edit";
-        
+
       } else {
 
         hook = "hook_entity_create"
@@ -382,8 +382,13 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
 
       }, function (fail) {
 
-        console.log(fail);
-        thisHook.finish(false, fail);
+        thisHook.finish(true, function (res) {
+
+          res.send({
+            errors: fail
+          })
+
+        });
 
       });
 
