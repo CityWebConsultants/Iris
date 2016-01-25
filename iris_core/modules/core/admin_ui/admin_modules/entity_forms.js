@@ -140,9 +140,8 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
     }
 
-    var fieldLoader = function (field, callback) {
+    var fieldLoader = function (field, callback, currentValue) {
 
-      var field = schema[fieldName];
       var fieldType = field.fieldType;
       var fieldTypeType = iris.fieldTypes[fieldType].type;
 
@@ -151,36 +150,33 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
       if (field.widget) {
 
         iris.hook("hook_entity_field_widget_render_" + field.widget.name, thisHook.authPass, {
-          value: currentEntity ? currentEntity[fieldName] : null,
+          value: currentValue ? currentValue : null,
           fieldSettings: field,
           widgetSettings: field.widget.settings
         }).then(function (form) {
 
-          data.schema[fieldName] = form;
-          widgetLoaded();
+          callback(form);
 
         }, function (fail) {
 
           // Load default field widget as a fallback and finally fall back to field type widget if nothing else available
 
           iris.hook("hook_entity_field_widget_render_field_" + fieldType, thisHook.authPass, {
-            value: currentEntity ? currentEntity[fieldName] : null,
+            value: currentValue ? currentValue : null,
             fieldSettings: field
           }).then(function (form) {
 
-            data.schema[fieldName] = form;
-            widgetLoaded();
+            callback(form);
 
           }, function (fail) {
 
 
             iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
-              value: currentEntity ? currentEntity[fieldName] : null,
+              value: currentValue ? currentValue : null,
               fieldSettings: field
             }).then(function (form) {
 
-              data.schema[fieldName] = form;
-              widgetLoaded();
+              callback(form);
 
             }, function (fail) {
 
@@ -199,17 +195,16 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
         // Otherwise run a general hook for that field type
 
         iris.hook("hook_entity_field_widget_render_field_" + fieldType, thisHook.authPass, {
-          value: currentEntity ? currentEntity[fieldName] : null,
+          value: currentValue ? currentValue : null,
           fieldSettings: field
         }).then(function (form) {
 
           callback(form);
-          widgetLoaded();
 
         }, function (fail) {
 
           iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
-            value: currentEntity ? currentEntity[fieldName] : null,
+            value: currentValue ? currentValue : null,
             fieldSettings: field
           }).then(function (form) {
 
@@ -234,13 +229,60 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
     Object.keys(schema).forEach(function (fieldName) {
 
       var field = schema[fieldName];
+      var fieldType = field.fieldType;
 
-      fieldLoader(field, function (form) {
+      if (fieldType !== "Fieldset") {
 
-        data.schema[fieldName] = form;
-        widgetLoaded();
+        fieldLoader(field, function (form) {
 
-      })
+          data.schema[fieldName] = form;
+          widgetLoaded();
+
+        }, currentEntity ? currentEntity[fieldName] : null);
+
+      } else {
+
+        data.schema[fieldName] = {
+          type: "object",
+          title: field.label,
+          properties: {}
+        }
+        
+        field = iris.dbSchemaConfig[entityType].fields[fieldName];
+
+        if (field.subfields) {
+
+          var counter = 0;
+          var complete = function () {
+
+            counter += 1;
+
+            if (counter === Object.keys(field.subfields).length) {
+
+              widgetLoaded();
+
+            }
+
+          }
+
+          Object.keys(field.subfields).forEach(function (subFieldName) {
+
+            var subField = fieldLoader(field.subfields[subFieldName], function (form) {
+
+              data.schema[fieldName].properties[subFieldName] = form;
+              complete();
+
+            });
+
+          })
+
+        } else {
+
+          widgetLoaded();
+
+        }
+
+      }
 
     })
 
