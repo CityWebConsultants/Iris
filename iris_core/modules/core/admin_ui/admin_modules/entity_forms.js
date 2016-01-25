@@ -62,6 +62,15 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
           default: entityType
         }
 
+        if (currentEntity) {
+
+          data.schema.eid = {
+            type: "hidden",
+            default: currentEntity.eid
+          }
+
+        }
+
         // Put fields in the right order based on weight
 
         var fieldList = [];
@@ -109,6 +118,12 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
           data.form.push(currentFieldName);
 
         })
+
+        if (data.schema.eid) {
+
+          data.form.push("eid");
+
+        }
 
         data.form.push("entityType");
 
@@ -325,8 +340,10 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
   // Store entity type and then delete from parameters object. Not needed any more there.
 
   var entityType = thisHook.const.params.entityType;
+  var eid = thisHook.const.params.eid;
 
   delete thisHook.const.params.entityType;
+  delete thisHook.const.params.eid;
 
   // Fetch entity schmea
 
@@ -351,7 +368,21 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
       finalValues.entityType = entityType;
       finalValues.entityAuthor = thisHook.authPass.userid;
 
-      iris.hook("hook_entity_create", thisHook.authPass, finalValues, finalValues).then(function (success) {
+      var hook;
+
+      if (eid) {
+
+        finalValues.eid = parseInt(eid);
+        hook = "hook_entity_edit";
+
+      } else {
+
+        hook = "hook_entity_create"
+
+      }
+
+
+      iris.hook(hook, thisHook.authPass, finalValues, finalValues).then(function (success) {
 
         thisHook.finish(true, function (res) {
 
@@ -363,8 +394,13 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
 
       }, function (fail) {
 
-        console.log(fail);
-        thisHook.finish(false, fail);
+        thisHook.finish(true, function (res) {
+
+          res.send({
+            errors: fail
+          })
+
+        });
 
       });
 

@@ -323,7 +323,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         var uniqueId = formName + Date.now().toString();
 
-        output += "<form data-params=" + formParams + " method='POST' id='" + uniqueId + "' ng-non-bindable ></form> \n";
+        output += "<form data-params=" + formParams + " method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
         // Add in any custom widgets
 
@@ -363,7 +363,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
             scrollTop: 0
           }, "slow");
 
-          $("#" + values.formid).prepend("<div class='form-errors'>" + data.errors + "</div>")
+          $("[data-formid='" + values.formid +"'").prepend("<div class='form-errors'>" + data.errors + "</div>")
 
         } else if (data.redirect) {
 
