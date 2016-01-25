@@ -125,10 +125,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
     }
 
-
-    // Run widget loading function for every field
-
-    Object.keys(schema).forEach(function (fieldName) {
+    var fieldLoader = function (field, callback) {
 
       var field = schema[fieldName];
       var fieldType = field.fieldType;
@@ -191,7 +188,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
           fieldSettings: field
         }).then(function (form) {
 
-          data.schema[fieldName] = form;
+          callback(form);
           widgetLoaded();
 
         }, function (fail) {
@@ -201,8 +198,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
             fieldSettings: field
           }).then(function (form) {
 
-            data.schema[fieldName] = form;
-            widgetLoaded();
+            callback(form);
 
           }, function (fail) {
 
@@ -215,8 +211,24 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
       }
 
+
+    }
+
+    // Run widget loading function for every field
+
+    Object.keys(schema).forEach(function (fieldName) {
+
+      var field = schema[fieldName];
+
+      fieldLoader(field, function (form) {
+
+        data.schema[fieldName] = form;
+        widgetLoaded();
+
+      })
+
     })
-    
+
   }
 
   // Check if an entity id was provided
