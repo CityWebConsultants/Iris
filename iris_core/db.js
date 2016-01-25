@@ -243,9 +243,11 @@ iris.dbPopulate = function () {
 
         if (field.subfields) {
 
-          field.subfields.forEach(function (fieldSetField, index) {
+          Object.keys(field.subfields).forEach(function (fieldSetField, index) {
+            
+            var fieldSetField = field.subfields[fieldSetField];
 
-            field.type = [fieldConverter(fieldSetField, fieldSetField)];
+            field.type = [fieldConverter(fieldSetField)];
 
             // Don't add a Mongo ID field to nested fieldsets
 
