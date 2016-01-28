@@ -126,11 +126,14 @@ iris.dbPopulate = function () {
 
         var file = JSON.parse(fs.readFileSync(iris.modules[moduleName].path + "/schema/" + schemafile + ".json"));
 
-        Object.keys(file).forEach(function (field) {
+        iris.dbSchema[schemafile] = merge.recursive(true, file, iris.dbSchema[schemafile]);
 
-          iris.dbSchema[schemafile][field] = file[field];
-
-        });
+        //        Object.keys(file).forEach(function (field) {
+        //
+        //          
+        //          iris.dbSchema[schemafile][field] = file[field];
+        //
+        //        });
 
       });
 
@@ -250,7 +253,7 @@ iris.dbPopulate = function () {
 
             field.type = [mongoose.Schema.Types.Mixed];
             field.readableType = "Fieldset";
-            
+
             // Don't add a Mongo ID field to nested fieldsets
 
             field.type[0]._id = false;
