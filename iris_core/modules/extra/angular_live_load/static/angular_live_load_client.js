@@ -53,7 +53,12 @@ irisReady(function () {
     // Listen for the event.
     document.addEventListener('entityListUpdate', function (e) {
 
-      $scope.data = iris.fetched[template].entities;
+      if (iris.fetched[template] && iris.fetched[template].entities) {
+
+        $scope.data = iris.fetched[template].entities;
+
+      }
+
       $scope.$apply();
 
     }, false);
