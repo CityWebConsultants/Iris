@@ -6,16 +6,14 @@ iris.modules.admin_ui.registerHook("hook_form_render_permissions", 0, function (
 
   // Check if menu name supplied and previous values available
 
-  var current = {};
-
   try {
-    var currentPermissions = fs.readFileSync(iris.modules.auth.configPath + "/permissions.json", "utf8");
+    var currentPermissions = fs.readFileSync(iris.sitePath + "/configurations/auth/permissions.json", "utf8");
 
-    current = JSON.parse(currentPermissions);
+    var current = JSON.parse(currentPermissions);
 
   } catch (e) {
 
-    fs.writeFileSync(iris.modules.auth.configPath + "/permissions.json", JSON.stringify({}), "utf8");
+    var current = {};
 
   }
 
@@ -99,7 +97,7 @@ iris.modules.admin_ui.registerHook("hook_form_render_permissions", 0, function (
 
 iris.modules.admin_ui.registerHook("hook_form_submit_permissions", 0, function (thisHook, data) {
 
-  fs.writeFileSync(iris.modules.auth.configPath + "/permissions.json", JSON.stringify(thisHook.const.params), "utf8");
+  fs.writeFileSync(iris.sitePath + "/configurations/auth/permissions.json", JSON.stringify(thisHook.const.params), "utf8");
 
   data = function (res) {
 
