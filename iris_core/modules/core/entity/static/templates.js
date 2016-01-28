@@ -384,3 +384,29 @@ iris.fetchEntities = function (variableName, query) {
   request.send();
 
 }
+
+// Function for prefetching entity data, used by the entity module itself when using Iris entity templates
+
+iris.entityPreFetch = function (result, variableName, query) {
+
+  if (variableName) {
+    result ? null : result = [];
+    window.iris ? null : window.iris = {};
+    window.iris.fetchedEntities ? null : window.iris.fetchedEntities = {};
+    window.iris.fetched ? null : window.iris.fetched = {};
+    window.iris.fetched[variableName] = {
+      query: query,
+      entities: []
+    };
+    result.forEach(function (entity) {
+
+      window.iris.fetchedEntities[entity.entityType] ? null : window.iris.fetchedEntities[entity.entityType] = {};
+
+      window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
+      window.iris.fetched[variableName].entities.push(entity);
+
+    })
+
+  }
+
+};
