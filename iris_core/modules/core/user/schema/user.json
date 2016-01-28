@@ -18,18 +18,6 @@
       "label": "Password",
       "description": "Keep it strong",
       "permissions": []
-    },
-    "fieldcollection": {
-      "fieldType": "Fieldset",
-      "label": "Password",
-      "description": "Keep it strong",
-      "permissions": [],
-      "subfields": {
-        "hello": {
-          "fieldType": "Textfield",
-          "label": "Hellooo"
-        }
-      }
     }
   }
 }
