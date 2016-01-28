@@ -523,6 +523,8 @@ iris.modules.frontend.globals.findTemplate = findTemplate;
  */
 iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
+  var counter = 0;
+
   return new Promise(function (yes, no) {
 
     var embeds = getEmbeds(prefix, html);
@@ -537,43 +539,29 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
       })
 
-      var counter = 0;
+      if (!embeds.length) {
 
-      var runthrough = function (choice) {
+        yes(html);
 
-        var next = function (content) {
+      }
 
-          if (content) {
+      embeds.forEach(function (embed) {
 
-            html = html.split("[[[" + prefix + " " + choice + "]]]").join(content);
+        action(embed.split(","), function (content) {
 
-          }
+          counter += 1;
+
+          html = html.split("[[[" + prefix + " " + embed + "]]]").join(content);
 
           if (counter === embeds.length) {
-
-            runthrough(embeds[counter]);
-
-            counter += 1;
-
-          } else {
 
             yes(html);
 
           }
 
-        };
+        })
 
-        try {
-          action(choice, next)
-        } catch (e) {
-
-          no(e);
-
-        };
-
-      };
-
-      runthrough(embeds[counter].split(","));
+      })
 
     } else {
 
@@ -1295,8 +1283,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
       })
 
-    }
-    else {
+    } else {
 
       parseTemplateFile(templateName, parameters, function (output) {
 
