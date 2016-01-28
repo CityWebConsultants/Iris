@@ -1,7 +1,7 @@
 {
   "name": "iris",
   "version": "0.0.1",
-  "description": "Core server for an extensible, modular chat application",
+  "description": "Modular content management and web application framework built with Node.js and MongoDB",
   "main": "iris.js",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
