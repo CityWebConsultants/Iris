@@ -1,0 +1,22 @@
+{{#each list}}
+
+  {{#each this}}
+
+  <{{this.wrapper}} class="{{this.class}}">
+
+    {{#if this.allowhtml}}
+
+      {{{this.value}}}
+
+    {{else}}
+
+      {{this.value}}
+
+    {{/if}}
+
+
+  </{{this.wrapper}}>
+
+  {{/each}}
+
+{{/each}}

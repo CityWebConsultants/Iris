@@ -2,6 +2,10 @@ var fs = require('fs');
 
 iris.registerModule("regions");
 
+// Register menu item
+
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/regions", "Regions", 1);
+
 iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
   // Loop over available block types and add their blocks to a list for the form
@@ -24,9 +28,7 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
 
     var path = require("path");
 
-    var themePath = path.resolve(iris.sitePath + '/../../' + iris.config.theme);
-
-    var themeSettings = fs.readFileSync(themePath + "/theme.json", "utf8");
+    var themeSettings = fs.readFileSync(iris.modules.frontend.globals.activeTheme.path + "/" + iris.modules.frontend.globals.activeTheme.name + ".iris.theme", "utf8");
 
     themeSettings = JSON.parse(themeSettings);
 
@@ -201,7 +203,7 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
 
               next(false);
 
-              iris.log("error", e);
+              iris.log("error", fail);
 
             });
 
@@ -289,3 +291,32 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
   }
 
 });
+
+// Regions admin system
+
+iris.app.get("/admin/regions", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})

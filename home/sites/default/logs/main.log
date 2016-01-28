@@ -1,20 +1,8 @@
-{"name":"iris","hostname":"Josephine-XPS15","pid":15184,"level":50,"err":{"message":"themePath is not defined","name":"ReferenceError","stack":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]},"msg":"themePath is not defined","time":"2016-01-06T15:16:35.745Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":15184,"level":50,"msg":"Could not enable iris","time":"2016-01-06T15:16:35.748Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":15184,"level":50,"msg":"Something went wrong.","time":"2016-01-06T15:16:35.748Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":15184,"level":30,"msg":"Server started","time":"2016-01-06T15:16:35.892Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":9320,"level":50,"err":{"message":"themeInfoPath is not defined","name":"ReferenceError","stack":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]},"msg":"themeInfoPath is not defined","time":"2016-01-06T15:16:53.226Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":9320,"level":30,"msg":"Server started","time":"2016-01-06T15:16:53.376Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":7488,"level":30,"msg":"Server started","time":"2016-01-06T15:17:09.874Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":9700,"level":30,"msg":"Server started","time":"2016-01-06T15:21:05.574Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":5776,"level":30,"msg":"Server started","time":"2016-01-06T15:22:53.435Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":4148,"level":30,"msg":"Server started","time":"2016-01-06T15:23:25.751Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":6564,"level":30,"msg":"Server started","time":"2016-01-06T15:24:40.565Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":11152,"level":30,"msg":"Server started","time":"2016-01-06T15:28:42.248Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":7764,"level":30,"msg":"Server started","time":"2016-01-06T15:33:01.968Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":13980,"level":30,"msg":"Server started","time":"2016-01-06T15:39:36.830Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":7952,"level":30,"msg":"Server started","time":"2016-01-06T15:41:53.785Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":12740,"level":30,"msg":"Server started","time":"2016-01-06T15:43:05.868Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":8556,"level":30,"msg":"Server started","time":"2016-01-06T15:43:29.345Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":9940,"level":30,"msg":"Server started","time":"2016-01-06T15:45:46.537Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":9636,"level":30,"msg":"Server started","time":"2016-01-06T15:46:11.341Z","v":0}
-{"name":"iris","hostname":"Josephine-XPS15","pid":4416,"level":30,"msg":"Server started","time":"2016-01-06T15:47:48.571Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":10153,"level":30,"msg":"Server started","time":"2016-01-16T18:08:14.792Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11187,"level":30,"msg":"Server started","time":"2016-01-17T00:14:36.375Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11786,"level":30,"msg":"Server started","time":"2016-01-17T00:18:48.196Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11796,"level":30,"msg":"Server started","time":"2016-01-17T00:19:24.548Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11796,"level":30,"msg":"user created by system","time":"2016-01-17T00:19:38.243Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11796,"level":30,"msg":"page created by 1","time":"2016-01-17T00:20:42.668Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11796,"level":30,"msg":"Server restarted  by user 1 via modules page","time":"2016-01-17T00:24:07.396Z","v":0}
+{"name":"iris","hostname":"Adams-MacBook-Pro.local","pid":11840,"level":30,"msg":"Server started","time":"2016-01-17T00:24:08.145Z","v":0}

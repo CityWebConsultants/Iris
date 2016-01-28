@@ -1,7 +1,0 @@
-{
-  "source": {
-    "include": ["iris_core"],
-    "excludePattern": "(^|\\/|\\\\)static"
-  },
-  "plugins": ["plugins/markdown"]
-}

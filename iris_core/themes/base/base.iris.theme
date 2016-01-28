@@ -1,0 +1,10 @@
+{
+  "name": "Base theme",
+  "regions": [
+    "header",
+    "above-content",
+    "sidebar-first",
+    "sidebar-second",
+    "footer"
+  ]
+}

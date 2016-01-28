@@ -1,0 +1,7 @@
+{
+  "source": {
+    "include": ["."],
+    "excludePattern": "(^|\\/|\\\\)static"
+  },
+  "plugins": ["plugins/markdown"]
+}

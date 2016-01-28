@@ -266,7 +266,7 @@ iris.modules.filefield.registerHook("hook_entityfield_save", 0, function (thisHo
   var fieldSchema = thisHook.const.schema,
     value = thisHook.const.value,
     fieldName = thisHook.const.schema.fieldTypeName,
-    fieldType = iris.modules.entity2.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
+    fieldType = iris.modules.entityforms.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
 
 
   if (fieldName === "file") {

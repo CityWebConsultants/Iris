@@ -12,6 +12,10 @@ iris.app.get("/admin/modules", function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_modules"], ['admin_wrapper'], null, req.authPass, req).then(function (success) {
 
+    // Clear messages
+
+    iris.clearMessages(req.authPass.userid);
+
     res.send(success)
 
   }, function (fail) {
@@ -89,10 +93,6 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
             "type": "hidden",
             "default": currentModule.rank
           },
-          "path": {
-            "type": "hidden",
-            "default": currentModule.path
-          },
           "dependencies": {
             "type": "hidden",
             "default": (currentModule.dependencies ? Object.keys(currentModule.dependencies).join(",") : null)
@@ -149,7 +149,7 @@ iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (this
 
       delete thisHook.const.params[moduleName].enabled;
       delete thisHook.const.params[moduleName].dependencies;
-      
+
       enabled.push(thisHook.const.params[moduleName]);
 
     }
@@ -180,6 +180,16 @@ iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (this
   fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));
 
   thisHook.finish(true, data);
+
+  var enabledNames = [];
+
+  enabled.forEach(function (enabled) {
+
+    enabledNames.push(enabled.name);
+
+  })
+
+  iris.message(thisHook.authPass.userid, enabledNames.join(", ") + " modules enabled", "success");
 
   iris.restart(thisHook.authPass.userid, "modules page");
 

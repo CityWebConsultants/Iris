@@ -1,5 +1,6 @@
 /**
- * @file Hooks and functions for the templating and routing systems that make up the frontend module
+ * @file Hooks and functions for the templating and routing systems that make up the 
+ * frontend module.
  */
 
 /**
@@ -31,11 +32,15 @@ iris.modules.frontend.globals.templateRegistry = {
   theme: []
 };
 
-// Static folder in site's root directory
+/**
+ * Static folder in site's root directory.
+ */
 
 iris.app.use("/", express.static(iris.sitePath + '/static'));
 
-// Add theme folders from modules to external list
+/**
+ * Add theme folders from modules to external list.
+ */
 
 process.on("dbReady", function () {
 
@@ -49,13 +54,22 @@ process.on("dbReady", function () {
 
 var path = require("path");
 
-iris.modules.frontend.globals.setActiveTheme = function (themePath) {
+/**
+ * @function setActiveTheme
+ * @memberof frontend
+ *
+ * @desc Sets the active name from the passed values.
+ *
+ * @param {string} themePath - path to the theme folder
+ * @param {string} themeName - name of the active theme
+ *
+ * @returns error message if it fails.
+ */
+iris.modules.frontend.globals.setActiveTheme = function (themePath, themeName) {
 
   // Reset theme lookup registry
 
   iris.modules.frontend.globals.templateRegistry.theme = [];
-
-  var themeName = path.basename(themePath).replace(".iris.theme", "");
 
   var result = {};
 
@@ -64,14 +78,13 @@ iris.modules.frontend.globals.setActiveTheme = function (themePath) {
     var unmet = [];
     var loadedDeps = [];
 
-    themeInfo = JSON.parse(fs.readFileSync(themePath, "utf8"));
+    var themeInfo = JSON.parse(fs.readFileSync(iris.rootPath + themePath + '/' + themeName + '.iris.theme', "utf8"));
 
     // Make config into a variable accessible by other modules
 
     iris.modules.frontend.globals.activeTheme = {
       name: themeName,
-      path: themePath,
-      config: themeInfo
+      path: iris.rootPath + themePath
     }
 
     // Read themes this is dependent on
@@ -102,15 +115,15 @@ iris.modules.frontend.globals.setActiveTheme = function (themePath) {
 
     }
 
-    // Push in theme templates to template lookup registry 
+    // Push in theme templates to template lookup registry
 
     if (!unmet.length) {
 
-      iris.modules.frontend.globals.templateRegistry.theme.push(iris.rootPath + "/" + themePath + "/templates");
+      iris.modules.frontend.globals.templateRegistry.theme.push(iris.rootPath + themePath + "/templates");
 
       // Push in theme's static folder
 
-      iris.app.use("/themes/" + themeName, express.static(iris.rootPath + "/" + themePath + "/static"));
+      iris.app.use("/themes/" + themeName, express.static(iris.rootPath + themePath + "/static"));
 
       loadedDeps.forEach(function (loadedDep) {
 
@@ -146,9 +159,9 @@ try {
 
   try {
 
-    var activeTheme = JSON.parse(themeFile)[0];
+    var activeTheme = JSON.parse(themeFile);
 
-    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.path);
+    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.path, activeTheme.name);
 
     if (setTheme.errors) {
 
@@ -512,19 +525,17 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
   return new Promise(function (yes, no) {
 
-    var finder = new RegExp("\\[\\[\\[" + prefix + "\\s[^\\[\\]]+\\s*\\]\\]\\]", "g");
-
-    var embeds = html.match(finder);
+    var embeds = getEmbeds(prefix, html);
 
     if (embeds) {
 
-      var embeds = embeds.map(function (x) {
+      //  Skip embed if it contains Handlebars parameters
 
-        var internal = new RegExp(prefix + "\\s([^\\[\\]]+)");
+      embeds = embeds.filter(function (embed) {
 
-        return x.match(internal)[1];
+        return embed.indexOf("{{") === -1;
 
-      });
+      })
 
       var counter = 0;
 
@@ -574,22 +585,79 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
 };
 
+
+/**
+ * @function getEmbeds
+ * @memberof frontend
+ *
+ * @desc Given some `text`, if will search for all instances of a given embed `type` and return 
+ * an array of all such embeds. Embed types include form, menu, entity etc.
+ *
+ * @param {string} type - the type of embed to find, eg. form, menu
+ * @param {string} text - the HTML to process; that contains the embeds that need to be parsed
+ *
+ * @returns an array of embeds found in this snippet of `type`
+ */
+var getEmbeds = function (type, text) {
+
+  function getIndicesOf(searchStr, str, caseSensitive) {
+    var startIndex = 0,
+      searchStrLen = searchStr.length;
+    var index, indices = [];
+    if (!caseSensitive) {
+      str = str.toLowerCase();
+      searchStr = searchStr.toLowerCase();
+    }
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+      indices.push(index);
+      startIndex = index + searchStrLen;
+    }
+    return indices;
+  }
+
+  var start = getIndicesOf("[[[" + type, text, false);
+
+  var embeds = [];
+
+  start.forEach(function (element, index) {
+
+    var restOfString = text.substring(start[index], text.length);
+
+    var embedEnd = restOfString.indexOf("]]]");
+
+    embeds.push(restOfString.substring(3 + type.length + 1, embedEnd));
+
+  })
+
+  if (embeds.length) {
+    return embeds;
+  }
+
+}
+
 /**
  * @function parseTemplace
  * @memberof frontend
  *
- * @desc Parse a template recursively (to catch nested embeds). Internal function for Frontend.
+ * @desc Parse a template recursively (to catch nested embeds). Internal function for Frontend. 
+ * It recursively loops through finding all variable tags to be inserted, saves them to a global 
+ * `context` array which is then present for rendering all templates. This means variables can be 
+ * used across all templates when rendering.
  *
  * @param {string} html - HTML of template to process
  * @param {object} authPass - authPass of current user
- * @param {object} context - extra variables to pass to templating engine. The property 'custom' is passed to hook_frontend_template_context
+ * @param {object} context - extra variables to pass to templating engine.
  *
  * There are other functions that are intended to make parsing templates easier.
  * @see parseEmbed
  * @see parseTemplateFile
  *
- * @returns a promise which, if successful, takes an object with properties 'html' and 'variables',for the processed HTML and variables ready to pass to the templating engine, respectively.
+ * @returns a promise which, if successful, takes an object with properties 'html' and 'variables',
+ * for the processed HTML and variables ready to pass to the templating engine, respectively.
  */
+
+var merge = require("merge");
+
 var parseTemplate = function (html, authPass, context) {
 
   return new Promise(function (pass, fail) {
@@ -607,7 +675,7 @@ var parseTemplate = function (html, authPass, context) {
 
       // Check for embedded templates
 
-      var embeds = HTML.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
+      var embeds = getEmbeds("template", HTML);
 
       if (embeds) {
 
@@ -628,6 +696,9 @@ var parseTemplate = function (html, authPass, context) {
             variables: allVariables
           });
 
+        }, function (fail) {
+
+
         })
 
       } else {
@@ -642,9 +713,7 @@ var parseTemplate = function (html, authPass, context) {
           if (parsedData.variables) {
 
             Object.keys(parsedData.variables).forEach(function (variable) {
-
               allVariables[variable] = parsedData.variables[variable];
-
             })
 
           };
@@ -680,27 +749,15 @@ var parseTemplate = function (html, authPass, context) {
 
     }
 
-    if (!context.custom) {
-
-      context.custom = {};
-
-    }
-
     var entity = context.entity;
 
     var output = html;
 
     //Get any embeded templates inside the template file
 
-    var embeds = output.match(/\[\[\[file\s[\w\.\-]+\s*\]\]\]/g);
+    var embeds = getEmbeds("template", output);
 
     if (embeds) {
-
-      var embeds = embeds.map(function (x) {
-
-        return x.match(/file\s([\w\.\-]+)/)[1];
-
-      });
 
       var counter = embeds.length;
 
@@ -712,21 +769,25 @@ var parseTemplate = function (html, authPass, context) {
 
         }
 
-        findTemplate([element, entity.entityType, entity.eid]).then(function (subTemplate) {
+        var templates = element.split("_");
+
+        if (entity.entityType) {
+
+          templates.concat([entity.entityType, entity.eid]);
+
+        }
+
+        findTemplate(templates).then(function (subTemplate) {
 
           parseTemplate(subTemplate, authPass, context).then(function (contents) {
 
-            output = output.split("[[[file " + element + "]]]").join(contents.html);
+            output = output.split("[[[template " + element + "]]]").join(contents.html);
 
             counter -= 1;
 
             if (counter === 0) {
 
-              iris.hook("hook_frontend_template_context", authPass, output, context.custom).then(function (newContext) {
-
-                complete(output);
-
-              });
+              complete(output);
 
             }
 
@@ -738,11 +799,11 @@ var parseTemplate = function (html, authPass, context) {
 
           // Remove template if it can't be found
 
-          output = output.split("[[[file " + element + "]]]").join("");
+          output = output.split("[[[template " + element + "]]]").join("");
 
           parseTemplate(output, authPass, context).then(function (contents) {
 
-            complete(contents);
+            complete(contents.html);
 
           });
 
@@ -752,15 +813,7 @@ var parseTemplate = function (html, authPass, context) {
 
     } else {
 
-      iris.hook("hook_frontend_template_context", authPass, output, context.custom).then(function (newContext) {
-
-        complete(output);
-
-      }, function (fail) {
-
-        iris.log("error", fail);
-
-      });
+      complete(output);
 
     }
 
@@ -774,28 +827,46 @@ var parseTemplate = function (html, authPass, context) {
  *
  * @desc Parse frontend template
  *
- * Hook into the template parsing process using this. Inside, one can run functions such as parseEmbed on the current state of the template.
+ * Hook into the template parsing process using this. Inside, one can run functions such as parseEmbed 
+ * on the current state of the template.
  */
 iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
+  // Add tags to context if doesn't exist. Tags in this section should be in the format of an object with 
+  // the properites: type (for the type of tag) and attributes (for a list of attributes) and a rank. 
+  // headTags should be placed in the <head>, bodyTags in the <body> in your theme using [[[tags headTags]]] 
+  // for example.
+
+  if (!data.variables.tags) {
+
+    data.variables.tags = {
+      headTags: {},
+      bodyTags: {},
+    };
+
+    // Default tags
+
+    data.variables.tags.headTags["iris_core"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/frontend/iris_core.js"
+      },
+      rank: 0
+    }
+
+  }
+
   thisHook.finish(true, data);
 
 });
+
 
 /**
- * @member hook_frontend_template_context
- * @memberof frontend
+ * Catch all callback which will be triggered for all callbacks that are not specifically defined.
  *
- * @desc Prepare context for template from custom template variables
+ * It will check for entity paths for urls like /[entity_type]/[entity_id] and redirect to their
+ * pretty url if one is set.
  */
-iris.modules.frontend.registerHook("hook_frontend_template_context", 0, function (thisHook, data) {
-
-  thisHook.finish(true, data);
-
-});
-
-iris.modules.frontend.globals.parseTemplate = parseTemplate;
-
 iris.app.use(function (req, res, next) {
 
   if (req.method !== "GET") {
@@ -805,7 +876,7 @@ iris.app.use(function (req, res, next) {
 
   }
 
-  // Lookup literal entity from path
+  // Lookup entity type & id from path
 
   var splitUrl = req.url.split('/');
 
@@ -828,8 +899,8 @@ iris.app.use(function (req, res, next) {
         entities: [splitUrl[1]],
         queries: [{
           field: 'eid',
-          comparison: 'IS',
-          compare: splitUrl[2]
+          operator: 'IS',
+          value: splitUrl[2]
         }]
       }]
     }).then(function (result) {
@@ -916,6 +987,51 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 });
 
 /**
+ * @member hook_frontend_handlebars_extend
+ * @memberof frontend
+ *
+ * @desc Template engine processing - Handlebars extending
+ *
+ * Attaches partials and extensions onto handlebars templating engine
+ *
+ * @returns Handlebars object
+ */
+
+iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
+
+  // Handle for a user's messages
+
+  Handlebars.registerHelper("iris_messages", function () {
+
+    var messages = iris.readMessages(thisHook.authPass.userid);
+
+    var output = "";
+
+    if (messages.length) {
+
+      output += "<ul class='iris-messages'>";
+
+      messages.forEach(function (message) {
+
+        output += "<li class='iris-message " + message.type + "'>" + message.message + "</li >";
+
+      });
+
+      output += "</ul>";
+
+      iris.clearMessages(thisHook.authPass.userid);
+
+    }
+
+    return output;
+
+  });
+
+  thisHook.finish(true, Handlebars);
+
+});
+
+/**
  * @member hook_frontend_template
  * @memberof frontend
  *
@@ -927,50 +1043,172 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
  */
 iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
 
-  // Load in any messsages left for the user
-
   if (!data.vars) {
 
     data.vars = {};
 
   }
 
-  data.vars.iris_messages = iris.readMessages(thisHook.authPass.userid);
-
   var Handlebars = require('handlebars');
 
-  try {
+  iris.hook("hook_frontend_handlebars_extend", thisHook.authPass, {
+    variables: data.vars
+  }, Handlebars).then(function () {
 
-    data.html = Handlebars.compile(data.html)(data.vars);
+    try {
 
-    // Run through parse template again to see if any new templates can be loaded.
+      data.html = Handlebars.compile(data.html)(data.vars);
 
-    if (data.html.indexOf("[[[") !== -1) {
+      // Run through parse template again to see if any new templates can be loaded.
 
-      iris.modules.frontend.globals.parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
+      if (data.html.indexOf("[[[") !== -1) {
 
-        success.html = Handlebars.compile(success.html)(success.variables);
+        parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
 
-        success.html = success.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
+          success.html = Handlebars.compile(success.html)(success.variables);
 
-        thisHook.finish(true, success);
+          thisHook.finish(true, success);
 
-      });
+        });
 
-    } else {
+      } else {
 
-      thisHook.finish(true, data);
+        thisHook.finish(true, data);
+
+      }
+
+    } catch (e) {
+
+      thisHook.finish(false, e);
 
     }
 
+  }, function (fail) {
 
-  } catch (e) {
+    thisHook.finish(false, fail);
 
-    thisHook.finish(false, e);
+  })
+
+});
+
+/**
+ * @function unEscape
+ * @memberof frontend
+ *
+ * @desc Function for unescaping escaped curly brackets used in handlebars.
+ *
+ * @returns un-escaped html.
+ */
+
+var unEscape = function (html) {
+
+  if (typeof html === 'string') {
+    html = html.split("\\{").join("{");
+    html = html.split("\\}").join("}");
+  }
+  return html;
+
+}
+
+
+/*
+ * @member hook_frontend_template
+ * @memberof frontend
+ *
+ * @desc Function for inserting tags into templates (run last). 
+ * TODO: Make generic parseEmbed for embeds that run last. Same for Handlebars templates?
+ *
+ * @returns html where all tags are substituted with their respective markup.
+ */
+
+var insertTags = function (html, vars) {
+
+
+  if (!html || !vars) {
+
+    return html;
 
   }
 
-});
+  var tags = getEmbeds("tags", html);
+
+  if (!tags) {
+
+    return html;
+
+  }
+
+  tags.forEach(function (innerTag) {
+
+    var tagName = innerTag.split(",")[0];
+
+    var tagExclude = innerTag.split(",").slice(1, innerTag.split(",").length);
+
+    tagExclude = tagExclude[0];
+
+    if (tagExclude) {
+
+      tagExclude = tagExclude.split(" ").join("").split("-");
+
+    }
+
+    if (vars.tags && vars.tags[tagName]) {
+
+      var tagContainer = vars.tags[tagName];
+
+      var output = "<!-- " + tagName + " -->";
+
+      output += "\n";
+
+      Object.keys(tagContainer).forEach(function (tagName) {
+
+        if (tagExclude && tagExclude.indexOf(tagName) !== -1) {
+
+          return false;
+
+        }
+
+        var tag = tagContainer[tagName];
+
+        output += "\n";
+
+        output += "<!-- " + tagName + " -->";
+
+        output += "\n";
+
+        output += "<" + tag.type;
+
+        if (tag.attributes) {
+
+          Object.keys(tag.attributes).forEach(function (element) {
+
+            output += " " + element + '=' + '"' + tag.attributes[element] + '"';
+
+          });
+
+        };
+
+        if (tag.type === "script") {
+
+          output += "></" + tag.type + ">"
+
+        } else {
+
+          output += "/>";
+
+        }
+
+      })
+
+      html = html.split("[[[tags " + innerTag + "]]]").join(output);
+
+    }
+
+  })
+
+  return html;
+
+}
 
 /**
  * @function parseTemplateFile
@@ -988,11 +1226,10 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
  * @param {string} wrapperTemplateName - file name of wrapper template file
  * @param {object} parameters - extra variables to pass through to the templating system (via parseTemplate)
  * @param {object} authPass - the current user's authPass
- * @param {object} req - the Express request object
  *
  * @returns a promise which, if successful, takes the output HTML as its first argument.
  */
-iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
+iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass) {
 
   return new Promise(function (yes, no) {
 
@@ -1000,7 +1237,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
       iris.modules.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
 
-        iris.modules.frontend.globals.parseTemplate(template, authPass || "root", parameters).then(function (success) {
+        parseTemplate(template, authPass || "root", parameters).then(function (success) {
 
             // Add wrapper paramaters for filename
 
@@ -1040,6 +1277,12 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
             vars: innerOutput.variables
           }).then(function (output) {
 
+            output.html = insertTags(output.html, innerOutput.variables);
+
+            output.html = unEscape(output.html);
+
+            output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
+
             yes(output.html);
 
           }, function (fail) {
@@ -1052,7 +1295,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
       })
 
-    } else {
+    }
+    else {
 
       parseTemplateFile(templateName, parameters, function (output) {
 
@@ -1063,6 +1307,12 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
           html: output.html,
           vars: output.variables
         }).then(function (output) {
+
+          output.html = insertTags(output.html, output.variables);
+
+          output.html = unEscape(output.html);
+
+          output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
           yes(output.html);
 

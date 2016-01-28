@@ -10,6 +10,9 @@ iris.registerModule("user");
 
 var bcrypt = require("bcrypt-nodejs");
 
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/users", "Users", 1);
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/users", "/admin/users/permissions", "Permissions", 1);
+
 // First ever login form
 
 iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
@@ -128,9 +131,17 @@ iris.modules.user.globals.login = function (auth, res, callback) {
             userid: userid
           }).then(function (token) {
 
-            iris.modules.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
+            if (res) {
 
-            callback(userid);
+              iris.modules.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
+
+              callback(userid);
+
+            } else {
+
+              callback(userid, token.id);
+
+            }
 
           }, function (fail) {
 
@@ -157,6 +168,10 @@ iris.modules.user.globals.login = function (auth, res, callback) {
 };
 
 iris.app.get("/logout", function (req, res) {
+
+  // Delete session
+
+  delete iris.modules.auth.globals.userList[req.authPass.userid];
 
   res.clearCookie('userid');
   res.clearCookie('token');
@@ -198,6 +213,10 @@ iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, ent
     thisHook.finish(true, entity);
 
   }
+
+  // Change roles in cache
+
+  iris.modules.user.globals.userRoles[entity.eid] = entity.roles;
 
 });
 
@@ -302,13 +321,15 @@ iris.app.get("/login", function (req, res) {
 
     iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
 })
 
 // Blank password field on entity edit
+
+// Prepopulate roles
 
 iris.modules.user.registerHook("hook_form_render_editEntity", 1, function (thisHook, data) {
 
@@ -318,6 +339,44 @@ iris.modules.user.registerHook("hook_form_render_editEntity", 1, function (thisH
     data.schema.password.required = false;
     data.schema.password.title = "Change password";
     data.schema.password.description = "Change your password by typing a new one into the form below";
+
+    var roles = ["none", "admin"];
+    Object.keys(iris.modules.auth.globals.roles).forEach(function (role) {
+
+      if (role !== "anonymous" && role !== "authenticated") {
+        roles.push(role)
+      }
+
+    })
+
+    data.schema.roles.items = {
+      type: "string",
+      enum: roles
+    };
+
+  }
+
+  thisHook.finish(true, data);
+
+});
+
+iris.modules.user.registerHook("hook_form_render_createEntity", 1, function (thisHook, data) {
+
+  if (thisHook.const.params[1] === "user") {
+
+    var roles = ["none", "admin"];
+    Object.keys(iris.modules.auth.globals.roles).forEach(function (role) {
+
+      if (role !== "anonymous" && role !== "authenticated") {
+        roles.push(role)
+      }
+
+    })
+
+    data.schema.roles.items = {
+      type: "string",
+      enum: roles
+    };
 
   }
 
@@ -373,5 +432,69 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
     }
 
   };
+
+});
+
+// Username + password to token
+
+iris.app.post("/api/login", function (req, res) {
+
+  if (req.body.username && req.body.password) {
+
+    iris.modules.user.globals.login(req.body, null, function (userid, token) {
+
+      if (!userid) {
+
+        res.send(null);
+
+      } else {
+
+        res.send({
+          userid: userid,
+          token: token
+        });
+
+      }
+
+    })
+
+  } else {
+
+    res.send(null);
+
+  }
+
+});
+
+iris.app.get("/admin/users", function (req, res) {
+    
+    iris.modules.admin_ui.globals.listEntities(req, res, 'user');
+    
+});
+
+iris.app.get("/admin/users/permissions", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
 
 });

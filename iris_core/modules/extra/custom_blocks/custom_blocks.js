@@ -16,7 +16,7 @@ iris.modules.custom_blocks.registerHook("hook_form_render_blockForm_Custom-HTML"
 
   var form = {
     "contents": {
-      "type": "ckeditor",
+      "type": "textarea",
       "title": "Body",
       "description": "Custom HTML body for this block.",
       "default": currentContents,

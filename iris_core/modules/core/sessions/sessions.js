@@ -43,10 +43,10 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
         thisHook.const.res.cookie('anonID', anonID);
         
         data.userid = anonID;
-
+        thisHook.finish(true, data);
+        
       })
 
-      thisHook.finish(true, data);
 
     } else if (thisHook.const.req && thisHook.const.req.cookies && thisHook.const.req.cookies.anonID) {
 
@@ -86,3 +86,9 @@ iris.modules.sessions.globals.writeCookies = function (userid, token, res, maxAg
   res.cookie('token', token, cookieOptions);
 
 };
+
+iris.modules.sessions.registerHook("hook_entity_deleted", 1, function (thisHook, entity) {
+
+    delete iris.modules.auth.globals.userList[entity.eid];
+    
+});

@@ -40,15 +40,64 @@ mongoose.connection.on('error', function (error) {
 
 });
 
+iris.fieldTypes = {};
+
 iris.dbCollections = {};
 
-iris.dbSchemaJSON = {};
+iris.dbSchemaConfig = {};
 
 iris.dbSchema = {};
 
 var dbReady = false;
 
 iris.dbPopulate = function () {
+
+  var glob = require("glob");
+
+  var merge = require("merge");
+
+  // Get field types
+
+  Object.keys(iris.modules).forEach(function (moduleName) {
+
+    var modulePath = iris.modules[moduleName].path;
+
+    var fields = glob.sync(modulePath + "/**/*.iris.field");
+
+    fields.forEach(function (fieldPath) {
+
+      try {
+
+        var field = fs.readFileSync(fieldPath, "utf8");
+
+        field = JSON.parse(field);
+
+        if (!iris.fieldTypes[field.name]) {
+
+          iris.fieldTypes[field.name] = field;
+
+        } else {
+
+          // Merge field's properties
+
+          var newObject = merge.recursive(true, iris.fieldTypes[field.name], field);
+
+          iris.fieldTypes[field.name] = newObject;
+
+        }
+
+      } catch (e) {
+
+        console.log(e);
+
+        iris.log("error", e);
+
+      }
+
+    })
+
+
+  });
 
   // Delete any existing schema so they can be re-written
 
@@ -77,16 +126,27 @@ iris.dbPopulate = function () {
 
         var file = JSON.parse(fs.readFileSync(iris.modules[moduleName].path + "/schema/" + schemafile + ".json"));
 
-        Object.keys(file).forEach(function (field) {
+        iris.dbSchema[schemafile] = merge.recursive(true, file, iris.dbSchema[schemafile]);
 
-          iris.dbSchema[schemafile][field] = file[field];
-
-        });
+        //        Object.keys(file).forEach(function (field) {
+        //
+        //          
+        //          iris.dbSchema[schemafile][field] = file[field];
+        //
+        //        });
 
       });
 
     } catch (e) {
 
+      // Catch errors if the file could be found (such as JSON errors)
+
+      if (e.code !== "ENOENT") {
+
+        iris.log("error", "Could not parse schema file in module " + moduleName);
+        iris.log("error", e);
+
+      }
 
     }
 
@@ -128,14 +188,23 @@ iris.dbPopulate = function () {
   var typeConverter = function (type) {
 
     switch (type) {
-      case "ofstring":
+      case "[String]":
         return [String];
         break;
-      case "string":
+      case "String":
         return String;
         break;
-      case "number":
+      case "[Number]":
+        return [Number];
+        break;
+      case "Number":
         return Number;
+        break;
+      case "[Boolean]":
+        return [Boolean];
+        break;
+      case "Boolean":
+        return Boolean;
         break;
     }
 
@@ -145,69 +214,69 @@ iris.dbPopulate = function () {
 
   Object.keys(iris.dbSchema).forEach(function (schema) {
 
-    var parseField = function (field) {
+    // Make JSON copy of complete schema and save to non mongoosed object for reference
 
-      // Check if it's an object with subfields
+    var schemaConfig = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
 
-      if (field.subfields) {
+    iris.dbSchemaConfig[schema] = iris.dbSchema[schema];
 
-        var type = {};
+    // Loop over all fields and set their type.
 
-        Object.keys(field.subfields).forEach(function (subfieldName) {
+    var finalSchema = {};
 
-          parseField(field.subfields[subfieldName]);
+    if (!schemaConfig.fields) {
 
-          type[subfieldName] = field.subfields[subfieldName];
+      return false;
 
-        });
+    }
 
-        delete field.subfields;
+    var fieldConverter = function (field) {
 
-        field.type = type;
+      var fieldType = field.fieldType;
 
-      }
+      if (iris.fieldTypes[fieldType]) {
 
-      // Convert types
+        field.type = typeConverter(iris.fieldTypes[fieldType].type);
+        field.readableType = iris.fieldTypes[fieldType].type;
 
-      iris.modules.entity2.globals.fetchSchemaForm();
+        return field;
 
-      if (iris.modules.entity2.globals.fieldTypes[field.fieldTypeName] && iris.modules.entity2.globals.fieldTypes[field.fieldTypeName].fieldTypeType) {
+      } else if (fieldType === "Fieldset") {
 
-        var fieldType = iris.modules.entity2.globals.fieldTypes[field.fieldTypeName].fieldTypeType;
+        // Run parent function recursively on fieldsets
 
-      }
+        if (field.subfields) {
 
-      if (fieldType && typeConverter(fieldType)) {
+          Object.keys(field.subfields).forEach(function (fieldSetField, index) {
 
-        field.type = typeConverter(fieldType);
+            var fieldSetField = field.subfields[fieldSetField];
+
+            field.type = [mongoose.Schema.Types.Mixed];
+            field.readableType = "Fieldset";
+
+            // Don't add a Mongo ID field to nested fieldsets
+
+            field.type[0]._id = false;
+
+          });
+
+          delete field.subfields;
+
+          return field;
+
+        }
 
       }
 
     }
 
-    // Make JSON copy of complete schema
+    Object.keys(schemaConfig.fields).forEach(function (fieldName) {
 
-    iris.dbSchemaJSON[schema] = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
-
-    // Filter out universal fields
-
-    var universalFields = ["entityType", "entityAuthor", "eid"];
-
-    Object.keys(iris.dbSchemaJSON[schema]).forEach(function (field) {
-
-      if (universalFields.indexOf(field) !== -1) {
-
-        delete iris.dbSchemaJSON[schema][field];
-
-      }
-
-    })
-
-    Object.keys(iris.dbSchema[schema]).forEach(function (field) {
-
-      parseField(iris.dbSchema[schema][field]);
+      finalSchema[fieldName] = fieldConverter(schemaConfig.fields[fieldName]);
 
     });
+
+    iris.dbSchema[schema] = finalSchema;
 
     //Push in universal type fields if not already in.
 
@@ -233,6 +302,7 @@ iris.dbPopulate = function () {
     }
 
     try {
+
       var readySchema = mongoose.Schema(iris.dbSchema[schema]);
 
       if (mongoose.models[schema]) {
@@ -265,8 +335,6 @@ iris.dbPopulate = function () {
     iris.modules.auth.globals.registerPermission("can delete any " + schema, "entity")
     iris.modules.auth.globals.registerPermission("can delete own " + schema, "entity")
     iris.modules.auth.globals.registerPermission("can fetch " + schema, "entity", "Can use the API to <b>fetch</b> entities.")
-
-
 
   });
 

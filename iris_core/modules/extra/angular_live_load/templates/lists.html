@@ -1,0 +1,44 @@
+<script src="https://cdn.socket.io/socket.io-1.3.7.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0-rc.0/angular.js"></script>
+<script src="http://localhost:4000/modules/angular_live_load/angular_live_load_client.js"></script>
+
+<div class="hide-angular-list">
+
+  {{#each list}} {{#each this}}
+
+  <{{this.wrapper}} class="{{this.class}}">
+
+    {{#if this.allowhtml}} {{{this.value}}} {{else}} {{this.value}} {{/if}}
+
+
+  </{{this.wrapper}}>
+
+  {{/each}} {{/each}}
+
+</div>
+
+<div class="show-angular-list" style="display:none;">
+
+  <div ng-controller="iris-template" ng-iris-template="list_{{listName}}">
+
+    <div ng-repeat="entity in data">
+
+       {{#each list.[0]}}
+
+    {{#if this.allowhtml}}
+
+  <{{this.wrapper}} ng-bind-html="entity.{{@key}} | html_filter" class="{{this.class}}"> </{{this.wrapper}}>
+
+    {{else}}
+
+    <{{this.wrapper}} class="{{this.class}}">##entity.{{@key}}## </{{this.wrapper}}>
+
+    {{/if}}
+
+  {{/each}}
+
+    </div>
+
+  </div>
+
+</div>

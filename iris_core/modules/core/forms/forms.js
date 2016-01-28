@@ -159,6 +159,26 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 });
 
 /**
+ * @member hook_form_validate
+ * @memberof forms
+ *
+ * @desc Generic form validation handler
+ *
+ * Use this hook to implement a handler on all submitted forms.
+ *
+ * The form fields are available keyed under thisHook.const.params.
+ *
+ * It is easier to handle validation of a single form by appending _ followed by the form name to this hook.
+ *
+ * @see hook_form_submit_<form_name>
+ */
+iris.modules.forms.registerHook("hook_form_validate", 0, function (thisHook, data) {
+
+  thisHook.finish(true, data);
+
+});
+
+/**
  * @member hook_form_submit
  * @memberof forms
  *
@@ -183,9 +203,48 @@ iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data)
  */
 iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
-  var variables = data.variables;
-
   iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
+
+    // Add scripts for forms
+
+    data.variables.tags.headTags["jQuery"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/forms/jsonform/deps/jquery.min.js"
+      },
+      rank: 0
+    }
+
+    data.variables.tags.headTags["underscore"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/forms/jsonform/deps/underscore-min.js"
+      },
+      rank: 0
+    }
+    data.variables.tags.headTags["jQueryUI"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/forms/jsonform/deps/opt/jquery.ui.custom.js"
+      },
+      rank: 1
+    }
+    data.variables.tags.headTags["bootstrap-dropdown"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/forms/jsonform/deps/opt/bootstrap-dropdown.js"
+      },
+      rank: 2
+    }
+    data.variables.tags.headTags["jsonform"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/forms/jsonform/lib/jsonform.js"
+      },
+      rank: 3
+    }
+
+    //
 
     var formParams = form.join(",");
 
@@ -262,11 +321,11 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         var output = "";
 
-        output += "<form data-params=" + formParams + " method='POST' id='" + formName + "' ng-non-bindable ></form> \n";
+        var uniqueId = formName + Date.now().toString();
+
+        output += "<form data-params=" + formParams + " method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
         // Add in any custom widgets
-
-        output += '<script src="/modules/admin_ui/jsonform/deps/jquery.min.js"></script><script src="/modules/admin_ui/jsonform/deps/underscore-min.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/jquery.ui.custom.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-dropdown.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-typeahead.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/bootstrap-tagsinput.min.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/spectrum.js"></script><script src="/modules/admin_ui/jsonform/deps/opt/jquery.transloadit2.js"></script><script src="/modules/admin_ui/jsonform/lib/jsonform.js"></script>';
 
         output += "<script>";
 
@@ -279,7 +338,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         output += "</script>";
 
-        output += "<script>$('#" + formName + "').jsonForm(" + toSource(form) + ");</script>";
+        output += "<script>$('#" + uniqueId + "').jsonForm(" + toSource(form) + ");</script>";
         callback(output);
 
       });
@@ -304,7 +363,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
             scrollTop: 0
           }, "slow");
 
-          $("#" + values.formid).prepend("<div class='form-errors'>" + data.errors + "</div>")
+          $("[data-formid='" + values.formid +"'").prepend("<div class='form-errors'>" + data.errors + "</div>")
 
         } else if (data.redirect) {
 
@@ -376,7 +435,6 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 });
 
 /**
- * @member hook_frontend_template_context
  * @memberof forms
  *
  * @desc Prepare a form for display by adding or changing fields at the render stage

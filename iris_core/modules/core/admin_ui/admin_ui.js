@@ -14,16 +14,12 @@ iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/entiti
 
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/structure", "Structure", 1);
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/regions", "Regions", 1);
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/blocks", "Blocks", 1);
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/menu", "Menus", 1);
 
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/config", "Config", 1);
 
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/export", "Export config", 1);
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/import", "Import config", 1);
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/permissions", "Permissions", 1);
 
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs", 1);
 

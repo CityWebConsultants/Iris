@@ -1,26 +1,26 @@
 {
-  "title": {
-    "fieldTypeName": "string",
-    "required": true,
-    "title": "Page title",
-    "description": "This is the title field"
-  },
-  "body": {
-    "fieldTypeName": "longstring",
-    "long": true,
-    "required": true,
-    "title": "Body field",
-    "description": "This is the main text area for this page"
-  },
-  "class": {
-    "fieldTypeName": "multistring",
-    "required": false,
-    "title": "Body class"
-  },
-  "path": {
-    "fieldTypeName": "string",
-    "required": true,
-    "title": "Path",
-    "description": "This is the path field"
+  "entityTypeName": "page",
+  "fields": {
+    "title": {
+      "fieldType": "Textfield",
+      "label": "Title",
+      "description": "This is the title field",
+      "permissions": ["anonymous", "authenticated"],
+      "weight": 0
+    },
+    "body": {
+      "fieldType": "Longtext",
+      "label": "Body",
+      "description": "This is the main text area for this page",
+      "permissions": ["anonymous", "authenticated"],
+      "weight": 1
+    },
+    "path": {
+      "fieldType": "Textfield",
+      "label": "Path",
+      "description": "This is the URL path that this page will be accessible from. This includes a leading slash. The path should look something like '/mypage' or '/my/longer/path'. To make this page the front page of the site, use a path of '/'.",
+      "permissions": ["anonymous", "authenticated"],
+      "weight": 2
+    }
   }
 }

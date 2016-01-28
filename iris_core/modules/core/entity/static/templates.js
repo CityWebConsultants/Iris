@@ -18,9 +18,9 @@ if (!window.iris) {
 
 irisReady(function () {
 
-  if (window.io) {
+  if (window.io && iris.server) {
 
-    iris.socketreceiver = io(document.location.protocol + "//" + document.location.hostname + ":" + document.location.port);
+    iris.socketreceiver = io(iris.server);
 
     iris.socketreceiver.on('entityCreate', function (data) {
 
@@ -288,3 +288,99 @@ irisReady(function () {
 })
 
 iris.entityListUpdate = new Event('entityListUpdate');
+
+iris.fetchEntities = function (variableName, query) {
+
+  if (!iris.server) {
+
+    console.error("You need to initialise Iris with a base url for entity fetching to work. Try setting iris.server to the location of the Iris server.");
+    return false;
+
+  } else {
+
+    baseurl = iris.server;
+
+  }
+
+  // Remove trailing slash
+
+  if (baseurl.indexOf("/") === baseurl.length - 1) {
+
+    baseurl = baseurl.substring(0, baseurl.length - 1);
+
+  }
+
+  function formatParams(params) {
+    return "?" + Object
+      .keys(params)
+      .map(function (key) {
+        return key + "=" + params[key]
+      })
+      .join("&")
+  }
+
+  var sendQuery = {
+    queryList: JSON.stringify([{
+
+      queries: query.queries,
+      entities: query.entities,
+      limit: query.limit,
+      sort: query.sort,
+      skip: query.skip
+
+      }])
+  };
+
+  var querystring = formatParams(sendQuery);
+
+  var request = new XMLHttpRequest();
+
+  request.open('GET', baseurl + "/fetch" + querystring, true);
+
+  request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+  request.onload = function () {
+
+    if (request.status >= 200 && request.status < 400) {
+
+      try {
+
+        var fetched = request.response;
+
+        result = JSON.parse(fetched).response;
+
+        if (variableName) {
+          result ? null : result = [];
+          window.iris ? null : window.iris = {};
+          window.iris.fetchedEntities ? null : window.iris.fetchedEntities = {};
+          window.iris.fetched ? null : window.iris.fetched = {};
+          window.iris.fetched[variableName] = {
+            query: query,
+            entities: []
+          };
+          result.forEach(function (entity) {
+
+            window.iris.fetchedEntities[entity.entityType] ? null : window.iris.fetchedEntities[entity.entityType] = {};
+
+            window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
+            window.iris.fetched[variableName].entities.push(entity);
+
+          })
+
+        }
+
+        document.dispatchEvent(iris.entityListUpdate);
+
+      } catch (e) {
+
+        console.log(e);
+
+      }
+
+    }
+
+  }
+
+  request.send();
+
+}

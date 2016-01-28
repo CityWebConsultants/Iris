@@ -8,6 +8,10 @@
 
 iris.registerModule("blocks");
 
+// Register menu item
+
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/blocks", "Blocks", 1);
+
 /**
  * @member blockTypes
  * @memberof blocks
@@ -470,3 +474,34 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
   }
 
 });
+
+// Admin page routing handler
+
+iris.app.get("/admin/blocks", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_blockslist"], ['admin_wrapper'], {
+    blocks: iris.modules.blocks.globals.blocks,
+    blockTypes: Object.keys(iris.modules.blocks.globals.blockTypes),
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+})

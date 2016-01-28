@@ -2,8 +2,10 @@
 "use strict";
 
 /**
- * @file Boot-up process for Iris - prepares all modules, manages HTTP requests, provides config storage functions.
+ * @file Boot-up process for Iris - prepares all modules, manages HTTP requests, provides config storage 
+ * functions.
  */
+
 
 module.exports = function (config) {
 
@@ -17,17 +19,32 @@ module.exports = function (config) {
 
   iris.restart = function (userid, where) {
 
+    if (userid) {
+
+      iris.message(userid, "Server restarted successfully", "success");
+
+    }
+
     iris.log("info", "Server restarted " + (userid ? " by user " + userid : "") + (where ? " via " + where : ""));
 
     process.send("restart");
 
-  }
+  };
 
-  //Store helper paths
+  // Store helper paths
 
   iris.rootPath = path.resolve(__dirname + "/../");
 
   iris.sitePath = process.cwd();
+
+  // Detect/change Windows file paths
+
+  if (path.sep === "\\") {
+
+    iris.rootPath = iris.rootPath.split("\\").join("/");
+    iris.sitePath = iris.sitePath.split("\\").join("/");
+
+  }
 
   // Launch logging module
 
@@ -35,7 +52,7 @@ module.exports = function (config) {
 
   // Launch user messaging module
 
-  require("./message")
+  require("./message");
 
   //Make config folder
 
@@ -45,9 +62,11 @@ module.exports = function (config) {
     try {
       fs.mkdirSync(path);
     } catch (e) {
-      if (e.code != 'EEXIST') throw e;
+      if (e.code !== 'EEXIST') {
+        throw e;
+      }
     }
-  }
+  };
 
   mkdirSync(iris.sitePath + "/" + "configurations");
 
@@ -67,7 +86,7 @@ module.exports = function (config) {
    *
    * @returns Runs callback with 'err' boolean (false if operation successful)
    */
-  iris.saveConfig = function (contents, directory, filename, callback) {
+  iris.saveConfig = function (contents, directory, filename, callback, writeToFile) {
 
     var current = iris.configStore;
 
@@ -85,17 +104,20 @@ module.exports = function (config) {
 
     current[filename] = contents;
 
-    var filePath = path.join(iris.sitePath, "/configurations", directory);
+    if (writeToFile !== false) {
 
-    var mkdirp = require('mkdirp');
+      var filePath = path.join(iris.sitePath, "/configurations", directory);
 
-    mkdirp(filePath, function (err) {
-      if (err) {
-        console.error(err)
-      } else {
-        fs.writeFile(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8", callback);
-      }
-    });
+      var mkdirp = require('mkdirp');
+
+      mkdirp(filePath, function (err) {
+        if (err) {
+          console.error(err);
+        } else {
+          fs.writeFile(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8", callback);
+        }
+      });
+    }
 
     // Fire config saved hook
 
@@ -176,7 +198,9 @@ module.exports = function (config) {
         var arrNames = strNames.split('/');
 
         while (name = arrNames.shift()) {
-          if (!ref.hasOwnProperty(name)) return false;
+          if (!ref.hasOwnProperty(name)) {
+            return false;
+          }
           ref = ref[name];
         }
 
@@ -195,13 +219,13 @@ module.exports = function (config) {
 
           var contents = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations" + "/" + directory + "/" + filename + ".json", "utf8"));
 
-          iris.saveConfig(contents, directory, filename);
+          iris.saveConfig(contents, directory, filename, null, false);
 
           yes(contents);
 
         } catch (e) {
 
-          no("No such config exists");
+          no(e);
 
         }
 
@@ -243,7 +267,7 @@ module.exports = function (config) {
 
       }
 
-    })
+    });
 
   }
 
@@ -251,7 +275,7 @@ module.exports = function (config) {
 
   iris.config = config;
 
-  console.log("\nLaunching server");
+  console.log("\nStarting iris...");
 
   //Hook system
 
@@ -300,9 +324,6 @@ module.exports = function (config) {
     require('./modules/core/frontend/frontend.js');
 
     require('./modules/core/forms/forms.js');
-
-    require('./modules/core/entity2/entity2.js');
-
     require('./modules/core/filefield/filefield.js');
 
     require('./modules/core/menu/menu.js');
@@ -313,9 +334,7 @@ module.exports = function (config) {
 
     require('./modules/core/paths/paths.js');
 
-    //Read enabled modules
-
-    console.log("Loading modules...");
+    require('./modules/core/textfilters/textfilters.js');
 
     try {
 
@@ -324,23 +343,35 @@ module.exports = function (config) {
       iris.enabledModules = JSON.parse(file);
 
     } catch (e) {
-      
+
       fs.writeFileSync(process.cwd() + '/enabled_modules.json', "[]");
 
       iris.enabledModules = [];
-      
-      console.log(iris.enabledModules);
 
     }
 
-    console.log(" ");
-
     var path = require('path');
+
+    var glob = require("glob");
 
     iris.enabledModules.forEach(function (enabledModule, index) {
 
-      var modulePath = path.resolve(enabledModule.path + ".js");
-      var moduleInfoPath = path.resolve(enabledModule.path + ".iris.module");
+      // Check if module path is a site path
+
+      var lookup = glob.sync("{" + iris.rootPath + "/iris_core/modules/extra/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "," + iris.rootPath + "/home/modules/**/" + enabledModule.name + ".iris.module" + "}");
+
+      lookup.reverse();
+      
+      if (!lookup.length) {
+
+        iris.log("error", "error loading module " + enabledModule.name);
+        return false;
+
+      }
+      
+      var moduleInfoPath = lookup[lookup.length - 1];
+
+      var modulePath = lookup[lookup.length - 1].replace(".iris.module", ".js");
 
       try {
 
@@ -352,7 +383,7 @@ module.exports = function (config) {
 
         // Read config file to check if dependencies satisfied
 
-        console.error("error loading module " + enabledModule.name, e)
+        console.error("error loading module " + enabledModule.name, e);
         return false;
 
       }
@@ -369,7 +400,7 @@ module.exports = function (config) {
 
           }
 
-        })
+        });
 
         if (unmet.length) {
 
@@ -384,17 +415,12 @@ module.exports = function (config) {
 
       iris.hook("hook_module_init_" + enabledModule.name.toLowerCase(), "root", null, null).then(function (success) {
 
-        console.log(enabledModule.name + " loaded")
 
       }, function (fail) {
 
-        if (fail === "No such hook exists") {
+        if (fail !== "No such hook exists") {
 
-          console.log(enabledModule.name + " loaded")
-
-        } else {
-
-          console.log(moduleName + " failed to initialise", fail)
+          iris.log("error", fail);
 
         }
 
@@ -408,7 +434,16 @@ module.exports = function (config) {
 
     Object.freeze(iris);
 
+    console.log("Ready on port " + iris.config.port + ".");
+
     iris.log("info", "Server started");
+
+    /**
+     * Catch all callback which is run last. If this is called then the GET request has not been defined 
+     * anywhere in the system and will therefore return 404 error. 
+     * This is also required for form submissions, POST requests are caught in hook_catch_request for example
+     * where they are then forwarded to the required submit handler function.
+     */
 
     iris.app.use(function (req, res) {
 
@@ -428,13 +463,13 @@ module.exports = function (config) {
 
                   res.redirect(req.url);
 
-                };
+                }
 
               }, function (fail) {
 
                 res.send(fail);
 
-              })
+              });
 
             } else {
 
@@ -442,7 +477,7 @@ module.exports = function (config) {
 
                 res.redirect(req.url);
 
-              };
+              }
 
             }
 
@@ -458,7 +493,7 @@ module.exports = function (config) {
 
                 res.status(404).send(success);
 
-              };
+              }
 
 
             }, function (fail) {
@@ -467,7 +502,7 @@ module.exports = function (config) {
 
                 res.status(404).send("404");
 
-              };
+              }
 
             });
 
@@ -494,6 +529,11 @@ module.exports = function (config) {
 
     });
 
+    /**
+     * Used for catching express.js errors such as errors in handlebars etc. It logs the error in the system
+     * then returns a 500 error to the client.
+     */
+
     iris.app.use(function (err, req, res, next) {
 
       if (err) {
@@ -510,6 +550,7 @@ module.exports = function (config) {
 
         }, function (fail) {
 
+          // Used if you don't have a 500 error template file.
           res.status(500).send('Something went wrong');;
 
         });
@@ -522,6 +563,11 @@ module.exports = function (config) {
 
     // Send server ready message and get sessions
 
+    // There are 2 processes, a master process which allows for persistant sessions and user messages even if
+    // the server is restarted via the admin form or there is a fatal error. The child process is the whole 
+    // system including templates and hooks etc. Changing a module file for instance would require a restart 
+    // to be used by the system. Restarting the child process flushes all files while the parent process
+    // maintains sessions so that everyone isn't logged out.
     process.send("started");
 
     process.on("message", function (m) {
@@ -531,6 +577,16 @@ module.exports = function (config) {
         Object.keys(m.sessions).forEach(function (user) {
 
           iris.modules.auth.globals.userList[user] = m.sessions[user];
+
+        });
+
+      }
+
+      if (m.messages) {
+
+        Object.keys(m.messages).forEach(function (user) {
+
+          iris.messageStore[user] = m.messages[user];
 
         });
 
