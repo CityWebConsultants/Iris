@@ -2,7 +2,6 @@
  * @file Functions and handlers for rendering and displaying entities to the user.
  */
 
-var UglifyJS = require("uglify-js");
 var fs = require("fs");
 
 /*
@@ -131,11 +130,9 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 
       var entityPackage = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
 
-      var loader = UglifyJS.minify(entityPackage, {
-        fromString: true
-      });
+      var loader = entityPackage;
 
-      next(preLoader + "<script>" + loader.code + "</script>");
+      next(preLoader + "<script>" + loader + "</script>");
 
     }, function (error) {
 
@@ -282,7 +279,7 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
 
   iris.sendSocketMessage(["*"], "entityDelete", data);
-  
+
   thisHook.finish(true, data);
 
 });
