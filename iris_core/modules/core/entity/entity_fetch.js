@@ -510,7 +510,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
         if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 
-          if (!schemaField.canViewField) {
+          if (!schemaField.permissions) {
 
             delete entity[field];
 
@@ -521,7 +521,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
             thisHook.authPass.roles.forEach(function (role) {
 
 
-              if (schemaField.canViewField.indexOf(role) !== -1) {
+              if (schemaField.permissions.indexOf(role) !== -1) {
 
                 canView = true;
 
