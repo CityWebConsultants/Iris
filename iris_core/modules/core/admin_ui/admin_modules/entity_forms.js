@@ -583,9 +583,10 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
       var counter = 0;
 
       var complete = function () {
+        
+        counter +=1;
 
-        counter += 1;
-        if (counter === Object.keys(field.subfields).length) {
+        if (counter === Object.keys(field.subfields).length - 1) {
           widgetSaved();
         }
 
