@@ -1,5 +1,3 @@
-iris.registerModule("email");
-
 var nodemailer = require('nodemailer');
 
   /**

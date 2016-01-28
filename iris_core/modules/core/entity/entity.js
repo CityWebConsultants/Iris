@@ -10,7 +10,7 @@
  * @namespace entity
  */
 
-iris.registerModule("entity", true);
+iris.registerModule("entity");
 
 require('./entity_create');
 

@@ -361,14 +361,14 @@ module.exports = function (config) {
       var lookup = glob.sync("{" + iris.rootPath + "/iris_core/modules/extra/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "," + iris.rootPath + "/home/modules/**/" + enabledModule.name + ".iris.module" + "}");
 
       lookup.reverse();
-      
+
       if (!lookup.length) {
 
         iris.log("error", "error loading module " + enabledModule.name);
         return false;
 
       }
-      
+
       var moduleInfoPath = lookup[lookup.length - 1];
 
       var modulePath = lookup[lookup.length - 1].replace(".iris.module", ".js");
@@ -411,20 +411,8 @@ module.exports = function (config) {
 
       }
 
+      iris.registerModule(enabledModule.name, path.parse(modulePath).dir);
       require(modulePath);
-
-      iris.hook("hook_module_init_" + enabledModule.name.toLowerCase(), "root", null, null).then(function (success) {
-
-
-      }, function (fail) {
-
-        if (fail !== "No such hook exists") {
-
-          iris.log("error", fail);
-
-        }
-
-      });
 
     });
 

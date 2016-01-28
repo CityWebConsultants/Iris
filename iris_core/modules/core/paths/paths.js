@@ -1,4 +1,4 @@
-iris.registerModule("paths", true);
+iris.registerModule("paths");
 
 iris.modules.paths.globals.entityPaths = {};
 

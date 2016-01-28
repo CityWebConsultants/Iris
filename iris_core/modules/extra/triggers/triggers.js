@@ -1,5 +1,3 @@
-iris.registerModule("triggers");
-
 iris.modules.triggers.globals.actions = {};
 iris.modules.triggers.globals.events = {};
 

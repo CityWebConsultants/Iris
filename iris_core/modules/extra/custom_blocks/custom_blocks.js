@@ -1,5 +1,3 @@
-iris.registerModule("custom_blocks");
-
 iris.modules.blocks.globals.registerBlockType("Custom-HTML");
 
 iris.modules.custom_blocks.registerHook("hook_form_render_blockForm_Custom-HTML", 0, function (thisHook, data) {

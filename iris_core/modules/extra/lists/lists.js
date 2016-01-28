@@ -1,5 +1,3 @@
-iris.registerModule("lists");
-
 var fs = require("fs");
 
 process.on("dbReady", function () {

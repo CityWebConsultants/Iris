@@ -12,7 +12,7 @@
 
 var crypto = require('crypto');
 
-iris.registerModule("auth", true);
+iris.registerModule("auth");
 
 iris.modules.auth.globals = {
 
@@ -71,13 +71,13 @@ iris.modules.auth.globals = {
 
   roles: {
     anonymous: {
-            name: "anonymous"
-        },
-        authenticated: {
-            name: "authenticated"
-        },
+      name: "anonymous"
+    },
+    authenticated: {
+      name: "authenticated"
+    },
   },
-    
+
   //List of logged in users/access tokens
   userList: {},
 
@@ -177,18 +177,16 @@ iris.modules.auth.globals = {
 
     var fs = require('fs');
 
-    //Load in permissions
-
-    var permissions = {};
+    //Load in permissions if available
 
     try {
-      var currentPermissions = fs.readFileSync(iris.modules.auth.configPath + "/permissions.json", "utf8");
+      var currentPermissions = fs.readFileSync(iris.sitePath + "/configurations/auth/permissions.json", "utf8");
 
-      permissions = JSON.parse(currentPermissions);
+      var permissions = JSON.parse(currentPermissions);
 
     } catch (e) {
 
-      fs.writeFileSync(iris.modules.auth.configPath + "/permissions.json", JSON.stringify({}), "utf8");
+      var permissions = {};
 
     }
 
@@ -403,7 +401,7 @@ iris.app.post('/auth/deletetoken', function (req, res) {
 });
 
 iris.app.post('/auth/maketoken', function (req, res) {
-  
+
   iris.hook("hook_auth_maketoken", req.authPass, null, {
     userid: req.body.userid
   }).then(function (success) {

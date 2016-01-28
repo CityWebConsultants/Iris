@@ -1,5 +1,3 @@
-iris.registerModule("blocklist");
-
 iris.modules.blocklist.globals = {
 
   "blockedIPs": []

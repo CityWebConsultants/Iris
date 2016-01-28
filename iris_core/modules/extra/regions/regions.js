@@ -1,7 +1,5 @@
 var fs = require('fs');
 
-iris.registerModule("regions");
-
 // Register menu item
 
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/regions", "Regions", 1);

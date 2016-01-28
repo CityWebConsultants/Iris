@@ -1,4 +1,3 @@
-iris.registerModule("roles_ui");
 
 iris.readConfig('auth', 'auth_roles').then(function (config) {
 

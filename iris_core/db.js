@@ -61,7 +61,7 @@ iris.dbPopulate = function () {
   Object.keys(iris.modules).forEach(function (moduleName) {
 
     var modulePath = iris.modules[moduleName].path;
-
+    
     var fields = glob.sync(modulePath + "/**/*.iris.field");
 
     fields.forEach(function (fieldPath) {
@@ -127,13 +127,6 @@ iris.dbPopulate = function () {
         var file = JSON.parse(fs.readFileSync(iris.modules[moduleName].path + "/schema/" + schemafile + ".json"));
 
         iris.dbSchema[schemafile] = merge.recursive(true, file, iris.dbSchema[schemafile]);
-
-        //        Object.keys(file).forEach(function (field) {
-        //
-        //          
-        //          iris.dbSchema[schemafile][field] = file[field];
-        //
-        //        });
 
       });
 

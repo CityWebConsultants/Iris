@@ -1,5 +1,3 @@
-iris.registerModule("ckeditor");
-
 // Check if a form contains a CKeditor field, if yes, add a special class
 
 iris.modules.ckeditor.registerHook("hook_form_render", 1, function (thisHook, form) {

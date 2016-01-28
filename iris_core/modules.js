@@ -123,7 +123,7 @@ var express = require('express');
  *
  * @returns the internal module object that was created, if succesful.
  */
-iris.registerModule = function (name, directory) {
+iris.registerModule = function (name, modulePath) {
 
   if (iris.modules[name]) {
 
@@ -133,28 +133,8 @@ iris.registerModule = function (name, directory) {
   } else {
 
     iris.modules[name] = new moduleTemplate;
-    iris.modules[name].path = path.parse(_getCallerFile()).dir;
-
-    if (directory) {
-
-      //Create config directory
-
-      var fs = require('fs');
-
-      var mkdirSync = function (path) {
-        try {
-          fs.mkdirSync(path);
-        } catch (e) {
-          if (e.code != 'EEXIST') throw e;
-        }
-      }
-
-      mkdirSync(iris.configPath + "/" + name);
-
-      iris.modules[name].configPath = iris.configPath + "/" + name;
-
-    }
-
+    iris.modules[name].path = modulePath ? modulePath : path.parse(_getCallerFile()).dir;
+    
     iris.app.use('/modules/' + name, express.static(iris.modules[name].path + "/static"));
 
     Object.seal(iris.modules[name]);
