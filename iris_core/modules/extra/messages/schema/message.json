@@ -11,16 +11,10 @@
       "label": "Message content",
       "weight": 1
     },
-    "messageRecipients": {
+    "user": {
       "weight": 2,
-      "fieldType": "Fieldset",
-      "label": "Recipients",
-      "subfields": {
-        "user": {
-          "fieldType": "Multi text field",
-          "label": "User IDs"
-        }
-      }
+      "fieldType": "Multi text field",
+      "label": "User IDs"
     }
   }
 }

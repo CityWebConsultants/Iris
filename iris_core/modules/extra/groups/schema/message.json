@@ -1,14 +1,10 @@
 {
   "entityTypeName": "Message",
   "fields": {
-    "messageRecipients": {
-      "fieldType": "Fieldset",
-      "subfields": {
-        "group": {
-          "fieldType": "Multi text field",
-          "label": "Group IDs"
-        }
-      }
+    "group": {
+      "weight": 3,
+      "fieldType": "Multi text field",
+      "label": "Group IDs"
     }
   }
 }
