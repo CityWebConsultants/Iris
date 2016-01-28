@@ -36,10 +36,7 @@ irisReady(function () {
 
   }
 
-  iris.angular = angular.module("iris", [], function ($interpolateProvider) {
-    $interpolateProvider.startSymbol('##');
-    $interpolateProvider.endSymbol('##');
-  });
+  iris.angular = angular.module("iris", []);
 
   iris.angular.controller("iris-template", ["$scope", "$element", "$attrs", "$timeout", function ($scope, $element, $attrs, $timeout) {
 
@@ -72,6 +69,6 @@ irisReady(function () {
     };
 
 }])
-    angular.bootstrap(document, ['iris']);
+  angular.bootstrap(document, ['iris']);
 
 })
