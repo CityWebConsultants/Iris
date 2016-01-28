@@ -315,16 +315,16 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
 
 });
 
-iris.modules.entity.registerHook("hook_form_render_field_settings_Textfield", 0, function (thisHook, data) {
-
-  data.schema.title = {
-    type: "text",
-    "title": "An example setting"
-  }
-
-  thisHook.finish(true, data);
-
-})
+//iris.modules.entity.registerHook("hook_form_render_field_settings_Textfield", 0, function (thisHook, data) {
+//
+//  data.schema.title = {
+//    type: "text",
+//    "title": "An example setting"
+//  }
+//
+//  thisHook.finish(true, data);
+//
+//})
 
 iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (thisHook, data) {
 
@@ -526,12 +526,12 @@ iris.modules.entity.globals.registerFieldWidget = function (fieldType, name, sch
 
 // Test
 
-iris.modules.entity.globals.registerFieldWidget("Textfield", "Look at me!", {
-  "hello": {
-    "type": "text",
-    "title": "Hi!"
-  }
-});
+//iris.modules.entity.globals.registerFieldWidget("Textfield", "Look at me!", {
+//  "hello": {
+//    "type": "text",
+//    "title": "Hi!"
+//  }
+//});
 
 // Form for widget selection and settings
 
