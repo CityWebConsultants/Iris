@@ -41,7 +41,7 @@ iris.app.get("/api/entitySchema", function(req, res){
   
   Object.keys(iris.dbCollections).forEach(function(entityType){
     
-    output[entityType] = iris.dbCollections[entityType].schema.tree
+    output[entityType] = iris.dbCollections[entityType].schema.tree;
     
   })
   

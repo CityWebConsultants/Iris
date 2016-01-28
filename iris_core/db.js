@@ -234,6 +234,7 @@ iris.dbPopulate = function () {
       if (iris.fieldTypes[fieldType]) {
 
         field.type = typeConverter(iris.fieldTypes[fieldType].type);
+        field.readableType = iris.fieldTypes[fieldType].type;
 
         return field;
 
@@ -244,11 +245,12 @@ iris.dbPopulate = function () {
         if (field.subfields) {
 
           Object.keys(field.subfields).forEach(function (fieldSetField, index) {
-            
+
             var fieldSetField = field.subfields[fieldSetField];
 
             field.type = [mongoose.Schema.Types.Mixed];
-
+            field.readableType = "Fieldset";
+            
             // Don't add a Mongo ID field to nested fieldsets
 
             field.type[0]._id = false;
