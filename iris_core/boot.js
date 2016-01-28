@@ -375,8 +375,6 @@ module.exports = function (config) {
 
       try {
 
-        fs.readFileSync(modulePath);
-
         var moduleInfo = JSON.parse(fs.readFileSync(moduleInfoPath));
 
       } catch (e) {
@@ -412,7 +410,22 @@ module.exports = function (config) {
       }
 
       iris.registerModule(enabledModule.name, path.parse(modulePath).dir);
-      require(modulePath);
+
+      try {
+
+        require(modulePath);
+
+      } catch (e) {
+
+        // Check if module returning other error than file not found
+
+        if (e.code !== "MODULE_NOT_FOUND") {
+
+          iris.log("error", e);
+
+        };
+
+      }
 
     });
 
