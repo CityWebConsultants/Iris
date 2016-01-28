@@ -8,8 +8,7 @@ var moduleTemplate = (function () {
 
   var hooks = {},
     socketListeners = {},
-    path,
-    configPath;
+    path
 
   return {
 
@@ -134,7 +133,7 @@ iris.registerModule = function (name, modulePath) {
 
     iris.modules[name] = new moduleTemplate;
     iris.modules[name].path = modulePath ? modulePath : path.parse(_getCallerFile()).dir;
-    
+
     iris.app.use('/modules/' + name, express.static(iris.modules[name].path + "/static"));
 
     Object.seal(iris.modules[name]);
