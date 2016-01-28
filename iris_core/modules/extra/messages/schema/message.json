@@ -1,0 +1,26 @@
+{
+  "entityTypeName": "Message",
+  "fields": {
+    "messageType": {
+      "fieldType": "Textfield",
+      "label": "Message type",
+      "weight": 0
+    },
+    "messageContent": {
+      "fieldType": "Longtext",
+      "label": "Message content",
+      "weight": 1
+    },
+    "messageRecipients": {
+      "weight": 2,
+      "fieldType": "Fieldset",
+      "label": "Recipients",
+      "subfields": {
+        "user": {
+          "fieldType": "Multi text field",
+          "label": "User IDs"
+        }
+      }
+    }
+  }
+}
