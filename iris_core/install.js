@@ -4,7 +4,6 @@
 
 var glob = require("glob");
 var npm = require("npm");
-var npm = require("npm");
 var fs = require("fs");
 var path = require("path");
 
@@ -37,6 +36,7 @@ moduleFiles.forEach(function (file) {
 })
 
 npm.load(function (err) {
+  
   // catch errors
 
   toInstall.forEach(function (installing) {
