@@ -43,9 +43,12 @@ irisReady(function () {
     // Read ng-template property and see if template exists
 
     var template = $element[0].getAttribute("ng-iris-template");
+    
+    $scope.credentials = iris.credentials;
 
     if (iris.fetched && iris.fetched[template]) {
-
+      
+      
       $scope.data = iris.fetched[template].entities;
 
     }
