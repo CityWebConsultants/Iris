@@ -397,6 +397,25 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_[Strin
 
 });
 
+iris.modules.entity.registerHook("hook_entity_field_widget_render_default_[Number]", 0, function (thisHook, data) {
+
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
+
+  data = {
+    "type": "array",
+    "title": fieldSettings.label,
+    "description": fieldSettings.description,
+    "items": {
+      "type": "number",
+      "default": value
+    }
+  }
+
+  thisHook.finish(true, data);
+
+});
+
 // Submit new entity form
 
 iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHook, data) {
@@ -583,8 +602,8 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
       var counter = 0;
 
       var complete = function () {
-        
-        counter +=1;
+
+        counter += 1;
 
         if (counter === Object.keys(field.subfields).length - 1) {
           widgetSaved();
@@ -658,6 +677,12 @@ iris.modules.entity.registerHook("hook_entity_fieldType_save_String", 0, functio
 })
 
 iris.modules.entity.registerHook("hook_entity_fieldType_save_[String]", 0, function (thisHook, data) {
+
+  thisHook.finish(true, thisHook.const.value);
+
+})
+
+iris.modules.entity.registerHook("hook_entity_fieldType_save_[Number]", 0, function (thisHook, data) {
 
   thisHook.finish(true, thisHook.const.value);
 
