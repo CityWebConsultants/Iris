@@ -22,7 +22,7 @@
     "prettydiff": "^1.16.6",
     "sanitize-html": "^1.10.0",
     "socket.io": "^1.2.1",
-    "tosource": "^1.0.0",
+    "tosource": "^1.0.0"
   },
   "repository": {
     "type": "git",
