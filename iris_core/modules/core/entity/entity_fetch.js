@@ -118,8 +118,16 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
         var queryItem = {};
 
-        queryItem[fieldQuery["field"]] = {
-          '$elemMatch': fieldQuery.value
+        if (typeof fieldQuery.value !== "object") {
+
+          queryItem[fieldQuery["field"]] = fieldQuery.value;
+
+        } else {
+
+          queryItem[fieldQuery["field"]] = {
+            '$elemMatch': fieldQuery.value
+          }
+
         }
 
         // Check if negative
@@ -173,6 +181,14 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
       query = [];
 
     }
+
+//    Debugger for queries
+    
+/*    var util = require("util");
+
+    console.log(util.inspect(query, {
+      depth: 10
+    }));*/
 
     var entities = {};
 
