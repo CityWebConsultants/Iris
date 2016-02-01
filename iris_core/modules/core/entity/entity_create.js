@@ -156,9 +156,8 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
       entity.save(function (err, doc) {
 
         if (err) {
-
-          console.log(err);
-          thisHook.finish(false, "Database error");
+          
+          thisHook.finish(false, err);
 
         } else if (doc) {
 
@@ -250,7 +249,8 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
     if (typeof data[field] === "string") {
 
-      if (data[field].indexOf("[[[") !== -1 || data[field].indexOf("{{") !== -1) {l
+      if (data[field].indexOf("[[[") !== -1 || data[field].indexOf("{{") !== -1) {
+        l
 
         data[field] = data[field].split("[[[").join("").split("]]]").join("");
         data[field] = data[field].split("{{").join("").split("}}").join("");

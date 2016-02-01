@@ -201,7 +201,6 @@ iris.modules.entity.registerHook("hook_form_render_schemaFieldListing", 0, funct
         var row = {};
 
         var field = JSON.parse(JSON.stringify(iris.dbSchema[entityType][fieldName]));
-        console.log(field);
 
         row['fieldLabel'] = field.label;
         row['fieldId'] = fieldName;
@@ -345,8 +344,6 @@ iris.modules.entity.registerHook("hook_form_render_schemaFieldListing", 0, funct
 
 iris.modules.entity.registerHook("hook_form_submit_schemaFieldListing", 0, function (thisHook, data) {
 
-  console.log(thisHook.const.params);
-
   // Fetch current schema
   var schema = JSON.parse(JSON.stringify(iris.dbSchema[thisHook.const.params.entityType]));
 
@@ -362,7 +359,7 @@ iris.modules.entity.registerHook("hook_form_submit_schemaFieldListing", 0, funct
     entityTypeName: entityType,
     fields: iris.dbSchemaConfig[entityType].fields
   }
-  
+
   if (typeof thisHook.const.params.weightFields != 'undefined') {
     for (var i = 0; i < thisHook.const.params.weightFields.length; i++) {
 
@@ -374,7 +371,7 @@ iris.modules.entity.registerHook("hook_form_submit_schemaFieldListing", 0, funct
 
     };
   }
-  
+
   // Prepare new field.
   if (thisHook.const.params.label != '' && thisHook.const.params.machineName != '') {
     newSchema.fields[thisHook.const.params.machineName] = {
@@ -382,6 +379,7 @@ iris.modules.entity.registerHook("hook_form_submit_schemaFieldListing", 0, funct
       "label": thisHook.const.params.label,
       "description": "",
       "permissions": [],
+      "unique": false,
       "weight": "0"
     }
   }
@@ -431,6 +429,8 @@ iris.modules.entity.globals.basicFieldForm = function (fieldName, entityType) {
 
   field.weight = iris.dbSchema[entityType][fieldName].weight
 
+  field.unique = iris.dbSchema[entityType][fieldName].unique
+
   data.value.fields = field;
 
 
@@ -475,6 +475,11 @@ iris.modules.entity.globals.basicFieldForm = function (fieldName, entityType) {
           "items": {
             "enum": Object.keys(iris.modules.auth.globals.roles)
           }
+        },
+        "unique": {
+          "type": "boolean",
+          "title": "Unique field",
+          "description": "Should this field be unique for each entity? This option will make it impossible to have two fields of the same value in this entity type."
         }
       }
 
@@ -510,11 +515,11 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
     data.value.entityTypeName = entityType;
 
   }
-  
+
   if (typeof schema["entityTypeDescription"] != "undefined") {
     data.value.entityTypeDescription = schema["entityTypeDescription"];
   }
-  
+
   data.schema = {
     "entityTypeName": {
       "type": "text",
@@ -524,8 +529,8 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
     },
     "entityTypeDescription": {
       "type": "text",
-      "title" : "Description",
-      "default" : schema["entityTypeDescription"] ? schema["entityTypeDescription"] : ''
+      "title": "Description",
+      "default": schema["entityTypeDescription"] ? schema["entityTypeDescription"] : ''
     }
   }
 
@@ -535,13 +540,13 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
 iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
 
-  
+
   var entityType = thisHook.const.params.entityTypeName;
   var finishedSchema = {
     fields: iris.dbSchemaConfig[entityType] && iris.dbSchemaConfig[entityType].fields ? iris.dbSchemaConfig[entityType].fields : {}
   };
-  
-  Object.keys(thisHook.const.params).forEach(function(field) {
+
+  Object.keys(thisHook.const.params).forEach(function (field) {
     finishedSchema[field] = thisHook.const.params[field];
   });
 
@@ -554,12 +559,12 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
       // Redirect to entity edit form or entity field settings form depending on how many fields are saved
 
       if (Object.keys(finishedSchema.fields).length == 0) {
-  
+
         iris.message(thisHook.authPass.userid, "New entity type created", "status");
         res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName) + "/manage-fields");
 
       } else {
-  
+
         iris.message(thisHook.authPass.userid, "Entity type " + entityType + " has been updated.", "status");
         res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName) + "/edit");
 
@@ -582,7 +587,6 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
   var entityType = thisHook.const.params[1];
   var fieldName = thisHook.const.params[2];
 
-  //console.log(data.value.fields);
   if (iris.dbSchema[entityType] && iris.dbSchema[entityType][fieldName]) {
 
 
@@ -627,10 +631,6 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
       data
     ).then(function (form) {
 
-
-
-
-
       form.form.push("settings");
 
       form.form.push({
@@ -663,9 +663,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
 iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (thisHook, data) {
 
   // Fetch current schema
-  console.log(thisHook.const.params);
   var schema = JSON.parse(JSON.stringify(iris.dbSchema[thisHook.const.params.entityType]));
-  console.log(schema);
   var fieldName = thisHook.const.params.fieldName;
   var entityType = thisHook.const.params.entityType;
 
@@ -676,9 +674,13 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
 
   Object.keys(thisHook.const.params.fields).forEach(function (metaName) {
 
-    if (typeof schema[fieldName][metaName] != "undefined") {
-      schema[fieldName][metaName] = thisHook.const.params.fields[metaName];
+    if (!schema[fieldName][metaName]) {
+
+      schema[fieldName][metaName] = {};
+
     }
+
+    schema[fieldName][metaName] = thisHook.const.params.fields[metaName];
 
   });
 
@@ -741,8 +743,8 @@ iris.modules.entity.registerHook("hook_form_render_field_settings_Select", 0, fu
       "options": {
         "type": "array",
         "title": "List of options",
-        "items" : {
-          "type" : "text"
+        "items": {
+          "type": "text"
         }
       }
     }
