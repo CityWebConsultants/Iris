@@ -236,7 +236,7 @@ iris.app.get("/admin/create/:type", function (req, res) {
 
   // If not admin, present 403 page
 
-  if (req.authPass.roles.indexOf('admin') < -1) {
+  if (req.authPass.roles.indexOf('admin') === -1) {
 
     iris.modules.frontend.globals.displayErrorPage(403, req, res);
 
