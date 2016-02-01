@@ -1,13 +1,12 @@
 <script>
-
-  $('body').on('click', '#entity-types .dropdown .glyphicon', function (e) {
+  $('body').on('click', '#entity-types .dropdown .glyphicon', function(e) {
     $(this).parent().toggleClass('closed');
   });
-  
+
 </script>
 
-<h1>Edit entity types</h1>
-<h2>Add/modify fields</h2>
+<h1>Manage entity types</h1>
+
 <table id="entity-types">
   <thead>
     <tr>
@@ -16,13 +15,24 @@
     </tr>
   </thead>
 
-{{#each entityTypes}}
+  {{#each entityTypes}}
 
-<tr><td>{{this}}</td><td><div class="dropdown closed"><span class="glyphicon glyphicon-chevron-down"></span><ul><li><a href='/admin/entitylist/{{this}}'>View content</a></li><li><a href='/admin/create/{{this}}'>Create new</a></li><li><a href='/admin/schema/{{this}}'>Edit entity fields</a></li></ul></div></td></tr>
+  <tr>
+    <td>{{this}}</td>
+    <td>
+      <div class="dropdown closed"><span class="glyphicon glyphicon-chevron-down"></span>
+        <ul>
+          <li><a href='/admin/entitylist/{{this}}'>View content</a></li>
+          <li><a href='/admin/create/{{this}}'>Create new</a></li>
+          <li><a href='/admin/schema/{{this}}/edit'>Edit entity type</a></li>
+          <li><a href='/admin/schema/{{this}}/manage-fields'>Manage fields</a></li>
+        </ul>
+      </div>
+    </td>
+  </tr>
 
-{{/each}}
+  {{/each}}
 
-  
+
 </table>
 <a class="btn btn-primary" href="/admin/schema/create">Create a new entity type</a>
-

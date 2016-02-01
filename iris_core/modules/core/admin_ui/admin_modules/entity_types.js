@@ -66,21 +66,24 @@ iris.app.get("/admin/schema/create", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_schema"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_schema"], ['admin_wrapper'], {},
+      req.authPass,
+      req)
+    .then(function (success) {
 
-    res.send(success)
+      res.send(success)
 
-  }, function (fail) {
+    }, function (fail) {
 
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+      iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", fail);
+      iris.log("error", fail);
 
-  });
+    });
 
 });
 
-iris.app.get("/admin/schema/:type", function (req, res) {
+iris.app.get("/admin/schema/:type/edit", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -108,6 +111,41 @@ iris.app.get("/admin/schema/:type", function (req, res) {
 
 });
 
+
+/**
+ * Manage schema fields.
+ */
+iris.app.get("/admin/schema/:type/manage-fields", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_schema_manage_fields"], ['admin_wrapper'], {
+    entityType: req.params.type
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
+/**
+ * Edit specific field.
+ */
 iris.app.get("/admin/schema/:type/:field", function (req, res) {
 
   // If not admin, present 403 page
@@ -137,9 +175,7 @@ iris.app.get("/admin/schema/:type/:field", function (req, res) {
 
 });
 
-iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHook, data) {
-
-  // Is this a form for exisiting fields or an add a new field form?
+iris.modules.entity.registerHook("hook_form_render_schemaFieldListing", 0, function (thisHook, data) {
 
   var existing = thisHook.const.params[2];
 
@@ -159,34 +195,35 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
       var entityTypeSchema = iris.dbSchemaConfig[entityType];
 
-      data.value.fields = [];
-
+      var rows = [];
+      var weightsList = [];
       Object.keys(entityTypeSchema.fields).forEach(function (fieldName) {
+        var row = {};
 
         var field = JSON.parse(JSON.stringify(iris.dbSchema[entityType][fieldName]));
+        console.log(field);
 
-        delete field.type;
+        row['fieldLabel'] = field.label;
+        row['fieldId'] = fieldName;
+        row['fieldType'] = field.fieldType;
+        row['fieldWeight'] = field.weight;
+        row['fieldEdit'] = '<a href="/admin/schema/' + entityType + '/' + fieldName + '" >Edit</a>';
+        row['fieldDelete'] = '<a href="/admin/schema/' + entityType + '/' + fieldName + '/delete" >Delete</a>';
+        rows.push(row);
 
-        field.about = "<br /><a class='btn btn-info' href='/admin/schema/" + entityType + "/" + fieldName + "'>Edit field settings</a><br />";
+        weightsList.push({
+          "machineName": 'weight_' + fieldName,
+          "weight": field.weight
+        });
+      });
 
-        field.about += "<br /><b>Machine name:</b> " + fieldName + "<br />";
-        field.about += "<b>Field type:</b> " + iris.dbSchema[entityType][fieldName].fieldType;
+      rows.sort(function (a, b) {
 
-        field.machineName = fieldName;
-
-        field.weight = iris.dbSchema[entityType][fieldName].weight
-
-        data.value.fields.push(field);
-
-      })
-
-      data.value.fields.sort(function (a, b) {
-
-        if (a.weight > b.weight) {
+        if (a.fieldWeight > b.fieldWeight) {
 
           return 1;
 
-        } else if (a.weight < b.weight) {
+        } else if (a.fieldWeight < b.fieldWeight) {
 
           return -1;
 
@@ -196,10 +233,206 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
         }
 
-      })
+      });
+
+      var tableHtml = '<table>' +
+        '<thead>' +
+        '<th></th>' +
+        '<th>Label</th>' +
+        '<th>Machine name</th>' +
+        '<th>Type</th>' +
+        '<th>Edit</th>' +
+        '<th>Delete</th>' +
+        '</thead>' +
+        '<tbody class="ui-sortable">';
+      var counter = 0;
+      rows.forEach(function (tableRow) {
+
+        tableHtml += '<tr>';
+        tableHtml += '<td><span class="glyphicon glyphicon-resize-vertical"></span></td>';
+        for (tableCell in tableRow) {
+          tableHtml += "<td class=\"" + tableCell + "\">" + tableRow[tableCell] + "</td>";
+        };
+
+        tableHtml += '</tr>';
+
+      });
+      tableHtml += '</tbody></table>';
+
     }
 
+    var weightFields = {
+      "type": "array",
+      "title": "weights",
+      "items": {
+        "type": "object",
+        "properties": {
+          "weight": {
+            "type": "number",
+          },
+          "machineName": {
+            "type": "hidden"
+          }
+        }
+      }
+    }
+
+    data.value.weightFields = weightsList;
+    data.value.entityType = entityType;
+    data.schema = {
+      "table": {
+        "type": "markup",
+        "markup": tableHtml
+      },
+      weightFields,
+      "label": {
+        "type": "text",
+        "title": "Field label"
+      },
+      "machineName": {
+        "type": "text",
+        "title": "Database name",
+      },
+      "fieldType": {
+        "type": "text",
+        "title": "Field type",
+        "enum": Object.keys(iris.fieldTypes).concat(["Fieldset"])
+      },
+      "entityType": {
+        "type": "hidden",
+      }
+    };
+
+    data.form = [
+      "table",
+      "weightFields",
+      "entityType",
+      {
+        "type": "fieldset",
+        "title": "Add new field",
+        "expandable": true,
+        "items": [
+          {
+            "key": "label",
+            "onKeyUp": function (evt, node) {
+              var label = $("input[name=label]").val();
+              label = label.replace(/[^a-zA-Z]+/g, "_");
+              $('#machineNameBuilder').html("field_" + label);
+              $("input[name=machineName]").val("field_" + label);
+            }
+        },
+          {
+            "key": "machineName",
+            "onInsert": function (evt, node) {
+              $("input[name=machineName]").before("<div id=\"machineNameBuilder\"></div>");
+            }
+      },
+        "fieldType"
+      ]
+    },
+      {
+        "type": "submit",
+        "title": "Save"
+    }];
+
+    thisHook.finish(true, data);
+  }
+
+
+  thisHook.finish(false, data);
+
+});
+
+iris.modules.entity.registerHook("hook_form_submit_schemaFieldListing", 0, function (thisHook, data) {
+
+  console.log(thisHook.const.params);
+
+  // Fetch current schema
+  var schema = JSON.parse(JSON.stringify(iris.dbSchema[thisHook.const.params.entityType]));
+
+  var fieldName = thisHook.const.params.fieldName;
+  var entityType = thisHook.const.params.entityType;
+
+  delete thisHook.const.params.entityType;
+  delete thisHook.const.params.fieldName;
+
+  // Prepare schema
+
+  var newSchema = {
+    entityTypeName: entityType,
+    fields: iris.dbSchemaConfig[entityType].fields
+  }
+  
+  if (typeof thisHook.const.params.weightFields != 'undefined') {
+    for (var i = 0; i < thisHook.const.params.weightFields.length; i++) {
+
+      var fieldKey = thisHook.const.params.weightFields[i].machineName.replace('weight_', '');
+      if (typeof schema[fieldKey]["weight"] != "undefined") {
+        schema[fieldKey]["weight"] = thisHook.const.params.weightFields[i].weight;
+        newSchema.fields[fieldKey] = schema[fieldKey];
+      }
+
+    };
+  }
+  
+  // Prepare new field.
+  if (thisHook.const.params.label != '' && thisHook.const.params.machineName != '') {
+    newSchema.fields[thisHook.const.params.machineName] = {
+      "fieldType": thisHook.const.params.fieldType,
+      "label": thisHook.const.params.label,
+      "description": "",
+      "permissions": [],
+      "weight": "0"
+    }
+  }
+
+
+  iris.saveConfig(newSchema, "entity", entityType, function (data) {
+
+    iris.dbPopulate();
+
+    thisHook.finish(true, function (res) {
+
+      if (thisHook.const.params.label == '') {
+        iris.message(thisHook.authPass.userid, "Fields sucessfully re-arranged", "status");
+
+        res.send({
+          redirect: "/admin/schema/" + entityType
+        });
+      } else {
+        res.send({
+          redirect: "/admin/schema/" + entityType + "/" + thisHook.const.params.machineName
+        });
+      }
+
+    });
+
+  });
+
+});
+
+iris.modules.entity.globals.basicFieldForm = function (fieldName, entityType) {
+
+  var data = {
+    "value": {}
   };
+  var entityTypeSchema = iris.dbSchemaConfig[entityType];
+
+  data.value.fields = [];
+
+  var field = JSON.parse(JSON.stringify(iris.dbSchema[entityType][fieldName]));
+
+  delete field.type;
+
+  field.about = "<b>Machine name:</b> " + fieldName + "<br />";
+  field.about += "<b>Field type:</b> " + iris.dbSchema[entityType][fieldName].fieldType;
+
+  field.machineName = fieldName;
+
+  field.weight = iris.dbSchema[entityType][fieldName].weight
+
+  data.value.fields = field;
+
 
   if (entityType) {
 
@@ -209,77 +442,183 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
   data.schema = {
     "entityTypeName": {
-      "type": entityType ? "hidden" : "text",
+      "type": "hidden",
       "title": "Entity type name",
       "required": true,
       "default": entityType
     },
     "fields": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "about": {
-            "type": "markup",
-            "markup": ""
-          },
-          "fieldType": {
-            "type": "text",
-            "title": existing ? "" : "Field type",
-            "description": existing ? "" : "This affects how this field is stored in the database and can't be changed easily later.",
-            "enum": Object.keys(iris.fieldTypes).concat(["Fieldset"])
-          },
-          "machineName": {
-            "type": existing ? "hidden" : "text",
-            "title": "Database name",
-            "description": "What this field will be called in the database. Lowercase letters and underscores only."
-          },
-          "label": {
-            "type": "text",
-            "title": "Field label"
-          },
-          "description": {
-            "type": "textarea",
-            "title": "Field description"
-          },
-          "permissions": {
-            "type": "checkboxbuttons",
-            "activeClass": "btn-success",
-            "title": "Field view permissions",
-            "items": {
-              "enum": Object.keys(iris.modules.auth.globals.roles)
-            }
+      "title": "Basic settings",
+      "type": "object",
+      "properties": {
+        "about": {
+          "type": "markup",
+          "markup": ""
+        },
+        "machineName": {
+          "type": "hidden",
+          "title": "Database name",
+          "description": "What this field will be called in the database. Lowercase letters and underscores only."
+        },
+        "label": {
+          "type": "text",
+          "title": "Field label"
+        },
+        "description": {
+          "type": "textarea",
+          "title": "Field description"
+        },
+        "permissions": {
+          "type": "checkboxbuttons",
+          "activeClass": "btn-success",
+          "title": "Field view permissions",
+          "items": {
+            "enum": Object.keys(iris.modules.auth.globals.roles)
           }
         }
       }
+
+    }
+  }
+
+  return data;
+}
+
+iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHook, data) {
+
+
+  if (thisHook.const.params[1]) {
+
+    var entityType = thisHook.const.params[1];
+
+    if (!iris.dbSchemaConfig[entityType]) {
+
+      iris.message(thisHook.authPass.userid, "No such entity type", "error");
+
+      thisHook.finish(false, data);
+
+      return false;
+
+    }
+
+  };
+
+  var schema = iris.dbSchemaConfig[entityType];
+
+  if (entityType) {
+
+    data.value.entityTypeName = entityType;
+
+  }
+  
+  if (typeof schema["entityTypeDescription"] != "undefined") {
+    data.value.entityTypeDescription = schema["entityTypeDescription"];
+  }
+  
+  data.schema = {
+    "entityTypeName": {
+      "type": "text",
+      "title": "Entity type name",
+      "required": true,
+      "default": entityType
+    },
+    "entityTypeDescription": {
+      "type": "text",
+      "title" : "Description",
+      "default" : schema["entityTypeDescription"] ? schema["entityTypeDescription"] : ''
     }
   }
 
   thisHook.finish(true, data);
 
-})
+});
+
+iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
+
+  
+  var entityType = thisHook.const.params.entityTypeName;
+  var finishedSchema = {
+    fields: iris.dbSchemaConfig[entityType] && iris.dbSchemaConfig[entityType].fields ? iris.dbSchemaConfig[entityType].fields : {}
+  };
+  
+  Object.keys(thisHook.const.params).forEach(function(field) {
+    finishedSchema[field] = thisHook.const.params[field];
+  });
+
+  iris.saveConfig(finishedSchema, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
+
+    iris.dbPopulate();
+
+    data = function (res) {
+
+      // Redirect to entity edit form or entity field settings form depending on how many fields are saved
+
+      if (Object.keys(finishedSchema.fields).length == 0) {
+  
+        iris.message(thisHook.authPass.userid, "New entity type created", "status");
+        res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName) + "/manage-fields");
+
+      } else {
+  
+        iris.message(thisHook.authPass.userid, "Entity type " + entityType + " has been updated.", "status");
+        res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName) + "/edit");
+
+      }
+
+    }
+
+    thisHook.finish(true, data);
+
+  });
+
+});
+
 
 // Register form for editing a field's deeper settings
 
 iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (thisHook, data) {
 
+  data.form = [];
   var entityType = thisHook.const.params[1];
   var fieldName = thisHook.const.params[2];
 
+  //console.log(data.value.fields);
   if (iris.dbSchema[entityType] && iris.dbSchema[entityType][fieldName]) {
+
 
     var field = iris.dbSchema[entityType][fieldName];
 
     if (field.settings) {
 
-      data.value = field.settings;
+      data.value = {
+        "settings": field.settings
+      };
 
     }
+
+    var basicForm = iris.modules.entity.globals.basicFieldForm(fieldName, entityType);
+
+    MergeRecursive(data, basicForm);
 
     data.value.entityType = entityType;
     data.value.fieldName = fieldName;
 
     // Get field type form from the form system
+
+    data.schema.entityType = {
+      "type": "hidden",
+      "default": entityType
+    }
+
+    data.schema.fieldName = {
+      "type": "hidden",
+      "default": fieldName
+    }
+
+    data.form.push("fields");
+
+    data.form.push("entityType");
+    data.form.push("fieldName");
 
     iris.hook("hook_form_render_field_settings_" + field["fieldType"], thisHook.authPass, {
         entityType: entityType,
@@ -288,21 +627,26 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
       data
     ).then(function (form) {
 
-      form.schema.entityType = {
-        "type": "hidden",
-        "default": entityType
-      }
 
-      form.schema.fieldName = {
-        "type": "hidden",
-        "default": fieldName
-      }
 
+
+
+      form.form.push("settings");
+
+      form.form.push({
+        "type": "submit",
+        "title": "Save field"
+      });
       thisHook.finish(true, form);
 
     }, function (fail) {
 
-      thisHook.finish(false, data);
+      data.form.push({
+        "type": "submit",
+        "title": "Save field"
+      });
+      iris.log("No field type hook for: " + field["fieldType"], fail);
+      thisHook.finish(true, data);
 
     })
 
@@ -315,22 +659,13 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
 
 });
 
-//iris.modules.entity.registerHook("hook_form_render_field_settings_Textfield", 0, function (thisHook, data) {
-//
-//  data.schema.title = {
-//    type: "text",
-//    "title": "An example setting"
-//  }
-//
-//  thisHook.finish(true, data);
-//
-//})
 
 iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (thisHook, data) {
 
   // Fetch current schema
-
+  console.log(thisHook.const.params);
   var schema = JSON.parse(JSON.stringify(iris.dbSchema[thisHook.const.params.entityType]));
+  console.log(schema);
   var fieldName = thisHook.const.params.fieldName;
   var entityType = thisHook.const.params.entityType;
 
@@ -339,26 +674,20 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
 
   // Prepare schema
 
-  Object.keys(schema).forEach(function (fieldName) {
+  Object.keys(thisHook.const.params.fields).forEach(function (metaName) {
 
-    delete schema[fieldName].type;
-
-    var specialFields = ["entityType", "entityAuthor", "eid"];
-
-    if (specialFields.indexOf(fieldName) !== -1) {
-
-      delete schema[fieldName];
-
+    if (typeof schema[fieldName][metaName] != "undefined") {
+      schema[fieldName][metaName] = thisHook.const.params.fields[metaName];
     }
 
-  })
+  });
 
   // Add field's extra info
-
-  schema[fieldName].settings = thisHook.const.params;
+  schema[fieldName].settings = thisHook.const.params.settings;
 
   // Generate new schema file by merging in old schema with new field settings
 
+  //TODO: Why is a new schema needed?
   var newSchema = {
     entityTypeName: entityType,
     fields: iris.dbSchemaConfig[entityType].fields
@@ -377,14 +706,51 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
       iris.message(thisHook.authPass.userid, "Field " + fieldName + " saved on entity " + entityType, "status");
 
       res.send({
-        redirect: "/admin/schema/" + entityType
+        redirect: "/admin/schema/" + entityType + '/manage-fields'
       });
 
     });
 
   });
 
-})
+});
+
+iris.modules.entity.registerHook("hook_form_render_field_settings_Textfield", 0, function (thisHook, data) {
+
+  data.schema.settings = {
+    "type": "object",
+    "title": "Field settings",
+    "properties": {
+      "title": {
+        "type": "text",
+        "title": "Maximum length"
+      }
+    }
+  }
+
+  thisHook.finish(true, data);
+
+});
+
+iris.modules.entity.registerHook("hook_form_render_field_settings_Select", 0, function (thisHook, data) {
+
+  data.schema.settings = {
+    "type": "object",
+    "title": "Field settings",
+    "properties": {
+      "options": {
+        "type": "array",
+        "title": "List of options",
+        "items" : {
+          "type" : "text"
+        }
+      }
+    }
+  }
+
+  thisHook.finish(true, data);
+
+});
 
 // Register markup form field
 
@@ -399,114 +765,6 @@ iris.modules.forms.globals.registerWidget(function () {
 
 }, "markup");
 
-iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
-
-  var entityType = thisHook.const.params.entityTypeName;
-  var fields = thisHook.const.params.fields;
-
-  // Check if only one field is being saved
-
-  var singleField = (fields && fields.length === 1)
-
-  if (singleField) {
-
-    singleField = fields[0].machineName;
-
-  }
-
-  // Add weight fields
-
-  if (fields) {
-
-    fields.forEach(function (fieldName, index) {
-
-      fields[index].weight = index;
-
-    });
-
-    // Initialise schema object
-
-    var finishedSchema = {
-      entityTypeName: entityType,
-      fields: iris.dbSchemaConfig[entityType] && iris.dbSchemaConfig[entityType].fields ? iris.dbSchemaConfig[entityType].fields : {}
-    };
-
-    // Delete any fields that are in the original schema but not in the new one
-
-    if (!singleField) {
-
-      Object.keys(finishedSchema.fields).forEach(function (fieldName) {
-
-        var present;
-
-        fields.forEach(function (newField) {
-
-          if (newField.machineName === fieldName) {
-
-            present = true;
-
-          }
-
-        })
-
-        if (!present) {
-
-          delete finishedSchema.fields[fieldName];
-
-        }
-
-      });
-
-    }
-
-    // Add fields
-
-    fields.forEach(function (field, index) {
-
-      // Check if field doesn't exist
-
-      finishedSchema.fields[field.machineName] = field;
-
-      // Remove the machine name field. Not needed anymore.
-
-      delete fields[index].machineName;
-
-    })
-
-  } else {
-
-    finishedSchema = {
-      "entityTypeName": entityType,
-      "fields": {}
-    }
-
-  }
-
-  iris.saveConfig(finishedSchema, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
-
-    iris.dbPopulate();
-
-    data = function (res) {
-
-      // Redirect to entity edit form or entity field settings form depending on how many fields are saved
-
-      if (singleField) {
-
-        res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName) + "/" + singleField);
-
-      } else {
-
-        res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName));
-
-      }
-
-    }
-
-    thisHook.finish(true, data);
-
-  })
-
-})
 
 // Function for registering a widget
 
@@ -542,6 +800,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
   var entityType = thisHook.const.params[1];
   var fieldName = thisHook.const.params[2];
 
+
   var schema = JSON.parse(JSON.stringify(iris.dbSchema[entityType]));
 
   var fieldTypeName = schema[fieldName].fieldType;
@@ -552,7 +811,15 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
 
   } else {
 
-    thisHook.finish(false, "No widgets defined");
+    data.form = [
+     "*",
+      {
+        "type": "help",
+        "helpvalue": "No widgets available for this field"
+        }
+    ];
+    iris.log("error", "No widget defined for field: " + fieldTypeName);
+    thisHook.finish(true, data);
     return false;
 
   }
@@ -565,7 +832,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
       type: "object",
       properties: widgets[widgetName]
     }
-    
+
   })
 
   data.schema.widgetChoice = {
@@ -675,3 +942,30 @@ iris.modules.entity.registerHook("hook_form_submit_schemafieldwidgets", 0, funct
   })
 
 });
+
+/*
+ * Recursively merge properties of two objects.
+ * Used because $.extend is not available. Could be made global.
+ */
+function MergeRecursive(obj1, obj2) {
+
+  for (var p in obj2) {
+    try {
+      // Property in destination object set; update its value.
+      if (obj2[p].constructor == Object) {
+        obj1[p] = MergeRecursive(obj1[p], obj2[p]);
+
+      } else {
+        obj1[p] = obj2[p];
+
+      }
+
+    } catch (e) {
+      // Property in destination object not set; create it and set its value.
+      obj1[p] = obj2[p];
+
+    }
+  }
+
+  return obj1;
+}

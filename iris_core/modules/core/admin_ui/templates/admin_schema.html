@@ -6,10 +6,7 @@
   ._jsonform-array-deletelast {
     display: none;
   }
-  
-  #current-fields select[name$=fieldType] {
-    display: none;
-  }
+
   
   #new-field ._jsonform-array-item-delete {
     display: none !important;
@@ -25,10 +22,6 @@
 
 <h1>Edit entity type {{entityType}}</h1>
 
-<h2>Edit existing fields </h2>
-
-<a style="display:block; width:150px; margin:auto" class="btn btn-default" href='#new-field'>Add a new field</a>
-
 <br />
 
 <div id="current-fields">
@@ -37,12 +30,9 @@
 
 {{else}}
 
-<h1>Create new entity type</h1> {{/if}}
+<h1>Create new entity type</h1> 
 
-<h2>Add a new field</h2>
+[[[form schema,{{entityType}}]]]
 
-<div id="new-field">
+{{/if}}
 
-  [[[form schema,{{entityType}}]]]
-
-</div>

@@ -203,6 +203,7 @@ iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data)
  */
 iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
+  var variables = data;
   iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
 
     // Add scripts for forms
@@ -389,12 +390,14 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
     iris.hook("hook_form_render", thisHook.authPass, {
       formId: form[0],
-      params: form
+      params: form,
+      context: variables
     }, formTemplate).then(function (formTemplate) {
 
       iris.hook("hook_form_render_" + formName, thisHook.authPass, {
         formId: form[0],
-        params: form
+        params: form,
+        context: variables
       }, formTemplate).then(function (form) {
 
         renderForm(form, function (output) {

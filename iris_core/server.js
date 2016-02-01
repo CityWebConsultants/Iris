@@ -11,7 +11,9 @@ iris.app = express();
 iris.app.use(bodyParser.json());
 
 iris.app.use(bodyParser.urlencoded({
-  extended: true
+  extended: true,
+  parameterLimit: 10000,
+  limit: 10485760
 }));
 
 var cookieParser = require('cookie-parser')
@@ -20,10 +22,6 @@ iris.app.use(cookieParser());
 //Set up bodyParser
 
 iris.app.use(bodyParser.json());
-
-iris.app.use(bodyParser.urlencoded({
-  extended: true
-}));
 
 /**
  * Error helper function

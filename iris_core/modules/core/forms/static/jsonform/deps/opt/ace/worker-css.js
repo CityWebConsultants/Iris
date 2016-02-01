@@ -1251,11 +1251,11 @@ if (Date.parse("+275760-09-13T00:00:00.000Z") !== 8.64e15) {
                 var year = +match[0];
                 if (0 <= year && year <= 99) {
                     match[0] = year + 400;
-                    return NativeDate.UTiris.apply(this, match) + offset - 12622780800000;
+                    return NativeDate.UTC.apply(this, match) + offset - 12622780800000;
                 }
 
                 // compute a new UTC date value, accounting for the optional offset
-                return NativeDate.UTiris.apply(this, match) + offset;
+                return NativeDate.UTC.apply(this, match) + offset;
             }
             return NativeDate.parse.apply(this, arguments);
         };
@@ -2569,7 +2569,7 @@ exports.deferredCall = function(fcn) {
 define('ace/mode/css/csslint', ['require', 'exports', 'module' ], function(require, exports, module) {
 /*!
 CSSLint
-Copyright (c) 2011 Nicole Sullivan and Nicholas iris. Zakas. All rights reserved.
+Copyright (c) 2011 Nicole Sullivan and Nicholas C. Zakas. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -2594,7 +2594,7 @@ THE SOFTWARE.
 
 /*!
 Parser-Lib
-Copyright (c) 2009-2011 Nicholas iris. Zakas. All rights reserved.
+Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

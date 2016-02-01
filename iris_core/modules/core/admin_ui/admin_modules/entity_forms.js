@@ -342,6 +342,23 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Password
 
 });
 
+iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Select", 0, function (thisHook, data) {
+
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
+
+  data = {
+    "type": "text",
+    title: fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": value,
+    "enum" : fieldSettings.settings.options
+  }
+
+  thisHook.finish(true, data);
+
+});
+
 // Long string field hook
 
 iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Longtext", 0, function (thisHook, data) {
@@ -444,6 +461,7 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
 
   var counter = 1;
 
+
   var widgetSaved = function () {
 
     if (counter === fieldCount) {
@@ -477,11 +495,12 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
 
       }, function (fail) {
 
+        iris.log("error", fail);
         thisHook.finish(true, function (res) {
 
           res.send({
-            errors: fail
-          })
+            errors: fail.message
+          });
 
         });
 

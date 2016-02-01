@@ -1251,11 +1251,11 @@ if (Date.parse("+275760-09-13T00:00:00.000Z") !== 8.64e15) {
                 var year = +match[0];
                 if (0 <= year && year <= 99) {
                     match[0] = year + 400;
-                    return NativeDate.UTiris.apply(this, match) + offset - 12622780800000;
+                    return NativeDate.UTC.apply(this, match) + offset - 12622780800000;
                 }
 
                 // compute a new UTC date value, accounting for the optional offset
-                return NativeDate.UTiris.apply(this, match) + offset;
+                return NativeDate.UTC.apply(this, match) + offset;
             }
             return NativeDate.parse.apply(this, arguments);
         };

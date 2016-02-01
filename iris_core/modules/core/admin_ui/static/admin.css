@@ -21,6 +21,10 @@ img {
 table {
   background-color: transparent;
   margin: 20px 0;
+  width:100%;
+}
+table td.fieldWeight {
+  display:none;
 }
 th,
 td {
@@ -179,4 +183,32 @@ thead tr {
   color: black;
   padding: 10px;
   margin-bottom: 10px;
+}
+
+form[data-formid=schemafield] fieldset{
+  padding:20px;
+  background-color:#eee;
+  border-radius: 10px;
+}
+
+form[data-formid=schemafield] legend {
+  position:relative;
+  top:20px;
+  border-bottom:none;
+}
+
+form[data-formid=schemaFieldListing] fieldset.jsonform-node div .form-group {
+  display:inline-block;
+  width:300px;
+  vertical-align: top;
+  margin-right:20px;
+}
+form[data-formid=schemaFieldListing] input[name=machineName] {
+  display:none;
+}
+form[data-formid=schemaFieldListing] .jsonform-error-weightFields {
+  display:none;
+}
+.help-block {
+  font-size:12px;
 }
