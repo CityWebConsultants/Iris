@@ -8,27 +8,21 @@ iris.modules.ckeditor.registerHook("hook_form_render", 1, function (thisHook, fo
 
 // Add ckeditor to longstring field
 
-iris.modules.ckeditor.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
+// Long string field hook
 
-  var name = thisHook.const.field.fieldTypeName;
+iris.modules.ckeditor.registerHook("hook_entity_field_widget_render_field_Longtext", 2, function (thisHook, data) {
 
-  if (name === "longstring") {
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
 
-    data = {
-      "type": "ckeditor",
-      "title": thisHook.const.field.label || thisHook.const.field.label,
-      "required": thisHook.const.field.required,
-      "description": thisHook.const.field.description,
-      "default": thisHook.const.value
-    }
-
-    thisHook.finish(true, data);
-
-  } else {
-
-    thisHook.finish(true, data);
-
+  data = {
+    "type": "ckeditor",
+    title: fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": value
   }
+
+  thisHook.finish(true, data);
 
 });
 

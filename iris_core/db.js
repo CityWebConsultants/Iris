@@ -14,7 +14,19 @@ var autoIncrement = require('mongoose-auto-increment');
 
 var fs = require('fs');
 
-var connectionUri = 'mongodb://' + iris.config.db_server + ':' + iris.config.db_port + '/' + iris.config.db_name;
+var connectionUri = 'mongodb://' + iris.config.db_server;
+
+if (iris.config.db_Port) {
+
+  connectionUri += +':' + iris.config.db_port
+
+}
+
+if (iris.config.db_name) {
+
+  connectionUri += '/' + iris.config.db_name
+
+}
 
 if (iris.config.db_username && iris.config.db_password) {
 
@@ -61,7 +73,7 @@ iris.dbPopulate = function () {
   Object.keys(iris.modules).forEach(function (moduleName) {
 
     var modulePath = iris.modules[moduleName].path;
-    
+
     var fields = glob.sync(modulePath + "/**/*.iris.field");
 
     fields.forEach(function (fieldPath) {

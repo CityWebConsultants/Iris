@@ -551,7 +551,11 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
           counter += 1;
 
-          html = html.split("[[[" + prefix + " " + embed + "]]]").join(content);
+          if (content) {
+
+            html = html.split("[[[" + prefix + " " + embed + "]]]").join(content);
+
+          }
 
           if (counter === embeds.length) {
 
