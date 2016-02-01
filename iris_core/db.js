@@ -244,6 +244,8 @@ iris.dbPopulate = function () {
         field.type = typeConverter(iris.fieldTypes[fieldType].type);
         field.readableType = iris.fieldTypes[fieldType].type;
 
+        field.unique = (field.unique === 'true');
+        
         return field;
 
       } else if (fieldType === "Fieldset") {

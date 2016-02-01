@@ -395,11 +395,11 @@ iris.modules.entity.registerHook("hook_form_submit_schemaFieldListing", 0, funct
         iris.message(thisHook.authPass.userid, "Fields sucessfully re-arranged", "status");
 
         res.send({
-          redirect: "/admin/schema/" + entityType
+          redirect: "/admin/schema/" + entityType + "/" + "manage-fields"
         });
       } else {
         res.send({
-          redirect: "/admin/schema/" + entityType + "/" + thisHook.const.params.machineName
+          redirect: "/admin/schema/" + entityType + "/" + thisHook.const.params.machineName + "/" + "manage-fields"
         });
       }
 

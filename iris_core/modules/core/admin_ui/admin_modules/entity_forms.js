@@ -510,12 +510,11 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
         });
 
       }, function (fail) {
-
-        iris.log("error", fail);
+        
         thisHook.finish(true, function (res) {
 
           res.send({
-            errors: fail.message
+            errors: fail
           });
 
         });

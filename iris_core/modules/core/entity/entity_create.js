@@ -129,6 +129,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
         } else {
 
+
           thisHook.finish(false, fail);
           return false;
 
@@ -149,33 +150,39 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
   var create = function (preparedEntity) {
 
-    iris.dbCollections[preparedEntity.entityType].count({}, function (err, result) {
+    var saveEntity = function () {
 
-      var entity = new iris.dbCollections[preparedEntity.entityType](preparedEntity);
+      iris.dbCollections[preparedEntity.entityType].count({}, function (err, result) {
 
-      entity.save(function (err, doc) {
+        var entity = new iris.dbCollections[preparedEntity.entityType](preparedEntity);
 
-        if (err) {
-          
-          thisHook.finish(false, err);
+        entity.save(function (err, doc) {
 
-        } else if (doc) {
+          if (err) {
 
-          doc = doc.toObject();
+            thisHook.finish(false, err);
 
-          thisHook.finish(true, doc);
+          } else if (doc) {
 
-          iris.hook("hook_entity_created", thisHook.authPass, null, doc);
+            doc = doc.toObject();
 
-          iris.hook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
+            thisHook.finish(true, doc);
 
-          iris.log("info", data.entityType + " created by " + doc.entityAuthor);
+            iris.hook("hook_entity_created", thisHook.authPass, null, doc);
 
-        }
+            iris.hook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
+
+            iris.log("info", data.entityType + " created by " + doc.entityAuthor);
+
+          }
+
+        });
 
       });
 
-    });
+    }
+
+    saveEntity();
 
   }
 
@@ -276,6 +283,66 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
   })
 
-  thisHook.finish(true, data);
+  // Check for any unique fields
+
+  var uniqueFields = [];
+
+  Object.keys(data).forEach(function (field) {
+
+    if (iris.dbSchema[data.entityType][field].unique) {
+
+      var condition = {};
+
+      condition[field] = data[field];
+
+      uniqueFields.push(condition);
+
+    };
+
+  })
+
+  if (!uniqueFields.length) {
+
+    thisHook.finish(true, data);
+
+  } else {
+
+    iris.dbCollections[data.entityType].find({
+      $or: uniqueFields
+    }, function (err, doc) {
+
+      if (doc.length) {
+
+        // Check which field needs to be unique to return a helpful error
+
+        var errors = [];
+
+        uniqueFields.forEach(function (field) {
+
+          Object.keys(field).forEach(function (fieldName) {
+
+
+            if (field[fieldName] === data[fieldName]) {
+
+              errors.push(fieldName);
+
+            }
+
+          })
+
+        })
+
+        thisHook.finish(false, errors.join(" ") + " should be unique");
+
+      } else {
+
+        thisHook.finish(true, data);
+
+      }
+
+    })
+
+
+  }
 
 });
