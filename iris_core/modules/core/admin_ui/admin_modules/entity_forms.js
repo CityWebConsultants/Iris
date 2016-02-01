@@ -379,6 +379,22 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Longtext
 
 // Default field widget hooks
 
+iris.modules.entity.registerHook("hook_entity_field_widget_render_default_Boolean", 0, function (thisHook, data) {
+
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
+
+  data = {
+    "type": "boolean",
+    title: fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": value
+  }
+
+  thisHook.finish(true, data);
+
+});
+
 iris.modules.entity.registerHook("hook_entity_field_widget_render_default_String", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
@@ -510,7 +526,7 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
         });
 
       }, function (fail) {
-        
+
         thisHook.finish(true, function (res) {
 
           res.send({
@@ -705,6 +721,12 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
 // Default entity save widgets
 
 iris.modules.entity.registerHook("hook_entity_fieldType_save_String", 0, function (thisHook, data) {
+
+  thisHook.finish(true, thisHook.const.value);
+
+})
+
+iris.modules.entity.registerHook("hook_entity_fieldType_save_Boolean", 0, function (thisHook, data) {
 
   thisHook.finish(true, thisHook.const.value);
 
