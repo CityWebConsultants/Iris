@@ -352,7 +352,7 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Select",
     title: fieldSettings.label,
     "description": fieldSettings.description,
     "default": value,
-    "enum" : fieldSettings.settings.options
+    "enum": fieldSettings.settings.options
   }
 
   thisHook.finish(true, data);
@@ -408,6 +408,22 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_[Strin
       "type": "text",
       "default": value
     }
+  }
+
+  thisHook.finish(true, data);
+
+});
+
+iris.modules.entity.registerHook("hook_entity_field_widget_render_default_Number", 0, function (thisHook, data) {
+
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
+
+  data = {
+    "type": "number",
+    "title": fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": value
   }
 
   thisHook.finish(true, data);
@@ -702,6 +718,12 @@ iris.modules.entity.registerHook("hook_entity_fieldType_save_[String]", 0, funct
 })
 
 iris.modules.entity.registerHook("hook_entity_fieldType_save_[Number]", 0, function (thisHook, data) {
+
+  thisHook.finish(true, thisHook.const.value);
+
+})
+
+iris.modules.entity.registerHook("hook_entity_fieldType_save_Number", 0, function (thisHook, data) {
 
   thisHook.finish(true, thisHook.const.value);
 
