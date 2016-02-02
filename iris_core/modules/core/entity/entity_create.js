@@ -307,11 +307,11 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
   } else {
 
-    iris.dbCollections[data.entityType].find({
+    iris.dbCollections[data.entityType].findOne({
       $or: uniqueFields
     }, function (err, doc) {
 
-      if (doc.length) {
+      if (doc && (!data.eid || data.eid.toString() !== doc.eid.toString())) {
 
         // Check which field needs to be unique to return a helpful error
 
@@ -321,8 +321,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
           Object.keys(field).forEach(function (fieldName) {
 
-
-            if (field[fieldName] === data[fieldName]) {
+            if (field[fieldName] === doc[fieldName]) {
 
               errors.push(fieldName);
 
