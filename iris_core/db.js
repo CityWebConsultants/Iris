@@ -252,9 +252,9 @@ iris.dbPopulate = function () {
 
         // Run parent function recursively on fieldsets
 
-        if (field.subfields) {
+        var fieldsetFields = {};
 
-          var fieldsetFields = {};
+        if (field.subfields) {
 
           Object.keys(field.subfields).forEach(function (fieldSetField, index) {
 
@@ -262,16 +262,17 @@ iris.dbPopulate = function () {
 
           });
 
-          var fieldsetSchema = mongoose.Schema(fieldsetFields);
-
-          field.type = [fieldsetSchema];
-          field.readableType = "Fieldset";
 
           delete field.subfields;
 
-          return field;
-
         }
+
+        field.readableType = "Fieldset";
+        var fieldsetSchema = mongoose.Schema(fieldsetFields);
+
+        field.type = [fieldsetSchema];
+
+        return field;
 
       }
 
@@ -284,6 +285,8 @@ iris.dbPopulate = function () {
     });
 
     iris.dbSchema[schema] = finalSchema;
+
+    var util = require("util");
 
     //Push in universal type fields if not already in.
 
