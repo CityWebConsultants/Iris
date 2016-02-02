@@ -268,6 +268,10 @@ iris.dbPopulate = function () {
         }
 
         field.readableType = "Fieldset";
+
+        fieldsetFields._id = false;
+        fieldsetFields.id = false;
+
         var fieldsetSchema = mongoose.Schema(fieldsetFields);
 
         field.type = [fieldsetSchema];

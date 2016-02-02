@@ -8,160 +8,120 @@ var fs = require("fs");
 
 require("./fields");
 
+// Render entity form
+
 iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHook, data) {
 
-  // Check if entity type exists
+  // Check if entity type exists in the system
 
   var entityType = thisHook.const.params[1],
-    schema = iris.dbSchema[entityType];
+    schema = iris.dbSchemaConfig[entityType];
 
-  var renderForm = function (currentEntity) {
+  if (!schema) {
 
-    if (!schema) {
+    thisHook.finish(false, "No such schema");
+    return false;
 
-      thisHook.finish(false, data);
-      return false;
+  }
 
-    }
-
-    // Loop over all the fields and generate their forms based on the widgets available
-
-    // First make a clone of the schema 
-
-    schema = JSON.parse(JSON.stringify(schema));
-
-    // Remove universal fields. TODO: We're doing this in lots of places so should probably make it a util function. Also extendable that way if new fields come in.
-
-    delete schema.eid;
-    delete schema.entityAuthor;
-    delete schema.entityType;
+  var renderFields = function (editingEntity) {
 
     // Get number of fields so we can tell once all the form widgets have been loaded
 
     var fieldCount = Object.keys(schema).length;
 
-    if (fieldCount === 0) {
+    // First make a clone of the schema 
 
-      data.schema.entityType = {
-        type: "hidden",
-        default: entityType
-      }
+    schema = JSON.parse(JSON.stringify(schema));
 
-      thisHook.finish(true, data);
+    // Function for checking if all the fields have loaded
 
-    }
+    var counter = 0;
 
-    // Function for checking if all the widgets have been loaded successfully
+    var fieldLoaded = function () {
 
-    var counter = 1;
-
-    var widgetLoaded = function () {
+      counter += 1;
 
       if (counter === fieldCount) {
 
         data.schema.entityType = {
           type: "hidden",
-          default: entityType
+          "default": entityType
         }
 
-        if (currentEntity) {
+        if (editingEntity) {
 
           data.schema.eid = {
             type: "hidden",
-            default: currentEntity.eid
+            "default": editingEntity.eid
           }
 
         }
-
-        // Put fields in the right order based on weight
-
-        var fieldList = [];
-
-        Object.keys(schema).forEach(function (fieldName) {
-
-          schema[fieldName].machineName = fieldName;
-
-          fieldList.push(schema[fieldName]);
-
-        });
-
-        fieldList.sort(function (a, b) {
-
-          if (a.weight > b.weight) {
-
-            return 1;
-
-          } else if (a.weight < b.weight) {
-
-            return -1;
-
-          } else {
-
-            return 0;
-
-          }
-
-        })
-
-        var fieldNamesList = [];
-
-        fieldList.forEach(function (fieldInList, index) {
-
-          fieldNamesList.push(fieldInList.machineName)
-
-        })
-
-        // Generate form
-
-        data.form = [];
-
-        fieldNamesList.forEach(function (currentFieldName) {
-
-          data.form.push(currentFieldName);
-
-        })
-
-        if (data.schema.eid) {
-
-          data.form.push("eid");
-
-        }
-
-        data.form.push("entityType");
-
-        data.form.push({
-          type: "submit",
-          value: "Save " + entityType
-        })
 
         thisHook.finish(true, data);
 
       }
 
-      counter += 1;
-
     }
 
-    var fieldLoader = function (field, callback, currentValue) {
+    // Function for getting a form for a field
+
+    var getFieldForm = function (field, callback, currentValue) {
 
       var fieldType = field.fieldType;
-      var fieldTypeType = iris.fieldTypes[fieldType].type;
 
-      // Check if a widget has been set for the field
+      if (fieldType !== "Fieldset") {
 
-      if (field.widget) {
+        var fieldTypeType = iris.fieldTypes[fieldType].type;
 
-        iris.hook("hook_entity_field_widget_render_" + field.widget.name, thisHook.authPass, {
-          value: currentValue ? currentValue : null,
-          fieldSettings: field,
-          widgetSettings: field.widget.settings
-        }).then(function (form) {
+        // Check if a widget has been set for the field
 
-          callback(form);
+        if (field.widget) {
 
-        }, function (fail) {
+          iris.hook("hook_entity_field_widget_render_" + field.widget.name, thisHook.authPass, {
+            value: currentValue ? currentValue : null,
+            fieldSettings: field,
+            widgetSettings: field.widget.settings
+          }).then(function (form) {
 
-          // Load default field widget as a fallback and finally fall back to field type widget if nothing else available
+            callback(form);
+
+          }, function (fail) {
+
+            // Load default field widget as a fallback and finally fall back to field type widget if nothing else available
+
+            iris.hook("hook_entity_field_widget_render_field_" + fieldType, thisHook.authPass, {
+              value: currentValue ? currentValue : null,
+              fieldSettings: field
+            }).then(function (form) {
+
+              callback(form);
+
+            }, function (fail) {
+
+
+              iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
+                value: currentValue ? currentValue : null,
+                fieldSettings: field
+              }).then(function (form) {
+
+                callback(form);
+
+              }, function (fail) {
+
+                iris.log("error", "Failed to load entity edit form. " + fail);
+                thisHook.finish(false, fail);
+
+              })
+
+            });
+
+
+          })
+
+        } else {
+
+          // Otherwise run a general hook for that field type
 
           iris.hook("hook_entity_field_widget_render_field_" + fieldType, thisHook.authPass, {
             value: currentValue ? currentValue : null,
@@ -171,7 +131,6 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
             callback(form);
 
           }, function (fail) {
-
 
             iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
               value: currentValue ? currentValue : null,
@@ -187,109 +146,45 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
             })
 
-          });
-
-
-        })
-
-      } else {
-
-        // Otherwise run a general hook for that field type
-
-        iris.hook("hook_entity_field_widget_render_field_" + fieldType, thisHook.authPass, {
-          value: currentValue ? currentValue : null,
-          fieldSettings: field
-        }).then(function (form) {
-
-          callback(form);
-
-        }, function (fail) {
-
-          iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
-            value: currentValue ? currentValue : null,
-            fieldSettings: field
-          }).then(function (form) {
-
-            callback(form);
-
-          }, function (fail) {
-
-            iris.log("error", "Failed to load entity edit form. " + fail);
-            thisHook.finish(false, fail);
-
-          })
-
-        })
-
-      }
-
-
-    }
-
-    // Run widget loading function for every field
-
-    Object.keys(schema).forEach(function (fieldName) {
-
-      var field = schema[fieldName];
-      var fieldType = field.fieldType;
-
-      if (fieldType !== "Fieldset") {
-
-        fieldLoader(field, function (form) {
-
-          data.schema[fieldName] = form;
-          widgetLoaded();
-
-        }, currentEntity ? currentEntity[fieldName] : null);
-
-      } else {
-
-        var defaultOption;
-
-        if (currentEntity && currentEntity[fieldName]) {
-
-          defaultOption = [];
-
-          currentEntity[fieldName].forEach(function (subfieldDefault) {
-
-            var pushing = {};
-
-            Object.keys(iris.dbSchemaConfig[entityType].fields[fieldName].subfields).forEach(function (subfieldname) {
-
-              pushing[subfieldname] = subfieldDefault[subfieldname];
-
-            })
-
-            defaultOption.push(pushing);
-
           })
 
         }
 
-        // Get default
+      } else {
 
-        data.schema[fieldName] = {
-          type: "array",
-          title: field.label,
-          default: defaultOption,
-          items: {
-            type: "object",
-            properties: {}
+        // It's a fieldset! Load the nested fields
+        
+        // TODO Make prepopulated values work
+        
+        var fieldset = {
+          "type": "array",
+          "title": field.label,
+          "default": currentValue,
+          "description": field.description,
+          "items": {
+            "type": "object",
+            "properties": {}
           }
         }
 
-        field = iris.dbSchemaConfig[entityType].fields[fieldName];
+        if (!field.subfields || !Object.keys(field.subfields).length) {
 
-        if (field.subfields) {
+          callback();
 
-          var counter = 0;
-          var complete = function () {
+        } else {
 
-            counter += 1;
+          // Get count of subfields
 
-            if (counter === Object.keys(field.subfields).length) {
+          var subfieldCount = Object.keys(field.subfields).length;
 
-              widgetLoaded();
+          var subfieldCounter = 0;
+          var subfieldLoaded = function () {
+
+            subfieldCounter += 1;
+
+            if (subfieldCounter === subfieldCount) {
+
+              callback(fieldset);
 
             }
 
@@ -297,24 +192,34 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
           Object.keys(field.subfields).forEach(function (subFieldName) {
 
-            var subField = fieldLoader(field.subfields[subFieldName], function (form) {
+            getFieldForm(field.subfields[subFieldName], function (form) {
 
-              delete form.default;
+              fieldset.items.properties[subFieldName] = form;
 
-              data.schema[fieldName].items.properties[subFieldName] = form;
-              complete();
+              subfieldLoaded();
 
-            });
+            }, currentValue ? currentValue[subFieldName] : null);
 
           })
-
-        } else {
-
-          widgetLoaded();
 
         }
 
       }
+
+    }
+
+    // Loop over all of a schema's fields and put in the form
+
+    Object.keys(schema.fields).forEach(function (fieldName) {
+
+      var field = schema.fields[fieldName];
+
+      getFieldForm(field, function (form) {
+
+        data.schema[fieldName] = form;
+        fieldLoaded();
+
+      }, editingEntity ? editingEntity[fieldName] : null);
 
     })
 
@@ -325,20 +230,13 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
   var eid = thisHook.const.params[2];
 
   if (eid) {
-
-    // Fetch entity from database
-
     iris.dbCollections[entityType].findOne({
       eid: eid
     }, function (err, doc) {
 
       if (doc) {
 
-        renderForm(doc);
-
-      } else {
-
-        thisHook.finish(false, "No such entity");
+        renderFields(doc)
 
       }
 
@@ -346,11 +244,11 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
   } else {
 
-    renderForm();
+    renderFields();
 
   }
 
-})
+});
 
 // Submit new entity form
 
@@ -364,9 +262,9 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
   delete thisHook.const.params.entityType;
   delete thisHook.const.params.eid;
 
-  // Fetch entity schmea
+  // Fetch entity type schema
 
-  var schema = iris.dbSchema[entityType];
+  var schema = iris.dbSchemaConfig[entityType];
 
   // Object for final values to be stored in
 
@@ -376,14 +274,15 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
 
   var fieldCount = Object.keys(thisHook.const.params).length;
 
-  // Function for checking if all the widgets have been loaded successfully
+  // Function for checking if all the fields have been loaded, run every time a new field has been processed
 
-  var counter = 1;
+  var fieldCounter = 0;
 
+  var fieldProcessed = function () {
 
-  var widgetSaved = function () {
-
-    if (counter === fieldCount) {
+    fieldCounter += 1;
+    
+    if (fieldCounter === fieldCount) {
 
       finalValues.entityType = entityType;
       finalValues.entityAuthor = thisHook.authPass.userid;
@@ -425,183 +324,230 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
 
     }
 
-    counter += 1;
-
   }
 
-  // Run widget loading function for every field
+  // Function for running through a field's save widgets. Takes the field object from the entity's schema and the value posted to the entity save form
 
-  var loader = function (field, value, callback) {
+  var processField = function (field, value, callback) {
 
-    var fieldType = field.fieldType;
+    if (field.fieldType !== "Fieldset")
 
-    var fieldTypeType = iris.fieldTypes[fieldType].type;
+      callback(value);
 
-    // Function for saving a field after the widget phase
+    else {
 
-    var saveField = function (setValue) {
-
-      iris.hook("hook_entity_field_save_" + fieldType, thisHook.authPass, {
-        value: setValue,
-        fieldSettings: field
-      }).then(function (updatedValue) {
-
-          iris.hook("hook_entity_fieldType_save_" + fieldTypeType, thisHook.authPass, {
-            value: updatedValue
-          }).then(function (finalValue) {
-
-            callback(finalValue);
-
-          }, function (fail) {
-
-            thisHook.finish(false, fail);
-
-          })
-
-          // Finally pass to default save hook for the field type
-
-        },
-        function (fail) {
-
-          if (fail === "No such hook exists") {
-
-            iris.hook("hook_entity_fieldType_save_" + fieldTypeType, thisHook.authPass, {
-              value: setValue
-            }).then(function (finalValue) {
-
-              callback(finalValue);
-
-            }, function (fail) {
-
-              thisHook.finish(false, fail);
-
-            })
-
-          } else {
-
-            thisHook.finish(false, fail);
-          }
-
-        })
-
-    };
-
-    // Check if a widget has been set for the field
-
-    if (field.widget) {
-
-      iris.hook("hook_entity_field_widget_save_" + field.widget.name, thisHook.authPass, {
-        value: value,
-        fieldSettings: field,
-        widgetSettings: field.widget.settings
-      }).then(function (savedValue) {
-
-        value = savedValue;
-        saveField(value);
-
-      }, function (fail) {
-
-        if (fail === "No such hook exists") {
-
-          saveField(value);
-
-        } else {
-
-          thisHook.finish(false, fail);
-
-        }
-
-      })
-
-    } else {
-
-      saveField(value);
+      callback(value);
 
     }
 
   }
 
-  Object.keys(thisHook.const.params).forEach(function (fieldName) {
+  Object.keys(thisHook.const.params).forEach(function (field) {
+    
+    processField(schema.fields[field], thisHook.const.params[field], function (value) {
+      
+      finalValues[field] = value;
+      fieldProcessed();
 
-    var field = schema[fieldName];
-    var value = thisHook.const.params[fieldName];
-    var fieldType = field.fieldType;
-
-    // Check if fieldset field
-
-    if (fieldType === "Fieldset") {
-
-      field = iris.dbSchemaConfig[entityType].fields[fieldName];
-
-      // Subfields length
-
-      var counter = 0;
-
-      var complete = function () {
-
-        counter += 1;
-
-        if (counter === Object.keys(field.subfields).length) {
-
-          widgetSaved();
-
-        }
-
-      }
-
-      // Create array to store final fieldset result in
-
-      finalValues[fieldName] = [];
-
-      // Add objects for every value in this form post
-
-      var subCounter = 0;
-
-      var subComplete = function () {
-
-        subCounter += 1;
-
-        if (subCounter === value.length) {
-
-          complete();
-
-        }
-
-      }
-
-      value.forEach(function (subValue, index) {
-
-        finalValues[fieldName].push({});
-
-        Object.keys(field.subfields).forEach(function (subFieldName) {
-
-          // Fieldsets are arrays so loop over every item
-
-          loader(field.subfields[subFieldName], subValue[subFieldName], function (finalValue) {
-
-            finalValues[fieldName][index][subFieldName] = finalValue;
-            subComplete();
-
-          })
-
-        })
-
-      })
-
-
-
-
-    } else {
-
-      loader(field, value, function (value) {
-
-        finalValues[fieldName] = value;
-        widgetSaved();
-
-      })
-
-    }
+    });
 
   })
 
 });
+
+//iris.modules.entity.registerHook("hook_form_submit_entity2", 0, function (thisHook, data) {
+//
+//
+//  // Function for checking if all the widgets have been loaded successfully
+//
+//  var counter = 1;
+//
+//
+//  var widgetSaved = function () {
+//
+//    if (counter === fieldCount) {
+//
+//
+//
+//    }
+//
+//    counter += 1;
+//
+//  }
+//
+//  // Run widget loading function for every field
+//
+//  var loader = function (field, value, callback) {
+//
+//    var fieldType = field.fieldType;
+//
+//    var fieldTypeType = iris.fieldTypes[fieldType].type;
+//
+//    // Function for saving a field after the widget phase
+//
+//    var saveField = function (setValue) {
+//
+//      iris.hook("hook_entity_field_save_" + fieldType, thisHook.authPass, {
+//        value: setValue,
+//        fieldSettings: field
+//      }).then(function (updatedValue) {
+//
+//          iris.hook("hook_entity_fieldType_save_" + fieldTypeType, thisHook.authPass, {
+//            value: updatedValue
+//          }).then(function (finalValue) {
+//
+//            callback(finalValue);
+//
+//          }, function (fail) {
+//
+//            thisHook.finish(false, fail);
+//
+//          })
+//
+//          // Finally pass to default save hook for the field type
+//
+//        },
+//        function (fail) {
+//
+//          if (fail === "No such hook exists") {
+//
+//            iris.hook("hook_entity_fieldType_save_" + fieldTypeType, thisHook.authPass, {
+//              value: setValue
+//            }).then(function (finalValue) {
+//
+//              callback(finalValue);
+//
+//            }, function (fail) {
+//
+//              thisHook.finish(false, fail);
+//
+//            })
+//
+//          } else {
+//
+//            thisHook.finish(false, fail);
+//          }
+//
+//        })
+//
+//    };
+//
+//    // Check if a widget has been set for the field
+//
+//    if (field.widget) {
+//
+//      iris.hook("hook_entity_field_widget_save_" + field.widget.name, thisHook.authPass, {
+//        value: value,
+//        fieldSettings: field,
+//        widgetSettings: field.widget.settings
+//      }).then(function (savedValue) {
+//
+//        value = savedValue;
+//        saveField(value);
+//
+//      }, function (fail) {
+//
+//        if (fail === "No such hook exists") {
+//
+//          saveField(value);
+//
+//        } else {
+//
+//          thisHook.finish(false, fail);
+//
+//        }
+//
+//      })
+//
+//    } else {
+//
+//      saveField(value);
+//
+//    }
+//
+//  }
+//
+//  Object.keys(thisHook.const.params).forEach(function (fieldName) {
+//
+//    var field = schema[fieldName];
+//    var value = thisHook.const.params[fieldName];
+//    var fieldType = field.fieldType;
+//
+//    // Check if fieldset field
+//
+//    if (fieldType === "Fieldset") {
+//
+//      field = iris.dbSchemaConfig[entityType].fields[fieldName];
+//
+//      // Subfields length
+//
+//      var counter = 0;
+//
+//      var complete = function () {
+//
+//        counter += 1;
+//
+//        if (counter === Object.keys(field.subfields).length) {
+//
+//          widgetSaved();
+//
+//        }
+//
+//      }
+//
+//      // Create array to store final fieldset result in
+//
+//      finalValues[fieldName] = [];
+//
+//      // Add objects for every value in this form post
+//
+//      var subCounter = 0;
+//
+//      var subComplete = function () {
+//
+//        subCounter += 1;
+//
+//        if (subCounter === value.length) {
+//
+//          complete();
+//
+//        }
+//
+//      }
+//
+//      value.forEach(function (subValue, index) {
+//
+//        finalValues[fieldName].push({});
+//
+//        Object.keys(field.subfields).forEach(function (subFieldName) {
+//
+//          // Fieldsets are arrays so loop over every item
+//
+//          loader(field.subfields[subFieldName], subValue[subFieldName], function (finalValue) {
+//
+//            finalValues[fieldName][index][subFieldName] = finalValue;
+//            subComplete();
+//
+//          })
+//
+//        })
+//
+//      })
+//
+//
+//
+//
+//    } else {
+//
+//      loader(field, value, function (value) {
+//
+//        finalValues[fieldName] = value;
+//        widgetSaved();
+//
+//      })
+//
+//    }
+//
+//  })
+//
+//});
