@@ -245,7 +245,7 @@ iris.dbPopulate = function () {
         field.readableType = iris.fieldTypes[fieldType].type;
 
         field.unique = (field.unique === 'true');
-        
+
         return field;
 
       } else if (fieldType === "Fieldset") {
@@ -254,18 +254,18 @@ iris.dbPopulate = function () {
 
         if (field.subfields) {
 
+          var fieldsetFields = {};
+
           Object.keys(field.subfields).forEach(function (fieldSetField, index) {
 
-            var fieldSetField = field.subfields[fieldSetField];
-
-            field.type = [mongoose.Schema.Types.Mixed];
-            field.readableType = "Fieldset";
-
-            // Don't add a Mongo ID field to nested fieldsets
-
-            field.type[0]._id = false;
+            fieldsetFields[fieldSetField] = fieldConverter(field.subfields[fieldSetField]);
 
           });
+
+          var fieldsetSchema = mongoose.Schema(fieldsetFields);
+
+          field.type = [fieldsetSchema];
+          field.readableType = "Fieldset";
 
           delete field.subfields;
 

@@ -242,10 +242,34 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
       } else {
 
+        var defaultOption;
+
+        if (currentEntity && currentEntity[fieldName]) {
+
+          defaultOption = [];
+
+          currentEntity[fieldName].forEach(function (subfieldDefault) {
+            
+            var pushing = {};
+
+            Object.keys(iris.dbSchemaConfig[entityType].fields[fieldName].subfields).forEach(function (subfieldname) {
+
+              pushing[subfieldname] = subfieldDefault[subfieldname];
+
+            })
+            
+            defaultOption.push(pushing);
+
+          })
+
+        }
+
+        // Get default
+
         data.schema[fieldName] = {
           type: "array",
           title: field.label,
-          default: currentEntity ? currentEntity[fieldName] : null,
+          default: defaultOption,
           items: {
             type: "object",
             properties: {}
@@ -272,6 +296,8 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
           Object.keys(field.subfields).forEach(function (subFieldName) {
 
             var subField = fieldLoader(field.subfields[subFieldName], function (form) {
+
+              delete form.default;
 
               data.schema[fieldName].items.properties[subFieldName] = form;
               complete();
@@ -514,7 +540,6 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
 
       }
 
-
       iris.hook(hook, thisHook.authPass, finalValues, finalValues).then(function (success) {
 
         thisHook.finish(true, function (res) {
@@ -655,8 +680,10 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
 
         counter += 1;
 
-        if (counter === Object.keys(field.subfields).length - 1) {
+        if (counter === Object.keys(field.subfields).length) {
+
           widgetSaved();
+
         }
 
       }
