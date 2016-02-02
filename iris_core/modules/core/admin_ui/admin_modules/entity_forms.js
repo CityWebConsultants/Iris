@@ -153,13 +153,25 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
       } else {
 
         // It's a fieldset! Load the nested fields
-        
+
         // TODO Make prepopulated values work
-        
+
+        var defaultValues = [];
+
+        if (currentValue) {
+
+          currentValue.forEach(function (fieldgroup) {
+
+            defaultValues.push(JSON.parse(JSON.stringify(fieldgroup)));
+
+          })
+
+        }
+
         var fieldset = {
           "type": "array",
           "title": field.label,
-          "default": currentValue,
+          "default": defaultValues,
           "description": field.description,
           "items": {
             "type": "object",
@@ -281,7 +293,7 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
   var fieldProcessed = function () {
 
     fieldCounter += 1;
-    
+
     if (fieldCounter === fieldCount) {
 
       finalValues.entityType = entityType;
@@ -343,9 +355,9 @@ iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHoo
   }
 
   Object.keys(thisHook.const.params).forEach(function (field) {
-    
+
     processField(schema.fields[field], thisHook.const.params[field], function (value) {
-      
+
       finalValues[field] = value;
       fieldProcessed();
 
