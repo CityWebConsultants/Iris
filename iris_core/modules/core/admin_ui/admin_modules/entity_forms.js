@@ -249,7 +249,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
           defaultOption = [];
 
           currentEntity[fieldName].forEach(function (subfieldDefault) {
-            
+
             var pushing = {};
 
             Object.keys(iris.dbSchemaConfig[entityType].fields[fieldName].subfields).forEach(function (subfieldname) {
@@ -257,7 +257,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
               pushing[subfieldname] = subfieldDefault[subfieldname];
 
             })
-            
+
             defaultOption.push(pushing);
 
           })
@@ -480,10 +480,10 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_[Numbe
   data = {
     "type": "array",
     "title": fieldSettings.label,
+    "default": value,
     "description": fieldSettings.description,
     "items": {
-      "type": "number",
-      "default": value
+      "type": "number"
     }
   }
 
