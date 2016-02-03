@@ -142,6 +142,32 @@ iris.app.use(function (req, res, next) {
 
     req.authPass = authPass;
 
+    // Check if it matches any routes stored with iris_route.
+
+    var pathToRegexp = require('path-to-regexp');
+
+    Object.keys(iris.routes).forEach(function (route) {
+
+      var regexRoute = pathToRegexp(route);
+
+      if (req.url.match(regexRoute)) {
+
+        // Route matches
+
+
+        if (iris.routes[route][req.method.toLowerCase()]) {
+
+          req.irisRoute = {
+            path: route,
+            options: iris.routes[route][req.method.toLowerCase()].options
+          }
+
+        }
+
+      };
+
+    })
+
     // Run request intercept in case anything
 
     iris.hook("hook_request_intercept", req.authPass, {
@@ -217,8 +243,13 @@ methods.forEach(function (method) {
     iris.routes[route][method] = {
 
       options: options,
-      callback: callback,
-      rank: rank
+      callback: callback
+
+    }
+
+    if (rank) {
+
+      iris.routes[route][method].rank = rank;
 
     }
 
