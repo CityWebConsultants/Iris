@@ -1152,8 +1152,6 @@ var insertTags = function (html, vars) {
 
       output += "\n";
 
-      console.log(tagContainer);
-
       Object.keys(tagContainer).forEach(function (tagName) {
 
         if (tagExclude && tagExclude.indexOf(tagName) !== -1) {
