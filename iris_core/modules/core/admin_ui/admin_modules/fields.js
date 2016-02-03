@@ -53,7 +53,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__longtext", 0
 
 // Default field widget hooks
 
-iris.modules.entity.registerHook("hook_entity_field_fieldType_form__Boolean", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Boolean", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -69,7 +69,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__Boolean", 0,
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_fieldType_form__String", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__String", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -85,7 +85,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__String", 0, 
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_fieldType_form__[String]", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[String]", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -104,7 +104,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__[String]", 0
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_fieldType_form__Number", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Number", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -120,7 +120,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__Number", 0, 
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_fieldType_form__[Number]", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Number]", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
