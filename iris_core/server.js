@@ -55,7 +55,7 @@ iris.app.use(function (req, res, next) {
       } else {
 
         fs.readFile(iris.rootPath + "/iris_core/startup.html", "utf8", function (err, file) {
-          
+
           if (!err) {
 
             res.send(file);
@@ -136,7 +136,6 @@ iris.app.use(function (req, res, next) {
     }
 
   });
-
   iris.modules.auth.globals.credentialsToPass(req.body.credentials, req, res).then(function (authPass) {
 
     delete req.body.credentials;
@@ -173,6 +172,79 @@ iris.app.use(function (req, res, next) {
   });
 
 });
+
+// Menu registering function
+
+var methods = ["get", "post", "put", "head", "delete", "options", "trace", "copy", "lock", "mkcol", "move", "purge", "propfind", "proppatch", "unlock", "report", "mkactivity", "checkout", "merge", "m-search", "notify", "subscribe", "unsubscribe", "patch", "search", "connect"]
+
+iris.route = {};
+iris.routes = {};
+
+methods.forEach(function (method) {
+
+  // takes route, (optional options), callback, optional rank
+
+  iris.route[method] = function () {
+
+    var route = arguments[0];
+    var options = {};
+    var callback;
+    var rank;
+
+    if (typeof arguments[1] === "object") {
+
+      options = arguments[1];
+      callback = arguments[2];
+      rank = arguments[3];
+
+    } else {
+
+      callback = arguments[1];
+      rank = arguments[2];
+
+    }
+
+    // Don't store if rank is lower than an existing route for this path.
+
+    if (iris.routes[route] && iris.routes[route].rank > rank) {
+
+      return false;
+
+    }
+
+    iris.routes[route] = {};
+
+    iris.routes[route][method] = {
+
+      options: options,
+      callback: callback,
+      rank: rank
+
+    }
+
+  }
+
+})
+
+// Convert stored routes into express handlers
+
+iris.populateRoutes = function () {
+
+  Object.keys(iris.routes).forEach(function (route) {
+
+    // Loop over methods for each route
+
+    Object.keys(iris.routes[route]).forEach(function (method) {
+
+      var methodInstance = iris.routes[route][method];
+
+      iris.app[method](route, methodInstance.callback);
+
+    })
+
+  })
+
+}
 
 //Public files folder
 

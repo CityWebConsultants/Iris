@@ -438,6 +438,10 @@ module.exports = function (config) {
     console.log("Ready on port " + iris.config.port + ".");
 
     iris.log("info", "Server started");
+    
+    // Populate routes stored using iris.route
+    
+    iris.populateRoutes();
 
     /**
      * Catch all callback which is run last. If this is called then the GET request has not been defined 
