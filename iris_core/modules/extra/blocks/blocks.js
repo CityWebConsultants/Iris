@@ -415,7 +415,7 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
 
   }
 
-  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeFileName(thisHook.const.params.blockTitle), function(err) {
+  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function(err) {
 
     if (err) {
 
@@ -443,7 +443,7 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
   if (formId.split("_")[0] === "blockForm") {
 
-    thisHook.const.params.blockTitle = iris.sanitizeFileName(thisHook.const.params.blockTitle);
+    thisHook.const.params.blockTitle = iris.sanitizeName(thisHook.const.params.blockTitle);
 
     if (!iris.modules.blocks.globals.blocks[thisHook.const.params.blockType]) {
 
@@ -453,7 +453,7 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
     iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle] = thisHook.const.params;
 
-    iris.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, iris.sanitizeFileName(thisHook.const.params.blockTitle), function () {
+    iris.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function () {
 
       var data = function (res) {
 

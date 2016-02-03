@@ -735,7 +735,7 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
   });
 
   // Save schema.
-  iris.saveConfig(finishedSchema, "entity", iris.sanitizeFileName(thisHook.const.params.entityTypeName), function (data) {
+  iris.saveConfig(finishedSchema, "entity", iris.sanitizeName(thisHook.const.params.entityTypeName), function (data) {
 
     iris.dbPopulate();
 
@@ -746,12 +746,12 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
       if (Object.keys(finishedSchema.fields).length == 0) {
 
         iris.message(thisHook.authPass.userid, "New entity type created", "status");
-        res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName) + "/manage-fields");
+        res.send("/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/manage-fields");
 
       } else {
 
         iris.message(thisHook.authPass.userid, "Entity type " + entityType + " has been updated.", "status");
-        res.send("/admin/schema/" + iris.sanitizeFileName(thisHook.const.params.entityTypeName) + "/edit");
+        res.send("/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/edit");
 
       }
 
@@ -1275,13 +1275,13 @@ iris.modules.entity.registerHook("hook_form_submit_schemafieldwidgets", 0, funct
     settings: thisHook.const.params[widgetChoice]
   };
 
-  iris.saveConfig(newSchema, "entity", iris.sanitizeFileName(entityType), function (data) {
+  iris.saveConfig(newSchema, "entity", iris.sanitizeName(entityType), function (data) {
 
     iris.dbPopulate();
 
     data = function (res) {
 
-      res.send("/admin/schema/" + iris.sanitizeFileName(entityType));
+      res.send("/admin/schema/" + iris.sanitizeName(entityType));
 
     }
 
