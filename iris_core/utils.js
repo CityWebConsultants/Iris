@@ -198,7 +198,7 @@ iris.typeCheck = function (allowed, entity, data) {
 };
 
 /**
- * @function sanitizeFileName
+ * @function sanitizeName
  * @memberof iris
  *
  * @desc Sanitize file name
@@ -209,10 +209,10 @@ iris.typeCheck = function (allowed, entity, data) {
  *
  * @returns a sanitized string ready for use as a filename
  */
-iris.sanitizeFileName = function (name) {
+iris.sanitizeName = function (name) {
 
   // Doesn't currently support anything not English
-  return name.split(/\W/).join('-').toLowerCase();
+  return name.replace(/[^a-zA-Z]+/g, '_').toLowerCase();
 
 }
 

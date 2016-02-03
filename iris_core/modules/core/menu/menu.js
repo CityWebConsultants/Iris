@@ -25,7 +25,7 @@ glob(iris.configPath + "/menu/*.json", function (er, files) {
 
     if (config.menuName) {
 
-      iris.saveConfig(config, "menu", iris.sanitizeFileName(config.menuName), function () {
+      iris.saveConfig(config, "menu", iris.sanitizeName(config.menuName), function () {
 
         },
         function (fail) {
@@ -191,7 +191,7 @@ iris.modules.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, d
 
   }
 
-  iris.saveConfig(thisHook.const.params, "menu", iris.sanitizeFileName(thisHook.const.params.menuName), function () {
+  iris.saveConfig(thisHook.const.params, "menu", iris.sanitizeName(thisHook.const.params.menuName), function () {
 
     var data = function (res) {
 
@@ -388,7 +388,7 @@ iris.modules.menu.globals.registerMenu = function (menuName) {
     iris.configStore['menu'] = {};
   }
 
-  iris.configStore['menu'][iris.sanitizeFileName(menuName)] = {
+  iris.configStore['menu'][iris.sanitizeName(menuName)] = {
     "menuName": menuName,
     "items": []
   };
@@ -423,12 +423,12 @@ iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, pat
 
   }
 
-  if (!iris.configStore['menu'][iris.sanitizeFileName(menuName)]) {
+  if (!iris.configStore['menu'][iris.sanitizeName(menuName)]) {
     iris.log("error", "no such menu - " + menuName)
     return false;
   } else {
 
-    var menuConfig = iris.configStore['menu'][iris.sanitizeFileName(menuName)];
+    var menuConfig = iris.configStore['menu'][iris.sanitizeName(menuName)];
 
     if (parentPath) {
 

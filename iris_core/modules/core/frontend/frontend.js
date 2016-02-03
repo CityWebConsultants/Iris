@@ -1152,6 +1152,8 @@ var insertTags = function (html, vars) {
 
       output += "\n";
 
+      console.log(tagContainer);
+
       Object.keys(tagContainer).forEach(function (tagName) {
 
         if (tagExclude && tagExclude.indexOf(tagName) !== -1) {
@@ -1168,29 +1170,35 @@ var insertTags = function (html, vars) {
 
         output += "\n";
 
-        output += "<" + tag.type;
+        if (typeof tag == "string") {
 
-        if (tag.attributes) {
-
-          Object.keys(tag.attributes).forEach(function (element) {
-
-            output += " " + element + '=' + '"' + tag.attributes[element] + '"';
-
-          });
-
-        };
-
-        if (tag.type === "script") {
-
-          output += "></" + tag.type + ">"
-
+          output += "<" + tagName + ">" + tag + "</" + tagName + ">";
+          
         } else {
 
-          output += "/>";
+          output += "<" + tag.type;
 
+          if (tag.attributes) {
+
+            Object.keys(tag.attributes).forEach(function (element) {
+
+              output += " " + element + '=' + '"' + tag.attributes[element] + '"';
+
+            });
+
+          };
+
+          if (tag.type === "script") {
+
+            output += "></" + tag.type + ">"
+
+          } else {
+
+            output += "/>";
+
+          }
         }
-
-      })
+      });
 
       html = html.split("[[[tags " + innerTag + "]]]").join(output);
 
@@ -1269,6 +1277,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
             vars: innerOutput.variables
           }).then(function (output) {
 
+            console.log(innerOutput.variables);
             output.html = insertTags(output.html, innerOutput.variables);
 
             output.html = unEscape(output.html);
