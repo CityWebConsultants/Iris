@@ -22,6 +22,7 @@
     "mongoose-auto-increment": "^5.0.1",
     "ncp": "^2.0.0",
     "npm": "^3.5.2",
+    "path-to-regexp": "^1.2.1",
     "prettydiff": "^1.16.6",
     "sanitize-html": "^1.10.0",
     "socket.io": "^1.2.1",
