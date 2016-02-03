@@ -1275,7 +1275,6 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
             vars: innerOutput.variables
           }).then(function (output) {
 
-            console.log(innerOutput.variables);
             output.html = insertTags(output.html, innerOutput.variables);
 
             output.html = unEscape(output.html);

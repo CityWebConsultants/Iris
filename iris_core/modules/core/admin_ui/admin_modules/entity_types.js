@@ -670,7 +670,6 @@ iris.modules.entity.globals.basicFieldForm = function (field, fieldName, entityT
  */
 iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHook, data) {
 
-
   // Check entityType field is provided.
   if (thisHook.const.params[1]) {
 
@@ -690,13 +689,16 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
 
   var schema = iris.dbSchemaConfig[entityType];
 
+  if (!schema) {
+    schema = {};
+  }
   if (entityType) {
 
     data.value.entityTypeName = entityType;
 
   }
 
-  if (typeof schema["entityTypeDescription"] != "undefined") {
+  if (typeof schema["entityTypeDescription"] != 'undefined') {
     data.value.entityTypeDescription = schema["entityTypeDescription"];
   }
 
@@ -710,7 +712,7 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
     "entityTypeDescription": {
       "type": "text",
       "title": "Description",
-      "default": schema["entityTypeDescription"] ? schema["entityTypeDescription"] : ''
+      "default": schema['entityTypeDescription'] ? schema['entityTypeDescription'] : ''
     }
   }
 
