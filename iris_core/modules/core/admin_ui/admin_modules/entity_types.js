@@ -446,7 +446,7 @@ iris.modules.entity.registerHook("hook_form_render_schemaFieldListing", 0, funct
             "key": "label",
             "onKeyUp": function (evt, node) {
               var label = $("input[name=label]").val();
-              label = label.replace(/[^a-zA-Z]+/g, "_");
+              label = label.replace(/[^a-zA-Z]+/g, "_").toLowerCase();
               $('#machineNameBuilder').html("field_" + label);
               $("input[name=machineName]").val("field_" + label);
             }
@@ -520,9 +520,15 @@ iris.modules.entity.registerHook("hook_form_submit_schemaFieldListing", 0, funct
 
     });
   }
-
-  // Recursion required to find which field in the schema tree to update.
-  recurseFields(schema.fields, '');
+console.log(schema);
+  
+  if (schema.fields.length > 0) {
+    // Recursion required to find which field in the schema tree to update.
+    recurseFields(schema.fields, '');
+  }
+  else {
+    parentItem = schema.fields;
+  }
 
   // Update field weights.
   if (typeof thisHook.const.params.weightFields != 'undefined') {
