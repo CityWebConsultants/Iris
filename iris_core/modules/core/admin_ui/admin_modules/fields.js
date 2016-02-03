@@ -1,6 +1,6 @@
 // Password field hook
 
-iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Password", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldType_form__password", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -16,7 +16,7 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Password
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Select", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldType_form__select", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -35,7 +35,7 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Select",
 
 // Long string field hook
 
-iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Longtext", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldType_form__longtext", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -53,7 +53,7 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_field_Longtext
 
 // Default field widget hooks
 
-iris.modules.entity.registerHook("hook_entity_field_widget_render_default_Boolean", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldType_form__Boolean", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -69,7 +69,7 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_Boolea
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_widget_render_default_String", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldType_form__String", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -85,7 +85,7 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_String
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_widget_render_default_[String]", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldType_form__[String]", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -104,7 +104,7 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_[Strin
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_widget_render_default_Number", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldType_form__Number", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -120,7 +120,7 @@ iris.modules.entity.registerHook("hook_entity_field_widget_render_default_Number
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_widget_render_default_[Number]", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_field_fieldType_form__[Number]", 0, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;

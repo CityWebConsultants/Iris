@@ -78,7 +78,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
         if (field.widget) {
 
-          iris.hook("hook_entity_field_widget_render_" + field.widget.name, thisHook.authPass, {
+          iris.hook("hook_entity_field_widget_form__" + iris.sanitizeName(field.widget.name), thisHook.authPass, {
             value: currentValue ? currentValue : null,
             fieldSettings: field,
             widgetSettings: field.widget.settings
@@ -90,7 +90,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
             // Load default field widget as a fallback and finally fall back to field type widget if nothing else available
 
-            iris.hook("hook_entity_field_widget_render_field_" + fieldType, thisHook.authPass, {
+            iris.hook("hook_entity_field_fieldType_form__" + iris.sanitizeName(fieldType), thisHook.authPass, {
               value: currentValue ? currentValue : null,
               fieldSettings: field
             }).then(function (form) {
@@ -100,7 +100,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
             }, function (fail) {
 
 
-              iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
+              iris.hook("hook_entity_field_fieldTypeType_form__" + fieldTypeType, thisHook.authPass, {
                 value: currentValue ? currentValue : null,
                 fieldSettings: field
               }).then(function (form) {
@@ -123,7 +123,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
           // Otherwise run a general hook for that field type
 
-          iris.hook("hook_entity_field_widget_render_field_" + fieldType, thisHook.authPass, {
+          iris.hook("hook_entity_field_fieldType_form__" + iris.sanitizeName(fieldType), thisHook.authPass, {
             value: currentValue ? currentValue : null,
             fieldSettings: field
           }).then(function (form) {
@@ -132,7 +132,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
           }, function (fail) {
 
-            iris.hook("hook_entity_field_widget_render_default_" + fieldTypeType, thisHook.authPass, {
+            iris.hook("hook_entity_field_fieldTypeType_form__" + fieldTypeType, thisHook.authPass, {
               value: currentValue ? currentValue : null,
               fieldSettings: field
             }).then(function (form) {
