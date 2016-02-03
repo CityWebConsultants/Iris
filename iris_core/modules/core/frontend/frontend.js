@@ -338,7 +338,7 @@ var findTemplate = function (paths, extension) {
 
       for (i = 0; i <= searchArgs.length + 1; i += 1) {
 
-        var lookingFor = searchArgs.join("_") + "." + extension;
+        var lookingFor = searchArgs.join("__") + "." + extension;
 
         // Loop over found files to check basename
 
