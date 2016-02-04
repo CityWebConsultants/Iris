@@ -51,6 +51,8 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
     }
 
     if (doc) {
+      
+      data.entityAuthor = doc.entityAuthor;
 
       runDelete(data);
 
