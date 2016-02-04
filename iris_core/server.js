@@ -8,8 +8,6 @@ iris.app = express();
 
 //Set up bodyParser
 
-iris.app.use(bodyParser.json());
-
 iris.app.use(bodyParser.urlencoded({
   extended: true,
   parameterLimit: 10000,
@@ -18,10 +16,6 @@ iris.app.use(bodyParser.urlencoded({
 
 var cookieParser = require('cookie-parser')
 iris.app.use(cookieParser());
-
-//Set up bodyParser
-
-iris.app.use(bodyParser.json());
 
 /**
  * Error helper function
@@ -117,25 +111,32 @@ iris.app.use(function (req, res, next) {
 
 iris.app.use(function (req, res, next) {
 
+  // See if sending strict JSON in special irisJSON parameter
+
+  try {
+
+    if (Object.keys(req.body).length === 1) {
+      
+      if (req.body[Object.keys(req.body)[0]].length === 0) {
+
+        req.body = JSON.parse(Object.keys(req.body)[0]);
+
+      }
+
+    }
+
+  } catch (e) {
+
+    // Must be URL encoded
+
+  }
+
   if (Object.keys(req.query).length) {
 
     req.body = Object.assign(req.query, req.body);
 
   }
 
-  Object.keys(req.body).forEach(function (element) {
-
-    try {
-
-      req.body[element] = JSON.parse(req.body[element]);
-
-    } catch (e) {
-
-      // Allowing non-JSON encoded data
-
-    }
-
-  });
   iris.modules.auth.globals.credentialsToPass(req.body.credentials, req, res).then(function (authPass) {
 
     delete req.body.credentials;
