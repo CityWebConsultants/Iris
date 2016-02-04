@@ -356,7 +356,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
     formTemplate.onSubmit = function (errors, values) {
 
-      $.post(window.location, values, function (data, err) {
+      $.post(window.location, JSON.stringify(values), function (data, err) {
 
         if (data.errors) {
 
@@ -364,7 +364,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
             scrollTop: 0
           }, "slow");
 
-          $("[data-formid='" + values.formid +"'").prepend("<div class='form-errors'>" + data.errors + "</div>")
+          $("[data-formid='" + values.formid + "'").prepend("<div class='form-errors'>" + data.errors + "</div>")
 
         } else if (data.redirect) {
 
