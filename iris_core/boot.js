@@ -458,7 +458,7 @@ module.exports = function (config) {
 
           if (typeof success === "function") {
 
-            var output = success(res);
+            var output = success(res, req);
 
             if (output && output.then) {
 
