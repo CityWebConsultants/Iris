@@ -449,3 +449,48 @@ iris.app.post("/logout", function (req, res) {
   res.send("logged out");
 
 });
+
+// Check permissions on menu callbacks
+
+iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, data) {
+
+  // Check if a matching route is found
+
+  if (thisHook.const.req.irisRoute && thisHook.const.req.irisRoute.options && thisHook.const.req.irisRoute.options.permissions) {
+
+    var permissions = thisHook.const.req.irisRoute.options.permissions;
+
+    var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.const.req.authPass);
+
+    if (!access) {
+
+      iris.hook("hook_display_error_page", thisHook.const.req.authPass, {
+        error: 403,
+        req: data.req
+      }).then(function (success) {
+
+        data.res.send(success);
+
+        thisHook.finish(true, data);
+
+      }, function (fail) {
+
+        data.res.status(403);
+        data.res.end(403);
+        thisHook.finish(true, data);
+
+      });
+
+    } else {
+
+      thisHook.finish(true);
+
+    }
+
+  } else {
+    
+    thisHook.finish(true);
+    
+  }
+
+})
