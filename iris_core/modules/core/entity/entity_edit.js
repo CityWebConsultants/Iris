@@ -54,8 +54,11 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     }
 
     if (doc) {
+      
+      data.eid = doc.eid;
+      data.entityAuthor = doc.entityAuthor;
 
-      runUpdate(data);
+      runUpdate();
 
     };
 
@@ -204,28 +207,10 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
 });
 
-iris.app.post("/entity/edit/:type/:_id", function (req, res) {
-
-  //  var busboy = require('connect-busboy');
-  //
-  //  iris.app.use(busboy());
-  //
-  //  var fs = require('fs');
-  //
-  //  var fstream;
-  //  req.pipe(req.busboy);
-  //  req.busboy.on('file', function (fieldname, file, filename) {
-  //    fstream = fs.createWriteStream(iris.sitePath + '/files/' + filename);
-  //    file.pipe(fstream);
-  //    fstream.on('close', function () {
-  //
-  //      console.log("filesaved");
-  //
-  //    });
-  //  });
+iris.app.post("/entity/edit/:type/:eid", function (req, res) {
 
   req.body.entityType = req.params.type;
-  req.body._id = req.params._id;
+  req.body.eid = req.params.eid;
 
   iris.hook("hook_entity_edit", req.authPass, null, req.body).then(function (success) {
 
