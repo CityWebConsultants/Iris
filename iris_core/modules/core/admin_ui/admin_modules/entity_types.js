@@ -257,6 +257,205 @@ iris.app.get("/admin/schema/:type/:field", function (req, res) {
 });
 
 /**
+ * Page callback to delete field of an entity.
+ */
+
+iris.app.get("/admin/schema/:type/:field/delete", function (req, res) {
+
+
+  // If not admin, present 403 page
+
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+
+    return false;
+
+
+  }
+
+
+  // Render admin_schema_field template.
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_schema_field_delete"], ['admin_wrapper'], {
+
+    entityType: req.params.type,
+
+    field: req.params.field,
+
+  }, req.authPass, req).then(function (success) {
+
+
+    res.send(success)
+
+
+  }, function (fail) {
+
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+
+    iris.log("error", fail);
+
+
+  });
+
+});
+
+
+/**
+ * Defines form schemaFieldDelete.
+ * Allows the user to delete a field from the schema.
+ */
++ iris.modules.entity.registerHook("hook_form_render_schemafieldDelete", 0, function (thisHook, data) {
+
+
+  var entityType = thisHook.const.params[1];
+
+  var fieldName = thisHook.const.params[2];
+
+  var schema = iris.dbSchema[entityType];
+
+
+  data.schema.message = {
+
+    "type": "markup",
+
+    "markup": "<h3>Are you sure you want to delete this field?"
+
+  };
+
+  data.schema.entityType = {
+
+    "type": "hidden",
+
+    "default": entityType
+
+  };
+
+  data.schema.fieldName = {
+
+    "type": "hidden",
+
+    "default": fieldName
+
+  };
+
+
+  data.value.entityType = entityType;
+
+  data.value.fieldName = fieldName;
+
+
+  data.form = [
+
+"*",
+
+    {
+
+      "type": "submit",
+
+      "title": "Delete"
+
+},
+
+    {
+
+      "type": "button",
+
+      "title": "Cancel",
+
+      "onClick": function () {
+
+        window.history.back();
+
+      }
+
+}
+  ];
+
+  thisHook.finish(true, data);
+});
+
+
+iris.modules.entity.registerHook("hook_form_submit_schemafieldDelete", 0, function (thisHook, data) {
+
+  var entityType = thisHook.const.params.entityType;
+  var fieldName = thisHook.const.params.fieldName;
+  var schema = iris.dbSchemaConfig[entityType];
+  var parent = '';
+
+  if (schema && !schema[fieldName]) {
+
+
+    var recurseFields = function (object, elementParent) {
+
+      Object.keys(object).forEach(function (element) {
+
+        if (element == fieldName) {
+
+          parent = elementParent;
+
+          delete object[element];
+
+        } else if (typeof object[element].fieldType != 'undefined' && object[element].fieldType == 'Fieldset') {
+
+          recurseFields(object[element].subfields, element);
+
+        }
+
+      });
+
+    }
+
+    recurseFields(schema.fields, '');
+
+
+  } else if (schema && schema[fieldName]) {
+
+
+    // Field is not nested.
+
+    delete schema.fields[fieldName];
+  }
+
+  // Save and repopulate database schemas
+
+  iris.saveConfig(schema, "entity", entityType, function (data) {
+
+
+    iris.dbPopulate();
+
+
+    thisHook.finish(true, function (res) {
+
+      iris.message(thisHook.authPass.userid, "Field " + fieldName + " saved on entity " + entityType, "status");
+      // If field belongs to a fieldset, redirect back to fieldset manage page.
+      if (parent) {
+
+        res.send({
+          redirect: "/admin/schema/" + entityType + '/fieldset/' + parent
+        });
+      } else {
+
+        res.send({
+          redirect: "/admin/schema/" + entityType + '/manage-fields'
+
+        });
+      }
+
+    });
+
+  });
+
+});
+
+
+
+/**
  * Defines form schemaFieldListing.
  * Displays a table of existing fields for the given entity or fieldset.
  * There is also the option to add a new field here.
@@ -287,7 +486,7 @@ iris.modules.entity.registerHook("hook_form_render_schemaFieldListing", 0, funct
 
       var recurseFields = function (object, elementParent) {
 
-          Object.keys(object).forEach(function (element) {
+          for (element in object) {
 
             if (element == parent) {
 
@@ -302,13 +501,13 @@ iris.modules.entity.registerHook("hook_form_render_schemaFieldListing", 0, funct
 
             }
 
-          });
+          };
         }
         // Do recursion to find the desired fields to list as they may be nested.
-      recurseFields(entityTypeSchema.fields, '');
+      recurseFields(entityTypeSchema.fields, parent);
 
     } else {
-      parentSchema = iris.dbSchema[entityType];
+      parentSchema = entityTypeSchema.fields;
       fields = entityTypeSchema.fields;
     }
 
@@ -520,13 +719,11 @@ iris.modules.entity.registerHook("hook_form_submit_schemaFieldListing", 0, funct
 
     });
   }
-console.log(schema);
-  
-  if (schema.fields.length > 0) {
+
+  if (parent) {
     // Recursion required to find which field in the schema tree to update.
-    recurseFields(schema.fields, '');
-  }
-  else {
+    recurseFields(schema.fields, parent);
+  } else {
     parentItem = schema.fields;
   }
 
@@ -561,7 +758,7 @@ console.log(schema);
     };
 
     if (parentItem[thisHook.const.params.machineName].fieldType == 'Fieldset') {
-      parentItem[thisHook.const.params.machineName].fieldType.subfields = {};
+      parentItem[thisHook.const.params.machineName].subfields = {};
     }
 
   }
@@ -573,17 +770,23 @@ console.log(schema);
 
     thisHook.finish(true, function (res) {
 
-      if (thisHook.const.params.label == '') {
-        iris.message(thisHook.authPass.userid, "Fields sucessfully re-arranged", "status");
+      iris.message(thisHook.authPass.userid, "Fields sucessfully saved", "status");
+      var redirect = '/admin/schema/' + entityType;
 
-        res.send({
-          redirect: "/admin/schema/" + entityType + "/" + "manage-fields"
-        });
-      } else {
-        res.send({
-          redirect: "/admin/schema/" + entityType + "/" + thisHook.const.params.machineName
-        });
+      if (thisHook.const.params.machineName != '') {
+        redirect += '/' + thisHook.const.params.machineName;
       }
+      else {
+        if (parent != '') {
+          redirect += '/fieldset/' + parent;
+        }
+        else {
+          redirect += '/manage-fields';
+        }
+      }
+      res.send({
+        redirect: redirect
+      });
 
     });
 
@@ -593,7 +796,7 @@ console.log(schema);
 
 /**
  * Helper function to add basic field settings to each new field.
-* TODO: This should be a hook for others to latch onto.
+ * TODO: This should be a hook for others to latch onto.
  */
 iris.modules.entity.globals.basicFieldForm = function (field, fieldName, entityType) {
 
@@ -972,11 +1175,17 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
     });
   }
 
+
   // Tree traversal record, add each node to the leaf in here.
   var treeArray = [];
 
-  recurseFields(schema.fields, '');
-
+  if (!schema.fields[fieldName]) {
+    recurseFields(schema.fields, '');
+  }
+  else {
+    savedElement = schema.fields[fieldName];
+  }
+  
   // Add the basic field settings to the schema.
   Object.keys(thisHook.const.params.fields).forEach(function (metaName) {
 
@@ -1118,7 +1327,7 @@ iris.modules.entity.globals.fieldWidgets = {};
 
 /**
  * Function for registering a widget.
-*/
+ */
 iris.modules.entity.globals.registerFieldWidget = function (fieldType, name, schema) {
 
   if (!iris.modules.entity.globals.fieldWidgets[fieldType]) {
