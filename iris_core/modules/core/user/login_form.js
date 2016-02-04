@@ -20,23 +20,19 @@ iris.modules.forms.registerHook("hook_form_render_login", 0, function (thisHook,
 
 iris.modules.admin_ui.registerHook("hook_form_submit_login", 0, function (thisHook, data) {
 
-  var setLogin = function (res) {
+  iris.modules.user.globals.login({
+    username: thisHook.const.params.username,
+    password: thisHook.const.params.password
+  }, thisHook.const.res, function (userid) {
 
-    return new Promise(function (yes, no) {
+    if (!userid) {
 
-      iris.modules.user.globals.login({
-        username: thisHook.const.params.username,
-        password: thisHook.const.params.password
-      }, res, function (userid) {
+      iris.message(thisHook.authPass.userid, "Wrong credentials", "error");
 
-        yes();
+    }
 
-      });
+    thisHook.finish(true);
 
-    });
-
-  };
-
-  thisHook.finish(true, setLogin);
+  });
 
 });

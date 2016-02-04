@@ -70,7 +70,8 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
           params: body,
           formid: formid,
-          req: thisHook.const.req
+          req: thisHook.const.req,
+          res: thisHook.const.res
         }, null).then(function (callback) {
 
           if (typeof callback !== "function") {
