@@ -466,18 +466,18 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
       iris.hook("hook_display_error_page", thisHook.const.req.authPass, {
         error: 403,
-        req: data.req
+        req: thisHook.const.req
       }).then(function (success) {
 
-        data.res.send(success);
+        thisHook.const.res.send(success);
 
-        thisHook.finish(true, data);
+        thisHook.finish(false, data);
 
       }, function (fail) {
 
-        data.res.status(403);
-        data.res.end(403);
-        thisHook.finish(true, data);
+        thisHook.const.res.status(403);
+        thisHook.const.res.end(403);
+        thisHook.finish(false, data);
 
       });
 
