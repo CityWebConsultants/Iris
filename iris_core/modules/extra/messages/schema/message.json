@@ -6,15 +6,15 @@
       "label": "Message type",
       "weight": 0
     },
-    "messageContent": {
+    "content": {
       "fieldType": "Longtext",
       "label": "Message content",
       "weight": 1
     },
-    "user": {
+    "groups": {
       "weight": 2,
-      "fieldType": "Multi text field",
-      "label": "User IDs"
+      "fieldType": "Multiple number",
+      "label": "Group ids"
     }
   }
 }
