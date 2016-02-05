@@ -161,9 +161,11 @@ iris.app.use(function (req, res, next) {
 
     Object.keys(iris.routes).forEach(function (route) {
 
+      var url = require("url");
+      
       var regexRoute = pathToRegexp(route);
 
-      if (req.url.match(regexRoute)) {
+      if (url.parse(req.url).pathname.match(regexRoute)) {
 
         // Route matches
 
