@@ -111,12 +111,10 @@ iris.app.use(function (req, res, next) {
 
 iris.app.use(function (req, res, next) {
 
-  // See if sending strict JSON in special irisJSON parameter
-
   try {
 
     if (Object.keys(req.body).length === 1) {
-      
+
       if (req.body[Object.keys(req.body)[0]].length === 0) {
 
         req.body = JSON.parse(Object.keys(req.body)[0]);
@@ -137,6 +135,19 @@ iris.app.use(function (req, res, next) {
 
   }
 
+  Object.keys(req.body).forEach(function (element) {
+
+    try {
+
+      req.body[element] = JSON.parse(req.body[element]);
+
+    } catch (e) {
+
+      // Allowing non-JSON encoded data
+
+    }
+
+  });
   iris.modules.auth.globals.credentialsToPass(req.body.credentials, req, res).then(function (authPass) {
 
     delete req.body.credentials;
