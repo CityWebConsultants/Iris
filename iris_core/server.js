@@ -184,7 +184,8 @@ iris.app.use(function (req, res, next) {
     // Run request intercept in case anything
 
     iris.hook("hook_request_intercept", req.authPass, {
-      req: req
+      req: req,
+      res: res
     }).then(function () {
 
       next();
