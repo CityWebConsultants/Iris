@@ -184,7 +184,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
 //    Debugger for queries
     
-/*    var util = require("util");
+    /*var util = require("util");
 
     console.log(util.inspect(query, {
       depth: 10

@@ -9,6 +9,93 @@
 iris.registerModule("menu");
 
 /**
+ * @function registerMenuLink
+ * @memberof menu
+ *
+ * @desc Function to register a menu item as part of a menu
+ *
+ * It is possible to nest menu items by providing the path of the desired parent menu item that the new item should be inserted under.
+ *
+ * @param {string} menuName - the name of the menu under which this item should be saved
+ * @param {string} [parentPath] - optional; if this menu item has a parent, the path that the parent item links to
+ * @param {string} path - the path to which this menu item links
+ * @param {string} title - the title of this menu item displayed to the user
+ * @param {number} weight - the weight of this menu item. Lower weights are displayed first.
+ */
+iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, path, title, weight) {
+
+  if (!weight) {
+
+    weight = 0;
+
+  }
+
+  if (!iris.configStore["menu"]) {
+
+    return false;
+
+  }
+
+  if (!iris.configStore['menu'][iris.sanitizeName(menuName)]) {
+    iris.log("error", "no such menu - " + menuName)
+    return false;
+  } else {
+
+    var menuConfig = iris.configStore['menu'][iris.sanitizeName(menuName)];
+
+    if (parentPath) {
+
+      menuConfig.items.forEach(function (item) {
+
+        if (item.path === parentPath) {
+
+          if (!item.children) {
+
+            item.children = [];
+
+          }
+
+          item.children.push({
+            title: title,
+            path: path,
+            weight: weight
+          });
+
+        }
+
+      })
+
+    } else {
+
+      menuConfig.items.push({
+        title: title,
+        path: path,
+        weight: weight
+      });
+
+    }
+
+    // Order menu items by rank
+
+    function compare(a, b) {
+      if (a.weight < b.weight) {
+        return -1;
+      }
+      if (a.weight > b.weight) {
+        return 1;
+      }
+      // a must be equal to b
+      return 0;
+    }
+
+    menuConfig.items.sort(compare);
+
+  }
+}
+
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/structure/menu", "Menus", 1);
+
+/**
  * Get any already saved config.
  */
 
@@ -213,7 +300,7 @@ iris.modules.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, d
  * Page callback for creating a new menu.
  */
 
-iris.app.get("/admin/menu/create", function (req, res) {
+iris.app.get("/admin/structure/menu/create", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -243,7 +330,7 @@ iris.app.get("/admin/menu/create", function (req, res) {
  * Page for editing an existing menu.
  */
 
-iris.app.get("/admin/menu/edit/:menuName", function (req, res) {
+iris.app.get("/admin/structure/menu/edit/:menuName", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -276,7 +363,7 @@ iris.app.get("/admin/menu/edit/:menuName", function (req, res) {
  * Page for editing an existing menu.
  */
 
-iris.app.get("/admin/menu", function (req, res) {
+iris.app.get("/admin/structure/menu", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -304,16 +391,6 @@ iris.app.get("/admin/menu", function (req, res) {
 
 });
 
-/**
- * Default menu view function.
- * Used to check permissions.
- */
-
-iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
-
-  thisHook.finish(true, data);
-
-});
 
 /**
  * Parse menu templates.
@@ -395,87 +472,52 @@ iris.modules.menu.globals.registerMenu = function (menuName) {
 
 }
 
-/**
- * @function registerMenuLink
- * @memberof menu
- *
- * @desc Function to register a menu item as part of a menu
- *
- * It is possible to nest menu items by providing the path of the desired parent menu item that the new item should be inserted under.
- *
- * @param {string} menuName - the name of the menu under which this item should be saved
- * @param {string} [parentPath] - optional; if this menu item has a parent, the path that the parent item links to
- * @param {string} path - the path to which this menu item links
- * @param {string} title - the title of this menu item displayed to the user
- * @param {number} weight - the weight of this menu item. Lower weights are displayed first.
- */
-iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, path, title, weight) {
 
-  if (!weight) {
 
-    weight = 0;
+iris.modules.menu.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
 
-  }
+  if (menuName !== "admin-toolbar") {
 
-  if (!iris.configStore["menu"]) {
+    thisHook.finish(true, menuName);
 
     return false;
 
   }
 
-  if (!iris.configStore['menu'][iris.sanitizeName(menuName)]) {
-    iris.log("error", "no such menu - " + menuName)
-    return false;
+  if (iris.modules.auth.globals.checkPermissions(["can view admin menu"], thisHook.authPass)) {
+
+    thisHook.finish(true, menuName);
+
   } else {
 
-    var menuConfig = iris.configStore['menu'][iris.sanitizeName(menuName)];
+    thisHook.finish(false, menuName);
 
-    if (parentPath) {
+  }
 
-      menuConfig.items.forEach(function (item) {
+});
 
-        if (item.path === parentPath) {
+/**
+ * Default menu view function.
+ * Used to check permissions.
+ */
+iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
-          if (!item.children) {
+  if (thisHook.const === "admin-toolbar") {
 
-            item.children = [];
+    if (thisHook.authPass.roles.indexOf("admin") === -1) {
 
-          }
-
-          item.children.push({
-            title: title,
-            path: path,
-            weight: weight
-          });
-
-        }
-
-      })
+      thisHook.finish(false, data);
 
     } else {
 
-      menuConfig.items.push({
-        title: title,
-        path: path,
-        weight: weight
-      });
+      thisHook.finish(true, data);
 
     }
 
-    // Order menu items by rank
+  } else {
 
-    function compare(a, b) {
-      if (a.weight < b.weight) {
-        return -1;
-      }
-      if (a.weight > b.weight) {
-        return 1;
-      }
-      // a must be equal to b
-      return 0;
-    }
-
-    menuConfig.items.sort(compare);
+    thisHook.finish(true, data);
 
   }
-}
+
+})

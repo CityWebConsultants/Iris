@@ -2,15 +2,141 @@
  * @file Forms and form handlers for creating and editing forms, plus string widgets
  */
 
-iris.registerModule("entityforms");
+require('./schemaUI.js');
 
 var fs = require("fs");
 
 require("./fields");
 
+iris.app.get("/admin/edit/:type/:eid", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_entity"], ['admin_wrapper'], {
+    eid: req.params.eid,
+    type: req.params.type
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+})
+
+iris.app.get("/admin/create/:type", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_entity"], ['admin_wrapper'], {
+    type: req.params.type
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+})
+
+iris.app.get("/admin/delete/:type/:id", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_entity_delete"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+})
+
+iris.app.get("/admin/entitylist/:type", function (req, res) {
+
+  iris.modules.entityUI.globals.listEntities(req, res, req.params.type);
+
+});
+
+/**
+ * Function used to list entites of a given type. Allows lists to be displayed from
+ * different urls.
+ */
+iris.modules.entityUI.globals.listEntities = function (req, res, type) {
+    
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.entityUI.globals.prepareEntitylist(type, function (output) {
+
+    iris.modules.frontend.globals.parseTemplateFile(["admin_entitylist"], ['admin_wrapper'], {
+      entities: output.entities,
+      type: type
+    }, req.authPass, req).then(function (success) {
+
+      res.send(success)
+
+    }, function (fail) {
+
+      iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+      iris.log("error", fail);
+
+    });
+
+  })
+};
+
+
 // Render entity form
 
-iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisHook, data) {
 
   // Check if entity type exists in the system
 
@@ -264,7 +390,7 @@ iris.modules.entity.registerHook("hook_form_render_entity", 0, function (thisHoo
 
 // Submit new entity form
 
-iris.modules.entity.registerHook("hook_form_submit_entity", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisHook, data) {
 
   // Store entity type and then delete from parameters object. Not needed any more there.
 

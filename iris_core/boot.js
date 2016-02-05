@@ -324,6 +324,7 @@ module.exports = function (config) {
     require('./modules/core/frontend/frontend.js');
 
     require('./modules/core/forms/forms.js');
+    
     require('./modules/core/filefield/filefield.js');
 
     require('./modules/core/menu/menu.js');

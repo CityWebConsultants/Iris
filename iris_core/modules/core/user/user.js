@@ -167,7 +167,7 @@ iris.modules.user.globals.login = function (auth, res, callback) {
 
 };
 
-iris.app.get("/logout", function (req, res) {
+iris.app.get("/user/logout", function (req, res) {
 
   // Delete session
 
@@ -301,7 +301,9 @@ require('./login_form.js');
 
 // Login form
 
-iris.app.get("/login", function (req, res) {
+iris.route.get("/user/login", {
+  "title": "Login"
+}, function (req, res) {
 
   // If not admin, present 403 page
 
@@ -325,7 +327,19 @@ iris.app.get("/login", function (req, res) {
 
   });
 
-})
+});
+
+
+iris.app.get("/user", function (req, res) {
+
+  if (req.authPass.roles.indexOf('authenticated') == -1) {
+    // Anonymous. Redirect to login page.
+    res.redirect('/user/login');
+  } else {
+    // Redirect to own user page.
+    res.redirect('/user/' + req.authPass.userid);
+  }
+});
 
 // Blank password field on entity edit
 
@@ -466,11 +480,18 @@ iris.app.post("/api/login", function (req, res) {
 
 });
 
+
 iris.app.get("/admin/users", function (req, res) {
-    
-    iris.modules.admin_ui.globals.listEntities(req, res, 'user');
-    
+console.log('hit');
+  if (iris.modules.entityUI) {
+    iris.modules.entityUI.globals.listEntities(req, res, 'user');
+  }
+  else {
+    iris.modules.frontend.globals.displayErrorPage(404, req, res);
+  }
+
 });
+
 
 iris.app.get("/admin/users/permissions", function (req, res) {
 
@@ -484,8 +505,7 @@ iris.app.get("/admin/users/permissions", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {
-  }, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 

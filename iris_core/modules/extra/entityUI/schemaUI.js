@@ -1,5 +1,36 @@
 var path = require('path');
 
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/structure/entities", "Entities", 1);
+
+
+iris.app.get("/admin/structure/entities", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_entity_types"], ['admin_wrapper'], {
+    entityTypes: Object.keys(iris.dbCollections)
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
 /**
  * API endpoint to access entity types.
  */
@@ -20,7 +51,7 @@ iris.app.get("/admin/api/entitytypes", function (req, res) {
 /**
  * Callback function to return list of documents for a given entity type.
  */
-iris.modules.admin_ui.globals.prepareEntitylist = function (type, callback) {
+iris.modules.entityUI.globals.prepareEntitylist = function (type, callback) {
 
   // Query for all entities of this type
 
@@ -310,7 +341,7 @@ iris.app.get("/admin/schema/:type/:field/delete", function (req, res) {
  * Defines form schemaFieldDelete.
  * Allows the user to delete a field from the schema.
  */
-+ iris.modules.entity.registerHook("hook_form_render_schemafieldDelete", 0, function (thisHook, data) {
++ iris.modules.entityUI.registerHook("hook_form_render_schemafieldDelete", 0, function (thisHook, data) {
 
 
   var entityType = thisHook.const.params[1];
@@ -381,7 +412,7 @@ iris.app.get("/admin/schema/:type/:field/delete", function (req, res) {
 });
 
 
-iris.modules.entity.registerHook("hook_form_submit_schemafieldDelete", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_submit_schemafieldDelete", 0, function (thisHook, data) {
 
   var entityType = thisHook.const.params.entityType;
   var fieldName = thisHook.const.params.fieldName;
@@ -460,7 +491,7 @@ iris.modules.entity.registerHook("hook_form_submit_schemafieldDelete", 0, functi
  * Displays a table of existing fields for the given entity or fieldset.
  * There is also the option to add a new field here.
  */
-iris.modules.entity.registerHook("hook_form_render_schemaFieldListing", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_schemaFieldListing", 0, function (thisHook, data) {
 
 
   if (thisHook.const.params[1]) {
@@ -681,7 +712,7 @@ iris.modules.entity.registerHook("hook_form_render_schemaFieldListing", 0, funct
  * Submit handler for form schemaFieldListing.
  * Save the field weights if re-ordered and/or add a new field to this object in the schema.
  */
-iris.modules.entity.registerHook("hook_form_submit_schemaFieldListing", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_submit_schemaFieldListing", 0, function (thisHook, data) {
 
   // Fetch current schema
   var schema = JSON.parse(JSON.stringify(iris.dbSchemaConfig[thisHook.const.params.entityType]));
@@ -798,7 +829,7 @@ iris.modules.entity.registerHook("hook_form_submit_schemaFieldListing", 0, funct
  * Helper function to add basic field settings to each new field.
  * TODO: This should be a hook for others to latch onto.
  */
-iris.modules.entity.globals.basicFieldForm = function (field, fieldName, entityType) {
+iris.modules.entityUI.globals.basicFieldForm = function (field, fieldName, entityType) {
 
   var data = {
     "value": {}
@@ -877,7 +908,7 @@ iris.modules.entity.globals.basicFieldForm = function (field, fieldName, entityT
  * This is used to add/edit entity types.
  * Only Title and Description are provided by default.
  */
-iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_schema", 0, function (thisHook, data) {
 
   // Check entityType field is provided.
   if (thisHook.const.params[1]) {
@@ -933,7 +964,7 @@ iris.modules.entity.registerHook("hook_form_render_schema", 0, function (thisHoo
  * Submit handler for form schema.
  * Save the base entity details.
  */
-iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_submit_schema", 0, function (thisHook, data) {
 
 
   var entityType = thisHook.const.params.entityTypeName;
@@ -981,7 +1012,7 @@ iris.modules.entity.registerHook("hook_form_submit_schema", 0, function (thisHoo
  * This could be hooked into to add any further settings to the field.
  */
 
-iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_schemafield", 0, function (thisHook, data) {
 
   data.form = [];
   var entityType = thisHook.const.params[1];
@@ -1106,7 +1137,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafield", 0, function (th
  * Submit handler for form schemaField.
  * Saves the field settings to the entity schema.
  */
-iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_submit_schemafield", 0, function (thisHook, data) {
 
   // Fetch current schema as clone.
   var schema = JSON.parse(JSON.stringify(iris.dbSchemaConfig[thisHook.const.params.entityType]));
@@ -1241,7 +1272,7 @@ iris.modules.entity.registerHook("hook_form_submit_schemafield", 0, function (th
  * Defines form_render_field_settings for Textfields.
  * Here set settings specific to Textfield input fields.
  */
-iris.modules.entity.registerHook("hook_form_render_field_settings_Textfield", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_field_settings_Textfield", 0, function (thisHook, data) {
 
   // Set a maximum character length.
   data.schema.settings = {
@@ -1264,7 +1295,7 @@ iris.modules.entity.registerHook("hook_form_render_field_settings_Textfield", 0,
  * Defines form_render_field_settings for Fieldsets.
  * Provide a link to manage the fields for this Fieldset.
  */
-iris.modules.entity.registerHook("hook_form_render_field_settings_Fieldset", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_field_settings_Fieldset", 0, function (thisHook, data) {
 
   data.schema.settings = {
     "type": "object",
@@ -1285,7 +1316,7 @@ iris.modules.entity.registerHook("hook_form_render_field_settings_Fieldset", 0, 
  * Defines form_render_field_settings for Select fields.
  * Provides multiple text fields to enter the select values.
  */
-iris.modules.entity.registerHook("hook_form_render_field_settings_Select", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_field_settings_Select", 0, function (thisHook, data) {
 
   data.schema.settings = {
     "type": "object",
@@ -1323,20 +1354,20 @@ iris.modules.forms.globals.registerWidget(function () {
  * Field Widgets object.
  * Field widgets are what renders the input field when creating an entity.
  */
-iris.modules.entity.globals.fieldWidgets = {};
+iris.modules.entityUI.globals.fieldWidgets = {};
 
 /**
  * Function for registering a widget.
  */
-iris.modules.entity.globals.registerFieldWidget = function (fieldType, name, schema) {
+iris.modules.entityUI.globals.registerFieldWidget = function (fieldType, name, schema) {
 
-  if (!iris.modules.entity.globals.fieldWidgets[fieldType]) {
+  if (!iris.modules.entityUI.globals.fieldWidgets[fieldType]) {
 
-    iris.modules.entity.globals.fieldWidgets[fieldType] = {};
+    iris.modules.entityUI.globals.fieldWidgets[fieldType] = {};
 
   }
 
-  iris.modules.entity.globals.fieldWidgets[fieldType][name] = schema;
+  iris.modules.entityUI.globals.fieldWidgets[fieldType][name] = schema;
 
 };
 
@@ -1353,7 +1384,7 @@ iris.modules.entity.globals.registerFieldWidget = function (fieldType, name, sch
  * Defines form schemafieldwidgets.
  * Form for widget selection and settings.
  */
-iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_schemafieldwidgets", 0, function (thisHook, data) {
 
   // Fetch current schema
 
@@ -1467,7 +1498,7 @@ iris.modules.entity.registerHook("hook_form_render_schemafieldwidgets", 0, funct
  * Submit handler for form schemafieldwidgets.
  * Save the chosen widget for a given field.
  */
-iris.modules.entity.registerHook("hook_form_submit_schemafieldwidgets", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_submit_schemafieldwidgets", 0, function (thisHook, data) {
 
   var entityType = thisHook.const.params.entityType;
   var fieldName = thisHook.const.params.fieldName
