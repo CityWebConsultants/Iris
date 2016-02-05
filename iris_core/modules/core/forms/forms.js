@@ -356,8 +356,8 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
     }
 
     formTemplate.onSubmit = function (errors, values) {
-
-      $.post(window.location, JSON.stringify(values), function (data, err) {
+      
+      $.post(window.location, values, function (data, err) {
 
         if (data.errors) {
 
