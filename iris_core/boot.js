@@ -454,12 +454,13 @@ module.exports = function (config) {
     iris.app.use(function (req, res) {
 
       iris.hook("hook_catch_request", req.authPass, {
-        req: req
+        req: req,
+        res: res
       }, null).then(function (success) {
 
           if (typeof success === "function") {
 
-            var output = success(res);
+            var output = success(res, req);
 
             if (output && output.then) {
 

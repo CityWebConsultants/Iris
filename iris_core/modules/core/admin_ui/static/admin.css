@@ -124,6 +124,17 @@ thead tr {
   display: inline-block;
   padding-left: 8px;
 }
+.iris-message.error:before {
+  content: "!";
+  margin-right: 10px;
+  background-color: red;
+  color: white;
+  border-radius: 100%;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  padding-left: 8px;
+}
 .iris-messages {
   border: 1px solid darkgrey;
   background: #ececec;

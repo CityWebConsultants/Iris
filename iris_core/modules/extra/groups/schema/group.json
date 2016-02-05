@@ -1,0 +1,15 @@
+{
+  "entityTypeName": "Group",
+  "fields": {
+    "members": {
+      "weight": 3,
+      "fieldType": "Multiple number",
+      "label": "User IDs"
+    },
+    "name": {
+      "weight": 3,
+      "fieldType": "Textfield",
+      "label": "Name of group"
+    }
+  }
+}
