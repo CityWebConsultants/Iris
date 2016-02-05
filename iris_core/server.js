@@ -8,6 +8,8 @@ iris.app = express();
 
 //Set up bodyParser
 
+iris.app.use(bodyParser.json());
+
 iris.app.use(bodyParser.urlencoded({
   extended: true,
   parameterLimit: 10000,
@@ -148,7 +150,7 @@ iris.app.use(function (req, res, next) {
     }
 
   });
-  
+
   iris.modules.auth.globals.credentialsToPass(req.body.credentials, req, res).then(function (authPass) {
 
     delete req.body.credentials;
@@ -162,7 +164,7 @@ iris.app.use(function (req, res, next) {
     Object.keys(iris.routes).forEach(function (route) {
 
       var url = require("url");
-      
+
       var regexRoute = pathToRegexp(route);
 
       if (url.parse(req.url).pathname.match(regexRoute)) {

@@ -79,8 +79,8 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
             // If no callback is supplied provide a basic redirect to the same page
 
             var callback = function (res) {
-
-              res.send(thisHook.const.req.url);
+              
+              res.json(thisHook.const.req.url);
 
             }
 
@@ -109,7 +109,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
               var callback = function (res) {
 
-                res.send({
+                res.json({
                   errors: fail
                 });
 
@@ -127,7 +127,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
             var callback = function (res) {
 
-              res.send({
+              res.json({
                 errors: fail
               });
 
@@ -356,36 +356,44 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
     }
 
     formTemplate.onSubmit = function (errors, values) {
-      
-      $.post(window.location, values, function (data, err) {
 
-        if (data.errors) {
 
-          $("html, body").animate({
-            scrollTop: 0
-          }, "slow");
+      $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: window.location,
+        data: JSON.stringify(values),
+        dataType: "json",
+        success: function (data) {
+          
+          if (data.errors) {
 
-          $("[data-formid='" + values.formid + "'").prepend("<div class='form-errors'>" + data.errors + "</div>")
+            $("html, body").animate({
+              scrollTop: 0
+            }, "slow");
 
-        } else if (data.redirect) {
+            $("[data-formid='" + values.formid + "'").prepend("<div class='form-errors'>" + data.errors + "</div>")
 
-          window.location.href = data.redirect;
+          } else if (data.redirect) {
 
-        } else {
-
-          if (data && data.indexOf("doctype") === -1) {
-
-            window.location.href = data;
+            window.location.href = data.redirect;
 
           } else {
 
-            window.location.href = window.location.href;
+            if (data && data.indexOf("doctype") === -1) {
+
+              window.location.href = data;
+
+            } else {
+
+              window.location.href = window.location.href;
+
+            }
 
           }
 
         }
-
-      })
+      });
 
     };
 
