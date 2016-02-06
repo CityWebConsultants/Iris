@@ -26,7 +26,7 @@ iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/users", "/ad
 
 iris.app.get("/admin/users", function (req, res) {
 
-  iris.modules.admin_ui.globals.listEntities(req, res, 'user');
+  iris.modules.system.globals.listEntities(req, res, 'user');
 
 });
 

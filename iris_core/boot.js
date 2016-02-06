@@ -329,7 +329,7 @@ module.exports = function (config) {
 
     require('./modules/core/menu/menu.js');
 
-    require('./modules/core/admin_ui/admin_ui.js');
+    require('./modules/core/system/system.js');
 
     require('./modules/core/user/user.js');
 

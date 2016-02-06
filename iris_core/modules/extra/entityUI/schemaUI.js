@@ -993,7 +993,9 @@ iris.modules.entityUI.registerHook("hook_form_submit_schema", 0, function (thisH
       } else {
 
         iris.message(thisHook.authPass.userid, "Entity type " + entityType + " has been updated.", "status");
-        res.send("/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/edit");
+        res.send({
+          "redirect" : "/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/edit"
+        });
 
       }
 
@@ -1065,7 +1067,7 @@ iris.modules.entityUI.registerHook("hook_form_render_schemafield", 0, function (
     }
 
     // Get the generic field settings to add to the form.
-    var basicForm = iris.modules.entity.globals.basicFieldForm(field, fieldName, entityType);
+    var basicForm = iris.modules.entityUI.globals.basicFieldForm(field, fieldName, entityType);
 
     // Merge with the current data object.
     MergeRecursive(data, basicForm);
@@ -1529,7 +1531,9 @@ iris.modules.entityUI.registerHook("hook_form_submit_schemafieldwidgets", 0, fun
 
     data = function (res) {
 
-      res.send("/admin/schema/" + iris.sanitizeName(entityType));
+      res.send({
+        "redirect" : "/admin/schema/" + iris.sanitizeName(entityType)
+      });
 
     }
 

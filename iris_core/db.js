@@ -335,7 +335,7 @@ iris.dbPopulate = function () {
 
     } catch (e) {
 
-      console.log(e);
+      iris.log("error", e);
 
     }
 

@@ -18,7 +18,7 @@ iris.modules.forms.registerHook("hook_form_render_login", 0, function (thisHook,
 
 });
 
-iris.modules.admin_ui.registerHook("hook_form_submit_login", 0, function (thisHook, data) {
+iris.modules.system.registerHook("hook_form_submit_login", 0, function (thisHook, data) {
 
   iris.modules.user.globals.login({
     username: thisHook.const.params.username,

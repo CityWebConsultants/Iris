@@ -76,7 +76,7 @@ Creating Modules
 
 #### Registering forms and using handlers
 
-#### Adding to admin_ui / admin system
+#### Adding to system / admin system
 
 #### Header tags module
 
