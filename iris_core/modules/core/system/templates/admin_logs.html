@@ -1,0 +1,75 @@
+<h1>Logs</h1>
+
+<style>
+  table {width:100%;}
+  td {
+    color: black;
+  }
+  /* Trace */
+
+  .level10 {
+    background-color: #dfefff !important;
+  }
+  /* Debug */
+
+  .level20 {
+    background-color: #bdf !important;
+  }
+  /* Info */
+
+  .level30 {
+    background-color: #cf8 !important;
+  }
+  /* Warn */
+
+  .level40 {
+    background-color: #FCFCA7 !important;
+  }
+  /* Error */
+
+  .level50 {
+    background-color: #F8B5B5 !important;
+  }
+  /* Fatal */
+
+  .level60 {
+    background-color: #e68865 !important;
+  }
+
+</style>
+
+<table>
+  <thead>
+
+    <tr>
+
+      {{#each keys}}
+
+      <th>{{this}}</th>
+
+      {{/each}}
+
+    </tr>
+
+  </thead>
+
+  {{#each logs}}
+
+  <tr class="level{{this.level}}">
+
+    {{#each this}}
+
+    <td>
+
+      {{this}}
+
+    </td>
+
+    {{/each}}
+
+  </tr>
+
+  {{/each}}
+
+
+</table>

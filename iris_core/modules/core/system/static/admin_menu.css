@@ -1,0 +1,56 @@
+nav.menu-admin-toolbar {
+    position:relative;
+    z-index:3;
+}
+nav.menu-admin-toolbar .menu {
+  width: 100%;
+  background-color: black;
+  color: white;
+}
+.menu-admin-toolbar ul.menu,
+.menu-admin-toolbar ul.menu ul.sub-menu {
+  padding: 0;
+  margin: 0;
+}
+.menu-admin-toolbar ul.menu li,
+.menu-admin-toolbar ul.menu ul.sub-menu li {
+  list-style-type: none;
+  display: inline-block;
+}
+.menu-admin-toolbar ul.menu li a,
+.menu-admin-toolbar ul.menu li ul.sub-menu li a {
+  text-decoration: none;
+  color: #fff;
+  background: black;
+  padding: 5px;
+  display: inline-block;
+}
+.menu-admin-toolbar ul.menu li ul.sub-menu {
+  min-width: 150px;
+}
+.menu-admin-toolbar ul.menu li ul.sub-menu li {
+  display: block;
+}
+.menu-admin-toolbar ul.menu li ul.sub-menu li a {
+  background-color: #585858;
+  display: block;
+}
+.menu-admin-toolbar ul.menu li ul.sub-menu li a:hover {
+  background-color: #6a6a6a;
+}
+.menu-admin-toolbar ul.menu li ul.sub-menu {
+  border-top: 1px solid black;
+}
+.menu-admin-toolbar ul.menu li {
+  position: relative;
+}
+.menu-admin-toolbar ul.menu li ul.sub-menu {
+  display: none;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 100px;
+}
+.menu-admin-toolbar ul.menu li:hover ul.sub-menu {
+  display: block;
+}
