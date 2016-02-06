@@ -42,7 +42,8 @@ iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (t
         {
           "key": "profile",
           "description": "The Minimal profile will exclude all optional UI modules and features. In a Minimal setup, " +
-            "Iris can be used as a lightweight webservice.<br/>Use Standard profile to build a user-facing CMS type system.",
+            "Iris can be used as a lightweight webservice.<br/>Use Standard profile to build a user-facing CMS type system.<br/>" +
+            "If choosing Standard, please wait after clicking 'Install' for the server to restart. The blank page is expected.",
           "titleMap": {
             "minimal": "Minimal",
             "standard": "Standard"
@@ -116,7 +117,11 @@ iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (t
           iris.message(uid, "Welcome to your new Iris site!", "info");
           thisHook.finish(true, function (res) {
             res.json("/admin");
-            iris.restart(uid, "UI modules enabled.");
+            if (enabled) {
+              console.log('restarting');
+              iris.message(uid, "Don't worry, that short glitch was the server restarting to install the Standard profile.", "info");
+              iris.restart(uid, "UI modules enabled.");
+            }
           });
         });
 
