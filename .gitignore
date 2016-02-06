@@ -10,3 +10,4 @@ home/themes/*
 !home/themes/base/
 !home/themes/base/*
 
+/nbproject/private/

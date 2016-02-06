@@ -79,7 +79,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
             // If no callback is supplied provide a basic redirect to the same page
 
             var callback = function (res) {
-              
+
               res.json(thisHook.const.req.url);
 
             }
@@ -341,6 +341,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
         output += "</script>";
 
         output += "<script>$('#" + uniqueId + "').jsonForm(" + toSource(form) + ");</script>";
+      
         callback(output);
 
       });
@@ -365,7 +366,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
         data: JSON.stringify(values),
         dataType: "json",
         success: function (data) {
-          
+
           if (data.errors) {
 
             $("html, body").animate({
@@ -402,13 +403,13 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
       params: form,
       context: variables
     }, formTemplate).then(function (formTemplate) {
-
+      
       iris.hook("hook_form_render_" + formName, thisHook.authPass, {
         formId: form[0],
         params: form,
         context: variables
       }, formTemplate).then(function (form) {
-
+        
         renderForm(form, function (output) {
 
           next(output);
@@ -418,17 +419,24 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
       }, function (fail) {
 
         if (fail = "No such hook exists") {
+          
+          renderForm(formTemplate, function (output) {
 
-          next(false);
+            next(output);
+
+          });
 
         }
+        else {
 
         next(false);
+          
+        }
 
       });
 
     }, function (fail) {
-
+   
       next(false);
 
     });

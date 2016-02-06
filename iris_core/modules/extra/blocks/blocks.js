@@ -342,16 +342,22 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
     }
 
-    data.schema["blockTitle"] = {
+    data.schema.blockTitle = {
       type: "string",
       required: true,
       title: "Block title"
     };
 
-    data.schema["blockType"] = {
+    data.schema.blockType = {
       type: "hidden",
       default: formTitle.split("_")[1]
     };
+    
+    data.schema.contents = {
+      type : "ckeditor",
+      title : "Contents",
+      required : true
+    }
 
     // Check if a config file has already been saved for this block. If so, load in the current settings.
 
@@ -361,7 +367,7 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
       // Hide the title as you shouldn't be able to change it
 
-      data.schema["blockTitle"].type = "hidden";
+      data.schema.blockTitle.type = "hidden";
 
       thisHook.finish(true, data);
 
