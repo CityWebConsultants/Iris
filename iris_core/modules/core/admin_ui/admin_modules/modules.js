@@ -120,12 +120,13 @@ iris.modules.admin_ui.registerHook("hook_form_render_modules", 0, function (this
 
 iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (thisHook, data) {
 
+
   var enabled = [];
   var unmet = [];
 
   Object.keys(thisHook.const.params).forEach(function (moduleName) {
 
-    if (thisHook.const.params[moduleName].enabled === "true") {
+    if (thisHook.const.params[moduleName].enabled === true) {
 
       thisHook.const.params[moduleName].name = moduleName;
 
@@ -137,7 +138,7 @@ iris.modules.admin_ui.registerHook("hook_form_submit_modules", 0, function (this
 
         dependencies.forEach(function (dependency) {
 
-          if (!thisHook.const.params[dependency] || thisHook.const.params[dependency].enabled === "false") {
+          if (!thisHook.const.params[dependency] || thisHook.const.params[dependency].enabled === false) {
 
             unmet.push(moduleName + " requires " + dependency);
 

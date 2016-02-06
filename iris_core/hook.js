@@ -24,6 +24,8 @@ var hook = function (hookname, authPass, staticVariables, variables) {
   var auth = authPass;
 
   var thisHook;
+  
+  // TODO should probably clone static variables so they're proper constants and can't be changed elsewhere
 
   var constants = staticVariables;
 
