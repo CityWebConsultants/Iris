@@ -473,12 +473,15 @@ iris.modules.menu.globals.registerMenu = function (menuName) {
 }
 
 
+/**
+ * Default menu view function.
+ * Used to check permissions.
+ */
+iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
-iris.modules.menu.registerHook("hook_menu_view", 1, function (thisHook, menuName) {
+  if (thisHook.const !== "admin_toolbar") {
 
-  if (menuName !== "admin-toolbar") {
-
-    thisHook.finish(true, menuName);
+    thisHook.finish(true, thisHook.const);
 
     return false;
 
@@ -486,38 +489,12 @@ iris.modules.menu.registerHook("hook_menu_view", 1, function (thisHook, menuName
 
   if (iris.modules.auth.globals.checkPermissions(["can view admin menu"], thisHook.authPass)) {
 
-    thisHook.finish(true, menuName);
+    thisHook.finish(true, thisHook.const);
 
   } else {
 
-    thisHook.finish(false, menuName);
+    thisHook.finish(false, thisHook.const);
 
   }
 
 });
-
-/**
- * Default menu view function.
- * Used to check permissions.
- */
-iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
-
-  if (thisHook.const === "admin-toolbar") {
-
-    if (thisHook.authPass.roles.indexOf("admin") === -1) {
-
-      thisHook.finish(false, data);
-
-    } else {
-
-      thisHook.finish(true, data);
-
-    }
-
-  } else {
-
-    thisHook.finish(true, data);
-
-  }
-
-})
