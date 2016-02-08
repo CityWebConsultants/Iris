@@ -96,23 +96,45 @@ iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (t
         iris.modules.user.globals.login(auth, thisHook.const.res, function (uid) {
 
           if (thisHook.const.params.profile == 'standard') {
-            
-            var enabled = [ 
-              { name: 'blocks' },
-              { name: 'roles_ui' },
-              { name: 'configUI' },
-              { name: 'custom_blocks' },
-              { name: 'entityUI' },
-              { name: 'ckeditor' },
-              { name: 'permissionsUI' },
-              { name: 'page' },
-              { name: 'menu_block' },
-              { name: 'regions' },
-              { name: 'lists' } 
+
+            var enabled = [
+              {
+                name: 'blocks'
+              },
+              {
+                name: 'roles_ui'
+              },
+              {
+                name: 'configUI'
+              },
+              {
+                name: 'custom_blocks'
+              },
+              {
+                name: 'entityUI'
+              },
+              {
+                name: 'ckeditor'
+              },
+              {
+                name: 'permissionsUI'
+              },
+              {
+                name: 'page'
+              },
+              {
+                name: 'menu_block'
+              },
+              {
+                name: 'regions'
+              },
+              {
+                name: 'lists'
+              }
             ];
             var fs = require("fs");
             fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));
-            
+
           }
           iris.message(uid, "Welcome to your new Iris site!", "info");
           thisHook.finish(true, function (res) {
@@ -550,8 +572,10 @@ iris.app.post("/api/login", function (req, res) {
 
 iris.app.get("/admin/users", function (req, res) {
 
-  if (iris.modules.entityUI && iris.modules.entityUI.globals.listEntities) {
-    iris.modules.entityUI.globals.listEntities(req, res, 'user');
+  if (iris.modules.entityUI) {
+
+    res.redirect("/admin/entitylist/user");
+
   } else {
     iris.modules.frontend.globals.displayErrorPage(404, req, res);
   }
