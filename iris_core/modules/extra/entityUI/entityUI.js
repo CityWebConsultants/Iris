@@ -100,7 +100,7 @@ iris.app.get("/admin/entitylist/:type", function (req, res) {
  * different urls.
  */
 iris.modules.entityUI.globals.listEntities = function (req, res, type) {
-    
+
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
@@ -152,8 +152,8 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
     // Get number of fields so we can tell once all the form widgets have been loaded
 
-    var fieldCount = Object.keys(schema).length;
-
+    var fieldCount = Object.keys(schema.fields).length;
+    
     // First make a clone of the schema 
 
     schema = JSON.parse(JSON.stringify(schema));
@@ -163,7 +163,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
     var counter = 0;
 
     var fieldLoaded = function () {
-
+      
       counter += 1;
 
       if (counter === fieldCount) {
