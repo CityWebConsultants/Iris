@@ -153,7 +153,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
     // Get number of fields so we can tell once all the form widgets have been loaded
 
     var fieldCount = Object.keys(schema.fields).length;
-    
+
     // First make a clone of the schema 
 
     schema = JSON.parse(JSON.stringify(schema));
@@ -163,10 +163,52 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
     var counter = 0;
 
     var fieldLoaded = function () {
+
+      // Sort by rank
+
+      var fields = [];
+
+      Object.keys(schema.fields).forEach(function (field) {
+        
+        fields.push({
+          name: field,
+          weight: schema.fields[field].weight
+        })
+
+      })
+
+      fields.sort(function (a, b) {
+
+        if (a.weight > b.weight) {
+
+          return 1;
+
+        } else if (a.weight < b.weight) {
+
+          return -1;
+
+        } else {
+
+          return 0;
+
+        }
+
+      })
+
+      data.form = [];
+            
+      fields.forEach(function (field) {
+
+        data.form.push(field.name)
+
+      })
       
+
       counter += 1;
 
       if (counter === fieldCount) {
+
+        data.form.push("entityType");
 
         data.schema.entityType = {
           type: "hidden",
@@ -174,6 +216,8 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
         }
 
         if (editingEntity) {
+
+          data.form.push("eid");
 
           data.schema.eid = {
             type: "hidden",
