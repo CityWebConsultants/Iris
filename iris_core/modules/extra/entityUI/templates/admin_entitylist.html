@@ -1,10 +1,10 @@
-<h1>List of {{type}} entities</h1>
+<h1>List of {{type}} entities</h1> 
 
 <p><a class="btn btn-primary" href="/admin/create/{{type}}">Create new {{type}}</a>
 </p>
 
 <table class="table" id="entity-list">
-
+  
   <tbody>
 
     <th>ID</th>
@@ -12,18 +12,16 @@
     <th>Edit</th>
     <th>Delete</th>
 
-    {{#each entities}}
-
+    {{#each entities}} 
+    
     <tr>
       <td>{{#if path}}<a href="{{path}}">{{eid}}</a>{{else}}{{eid}}{{/if}}</td>
       <td>{{username}}{{title}}</td>
       <td><a href="/admin/edit/{{ entityType }}/{{ eid }}">Edit</a></td>
       <td><a href="/admin/delete/{{ entityType }}/{{ eid }}">Delete</a></td>
     </tr>
-
+    
     {{/each}}
 
   </tbody>
 </table>
-
-</section>

@@ -89,49 +89,6 @@ iris.app.get("/admin/delete/:type/:id", function (req, res) {
 
 });
 
-iris.app.get("/admin/entitylist/:type", function (req, res) {
-
-  iris.modules.entityUI.globals.listEntities(req, res, req.params.type);
-
-});
-
-/**
- * Function used to list entites of a given type. Allows lists to be displayed from
- * different urls.
- */
-iris.modules.entityUI.globals.listEntities = function (req, res, type) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.entityUI.globals.prepareEntitylist(type, function (output) {
-
-    iris.modules.frontend.globals.parseTemplateFile(["admin_entitylist"], ['admin_wrapper'], {
-      entities: output.entities,
-      type: type
-    }, req.authPass, req).then(function (success) {
-
-      res.send(success)
-
-    }, function (fail) {
-
-      iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-      iris.log("error", fail);
-
-    });
-
-  })
-};
-
-
 // Render entity form
 
 iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisHook, data) {
@@ -169,7 +126,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
       var fields = [];
 
       Object.keys(schema.fields).forEach(function (field) {
-        
+
         fields.push({
           name: field,
           weight: schema.fields[field].weight
@@ -196,13 +153,13 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
       })
 
       data.form = [];
-            
+
       fields.forEach(function (field) {
 
         data.form.push(field.name)
 
       })
-      
+
 
       counter += 1;
 
@@ -534,3 +491,47 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
   })
 
 });
+
+// List of entities
+
+iris.route.get("/admin/entitylist/:type", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.hook("hook_entity_fetch", req.authPass, null, {
+    queryList: [{
+      entities: [req.params.type]
+      }]
+  }).then(function (result) {
+
+    iris.modules.frontend.globals.parseTemplateFile(["admin_entitylist"], ['admin_wrapper'], {
+      type: req.params.type,
+      entities: result
+    }, req.authPass, req).then(function (success) {
+
+      res.send(success)
+
+    }, function (fail) {
+
+      iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+      iris.log("error", fail);
+
+    });
+
+  }, function (fail) {
+
+
+    res.send(fail);
+
+  });
+
+})
