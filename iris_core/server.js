@@ -42,32 +42,12 @@ iris.app.use(function (req, res, next) {
 
   if (!iris.status.ready) {
 
-    fs.readFile(iris.sitePath + "/" + iris.config.theme + "/templates/startup.html", "utf8", function (err, file) {
+    setTimeout(function () {
 
-      if (!err) {
+      res.redirect(req.url);
 
-        res.send(file);
+    }, 500)
 
-      } else {
-
-        fs.readFile(iris.rootPath + "/iris_core/startup.html", "utf8", function (err, file) {
-
-          if (!err) {
-
-            res.send(file);
-
-          } else {
-
-            console.log(err);
-            res.send("Starting up");
-
-          }
-
-        })
-
-      }
-
-    });
 
     return false;
 
