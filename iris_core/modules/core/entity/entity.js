@@ -1,5 +1,6 @@
 /*jslint node: true nomen: true*/
 
+
 "use strict";
 
 var fs = require('fs');
@@ -58,5 +59,22 @@ iris.app.get("/api/entitySchema", function (req, res) {
   })
 
   res.send(output);
+
+})
+
+iris.app.get("/api/entitySchema/:type", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    res.status(403);
+    res.send("Access denied");
+
+    return false;
+
+  }
+
+  res.send(iris.dbCollections[req.params.type].schema.tree);
 
 })
