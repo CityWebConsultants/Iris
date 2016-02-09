@@ -991,6 +991,32 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 
 iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
 
+// Check route access
+  
+  Handlebars.registerHelper("iris_menu", function (item) {
+
+    var route = iris.findRoute(item, "get");
+    
+    if (route && route.options && route.options.permissions) {
+      
+      if (iris.modules.auth.globals.checkPermissions(route.options.permissions, thisHook.authPass)) {
+
+        return item;
+
+      } else {
+
+        return null;
+
+      }
+
+    } else {
+
+      return item;
+
+    };
+
+  });
+
   // Handle for a user's messages
 
   Handlebars.registerHelper("iris_messages", function () {
@@ -1171,7 +1197,7 @@ var insertTags = function (html, vars) {
         if (typeof tag == "string") {
 
           output += "<" + tagName + ">" + tag + "</" + tagName + ">";
-          
+
         } else {
 
           output += "<" + tag.type;
