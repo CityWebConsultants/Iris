@@ -434,7 +434,7 @@ iris.app.get("/fetch", function (req, res) {
 
   } else {
 
-    res.respond(500, "Invalid entity fetch")
+    res.status(400).send("Not a valid entity fetch query");
 
   }
 
