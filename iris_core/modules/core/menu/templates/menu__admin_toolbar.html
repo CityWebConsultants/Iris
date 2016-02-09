@@ -2,9 +2,11 @@
 <nav class="menu menu-{{menu.menuName}}">
 
   <ul class="menu">
-
+    
     {{#menu.items}}
-
+    
+      {{#if (iris_menu path)}}
+    
         <li {{#children}} class="has-children" {{/children}}>
 
       <a href="{{path}}">{{title}}</a>
@@ -25,6 +27,8 @@
           {{/if}}
       
     </li>
+    
+    {{/if}}
 
     {{/menu.items}}
 
