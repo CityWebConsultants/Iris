@@ -563,7 +563,7 @@ iris.app.post("/api/login", function (req, res) {
 
   } else {
 
-    res.send(null);
+    res.status(400).send("Must send username and password");
 
   }
 
