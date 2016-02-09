@@ -198,6 +198,12 @@ iris.app.post("/entity/create/:type", function (req, res) {
 
   }, function (fail) {
 
+    if (fail.code) {
+
+      res.status(fail.code);
+
+    }
+
     res.send(fail);
 
   });
