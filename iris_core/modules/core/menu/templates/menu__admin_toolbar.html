@@ -15,11 +15,11 @@
           <ul class="sub-menu">
               {{#children}}
 
-          
+          {{#if (iris_menu path)}}
 
             <li><a href="{{path}}">{{title}}</a></li>
 
-          
+          {{/if}}
 
           {{/children}}
           </ul>
