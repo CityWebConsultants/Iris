@@ -548,7 +548,7 @@ iris.app.post("/api/login", function (req, res) {
 
       if (!userid) {
 
-        res.send(null);
+        res.status(403).send("Not valid credentials");
 
       } else {
 
