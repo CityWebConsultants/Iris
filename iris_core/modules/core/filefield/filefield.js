@@ -16,7 +16,7 @@ var fs = require('fs');
 
 iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (req, res) {
 
-  // Make temp file directory if it doesn't exist
+  // Make temp file directory and files directory if they don't exist
 
   var mkdirSync = function (path) {
     try {
@@ -30,106 +30,22 @@ iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', functio
 
   mkdirSync(iris.sitePath + "/" + "files");
 
-  var fstream;
+  req.pipe(req.busboy);
 
-  iris.hook("hook_file_upload", req.authPass, {
-    filename: req.params.filename,
-    form: req.params.form,
-    url: req.url,
-    formParams: req.params.parameters
-  }, {}).then(function (info) {
+  req.busboy.on('file', function (fieldname, file, filename) {
 
-      if (!iris.config.max_file_size) {
+    var ws = fs.createWriteStream(iris.sitePath + '/temp/' + filename);
+    file.pipe(ws);
 
-        iris.config.max_file_size = 0;
-
-      }
-
-      var maxSize = iris.config.max_file_size * 1000000;
-
-      if (info.maxSize) {
-
-        maxSize = info.maxSize * 1000000;
-
-      }
-
-      req.pipe(req.busboy);
-
-      req.busboy.on('file', function (fieldname, file, filename) {
-
-        var ws = fs.createWriteStream(iris.sitePath + '/temp/' + filename);
-        file.pipe(ws);
-
-        ws.on('close', function () {
-          res.end(filename);
-        });
-
-      });
-
-    },
-    function (fail) {
-
-      res.send(fail);
-
+    ws.on('close', function () {
+      res.end(filename);
     });
+
+  });
 
 });
 
 iris.modules.auth.globals.registerPermission("Can upload files", "files");
-
-/**
- * @member hook_file_upload
- * @memberof filefield
- *
- * @desc Uploads a file to the server after validating and checking user's permissions
- */
-iris.modules.filefield.registerHook("hook_file_upload", 0, function (thisHook, data) {
-
-  if (iris.modules.auth.globals.checkPermissions(["Can upload files"], thisHook.authPass)) {
-
-    // If entity form, check if file small enough
-
-    if (thisHook.const.form === "editEntity" || thisHook.const.form === "createEntity") {
-
-      var entityType = JSON.parse(thisHook.const.formParams)[1];
-
-      if (entityType) {
-
-        var schema = schema = iris.dbCollections[entityType].schema.tree;
-
-        // Check if file size set in schema
-
-        var args = {};
-
-        if (schema[thisHook.const.filename] && schema[thisHook.const.filename]["size"]) {
-
-          args.maxSize = schema[thisHook.const.filename]["size"];
-
-        }
-
-        if (schema[thisHook.const.filename] && schema[thisHook.const.filename]["extensions"]) {
-
-          args.extensions = schema[thisHook.const.filename]["extensions"].split(",");
-
-        }
-
-        thisHook.finish(true, args)
-
-      }
-
-    } else {
-
-      thisHook.finish(true, data);
-
-    }
-
-  } else {
-
-    thisHook.finish(false, "Not allowed to upload files");
-
-  }
-
-})
 
 // Register file field widget
 
@@ -137,7 +53,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['file'] = Object.create(JSONForm.elementTypes['text']);
 
-  JSONForm.elementTypes['file'].template = '<input class="filefield" type="file" ' +
+  JSONForm.elementTypes['file'].template = '<%= value ? "Current file: " + escape(value) : ""  %><input class="filefield" type="file" ' +
     '<%= (fieldHtmlClass ? "class=\'" + fieldHtmlClass + "\' " : "") %>' +
     'name="FILEFIELD<%= node.name %>" value="<%= escape(value) %>" id="FILEFIELD<%= id %>"' +
     '<%= (node.disabled? " disabled" : "")%>' +
@@ -202,13 +118,15 @@ iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__file", 0,
 
       fs.rename(iris.sitePath + '/temp/' + value, iris.sitePath + '/files/' + value, function () {
 
-        thisHook.finish(true, value);
+        thisHook.finish(true, "/files/" + value);
 
       });
 
     } else {
 
-      thisHook.finish(true, value);
+      iris.log("error", err);
+
+      thisHook.finish(true, null);
 
     }
 
