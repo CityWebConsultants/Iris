@@ -197,7 +197,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
     // Function for getting a form for a field
 
     var getFieldForm = function (field, callback, currentValue) {
-      
+
       var fieldType = field.fieldType;
 
       if (fieldType !== "Fieldset") {
@@ -284,24 +284,10 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
         // It's a fieldset! Load the nested fields
 
-        // TODO Make prepopulated values work
-
-        var defaultValues = [];
-
-        if (currentValue) {
-          
-          currentValue.forEach(function (fieldgroup) {
-
-            defaultValues.push(JSON.parse(JSON.stringify(fieldgroup)));
-
-          })
-
-        }
-        
         var fieldset = {
           "type": "array",
           "title": field.label,
-          "default": defaultValues,
+          "default": [],
           "description": field.description,
           "items": {
             "type": "object",
@@ -332,19 +318,54 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
           }
 
+          var length = 1;
+
+          if (currentValue && currentValue.length) {
+
+            length = currentValue.length;
+
+          }
+
+          for (var i = 1; i <= length; i += 1) {
+
+            fieldset.default.push({});
+
+          }
+
           Object.keys(field.subfields).forEach(function (subFieldName) {
 
-            getFieldForm(field.subfields[subFieldName], function (form) {
-              
-//              console.log(form);
+            var valueCounter = 0;
 
-              fieldset.items.properties[subFieldName] = form;
+            var valueLoaded = function () {
 
-              subfieldLoaded();
+              valueCounter += 1;
 
-            }, currentValue ? currentValue[subFieldName] : null);
+              if (valueCounter === length) {
+
+                subfieldLoaded();
+
+              }
+
+            }
+
+            Object.keys(fieldset.default).forEach(function (element, index) {
+
+              getFieldForm(field.subfields[subFieldName], function (form) {
+
+                fieldset.default[index][subFieldName] = form.default;
+
+                delete form.default;
+
+                fieldset.items.properties[subFieldName] = form;
+
+                valueLoaded();
+
+              }, currentValue ? currentValue[index][subFieldName] : null);
+
+            })
 
           })
+
 
         }
 
@@ -427,7 +448,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
     fieldCounter += 1;
 
     if (fieldCounter === fieldCount) {
-      
+
       finalValues.entityType = entityType;
       finalValues.entityAuthor = thisHook.authPass.userid;
 
@@ -443,7 +464,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
         hook = "hook_entity_create"
 
       }
-      
+
       iris.hook(hook, thisHook.authPass, finalValues, finalValues).then(function (success) {
 
         thisHook.finish(true, function (res) {
