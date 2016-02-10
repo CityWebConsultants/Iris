@@ -208,7 +208,7 @@ iris.app.post("/entity/create/:type", function (req, res) {
 
     }
 
-    res.send(json.stringify(fail));
+    res.send(JSON.stringify(fail));
 
   });
 
