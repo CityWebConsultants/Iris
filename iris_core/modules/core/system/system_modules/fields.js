@@ -139,10 +139,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Number]
 
 });
 
-iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Date", 0, function (thisHook, data) {
-
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+var dateToForm = function (value) {
 
   Number.prototype.padZero = function (len) {
     var s = String(this),
@@ -164,6 +161,21 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Date", 0
       date: year.toString() + "-" + month.toString() + "-" + day.toString(),
       time: value.getUTCHours().padZero() + ":" + value.getUTCMinutes().padZero()
     }
+
+  }
+
+  return value;
+
+}
+
+iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Date", 0, function (thisHook, data) {
+
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
+
+  if (value) {
+
+    value = dateToForm(value);
 
   }
 
@@ -191,13 +203,36 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Date]",
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
 
+
+  if (value) {
+
+    var values = [];
+
+    value.forEach(function (date, index) {
+
+      values.push(dateToForm(date));
+
+    })
+
+    value = values;
+
+  }
+
   data = {
     "type": "array",
     "title": fieldSettings.label,
     "default": value,
     "description": fieldSettings.description,
     "items": {
-      "type": "date"
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "date"
+        },
+        "time": {
+          "type": "time"
+        }
+      }
     }
   }
 
@@ -245,5 +280,24 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Date", 0
   date.setUTCMinutes(thisHook.const.value.time.split(":")[1]);
 
   thisHook.finish(true, date);
+
+})
+
+iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Date]", 0, function (thisHook, data) {
+
+  var dates = [];
+
+  thisHook.const.value.forEach(function (value, index) {
+
+    var date = new Date(value.date);
+
+    date.setUTCHours(value.time.split(":")[0]);
+    date.setUTCMinutes(value.time.split(":")[1]);
+
+    dates.push(date);
+
+  })
+
+  thisHook.finish(true, dates);
 
 })
