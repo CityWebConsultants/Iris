@@ -320,7 +320,7 @@ iris.fetchEntities = function (variableName, query) {
   }
 
   var sendQuery = {
-    queryList: JSON.stringify([{
+    queryList: JSON.stringify({
 
       queries: query.queries,
       entities: query.entities,
@@ -328,7 +328,7 @@ iris.fetchEntities = function (variableName, query) {
       sort: query.sort,
       skip: query.skip
 
-      }])
+      })
   };
 
   var querystring = formatParams(sendQuery);

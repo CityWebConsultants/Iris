@@ -161,8 +161,8 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
     }
 
-//    Debugger for queries
-    
+    //    Debugger for queries
+
     /*var util = require("util");
 
     console.log(util.inspect(query, {
@@ -396,7 +396,9 @@ iris.app.get("/fetch", function (req, res) {
 
   var failed;
 
-  if (req.body.entities) {
+  if (req.body.queryList && req.body.queryList.entities) {
+
+    req.body = req.body.queryList;
 
     req.body.entities.forEach(function (entityType) {
 
