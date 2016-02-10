@@ -202,9 +202,13 @@ iris.app.post("/entity/create/:type", function (req, res) {
 
       res.status(fail.code);
 
+    } else {
+
+      res.status(400);
+
     }
 
-    res.send(fail);
+    res.send(json.stringify(fail));
 
   });
 
