@@ -34,12 +34,59 @@ iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', functio
 
   req.busboy.on('file', function (fieldname, file, filename) {
 
-    var ws = fs.createWriteStream(iris.sitePath + '/temp/' + filename);
-    file.pipe(ws);
+    // Set max size to 0 if not set
 
-    ws.on('close', function () {
-      res.end(filename);
+    if (!iris.config.max_file_size) {
+
+      iris.config.max_file_size = 0;
+
+    }
+
+    var maxSize = iris.config.max_file_size * 1000000;
+
+    var size = 0;
+
+    var failed;
+
+    var buffer = [];
+
+    file.on('data', function (data) {
+
+      size += data.length;
+
+      buffer.push(data);
+
+      if (size > maxSize) {
+
+        failed = "File should be smaller than " + maxSize / 1000000 + "MB";
+        file.resume();
+
+      }
+
     });
+
+    file.on("end", function () {
+
+      if (failed) {
+        res.status(400).send(failed);
+        return false;
+      }
+
+      filename = filename.split(" ").join("_");
+
+      var wstream = fs.createWriteStream(iris.sitePath + '/temp/' + filename);
+
+      wstream.write(Buffer.concat(buffer));
+
+      wstream.on("finish", function (data) {
+
+        res.send(filename);
+
+      })
+
+      wstream.end();
+
+    })
 
   });
 
@@ -53,7 +100,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['file'] = Object.create(JSONForm.elementTypes['text']);
 
-  JSONForm.elementTypes['file'].template = '<%= value ? "Current file: " + escape(value) : ""  %><input class="filefield" type="file" ' +
+  JSONForm.elementTypes['file'].template = '<span class="currentFile"><%= value ? "Current file: " + escape(value) : ""  %></span><input class="filefield" type="file" ' +
     '<%= (fieldHtmlClass ? "class=\'" + fieldHtmlClass + "\' " : "") %>' +
     'name="FILEFIELD<%= node.name %>" value="<%= escape(value) %>" id="FILEFIELD<%= id %>"' +
     '<%= (node.disabled? " disabled" : "")%>' +
@@ -94,7 +141,16 @@ iris.modules.forms.globals.registerWidget(function () {
         processData: false,
       }).done(function (response) {
 
+        $(fileInput).parent().find(".currentFile").hide();
+
         $("input[name=" + id + "]").attr("value", response);
+
+      }).fail(function (error) {
+
+        $("input[name=" + id + "]").attr("value", null);
+        $(fileInput).parent().find(".currentFile").hide();
+        fileInput.value = null;
+        alert(error.responseText);
 
       });
 
@@ -108,7 +164,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
 iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__file", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
+  var value = thisHook.const.value.split(" ").join("_");
 
   // Check if temp folder contains this file
 
