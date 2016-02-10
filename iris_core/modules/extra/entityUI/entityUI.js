@@ -474,9 +474,9 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
 
 
     if (field.fieldType !== "Fieldset") {
-      
+
       var fieldTypeType = iris.fieldTypes[field.fieldType].type;
-    
+
       iris.hook("hook_entity_field_fieldType_save__" + iris.sanitizeName(field.fieldType), thisHook.authPass, {
         value: value,
         field: field
@@ -511,7 +511,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
       callback(value);
 
     } else {
-      
+
       // TODO : Loop over fieldset fields and run this function recursively
 
       callback(value);
@@ -548,9 +548,7 @@ iris.route.get("/admin/entitylist/:type", function (req, res) {
   }
 
   iris.hook("hook_entity_fetch", req.authPass, null, {
-    queryList: [{
-      entities: [req.params.type]
-      }]
+    entities: [req.params.type]
   }).then(function (result) {
 
     iris.modules.frontend.globals.parseTemplateFile(["admin_entitylist"], ['admin_wrapper'], {

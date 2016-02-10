@@ -19,27 +19,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
   var req = {};
   req.body = data;
 
-  if (req.body.queryList) {
-
-    // Current accepting only one query at a time but sending as an array for future multiqueries
-
-    if (req.body.queryList && Array.isArray(req.body.queryList)) {
-
-      req.body.entities = req.body.queryList[0].entities;
-      req.body.queries = req.body.queryList[0].queries;
-      req.body.limit = req.body.queryList[0].limit;
-      req.body.sort = req.body.queryList[0].sort;
-      req.body.skip = req.body.queryList[0].skip;
-
-    } else {
-
-      thisHook.finish(false, "Send queries as an array");
-      return false;
-
-    }
-
-  }
-
   var entityTypes = [];
 
   // Populate list of targetted DB entities
@@ -417,9 +396,9 @@ iris.app.get("/fetch", function (req, res) {
 
   var failed;
 
-  if (req.body.queryList && req.body.queryList[0] && req.body.queryList[0].entities) {
+  if (req.body.entities) {
 
-    req.body.queryList[0].entities.forEach(function (entityType) {
+    req.body.entities.forEach(function (entityType) {
 
       if (!iris.modules.auth.globals.checkPermissions(["can fetch " + entityType], req.authPass)) {
 
