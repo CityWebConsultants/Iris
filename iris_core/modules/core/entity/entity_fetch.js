@@ -14,18 +14,15 @@
  *
  * @returns the fetched entities
  */
-iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
-
-  var req = {};
-  req.body = data;
+iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fetchRequest) {
 
   var entityTypes = [];
 
   // Populate list of targetted DB entities
   
-  if (Array.isArray(req.body.entities)) {
+  if (Array.isArray(fetchRequest.entities)) {
     
-    req.body.entities.forEach(function (entity) {
+    fetchRequest.entities.forEach(function (entity) {
 
       if (iris.dbCollections[entity]) {
 
@@ -49,15 +46,15 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
     $and: []
   };
   
-  if (!req.body.queries) {
+  if (!fetchRequest.queries) {
 
-    req.body.queries = [];
+    fetchRequest.queries = [];
 
   }
 
-  if (Array.isArray(req.body.queries)) {
+  if (Array.isArray(fetchRequest.queries)) {
 
-    req.body.queries.forEach(function (fieldQuery) {
+    fetchRequest.queries.forEach(function (fieldQuery) {
 
       try {
 
@@ -155,7 +152,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
     });
 
-    if (req.body.queries.length === 0) {
+    if (fetchRequest.queries.length === 0) {
 
       query = [];
 
@@ -193,7 +190,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
           var fetch = function (query) {
 
-            iris.dbCollections[type].find(query).lean().sort(req.body.sort).skip(req.body.skip).limit(req.body.limit).exec(function (err, doc) {
+            iris.dbCollections[type].find(query).lean().sort(fetchRequest.sort).skip(fetchRequest.skip).limit(fetchRequest.limit).exec(function (err, doc) {
 
               if (err) {
 
@@ -336,18 +333,18 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
             }
 
-            if (req.body.sort) {
+            if (fetchRequest.sort) {
 
-              Object.keys(req.body.sort).forEach(function (sorter) {
-                sort(sorter, req.body.sort[sorter])
+              Object.keys(fetchRequest.sort).forEach(function (sorter) {
+                sort(sorter, fetchRequest.sort[sorter])
 
               })
 
             }
 
-            if (req.body.limit && output.length > req.body.limit) {
+            if (fetchRequest.limit && output.length > fetchRequest.limit) {
 
-              output.length = req.body.limit;
+              output.length = fetchRequest.limit;
 
             }
 
