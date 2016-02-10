@@ -197,7 +197,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
     // Function for getting a form for a field
 
     var getFieldForm = function (field, callback, currentValue) {
-
+      
       var fieldType = field.fieldType;
 
       if (fieldType !== "Fieldset") {
@@ -289,7 +289,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
         var defaultValues = [];
 
         if (currentValue) {
-
+          
           currentValue.forEach(function (fieldgroup) {
 
             defaultValues.push(JSON.parse(JSON.stringify(fieldgroup)));
@@ -297,7 +297,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
           })
 
         }
-
+        
         var fieldset = {
           "type": "array",
           "title": field.label,
@@ -335,6 +335,8 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
           Object.keys(field.subfields).forEach(function (subFieldName) {
 
             getFieldForm(field.subfields[subFieldName], function (form) {
+              
+//              console.log(form);
 
               fieldset.items.properties[subFieldName] = form;
 
@@ -425,7 +427,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
     fieldCounter += 1;
 
     if (fieldCounter === fieldCount) {
-
+      
       finalValues.entityType = entityType;
       finalValues.entityAuthor = thisHook.authPass.userid;
 
@@ -441,7 +443,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
         hook = "hook_entity_create"
 
       }
-
+      
       iris.hook(hook, thisHook.authPass, finalValues, finalValues).then(function (success) {
 
         thisHook.finish(true, function (res) {
@@ -504,17 +506,66 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
 
           });
 
+        } else {
+
+
         }
 
       })
 
-      callback(value);
-
     } else {
 
-      // TODO : Loop over fieldset fields and run this function recursively
+      if (field.subfields && Object.keys(field.subfields).length) {
 
-      callback(value);
+        var fieldsetValue = [];
+
+        var subfieldCount = Object.keys(field.subfields).length;
+
+        // Need to loop over all the values as well
+
+        var valueCount = value.length;
+
+        // Push in empty objects to store the fields in
+
+        for (var i = 0; i < valueCount; i++) {
+
+          fieldsetValue.push({});
+
+        }
+
+        var valueCounter = 0;
+        var valueDone = function () {
+
+          valueCounter += 1;
+
+          if (valueCounter === valueCount * subfieldCount) {
+
+            callback(fieldsetValue);
+
+          }
+
+        }
+
+        Object.keys(field.subfields).forEach(function (subfieldName) {
+
+          value.forEach(function (valueObject, index) {
+
+            processField(field.subfields[subfieldName], valueObject[subfieldName], function (subfieldValue) {
+
+              fieldsetValue[index][subfieldName] = subfieldValue;
+              valueDone();
+
+            })
+
+          })
+
+        })
+
+      } else {
+
+        callback(value);
+
+      }
 
     }
 
