@@ -86,9 +86,7 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 
     }
 
-    iris.hook("hook_entity_fetch", thisHook.authPass, null, {
-      queryList: [fetch]
-    }).then(function (result) {
+    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
 
       data.variables[variableName] = result;
 

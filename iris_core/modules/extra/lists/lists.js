@@ -138,9 +138,7 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
       limit: config.limit
     }
 
-    iris.hook("hook_entity_fetch", thisHook.authPass, null, {
-      queryList: [fetch]
-    }).then(function (result) {
+    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
 
         var output = [];
 

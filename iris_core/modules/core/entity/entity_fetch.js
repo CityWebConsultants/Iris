@@ -14,39 +14,15 @@
  *
  * @returns the fetched entities
  */
-iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, data) {
-
-  var req = {};
-  req.body = data;
-
-  if (req.body.queryList) {
-
-    // Current accepting only one query at a time but sending as an array for future multiqueries
-
-    if (req.body.queryList && Array.isArray(req.body.queryList)) {
-
-      req.body.entities = req.body.queryList[0].entities;
-      req.body.queries = req.body.queryList[0].queries;
-      req.body.limit = req.body.queryList[0].limit;
-      req.body.sort = req.body.queryList[0].sort;
-      req.body.skip = req.body.queryList[0].skip;
-
-    } else {
-
-      thisHook.finish(false, "Send queries as an array");
-      return false;
-
-    }
-
-  }
+iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fetchRequest) {
 
   var entityTypes = [];
 
   // Populate list of targetted DB entities
-
-  if (Array.isArray(req.body.entities)) {
-
-    req.body.entities.forEach(function (entity) {
+  
+  if (Array.isArray(fetchRequest.entities)) {
+    
+    fetchRequest.entities.forEach(function (entity) {
 
       if (iris.dbCollections[entity]) {
 
@@ -69,16 +45,16 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
   var query = {
     $and: []
   };
+  
+  if (!fetchRequest.queries) {
 
-  if (!req.body.queries) {
-
-    req.body.queries = [];
+    fetchRequest.queries = [];
 
   }
 
-  if (Array.isArray(req.body.queries)) {
+  if (Array.isArray(fetchRequest.queries)) {
 
-    req.body.queries.forEach(function (fieldQuery) {
+    fetchRequest.queries.forEach(function (fieldQuery) {
 
       try {
 
@@ -176,14 +152,14 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
     });
 
-    if (req.body.queries.length === 0) {
+    if (fetchRequest.queries.length === 0) {
 
       query = [];
 
     }
 
-//    Debugger for queries
-    
+    //    Debugger for queries
+
     /*var util = require("util");
 
     console.log(util.inspect(query, {
@@ -214,7 +190,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
           var fetch = function (query) {
 
-            iris.dbCollections[type].find(query).lean().sort(req.body.sort).skip(req.body.skip).limit(req.body.limit).exec(function (err, doc) {
+            iris.dbCollections[type].find(query).lean().sort(fetchRequest.sort).skip(fetchRequest.skip).limit(fetchRequest.limit).exec(function (err, doc) {
 
               if (err) {
 
@@ -357,18 +333,18 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 
             }
 
-            if (req.body.sort) {
+            if (fetchRequest.sort) {
 
-              Object.keys(req.body.sort).forEach(function (sorter) {
-                sort(sorter, req.body.sort[sorter])
+              Object.keys(fetchRequest.sort).forEach(function (sorter) {
+                sort(sorter, fetchRequest.sort[sorter])
 
               })
 
             }
 
-            if (req.body.limit && output.length > req.body.limit) {
+            if (fetchRequest.limit && output.length > fetchRequest.limit) {
 
-              output.length = req.body.limit;
+              output.length = fetchRequest.limit;
 
             }
 
@@ -412,15 +388,15 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, dat
 });
 
 iris.app.get("/fetch", function (req, res) {
-
+  
   // Check if user can fetch this entity type
 
   var failed;
 
-  if (req.body.queryList && req.body.queryList[0] && req.body.queryList[0].entities) {
-
-    req.body.queryList[0].entities.forEach(function (entityType) {
-
+  if (req.body.entities) {
+    
+    req.body.entities.forEach(function (entityType) {
+            
       if (!iris.modules.auth.globals.checkPermissions(["can fetch " + entityType], req.authPass)) {
 
         iris.log("warn", "User " + req.authPass.userid + " was denied access to fetch " + entityType + " list ");
@@ -433,7 +409,7 @@ iris.app.get("/fetch", function (req, res) {
     })
 
   } else {
-
+    
     res.status(400).send("Not a valid entity fetch query");
 
   }
@@ -450,7 +426,7 @@ iris.app.get("/fetch", function (req, res) {
     res.respond(200, success);
 
   }, function (fail) {
-
+    
     res.respond(400, fail);
 
   })

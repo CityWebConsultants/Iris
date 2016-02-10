@@ -314,22 +314,20 @@ iris.fetchEntities = function (variableName, query) {
     return "?" + Object
       .keys(params)
       .map(function (key) {
-        return key + "=" + params[key]
+        if (params[key]) {
+          return key + "=" + params[key]
+        }
       })
       .join("&")
   }
 
-  var sendQuery = {
-    queryList: JSON.stringify([{
+  var sendQuery = {}
 
-      queries: query.queries,
-      entities: query.entities,
-      limit: query.limit,
-      sort: query.sort,
-      skip: query.skip
-
-      }])
-  };
+  sendQuery.queries = query.queries ? JSON.stringify(query.queries) : undefined;
+  sendQuery.entities = JSON.stringify(query.entities);
+  sendQuery.limit = query.limit ? JSON.stringify(query.limit) : undefined;
+  sendQuery.sort = query.sort ? JSON.stringify(query.sort) : undefined;
+  sendQuery.skip = query.skip ? JSON.stringify(query.skip) : undefined;
 
   var querystring = formatParams(sendQuery);
 

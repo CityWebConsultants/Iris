@@ -887,14 +887,12 @@ iris.app.use(function (req, res, next) {
     }
 
     iris.hook("hook_entity_fetch", req.authPass, null, {
-      queryList: [{
-        entities: [splitUrl[1]],
-        queries: [{
-          field: 'eid',
-          operator: 'IS',
-          value: splitUrl[2]
+      entities: [splitUrl[1]],
+      queries: [{
+        field: 'eid',
+        operator: 'IS',
+        value: splitUrl[2]
         }]
-      }]
     }).then(function (result) {
 
       if (result && result[0]) {
@@ -991,14 +989,14 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 
 iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
 
-// Check route access
-  
+  // Check route access
+
   Handlebars.registerHelper("iris_menu", function (item) {
 
     var route = iris.findRoute(item, "get");
-    
+
     if (route && route.options && route.options.permissions) {
-      
+
       if (iris.modules.auth.globals.checkPermissions(route.options.permissions, thisHook.authPass)) {
 
         return item;
