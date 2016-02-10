@@ -6,14 +6,16 @@
     {{#menu.items}}
     
       {{#if (iris_menu path)}}
-    
+      
         <li {{#children}} class="has-children" {{/children}}>
 
       <a href="{{path}}">{{title}}</a>
           
           {{#if this.children}}
+          
           <ul class="sub-menu">
-              {{#children}}
+            
+            {{#children}}
 
           {{#if (iris_menu path)}}
 
@@ -22,6 +24,7 @@
           {{/if}}
 
           {{/children}}
+            
           </ul>
           
           {{/if}}
