@@ -6,6 +6,8 @@ if (!window.iris) {
 
 }
 
+iris.angular = angular.module("iris", []);
+
 function irisReady(fn) {
   if (document.readyState != 'loading') {
     fn();
@@ -36,24 +38,30 @@ irisReady(function () {
 
   }
 
-  iris.angular = angular.module("iris", []);
-
   iris.angular.controller("iris-template", ["$scope", "$element", "$attrs", "$timeout", function ($scope, $element, $attrs, $timeout) {
 
     // Read ng-template property and see if template exists
 
     var template = $element[0].getAttribute("ng-iris-template");
 
+    $scope.credentials = iris.credentials;
+
     if (iris.fetched && iris.fetched[template]) {
 
-      $scope.data = iris.fetched[template].entities;
+
+      $scope[template] = iris.fetched[template].entities;
 
     }
 
     // Listen for the event.
     document.addEventListener('entityListUpdate', function (e) {
+            
+      if (iris.fetched[template] && iris.fetched[template].entities) {
 
-      $scope.data = iris.fetched[template].entities;
+        $scope[template] = iris.fetched[template].entities;
+
+      }
+
       $scope.$apply();
 
     }, false);

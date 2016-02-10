@@ -198,7 +198,7 @@ iris.typeCheck = function (allowed, entity, data) {
 };
 
 /**
- * @function sanitizeFileName
+ * @function sanitizeName
  * @memberof iris
  *
  * @desc Sanitize file name
@@ -209,10 +209,10 @@ iris.typeCheck = function (allowed, entity, data) {
  *
  * @returns a sanitized string ready for use as a filename
  */
-iris.sanitizeFileName = function (name) {
+iris.sanitizeName = function (name) {
 
   // Doesn't currently support anything not English
-  return name.split(/\W/).join('-').toLowerCase();
+  return name.replace(/[^a-zA-Z]+/g, '_').toLowerCase();
 
 }
 
@@ -228,5 +228,41 @@ iris.sanitizeEmbeds = function (html) {
   html = html.split("}}}").join("&#125;&#125;&#125;");
 
   return html;
+
+}
+
+iris.findRoute = function (path, method) {
+
+  // Check if it matches any routes stored with iris_route.
+
+  var pathToRegexp = require('path-to-regexp');
+
+  var irisRoute;
+
+  Object.keys(iris.routes).forEach(function (route) {
+
+    var url = require("url");
+
+    var regexRoute = pathToRegexp(route);
+
+    if (url.parse(path).pathname.match(regexRoute)) {
+
+      // Route matches
+
+
+      if (iris.routes[route][method.toLowerCase()]) {
+
+        irisRoute = {
+          path: route,
+          options: iris.routes[route][method.toLowerCase()].options
+        }
+
+      }
+
+    };
+
+  })
+
+  return irisRoute;
 
 }

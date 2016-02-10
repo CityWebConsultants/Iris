@@ -95,7 +95,6 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
 
   } catch (e) {
 
-    console.log(e);
     thisHook.finish(true, data);
 
   }
@@ -116,7 +115,7 @@ iris.modules.forms.registerHook("hook_form_submit_regions", 0, function (thisHoo
 
   } catch (e) {
 
-    console.log(e);
+    iris.log("error", e);
 
   }
 
@@ -180,12 +179,12 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
 
                 });
 
-              })
+              });
 
-            })
+            });
 
+          });
 
-          })
 
           iris.promiseChain(blockPromises, {}, function (pass) {
 

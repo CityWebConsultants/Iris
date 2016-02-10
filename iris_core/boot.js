@@ -19,15 +19,19 @@ module.exports = function (config) {
 
   iris.restart = function (userid, where) {
 
-    if (userid) {
+    process.nextTick(function () {
 
-      iris.message(userid, "Server restarted successfully", "success");
+      if (userid) {
 
-    }
+        iris.message(userid, "Server restarted", "success");
 
-    iris.log("info", "Server restarted " + (userid ? " by user " + userid : "") + (where ? " via " + where : ""));
+      }
 
-    process.send("restart");
+      iris.log("info", "Server restarted " + (userid ? " by user " + userid : "") + (where ? " via " + where : ""));
+
+      process.send("restart");
+
+    })
 
   };
 
@@ -324,11 +328,12 @@ module.exports = function (config) {
     require('./modules/core/frontend/frontend.js');
 
     require('./modules/core/forms/forms.js');
+
     require('./modules/core/filefield/filefield.js');
 
     require('./modules/core/menu/menu.js');
 
-    require('./modules/core/admin_ui/admin_ui.js');
+    require('./modules/core/system/system.js');
 
     require('./modules/core/user/user.js');
 
@@ -439,6 +444,10 @@ module.exports = function (config) {
 
     iris.log("info", "Server started");
 
+    // Populate routes stored using iris.route
+
+    iris.populateRoutes();
+
     /**
      * Catch all callback which is run last. If this is called then the GET request has not been defined 
      * anywhere in the system and will therefore return 404 error. 
@@ -449,12 +458,13 @@ module.exports = function (config) {
     iris.app.use(function (req, res) {
 
       iris.hook("hook_catch_request", req.authPass, {
-        req: req
+        req: req,
+        res: res
       }, null).then(function (success) {
 
           if (typeof success === "function") {
 
-            var output = success(res);
+            var output = success(res, req);
 
             if (output && output.then) {
 

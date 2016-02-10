@@ -70,7 +70,8 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
           params: body,
           formid: formid,
-          req: thisHook.const.req
+          req: thisHook.const.req,
+          res: thisHook.const.res
         }, null).then(function (callback) {
 
           if (typeof callback !== "function") {
@@ -79,7 +80,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
             var callback = function (res) {
 
-              res.send(thisHook.const.req.url);
+              res.json(thisHook.const.req.url);
 
             }
 
@@ -108,7 +109,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
               var callback = function (res) {
 
-                res.send({
+                res.json({
                   errors: fail
                 });
 
@@ -126,7 +127,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
             var callback = function (res) {
 
-              res.send({
+              res.json({
                 errors: fail
               });
 
@@ -203,6 +204,7 @@ iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data)
  */
 iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
+  var variables = data;
   iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
 
     // Add scripts for forms
@@ -339,6 +341,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
         output += "</script>";
 
         output += "<script>$('#" + uniqueId + "').jsonForm(" + toSource(form) + ");</script>";
+      
         callback(output);
 
       });
@@ -355,48 +358,58 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
     formTemplate.onSubmit = function (errors, values) {
 
-      $.post(window.location, values, function (data, err) {
 
-        if (data.errors) {
+      $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: window.location,
+        data: JSON.stringify(values),
+        dataType: "json",
+        success: function (data) {
 
-          $("html, body").animate({
-            scrollTop: 0
-          }, "slow");
+          if (data.errors) {
 
-          $("[data-formid='" + values.formid +"'").prepend("<div class='form-errors'>" + data.errors + "</div>")
+            $("html, body").animate({
+              scrollTop: 0
+            }, "slow");
 
-        } else if (data.redirect) {
+            $("[data-formid='" + values.formid + "'").prepend("<div class='form-errors'>" + data.errors + "</div>")
 
-          window.location.href = data.redirect;
+          } else if (data.redirect) {
 
-        } else {
-
-          if (data && data.indexOf("doctype") === -1) {
-
-            window.location.href = data;
+            window.location.href = data.redirect;
 
           } else {
 
-            window.location.href = window.location.href;
+            if (data && data.indexOf("doctype") === -1) {
+
+              window.location.href = data;
+
+            } else {
+
+              window.location.href = window.location.href;
+
+            }
 
           }
 
         }
-
-      })
+      });
 
     };
 
     iris.hook("hook_form_render", thisHook.authPass, {
       formId: form[0],
-      params: form
+      params: form,
+      context: variables
     }, formTemplate).then(function (formTemplate) {
-
+      
       iris.hook("hook_form_render_" + formName, thisHook.authPass, {
         formId: form[0],
-        params: form
+        params: form,
+        context: variables
       }, formTemplate).then(function (form) {
-
+        
         renderForm(form, function (output) {
 
           next(output);
@@ -406,17 +419,24 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
       }, function (fail) {
 
         if (fail = "No such hook exists") {
+          
+          renderForm(formTemplate, function (output) {
 
-          next(false);
+            next(output);
+
+          });
 
         }
+        else {
 
         next(false);
+          
+        }
 
       });
 
     }, function (fail) {
-
+   
       next(false);
 
     });

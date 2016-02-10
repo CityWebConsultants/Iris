@@ -6,21 +6,15 @@
       "label": "Message type",
       "weight": 0
     },
-    "messageContent": {
+    "content": {
       "fieldType": "Longtext",
       "label": "Message content",
       "weight": 1
     },
-    "messageRecipients": {
+    "groups": {
       "weight": 2,
-      "fieldType": "Fieldset",
-      "label": "Recipients",
-      "subfields": {
-        "user": {
-          "fieldType": "Multi text field",
-          "label": "User IDs"
-        }
-      }
+      "fieldType": "Multiple number",
+      "label": "Group ids"
     }
   }
 }

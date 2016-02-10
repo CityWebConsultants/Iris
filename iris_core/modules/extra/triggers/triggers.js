@@ -16,7 +16,7 @@ glob(iris.configPath + "/triggers/*.json", function (er, files) {
 
     if (config.name) {
 
-      iris.saveConfig(config, "triggers", iris.sanitizeFileName(config.name), function () {
+      iris.saveConfig(config, "triggers", iris.sanitizeName(config.name), function () {
 
         },
         function (fail) {
@@ -453,7 +453,7 @@ iris.modules.triggers.registerHook("hook_form_submit_actions", 0, function (this
 
   })
 
-  iris.saveConfig(thisHook.const.params, "triggers", iris.sanitizeFileName(thisHook.const.params.name), function (saved) {
+  iris.saveConfig(thisHook.const.params, "triggers", iris.sanitizeName(thisHook.const.params.name), function (saved) {
 
     var data = function (res) {
 
@@ -510,7 +510,7 @@ iris.app.get("/admin/triggers/edit/:action", function (req, res) {
   }
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {
-    action: iris.sanitizeFileName(req.params.action)
+    action: iris.sanitizeName(req.params.action)
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
@@ -606,7 +606,7 @@ iris.modules.triggers.registerHook("hook_form_render_action_delete", 0, function
 
 iris.modules.triggers.registerHook("hook_form_submit_action_delete", 0, function (thisHook, data) {
 
-  var action = iris.sanitizeFileName(thisHook.const.params.action);
+  var action = iris.sanitizeName(thisHook.const.params.action);
 
   if (iris.configStore.triggers && iris.configStore.triggers[action]) {
 

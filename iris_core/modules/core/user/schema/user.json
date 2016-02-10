@@ -3,8 +3,8 @@
   "fields": {
     "username": {
       "fieldType": "Textfield",
-      "label": "Title field",
-      "description": "This is the title field",
+      "label": "Username",
+      "description": "This can be changed",
       "permissions": ["anonymous", "authenticated"]
     },
     "roles": {

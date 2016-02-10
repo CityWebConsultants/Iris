@@ -2,7 +2,6 @@
  * @file Functions and handlers for rendering and displaying entities to the user.
  */
 
-var UglifyJS = require("uglify-js");
 var fs = require("fs");
 
 /*
@@ -93,34 +92,6 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 
       data.variables[variableName] = result;
 
-      var toSource = require('tosource');
-
-      var clientSideScript = toSource(function entityLoad(result, variableName, query) {
-
-        if (variableName) {
-          result ? null : result = [];
-          window.iris ? null : window.iris = {};
-          window.iris.fetchedEntities ? null : window.iris.fetchedEntities = {};
-          window.iris.fetched ? null : window.iris.fetched = {};
-          window.iris.fetched[variableName] = {
-            query: query,
-            entities: []
-          };
-          result.forEach(function (entity) {
-
-            window.iris.fetchedEntities[entity.entityType] ? null : window.iris.fetchedEntities[entity.entityType] = {};
-
-            window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
-            window.iris.fetched[variableName].entities.push(entity);
-
-          })
-
-        }
-
-      });
-
-      var preLoader = "";
-
       data.variables.tags.headTags["entity_fetch"] = {
         type: "script",
         attributes: {
@@ -129,13 +100,11 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
         rank: 0
       }
 
-      var entityPackage = clientSideScript + "; \n" + "entityLoad(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
+      var entityPackage = "\n" + "iris.entityPreFetch(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
 
-      var loader = UglifyJS.minify(entityPackage, {
-        fromString: true
-      });
+      var loader = entityPackage;
 
-      next(preLoader + "<script>" + loader.code + "</script>");
+      next("<script>" + loader + "</script>");
 
     }, function (error) {
 
@@ -282,7 +251,7 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
 
   iris.sendSocketMessage(["*"], "entityDelete", data);
-  
+
   thisHook.finish(true, data);
 
 });

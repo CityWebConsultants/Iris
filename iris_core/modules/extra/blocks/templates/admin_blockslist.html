@@ -2,7 +2,11 @@
 
 <ul>
 
-  {{#each blocks}} {{#each this}} <li>{{this.blockTitle}} ({{this.blockType}}) - <a href="/admin/blocks/edit/{{this.blockType}}/{{this.blockTitle}}">edit</a> - <a href="/admin/blocks/delete/{{this.blockType}}/{{this.blockTitle}}">delete</a></li> {{/each}} {{/each}}
+  {{#each blocks}} 
+    {{#each this}} 
+      <li>{{this.blockTitle}} ({{this.blockType}}) - <a href="/admin/blocks/edit/{{this.blockType}}/{{this.blockTitle}}">edit</a> - <a href="/admin/blocks/delete/{{this.blockType}}/{{this.blockTitle}}">delete</a></li> 
+    {{/each}} 
+  {{/each}}
 
 </ul>
 

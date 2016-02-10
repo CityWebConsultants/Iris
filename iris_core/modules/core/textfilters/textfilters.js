@@ -21,9 +21,9 @@ iris.modules.textfilters.registerHook("hook_form_render_textformat", 0, function
   } else {
 
 
-    if (iris.configStore.textformats && thisHook.const.params[1] && iris.configStore.textformats[iris.sanitizeFileName(thisHook.const.params[1])]) {
+    if (iris.configStore.textformats && thisHook.const.params[1] && iris.configStore.textformats[iris.sanitizeName(thisHook.const.params[1])]) {
 
-      var config = iris.configStore.textformats[iris.sanitizeFileName(thisHook.const.params[1])];
+      var config = iris.configStore.textformats[iris.sanitizeName(thisHook.const.params[1])];
 
     }
 
@@ -82,7 +82,7 @@ glob(iris.configPath + "/textformats/*.json", function (er, files) {
 
     if (config.name) {
 
-      iris.saveConfig(config, "textformats", iris.sanitizeFileName(config.name), function () {
+      iris.saveConfig(config, "textformats", iris.sanitizeName(config.name), function () {
 
         },
         function (fail) {
@@ -97,7 +97,7 @@ glob(iris.configPath + "/textformats/*.json", function (er, files) {
 
 iris.modules.textfilters.registerHook("hook_form_submit_textformat", 0, function (thisHook, data) {
 
-  iris.saveConfig(thisHook.const.params, "textformats", iris.sanitizeFileName(thisHook.const.params.name), function (response) {
+  iris.saveConfig(thisHook.const.params, "textformats", iris.sanitizeName(thisHook.const.params.name), function (response) {
 
     data = function (res) {
 
@@ -240,7 +240,7 @@ iris.modules.textfilters.registerHook("hook_form_render_texformat_delete", 0, fu
 
 iris.modules.textfilters.registerHook("hook_form_submit_texformat_delete", 0, function (thisHook, data) {
 
-  var format = iris.sanitizeFileName(thisHook.const.params.textformat);
+  var format = iris.sanitizeName(thisHook.const.params.textformat);
 
   if (iris.configStore.textformats && iris.configStore.textformats[format]) {
 
@@ -308,7 +308,7 @@ iris.modules.textfilters.registerHook("hook_entity_presave", 0, function (thisHo
 
     if (schema[field] && schema[field].textFilter) {
 
-      var filter = iris.sanitizeFileName(schema[field].textFilter);
+      var filter = iris.sanitizeName(schema[field].textFilter);
 
       if (iris.configStore.textformats && iris.configStore.textformats[filter]) {
 

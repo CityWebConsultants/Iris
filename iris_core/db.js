@@ -14,7 +14,19 @@ var autoIncrement = require('mongoose-auto-increment');
 
 var fs = require('fs');
 
-var connectionUri = 'mongodb://' + iris.config.db_server + ':' + iris.config.db_port + '/' + iris.config.db_name;
+var connectionUri = 'mongodb://' + iris.config.db_server;
+
+if (iris.config.db_Port) {
+
+  connectionUri += +':' + iris.config.db_port
+
+}
+
+if (iris.config.db_name) {
+
+  connectionUri += '/' + iris.config.db_name
+
+}
 
 if (iris.config.db_username && iris.config.db_password) {
 
@@ -61,7 +73,7 @@ iris.dbPopulate = function () {
   Object.keys(iris.modules).forEach(function (moduleName) {
 
     var modulePath = iris.modules[moduleName].path;
-    
+
     var fields = glob.sync(modulePath + "/**/*.iris.field");
 
     fields.forEach(function (fieldPath) {
@@ -232,32 +244,39 @@ iris.dbPopulate = function () {
         field.type = typeConverter(iris.fieldTypes[fieldType].type);
         field.readableType = iris.fieldTypes[fieldType].type;
 
+        field.unique = (field.unique === 'true');
+
         return field;
 
       } else if (fieldType === "Fieldset") {
 
         // Run parent function recursively on fieldsets
 
+        var fieldsetFields = {};
+
         if (field.subfields) {
 
           Object.keys(field.subfields).forEach(function (fieldSetField, index) {
 
-            var fieldSetField = field.subfields[fieldSetField];
-
-            field.type = [mongoose.Schema.Types.Mixed];
-            field.readableType = "Fieldset";
-
-            // Don't add a Mongo ID field to nested fieldsets
-
-            field.type[0]._id = false;
+            fieldsetFields[fieldSetField] = fieldConverter(field.subfields[fieldSetField]);
 
           });
 
+
           delete field.subfields;
 
-          return field;
-
         }
+
+        field.readableType = "Fieldset";
+
+        fieldsetFields._id = false;
+        fieldsetFields.id = false;
+
+        var fieldsetSchema = mongoose.Schema(fieldsetFields);
+
+        field.type = [fieldsetSchema];
+
+        return field;
 
       }
 
@@ -270,6 +289,8 @@ iris.dbPopulate = function () {
     });
 
     iris.dbSchema[schema] = finalSchema;
+
+    var util = require("util");
 
     //Push in universal type fields if not already in.
 
@@ -314,7 +335,7 @@ iris.dbPopulate = function () {
 
     } catch (e) {
 
-      console.log(e);
+      iris.log("error", e);
 
     }
 

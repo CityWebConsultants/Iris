@@ -129,6 +129,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
         } else {
 
+
           thisHook.finish(false, fail);
           return false;
 
@@ -149,34 +150,39 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
   var create = function (preparedEntity) {
 
-    iris.dbCollections[preparedEntity.entityType].count({}, function (err, result) {
+    var saveEntity = function () {
 
-      var entity = new iris.dbCollections[preparedEntity.entityType](preparedEntity);
+      iris.dbCollections[preparedEntity.entityType].count({}, function (err, result) {
 
-      entity.save(function (err, doc) {
+        var entity = new iris.dbCollections[preparedEntity.entityType](preparedEntity);
 
-        if (err) {
+        entity.save(function (err, doc) {
 
-          console.log(err);
-          thisHook.finish(false, "Database error");
+          if (err) {
 
-        } else if (doc) {
+            thisHook.finish(false, err);
 
-          doc = doc.toObject();
+          } else if (doc) {
 
-          thisHook.finish(true, doc);
+            doc = doc.toObject();
 
-          iris.hook("hook_entity_created", thisHook.authPass, null, doc);
+            thisHook.finish(true, doc);
 
-          iris.hook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
+            iris.hook("hook_entity_created", thisHook.authPass, null, doc);
 
-          iris.log("info", data.entityType + " created by " + doc.entityAuthor);
+            iris.hook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
 
-        }
+            iris.log("info", data.entityType + " created by " + doc.entityAuthor);
+
+          }
+
+        });
 
       });
 
-    });
+    }
+
+    saveEntity();
 
   }
 
@@ -192,7 +198,17 @@ iris.app.post("/entity/create/:type", function (req, res) {
 
   }, function (fail) {
 
-    res.send(fail);
+    if (fail.code) {
+
+      res.status(fail.code);
+
+    } else {
+
+      res.status(400);
+
+    }
+
+    res.json(JSON.stringify(fail));
 
   });
 
@@ -250,7 +266,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
     if (typeof data[field] === "string") {
 
-      if (data[field].indexOf("[[[") !== -1 || data[field].indexOf("{{") !== -1) {l
+      if (data[field].indexOf("[[[") !== -1 || data[field].indexOf("{{") !== -1) {
 
         data[field] = data[field].split("[[[").join("").split("]]]").join("");
         data[field] = data[field].split("{{").join("").split("}}").join("");
@@ -276,6 +292,65 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
   })
 
-  thisHook.finish(true, data);
+  // Check for any unique fields
+
+  var uniqueFields = [];
+
+  Object.keys(data).forEach(function (field) {
+
+    if (iris.dbSchema[data.entityType][field] && iris.dbSchema[data.entityType][field].unique) {
+
+      var condition = {};
+
+      condition[field] = data[field];
+
+      uniqueFields.push(condition);
+
+    };
+
+  })
+
+  if (!uniqueFields.length) {
+
+    thisHook.finish(true, data);
+
+  } else {
+
+    iris.dbCollections[data.entityType].findOne({
+      $or: uniqueFields
+    }, function (err, doc) {
+
+      if (doc && (!data.eid || data.eid.toString() !== doc.eid.toString())) {
+
+        // Check which field needs to be unique to return a helpful error
+
+        var errors = [];
+
+        uniqueFields.forEach(function (field) {
+
+          Object.keys(field).forEach(function (fieldName) {
+
+            if (field[fieldName] === doc[fieldName]) {
+
+              errors.push(fieldName);
+
+            }
+
+          })
+
+        })
+
+        thisHook.finish(false, errors.join(" ") + " should be unique");
+
+      } else {
+
+        thisHook.finish(true, data);
+
+      }
+
+    })
+
+
+  }
 
 });

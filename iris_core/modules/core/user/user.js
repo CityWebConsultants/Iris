@@ -11,18 +11,25 @@ iris.registerModule("user");
 var bcrypt = require("bcrypt-nodejs");
 
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/users", "Users", 1);
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/users", "/admin/users/permissions", "Permissions", 1);
 
 // First ever login form
 
 iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
 
   iris.dbCollections["user"].count({}, function (err, count) {
+
+
     if (count === 0) {
+
+      data.schema.profile = {
+        "type": "string",
+        "title": "Installation profile",
+        "enum": ["minimal", "standard"]
+      }
 
       data.schema.username = {
         "type": "text",
-        "title": "username"
+        "title": "Administrator email address"
       }
 
       data.schema.password = {
@@ -30,6 +37,29 @@ iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (t
         "title": "Password",
         "description": "Make it strong"
       };
+
+      data.form = [
+        {
+          "key": "profile",
+          "description": "The Minimal profile will exclude all optional UI modules and features. In a Minimal setup, " +
+            "Iris can be used as a lightweight webservice.<br/>Use Standard profile to build a user-facing CMS type system.<br/>" +
+            "If choosing Standard, please wait after clicking 'Install' for the server to restart. The blank page is expected.",
+          "titleMap": {
+            "minimal": "Minimal",
+            "standard": "Standard"
+          }
+        },
+        {
+          "key": "username",
+          "type": "email",
+          "description": "Use this to login with in future"
+        },
+        "password",
+        {
+          "type": "submit",
+          "title": "Install"
+        }
+      ];
 
       thisHook.finish(true, data);
 
@@ -47,7 +77,7 @@ iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (t
   iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
 
-      var user = {
+      var newUser = {
 
         entityType: "user",
         entityAuthor: "system",
@@ -56,15 +86,74 @@ iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (t
         roles: ["admin"]
       }
 
-      iris.hook("hook_entity_create", "root", user, user).then(function (user) {
+      iris.hook("hook_entity_create", "root", newUser, newUser).then(function (user) {
 
-        thisHook.finish(true, data);
+        var auth = {
+          password: thisHook.const.params.password,
+          username: thisHook.const.params.username
+        }
+
+        iris.modules.user.globals.login(auth, thisHook.const.res, function (uid) {
+
+          if (thisHook.const.params.profile == 'standard') {
+
+            var enabled = [
+              {
+                name: 'blocks'
+              },
+              {
+                name: 'roles_ui'
+              },
+              {
+                name: 'configUI'
+              },
+              {
+                name: 'custom_blocks'
+              },
+              {
+                name: 'entityUI'
+              },
+              {
+                name: 'ckeditor'
+              },
+              {
+                name: 'permissionsUI'
+              },
+              {
+                name: 'page'
+              },
+              {
+                name: 'menu_block'
+              },
+              {
+                name: 'regions'
+              },
+              {
+                name: 'lists'
+              }
+            ];
+            var fs = require("fs");
+            fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));
+
+          }
+          iris.message(uid, "Welcome to your new Iris site!", "info");
+          thisHook.finish(true, function (res) {
+            res.json("/admin");
+            if (enabled) {
+              console.log('restarting');
+              iris.message(uid, "Don't worry, that short glitch was the server restarting to install the Standard profile.", "info");
+              iris.restart(uid, "UI modules enabled.");
+            }
+          });
+        });
+
 
       }, function (fail) {
 
-        console.log(fail);
+        iris.log(fail);
+        thisHook.finish(false, data);
 
-      })
+      });
 
     } else {
 
@@ -74,7 +163,7 @@ iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (t
 
   });
 
-})
+});
 
 // First ever login page (should only show if no user has been set up)
 
@@ -83,7 +172,7 @@ iris.app.get("/", function (req, res, next) {
   iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
 
-      iris.modules.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
+      iris.modules.frontend.globals.parseTemplateFile(["first_user"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
         res.send(success)
 
@@ -145,7 +234,7 @@ iris.modules.user.globals.login = function (auth, res, callback) {
 
           }, function (fail) {
 
-            console.log(fail);
+            iris.log("error", fail);
 
           });
 
@@ -167,7 +256,7 @@ iris.modules.user.globals.login = function (auth, res, callback) {
 
 };
 
-iris.app.get("/logout", function (req, res) {
+iris.app.get("/user/logout", function (req, res) {
 
   // Delete session
 
@@ -301,7 +390,9 @@ require('./login_form.js');
 
 // Login form
 
-iris.app.get("/login", function (req, res) {
+iris.route.get("/user/login", {
+  "title": "Login"
+}, function (req, res) {
 
   // If not admin, present 403 page
 
@@ -325,7 +416,19 @@ iris.app.get("/login", function (req, res) {
 
   });
 
-})
+});
+
+
+iris.app.get("/user", function (req, res) {
+
+  if (req.authPass.roles.indexOf('authenticated') == -1) {
+    // Anonymous. Redirect to login page.
+    res.redirect('/user/login');
+  } else {
+    // Redirect to own user page.
+    res.redirect('/user/' + req.authPass.userid);
+  }
+});
 
 // Blank password field on entity edit
 
@@ -445,7 +548,7 @@ iris.app.post("/api/login", function (req, res) {
 
       if (!userid) {
 
-        res.send(null);
+        res.status(403).send("Not valid credentials");
 
       } else {
 
@@ -460,41 +563,21 @@ iris.app.post("/api/login", function (req, res) {
 
   } else {
 
-    res.send(null);
+    res.status(400).send("Must send username and password");
 
   }
 
 });
+
 
 iris.app.get("/admin/users", function (req, res) {
-    
-    iris.modules.admin_ui.globals.listEntities(req, res, 'user');
-    
-});
 
-iris.app.get("/admin/users/permissions", function (req, res) {
+  if (iris.modules.entityUI) {
 
-  // If not admin, present 403 page
+    res.redirect("/admin/entitylist/user");
 
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
+  } else {
+    iris.modules.frontend.globals.displayErrorPage(404, req, res);
   }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", fail);
-
-  });
 
 });

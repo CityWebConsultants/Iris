@@ -1,6 +1,19 @@
 /*jslint node: true nomen: true*/
 
+
 "use strict";
+
+var fs = require('fs');
+
+var mkdirSync = function (path) {
+  try {
+    fs.mkdirSync(path);
+  } catch (e) {
+    if (e.code != 'EEXIST') throw e;
+  }
+}
+
+mkdirSync(iris.configPath + "/" + "entity");
 
 /**
  * @file Includes for the entity module
@@ -24,8 +37,8 @@ require('./entity_fetch');
 
 // Get list of entity types
 
-iris.app.get("/api/entitySchema", function(req, res){
-  
+iris.app.get("/api/entitySchema", function (req, res) {
+
   // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
@@ -36,15 +49,32 @@ iris.app.get("/api/entitySchema", function(req, res){
     return false;
 
   }
-  
+
   var output = {};
-  
-  Object.keys(iris.dbCollections).forEach(function(entityType){
-    
+
+  Object.keys(iris.dbCollections).forEach(function (entityType) {
+
     output[entityType] = iris.dbCollections[entityType].schema.tree;
-    
+
   })
-  
+
   res.send(output);
-  
+
+})
+
+iris.app.get("/api/entitySchema/:type", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    res.status(403);
+    res.send("Access denied");
+
+    return false;
+
+  }
+
+  res.send(iris.dbCollections[req.params.type].schema.tree);
+
 })

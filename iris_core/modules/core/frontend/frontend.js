@@ -338,7 +338,7 @@ var findTemplate = function (paths, extension) {
 
       for (i = 0; i <= searchArgs.length + 1; i += 1) {
 
-        var lookingFor = searchArgs.join("_") + "." + extension;
+        var lookingFor = searchArgs.join("__") + "." + extension;
 
         // Loop over found files to check basename
 
@@ -523,6 +523,8 @@ iris.modules.frontend.globals.findTemplate = findTemplate;
  */
 iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
+  var counter = 0;
+
   return new Promise(function (yes, no) {
 
     var embeds = getEmbeds(prefix, html);
@@ -537,43 +539,33 @@ iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
 
       })
 
-      var counter = 0;
+      if (!embeds.length) {
 
-      var runthrough = function (choice) {
+        yes(html);
 
-        var next = function (content) {
+      }
+
+      embeds.forEach(function (embed) {
+
+        action(embed.split(","), function (content) {
+
+          counter += 1;
 
           if (content) {
 
-            html = html.split("[[[" + prefix + " " + choice + "]]]").join(content);
+            html = html.split("[[[" + prefix + " " + embed + "]]]").join(content);
 
           }
 
           if (counter === embeds.length) {
 
-            runthrough(embeds[counter]);
-
-            counter += 1;
-
-          } else {
-
             yes(html);
 
           }
 
-        };
+        })
 
-        try {
-          action(choice, next)
-        } catch (e) {
-
-          no(e);
-
-        };
-
-      };
-
-      runthrough(embeds[counter].split(","));
+      })
 
     } else {
 
@@ -999,6 +991,32 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 
 iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
 
+// Check route access
+  
+  Handlebars.registerHelper("iris_menu", function (item) {
+
+    var route = iris.findRoute(item, "get");
+    
+    if (route && route.options && route.options.permissions) {
+      
+      if (iris.modules.auth.globals.checkPermissions(route.options.permissions, thisHook.authPass)) {
+
+        return item;
+
+      } else {
+
+        return null;
+
+      }
+
+    } else {
+
+      return item;
+
+    };
+
+  });
+
   // Handle for a user's messages
 
   Handlebars.registerHelper("iris_messages", function () {
@@ -1176,29 +1194,35 @@ var insertTags = function (html, vars) {
 
         output += "\n";
 
-        output += "<" + tag.type;
+        if (typeof tag == "string") {
 
-        if (tag.attributes) {
-
-          Object.keys(tag.attributes).forEach(function (element) {
-
-            output += " " + element + '=' + '"' + tag.attributes[element] + '"';
-
-          });
-
-        };
-
-        if (tag.type === "script") {
-
-          output += "></" + tag.type + ">"
+          output += "<" + tagName + ">" + tag + "</" + tagName + ">";
 
         } else {
 
-          output += "/>";
+          output += "<" + tag.type;
 
+          if (tag.attributes) {
+
+            Object.keys(tag.attributes).forEach(function (element) {
+
+              output += " " + element + '=' + '"' + tag.attributes[element] + '"';
+
+            });
+
+          };
+
+          if (tag.type === "script") {
+
+            output += "></" + tag.type + ">"
+
+          } else {
+
+            output += "/>";
+
+          }
         }
-
-      })
+      });
 
       html = html.split("[[[tags " + innerTag + "]]]").join(output);
 
@@ -1295,8 +1319,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
       })
 
-    }
-    else {
+    } else {
 
       parseTemplateFile(templateName, parameters, function (output) {
 

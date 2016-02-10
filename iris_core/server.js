@@ -11,19 +11,13 @@ iris.app = express();
 iris.app.use(bodyParser.json());
 
 iris.app.use(bodyParser.urlencoded({
-  extended: true
+  extended: true,
+  parameterLimit: 10000,
+  limit: 10485760
 }));
 
 var cookieParser = require('cookie-parser')
 iris.app.use(cookieParser());
-
-//Set up bodyParser
-
-iris.app.use(bodyParser.json());
-
-iris.app.use(bodyParser.urlencoded({
-  extended: true
-}));
 
 /**
  * Error helper function
@@ -48,32 +42,12 @@ iris.app.use(function (req, res, next) {
 
   if (!iris.status.ready) {
 
-    fs.readFile(iris.sitePath + "/" + iris.config.theme + "/templates/startup.html", "utf8", function (err, file) {
+    setTimeout(function () {
 
-      if (!err) {
+      res.redirect(req.url);
 
-        res.send(file);
+    }, 500)
 
-      } else {
-
-        fs.readFile(iris.rootPath + "/iris_core/startup.html", "utf8", function (err, file) {
-          
-          if (!err) {
-
-            res.send(file);
-
-          } else {
-
-            console.log(err);
-            res.send("Starting up");
-
-          }
-
-        })
-
-      }
-
-    });
 
     return false;
 
@@ -119,6 +93,24 @@ iris.app.use(function (req, res, next) {
 
 iris.app.use(function (req, res, next) {
 
+  try {
+
+    if (Object.keys(req.body).length === 1) {
+
+      if (req.body[Object.keys(req.body)[0]].length === 0) {
+
+        req.body = JSON.parse(Object.keys(req.body)[0]);
+
+      }
+
+    }
+
+  } catch (e) {
+
+    // Must be URL encoded
+
+  }
+
   if (Object.keys(req.query).length) {
 
     req.body = Object.assign(req.query, req.body);
@@ -145,10 +137,39 @@ iris.app.use(function (req, res, next) {
 
     req.authPass = authPass;
 
+    // Check if it matches any routes stored with iris_route.
+
+    var pathToRegexp = require('path-to-regexp');
+
+    Object.keys(iris.routes).forEach(function (route) {
+
+      var url = require("url");
+
+      var regexRoute = pathToRegexp(route);
+
+      if (url.parse(req.url).pathname.match(regexRoute)) {
+
+        // Route matches
+
+
+        if (iris.routes[route][req.method.toLowerCase()]) {
+
+          req.irisRoute = {
+            path: route,
+            options: iris.routes[route][req.method.toLowerCase()].options
+          }
+
+        }
+
+      };
+
+    })
+
     // Run request intercept in case anything
 
     iris.hook("hook_request_intercept", req.authPass, {
-      req: req
+      req: req,
+      res: res
     }).then(function () {
 
       next();
@@ -175,6 +196,84 @@ iris.app.use(function (req, res, next) {
   });
 
 });
+
+// Menu registering function
+
+var methods = ["get", "post", "put", "head", "delete", "options", "trace", "copy", "lock", "mkcol", "move", "purge", "propfind", "proppatch", "unlock", "report", "mkactivity", "checkout", "merge", "m-search", "notify", "subscribe", "unsubscribe", "patch", "search", "connect"]
+
+iris.route = {};
+iris.routes = {};
+
+methods.forEach(function (method) {
+
+  // takes route, (optional options), callback, optional rank
+
+  iris.route[method] = function () {
+
+    var route = arguments[0];
+    var options = {};
+    var callback;
+    var rank;
+
+    if (typeof arguments[1] === "object") {
+
+      options = arguments[1];
+      callback = arguments[2];
+      rank = arguments[3];
+
+    } else {
+
+      callback = arguments[1];
+      rank = arguments[2];
+
+    }
+
+    // Don't store if rank is lower than an existing route for this path.
+
+    if (iris.routes[route] && iris.routes[route].rank > rank) {
+
+      return false;
+
+    }
+
+    iris.routes[route] = {};
+
+    iris.routes[route][method] = {
+
+      options: options,
+      callback: callback
+
+    }
+
+    if (rank) {
+
+      iris.routes[route][method].rank = rank;
+
+    }
+
+  }
+
+})
+
+// Convert stored routes into express handlers
+
+iris.populateRoutes = function () {
+
+  Object.keys(iris.routes).forEach(function (route) {
+
+    // Loop over methods for each route
+
+    Object.keys(iris.routes[route]).forEach(function (method) {
+
+      var methodInstance = iris.routes[route][method];
+
+      iris.app[method](route, methodInstance.callback);
+
+    })
+
+  })
+
+}
 
 //Public files folder
 
