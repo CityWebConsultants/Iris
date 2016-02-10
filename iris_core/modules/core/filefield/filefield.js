@@ -32,7 +32,6 @@ iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', functio
 
   var fstream;
 
-
   iris.hook("hook_file_upload", req.authPass, {
     filename: req.params.filename,
     form: req.params.form,
@@ -58,58 +57,11 @@ iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', functio
 
       req.busboy.on('file', function (fieldname, file, filename) {
 
-        var failed = false;
+        var ws = fs.createWriteStream(iris.sitePath + '/temp/' + filename);
+        file.pipe(ws);
 
-        if (info.extensions) {
-
-          var path = require('path')
-
-          var ext = path.extname(filename).replace(".", "");
-
-          if (info.extensions.indexOf(ext) === -1) {
-
-            failed = "File extension has to be one of " + info.extensions.join(",");
-            file.resume();
-
-          }
-
-        }
-
-        var size = 0;
-
-        // Get the size of the file being uploaded
-
-        file.on('data', function (data) {
-
-          if (size > maxSize) {
-
-            failed = "File should be smaller than " + maxSize / 1000000 + "MB";
-            file.resume();
-
-          }
-
-          size += data.length;
-
-        });
-
-        file.on('end', function () {
-
-          if (failed) {
-
-            res.send(failed);
-
-            return false;
-
-          }
-
-          fstream = fs.createWriteStream(iris.sitePath + '/temp/' + filename);
-          file.pipe(fstream);
-          fstream.on('close', function () {
-
-            res.end(filename);
-
-          });
-
+        ws.on('close', function () {
+          res.end(filename);
         });
 
       });
@@ -179,27 +131,6 @@ iris.modules.filefield.registerHook("hook_file_upload", 0, function (thisHook, d
 
 })
 
-iris.modules.filefield.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
-
-  var name = thisHook.const.field.fieldTypeName;
-
-
-  if (name === "file") {
-
-    data = {
-      type: "file",
-      title: thisHook.const.field.title,
-      required: thisHook.const.field.required,
-      description: thisHook.const.field.description,
-      default: thisHook.const.value
-    }
-
-  }
-
-  thisHook.finish(true, data);
-
-});
-
 // Register file field widget
 
 iris.modules.forms.globals.registerWidget(function () {
@@ -243,13 +174,11 @@ iris.modules.forms.globals.registerWidget(function () {
         url: '/admin/file/fileFieldUpload/' + id + "/" + formID + "/" + JSON.stringify(params),
         type: 'POST',
         data: formData,
+        contentType: false,
         processData: false,
-        contentType: false
       }).done(function (response) {
 
-        alert(response);
-
-        $("#" + id).attr("value", response);
+        $("input[name=" + id + "]").attr("value", response);
 
       });
 
@@ -261,40 +190,44 @@ iris.modules.forms.globals.registerWidget(function () {
 
 // Field save handler
 
-iris.modules.filefield.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
+iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__file", 0, function (thisHook, data) {
 
-  var fieldSchema = thisHook.const.schema,
-    value = thisHook.const.value,
-    fieldName = thisHook.const.schema.fieldTypeName,
-    fieldType = iris.modules.entityforms.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
+  var value = thisHook.const.value;
 
+  // Check if temp folder contains this file
 
-  if (fieldName === "file") {
+  fs.readFile(iris.sitePath + '/temp/' + value, function (err, data) {
 
-    // Check if temp folder contains this file
+    if (!err) {
 
-    fs.readFile(iris.sitePath + '/temp/' + value, function (err, data) {
+      fs.rename(iris.sitePath + '/temp/' + value, iris.sitePath + '/files/' + value, function () {
 
-      if (!err) {
+        thisHook.finish(true, value);
 
-        fs.rename(iris.sitePath + '/temp/' + value, iris.sitePath + '/files/' + value, function () {
+      });
 
-          thisHook.finish(true, thisHook.const.value);
+    } else {
 
-        });
+      thisHook.finish(true, value);
 
-      } else {
+    }
 
-        thisHook.finish(true, thisHook.const.value);
+  });
 
-      }
+});
 
-    });
+iris.modules.entity.registerHook("hook_entity_field_fieldType_form__file", 0, function (thisHook, data) {
 
-  } else {
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
 
-    thisHook.finish(true, data);
-
+  data = {
+    "type": "file",
+    "title": fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": value
   }
+
+  thisHook.finish(true, data);
 
 });
