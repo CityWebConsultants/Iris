@@ -756,7 +756,7 @@ var parseTemplate = function (html, authPass, context) {
           html: HTML,
           variables: allVariables
         }).then(function (parsedData) {
-                    
+
           if (parsedData.variables) {
 
             Object.keys(parsedData.variables).forEach(function (variable) {
@@ -766,7 +766,7 @@ var parseTemplate = function (html, authPass, context) {
           };
 
           if (final) {
-            
+
             pass({
               html: parsedData.html,
               variables: allVariables
@@ -859,7 +859,7 @@ var parseTemplate = function (html, authPass, context) {
       });
 
     } else {
-      
+
       complete(output);
 
     }
@@ -916,7 +916,6 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 
     doneCount += 1;
 
-
     if (doneCount === embedCount) {
 
       thisHook.finish(true, data);
@@ -943,8 +942,16 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
           finished();
 
         }, function (fail) {
-          
-          finished();
+
+          if (fail === "No such hook exists") {
+
+            finished();
+
+          } else {
+            
+            iris.log("error", fail);
+            
+          }
 
         })
 
@@ -953,11 +960,14 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
     })
 
 
+  } else {
+
+    thisHook.finish(true, data);
+
   }
 
 
 });
-
 
 /**
  * Catch all callback which will be triggered for all callbacks that are not specifically defined.
@@ -1253,7 +1263,7 @@ var insertTags = function (html, vars) {
   }
 
   var tags = getEmbeds("tags", html);
-  
+
   if (!tags) {
 
     return html;
@@ -1366,7 +1376,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
       iris.modules.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
 
         parseTemplate(template, authPass || "root", parameters).then(function (success) {
-          
+
             // Add wrapper paramaters for filename
 
             success.html = "<!-- " + currentTemplateName + "-->" + "\n" + success.html;
@@ -1392,8 +1402,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
     if (wrapperTemplateName) {
 
       parseTemplateFile(wrapperTemplateName, parameters, function (wrapperOutput) {
-        
-        parseTemplateFile(templateName, wrapperOutput.variables, function (innerOutput) {          
+
+        parseTemplateFile(templateName, wrapperOutput.variables, function (innerOutput) {
 
           var output = wrapperOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput.html);
 
