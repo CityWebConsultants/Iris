@@ -31,6 +31,7 @@ if (parameters.site) {
   start = function () {
 
     var sub = fork(__dirname + "/launch_site.js", process.argv.slice(2), {
+      execArgv:['--debug=5850'],
       env: {
         'NODE_ENV': process.env.NODE_ENV
       }

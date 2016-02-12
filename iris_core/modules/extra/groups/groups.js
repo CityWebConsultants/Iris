@@ -1,6 +1,6 @@
 // Add a member to a group
 
-iris.route.post("/groups/addMember/:groupid/:member", function (req, res) {
+iris.route.post("/groups/addMember/:groupid/:member/:entityType/:entityField", function (req, res) {
 
   var fetch = {
     entities: ["group"],
@@ -17,7 +17,13 @@ iris.route.post("/groups/addMember/:groupid/:member", function (req, res) {
 
       if (groupResult.length) {
 
-        if (groupResult[0].members.indexOf(parseInt(req.params.member)) !== -1) {
+        var exists = false;
+        for (var i = 0; i < groupResult[0].field_users; i++) {
+          if (groupResult[0].field_users[i].field_uid == req.params.member) {
+            exists = true;
+          }
+        }
+        if (exists) {
 
           res.status(400).send("Member already in group");
 
@@ -26,31 +32,48 @@ iris.route.post("/groups/addMember/:groupid/:member", function (req, res) {
           // Check if user exists on system
 
           var fetch = {
-            entities: ["user"],
+            entities: [req.params.entityType],
             queries: [{
-              field: "eid",
+              field: req.params.entityField,
               "operator": "is",
               "value": parseInt(req.params.member)
-    }]
+            }]
           }
 
           iris.hook("hook_entity_fetch", req.authPass, null, fetch).then(function (userResult) {
 
             if (userResult.length) {
 
-              // All OK, try to add member to group
+              // If current group is has only 2 members, create new groups. Otherwise, add to current group.
 
-              groupResult[0].members.push(parseInt(req.params.member));
+              var fieldSplit = req.params.entityField.split('.');
+              if (groupResult[0].fieldSplit[0].length == 2) {
+                var newGroup = groupResult[0];
+                var obj = {};
+                obj[fieldSplit[1]] = userResult[0][fieldSplit[1]];
+                newGroup[fieldSplit[0]].push(obj);
 
-              // Update entity
+                newGroup[name] += ', ' + userResult[0].field_username;
+                
+                iris.hook("hook_entity_edit", req.authPass, newGroup, req.params.entityType).then(function (success) {
+                  console.log(success);
+                }, function (fail) {
 
-              iris.hook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
+                  res.status(400).send(fail);
 
-              }, function (fail) {
+                });
+              } 
+              else {
+                // Update entity
 
-                res.status(400).send(fail);
+                iris.hook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
+                  console.log(success);
+                }, function (fail) {
 
-              })
+                  res.status(400).send(fail);
+
+                });
+              }
 
             } else {
 

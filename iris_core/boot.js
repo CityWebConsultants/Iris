@@ -116,7 +116,7 @@ module.exports = function (config) {
 
       mkdirp(filePath, function (err) {
         if (err) {
-          console.error(err);
+          iris.log("error", err);
         } else {
           fs.writeFile(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8", callback);
         }

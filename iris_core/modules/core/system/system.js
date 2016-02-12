@@ -20,6 +20,8 @@ iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/restar
 
 iris.modules.auth.globals.registerPermission("can view admin menu", "admin");
 
+iris.modules.auth.globals.registerPermission("can access admin pages", "admin");
+
 require('./system_modules.js');
 
 

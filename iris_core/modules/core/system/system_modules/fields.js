@@ -275,7 +275,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Number",
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Date", 0, function (thisHook, data) {
 
   var date = new Date(thisHook.const.value.date);
-
+console.log(date);
   date.setUTCHours(thisHook.const.value.time.split(":")[0]);
   date.setUTCMinutes(thisHook.const.value.time.split(":")[1]);
 

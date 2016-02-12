@@ -37,7 +37,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
   iris.dbCollections[data.entityType].findOne({
     eid: data.eid
   }, function (err, doc) {
-
+    
     if (err) {
 
       thisHook.finish(false, iris.error(500, "Database error"));
@@ -68,8 +68,10 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   var runUpdate = function () {
 
+    console.log('runupdate', data, thisHook.authPass);
+    
     iris.hook("hook_entity_access_edit", thisHook.authPass, null, data).then(function (success) {
-
+      
       iris.hook("hook_entity_access_edit_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
 
         validate()
@@ -93,7 +95,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
       thisHook.finish(false, fail);
 
-    })
+    });
 
   }
 
@@ -120,7 +122,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
           preSave(data);
 
         } else {
-
+          
           thisHook.finish(false, fail);
           return false;
 
@@ -173,19 +175,21 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   var update = function (validatedEntity) {
 
+
     var conditions = {
       eid: validatedEntity.eid
     };
 
     delete validatedEntity.eid;
-
+    delete validatedEntity['$$hashKey'];
+    
     var update = validatedEntity;
 
     update.entityType = data.entityType;
     iris.dbCollections[data.entityType].update(conditions, update, callback);
 
     function callback(err, numAffected) {
-
+      
       if (err) {
 
         thisHook.finish(false, err);
@@ -223,8 +227,10 @@ iris.app.post("/entity/edit/:type/:eid", function (req, res) {
       res.status(fail.code);
 
     }
-
-    res.json(JSON.stringify(fail));
+    else {
+      res.status(400);
+      res.send(fail.toString());
+    }
 
   });
 
