@@ -65,7 +65,9 @@ var path = require("path");
  *
  * @returns error message if it fails.
  */
-iris.modules.frontend.globals.setActiveTheme = function (themePath, themeName) {
+iris.modules.frontend.globals.setActiveTheme = function (themeName) {
+
+  var glob = require("glob");
 
   // Reset theme lookup registry
 
@@ -78,62 +80,65 @@ iris.modules.frontend.globals.setActiveTheme = function (themePath, themeName) {
     var unmet = [];
     var loadedDeps = [];
 
-    var themeInfo = JSON.parse(fs.readFileSync(iris.rootPath + themePath + '/' + themeName + '.iris.theme', "utf8"));
+    // Find theme
+
+    var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + themeName + "/" + themeName + ".iris.theme" + "," + iris.sitePath + "/themes/" + themeName + "/" + themeName + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + themeName + "/" + themeName + ".iris.theme" + "}");
+
+    var path = require("path");
+
+    if (found.length) {
+
+      var theme = {
+        name: themeName,
+        path: path.dirname(found[0])
+      };
+
+    } else {
+
+      iris.log("error", "Could not find theme " + themeName);
+      return false;
+
+    }
 
     // Make config into a variable accessible by other modules
 
-    iris.modules.frontend.globals.activeTheme = {
-      name: themeName,
-      path: iris.rootPath + themePath
-    }
+    iris.modules.frontend.globals.activeTheme = theme;
 
     // Read themes this is dependent on
 
-    var glob = require("glob");
-
-    if (themeInfo.dependencies) {
-
-      Object.keys(themeInfo.dependencies).forEach(function (dep) {
-
-        var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.sitePath + "/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + dep + "/" + dep + ".iris.theme" + "}");
-
-        if (!found.length) {
-
-          unmet.push(dep);
-
-        } else {
-
-          found.forEach(function (loadedDep) {
-
-            loadedDeps.push(loadedDep);
-
-          })
-
-        }
-
-      })
-
-    }
+    //    if (themeInfo.dependencies) {
+    //
+    //      Object.keys(themeInfo.dependencies).forEach(function (dep) {
+    //
+    //        var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.sitePath + "/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + dep + "/" + dep + ".iris.theme" + "}");
+    //
+    //        if (!found.length) {
+    //
+    //          unmet.push(dep);
+    //
+    //        } else {
+    //
+    //          found.forEach(function (loadedDep) {
+    //
+    //            loadedDeps.push(loadedDep);
+    //
+    //          })
+    //
+    //        }
+    //
+    //      })
+    //
+    //    }
 
     // Push in theme templates to template lookup registry
 
     if (!unmet.length) {
 
-      iris.modules.frontend.globals.templateRegistry.theme.push(iris.rootPath + themePath + "/templates");
+      iris.modules.frontend.globals.templateRegistry.theme.push(theme.path + "/templates");
 
       // Push in theme's static folder
 
-      iris.app.use("/themes/" + themeName, express.static(iris.rootPath + themePath + "/static"));
-
-      loadedDeps.forEach(function (loadedDep) {
-
-        var depName = path.basename(loadedDep).replace(".iris.theme", "");
-
-        iris.app.use("/themes/" + depName, express.static(path.dirname(loadedDep) + "/static"));
-
-        iris.modules.frontend.globals.templateRegistry.theme.push(path.dirname(loadedDep) + "/templates");
-
-      })
+      iris.app.use("/themes/" + themeName, express.static(theme.path + "/static"));
 
     } else {
 
@@ -161,7 +166,7 @@ try {
 
     var activeTheme = JSON.parse(themeFile);
 
-    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.path, activeTheme.name);
+    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme);
 
     if (setTheme.errors) {
 
@@ -171,6 +176,8 @@ try {
     }
 
   } catch (e) {
+
+    console.log(e);
 
     iris.log("error", e);
 
@@ -948,9 +955,9 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
             finished();
 
           } else {
-            
+
             iris.log("error", fail);
-            
+
           }
 
         })
