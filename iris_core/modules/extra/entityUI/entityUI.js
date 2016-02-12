@@ -360,7 +360,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
                 valueLoaded();
 
-              }, currentValue ? currentValue[index][subFieldName] : null);
+              }, currentValue && currentValue[index] ? currentValue[index][subFieldName] : null);
 
             })
 
@@ -459,6 +459,16 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
         finalValues.eid = parseInt(eid);
         hook = "hook_entity_edit";
 
+        Object.keys(schema.fields).forEach(function (field) {
+
+          if (!finalValues[field]) {
+
+            finalValues[field] = null;
+
+          }
+
+        })
+
       } else {
 
         hook = "hook_entity_create"
@@ -480,7 +490,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
         thisHook.finish(true, function (res) {
 
           res.send({
-            errors: fail
+            errors: JSON.stringify(fail)
           });
 
         });
@@ -560,6 +570,30 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
           valueCounter += 1;
 
           if (valueCounter === valueCount * subfieldCount) {
+
+            // Check if empty
+
+            fieldsetValue.forEach(function (element, index) {
+
+              Object.keys(element).forEach(function (key) {
+
+                if (!element[key]) {
+
+                  delete fieldsetValue[index][key];
+
+                }
+
+              })
+
+              if (Object.keys(element).length === 0) {
+
+                fieldsetValue.splice(index, 1);
+
+              }
+
+
+            })
+
 
             callback(fieldsetValue);
 
