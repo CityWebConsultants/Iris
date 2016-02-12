@@ -67,8 +67,6 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
   //Actual run update function
 
   var runUpdate = function () {
-
-    console.log('runupdate', data, thisHook.authPass);
     
     iris.hook("hook_entity_access_edit", thisHook.authPass, null, data).then(function (success) {
       
