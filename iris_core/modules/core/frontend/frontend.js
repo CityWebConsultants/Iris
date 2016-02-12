@@ -627,6 +627,61 @@ var getEmbeds = function (type, text) {
 
 }
 
+// Function for finding embeds within a template, returns keyed list of embed types. Used for hook_frontend_embed__
+
+var findEmbeds = function (text) {
+
+  function getIndicesOf(searchStr, str, caseSensitive) {
+    var startIndex = 0,
+      searchStrLen = searchStr.length;
+    var index, indices = [];
+    if (!caseSensitive) {
+      str = str.toLowerCase();
+      searchStr = searchStr.toLowerCase();
+    }
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+      indices.push(index);
+      startIndex = index + searchStrLen;
+    }
+    return indices;
+  }
+
+  var start = getIndicesOf("[[[", text, false);
+
+  var embeds = {};
+
+  start.forEach(function (element, index) {
+
+    var restOfString = text.substring(start[index], text.length);
+
+    var embedEnd = restOfString.indexOf("]]]");
+
+    var embed = restOfString.substring(3, embedEnd);
+
+    // Get embed category
+
+    var embedCat = embed.split(" ")[0];
+
+    var embed = embed.substring(embedCat.length + 1, embed.length);
+
+    if (!embeds[embedCat]) {
+
+      embeds[embedCat] = [];
+
+    }
+
+    embeds[embedCat].push(embed);
+
+  })
+
+  if (Object.keys(embeds).length) {
+
+    return embeds;
+
+  }
+
+}
+
 /**
  * @function parseTemplace
  * @memberof frontend
@@ -701,7 +756,7 @@ var parseTemplate = function (html, authPass, context) {
           html: HTML,
           variables: allVariables
         }).then(function (parsedData) {
-
+                    
           if (parsedData.variables) {
 
             Object.keys(parsedData.variables).forEach(function (variable) {
@@ -711,7 +766,7 @@ var parseTemplate = function (html, authPass, context) {
           };
 
           if (final) {
-
+            
             pass({
               html: parsedData.html,
               variables: allVariables
@@ -804,7 +859,7 @@ var parseTemplate = function (html, authPass, context) {
       });
 
     } else {
-
+      
       complete(output);
 
     }
@@ -848,7 +903,58 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 
   }
 
-  thisHook.finish(true, data);
+  // Check for any embeds present in the code
+
+  var embeds = findEmbeds(data.html);
+
+  // Counter for checking all of the embeds have been parsed
+
+  var embedCount = 0;
+  var doneCount = 0;
+
+  var finished = function () {
+
+    doneCount += 1;
+
+
+    if (doneCount === embedCount) {
+
+      thisHook.finish(true, data);
+
+    }
+
+  }
+
+  if (embeds) {
+
+    Object.keys(embeds).forEach(function (category) {
+
+      embedCount += embeds[category].length;
+
+      embeds[category].forEach(function (embed) {
+
+        iris.hook("hook_frontend_embed__" + category, thisHook.authPass, {
+          vars: data.variables,
+          embedParams: embed.split(",")
+        }).then(function (parsedEmbed) {
+
+          data.html = data.html.split("[[[" + category + " " + embed + "]]]").join(parsedEmbed);
+
+          finished();
+
+        }, function (fail) {
+          
+          finished();
+
+        })
+
+      })
+
+    })
+
+
+  }
+
 
 });
 
@@ -1147,7 +1253,7 @@ var insertTags = function (html, vars) {
   }
 
   var tags = getEmbeds("tags", html);
-
+  
   if (!tags) {
 
     return html;
@@ -1260,7 +1366,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
       iris.modules.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
 
         parseTemplate(template, authPass || "root", parameters).then(function (success) {
-
+          
             // Add wrapper paramaters for filename
 
             success.html = "<!-- " + currentTemplateName + "-->" + "\n" + success.html;
@@ -1286,8 +1392,8 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
     if (wrapperTemplateName) {
 
       parseTemplateFile(wrapperTemplateName, parameters, function (wrapperOutput) {
-
-        parseTemplateFile(templateName, wrapperOutput.variables, function (innerOutput) {
+        
+        parseTemplateFile(templateName, wrapperOutput.variables, function (innerOutput) {          
 
           var output = wrapperOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput.html);
 
