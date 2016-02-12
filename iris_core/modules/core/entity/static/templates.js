@@ -328,7 +328,8 @@ iris.fetchEntities = function (variableName, query) {
   sendQuery.limit = query.limit ? JSON.stringify(query.limit) : undefined;
   sendQuery.sort = query.sort ? JSON.stringify(query.sort) : undefined;
   sendQuery.skip = query.skip ? JSON.stringify(query.skip) : undefined;
-
+  sendQuery.credentials = JSON.stringify(iris.credentials);
+  
   var querystring = formatParams(sendQuery);
 
   var request = new XMLHttpRequest();

@@ -306,6 +306,7 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
       }
 
       iris.modules.auth.globals.userList[data.userid].tokens[authToken] = token;
+
       thisHook.finish(true, token);
 
     });
