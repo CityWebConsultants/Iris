@@ -16,7 +16,7 @@ var fs = require('fs');
 
 iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (req, res) {
 
-  // Make temp file directory if it doesn't exist
+  // Make temp file directory and files directory if they don't exist
 
   var mkdirSync = function (path) {
     try {
@@ -30,175 +30,69 @@ iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', functio
 
   mkdirSync(iris.sitePath + "/" + "files");
 
-  var fstream;
+  req.pipe(req.busboy);
 
+  req.busboy.on('file', function (fieldname, file, filename) {
 
-  iris.hook("hook_file_upload", req.authPass, {
-    filename: req.params.filename,
-    form: req.params.form,
-    url: req.url,
-    formParams: req.params.parameters
-  }, {}).then(function (info) {
+    // Set max size to 0 if not set
 
-      if (!iris.config.max_file_size) {
+    if (!iris.config.max_file_size) {
 
-        iris.config.max_file_size = 0;
+      iris.config.max_file_size = 0;
+
+    }
+
+    var maxSize = iris.config.max_file_size * 1000000;
+
+    var size = 0;
+
+    var failed;
+
+    var buffer = [];
+
+    file.on('data', function (data) {
+
+      size += data.length;
+
+      buffer.push(data);
+
+      if (size > maxSize) {
+
+        failed = "File should be smaller than " + maxSize / 1000000 + "MB";
+        file.resume();
 
       }
-
-      var maxSize = iris.config.max_file_size * 1000000;
-
-      if (info.maxSize) {
-
-        maxSize = info.maxSize * 1000000;
-
-      }
-
-      req.pipe(req.busboy);
-
-      req.busboy.on('file', function (fieldname, file, filename) {
-
-        var failed = false;
-
-        if (info.extensions) {
-
-          var path = require('path')
-
-          var ext = path.extname(filename).replace(".", "");
-
-          if (info.extensions.indexOf(ext) === -1) {
-
-            failed = "File extension has to be one of " + info.extensions.join(",");
-            file.resume();
-
-          }
-
-        }
-
-        var size = 0;
-
-        // Get the size of the file being uploaded
-
-        file.on('data', function (data) {
-
-          if (size > maxSize) {
-
-            failed = "File should be smaller than " + maxSize / 1000000 + "MB";
-            file.resume();
-
-          }
-
-          size += data.length;
-
-        });
-
-        file.on('end', function () {
-
-          if (failed) {
-
-            res.send(failed);
-
-            return false;
-
-          }
-
-          fstream = fs.createWriteStream(iris.sitePath + '/temp/' + filename);
-          file.pipe(fstream);
-          fstream.on('close', function () {
-
-            res.end(filename);
-
-          });
-
-        });
-
-      });
-
-    },
-    function (fail) {
-
-      res.send(fail);
 
     });
+
+    file.on("end", function () {
+
+      if (failed) {
+        res.status(400).send(failed);
+        return false;
+      }
+
+      filename = filename.split(" ").join("_");
+
+      var wstream = fs.createWriteStream(iris.sitePath + '/temp/' + filename);
+
+      wstream.write(Buffer.concat(buffer));
+
+      wstream.on("finish", function (data) {
+
+        res.send(filename);
+
+      })
+
+      wstream.end();
+
+    })
+
+  });
 
 });
 
 iris.modules.auth.globals.registerPermission("Can upload files", "files");
-
-/**
- * @member hook_file_upload
- * @memberof filefield
- *
- * @desc Uploads a file to the server after validating and checking user's permissions
- */
-iris.modules.filefield.registerHook("hook_file_upload", 0, function (thisHook, data) {
-
-  if (iris.modules.auth.globals.checkPermissions(["Can upload files"], thisHook.authPass)) {
-
-    // If entity form, check if file small enough
-
-    if (thisHook.const.form === "editEntity" || thisHook.const.form === "createEntity") {
-
-      var entityType = JSON.parse(thisHook.const.formParams)[1];
-
-      if (entityType) {
-
-        var schema = schema = iris.dbCollections[entityType].schema.tree;
-
-        // Check if file size set in schema
-
-        var args = {};
-
-        if (schema[thisHook.const.filename] && schema[thisHook.const.filename]["size"]) {
-
-          args.maxSize = schema[thisHook.const.filename]["size"];
-
-        }
-
-        if (schema[thisHook.const.filename] && schema[thisHook.const.filename]["extensions"]) {
-
-          args.extensions = schema[thisHook.const.filename]["extensions"].split(",");
-
-        }
-
-        thisHook.finish(true, args)
-
-      }
-
-    } else {
-
-      thisHook.finish(true, data);
-
-    }
-
-  } else {
-
-    thisHook.finish(false, "Not allowed to upload files");
-
-  }
-
-})
-
-iris.modules.filefield.registerHook("hook_render_entityfield_form", 0, function (thisHook, data) {
-
-  var name = thisHook.const.field.fieldTypeName;
-
-
-  if (name === "file") {
-
-    data = {
-      type: "file",
-      title: thisHook.const.field.title,
-      required: thisHook.const.field.required,
-      description: thisHook.const.field.description,
-      default: thisHook.const.value
-    }
-
-  }
-
-  thisHook.finish(true, data);
-
-});
 
 // Register file field widget
 
@@ -206,7 +100,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['file'] = Object.create(JSONForm.elementTypes['text']);
 
-  JSONForm.elementTypes['file'].template = '<input class="filefield" type="file" ' +
+  JSONForm.elementTypes['file'].template = '<span class="currentFile"><%= value ? "Current file: " + escape(value) : ""  %></span><input class="filefield" type="file" ' +
     '<%= (fieldHtmlClass ? "class=\'" + fieldHtmlClass + "\' " : "") %>' +
     'name="FILEFIELD<%= node.name %>" value="<%= escape(value) %>" id="FILEFIELD<%= id %>"' +
     '<%= (node.disabled? " disabled" : "")%>' +
@@ -243,13 +137,20 @@ iris.modules.forms.globals.registerWidget(function () {
         url: '/admin/file/fileFieldUpload/' + id + "/" + formID + "/" + JSON.stringify(params),
         type: 'POST',
         data: formData,
+        contentType: false,
         processData: false,
-        contentType: false
       }).done(function (response) {
 
-        alert(response);
+        $(fileInput).parent().find(".currentFile").hide();
 
-        $("#" + id).attr("value", response);
+        $("input[name=" + id + "]").attr("value", response);
+
+      }).fail(function (error) {
+
+        $("input[name=" + id + "]").attr("value", null);
+        $(fileInput).parent().find(".currentFile").hide();
+        fileInput.value = null;
+        alert(error.responseText);
 
       });
 
@@ -261,40 +162,46 @@ iris.modules.forms.globals.registerWidget(function () {
 
 // Field save handler
 
-iris.modules.filefield.registerHook("hook_entityfield_save", 0, function (thisHook, data) {
+iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__file", 0, function (thisHook, data) {
 
-  var fieldSchema = thisHook.const.schema,
-    value = thisHook.const.value,
-    fieldName = thisHook.const.schema.fieldTypeName,
-    fieldType = iris.modules.entityforms.globals.fieldTypes[thisHook.const.schema.fieldTypeName].fieldTypeType;
+  var value = thisHook.const.value.split(" ").join("_");
 
+  // Check if temp folder contains this file
 
-  if (fieldName === "file") {
+  fs.readFile(iris.sitePath + '/temp/' + value, function (err, data) {
 
-    // Check if temp folder contains this file
+    if (!err) {
 
-    fs.readFile(iris.sitePath + '/temp/' + value, function (err, data) {
+      fs.rename(iris.sitePath + '/temp/' + value, iris.sitePath + '/files/' + value, function () {
 
-      if (!err) {
+        thisHook.finish(true, "/files/" + value);
 
-        fs.rename(iris.sitePath + '/temp/' + value, iris.sitePath + '/files/' + value, function () {
+      });
 
-          thisHook.finish(true, thisHook.const.value);
+    } else {
 
-        });
+      iris.log("error", err);
 
-      } else {
+      thisHook.finish(true, null);
 
-        thisHook.finish(true, thisHook.const.value);
+    }
 
-      }
+  });
 
-    });
+});
 
-  } else {
+iris.modules.entity.registerHook("hook_entity_field_fieldType_form__file", 0, function (thisHook, data) {
 
-    thisHook.finish(true, data);
+  var value = thisHook.const.value;
+  var fieldSettings = thisHook.const.fieldSettings;
 
+  data = {
+    "type": "file",
+    "title": fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": value
   }
+
+  thisHook.finish(true, data);
 
 });

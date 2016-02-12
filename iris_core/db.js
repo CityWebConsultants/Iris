@@ -211,6 +211,12 @@ iris.dbPopulate = function () {
       case "Boolean":
         return Boolean;
         break;
+      case "Date":
+        return Date;
+        break;
+      case "[Date]":
+        return [Date];
+        break;
     }
 
     return false;

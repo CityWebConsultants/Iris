@@ -199,6 +199,21 @@ iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data)
 
 });
 
+iris.route.get("/modules/forms/extrafields.js", function (req, res) {
+
+  var output = "iris.forms = {}" + "\n";
+
+  Object.keys(iris.modules.forms.globals.widgets).forEach(function (field) {
+
+    output += "iris.forms['" + field + "'] = " + iris.modules.forms.globals.widgets[field] + "()\n" + "\n";
+
+  })
+
+  res.setHeader('content-type', 'application/javascript');
+  res.send(output);
+
+})
+
 /*
  * This implementation of hook_frontend_template_parse adds a "form" block.
  */
@@ -231,6 +246,7 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
       },
       rank: 1
     }
+
     data.variables.tags.headTags["bootstrap-dropdown"] = {
       type: "script",
       attributes: {
@@ -244,6 +260,14 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
         "src": "/modules/forms/jsonform/lib/jsonform.js"
       },
       rank: 3
+    }
+
+    data.variables.tags.headTags["extrafields"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/forms/extrafields.js"
+      },
+      rank: 1
     }
 
     //
@@ -327,21 +351,8 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
 
         output += "<form data-params=" + formParams + " method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
-        // Add in any custom widgets
-
-        output += "<script>";
-
-        Object.keys(iris.modules.forms.globals.widgets).forEach(function (widget) {
-
-          output += "var " + widget + " = " + iris.modules.forms.globals.widgets[widget] + "()";
-          output += "\n";
-
-        });
-
-        output += "</script>";
-
         output += "<script>$('#" + uniqueId + "').jsonForm(" + toSource(form) + ");</script>";
-      
+
         callback(output);
 
       });
@@ -403,13 +414,13 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
       params: form,
       context: variables
     }, formTemplate).then(function (formTemplate) {
-      
+
       iris.hook("hook_form_render_" + formName, thisHook.authPass, {
         formId: form[0],
         params: form,
         context: variables
       }, formTemplate).then(function (form) {
-        
+
         renderForm(form, function (output) {
 
           next(output);
@@ -419,24 +430,23 @@ iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thi
       }, function (fail) {
 
         if (fail = "No such hook exists") {
-          
+
           renderForm(formTemplate, function (output) {
 
             next(output);
 
           });
 
-        }
-        else {
+        } else {
 
-        next(false);
-          
+          next(false);
+
         }
 
       });
 
     }, function (fail) {
-   
+
       next(false);
 
     });

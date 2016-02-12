@@ -284,24 +284,10 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
         // It's a fieldset! Load the nested fields
 
-        // TODO Make prepopulated values work
-
-        var defaultValues = [];
-
-        if (currentValue) {
-
-          currentValue.forEach(function (fieldgroup) {
-
-            defaultValues.push(JSON.parse(JSON.stringify(fieldgroup)));
-
-          })
-
-        }
-
         var fieldset = {
           "type": "array",
           "title": field.label,
-          "default": defaultValues,
+          "default": [],
           "description": field.description,
           "items": {
             "type": "object",
@@ -332,17 +318,54 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
           }
 
+          var length = 1;
+
+          if (currentValue && currentValue.length) {
+
+            length = currentValue.length;
+
+          }
+
+          for (var i = 1; i <= length; i += 1) {
+
+            fieldset.default.push({});
+
+          }
+
           Object.keys(field.subfields).forEach(function (subFieldName) {
 
-            getFieldForm(field.subfields[subFieldName], function (form) {
+            var valueCounter = 0;
 
-              fieldset.items.properties[subFieldName] = form;
+            var valueLoaded = function () {
 
-              subfieldLoaded();
+              valueCounter += 1;
 
-            }, currentValue ? currentValue[subFieldName] : null);
+              if (valueCounter === length) {
+
+                subfieldLoaded();
+
+              }
+
+            }
+
+            Object.keys(fieldset.default).forEach(function (element, index) {
+
+              getFieldForm(field.subfields[subFieldName], function (form) {
+
+                fieldset.default[index][subFieldName] = form.default;
+
+                delete form.default;
+
+                fieldset.items.properties[subFieldName] = form;
+
+                valueLoaded();
+
+              }, currentValue && currentValue[index] ? currentValue[index][subFieldName] : null);
+
+            })
 
           })
+
 
         }
 
@@ -436,6 +459,16 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
         finalValues.eid = parseInt(eid);
         hook = "hook_entity_edit";
 
+        Object.keys(schema.fields).forEach(function (field) {
+
+          if (!finalValues[field]) {
+
+            finalValues[field] = null;
+
+          }
+
+        })
+
       } else {
 
         hook = "hook_entity_create"
@@ -457,7 +490,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
         thisHook.finish(true, function (res) {
 
           res.send({
-            errors: fail
+            errors: JSON.stringify(fail)
           });
 
         });
@@ -504,17 +537,90 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
 
           });
 
+        } else {
+
+
         }
 
       })
 
-      callback(value);
-
     } else {
 
-      // TODO : Loop over fieldset fields and run this function recursively
+      if (field.subfields && Object.keys(field.subfields).length) {
 
-      callback(value);
+        var fieldsetValue = [];
+
+        var subfieldCount = Object.keys(field.subfields).length;
+
+        // Need to loop over all the values as well
+
+        var valueCount = value.length;
+
+        // Push in empty objects to store the fields in
+
+        for (var i = 0; i < valueCount; i++) {
+
+          fieldsetValue.push({});
+
+        }
+
+        var valueCounter = 0;
+        var valueDone = function () {
+
+          valueCounter += 1;
+
+          if (valueCounter === valueCount * subfieldCount) {
+
+            // Check if empty
+
+            fieldsetValue.forEach(function (element, index) {
+
+              Object.keys(element).forEach(function (key) {
+
+                if (!element[key]) {
+
+                  delete fieldsetValue[index][key];
+
+                }
+
+              })
+
+              if (Object.keys(element).length === 0) {
+
+                fieldsetValue.splice(index, 1);
+
+              }
+
+
+            })
+
+
+            callback(fieldsetValue);
+
+          }
+
+        }
+
+        Object.keys(field.subfields).forEach(function (subfieldName) {
+
+          value.forEach(function (valueObject, index) {
+
+            processField(field.subfields[subfieldName], valueObject[subfieldName], function (subfieldValue) {
+
+              fieldsetValue[index][subfieldName] = subfieldValue;
+              valueDone();
+
+            })
+
+          })
+
+        })
+
+      } else {
+
+        callback(value);
+
+      }
 
     }
 

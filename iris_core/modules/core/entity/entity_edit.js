@@ -54,7 +54,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     }
 
     if (doc) {
-      
+
       data.eid = doc.eid;
       data.entityAuthor = doc.entityAuthor;
 
@@ -190,7 +190,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
         thisHook.finish(false, err);
         return false;
-        
+
       }
 
       thisHook.finish(true, "Updated");
@@ -218,7 +218,13 @@ iris.app.post("/entity/edit/:type/:eid", function (req, res) {
 
   }, function (fail) {
 
-    res.send(fail);
+    if (fail.code) {
+
+      res.status(fail.code);
+
+    }
+
+    res.json(JSON.stringify(fail));
 
   });
 
