@@ -274,12 +274,20 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Number",
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Date", 0, function (thisHook, data) {
 
-  var date = new Date(thisHook.const.value.date);
+  if (thisHook.const.value.date) {
 
-  date.setUTCHours(thisHook.const.value.time.split(":")[0]);
-  date.setUTCMinutes(thisHook.const.value.time.split(":")[1]);
+    var date = new Date(thisHook.const.value.date);
 
-  thisHook.finish(true, date);
+    date.setUTCHours(thisHook.const.value.time.split(":")[0]);
+    date.setUTCMinutes(thisHook.const.value.time.split(":")[1]);
+
+    thisHook.finish(true, date);
+
+  } else {
+
+    thisHook.finish(true, undefined);
+
+  }
 
 })
 
@@ -289,12 +297,16 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Date]",
 
   thisHook.const.value.forEach(function (value, index) {
 
-    var date = new Date(value.date);
+    if (value.date) {
 
-    date.setUTCHours(value.time.split(":")[0]);
-    date.setUTCMinutes(value.time.split(":")[1]);
+      var date = new Date(value.date);
 
-    dates.push(date);
+      date.setUTCHours(value.time.split(":")[0]);
+      date.setUTCMinutes(value.time.split(":")[1]);
+
+      dates.push(date);
+
+    }
 
   })
 
