@@ -26,11 +26,7 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
 
     var path = require("path");
 
-    var themeSettings = fs.readFileSync(iris.modules.frontend.globals.activeTheme.path + "/" + iris.modules.frontend.globals.activeTheme.name + ".iris.theme", "utf8");
-
-    themeSettings = JSON.parse(themeSettings);
-
-    var regions = themeSettings.regions;
+    var regions = iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.info.regions : [];
 
     var form = {};
 
@@ -303,8 +299,7 @@ iris.app.get("/admin/regions", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {
-  }, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
