@@ -50,6 +50,35 @@ process.on("dbReady", function () {
 
   })
 
+  try {
+
+    var themeFile = fs.readFileSync(iris.sitePath + "/active_theme.json", "utf8");
+
+    try {
+
+      var activeTheme = JSON.parse(themeFile);
+
+      var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.name);
+
+      if (setTheme.errors) {
+
+        iris.log("error", "Could not enable " + activeTheme.name);
+        iris.log("error", setTheme.errors);
+
+      }
+
+    } catch (e) {
+
+      iris.log("error", e);
+
+    }
+
+  } catch (e) {
+
+    iris.log("info", "No theme enabled");
+
+  }
+
 });
 
 var path = require("path");
@@ -86,11 +115,15 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
 
     var path = require("path");
 
+
     if (found.length) {
+
+      var themeInfo = JSON.parse(fs.readFileSync(found[0]), "utf8");
 
       var theme = {
         name: themeName,
-        path: path.dirname(found[0])
+        path: path.dirname(found[0]),
+        info: themeInfo
       };
 
     } else {
@@ -100,39 +133,29 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
 
     }
 
-    // Make config into a variable accessible by other modules
+    // Read modules this theme is dependent on
 
-    iris.modules.frontend.globals.activeTheme = theme;
+    if (theme.info.dependencies) {
 
-    // Read themes this is dependent on
+      Object.keys(theme.info.dependencies).forEach(function (dep) {
+        
+        if (!iris.modules[dep]) {
 
-    //    if (themeInfo.dependencies) {
-    //
-    //      Object.keys(themeInfo.dependencies).forEach(function (dep) {
-    //
-    //        var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.sitePath + "/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + dep + "/" + dep + ".iris.theme" + "}");
-    //
-    //        if (!found.length) {
-    //
-    //          unmet.push(dep);
-    //
-    //        } else {
-    //
-    //          found.forEach(function (loadedDep) {
-    //
-    //            loadedDeps.push(loadedDep);
-    //
-    //          })
-    //
-    //        }
-    //
-    //      })
-    //
-    //    }
+          unmet.push(dep);
+
+        }
+
+      })
+
+    }
 
     // Push in theme templates to template lookup registry
 
     if (!unmet.length) {
+
+      // Make config into a variable accessible by other modules
+
+      iris.modules.frontend.globals.activeTheme = theme;
 
       iris.modules.frontend.globals.templateRegistry.theme.push(theme.path + "/templates");
 
@@ -155,37 +178,6 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
   }
 
   return result;
-
-}
-
-try {
-
-  var themeFile = fs.readFileSync(iris.sitePath + "/active_theme.json", "utf8");
-
-  try {
-
-    var activeTheme = JSON.parse(themeFile);
-
-    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.name);
-
-    if (setTheme.errors) {
-
-      iris.log("error", "Could not enable " + activeTheme.name);
-      iris.log("error", setTheme.errors);
-
-    }
-
-  } catch (e) {
-
-    console.log(e);
-
-    iris.log("error", e);
-
-  }
-
-} catch (e) {
-
-  iris.log("info", "No theme enabled");
 
 }
 
