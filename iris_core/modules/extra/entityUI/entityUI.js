@@ -459,6 +459,16 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
         finalValues.eid = parseInt(eid);
         hook = "hook_entity_edit";
 
+        Object.keys(schema.fields).forEach(function (field) {
+
+          if (!finalValues[field]) {
+
+            finalValues[field] = null;
+
+          }
+
+        })
+
       } else {
 
         hook = "hook_entity_create"
@@ -480,7 +490,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
         thisHook.finish(true, function (res) {
 
           res.send({
-            errors: fail
+            errors: JSON.stringify(fail)
           });
 
         });
