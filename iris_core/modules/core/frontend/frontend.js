@@ -166,7 +166,7 @@ try {
 
     var activeTheme = JSON.parse(themeFile);
 
-    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme);
+    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.name);
 
     if (setTheme.errors) {
 

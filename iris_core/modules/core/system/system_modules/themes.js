@@ -96,10 +96,14 @@ var path = require("path");
 var fs = require("fs");
 
 iris.modules.system.registerHook("hook_form_submit_themes", 0, function (thisHook, data) {
-  
+
   iris.message(thisHook.authPass.userid, "theme config changed ", "success");
 
-  fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify(thisHook.const.params.activeTheme));
+  var output = {
+    name: thisHook.const.params.activeTheme
+  }
+
+  fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify(output));
 
   iris.restart(thisHook.authPass.userid, "themes page");
 
