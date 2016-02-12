@@ -39,28 +39,31 @@ iris.modules.system.registerHook("hook_form_render_themes", 0, function (thisHoo
 
   glob("{" + iris.rootPath + "/iris_core/themes/**/*.iris.theme" + "," + iris.sitePath + "/themes/**/*.iris.theme" + "," + iris.rootPath + "/home/themes/**/*.iris.theme" + "}", function (er, files) {
 
-    var themes = {};
     var names = {};
+    var machineNames = [];
 
     try {
 
+      var path = require("path");
+
       files.forEach(function (file) {
 
-        var info = JSON.parse(fs.readFileSync(file, "utf8"));
+        var info = JSON.parse(fs.readFileSync(file), "utf8");
 
-        file = path.dirname(file.replace(iris.rootPath, ""));
+        var machineName = path.basename(file).replace(".iris.theme", "");
 
-        themes[file] = info;
+        var themeName = info.name;
 
-        names[file] = info.name + " " + "(" + file + ")";
+        names[machineName] = themeName;
+        machineNames.push(machineName);
 
       });
 
       data.schema.activeTheme = {
-        type: "string",
+        type: "text",
         title: "Active theme",
-        enum: Object.keys(themes),
-        default: iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.path.replace(iris.rootPath, "") : ""
+        default: iris.modules.frontend.globals.activeTheme.name,
+        enum: machineNames,
       }
 
       data.form = [];
@@ -94,21 +97,13 @@ var fs = require("fs");
 
 iris.modules.system.registerHook("hook_form_submit_themes", 0, function (thisHook, data) {
 
+  iris.message(thisHook.authPass.userid, "theme config changed ", "success");
 
-  // Try to set theme
+  var output = {
+    name: thisHook.const.params.activeTheme
+  }
 
-  var themePath = thisHook.const.params.activeTheme;
-
-  var themeName = path.basename(themePath).replace(".iris.theme", "");
-
-  iris.message(thisHook.authPass.userid, themeName + " theme enabled ", "success");
-
-  fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify({
-    name: themeName,
-    path: themePath
-  }))
-
-  var setTheme = iris.modules.frontend.globals.setActiveTheme(themePath, themeName);
+  fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify(output));
 
   iris.restart(thisHook.authPass.userid, "themes page");
 
