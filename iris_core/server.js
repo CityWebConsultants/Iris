@@ -191,7 +191,7 @@ iris.app.use(function (req, res, next) {
 
   }, function (error) {
 
-    res.end(JSON.stringify(error));
+    res.status(400).send(JSON.stringify(error));
 
   });
 

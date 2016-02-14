@@ -54,20 +54,19 @@ iris.route.post("/groups/addMember/:groupid/:member/:entityType/:entityField", f
                 newGroup[fieldSplit[0]].push(obj);
 
                 newGroup[name] += ', ' + userResult[0].field_username;
-                
+
                 iris.hook("hook_entity_edit", req.authPass, newGroup, req.params.entityType).then(function (success) {
-                  console.log(success);
+       
                 }, function (fail) {
 
                   res.status(400).send(fail);
 
                 });
-              } 
-              else {
+              } else {
                 // Update entity
 
                 iris.hook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
-                  console.log(success);
+        
                 }, function (fail) {
 
                   res.status(400).send(fail);
@@ -163,6 +162,46 @@ iris.route.post("/groups/removeMember/:groupid/:member", function (req, res) {
       res.status(400).send(fail);
 
     });
+});
+
+iris.modules.groups.registerHook("hook_entity_presave", 0, function (thisHook, entity) {
 
 
-})
+  if (entity.entityType == 'message') {
+
+    entity.field_created = Math.floor(Date.now() / 1000);
+    var fetch = {
+      entities: ["group"],
+      queries: [{
+        field: "eid",
+        "operator": "is",
+        "value": entity.groups[0]
+      }]
+    }
+
+    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (groupResult) {
+
+      groupResult[0].field_last_updated = Math.floor(Date.now() / 1000);
+
+      iris.hook("hook_entity_edit", thisHook.authPass, groupResult[0], groupResult[0]).then(function (success) {
+
+      }, function (fail) {
+
+      });
+
+    }, function (fail) {
+
+    });
+  }
+
+  thisHook.finish(true, entity);
+
+});
+
+iris.modules.groups.registerHook("hook_entity_presave_group", 0, function (thisHook, entity) {
+  
+  entity.field_last_updated = Math.floor(Date.now() / 1000);
+
+  thisHook.finish(true, entity);
+  
+});

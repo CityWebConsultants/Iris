@@ -426,7 +426,7 @@ iris.app.get("/fetch", function (req, res) {
     res.respond(200, success);
 
   }, function (fail) {
-    
+
     res.respond(400, fail);
 
   })
