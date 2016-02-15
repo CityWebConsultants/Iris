@@ -50,35 +50,6 @@ process.on("dbReady", function () {
 
   })
 
-  try {
-
-    var themeFile = fs.readFileSync(iris.sitePath + "/active_theme.json", "utf8");
-
-    try {
-
-      var activeTheme = JSON.parse(themeFile);
-
-      var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.name);
-
-      if (setTheme.errors) {
-
-        iris.log("error", "Could not enable " + activeTheme.name);
-        iris.log("error", setTheme.errors);
-
-      }
-
-    } catch (e) {
-
-      iris.log("error", e);
-
-    }
-
-  } catch (e) {
-
-    iris.log("info", "No theme enabled");
-
-  }
-
 });
 
 var path = require("path");
@@ -138,7 +109,7 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
     if (theme.info.dependencies) {
 
       Object.keys(theme.info.dependencies).forEach(function (dep) {
-        
+
         if (!iris.modules[dep]) {
 
           unmet.push(dep);
@@ -161,7 +132,7 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
 
       // Push in theme's static folder
 
-      iris.app.use("/themes/" + themeName, express.static(theme.path + "/static"));
+      iris.app.use("/themes/" + themeName, express.static(theme.path + "/static"))
 
     } else {
 
@@ -178,6 +149,37 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
   }
 
   return result;
+
+}
+
+try {
+
+  var themeFile = fs.readFileSync(iris.sitePath + "/active_theme.json", "utf8");
+
+  try {
+
+    var activeTheme = JSON.parse(themeFile);
+
+    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.name);
+
+    if (setTheme.errors) {
+
+      iris.log("error", "Could not enable " + activeTheme.name);
+      iris.log("error", setTheme.errors);
+
+    }
+
+  } catch (e) {
+
+    console.log(e);
+
+    iris.log("error", e);
+
+  }
+
+} catch (e) {
+
+  iris.log("info", "No theme enabled");
 
 }
 
