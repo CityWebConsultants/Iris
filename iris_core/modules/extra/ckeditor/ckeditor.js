@@ -1,16 +1,12 @@
-// Check if a form contains a CKeditor field, if yes, add a special class
-
-iris.modules.ckeditor.registerHook("hook_form_render", 1, function (thisHook, form) {
-
-  thisHook.finish(true, form);
-
-});
-
 // Add ckeditor to longstring field
+
+// Register CKeditor widget
+
+iris.modules.entityUI.globals.registerFieldWidget("Longtext", "CKeditor field");
 
 // Long string field hook
 
-iris.modules.ckeditor.registerHook("hook_entity_field_widget_render_field_Longtext", 2, function (thisHook, data) {
+iris.modules.ckeditor.registerHook("hook_entity_field_widget_form__ckeditor_field", 2, function (thisHook, data) {
 
   var value = thisHook.const.value;
   var fieldSettings = thisHook.const.fieldSettings;
@@ -26,7 +22,7 @@ iris.modules.ckeditor.registerHook("hook_entity_field_widget_render_field_Longte
 
 });
 
-// Register CKeditor widget
+// Register CKeditor JSONform widget
 
 iris.modules.forms.globals.registerWidget(function () {
 
