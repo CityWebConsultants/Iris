@@ -766,12 +766,10 @@ iris.modules.entityUI.registerHook("hook_form_submit_schemaFieldListing", 0, fun
 
       if (thisHook.const.params.machineName != '') {
         redirect += '/' + thisHook.const.params.machineName;
-      }
-      else {
+      } else {
         if (parent != '') {
           redirect += '/fieldset/' + parent;
-        }
-        else {
+        } else {
           redirect += '/manage-fields';
         }
       }
@@ -954,7 +952,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_schema", 0, function (thisH
 
         iris.message(thisHook.authPass.userid, "Entity type " + entityType + " has been updated.", "status");
         res.send({
-          "redirect" : "/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/edit"
+          "redirect": "/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/edit"
         });
 
       }
@@ -1174,11 +1172,10 @@ iris.modules.entityUI.registerHook("hook_form_submit_schemafield", 0, function (
 
   if (!schema.fields[fieldName]) {
     recurseFields(schema.fields, '');
-  }
-  else {
+  } else {
     savedElement = schema.fields[fieldName];
   }
-  
+
   // Add the basic field settings to the schema.
   Object.keys(thisHook.const.params.fields).forEach(function (metaName) {
 
@@ -1333,15 +1330,6 @@ iris.modules.entityUI.globals.registerFieldWidget = function (fieldType, name, s
 
 };
 
-// Test
-
-//iris.modules.entity.globals.registerFieldWidget("Textfield", "Look at me!", {
-//  "hello": {
-//    "type": "text",
-//    "title": "Hi!"
-//  }
-//});
-
 /**
  * Defines form schemafieldwidgets.
  * Form for widget selection and settings.
@@ -1353,14 +1341,15 @@ iris.modules.entityUI.registerHook("hook_form_render_schemafieldwidgets", 0, fun
   var entityType = thisHook.const.params[1];
   var fieldName = thisHook.const.params[2];
 
+  var schema = JSON.parse(JSON.stringify(iris.dbSchemaConfig[entityType]));
 
-  var schema = JSON.parse(JSON.stringify(iris.dbSchema[entityType]));
+  var fieldTypeName = schema.fields[fieldName].fieldType;
 
-  var fieldTypeName = schema[fieldName].fieldType;
 
-  if (iris.modules.entity.globals.fieldWidgets[fieldTypeName]) {
 
-    var widgets = iris.modules.entity.globals.fieldWidgets[fieldTypeName];
+  if (iris.modules.entityUI.globals.fieldWidgets[fieldTypeName]) {
+
+    var widgets = iris.modules.entityUI.globals.fieldWidgets[fieldTypeName];
 
   } else {
 
@@ -1384,7 +1373,12 @@ iris.modules.entityUI.registerHook("hook_form_render_schemafieldwidgets", 0, fun
 
     data.schema[widgetName] = {
       type: "object",
-      properties: widgets[widgetName]
+      properties: widgets[widgetName] ? widgets[widgetName] : {
+        empty: {
+          "type": "markup",
+          "markup": "This widget has no settings"
+        }
+      }
     };
 
   });
@@ -1439,13 +1433,13 @@ iris.modules.entityUI.registerHook("hook_form_render_schemafieldwidgets", 0, fun
 
   // Check if widgets already set and prepopulate form if so
 
-  if (schema[fieldName].widget) {
+  if (schema.fields[fieldName].widget) {
 
     data.value = {};
 
-    data.value.widgetChocie = schema[fieldName].widget.name;
+    data.value.widgetChocie = schema.fields[fieldName].widget.name;
 
-    data.value[schema[fieldName].widget.name] = schema[fieldName].widget.settings;
+    data.value[schema.fields[fieldName].widget.name] = schema.fields[fieldName].widget.settings;
 
     data.value.entityType = entityType;
     data.value.fieldName = fieldName;
@@ -1492,7 +1486,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_schemafieldwidgets", 0, fun
     data = function (res) {
 
       res.send({
-        "redirect" : "/admin/schema/" + iris.sanitizeName(entityType)
+        "redirect": "/admin/schema/" + iris.sanitizeName(entityType) + "/manage-fields"
       });
 
     }
