@@ -1,7 +1,3 @@
-
-
-
-
 var exports = {};
 
 exports.adminUser = {
