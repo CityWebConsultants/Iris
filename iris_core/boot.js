@@ -339,8 +339,6 @@ module.exports = function (config) {
 
     require('./modules/core/paths/paths.js');
 
-    require('./modules/core/textfilters/textfilters.js');
-
     try {
 
       var file = fs.readFileSync(process.cwd() + '/enabled_modules.json');

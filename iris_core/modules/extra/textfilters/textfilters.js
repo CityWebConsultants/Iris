@@ -2,8 +2,6 @@
  * @file Provides a system for registering text filters for form fields
  */
 
-iris.registerModule("textfilters");
-
 iris.modules.textfilters.registerHook("hook_form_render_textformat", 0, function (thisHook, data) {
 
   if (!data.schema) {
