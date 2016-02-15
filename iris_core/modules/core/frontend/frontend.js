@@ -65,7 +65,9 @@ var path = require("path");
  *
  * @returns error message if it fails.
  */
-iris.modules.frontend.globals.setActiveTheme = function (themePath, themeName) {
+iris.modules.frontend.globals.setActiveTheme = function (themeName) {
+
+  var glob = require("glob");
 
   // Reset theme lookup registry
 
@@ -78,36 +80,39 @@ iris.modules.frontend.globals.setActiveTheme = function (themePath, themeName) {
     var unmet = [];
     var loadedDeps = [];
 
-    var themeInfo = JSON.parse(fs.readFileSync(iris.rootPath + themePath + '/' + themeName + '.iris.theme', "utf8"));
+    // Find theme
 
-    // Make config into a variable accessible by other modules
+    var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + themeName + "/" + themeName + ".iris.theme" + "," + iris.sitePath + "/themes/" + themeName + "/" + themeName + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + themeName + "/" + themeName + ".iris.theme" + "}");
 
-    iris.modules.frontend.globals.activeTheme = {
-      name: themeName,
-      path: iris.rootPath + themePath
+    var path = require("path");
+
+
+    if (found.length) {
+
+      var themeInfo = JSON.parse(fs.readFileSync(found[0]), "utf8");
+
+      var theme = {
+        name: themeName,
+        path: path.dirname(found[0]),
+        info: themeInfo
+      };
+
+    } else {
+
+      iris.log("error", "Could not find theme " + themeName);
+      return false;
+
     }
 
-    // Read themes this is dependent on
+    // Read modules this theme is dependent on
 
-    var glob = require("glob");
+    if (theme.info.dependencies) {
 
-    if (themeInfo.dependencies) {
+      Object.keys(theme.info.dependencies).forEach(function (dep) {
 
-      Object.keys(themeInfo.dependencies).forEach(function (dep) {
-
-        var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.sitePath + "/themes/" + dep + "/" + dep + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + dep + "/" + dep + ".iris.theme" + "}");
-
-        if (!found.length) {
+        if (!iris.modules[dep]) {
 
           unmet.push(dep);
-
-        } else {
-
-          found.forEach(function (loadedDep) {
-
-            loadedDeps.push(loadedDep);
-
-          })
 
         }
 
@@ -119,21 +124,15 @@ iris.modules.frontend.globals.setActiveTheme = function (themePath, themeName) {
 
     if (!unmet.length) {
 
-      iris.modules.frontend.globals.templateRegistry.theme.push(iris.rootPath + themePath + "/templates");
+      // Make config into a variable accessible by other modules
+
+      iris.modules.frontend.globals.activeTheme = theme;
+
+      iris.modules.frontend.globals.templateRegistry.theme.push(theme.path + "/templates");
 
       // Push in theme's static folder
 
-      iris.app.use("/themes/" + themeName, express.static(iris.rootPath + themePath + "/static"));
-
-      loadedDeps.forEach(function (loadedDep) {
-
-        var depName = path.basename(loadedDep).replace(".iris.theme", "");
-
-        iris.app.use("/themes/" + depName, express.static(path.dirname(loadedDep) + "/static"));
-
-        iris.modules.frontend.globals.templateRegistry.theme.push(path.dirname(loadedDep) + "/templates");
-
-      })
+      iris.app.use("/themes/" + themeName, express.static(theme.path + "/static"))
 
     } else {
 
@@ -161,7 +160,7 @@ try {
 
     var activeTheme = JSON.parse(themeFile);
 
-    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.path, activeTheme.name);
+    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.name);
 
     if (setTheme.errors) {
 
@@ -171,6 +170,8 @@ try {
     }
 
   } catch (e) {
+
+    console.log(e);
 
     iris.log("error", e);
 
@@ -627,6 +628,67 @@ var getEmbeds = function (type, text) {
 
 }
 
+// Function for finding embeds within a template, returns keyed list of embed types. Used for hook_frontend_embed__
+
+var findEmbeds = function (text) {
+
+  function getIndicesOf(searchStr, str, caseSensitive) {
+    var startIndex = 0,
+      searchStrLen = searchStr.length;
+    var index, indices = [];
+    if (!caseSensitive) {
+      str = str.toLowerCase();
+      searchStr = searchStr.toLowerCase();
+    }
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+      indices.push(index);
+      startIndex = index + searchStrLen;
+    }
+    return indices;
+  }
+
+  var start = getIndicesOf("[[[", text, false);
+
+  var embeds = {};
+
+  start.forEach(function (element, index) {
+
+    var restOfString = text.substring(start[index], text.length);
+
+    var embedEnd = restOfString.indexOf("]]]");
+
+    var embed = restOfString.substring(3, embedEnd);
+
+    // Get embed category
+
+    var embedCat = embed.split(" ")[0];
+
+    var embed = embed.substring(embedCat.length + 1, embed.length);
+
+    // Ignore embeds with curly braces
+
+    if (embed.indexOf("{{") === -1) {
+
+      if (!embeds[embedCat]) {
+
+        embeds[embedCat] = [];
+
+      }
+
+      embeds[embedCat].push(embed);
+
+    }
+
+  })
+
+  if (Object.keys(embeds).length) {
+
+    return embeds;
+
+  }
+
+}
+
 /**
  * @function parseTemplace
  * @memberof frontend
@@ -848,10 +910,72 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 
   }
 
-  thisHook.finish(true, data);
+  // Check for any embeds present in the code
+
+  var embeds = findEmbeds(data.html);
+
+  // Counter for checking all of the embeds have been parsed
+
+  var embedCount = 0;
+  var doneCount = 0;
+
+  var finished = function () {
+
+    doneCount += 1;
+
+    if (doneCount === embedCount) {
+
+      thisHook.finish(true, data);
+
+    }
+
+  }
+
+  if (embeds) {
+
+    Object.keys(embeds).forEach(function (category) {
+
+      embedCount += embeds[category].length;
+
+      embeds[category].forEach(function (embed) {
+
+
+        iris.hook("hook_frontend_embed__" + category, thisHook.authPass, {
+          vars: data.variables,
+          embedParams: embed.split(",")
+        }).then(function (parsedEmbed) {
+
+          data.html = data.html.split("[[[" + category + " " + embed + "]]]").join(parsedEmbed);
+
+          finished();
+
+        }, function (fail) {
+
+          if (fail === "No such hook exists") {
+
+            finished();
+
+          } else {
+
+            iris.log("error", fail);
+
+          }
+
+        })
+
+      })
+
+    })
+
+
+  } else {
+
+    thisHook.finish(true, data);
+
+  }
+
 
 });
-
 
 /**
  * Catch all callback which will be triggered for all callbacks that are not specifically defined.
