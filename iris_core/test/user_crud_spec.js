@@ -3,33 +3,31 @@ var utils = require('./test_utils');
 var config = require('./test_config');
 
 var generateString = utils.generateString;
-var formatParams = utils.formatParams;
 
 var adminUser = config.adminUser;
+var baseURL = config.baseURL;
 
-var user = {
-        login: {
-            username: "",
-            password: ""
-        },
-        auth: {
-            token: "",
-            userid: "",
-            roles: ['authenticated']
-        }
+var testUser = {
+    login: {
+        username: "",
+        password: ""
+    },
+    auth: {
+        token: "",
+        userid: "",
+        roles: ['authenticated']
     }
+};
 
-testUser = user;
 testUser.login.username = generateString(5);
 testUser.login.password = generateString(10);
 
 frisby.create('Request auth key')
-  .post('http://www.iris.local:4000/api/login',
-      adminUser.login,
-      { 
-        json: true
-      }
-  )
+  .post(baseURL + '/api/login',
+  adminUser.login,
+  {
+      json: true
+  })
   .expectStatus(200)
   .expectHeaderContains('content-type', 'application/json')
   .expectJSONTypes({
@@ -40,7 +38,7 @@ frisby.create('Request auth key')
       adminUser.auth.token = res.token;
 
       frisby.create('Create a user')
-          .post('http://www.iris.local:4000/entity/create/user',
+          .post(baseURL + '/entity/create/user',
             {
                 credentials: adminUser.auth,
                 username: testUser.login.username,
@@ -62,7 +60,7 @@ frisby.create('Request auth key')
           .afterJSON(function (res) {
                 testUser.auth.userid = res.eid;
                 frisby.create('Update user roles with admin')
-                    .post('http://www.iris.local:4000/entity/edit/user/' + testUser.auth.userid,
+                    .post(baseURL + '/entity/edit/user/' + testUser.auth.userid,
                     {
                         credentials: adminUser.auth,
                         roles: ['admin']
@@ -77,6 +75,3 @@ frisby.create('Request auth key')
   })
   .inspectJSON()
   .toss();
-
-
-

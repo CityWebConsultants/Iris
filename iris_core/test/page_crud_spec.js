@@ -5,6 +5,7 @@ var utils = require('./test_utils');
 var generateString = utils.generateString;
 var formatParams = utils.formatParams;
 
+var baseURL = config.baseURL;
 var user = config.adminUser;
 
 var pageQuery = {
@@ -23,16 +24,16 @@ var prepareQuery = function() {
       queries: JSON.stringify(pageQuery.queries),
       entities: JSON.stringify(pageQuery.entities)
   });
-}
+};
 
 var pageContent = {
   title: generateString(10),
   body: generateString(100),
   path: 'test/' + generateString(5)
-}
+};
 
 frisby.create('Request auth key')
-  .post('http://www.iris.local:4000/api/login',
+  .post(baseURL + '/api/login',
     user.login,
   { json: true })
   .expectStatus(200)
@@ -49,7 +50,7 @@ frisby.create('Request auth key')
   .toss();
 
 frisby.create('Create a page')
-  .post('http://www.iris.local:4000/entity/create/page',
+  .post(baseURL + '/entity/create/page',
     {
       credentials: user.auth,
       title: pageContent.title,
@@ -65,14 +66,14 @@ frisby.create('Create a page')
       pageQuery.queries[0].value = pageContent.eid = res.eid;
 
       frisby.create('Fetch a page')
-        .get('http://www.iris.local:4000/fetch' + prepareQuery())
+        .get(baseURL + '/fetch' + prepareQuery())
         .inspectJSON()
         .expectStatus(200)
         .expectHeaderContains('content-type', 'application/json')
         .afterJSON(function (res) {
 
           frisby.create('Edit a page')
-            .post('http://www.iris.local:4000/entity/edit/page/' + pageContent.eid,
+            .post(baseURL + '/entity/edit/page/' + pageContent.eid,
               {
                 credentials: user.auth,
                 body: pageContent.body + 'edited'
@@ -84,7 +85,7 @@ frisby.create('Create a page')
             .afterJSON(function (res) {
 
               frisby.create('Delete a page')
-                .post('http://www.iris.local:4000/entity/delete/page/' + pageContent.eid,
+                .post(baseURL + '/entity/delete/page/' + pageContent.eid,
                 {
                   credentials: user.auth,
                 },
