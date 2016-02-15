@@ -104,7 +104,6 @@ iris.modules.auth.globals = {
 
       };
       
-      
       if (authCredentials && typeof authCredentials === "object" && authCredentials.userid && authCredentials.token) {
 
         if (iris.modules.auth.globals.checkAccessToken(authCredentials.userid, authCredentials.token)) {

@@ -91,6 +91,7 @@ iris.socketLogin = function (userid, token, socket) {
   }, function (fail) {
 
     iris.log("error", fail);
+    socket.emit("pair", false);
 
   });
 

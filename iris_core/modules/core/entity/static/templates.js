@@ -86,7 +86,7 @@ irisReady(function () {
 
             //Process query based on operator
 
-            switch (query.comparison) {
+            switch (query.operator) {
 
               case "IS":
 
@@ -139,7 +139,7 @@ irisReady(function () {
 
               loader.entities.forEach(function (currentEntity) {
 
-                if (currentEntity === iris.fetchedEntities[entity.entityType][entity.eid]) {
+                if (currentEntity.eid === entity.eid) {
 
                   present = true;
 

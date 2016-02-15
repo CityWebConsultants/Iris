@@ -56,7 +56,7 @@ iris.route.post("/groups/addMember/:groupid/:member/:entityType/:entityField", f
                 newGroup[name] += ', ' + userResult[0].field_username;
 
                 iris.hook("hook_entity_edit", req.authPass, newGroup, req.params.entityType).then(function (success) {
-       
+
                 }, function (fail) {
 
                   res.status(400).send(fail);
@@ -66,7 +66,7 @@ iris.route.post("/groups/addMember/:groupid/:member/:entityType/:entityField", f
                 // Update entity
 
                 iris.hook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
-        
+
                 }, function (fail) {
 
                   res.status(400).send(fail);
@@ -168,30 +168,32 @@ iris.modules.groups.registerHook("hook_entity_presave", 0, function (thisHook, e
 
 
   if (entity.entityType == 'message') {
-
+console.log('ent', entity);
     entity.field_created = Math.floor(Date.now() / 1000);
     var fetch = {
       entities: ["group"],
       queries: [{
         field: "eid",
         "operator": "is",
-        "value": entity.groups[0]
+        "value": (typeof entity.groups == 'array') ? entity.groups[0] : entity.groups
       }]
     }
 
     iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (groupResult) {
+      
+      if (groupResult.length > 0) {
+        groupResult[0].field_last_updated = Math.floor(Date.now() / 1000);
 
-      groupResult[0].field_last_updated = Math.floor(Date.now() / 1000);
-
-      iris.hook("hook_entity_edit", thisHook.authPass, groupResult[0], groupResult[0]).then(function (success) {
-
-      }, function (fail) {
-
-      });
-
+        iris.hook("hook_entity_edit", thisHook.authPass, groupResult[0], groupResult[0]).then(function (success) {
+          console.log('edit suc');
+        }, function (fail) {
+          console.log('edit fail', fail);
+        });
+      }
     }, function (fail) {
-
+      console.log('fetch fail', fail);
     });
+
   }
 
   thisHook.finish(true, entity);
@@ -199,9 +201,9 @@ iris.modules.groups.registerHook("hook_entity_presave", 0, function (thisHook, e
 });
 
 iris.modules.groups.registerHook("hook_entity_presave_group", 0, function (thisHook, entity) {
-  
+
   entity.field_last_updated = Math.floor(Date.now() / 1000);
 
   thisHook.finish(true, entity);
-  
+
 });

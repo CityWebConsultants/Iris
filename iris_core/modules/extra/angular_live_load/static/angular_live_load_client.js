@@ -48,7 +48,6 @@ irisReady(function () {
 
     if (iris.fetched && iris.fetched[template]) {
 
-
       $scope[template] = iris.fetched[template].entities;
 
     }
