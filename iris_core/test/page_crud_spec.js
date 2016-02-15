@@ -1,15 +1,11 @@
 var frisby = require('frisby');
+var config = require('./test_config');
+var utils = require('./test_utils');
 
-var user = {
-  login: {
-    username: "foo",
-    password: "foo"
-  },
-  auth: {
-    token: "",
-    userid: "1"
-  }
-};
+var generateString = utils.generateString;
+var formatParams = utils.formatParams;
+
+var user = config.adminUser;
 
 var pageQuery = {
       credentials: user.auth,
@@ -20,23 +16,6 @@ var pageQuery = {
         value: ""
       }]
     };
-
-var generateString = function (stringLength) {
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    for( var i=0; i < stringLength; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    return text;
-}
-
-var formatParams = function (params) {
-    return "?" + Object
-      .keys(params)
-      .map(function (key) {
-        return key + "=" + params[key]
-      })
-      .join("&")
-}
 
 var prepareQuery = function() {
   return formatParams({

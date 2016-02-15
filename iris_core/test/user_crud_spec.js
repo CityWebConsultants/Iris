@@ -1,52 +1,27 @@
 var frisby = require('frisby');
-
 var utils = require('./test_utils');
+var config = require('./test_config');
 
 var generateString = utils.generateString;
 var formatParams = utils.formatParams;
 
-// @todo refactor to fit with other.
-// @todo add exports for helper functions.
-var adminUser = {
-    login: {
-        username: "foo",
-        password: "foo"
-    },
-    auth: {
-        token: "",
-        userid: "1"
-    }
-};
+var adminUser = config.adminUser;
 
-var user = function() {
-
-    return {
-
+var user = {
         login: {
-            username: generateString(5),
-            password: generateString(10)
+            username: "",
+            password: ""
         },
         auth: {
             token: "",
             userid: "",
             roles: ['authenticated']
-        },
-        setToken: function(token) {
-            this.auth.token = token;
-        },
-        setUserID: function(id){
-            this.auth.userid = id;
-        },
-        setRoles: function(roles) {
-          this.auth.roles = roles;
         }
-        /*setAdmin: function(){
-          //readConfig
-        }*/
-    };
-}
+    }
 
-testUser = new user();
+testUser = user;
+testUser.login.username = generateString(5);
+testUser.login.password = generateString(10);
 
 frisby.create('Request auth key')
   .post('http://www.iris.local:4000/api/login',
@@ -83,25 +58,20 @@ frisby.create('Request auth key')
               entityType: String
           })
           .inspectJSON()
+          .inspectBody()
           .afterJSON(function (res) {
-                testUser.setUserID(res.eid);
-                testUser.setRoles(res.roles);
-
+                testUser.auth.userid = res.eid;
                 frisby.create('Update user roles with admin')
                     .post('http://www.iris.local:4000/entity/edit/user/' + testUser.auth.userid,
                     {
-                        credentials: adminUser.auth
-                        /*roles: {['authenticated','admin']}*/
+                        credentials: adminUser.auth,
+                        roles: ['admin']
                     },
                     { json : true })
                     .expectStatus(200)
                     .inspectJSON()
                     .expectHeaderContains('content-type', 'application/json')
-                    .after(
-                      
-                    )
                     .toss()        
-                    
             })
             .toss()
   })
