@@ -329,7 +329,7 @@ iris.fetchEntities = function (variableName, query) {
   sendQuery.sort = query.sort ? JSON.stringify(query.sort) : undefined;
   sendQuery.skip = query.skip ? JSON.stringify(query.skip) : undefined;
   sendQuery.credentials = JSON.stringify(iris.credentials);
-  
+
   var querystring = formatParams(sendQuery);
 
   var request = new XMLHttpRequest();
@@ -361,8 +361,25 @@ iris.fetchEntities = function (variableName, query) {
 
             window.iris.fetchedEntities[entity.entityType] ? null : window.iris.fetchedEntities[entity.entityType] = {};
 
-            window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
-            window.iris.fetched[variableName].entities.push(entity);
+            // Check if entity already in list
+
+            if (window.iris.fetchedEntities[entity.entityType][entity.eid]) {
+
+              Object.keys(entity).forEach(function (property) {
+
+                window.iris.fetchedEntities[entity.entityType][entity.eid][property] = entity[property];
+
+              })
+              
+              window.iris.fetched[variableName].entities.push(window.iris.fetchedEntities[entity.entityType][entity.eid]);
+
+            } else {
+
+              window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
+              window.iris.fetched[variableName].entities.push(entity);
+
+            }
+
 
           })
 
