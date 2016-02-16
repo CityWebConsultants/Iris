@@ -8,9 +8,12 @@ var mkdirSync = function (path) {
   try {
     fs.mkdirSync(path);
   } catch (e) {
-    if (e.code != 'EEXIST') throw e;
+    if (e.code !== 'EEXIST') {
+      throw e;
+    }
+
   }
-}
+};
 
 mkdirSync(iris.configPath + "/" + "auth");
 
@@ -43,7 +46,7 @@ iris.modules.auth.globals = {
 
         name: name
 
-      }
+      };
 
     }
 
@@ -75,7 +78,7 @@ iris.modules.auth.globals = {
         name: permission,
         description: description
 
-      }
+      };
 
     }
 
@@ -87,7 +90,7 @@ iris.modules.auth.globals = {
     },
     authenticated: {
       name: "authenticated"
-    },
+    }
   },
 
   //List of logged in users/access tokens
@@ -100,10 +103,10 @@ iris.modules.auth.globals = {
       var authPass = {
 
         roles: [],
-        userid: null,
+        userid: null
 
       };
-      
+
       if (authCredentials && typeof authCredentials === "object" && authCredentials.userid && authCredentials.token) {
 
         if (iris.modules.auth.globals.checkAccessToken(authCredentials.userid, authCredentials.token)) {
@@ -136,24 +139,23 @@ iris.modules.auth.globals = {
       //Run any hooks that latch onto this one to extend the authpass
 
       iris.hook('hook_auth_authpass', authPass, {
-          req: req,
-          res: res
-        }, authPass)
-        .then(function (authPass) {
+        req: req,
+        res: res
+      }, authPass).then(function (authPass) {
 
-          //Complete access pass received.
+        //Complete access pass received.
 
-          yes(authPass);
-          return true;
+        yes(authPass);
+        return true;
 
-        }, function (error) {
+      }, function (error) {
 
-          //Complete access pass received.
+        //Complete access pass received.
 
-          no(error);
-          return false;
+        no(error);
+        return false;
 
-        });
+      });
 
     });
 
@@ -162,7 +164,6 @@ iris.modules.auth.globals = {
   checkAccessToken: function (userid, token) {
 
     var user = iris.modules.auth.globals.userList[userid],
-      token = token,
       authenticated = false;
 
     if (user) {
@@ -187,18 +188,19 @@ iris.modules.auth.globals = {
 
   checkPermissions: function (permissionsArray, authPass) {
 
-    var fs = require('fs');
+    var fs = require('fs'),
+      permissions;
 
     //Load in permissions if available
 
     try {
       var currentPermissions = fs.readFileSync(iris.sitePath + "/configurations/auth/permissions.json", "utf8");
 
-      var permissions = JSON.parse(currentPermissions);
+      permissions = JSON.parse(currentPermissions);
 
     } catch (e) {
 
-      var permissions = {};
+      permissions = {};
 
     }
 
@@ -222,16 +224,16 @@ iris.modules.auth.globals = {
 
       access = true;
 
-    };
+    }
 
     return access;
 
-  },
+  }
 };
 
-iris.modules.auth.globals.registerPermission("can make access token", "auth")
-iris.modules.auth.globals.registerPermission("can delete access token", "auth")
-iris.modules.auth.globals.registerPermission("can delete user access", "auth")
+iris.modules.auth.globals.registerPermission("can make access token", "auth");
+iris.modules.auth.globals.registerPermission("can delete access token", "auth");
+iris.modules.auth.globals.registerPermission("can delete user access", "auth");
 
 /**
  * @member hook_auth_authpass
@@ -247,12 +249,12 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 
   if (typeof data === 'string') {
 
-    var data = {
+    data = {
 
       userid: data,
       roles: ["authenticated"]
 
-    }
+    };
 
   } else if (!data.roles || !data.userid) {
 
@@ -303,7 +305,7 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
         id: authToken,
         timestamp: Date.now()
 
-      }
+      };
 
       iris.modules.auth.globals.userList[data.userid].tokens[authToken] = token;
 
@@ -489,9 +491,9 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
     }
 
   } else {
-    
+
     thisHook.finish(true);
-    
+
   }
 
-})
+});
