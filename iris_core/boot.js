@@ -31,7 +31,7 @@ module.exports = function (config) {
 
       process.send("restart");
 
-    })
+    });
 
   };
 
@@ -375,10 +375,11 @@ module.exports = function (config) {
       var moduleInfoPath = lookup[lookup.length - 1];
 
       var modulePath = lookup[lookup.length - 1].replace(".iris.module", ".js");
+      var moduleInfo;
 
       try {
 
-        var moduleInfo = JSON.parse(fs.readFileSync(moduleInfoPath));
+        moduleInfo = JSON.parse(fs.readFileSync(moduleInfoPath));
 
       } catch (e) {
 
@@ -426,7 +427,7 @@ module.exports = function (config) {
 
           iris.log("error", e);
 
-        };
+        }
 
       }
 
