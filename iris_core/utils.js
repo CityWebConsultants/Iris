@@ -138,17 +138,6 @@ iris.t = function (translationString, args, language) {
 
 }
 
-// Example
-
-//iris.registerTranslation("german", "Hello %first %second", "Hallo %second %first");
-//iris.registerTranslation("german", "Hello user", "User hallo!");
-//
-//console.log(iris.t("Hello user", "german"));
-//console.log(iris.t("Hello %first %second", {
-//  first: "Filip",
-//  second: "Hnízdo"
-//}, "german"));
-
 /**
  * @function typeCheck
  * @memberof iris
