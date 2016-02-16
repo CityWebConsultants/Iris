@@ -665,13 +665,19 @@ var findEmbeds = function (text) {
 
     var embed = embed.substring(embedCat.length + 1, embed.length);
 
-    if (!embeds[embedCat]) {
+    // Ignore embeds with curly braces
 
-      embeds[embedCat] = [];
+    if (embed.indexOf("{{") === -1) {
+
+      if (!embeds[embedCat]) {
+
+        embeds[embedCat] = [];
+
+      }
+
+      embeds[embedCat].push(embed);
 
     }
-
-    embeds[embedCat].push(embed);
 
   })
 
@@ -932,6 +938,7 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
       embedCount += embeds[category].length;
 
       embeds[category].forEach(function (embed) {
+
 
         iris.hook("hook_frontend_embed__" + category, thisHook.authPass, {
           vars: data.variables,
