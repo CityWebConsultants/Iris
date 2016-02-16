@@ -21,15 +21,14 @@
  */
 var hook = function (hookname, authPass, staticVariables, variables) {
 
-  var auth = authPass;
+  "use strict";
 
-  var thisHook;
-  
+  var auth = authPass,
+    thisHook,
+    constants = staticVariables,
+    data = variables;
+
   // TODO should probably clone static variables so they're proper constants and can't be changed elsewhere
-
-  var constants = staticVariables;
-
-  var data = variables;
 
   return new Promise(function (yes, no) {
 
@@ -44,7 +43,7 @@ var hook = function (hookname, authPass, staticVariables, variables) {
           userid: "root",
           roles: ["admin"]
 
-        }
+        };
 
       } else {
 
@@ -111,7 +110,7 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
     //Create a promise for each of the hooks with a finishing function for success and failure, pass in auth parameters
 
-    hookCallPromises = [];
+    var hookCallPromises = [];
 
     hookcalls.forEach(function (hookcall, index) {
 
@@ -142,6 +141,8 @@ var hook = function (hookname, authPass, staticVariables, variables) {
             thisHook.req = constants.req;
 
           }
+          
+          // TODO - const is a reserved word!
 
           thisHook.const = constants;
           thisHook.name = hookcall.name;
