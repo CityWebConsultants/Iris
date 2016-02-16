@@ -47,7 +47,7 @@ var initLogger = function (daycount) {
 
     // If an exception gets passed in, process it into log messages
 
-    if (Array.isArray(arguments[1].stack)) {
+    if (arguments && arguments[1] && Array.isArray(arguments[1].stack)) {
 
       var e = arguments[1];
 

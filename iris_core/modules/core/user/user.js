@@ -523,7 +523,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
     return cookies;
   }
-
+  
   if (cookies && cookies.userid && cookies.token) {
 
     // Check access token and userid are valid
@@ -533,9 +533,12 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
       iris.socketLogin(cookies.userid, cookies.token, thisHook.const.socket);
 
     }
+    else {
+      thisHook.finish(false);
+    }
 
   };
-
+  thisHook.finish(true, data);
 });
 
 // Username + password to token

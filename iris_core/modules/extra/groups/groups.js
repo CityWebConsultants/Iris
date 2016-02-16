@@ -207,3 +207,33 @@ iris.modules.groups.registerHook("hook_entity_presave_group", 0, function (thisH
   thisHook.finish(true, entity);
 
 });
+
+iris.modules.groups.registerHook("hook_entity_view_group", 0, function (thisHook, entity) {
+  
+  // Get messages since last checked in
+  
+  var date;
+
+  entity.field_users.forEach(function (value, index) {
+    if (value.field_uid == thisHook.authPass.userid) {
+      console.log('last', value.field_last_checked);
+      date = value.field_last_checked;
+    }
+  });
+  
+  if (!date) {
+    // If there is no last checked date, make it really old to fetch all messages.
+    date = 0;
+  }
+  
+  var fetch = {
+    entities : 'message',
+    'query' : [{
+      field : 'field_created',
+      operator : 'gt',
+      value : date
+    }]
+  }
+  console.log(fetch);
+  thisHook.finish(true, entity);
+});

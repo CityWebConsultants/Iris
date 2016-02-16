@@ -89,6 +89,18 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
         }
 
       }
+      
+      if (fieldQuery.operator.toLowerCase().indexOf("gt") !== -1) {
+        
+        var queryItem = {};
+
+        queryItem[fieldQuery["field"]] = {
+          $gt: fieldQuery.value;
+        }
+        
+        query.$and.push(queryItem);
+        
+      }
 
       if (fieldQuery.operator.toLowerCase().indexOf("includes") !== -1) {
 
@@ -260,7 +272,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
             iris.hook("hook_entity_view_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
 
-              entities[entity._id] = validated;
+              entities[_id] = validated;
               yes();
 
             }, function (fail) {
