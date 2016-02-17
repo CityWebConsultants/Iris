@@ -271,6 +271,38 @@ iris.app.get("/user/logout", function (req, res) {
 
 });
 
+
+iris.modules.user.registerHook("hook_entity_create", -1, function (thisHook, entity) {
+
+  if (entity.entityType === 'user') {
+
+    iris.dbCollections['user'].findOne({
+
+        username: thisHook.const.username
+
+      }, function (err, doc) {
+
+        if (err) {
+
+          thisHook.finish(false, 'Unable to create user.');
+
+        } else if (doc === null) {
+
+          thisHook.finish(true, entity);
+
+        } else {
+
+          thisHook.finish(false, 'Username is already in use.');
+
+        }
+
+    });
+
+  }
+
+});
+
+
 iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
   if (entity.password && entity.password !== '') {
