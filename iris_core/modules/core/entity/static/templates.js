@@ -236,6 +236,12 @@ irisReady(function () {
 
       // Send event
 
+      var detail = {
+        entities: {}
+      };
+      detail.entities[entity.entityType] = [entity];
+      detail.event = 'update';
+      iris.entityListUpdate.detail = detail;
       document.dispatchEvent(iris.entityListUpdate);
 
     }
@@ -282,6 +288,12 @@ irisReady(function () {
 
     // Send event
 
+    var detail = {
+      entities: {}
+    };
+    detail.entities[entity.entityType] = [entity];
+    iris.entityListUpdate.detail = detail;
+    detail.event = 'delete';
     document.dispatchEvent(iris.entityListUpdate);
 
   }
@@ -345,6 +357,7 @@ iris.fetchEntities = function (variableName, query) {
       try {
 
         var fetched = request.response;
+        var grouped = {};
 
         result = JSON.parse(fetched).response;
 
@@ -359,6 +372,12 @@ iris.fetchEntities = function (variableName, query) {
           };
           result.forEach(function (entity) {
 
+            if (!grouped[entity.entityType]) {
+              grouped[entity.entityType] = [JSON.parse(JSON.stringify(entity))];
+            } else {
+              grouped[entity.entityType].push(JSON.parse(JSON.stringify(entity)));
+            }
+
             window.iris.fetchedEntities[entity.entityType] ? null : window.iris.fetchedEntities[entity.entityType] = {};
 
             // Check if entity already in list
@@ -370,7 +389,7 @@ iris.fetchEntities = function (variableName, query) {
                 window.iris.fetchedEntities[entity.entityType][entity.eid][property] = entity[property];
 
               })
-              
+
               window.iris.fetched[variableName].entities.push(window.iris.fetchedEntities[entity.entityType][entity.eid]);
 
             } else {
@@ -385,6 +404,10 @@ iris.fetchEntities = function (variableName, query) {
 
         }
 
+        iris.entityListUpdate.detail = {
+          entities: grouped,
+          event : 'fetch'
+        };
         document.dispatchEvent(iris.entityListUpdate);
 
       } catch (e) {

@@ -534,7 +534,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
     }
     else {
-      thisHook.finish(false);
+      thisHook.finish(false, 'Cannot authenticate');
     }
 
   };
@@ -584,3 +584,4 @@ iris.app.get("/admin/users", function (req, res) {
   }
 
 });
+

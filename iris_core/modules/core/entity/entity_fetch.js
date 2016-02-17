@@ -95,7 +95,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
         var queryItem = {};
 
         queryItem[fieldQuery["field"]] = {
-          $gt: fieldQuery.value;
+          $gt: fieldQuery.value
         }
         
         query.$and.push(queryItem);

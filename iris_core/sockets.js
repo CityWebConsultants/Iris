@@ -107,14 +107,14 @@ iris.socketServer.on("connection", function (socket) {
   }
 
   // Run socket through connection hook for things like getting user data from cookies
-
+console.log('before hook');
   iris.hook("hook_socket_connect", "root", {
     socket: socket
   }, null).then(function () {
 
-
+console.log('hook succ');
   }, function (fail) {
-
+console.log('hook fail');
     if (fail !== "No such hook exists") {
 
       iris.log("error", fail);
@@ -154,7 +154,7 @@ iris.socketServer.on("connection", function (socket) {
   Object.keys(iris.socketListeners).forEach(function (event, index) {
 
     iris.socketListeners[event].forEach(function (trigger) {
-
+      
       var callback = function (data) {
 
         trigger(socket, data);

@@ -306,7 +306,8 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
       }
 
       iris.modules.auth.globals.userList[data.userid].tokens[authToken] = token;
-
+      iris.hook("hook_user_login", thisHook.authPass, null, data.userid);
+      
       thisHook.finish(true, token);
 
     });
@@ -367,8 +368,9 @@ iris.modules.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, use
 
     if (iris.modules.auth.globals.userList[userid]) {
 
+      iris.hook("hook_user_logout", thisHook.authPass, null, userid);
       delete iris.modules.auth.globals.userList[userid];
-
+       
       thisHook.finish(true, userid);
 
     } else {
