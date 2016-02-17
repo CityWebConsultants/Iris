@@ -8,6 +8,91 @@
 
 iris.registerModule("menu");
 
+//iris.route.get("/hello", {
+//  "menu": [{
+//    menuName: "what",
+//    parent: "hi",
+//    link: "hehe",
+//    title: "heheww"
+//  }]
+//}, function (req, res) {
+//
+//  res.send("Hello");
+//
+//}, 5);
+
+iris.modules.menu.registerHook("hook_frontend_embed__menu2", 0, function (thisHook, data) {
+
+  // Loop over Iris routes
+
+  var menuName = thisHook.const.embedParams[0];
+
+  var menuItems = [];
+
+  Object.keys(iris.routes).forEach(function (path) {
+
+    if (iris.routes[path].get) {
+
+      var route = iris.routes[path].get;
+
+      if (route.options && route.options.menu && route.options.menu.length) {
+
+        // Route has a menu
+
+        route.options.menu.forEach(function (menu) {
+
+          if (menu.menuName === menuName) {
+
+            menuItems.push(menu);
+
+          }
+
+        })
+
+      }
+
+    }
+
+  })
+
+  // Generate menu
+
+  var menuLinks = [];
+
+  // Top level items first
+
+  menuItems.forEach(function (item) {
+
+    if (!item.parent) {
+
+      item.children = [];
+
+      menuLinks.push(item);
+
+    }
+
+  })
+
+  // Then parent items
+
+  // Top level items first
+
+  menuItems.forEach(function (item) {
+
+    if (item.parent) {
+
+      item.children = [];
+
+      menuLinks.push(item);
+
+    }
+
+  })
+
+  thisHook.finish(true, JSON.stringify(menuItems));
+
+})
+
 /**
  * @function registerMenuLink
  * @memberof menu
