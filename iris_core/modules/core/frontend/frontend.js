@@ -941,10 +941,17 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 
       embeds[category].forEach(function (embed) {
 
+        var params = [];
+
+        embed.split(",").map(function (current) {
+
+          params.push(current.trim());
+
+        })
 
         iris.hook("hook_frontend_embed__" + category, thisHook.authPass, {
           vars: data.variables,
-          embedParams: embed.split(",")
+          embedParams: params
         }).then(function (parsedEmbed) {
 
           data.html = data.html.split("[[[" + category + " " + embed + "]]]").join(parsedEmbed);
