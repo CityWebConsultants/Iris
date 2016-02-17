@@ -268,6 +268,11 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 
 iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
+  /*if(iris.modules.auth.globals.userList[data.userid]) {
+    thisHook.finish(true, "Already authenticated");
+    return true;
+  }*/
+
   if (!data.userid || typeof data.userid !== "string") {
 
     thisHook.finish(false, iris.error(400, "No user ID"));
@@ -306,8 +311,15 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
       }
 
       iris.modules.auth.globals.userList[data.userid].tokens[authToken] = token;
-      iris.hook("hook_user_login", thisHook.authPass, null, data.userid);
       
+      iris.hook("hook_user_login", thisHook.authPass, null, data.userid).then(function(success) {
+        thisHook.finish(true, success);
+      }, function (fail) {
+
+        thisHook.finish(false, fail);
+
+      });
+
       thisHook.finish(true, token);
 
     });
@@ -368,7 +380,13 @@ iris.modules.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, use
 
     if (iris.modules.auth.globals.userList[userid]) {
 
-      iris.hook("hook_user_logout", thisHook.authPass, null, userid);
+      iris.hook("hook_user_logout", thisHook.authPass, null, userid).then(function(success){
+        thisHook.finish(true, success);
+      }, function(fail) {
+
+        thisHook.finish(false, fail);
+
+      });
       delete iris.modules.auth.globals.userList[userid];
        
       thisHook.finish(true, userid);
@@ -389,7 +407,7 @@ iris.modules.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, use
 
 iris.app.post('/auth/clearauth', function (req, res) {
 
-  iris.hook("hook_auth_clearauth", req.body.userid, req.authPass).then(function (success) {
+  iris.hook("hook_auth_clearauth", req.authPass, req.body.userid, req.body.userid).then(function (success) {
 
     res.send(success);
 
@@ -403,7 +421,7 @@ iris.app.post('/auth/clearauth', function (req, res) {
 
 iris.app.post('/auth/deletetoken', function (req, res) {
 
-  iris.hook("hook_auth_deletetoken", req.body, req.authPass).then(function (success) {
+  iris.hook("hook_auth_deletetoken", req.authPass, req.body, req.authPass).then(function (success) {
 
     res.send(success);
 
@@ -416,7 +434,7 @@ iris.app.post('/auth/deletetoken', function (req, res) {
 });
 
 iris.app.post('/auth/maketoken', function (req, res) {
-
+  
   iris.hook("hook_auth_maketoken", req.authPass, null, {
     userid: req.body.userid
   }).then(function (success) {
