@@ -197,250 +197,238 @@ iris.route.get("/modules/forms/extrafields.js", function (req, res) {
 /*
  * This implementation of hook_frontend_template_parse adds a "form" block.
  */
-iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHook, data) {
 
-  var variables = data;
-  iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
+  var variables = thisHook.const.vars;
 
-    // Add scripts for forms
+  // Add scripts for forms
 
-    data.variables.tags.headTags["jQuery"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/jsonform/deps/jquery.min.js"
-      },
-      rank: 0
+  variables.tags.headTags["jQuery"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/jsonform/deps/jquery.min.js"
+    },
+    rank: 0
+  }
+
+  variables.tags.headTags["underscore"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/jsonform/deps/underscore-min.js"
+    },
+    rank: 0
+  }
+  variables.tags.headTags["jQueryUI"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/jsonform/deps/opt/jquery.ui.custom.js"
+    },
+    rank: 1
+  }
+
+  variables.tags.headTags["bootstrap-dropdown"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/jsonform/deps/opt/bootstrap-dropdown.js"
+    },
+    rank: 2
+  }
+  variables.tags.headTags["jsonform"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/jsonform/lib/jsonform.js"
+    },
+    rank: 3
+  }
+
+  variables.tags.headTags["extrafields"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/extrafields.js"
+    },
+    rank: 1
+  }
+
+  //
+
+  var formParams = thisHook.const.embedParams;
+
+  var renderForm = function (form, callback) {
+
+    if (!form.schema) {
+
+      form.schema = {}
+
     }
 
-    data.variables.tags.headTags["underscore"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/jsonform/deps/underscore-min.js"
-      },
-      rank: 0
-    }
-    data.variables.tags.headTags["jQueryUI"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/jsonform/deps/opt/jquery.ui.custom.js"
-      },
-      rank: 1
-    }
+    // Add the form id in as a hidden field
 
-    data.variables.tags.headTags["bootstrap-dropdown"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/jsonform/deps/opt/bootstrap-dropdown.js"
-      },
-      rank: 2
-    }
-    data.variables.tags.headTags["jsonform"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/jsonform/lib/jsonform.js"
-      },
-      rank: 3
-    }
+    form.schema.formid = {
+      "type": "hidden",
+      "default": formName
+    };
 
-    data.variables.tags.headTags["extrafields"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/extrafields.js"
-      },
-      rank: 1
-    }
+    // Crete a form token and add to form
 
-    //
+    var crypto = require('crypto');
 
-    var formParams = form.join(",");
+    crypto.randomBytes(16, function (ex, buf) {
 
-    var renderForm = function (form, callback) {
+      var token = buf.toString('hex');
 
-      if (!form.schema) {
+      iris.modules.forms.globals.formRenderCache[token] = {
+        formid: formName,
+        authPass: thisHook.authPass
+      };
 
-        form.schema = {}
+      form.schema.formToken = {
+        "type": "hidden",
+        "default": token
+      };
+
+      // Unset form render object if not set (JSON form provides a default)
+
+      if (!form.form || !form.form.length) {
+
+        if (form.form) {
+
+          delete form.form;
+
+        }
+
+      } else {
+
+        form.form.push({
+          key: "formToken"
+        });
+        form.form.push({
+          key: "formid"
+        });
 
       }
 
-      // Add the form id in as a hidden field
+      // Unset form values object if not set
 
-      form.schema.formid = {
-        "type": "hidden",
-        "default": formName
-      };
+      if (!form.value || !Object.keys(form.value).length) {
 
-      // Crete a form token and add to form
+        if (form.value) {
 
-      var crypto = require('crypto');
-
-      crypto.randomBytes(16, function (ex, buf) {
-
-        var token = buf.toString('hex');
-
-        iris.modules.forms.globals.formRenderCache[token] = {
-          formid: formName,
-          authPass: thisHook.authPass
-        };
-
-        form.schema.formToken = {
-          "type": "hidden",
-          "default": token
-        };
-
-        // Unset form render object if not set (JSON form provides a default)
-
-        if (!form.form || !form.form.length) {
-
-          if (form.form) {
-
-            delete form.form;
-
-          }
-
-        } else {
-
-          form.form.push({
-            key: "formToken"
-          });
-          form.form.push({
-            key: "formid"
-          });
+          delete form.value;
 
         }
 
-        // Unset form values object if not set
+      } else {
 
-        if (!form.value || !Object.keys(form.value).length) {
+        form.value.formid = formName;
+        form.value.formToken = token;
 
-          if (form.value) {
+      }
 
-            delete form.value;
+      var output = "";
 
-          }
+      var uniqueId = formName + Date.now().toString();
+
+      output += "<form data-params=" + formParams + " method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
+
+      output += "<script>$('#" + uniqueId + "').jsonForm(" + toSource(form) + ");</script>";
+
+      callback(output);
+
+    });
+
+  };
+
+  var formName = formParams[0];
+
+  var formTemplate = {
+    schema: {},
+    form: {},
+    value: {}
+  }
+
+  formTemplate.onSubmit = function (errors, values) {
+
+
+    $.ajax({
+      type: "POST",
+      contentType: "application/json",
+      url: window.location,
+      data: JSON.stringify(values),
+      dataType: "json",
+      success: function (data) {
+
+        if (data.errors) {
+
+          $("html, body").animate({
+            scrollTop: 0
+          }, "slow");
+
+          $("[data-formid='" + values.formid + "'").prepend("<div class='form-errors'>" + data.errors + "</div>")
+
+        } else if (data.redirect) {
+
+          window.location.href = data.redirect;
 
         } else {
 
-          form.value.formid = formName;
-          form.value.formToken = token;
+          if (data && data.indexOf("doctype") === -1) {
 
-        }
-
-        var output = "";
-
-        var uniqueId = formName + Date.now().toString();
-
-        output += "<form data-params=" + formParams + " method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
-
-        output += "<script>$('#" + uniqueId + "').jsonForm(" + toSource(form) + ");</script>";
-
-        callback(output);
-
-      });
-
-    };
-
-    var formName = form[0];
-
-    var formTemplate = {
-      schema: {},
-      form: {},
-      value: {}
-    }
-
-    formTemplate.onSubmit = function (errors, values) {
-
-
-      $.ajax({
-        type: "POST",
-        contentType: "application/json",
-        url: window.location,
-        data: JSON.stringify(values),
-        dataType: "json",
-        success: function (data) {
-
-          if (data.errors) {
-
-            $("html, body").animate({
-              scrollTop: 0
-            }, "slow");
-
-            $("[data-formid='" + values.formid + "'").prepend("<div class='form-errors'>" + data.errors + "</div>")
-
-          } else if (data.redirect) {
-
-            window.location.href = data.redirect;
+            window.location.href = data;
 
           } else {
 
-            if (data && data.indexOf("doctype") === -1) {
-
-              window.location.href = data;
-
-            } else {
-
-              window.location.href = window.location.href;
-
-            }
+            window.location.href = window.location.href;
 
           }
 
         }
-      });
 
-    };
+      }
+    });
 
-    iris.hook("hook_form_render", thisHook.authPass, {
-      formId: form[0],
-      params: form,
+  };
+  
+  iris.hook("hook_form_render", thisHook.authPass, {
+    formId: formParams[0],
+    params: formParams,
+    context: variables
+  }, formTemplate).then(function (formTemplate) {
+
+    iris.hook("hook_form_render_" + formName, thisHook.authPass, {
+      formId: formParams[0],
+      params: formParams,
       context: variables
-    }, formTemplate).then(function (formTemplate) {
+    }, formTemplate).then(function (form) {
 
-      iris.hook("hook_form_render_" + formName, thisHook.authPass, {
-        formId: form[0],
-        params: form,
-        context: variables
-      }, formTemplate).then(function (form) {
+      renderForm(form, function (output) {
 
-        renderForm(form, function (output) {
-
-          next(output);
-
-        });
-
-      }, function (fail) {
-
-        if (fail = "No such hook exists") {
-
-          renderForm(formTemplate, function (output) {
-
-            next(output);
-
-          });
-
-        } else {
-
-          next(false);
-
-        }
+        thisHook.finish(true, output);
 
       });
 
     }, function (fail) {
 
-      next(false);
+      if (fail = "No such hook exists") {
+
+        renderForm(formTemplate, function (output) {
+
+          thisHook.finish(true, output);
+
+        });
+
+      } else {
+
+        thisHook.finish(false);
+
+      }
 
     });
-  }).then(function (html) {
-
-    data.html = html;
-
-    thisHook.finish(true, data);
 
   }, function (fail) {
 
-    thisHook.finish(true, data);
+    thisHook.finish(false);
 
-  })
+  });
 
 });
 
