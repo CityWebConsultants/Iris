@@ -137,14 +137,6 @@ iris.app.use(function (req, res, next) {
 
     req.authPass = authPass;
 
-    // Add timestamp for user activity
-
-    if (iris.modules.auth.globals.userList[authPass.userid]) {
-
-      iris.modules.auth.globals.userList[authPass.userid].lastActivity = Date.now();
-
-    }
-
     // Check if it matches any routes stored with iris_route.
 
     var pathToRegexp = require('path-to-regexp');

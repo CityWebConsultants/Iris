@@ -1,0 +1,96 @@
+body {
+    font-size:16px;
+    background-color:#555;
+}
+a {
+    color: #6258A4
+}
+#logo {
+    float:left;
+    color: #6258a4;
+}
+h1, h2, h3, h4 {
+  color: #6258a4;
+}
+#site-name {
+    font-size:40px;
+}
+.menu-Main {
+    float:right;
+}
+.caption {
+    font-size:12px;
+    color: #6258A4;
+}
+
+#content {
+    margin-bottom:30px;
+    background-color:#fff;
+    padding-bottom:20px;
+}
+#page-header {
+    min-height:100px;
+    position:relative;
+    z-index:2;
+    padding:20px;
+    overflow:hidden;
+    background-color:#fff;
+}
+#page-footer {
+    background: #555;
+    padding: 20px;
+    color: #fff;
+}
+
+.menu-Main li {
+    list-style:none;
+    display:inline-block;;
+    padding:5px;
+    font-size:1.2em;
+    position:relative;
+}
+.menu-Main nav ul li.has-children ul {
+    padding: 0;
+    position: absolute;
+    top: 37px;
+    display: none;    
+}
+
+.menu-Main nav ul li.has-children:hover a, .menu-Main nav ul li.has-children:focus a{
+    color:#fff !important;
+} 
+.menu-Main nav ul li.has-children:hover ul, .menu-Main nav ul li.has-children:focus ul {
+    display:block;
+}
+
+.menu-Main nav ul li.has-children:after {
+  content: '▼';
+  font-size: 10px;
+  position: relative;
+  bottom: 3px;
+}
+
+.menu-Main nav ul li.has-children ul li {
+    display: block;
+    text-align: left;
+    background: #666;
+    margin-left: -5px;
+    padding: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: 80%;
+    white-space:nowrap;
+}
+.menu-Main nav ul li.has-children ul li a {
+    color: #fff;
+}
+
+.menu-Main nav ul li.has-children ul li:hover,
+.menu-Main nav ul li.has-children ul li:focus {
+  background-color: #969696;
+}
+.menu-Main nav ul li.has-children:hover,
+.menu-Main nav ul li.has-children:focus {
+    color:#fff !important;
+  background: #666;
+}

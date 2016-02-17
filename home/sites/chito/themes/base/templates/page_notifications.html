@@ -1,0 +1,38 @@
+<div id="content" class="container">
+  <article>
+
+    <h1>{{current.title}}</h1>
+
+    <div ng-controller="C" data-entities="notification" data-queries="">
+      <div class="notifications-area">
+        <ul id="notifications-list">
+          <li ng-repeat="notification in data | orderBy:'_id':true | limitTo:5"><b>{{notification.type}}</b>: {{notification.notification_body}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="body-content">{{{ current.body }}}</div>
+
+    <div ng-controller="notifications" class="new-notifications">
+
+      <form id="notification-form" ng-submit="newNotification()">
+        <label>Notification title:</label>
+        <input ng-model="newNotificationBody" class="textbox" autocomplete="off">
+        <br />
+        <label>Notification type:</label>
+        <select ng-model="newNotificationType">
+          <option value="Info">Info</option>
+          <option value="Warning">Warning</option>
+          <option value="Error">Error</option>
+        </select>
+        <br />
+        <input type="submit" value="Send Notification" />
+      </form>
+
+    </div>
+
+  </article>
+
+</div>
+
+<script src="/static/demos/notifications.js"></script>
