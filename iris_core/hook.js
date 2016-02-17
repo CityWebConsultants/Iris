@@ -143,7 +143,7 @@ var hook = function (hookname, authPass, staticVariables, variables) {
             thisHook.req = constants.req;
 
           }
-          
+
           // TODO - const is a reserved word!
 
           thisHook.const = constants;
@@ -155,20 +155,10 @@ var hook = function (hookname, authPass, staticVariables, variables) {
           try {
             hookcall.event(thisHook, vars);
           } catch (e) {
-            console.log("***********");
-            console.log("Hook error");
-            console.log("hook: " + thisHook.name);
-            console.log("path: " + thisHook.path);
-            console.log("rank: " + thisHook.rank);
-            console.log("index: " + thisHook.index);
-            console.log("authPass:");
-            console.log(thisHook.authPass);
-            console.log("message:");
             if (e.stack) {
-              iris.log("error", "Error on line " + e.stack[0].getLineNumber() + " of " + e.stack[0].getFileName() + " " + e.message);
+              iris.log("error", "Error when calling hook " + thisHook.name + " from " + thisHook.path + " on line " + e.stack[0].getLineNumber() + " of " + e.stack[0].getFileName() + " " + e.message);
             }
-            console.log("***********");
-            no("ERROR");
+            no("Hook error");
           }
 
         });

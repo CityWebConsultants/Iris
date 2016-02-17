@@ -309,9 +309,35 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
 
       iris.modules.auth.globals.userList[data.userid].tokens[authToken] = token;
 
+      iris.modules.auth.globals.userList[data.userid].getAuthPass = function () {
+
+        var token = Object.keys(iris.modules.auth.globals.userList[data.userid].tokens)[0];
+        var userid = data.userid;
+
+        return new Promise(function (pass, fail) {
+
+          iris.modules.auth.globals.credentialsToPass({
+            userid: userid,
+            token: token
+          }).then(function (authPass) {
+
+            pass(authPass);
+
+          }, function (reason) {
+
+            fail(reason);
+
+          })
+
+
+        })
+
+      }
+
       thisHook.finish(true, token);
 
     });
+
 
   } else {
 
