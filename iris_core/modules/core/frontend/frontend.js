@@ -908,6 +908,8 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
       rank: 0
     }
 
+    data.variables["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
+
   }
 
   // Check for any embeds present in the code
