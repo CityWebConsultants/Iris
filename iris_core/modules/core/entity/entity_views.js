@@ -137,11 +137,8 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, entity) {
 
     for (var authUser in iris.modules.auth.globals.userList) {
-
         iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
-            console.log(authPass, "getAuthPass");
             iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
-                console.log(authPass, "hook");
                 iris.sendSocketMessage([authPass.userid], "entityCreate", data);
 
             });
@@ -151,7 +148,6 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
         });
     }
     iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
-        console.log("anon");
         iris.sendSocketMessage(["anon"], "entityCreate", data);
 
     });
@@ -167,12 +163,10 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
  * This hook is run when an entity is updated/edited; useful for live updates or keeping track of changes
  */
 iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
-    for (var authUser in iris.modules.auth.globals.userList) {
 
+    for (var authUser in iris.modules.auth.globals.userList) {
         iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
-            console.log(authPass, "getAuthPass");
             iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
-                console.log(authPass, "hook");
                 iris.sendSocketMessage([authPass.userid], "entityUpdate", data);
 
             });
@@ -182,7 +176,6 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
         });
     }
     iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
-        console.log("anon");
         iris.sendSocketMessage(["anon"], "entityUpdate", data);
 
     });
@@ -197,14 +190,11 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
  *
  * This hook is run when an entity is deleted; useful for live updates or keeping track of changes
  */
-iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, entity) {
 
     for (var authUser in iris.modules.auth.globals.userList) {
-
         iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
-            console.log(authPass, "getAuthPass");
             iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
-                console.log(authPass, "hook");
                 iris.sendSocketMessage([authPass.userid], "entityDelete", data);
 
             });
