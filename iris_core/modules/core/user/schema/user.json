@@ -5,7 +5,8 @@
       "fieldType": "Textfield",
       "label": "Username",
       "description": "This can be changed",
-      "permissions": ["anonymous", "authenticated"]
+      "permissions": ["anonymous", "authenticated"],
+      "unique": true
     },
     "roles": {
       "fieldType": "Multi text field",
