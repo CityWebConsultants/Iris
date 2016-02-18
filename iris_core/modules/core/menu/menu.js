@@ -8,24 +8,6 @@
 
 iris.registerModule("menu");
 
-// These should be removed as soon as admin menu links are all ported over
-
-iris.modules.menu.globals.registerMenuLink = function () {};
-iris.modules.menu.globals.registerMenu = function () {};
-
-iris.route.get("/hello", {
-  "menu": [{
-    menuName: "what",
-    parent: null,
-    path: "/about",
-    title: "Hi!"
-  }]
-}, function (req, res) {
-
-  res.send("Hello");
-
-}, 5);
-
 iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHook, data) {
 
   // Loop over Iris routes
