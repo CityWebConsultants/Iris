@@ -6,7 +6,7 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
 
   var blocks = [];
 
- Object.keys(iris.modules.blocks.globals.blocks).forEach(function (blockType) {
+  Object.keys(iris.modules.blocks.globals.blocks).forEach(function (blockType) {
 
     Object.keys(iris.modules.blocks.globals.blocks[blockType]).forEach(function (block) {
 
@@ -283,7 +283,13 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
 
 // Regions admin system
 
-iris.app.get("/admin/regions", function (req, res) {
+iris.route.get("/admin/regions", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/structure",
+    title: "Regions"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 

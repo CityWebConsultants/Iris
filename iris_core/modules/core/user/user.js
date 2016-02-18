@@ -521,7 +521,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
     return cookies;
   }
-  
+
   if (cookies && cookies.userid && cookies.token) {
 
     // Check access token and userid are valid
@@ -530,8 +530,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
       iris.socketLogin(cookies.userid, cookies.token, thisHook.const.socket);
 
-    }
-    else {
+    } else {
       thisHook.finish(false);
     }
 
@@ -571,7 +570,13 @@ iris.app.post("/api/login", function (req, res) {
 });
 
 
-iris.app.get("/admin/users", function (req, res) {
+iris.route.get("/admin/users", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Users"
+  }]
+}, function (req, res) {
 
   if (iris.modules.entityUI) {
 

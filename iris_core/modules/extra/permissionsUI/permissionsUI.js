@@ -113,7 +113,13 @@ iris.modules.permissionsUI.registerHook("hook_form_submit_permissions", 0, funct
 });
 
 
-iris.app.get("/admin/users/permissions", function (req, res) {
+iris.route.get("/admin/users/permissions", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/users",
+    title: "Permissions"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 

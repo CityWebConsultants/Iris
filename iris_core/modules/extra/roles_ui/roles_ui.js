@@ -1,4 +1,3 @@
-
 iris.readConfig('auth', 'auth_roles').then(function (config) {
 
   // config is now accessible as a standard JavaScript object
@@ -24,11 +23,17 @@ iris.readConfig('auth', 'auth_roles').then(function (config) {
 
 iris.app.get("/admin/users", function (req, res) {
 
- iris.modules.system.globals.listEntities(req, res, 'user');
+  iris.modules.system.globals.listEntities(req, res, 'user');
 
 });
 
-iris.app.get("/admin/users/roles", function (req, res) {
+iris.route.get("/admin/users/roles", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/users",
+    title: "Roles"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 

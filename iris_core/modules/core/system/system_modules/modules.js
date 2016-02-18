@@ -1,4 +1,10 @@
-iris.app.get("/admin/modules", function (req, res) {
+iris.route.get("/admin/modules", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Modules"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 

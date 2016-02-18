@@ -1,7 +1,13 @@
 var path = require('path');
 
 
-iris.app.get("/admin/structure/entities", function (req, res) {
+iris.route.get("/admin/structure/entities", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/structure",
+    title: "Entities"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 

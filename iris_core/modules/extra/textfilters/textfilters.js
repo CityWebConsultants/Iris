@@ -109,7 +109,13 @@ iris.modules.textfilters.registerHook("hook_form_submit_textformat", 0, function
 
 })
 
-iris.app.get("/admin/textfilters", function (req, res) {
+iris.app.get("/admin/textfilters", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Textfilters"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 

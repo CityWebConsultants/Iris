@@ -10,21 +10,21 @@ iris.registerModule("menu");
 
 // These should be removed as soon as admin menu links are all ported over
 
-iris.modules.menu.globals.registerMenuLink = function(){};
-iris.modules.menu.globals.registerMenu = function(){};
+iris.modules.menu.globals.registerMenuLink = function () {};
+iris.modules.menu.globals.registerMenu = function () {};
 
-//iris.route.get("/hello", {
-//  "menu": [{
-//    menuName: "what",
-//    parent: null,
-//    path: "/about",
-//    title: "Hi!"
-//  }]
-//}, function (req, res) {
-//
-//  res.send("Hello");
-//
-//}, 5);
+iris.route.get("/hello", {
+  "menu": [{
+    menuName: "what",
+    parent: null,
+    path: "/about",
+    title: "Hi!"
+  }]
+}, function (req, res) {
+
+  res.send("Hello");
+
+}, 5);
 
 iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHook, data) {
 
@@ -48,6 +48,10 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
           if (menu.menuName === menuName) {
 
+
+            if (!menu.path) {
+              menu.path = path;
+            }
             menuItems.push(menu);
 
           }
@@ -119,7 +123,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
   }, function (fail) {
 
     thisHook.finish(false, fail);
-    
+
   })
 
 })

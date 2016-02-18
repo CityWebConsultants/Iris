@@ -348,11 +348,11 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
       type: "hidden",
       default: formTitle.split("_")[1]
     };
-    
+
     data.schema.contents = {
-      type : "ckeditor",
-      title : "Contents",
-      required : true
+      type: "ckeditor",
+      title: "Contents",
+      required: true
     }
 
     // Check if a config file has already been saved for this block. If so, load in the current settings.
@@ -383,23 +383,23 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
 iris.modules.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook, data) {
 
-    if (!data.schema) {
+  if (!data.schema) {
 
-      data.schema = {};
+    data.schema = {};
 
-    }
+  }
 
-    data.schema["blockTitle"] = {
-      type: "hidden",
-      default: thisHook.const.params[2]
-    };
+  data.schema["blockTitle"] = {
+    type: "hidden",
+    default: thisHook.const.params[2]
+  };
 
-    data.schema["blockType"] = {
-      type: "hidden",
-      default: thisHook.const.params[1]
-    };
+  data.schema["blockType"] = {
+    type: "hidden",
+    default: thisHook.const.params[1]
+  };
 
-    thisHook.finish(true, data);
+  thisHook.finish(true, data);
 
 });
 
@@ -417,7 +417,7 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
 
   }
 
-  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function(err) {
+  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function (err) {
 
     if (err) {
 
@@ -477,7 +477,13 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
 // Admin page routing handler
 
-iris.app.get("/admin/blocks", function (req, res) {
+iris.route.get("/admin/blocks", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/structure",
+    title: "Blocks"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 
