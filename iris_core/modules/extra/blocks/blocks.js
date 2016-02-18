@@ -6,10 +6,6 @@
  * @namespace blocks
  */
 
-// Register menu item
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/blocks", "Blocks", 1);
-
 /**
  * @member blockTypes
  * @memberof blocks

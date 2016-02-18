@@ -22,11 +22,9 @@ iris.readConfig('auth', 'auth_roles').then(function (config) {
 
 });
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/users", "/admin/users/roles", "Roles", 0);
-
 iris.app.get("/admin/users", function (req, res) {
 
-  iris.modules.system.globals.listEntities(req, res, 'user');
+ iris.modules.system.globals.listEntities(req, res, 'user');
 
 });
 

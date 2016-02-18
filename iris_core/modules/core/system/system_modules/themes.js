@@ -1,7 +1,5 @@
 // Register menu item
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/themes", "Themes", 1);
-
 iris.app.get("/admin/themes", function (req, res) {
 
   // If not admin, present 403 page

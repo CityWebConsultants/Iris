@@ -30,8 +30,6 @@ iris.app.get("/admin/modules", function (req, res) {
 
 // Register menu item
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/modules", "Modules", 1);
-
 var glob = require("glob");
 var fs = require("fs");
 var path = require("path");

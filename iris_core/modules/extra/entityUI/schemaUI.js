@@ -1,7 +1,5 @@
 var path = require('path');
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/structure/entities", "Entities", 1);
-
 
 iris.app.get("/admin/structure/entities", function (req, res) {
 

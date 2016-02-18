@@ -3,8 +3,6 @@
  */
 var fs = require('fs');
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/users", "/admin/users/permissions", "Permissions", 1);
-
 // Permissions form
 
 iris.modules.permissionsUI.registerHook("hook_form_render_permissions", 0, function (thisHook, data) {

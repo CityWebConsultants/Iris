@@ -10,8 +10,6 @@ iris.registerModule("user");
 
 var bcrypt = require("bcrypt-nodejs");
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/users", "Users", 1);
-
 // First ever login form
 
 iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {

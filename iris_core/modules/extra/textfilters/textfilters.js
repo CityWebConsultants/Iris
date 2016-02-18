@@ -294,8 +294,6 @@ iris.modules.textfilters.registerHook("hook_schemafield_render", 0, function (th
 
 });
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/textfilters", "Text filters");
-
 var sanitizeHtml = require('sanitize-html');
 
 iris.modules.textfilters.registerHook("hook_entity_presave", 0, function (thisHook, data) {

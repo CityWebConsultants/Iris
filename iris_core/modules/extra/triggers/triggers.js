@@ -525,8 +525,6 @@ iris.app.get("/admin/triggers/edit/:action", function (req, res) {
 
 })
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/triggers", "Triggers", 1);
-
 // Main actions landing page
 
 iris.app.get("/admin/triggers", function (req, res) {

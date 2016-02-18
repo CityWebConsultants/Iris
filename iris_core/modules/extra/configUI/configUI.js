@@ -4,11 +4,6 @@
 
 var ncp = require('ncp').ncp;
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/config", "Config", 1);
-
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/export", "Export config", 1);
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/import", "Import config", 1);
 iris.app.get("/admin/api/config/export", function (req, res) {
 
   ncp(iris.configPath, iris.sitePath + "/staging", function (err) {
