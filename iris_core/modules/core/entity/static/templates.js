@@ -3,7 +3,8 @@
 function irisReady(fn) {
   if (document.readyState != 'loading') {
     fn();
-  } else {
+  }
+  else {
     document.addEventListener('DOMContentLoaded', fn);
   }
 }
@@ -68,7 +69,7 @@ irisReady(function () {
         var loader = iris.fetched[loader],
           query = loader.query,
           entityTypes = query.entities,
-          queries = query.queries
+          queries = query.queries;
 
         // Check if entity type fits in this query
 
@@ -145,7 +146,7 @@ irisReady(function () {
 
                 }
 
-              })
+              });
 
               if (!present) {
                 loader.entities.push(iris.fetchedEntities[entity.entityType][entity.eid]);
@@ -153,7 +154,8 @@ irisReady(function () {
 
               updated.push(entity);
 
-            } else {
+            }
+            else {
 
               if (!iris.fetchedEntities[entity.entityType]) {
 
@@ -184,7 +186,8 @@ irisReady(function () {
                   return 0;
                 })
 
-              } else if (direction === "desc") {
+              }
+              else if (direction === "desc") {
 
                 loader.entities.sort(function asc(a, b) {
                   if (a[property] > b[property]) {
@@ -198,7 +201,7 @@ irisReady(function () {
 
               }
 
-            }
+            };
 
             if (loader.query && loader.query.sort) {
 
@@ -224,7 +227,7 @@ irisReady(function () {
 
         }
 
-      })
+      });
 
       if (updating && (!updated.length && !inserted.length)) {
 
@@ -246,7 +249,7 @@ irisReady(function () {
 
     }
 
-  }
+  };
 
   iris.deleteEntity = function (entity) {
 
@@ -297,18 +300,21 @@ irisReady(function () {
     document.dispatchEvent(iris.entityListUpdate);
 
   }
-})
+});
 
 iris.entityListUpdate = new Event('entityListUpdate');
 
 iris.fetchEntities = function (variableName, query) {
+
+  var baseurl;
 
   if (!iris.server) {
 
     console.error("You need to initialise Iris with a base url for entity fetching to work. Try setting iris.server to the location of the Iris server.");
     return false;
 
-  } else {
+  }
+  else {
 
     baseurl = iris.server;
 
@@ -324,16 +330,16 @@ iris.fetchEntities = function (variableName, query) {
 
   function formatParams(params) {
     return "?" + Object
-      .keys(params)
-      .map(function (key) {
-        if (params[key]) {
-          return key + "=" + params[key]
-        }
-      })
-      .join("&")
+        .keys(params)
+        .map(function (key) {
+          if (params[key]) {
+            return key + "=" + params[key]
+          }
+        })
+        .join("&")
   }
 
-  var sendQuery = {}
+  var sendQuery = {};
 
   sendQuery.queries = query.queries ? JSON.stringify(query.queries) : undefined;
   sendQuery.entities = JSON.stringify(query.entities);
@@ -359,7 +365,7 @@ iris.fetchEntities = function (variableName, query) {
         var fetched = request.response;
         var grouped = {};
 
-        result = JSON.parse(fetched).response;
+        var result = JSON.parse(fetched).response;
 
         if (variableName) {
           result ? null : result = [];
@@ -374,7 +380,8 @@ iris.fetchEntities = function (variableName, query) {
 
             if (!grouped[entity.entityType]) {
               grouped[entity.entityType] = [JSON.parse(JSON.stringify(entity))];
-            } else {
+            }
+            else {
               grouped[entity.entityType].push(JSON.parse(JSON.stringify(entity)));
             }
 
@@ -388,17 +395,17 @@ iris.fetchEntities = function (variableName, query) {
 
                 window.iris.fetchedEntities[entity.entityType][entity.eid][property] = entity[property];
 
-              })
+              });
 
               window.iris.fetched[variableName].entities.push(window.iris.fetchedEntities[entity.entityType][entity.eid]);
 
-            } else {
+            }
+            else {
 
               window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
               window.iris.fetched[variableName].entities.push(entity);
 
             }
-
 
           })
 
@@ -406,11 +413,12 @@ iris.fetchEntities = function (variableName, query) {
 
         iris.entityListUpdate.detail = {
           entities: grouped,
-          event : 'fetch'
+          event: 'fetch'
         };
         document.dispatchEvent(iris.entityListUpdate);
 
-      } catch (e) {
+      }
+      catch (e) {
 
         console.log(e);
 
@@ -418,11 +426,11 @@ iris.fetchEntities = function (variableName, query) {
 
     }
 
-  }
+  };
 
   request.send();
 
-}
+};
 
 // Function for prefetching entity data, used by the entity module itself when using Iris entity templates
 

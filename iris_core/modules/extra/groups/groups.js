@@ -1,356 +1,373 @@
-// Add a member to a group
 
-iris.route.post("/groups/addMember/:groupid/:member/:entityType/:entityField", function (req, res) {
-
-    var fetch = {
-        entities: ["group"],
-        queries: [{
-            field: "eid",
-            "operator": "is",
-            "value": parseInt(req.params.groupid)
-        }]
-    }
-
-    iris.hook("hook_entity_fetch", req.authPass, null,
-        fetch
-    ).then(function (groupResult) {
-
-            if (groupResult.length) {
-
-                var exists = false;
-                for (var i = 0; i < groupResult[0].field_users; i++) {
-                    if (groupResult[0].field_users[i].field_uid == req.params.member) {
-                        exists = true;
-                    }
-                }
-                if (exists) {
-
-                    res.status(400).send("Member already in group");
-
-                } else {
-
-                    // Check if user exists on system
-
-                    var fetch = {
-                        entities: [req.params.entityType],
-                        queries: [{
-                            field: req.params.entityField,
-                            "operator": "is",
-                            "value": parseInt(req.params.member)
-                        }]
-                    }
-
-                    iris.hook("hook_entity_fetch", req.authPass, null, fetch).then(function (userResult) {
-
-                        if (userResult.length) {
-
-                            // If current group is has only 2 members, create new groups. Otherwise, add to current group.
-
-                            var fieldSplit = req.params.entityField.split('.');
-                            if (groupResult[0].fieldSplit[0].length == 2) {
-                                var newGroup = groupResult[0];
-                                var obj = {};
-                                obj[fieldSplit[1]] = userResult[0][fieldSplit[1]];
-                                newGroup[fieldSplit[0]].push(obj);
-
-                                newGroup[name] += ', ' + userResult[0].field_username;
-
-                                iris.hook("hook_entity_edit", req.authPass, newGroup, req.params.entityType).then(function (success) {
-
-                                }, function (fail) {
-
-                                    res.status(400).send(fail);
-
-                                });
-                            } else {
-                                // Update entity
-
-                                iris.hook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
-
-                                }, function (fail) {
-
-                                    res.status(400).send(fail);
-
-                                });
-                            }
-
-                        } else {
-
-                            res.status(400).send("Not a valid member");
-
-                        }
-
-                    }, function (fail) {
-
-                        res.status(400).send(fail);
-
-                    })
-
-                }
-
-
-            } else {
-
-                res.status(400).send("Not a valid group")
-
-            }
-        },
-        function (fail) {
-
-            res.status(400).send(fail);
-
-        });
-
-
-})
-
-// Remove member from group
+/**
+ * @file groups.js This module handles group, message and user management.
+ */
 
 // Add a member to a group
+// Below is depreciated. Saving as it may yet be useful
+/*iris.route.post("/groups/addMember/:groupid/:member/:entityType/:entityField", function (req, res) {
 
-iris.route.post("/groups/removeMember/:groupid/:member", function (req, res) {
+ var fetch = {
+ entities: ["group"],
+ queries: [{
+ field: "eid",
+ "operator": "is",
+ "value": parseInt(req.params.groupid)
+ }]
+ }
 
-    var fetch = {
-        entities: ["group"],
-        queries: [{
-            field: "eid",
-            "operator": "is",
-            "value": req.params.groupid
-        }]
-    }
+ iris.hook("hook_entity_fetch", req.authPass, null,
+ fetch
+ ).then(function (groupResult) {
 
-    iris.hook("hook_entity_fetch", req.authPass, null, fetch).then(function (groupResult) {
+ if (groupResult.length) {
 
-            if (groupResult.length) {
+ var exists = false;
+ for (var i = 0; i < groupResult[0].field_users; i++) {
+ if (groupResult[0].field_users[i].field_uid == req.params.member) {
+ exists = true;
+ }
+ }
+ if (exists) {
 
-                if (groupResult[0].members.indexOf(parseInt(req.params.member)) === -1) {
+ res.status(400).send("Member already in group");
 
-                    res.status(400).send("Member not in group");
+ }
+ else {
 
-                } else {
+ // Check if user exists on system
+
+ var fetch = {
+ entities: [req.params.entityType],
+ queries: [{
+ field: req.params.entityField,
+ "operator": "is",
+ "value": parseInt(req.params.member)
+ }]
+ }
+
+ iris.hook("hook_entity_fetch", req.authPass, null, fetch).then(function (userResult) {
+
+ if (userResult.length) {
+
+ // If current group is has only 2 members, create new groups. Otherwise, add to current group.
+
+ var fieldSplit = req.params.entityField.split('.');
+ if (groupResult[0].fieldSplit[0].length == 2) {
+ var newGroup = groupResult[0];
+ var obj = {};
+ obj[fieldSplit[1]] = userResult[0][fieldSplit[1]];
+ newGroup[fieldSplit[0]].push(obj);
+
+ newGroup[name] += ', ' + userResult[0].field_username;
+
+ iris.hook("hook_entity_edit", req.authPass, newGroup, req.params.entityType).then(function (success) {
+
+ }, function (fail) {
+
+ res.status(400).send(fail);
+
+ });
+ }
+ else {
+ // Update entity
+
+ iris.hook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
+
+ }, function (fail) {
+
+ res.status(400).send(fail);
+
+ });
+ }
+
+ }
+ else {
+
+ res.status(400).send("Not a valid member");
+
+ }
+
+ }, function (fail) {
+
+ res.status(400).send(fail);
+
+ })
+
+ }
+
+ }
+ else {
+
+ res.status(400).send("Not a valid group")
+
+ }
+ },
+ function (fail) {
+
+ res.status(400).send(fail);
+
+ });
+
+ })
+
+ // Remove member from group
+
+ // Add a member to a group
+
+ iris.route.post("/groups/removeMember/:groupid/:member", function (req, res) {
+
+ var fetch = {
+ entities: ["group"],
+ queries: [{
+ field: "eid",
+ "operator": "is",
+ "value": req.params.groupid
+ }]
+ }
+
+ iris.hook("hook_entity_fetch", req.authPass, null, fetch).then(function (groupResult) {
+
+ if (groupResult.length) {
+
+ if (groupResult[0].members.indexOf(parseInt(req.params.member)) === -1) {
+
+ res.status(400).send("Member not in group");
+
+ }
+ else {
 
 
-                    // All OK, try to add member to group
+ // All OK, try to add member to group
 
-                    var memberIndex = groupResult[0].members.indexOf(parseInt(req.params.member));
+ var memberIndex = groupResult[0].members.indexOf(parseInt(req.params.member));
 
-                    groupResult[0].members.splice(memberIndex, 1);
+ groupResult[0].members.splice(memberIndex, 1);
 
-                    // Update entity
+ // Update entity
 
-                    iris.hook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
+ iris.hook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
 
-                        res.send(success);
+ res.send(success);
 
-                    }, function (fail) {
+ }, function (fail) {
 
-                        res.status(400).send(fail);
+ res.status(400).send(fail);
 
-                    })
+ })
 
-                }
+ }
 
+ }
+ else {
 
-            } else {
+ res.status(400).send("Not a valid group")
 
-                res.status(400).send("Not a valid group")
+ }
+ },
+ function (fail) {
 
-            }
-        },
-        function (fail) {
+ res.status(400).send(fail);
 
-            res.status(400).send(fail);
+ });
+ });
+ */
 
-        });
-});
-
+/**
+ * Callback to update the last_checked field on the group entity so that the correct unread count can be calculated.
+ */
 iris.route.get("/read-group/:gid/:uid", {}, function (req, res) {
 
-    var fetch = {
-        entities: ["group"],
-        queries: [{
-            field: "eid",
-            "operator": "is",
-            "value": req.params.gid
-        }]
-    }
+  // Fetch the group entity.
+  var fetch = {
+    entities: ["group"],
+    queries: [{
+      field: "eid",
+      "operator": "is",
+      "value": req.params.gid
+    }]
+  };
 
-    iris.hook("hook_entity_fetch", req.authPass, null, fetch).then(function (group) {
-        group = group[0];
+  iris.hook("hook_entity_fetch", req.authPass, null, fetch).then(function (group) {
 
-        group.field_users.forEach(function (user, index) {
+    group = group[0];
 
-            if (user.field_uid == req.params.uid) {
-                group.field_users[index].field_last_checked = Math.floor(Date.now() / 1000);
+    group.field_users.forEach(function (user, index) {
 
-                iris.hook("hook_entity_edit", 'root', group, group).then(function (success) {
+      if (user.field_uid == req.params.uid) {
 
-                }, function (fail) {
-                    iris.log("error", fail);
-                });
-            }
+        // Set the last_checked field to the current timestamp.
+        group.field_users[index].field_last_checked = Math.floor(Date.now() / 1000);
+
+        // Save the entity.
+        iris.hook("hook_entity_edit", 'root', group, group).then(function (success) {
+
+        }, function (fail) {
+
+          iris.log("error", fail);
+
         });
-
+      }
     });
-    res.send('Registered');
+
+  });
+  res.send('Registered');
 
 });
 
+/**
+ * Implements hook_entity_presave.
+ * Before a message is saved, update the last_updated field of the group to correctly order groups in lists.
+ */
 iris.modules.groups.registerHook("hook_entity_presave", 0, function (thisHook, entity) {
 
+  if (entity.entityType == 'message') {
 
-    if (entity.entityType == 'message') {
+    entity.field_created = Math.floor(Date.now() / 1000);
+    var fetch = {
+      entities: ["group"],
+      queries: [{
+        field: "eid",
+        "operator": "is",
+        "value": (typeof entity.groups == 'array') ? entity.groups[0] : entity.groups
+      }]
+    };
 
-        entity.field_created = Math.floor(Date.now() / 1000);
-        var fetch = {
-            entities: ["group"],
-            queries: [{
-                field: "eid",
-                "operator": "is",
-                "value": (typeof entity.groups == 'array') ? entity.groups[0] : entity.groups
-            }]
-        }
+    // Fetch the parent group.
+    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (groupResult) {
 
-        iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (groupResult) {
+      if (groupResult.length > 0) {
 
-            if (groupResult.length > 0) {
-                groupResult[0].field_last_updated = Math.floor(Date.now() / 1000);
+        groupResult.forEach(function (group) {
 
-                iris.hook("hook_entity_edit", thisHook.authPass, groupResult[0], groupResult[0]).then(function (success) {
+          group.field_last_updated = Math.floor(Date.now() / 1000);
 
-                }, function (fail) {
-                    iris.log("error", fail);
-                });
-            }
-        }, function (fail) {
+          iris.hook("hook_entity_edit", thisHook.authPass, null, group).then(function (success) {
+
+          }, function (fail) {
+
             iris.log("error", fail);
+
+          });
         });
+      }
+    }, function (fail) {
 
-    }
+      iris.log("error", fail);
 
-    thisHook.finish(true, entity);
+    });
 
-});
+  }
 
-iris.modules.groups.registerHook("hook_entity_presave_group", 0, function (thisHook, entity) {
-
-    entity.field_last_updated = Math.floor(Date.now() / 1000);
-
-    thisHook.finish(true, entity);
+  thisHook.finish(true, entity);
 
 });
 
+/**
+ * Implements hook_entity_view_[entityType].
+ * Get the unread messages since last checked in.
+ */
 iris.modules.groups.registerHook("hook_entity_view_group", 0, function (thisHook, entity) {
 
-    // Get messages since last checked in
+  var date;
 
-    var date;
-
-    if (entity.field_users) {
-        entity.field_users.forEach(function (value, index) {
-            if (value.field_uid == thisHook.authPass.userid) {
-                date = value.field_last_checked;
-            }
-        });
-
-        if (!date) {
-            // If there is no last checked date, make it really old to fetch all messages.
-            date = 0;
-        }
-
-        var fetch = {
-            entities: ['message'],
-            'queries': [{
-                field: 'field_created',
-                operator: 'gt',
-                value: date
-            },
-                {
-                    field: 'groups',
-                    operator: 'INCLUDES',
-                    value: entity.eid
-                }
-            ]
-        }
-        iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (messages) {
-
-            if (messages) {
-                entity.unread = messages.length;
-            }
-            thisHook.finish(true, entity);
-
-        }, function (fail) {
-
-            iris.log("error", fail);
-            thisHook.finish(false, fail);
-
-        });
-    } else {
-        thisHook.finish(true, entity);
-    }
-
-});
-
-iris.modules.groups.registerHook("hook_user_login", 0, function (thisHook, uid) {
-
-
-    var fetch = {
-        entities: ['user'],
-        'queries': [{
-            field: 'field_external_id',
-            operator: 'IS',
-            value: uid
-        }
-        ]
-    }
-    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (user) {
-
-
-        iris.hook("hook_entity_edit", 'root', user[0], user[0]).then(function (success) {
-
-            thisHook.finish(true, success);
-        }, function (fail) {
-
-            thisHook.finish(false, fail);
-        });
+  // Get the last_checked date to compare.
+  if (entity.field_users) {
+    entity.field_users.forEach(function (value) {
+      if (value.field_uid == thisHook.authPass.userid) {
+        date = value.field_last_checked;
+      }
     });
 
-
-    //thisHook.finish(true, data);
-});
-
-iris.modules.groups.registerHook("hook_user_logout", 0, function (thisHook, uid) {
+    if (!date) {
+      // If there is no last checked date, make it really old to fetch all messages.
+      date = 0;
+    }
 
     var fetch = {
-        entities: ['user'],
-        'queries': [{
-            field: 'field_external_id',
-            operator: 'IS',
-            value: uid
+      entities: ['message'],
+      'queries': [{
+        field: 'field_created',
+        operator: 'gt',
+        value: date
+      },
+        {
+          field: 'groups',
+          operator: 'INCLUDES',
+          value: entity.eid
         }
-        ]
-    }
-    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (user) {
+      ]
+    };
 
-        iris.hook("hook_entity_edit", 'root', user[0], user[0]).then(function (success) {
+    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (messages) {
 
-            thisHook.finish(true, uid);
-        }, function (fail) {
+      // If there are unread messages, add a temporary field to the group that is broadcast to clients but not saved
+      // to the entity.
+      if (messages) {
 
-            thisHook.finish(false, fail);
-        });
+        entity.unread = messages.length;
+
+      }
+
+      thisHook.finish(true, entity);
+
+    }, function (fail) {
+
+      iris.log("error", fail);
+
+      thisHook.finish(false, fail);
+
     });
+  }
+  else {
+
+    thisHook.finish(true, entity);
+
+  }
 
 });
 
+/**
+ * Implements hook_entity_view_[entityType].
+ * Adds a temporary field to the user entity that is broadcast to clients to determine if they are online or not.
+ */
 iris.modules.groups.registerHook("hook_entity_view_user", 0, function (thisHook, user) {
 
-    if (iris.modules.auth.globals.userList[user.field_external_id]) {
-        user.online = true;
-    }
-    else if (user.online) {
-        delete user.online;
-    }
+  if (user.field_external_id && iris.modules.auth.globals.userList[user.field_external_id]) {
 
-    thisHook.finish(true, user);
+    user.online = true;
+
+  }
+  else if (user.online) {
+
+    delete user.online;
+
+  }
+
+  thisHook.finish(true, user);
+
+});
+
+/**
+ * Implements hook_socket_authentication.
+ * Broadcast a message to all clients when a user authenticates via socket.
+ */
+iris.modules.groups.registerHook("hook_socket_authenticated", 1, function (thisHook, data) {
+
+  iris.sendSocketMessage(['*'], 'userConnect', thisHook.const.socket.authPass.userid);
+
+  thisHook.finish(true, data);
+
+});
+
+/**
+ * Implements hook_socket_disconnected.
+ * Broadcast a message to all clients when a user disconnects via socket.
+ */
+iris.modules.groups.registerHook("hook_socket_disconnected", 1, function (thisHook, data) {
+
+  iris.sendSocketMessage(['*'], 'userDisconnect', thisHook.const.userid);
+
+  thisHook.finish(true, data);
+
 });
