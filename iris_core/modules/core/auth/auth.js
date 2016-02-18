@@ -475,6 +475,7 @@ Object.observe(iris.modules.auth.globals.userList, function (data) {
 
 iris.route.get("/logout", {
   "menu": [{
+    weight: 5,
     menuName: "admin_toolbar",
     parent: null,
     title: "Logout"
