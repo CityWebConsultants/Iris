@@ -592,7 +592,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
   fieldHooks.forEach(function (field) {
 
-    iris.hook("hook_entity_field_view__" + field.type, thisHook.authPass, {
+    iris.hook("hook_entity_view_field__" + field.type, thisHook.authPass, {
       entityType: entity.entityType,
       field: iris.dbSchemaConfig[entity.entityType].fields[field.field]
     }, entity[field.field]).then(function (newValue) {

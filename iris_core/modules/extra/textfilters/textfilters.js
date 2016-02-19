@@ -310,7 +310,7 @@ iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/textfi
  * Checks if a textfilter is set on longtext fields and filters according to its settings if it is
  */
 
-iris.modules.textfilters.registerHook("hook_entity_field_view__longtext", 0, function (thisHook, data) {
+iris.modules.textfilters.registerHook("hook_entity_view_field__longtext", 0, function (thisHook, data) {
 
   if (thisHook.const.field.settings && thisHook.const.field.settings.textFilter) {
 
