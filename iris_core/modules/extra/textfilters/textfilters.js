@@ -2,7 +2,12 @@
  * @file Provides a system for registering text filters for form fields
  */
 
-iris.modules.textfilters.registerHook("hook_form_render_textformat", 0, function (thisHook, data) {
+/**
+ * Defines textformat form.
+ * Allows edit and creation of text filters
+ */
+
+iris.modules.textfilters.registerHook("hook_form_render_textfilter", 0, function (thisHook, data) {
 
   if (!data.schema) {
 
@@ -47,8 +52,6 @@ iris.modules.textfilters.registerHook("hook_form_render_textformat", 0, function
 
   }
 
-  // Check if editing and form exists in config
-
   if (thisHook.const.params[1]) {
 
     if (thisHook.const.params[1].indexOf("{{") !== -1) {
@@ -77,7 +80,9 @@ iris.modules.textfilters.registerHook("hook_form_render_textformat", 0, function
 
 })
 
-// Add textformat field to text and longtext field types
+/**
+ * Defines textfilters settings on longtext field forms.
+ */
 
 iris.modules.textfilters.registerHook("hook_form_render_field_settings__longtext", 0, function (thisHook, data) {
 
@@ -115,7 +120,11 @@ iris.modules.textfilters.registerHook("hook_form_render_field_settings__longtext
 
 });
 
-iris.modules.textfilters.registerHook("hook_form_submit_textformat", 0, function (thisHook, data) {
+/**
+ * Submit handler for textfilter form.
+ */
+
+iris.modules.textfilters.registerHook("hook_form_submit_textfilter", 0, function (thisHook, data) {
 
   iris.saveConfig(thisHook.const.params, "textfilters", iris.sanitizeName(thisHook.const.params.name), function (response) {
 
@@ -134,8 +143,6 @@ iris.modules.textfilters.registerHook("hook_form_submit_textformat", 0, function
 })
 
 iris.route.get("/admin/textfilters", function (req, res) {
-
-  // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
 
@@ -177,8 +184,6 @@ iris.route.get("/admin/textfilters", function (req, res) {
 
 iris.app.get("/admin/textfilters/create", function (req, res) {
 
-  // If not admin, present 403 page
-
   if (req.authPass.roles.indexOf('admin') === -1) {
 
     iris.modules.frontend.globals.displayErrorPage(403, req, res);
@@ -202,8 +207,6 @@ iris.app.get("/admin/textfilters/create", function (req, res) {
 })
 
 iris.app.get("/admin/textfilters/edit/:name", function (req, res) {
-
-  // If not admin, present 403 page
 
   if (req.authPass.roles.indexOf('admin') === -1) {
 
@@ -231,8 +234,6 @@ iris.app.get("/admin/textfilters/edit/:name", function (req, res) {
 
 iris.app.get("/admin/textfilters/delete/:name", function (req, res) {
 
-  // If not admin, present 403 page
-
   if (req.authPass.roles.indexOf('admin') === -1) {
 
     iris.modules.frontend.globals.displayErrorPage(403, req, res);
@@ -240,7 +241,7 @@ iris.app.get("/admin/textfilters/delete/:name", function (req, res) {
     return false;
 
   }
-
+  
   iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_delete"], ['admin_wrapper'], {
     formatname: req.params.name
   }, req.authPass, req).then(function (success) {
@@ -257,8 +258,12 @@ iris.app.get("/admin/textfilters/delete/:name", function (req, res) {
 
 });
 
-iris.modules.textfilters.registerHook("hook_form_render_texformat_delete", 0, function (thisHook, data) {
+/**
+ * Defines textfilter delete form.
+ */
 
+iris.modules.textfilters.registerHook("hook_form_render_textfilter_delete", 0, function (thisHook, data) {
+  
   if (!data.schema) {
 
     data.schema = {};
@@ -274,25 +279,15 @@ iris.modules.textfilters.registerHook("hook_form_render_texformat_delete", 0, fu
 
 });
 
-iris.modules.textfilters.registerHook("hook_form_submit_texformat_delete", 0, function (thisHook, data) {
+/**
+ * Textfilter delete form submit handler.
+ */
 
+iris.modules.textfilters.registerHook("hook_form_submit_textfilter_delete", 0, function (thisHook, data) {
+  
   var format = iris.sanitizeName(thisHook.const.params.textformat);
-
-  if (iris.configStore.textformats && iris.configStore.textformats[format]) {
-
-  } else {
-
-    return false;
-
-  }
-
-  iris.deleteConfig("textformats", format, function (err) {
-
-    if (err) {
-
-      thisHook.finish(false, data);
-
-    }
+  
+  iris.deleteConfig("textfilters", format, function (err) {
 
     var data = function (res) {
 
@@ -309,6 +304,11 @@ iris.modules.textfilters.registerHook("hook_form_submit_texformat_delete", 0, fu
 });
 
 iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/textfilters", "Text filters");
+
+/**
+ * Implements hook_entity_field_view
+ * Checks if a textfilter is set on longtext fields and filters according to its settings if it is
+ */
 
 iris.modules.textfilters.registerHook("hook_entity_field_view__longtext", 0, function (thisHook, data) {
 
