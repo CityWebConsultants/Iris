@@ -3,8 +3,6 @@
  */
 var fs = require('fs');
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/users", "/admin/users/permissions", "Permissions", 1);
-
 // Permissions form
 
 iris.modules.permissionsUI.registerHook("hook_form_render_permissions", 0, function (thisHook, data) {
@@ -115,7 +113,13 @@ iris.modules.permissionsUI.registerHook("hook_form_submit_permissions", 0, funct
 });
 
 
-iris.app.get("/admin/users/permissions", function (req, res) {
+iris.route.get("/admin/users/permissions", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/users",
+    title: "Permissions"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 

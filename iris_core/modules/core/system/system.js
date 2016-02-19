@@ -6,18 +6,6 @@ iris.registerModule("system");
 
 require('./system_routing.js');
 
-iris.modules.menu.globals.registerMenu("admin-toolbar");
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/", "Home", 0);
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/structure", "Structure", 1);
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs", 1);
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/logout", "Log Out", 6);
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/restart", "Restart server", 5);
-
 iris.modules.auth.globals.registerPermission("can view admin menu", "admin");
 
 iris.modules.auth.globals.registerPermission("can access admin pages", "admin");

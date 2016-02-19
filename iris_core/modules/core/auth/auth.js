@@ -334,6 +334,8 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
 
       }
 
+      iris.modules.auth.globals.userList[data.userid].lastActivity = Date.now();
+
       thisHook.finish(true, token);
 
     });
@@ -468,6 +470,21 @@ Object.observe(iris.modules.auth.globals.userList, function (data) {
   process.send({
     sessions: iris.modules.auth.globals.userList
   });
+
+});
+
+iris.route.get("/logout", {
+  "menu": [{
+    weight: 5,
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Logout"
+  }]
+}, function (req, res) {
+
+  iris.hook("hook_auth_clearauth", "root", null, req.authPass.userid);
+
+  res.send("logged out");
 
 });
 
