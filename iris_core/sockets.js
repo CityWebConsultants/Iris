@@ -28,6 +28,7 @@ iris.sendSocketMessage = function (userids, message, data) {
   if (userids.indexOf("*") !== -1) {
 
     iris.socketServer.emit(message, data);
+
     return false;
 
   }
@@ -44,9 +45,10 @@ iris.sendSocketMessage = function (userids, message, data) {
     var user = iris.modules.auth.globals.userList[userid];
 
     if (user && user.sockets) {
+
       Object.keys(user.sockets).forEach(function (socket) {
 
-        user.sockets[socket].socket.emit(message, data);
+        iris.socketServer.clients().connected[socket.id].socket.emit(message, data);
 
       })
 
@@ -73,52 +75,67 @@ iris.socketLogin = function (userid, token, socket) {
   }).then(function (authPass) {
 
     //Check if a user object exists
-
-    socket.user = iris.modules.auth.globals.userList[userid];
+    var user = iris.modules.auth.globals.userList[userid];
 
     socket.authPass = authPass;
 
-    if (socket.user) {
+    if (user) {
 
-      if (!socket.user.sockets) {
+      if (!user.sockets) {
 
-        socket.user.sockets = {};
+        user.sockets = {};
 
       }
 
       iris.modules.auth.globals.userList[userid].sockets[socket.id] = {
-        socket: socket,
         timestamp: Date.now()
       };
 
-    };
+      iris.hook("hook_socket_authenticated", authPass, {
+        socket: socket
+      }, null).then(function () {
+
+      }, function (fail) {
+
+        if (fail !== "No such hook exists") {
+
+          iris.log("error", fail);
+
+        }
+
+      });
+
+    }
 
     socket.emit("pair", true);
 
   }, function (fail) {
 
     iris.log("error", fail);
+
     socket.emit("pair", false);
 
   });
 
-}
+};
 
+/**
+ * On socket connection event.
+ */
 iris.socketServer.on("connection", function (socket) {
 
   if (!iris.status.ready) {
 
     socket.emit("Error", "Starting up");
+
     return false;
 
   }
 
   // Run socket through connection hook for things like getting user data from cookies
-
   iris.hook("hook_socket_connect", "root", {
     socket: socket
   }, null).then(function () {
-
 
   }, function (fail) {
 
@@ -130,35 +147,37 @@ iris.socketServer.on("connection", function (socket) {
 
   });
 
-  //Register pair listener
-
+  /**
+   * Register pair listener.
+   */
   socket.on("pair", function (credentials) {
 
     // Pairing for non cookie based login
-
     iris.socketLogin(credentials.userid, credentials.token, socket);
 
   });
 
+  /**
+   * On socket disconnect event.
+   */
   socket.on("disconnect", function (reason) {
 
     if (socket.user) {
 
-      //Remove socket
-
+      // Remove socket.
       delete socket.user.sockets[socket.id]
 
     }
 
-    //Run hook for disconnected socket
-
-    iris.hook("hook_socket_disconnected", socket.authPass, null, Date.now())
+    // Run hook for disconnected socket.
+    iris.hook("hook_socket_disconnected", socket.authPass, socket.authPass, Date.now())
 
   });
 
-  //Register all custom listeners from modules
-
-  Object.keys(iris.socketListeners).forEach(function (event, index) {
+  /**
+   * Register all custom listeners from modules.
+   */
+  Object.keys(iris.socketListeners).forEach(function (event) {
 
     iris.socketListeners[event].forEach(function (trigger) {
 
