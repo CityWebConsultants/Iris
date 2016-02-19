@@ -1,9 +1,9 @@
 <link rel="stylesheet" href="/modules/system/admin_menu.css" />
-<nav class="menu menu-{{menu.menuName}}">
+<nav class="menu menu-admin-toolbar">
 
   <ul class="menu">
     
-    {{#menu.items}}
+    {{#menu}}
     
       {{#if (iris_menu path)}}
       
@@ -33,7 +33,7 @@
     
     {{/if}}
 
-    {{/menu.items}}
+    {{/menu}}
 
   </ul>
 

@@ -1,4 +1,10 @@
-iris.app.get("/admin/modules", function (req, res) {
+iris.route.get("/admin/modules", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Modules"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 
@@ -29,8 +35,6 @@ iris.app.get("/admin/modules", function (req, res) {
 });
 
 // Register menu item
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/modules", "Modules", 1);
 
 var glob = require("glob");
 var fs = require("fs");

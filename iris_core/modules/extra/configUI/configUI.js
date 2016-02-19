@@ -4,11 +4,6 @@
 
 var ncp = require('ncp').ncp;
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/config", "Config", 1);
-
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/export", "Export config", 1);
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/import", "Import config", 1);
 iris.app.get("/admin/api/config/export", function (req, res) {
 
   ncp(iris.configPath, iris.sitePath + "/staging", function (err) {
@@ -31,8 +26,25 @@ iris.app.get("/admin/api/config/import", function (req, res) {
 
 });
 
+iris.route.get("/admin/config", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Config"
+  }]
+}, function (req, res) {
+  
+  res.send("Config top level to go here.")
+  
+});
 
-iris.app.get("/admin/config/export", function (req, res) {
+iris.route.get("/admin/config/export", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/config",
+    title: "Config export"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 
@@ -58,7 +70,13 @@ iris.app.get("/admin/config/export", function (req, res) {
 
 });
 
-iris.app.get("/admin/config/import", function (req, res) {
+iris.route.get("/admin/config/import", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/config",
+    title: "Config import"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 
@@ -130,7 +148,13 @@ iris.app.get("/admin/config/diff", function (req, res) {
 
 // Config page
 
-iris.app.get("/admin/config/", function (req, res) {
+iris.route.get("/admin/config", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Config"
+  }]
+}, function (req, res) {
 
   // Get list of config clashes
 
@@ -257,4 +281,3 @@ var showConfigDiff = function (callback) {
   callback(output);
 
 }
-

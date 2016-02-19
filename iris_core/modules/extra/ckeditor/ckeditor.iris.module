@@ -1,4 +1,7 @@
 {
   "name": "ckeditor",
-  "rank": 4
+  "rank": 4,
+  "dependencies":{
+    "entityUI": "1"
+  }
 }

@@ -1,9 +1,5 @@
 var fs = require('fs');
 
-// Register menu item
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/regions", "Regions", 1);
-
 iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
   // Loop over available block types and add their blocks to a list for the form
@@ -287,7 +283,13 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
 
 // Regions admin system
 
-iris.app.get("/admin/regions", function (req, res) {
+iris.route.get("/admin/regions", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/structure",
+    title: "Regions"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 
