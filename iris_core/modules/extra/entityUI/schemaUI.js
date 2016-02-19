@@ -914,6 +914,12 @@ iris.modules.entityUI.registerHook("hook_form_render_schema", 0, function (thisH
     }
   }
 
+  if (entityType) {
+
+    data.schema.entityTypeName.type = "hidden";
+
+  }
+
   thisHook.finish(true, data);
 
 });
