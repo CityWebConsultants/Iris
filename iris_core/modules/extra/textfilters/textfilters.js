@@ -142,7 +142,14 @@ iris.modules.textfilters.registerHook("hook_form_submit_textfilter", 0, function
 
 })
 
-iris.route.get("/admin/textfilters", function (req, res) {
+iris.route.get("/admin/textfilters", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Textfilters"
+  }]
+}, function (req, res) {
+
 
   if (req.authPass.roles.indexOf('admin') === -1) {
 
@@ -241,7 +248,7 @@ iris.app.get("/admin/textfilters/delete/:name", function (req, res) {
     return false;
 
   }
-  
+
   iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_delete"], ['admin_wrapper'], {
     formatname: req.params.name
   }, req.authPass, req).then(function (success) {
@@ -263,7 +270,7 @@ iris.app.get("/admin/textfilters/delete/:name", function (req, res) {
  */
 
 iris.modules.textfilters.registerHook("hook_form_render_textfilter_delete", 0, function (thisHook, data) {
-  
+
   if (!data.schema) {
 
     data.schema = {};
@@ -284,9 +291,9 @@ iris.modules.textfilters.registerHook("hook_form_render_textfilter_delete", 0, f
  */
 
 iris.modules.textfilters.registerHook("hook_form_submit_textfilter_delete", 0, function (thisHook, data) {
-  
+
   var format = iris.sanitizeName(thisHook.const.params.textformat);
-  
+
   iris.deleteConfig("textfilters", format, function (err) {
 
     var data = function (res) {
@@ -303,13 +310,6 @@ iris.modules.textfilters.registerHook("hook_form_submit_textfilter_delete", 0, f
 
 });
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/textfilters", "Text filters");
-
-/**
- * Implements hook_entity_field_view
- * Checks if a textfilter is set on longtext fields and filters according to its settings if it is
- */
-
 iris.modules.textfilters.registerHook("hook_entity_view_field__longtext", 0, function (thisHook, data) {
 
   if (thisHook.const.field.settings && thisHook.const.field.settings.textFilter) {
@@ -319,7 +319,7 @@ iris.modules.textfilters.registerHook("hook_entity_view_field__longtext", 0, fun
     iris.readConfig("textfilters", filter).then(function (filterConfig) {
 
       var sanitizeHtml = require('sanitize-html');
-      
+
       data = sanitizeHtml(data, {
         allowedTags: filterConfig.elements.split(" ").join("").split(","),
         allowedAttributes: {
