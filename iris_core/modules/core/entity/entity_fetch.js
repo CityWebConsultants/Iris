@@ -19,9 +19,9 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
   var entityTypes = [];
 
   // Populate list of targetted DB entities
-  
+
   if (Array.isArray(fetchRequest.entities)) {
-    
+
     fetchRequest.entities.forEach(function (entity) {
 
       if (iris.dbCollections[entity]) {
@@ -45,7 +45,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
   var query = {
     $and: []
   };
-  
+
   if (!fetchRequest.queries) {
 
     fetchRequest.queries = [];
@@ -89,17 +89,17 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
         }
 
       }
-      
+
       if (fieldQuery.operator.toLowerCase().indexOf("gt") !== -1) {
-        
+
         var queryItem = {};
 
         queryItem[fieldQuery["field"]] = {
           $gt: fieldQuery.value
         }
-        
+
         query.$and.push(queryItem);
-        
+
       }
 
       if (fieldQuery.operator.toLowerCase().indexOf("includes") !== -1) {
@@ -400,15 +400,15 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 });
 
 iris.app.get("/fetch", function (req, res) {
-  
+
   // Check if user can fetch this entity type
 
   var failed;
 
   if (req.body.entities) {
-    
+
     req.body.entities.forEach(function (entityType) {
-            
+
       if (!iris.modules.auth.globals.checkPermissions(["can fetch " + entityType], req.authPass)) {
 
         iris.log("warn", "User " + req.authPass.userid + " was denied access to fetch " + entityType + " list ");
@@ -421,7 +421,7 @@ iris.app.get("/fetch", function (req, res) {
     })
 
   } else {
-    
+
     res.status(400).send("Not a valid entity fetch query");
 
   }
@@ -550,7 +550,63 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
   }
 
-  thisHook.finish(true, entity);
+  var entityType = entity.entityType;
+
+  var schema = iris.dbSchemaConfig[entityType];
+
+  // Loop over all the fields on the entity
+
+  var fieldHooks = [];
+
+  Object.keys(entity).forEach(function (field) {
+
+    if (schema.fields[field] && schema.fields[field].fieldType) {
+
+      var fieldType = iris.sanitizeName(schema.fields[field].fieldType);
+
+      fieldHooks.push({
+        type: fieldType,
+        field: field
+      });
+
+    }
+
+  })
+
+  var fieldCheckedCounter = 0;
+
+  var fieldChecked = function () {
+
+    fieldCheckedCounter += 1;
+
+    if (fieldCheckedCounter === fieldHooks.length) {
+
+      thisHook.finish(true, entity);
+
+    }
+
+
+  }
+
+  // Run hook for each field
+
+  fieldHooks.forEach(function (field) {
+
+    iris.hook("hook_entity_view_field__" + field.type, thisHook.authPass, {
+      entityType: entity.entityType,
+      field: iris.dbSchemaConfig[entity.entityType].fields[field.field]
+    }, entity[field.field]).then(function (newValue) {
+
+      entity[field.field] = newValue;
+      fieldChecked();
+
+    }, function (fail) {
+
+      fieldChecked();
+
+    })
+
+  })
 
 });
 

@@ -66,10 +66,15 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         formid: formid,
         req: thisHook.const.req
       }).then(function (callbackfunction) {
-
+        
+        var previous = body.formPrevious;
+        
+        delete body.formPrevious;
+        
         iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
           params: body,
           formid: formid,
+          previous: previous,
           req: thisHook.const.req,
           res: thisHook.const.res
         }, null).then(function (callback) {
@@ -286,6 +291,11 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
         "default": token
       };
 
+      form.schema.formPrevious = {
+        "type": "hidden",
+        "default": JSON.stringify(form)
+      }
+
       // Unset form render object if not set (JSON form provides a default)
 
       if (!form.form || !form.form.length) {
@@ -305,6 +315,10 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
           key: "formid"
         });
 
+        form.form.push({
+          key: "formPrevious"
+        });
+
       }
 
       // Unset form values object if not set
@@ -320,6 +334,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       } else {
 
         form.value.formid = formName;
+        form.value.formToken = token;
         form.value.formToken = token;
 
       }
@@ -387,7 +402,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
     });
 
   };
-  
+
   iris.hook("hook_form_render", thisHook.authPass, {
     formId: formParams[0],
     params: formParams,
