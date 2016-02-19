@@ -10,96 +10,120 @@ iris.modules.textfilters.registerHook("hook_form_render_textformat", 0, function
 
   }
 
+  var renderForm = function (config) {
+
+    data.schema.name = {
+
+      "type": "text",
+      "title": "Filter name",
+      "required": true
+    };
+
+
+    data.schema.elements = {
+
+      "type": "text",
+      "title": "Allowed HTML elements",
+      "description": "Divided by commas. List without brackets.",
+    }
+
+    data.schema.attributes = {
+
+      "type": "text",
+      "title": "Allowed HTML attributes",
+      "description": "Divided by commas",
+    }
+
+    if (config) {
+
+      data.schema.name.type = "hidden";
+      data.schema.name.default = config.name;
+      data.schema.elements.default = config.elements;
+      data.schema.attributes.default = config.attributes;
+
+    }
+
+    thisHook.finish(true, data);
+
+  }
+
   // Check if editing and form exists in config
 
-  if (thisHook.const.params[1] && thisHook.const.params[1].indexOf("{{") !== -1) {
+  if (thisHook.const.params[1]) {
 
-    thisHook.finish(false);
+    if (thisHook.const.params[1].indexOf("{{") !== -1) {
+
+      thisHook.finish(false);
+
+    } else {
+
+      iris.readConfig("textfilters", thisHook.const.params[1]).then(function (config) {
+
+        renderForm(config)
+
+      }, function (fail) {
+
+        thisHook.finish(false);
+
+      })
+
+    }
 
   } else {
 
-
-    if (iris.configStore.textformats && thisHook.const.params[1] && iris.configStore.textformats[iris.sanitizeName(thisHook.const.params[1])]) {
-
-      var config = iris.configStore.textformats[iris.sanitizeName(thisHook.const.params[1])];
-
-    }
+    renderForm();
 
   }
-
-  data.schema.name = {
-
-    "type": "text",
-    "title": "Filter name",
-    "required": true
-  };
-
-
-  data.schema.elements = {
-
-    "type": "text",
-    "title": "Allowed HTML elements",
-    "description": "Divided by commas. List without brackets.",
-  }
-
-  data.schema.attributes = {
-
-    "type": "text",
-    "title": "Allowed HTML attributes",
-    "description": "Divided by commas",
-  }
-
-  // Hide name if editing and set default values
-
-  if (config) {
-
-    data.schema.name.type = "hidden";
-    data.schema.name.default = config.name;
-    data.schema.elements.default = config.elements;
-    data.schema.attributes.default = config.attributes;
-
-
-  }
-
-  thisHook.finish(true, data);
 
 })
 
-// Load all textformats on start
+// Add textformat field to text and longtext field types
 
-var fs = require('fs');
-var glob = require("glob");
+iris.modules.textfilters.registerHook("hook_form_render_field_settings__longtext", 0, function (thisHook, data) {
 
-glob(iris.configPath + "/textformats/*.json", function (er, files) {
+  var fs = require("fs");
 
-  files.forEach(function (file) {
+  var filters = [];
 
-    var config = fs.readFileSync(file, "utf8");
+  fs.readdir(iris.configPath + "/textfilters", function (err, savedFilters) {
 
-    config = JSON.parse(config);
+    if (!err) {
 
-    if (config.name) {
+      savedFilters.map(function (filter) {
 
-      iris.saveConfig(config, "textformats", iris.sanitizeName(config.name), function () {
+        filters.push(filter.replace(".json", ""));
 
-        },
-        function (fail) {
+      })
 
-          console.log(fail);
-
-        });
     }
-  })
 
-})
+    data.schema.settings = {
+      type: "object",
+      properties: {
+        textFilter: {
+          "title": "Text filter",
+          "type": "text",
+          "enum": ["none"].concat(filters)
+        }
+
+      }
+    }
+
+    thisHook.finish(true, data);
+
+  });
+
+});
 
 iris.modules.textfilters.registerHook("hook_form_submit_textformat", 0, function (thisHook, data) {
 
-  iris.saveConfig(thisHook.const.params, "textformats", iris.sanitizeName(thisHook.const.params.name), function (response) {
+  iris.saveConfig(thisHook.const.params, "textfilters", iris.sanitizeName(thisHook.const.params.name), function (response) {
 
     data = function (res) {
 
-      res.send("/admin/textfilters")
+      res.json({
+        redirect: "/admin/textfilters"
+      })
 
     }
 
@@ -109,7 +133,7 @@ iris.modules.textfilters.registerHook("hook_form_submit_textformat", 0, function
 
 })
 
-iris.app.get("/admin/textfilters", function (req, res) {
+iris.route.get("/admin/textfilters", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -121,19 +145,33 @@ iris.app.get("/admin/textfilters", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_textformats"], ['admin_wrapper'], {
-    textformats: iris.configStore.textformats,
-  }, req.authPass, req).then(function (success) {
+  var fs = require("fs");
 
-    res.send(success)
+  fs.readdir(iris.configPath + "/textfilters", function (err, data) {
 
-  }, function (fail) {
+    var filters = [];
 
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+    data.map(function (item) {
 
-    iris.log("error", e);
+      filters.push(item.replace(".json", ""))
 
-  });
+    })
+
+    iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters"], ['admin_wrapper'], {
+      textfilters: filters,
+    }, req.authPass, req).then(function (success) {
+
+      res.send(success)
+
+    }, function (fail) {
+
+      iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+      iris.log("error", fail);
+
+    });
+
+  })
 
 })
 
@@ -149,7 +187,7 @@ iris.app.get("/admin/textfilters/create", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_textformats_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success)
 
@@ -175,7 +213,7 @@ iris.app.get("/admin/textfilters/edit/:name", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_textformats_form"], ['admin_wrapper'], {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_form"], ['admin_wrapper'], {
     formatname: req.params.name
   }, req.authPass, req).then(function (success) {
 
@@ -203,7 +241,7 @@ iris.app.get("/admin/textfilters/delete/:name", function (req, res) {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_textformats_delete"], ['admin_wrapper'], {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_delete"], ['admin_wrapper'], {
     formatname: req.params.name
   }, req.authPass, req).then(function (success) {
 
@@ -258,7 +296,9 @@ iris.modules.textfilters.registerHook("hook_form_submit_texformat_delete", 0, fu
 
     var data = function (res) {
 
-      res.send("/admin/textfilters");
+      res.json({
+        redirect: "/admin/textfilters"
+      });
 
     };
 
@@ -268,62 +308,38 @@ iris.modules.textfilters.registerHook("hook_form_submit_texformat_delete", 0, fu
 
 });
 
-// Add text formats to text format field
+iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/textfilters", "Text filters");
 
-iris.modules.textfilters.registerHook("hook_schemafield_render", 0, function (thisHook, data) {
+iris.modules.textfilters.registerHook("hook_entity_field_view__longtext", 0, function (thisHook, data) {
 
-  var filters = [];
+  if (thisHook.const.field.settings && thisHook.const.field.settings.textFilter) {
 
-  if (iris.configStore.textformats) {
+    var filter = thisHook.const.field.settings.textFilter;
 
-    Object.keys(iris.configStore.textformats).forEach(function (format) {
+    iris.readConfig("textfilters", filter).then(function (filterConfig) {
 
-      filters.push(iris.configStore.textformats[format].name);
+      var sanitizeHtml = require('sanitize-html');
+      
+      data = sanitizeHtml(data, {
+        allowedTags: filterConfig.elements.split(" ").join("").split(","),
+        allowedAttributes: {
+          "*": filterConfig.attributes.split(" ").join("").split(",")
+        }
 
-    });
+      });
 
-    if (data.properties && data.properties.textFilter) {
+      thisHook.finish(true, data);
 
-      data.properties.textFilter.enum.push(filters);
+    }, function (fail) {
 
-    };
+      thisHook.finish(false, fail);
+
+    })
+
+  } else {
+
+    thisHook.finish(true, data);
 
   }
 
-  thisHook.finish(true, data);
-
-});
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/textfilters", "Text filters");
-
-var sanitizeHtml = require('sanitize-html');
-
-iris.modules.textfilters.registerHook("hook_entity_presave", 0, function (thisHook, data) {
-
-  var schema = iris.dbCollections[data.entityType].schema.tree;
-
-  Object.keys(data).forEach(function (field) {
-
-    if (schema[field] && schema[field].textFilter) {
-
-      var filter = iris.sanitizeName(schema[field].textFilter);
-
-      if (iris.configStore.textformats && iris.configStore.textformats[filter]) {
-
-        data[field] = sanitizeHtml(data[field], {
-          allowedTags: iris.configStore.textformats[filter].elements.split(" ").join("").split(","),
-          allowedAttributes: {
-            "*": iris.configStore.textformats[filter].attributes.split(" ").join("").split(",")
-          }
-
-        });
-
-      }
-
-    }
-
-  });
-
-  thisHook.finish(true, data);
-
-});
+})
