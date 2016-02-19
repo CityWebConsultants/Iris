@@ -137,17 +137,24 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
 iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, entity) {
 
     for (var authUser in iris.modules.auth.globals.userList) {
+
         iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
+
             iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
+
                 iris.sendSocketMessage([authPass.userid], "entityCreate", data);
 
             });
 
         }, function (fail) {
-            thisHook.finish(true, data);
+
+            thisHook.finish(true, fail);
+
         });
     }
+
     iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
+
         iris.sendSocketMessage(["anon"], "entityCreate", data);
 
     });
@@ -165,17 +172,24 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
 
     for (var authUser in iris.modules.auth.globals.userList) {
+
         iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
+
             iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
+
                 iris.sendSocketMessage([authPass.userid], "entityUpdate", data);
 
             });
 
         }, function (fail) {
-            thisHook.finish(true, data);
+
+            thisHook.finish(true, fail);
+
         });
     }
+
     iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
+
         iris.sendSocketMessage(["anon"], "entityUpdate", data);
 
     });
@@ -193,18 +207,24 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, entity) {
 
     for (var authUser in iris.modules.auth.globals.userList) {
+
         iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
+
             iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
+
                 iris.sendSocketMessage([authPass.userid], "entityDelete", data);
 
             });
 
         }, function (fail) {
-            thisHook.finish(true, data);
+
+            thisHook.finish(true, fail);
+
         });
     }
+
     iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
-        console.log("anon");
+
         iris.sendSocketMessage(["anon"], "entityDelete", data);
 
     });
