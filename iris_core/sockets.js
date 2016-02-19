@@ -32,6 +32,13 @@ iris.sendSocketMessage = function (userids, message, data) {
 
   }
 
+  if (userids.indexOf("anon") !== -1) {
+
+    iris.socketServer.emit(message, data);
+    return false;
+
+  }
+
   userids.forEach(function (userid) {
 
     var user = iris.modules.auth.globals.userList[userid];

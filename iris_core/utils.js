@@ -207,14 +207,17 @@ iris.sanitizeName = function (name) {
 
 iris.sanitizeEmbeds = function (html) {
 
-  html = html.split("[[[").join("&#91;&#91;&#91;");
-  html = html.split("]]]").join("&#93;&#93;&#93;");
+  if (html && typeof html === "String") {
 
-  html = html.split("{{").join("&#123;&#123;");
-  html = html.split("}}").join("&#125;&#123;");
+    html = html.split("[[[").join("/[/[/[");
+    html = html.split("]]]").join("/]/]/]");
 
-  html = html.split("{{{").join("&#123;&#123;&#123;");
-  html = html.split("}}}").join("&#125;&#125;&#125;");
+
+    html = html.split("{").join("/{");
+    html = html.split("}").join("/}");
+
+
+  }
 
   return html;
 

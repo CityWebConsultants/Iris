@@ -47,6 +47,15 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
         };
 
+      } else if (auth === "anon") {
+
+        auth = {
+
+          userid: "anon",
+          roles: ["anonymous"]
+
+        };
+
       } else {
 
         no("invalid authPass");
