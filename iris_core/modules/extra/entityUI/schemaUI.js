@@ -946,12 +946,15 @@ iris.modules.entityUI.registerHook("hook_form_submit_schema", 0, function (thisH
       if (Object.keys(finishedSchema.fields).length == 0) {
 
         iris.message(thisHook.authPass.userid, "New entity type created", "status");
-        res.send("/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/manage-fields");
+        res.json({
+          redirect: "/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/manage-fields"
+        });
+
 
       } else {
 
         iris.message(thisHook.authPass.userid, "Entity type " + entityType + " has been updated.", "status");
-        res.send({
+        res.json({
           "redirect": "/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/edit"
         });
 
