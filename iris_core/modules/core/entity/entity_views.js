@@ -136,43 +136,28 @@ iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (th
  */
 iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, entity) {
 
-  iris.hook("hook_entity_view", thisHook.authPass, null, entity).then(function (filtered) {
+  for (var authUser in iris.modules.auth.globals.userList) {
 
-    iris.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, filtered).then(function (filtered) {
+    iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
 
-      send(filtered);
+      iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
 
-    }, function (fail) {
-
-      if (fail === "No such hook exists") {
-
-        send(filtered);
-
-      } else {
-
-        thisHook.finish(true, filtered);
-
-      }
-
-    });
-
-  });
-
-  var send = function (data) {
-
-    if (data) {
-
-      iris.hook("hook_entity_view_bulk", thisHook.authPass, null, [data]).then(function (data) {
-
-        iris.sendSocketMessage(["*"], "entityCreate", data[0]);
+        iris.sendSocketMessage([authPass.userid], "entityCreate", data);
 
       });
 
-    }
+    }, function (fail) {
 
-    thisHook.finish(true, data);
+      thisHook.finish(true, fail);
 
-  };
+    });
+  }
+
+  iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
+
+    iris.sendSocketMessage(["anon"], "entityCreate", data);
+
+  });
 
 });
 
@@ -186,55 +171,28 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
  */
 iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
 
-  iris.hook("hook_entity_view", thisHook.authPass, null, entity).then(function (filtered) {
+  for (var authUser in iris.modules.auth.globals.userList) {
 
-    iris.hook("hook_entity_view_" + entity.entityType, thisHook.authPass, null, filtered).then(function (filtered) {
+    iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
 
-      send(filtered);
+      iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
+
+        iris.sendSocketMessage([authPass.userid], "entityUpdate", data);
+
+      });
 
     }, function (fail) {
 
-      if (fail === "No such hook exists") {
-
-        send(filtered);
-
-      } else {
-
-        thisHook.finish(true, data);
-
-      }
+      thisHook.finish(true, fail);
 
     });
+  }
 
-  }, function (fail) {
+  iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
 
-    thisHook.finish(true, data);
+    iris.sendSocketMessage(["anon"], "entityUpdate", data);
 
   });
-
-  var send = function (data) {
-
-    if (data) {
-
-      iris.hook("hook_entity_view_bulk", thisHook.authPass, null, [data]).then(function (data) {
-
-        iris.sendSocketMessage(["*"], "entityUpdate", data[0]);
-
-      });
-
-    } else {
-
-      // When access permissions change or somesuch event happens
-      // act as though the entity was deleted.
-      iris.sendSocketMessage(["*"], "entityDelete", {
-        _id: entityId
-      });
-
-    }
-
-    thisHook.finish(true, data);
-
-  }
 
 });
 
@@ -246,10 +204,29 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
  *
  * This hook is run when an entity is deleted; useful for live updates or keeping track of changes
  */
-iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, entity) {
 
-  iris.sendSocketMessage(["*"], "entityDelete", data);
+  for (var authUser in iris.modules.auth.globals.userList) {
 
-  thisHook.finish(true, data);
+    iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
+
+      iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
+
+        iris.sendSocketMessage([authPass.userid], "entityDelete", data);
+
+      });
+
+    }, function (fail) {
+
+      thisHook.finish(true, fail);
+
+    });
+  }
+
+  iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
+
+    iris.sendSocketMessage(["anon"], "entityDelete", data);
+
+  });
 
 });
