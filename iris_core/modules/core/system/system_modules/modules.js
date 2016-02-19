@@ -120,6 +120,36 @@ iris.modules.system.registerHook("hook_form_render_modules", 0, function (thisHo
 
 iris.modules.system.registerHook("hook_form_submit_modules", 0, function (thisHook, data) {
 
+  // check previous values
+
+  var enabledList = [];
+  var disabledList = [];
+
+  Object.keys(thisHook.const.previous.schema).forEach(function (field) {
+
+    if (thisHook.const.previous.schema[field] && thisHook.const.previous.schema[field].properties && thisHook.const.previous.schema[field].properties.enabled) {
+
+      var oldValue = thisHook.const.previous.schema[field].properties.enabled.default;
+      var newValue = thisHook.const.params[field].enabled;
+
+      if (oldValue !== newValue) {
+
+        if (newValue) {
+
+          enabledList.push(field);
+
+        } else {
+
+          disabledList.push(field);
+
+        }
+
+      }
+
+    }
+
+  })
+
 
   var enabled = [];
   var unmet = [];
@@ -178,19 +208,23 @@ iris.modules.system.registerHook("hook_form_submit_modules", 0, function (thisHo
 
   })
 
+
   fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));
 
   thisHook.finish(true, data);
 
-  var enabledNames = [];
 
-  enabled.forEach(function (enabled) {
+  if (enabledList.length) {
 
-    enabledNames.push(enabled.name);
+    iris.message(thisHook.authPass.userid, "Enabled: " + enabledList.join(", "), "success");
+    
+  }
 
-  })
+  if (disabledList.length) {
 
-  iris.message(thisHook.authPass.userid, enabledNames.join(", ") + " modules enabled", "success");
+    iris.message(thisHook.authPass.userid, "Disabled: " + disabledList.join(", "), "success");
+
+  }
 
   iris.restart(thisHook.authPass.userid, "modules page");
 
