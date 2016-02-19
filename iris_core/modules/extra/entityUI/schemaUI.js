@@ -914,6 +914,12 @@ iris.modules.entityUI.registerHook("hook_form_render_schema", 0, function (thisH
     }
   }
 
+  if (entityType) {
+
+    data.schema.entityTypeName.type = "hidden";
+
+  }
+
   thisHook.finish(true, data);
 
 });
@@ -946,12 +952,15 @@ iris.modules.entityUI.registerHook("hook_form_submit_schema", 0, function (thisH
       if (Object.keys(finishedSchema.fields).length == 0) {
 
         iris.message(thisHook.authPass.userid, "New entity type created", "status");
-        res.send("/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/manage-fields");
+        res.json({
+          redirect: "/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/manage-fields"
+        });
+
 
       } else {
 
         iris.message(thisHook.authPass.userid, "Entity type " + entityType + " has been updated.", "status");
-        res.send({
+        res.json({
           "redirect": "/admin/schema/" + iris.sanitizeName(thisHook.const.params.entityTypeName) + "/edit"
         });
 
@@ -1055,7 +1064,7 @@ iris.modules.entityUI.registerHook("hook_form_render_schemafield", 0, function (
     data.value.parent = parent;
 
     // Add field type specific settings.
-    iris.hook("hook_form_render_field_settings_" + field["fieldType"], thisHook.authPass, {
+    iris.hook("hook_form_render_field_settings__" + iris.sanitizeName(field["fieldType"]), thisHook.authPass, {
         entityType: entityType,
         fieldName: fieldName,
         schema: iris.dbSchema[entityType]
@@ -1231,7 +1240,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_schemafield", 0, function (
  * Defines form_render_field_settings for Textfields.
  * Here set settings specific to Textfield input fields.
  */
-iris.modules.entityUI.registerHook("hook_form_render_field_settings_Textfield", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_field_settings__textfield", 0, function (thisHook, data) {
 
   // Set a maximum character length.
   data.schema.settings = {
@@ -1254,7 +1263,7 @@ iris.modules.entityUI.registerHook("hook_form_render_field_settings_Textfield", 
  * Defines form_render_field_settings for Fieldsets.
  * Provide a link to manage the fields for this Fieldset.
  */
-iris.modules.entityUI.registerHook("hook_form_render_field_settings_Fieldset", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_field_settings__fieldset", 0, function (thisHook, data) {
 
   data.schema.settings = {
     "type": "object",
@@ -1275,7 +1284,7 @@ iris.modules.entityUI.registerHook("hook_form_render_field_settings_Fieldset", 0
  * Defines form_render_field_settings for Select fields.
  * Provides multiple text fields to enter the select values.
  */
-iris.modules.entityUI.registerHook("hook_form_render_field_settings_Select", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render_field_settings__select", 0, function (thisHook, data) {
 
   data.schema.settings = {
     "type": "object",
