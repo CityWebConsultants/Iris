@@ -569,12 +569,31 @@ iris.app.post("/api/login", function (req, res) {
 
 });
 
-
 iris.route.get("/admin/users", {
   "menu": [{
     menuName: "admin_toolbar",
     parent: null,
     title: "Users"
+  }]
+}, function (req, res) {
+
+  var menu = iris.modules.menu.globals.getBaseLinks(req.url);
+
+  iris.modules.frontend.globals.parseTemplateFile(["baselinks"], ['admin_wrapper'], {
+    menu: menu,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success);
+
+  })
+
+})
+
+iris.route.get("/admin/users/list", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/users",
+    title: "User list"
   }]
 }, function (req, res) {
 
