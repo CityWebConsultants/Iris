@@ -527,7 +527,7 @@ iris.app.get("/admin/triggers/edit/:action", function (req, res) {
 
 // Main actions landing page
 
-iris.app.get("/admin/triggers", {
+iris.route.get("/admin/triggers", {
   "menu": [{
     menuName: "admin_toolbar",
     parent: null,
