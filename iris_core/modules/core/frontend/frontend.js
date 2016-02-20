@@ -630,7 +630,7 @@ var getEmbeds = function (type, text) {
 
 // Function for finding embeds within a template, returns keyed list of embed types. Used for hook_frontend_embed__
 
-var findEmbeds = function (text) {
+var findEmbeds = function (text, leaveCurlies) {
 
   function getIndicesOf(searchStr, str, caseSensitive) {
     var startIndex = 0,
@@ -667,7 +667,7 @@ var findEmbeds = function (text) {
 
     // Ignore embeds with curly braces
 
-    if (embed.indexOf("{{") === -1) {
+    if (leaveCurlies || embed.indexOf("{{") === -1) {
 
       if (!embeds[embedCat]) {
 
@@ -1176,6 +1176,40 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   });
 
+  Handlebars.registerHelper('helperMissing', function (args) {
+
+    if (args.data.root.stripCurlies || args.data.root.finalParse) {
+
+      return "";
+
+    } else {
+
+      return "{{" + args.name + "}}";
+
+    }
+
+  });
+
+  Handlebars.registerHelper('iris_handlebars_delay', function (options) {
+
+    return options.fn();
+
+  });
+
+  Handlebars.registerHelper('iris_handlebars_ignore', function (options) {
+
+    if (options.data.root.finalParse) {
+
+      return options.fn();
+
+    } else {
+
+      return "{{{{iris_handlebars_ignore}}}}" + options.fn() + "{{{{/iris_handlebars_ignore}}}}"
+
+    }
+
+  });
+
   thisHook.finish(true, Handlebars);
 
 });
@@ -1212,8 +1246,39 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
       if (data.html.indexOf("[[[") !== -1) {
 
+        var embeds = findEmbeds(data.html, true);
+
+        // Loop over all embeds and compile out missing curlies
+
+        if (embeds) {
+
+          Object.keys(embeds).forEach(function (category) {
+
+            embeds[category].forEach(function (embed) {
+
+              if (embed.indexOf("{{") !== -1) {
+
+                var embed = "[[[" + category + " " + embed + "]]]";
+
+                var compiled = Handlebars.compile(embed)({
+                  stripCurlies: true
+                })
+
+                data.html = data.html.split(embed).join(compiled);
+
+
+              }
+
+            })
+
+          })
+
+        }
+
         parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
 
+          success.variables.finalParse = true;
+          
           success.html = Handlebars.compile(success.html)(success.variables);
 
           thisHook.finish(true, success);
