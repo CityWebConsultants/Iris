@@ -2,21 +2,18 @@ iris.modules.blocks.globals.registerBlockType("menu");
 
 iris.modules.menu_block.registerHook("hook_form_render_blockForm_menu", 0, function (thisHook, data) {
 
-  var availableMenus = {};
+  iris.modules.menu_ui.globals.getMenuList().then(function (menuList) {
 
-  if (iris.configStore.menu) {
+    data.schema.menu = {
+      type: "text",
+      "title": "Menu",
+      enum: menuList
+    }
 
-    availableMenus = Object.keys(iris.configStore.menu);
+    thisHook.finish(true, data);
 
-  }
 
-  data.schema.menu = {
-    type: "text",
-    "title": "Menu",
-    enum: availableMenus
-  }
-
-  thisHook.finish(true, data);
+  })
 
 })
 
