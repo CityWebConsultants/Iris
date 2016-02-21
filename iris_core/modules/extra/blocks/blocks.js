@@ -349,12 +349,6 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
       default: formTitle.split("_")[1]
     };
 
-    data.schema.contents = {
-      type: "ckeditor",
-      title: "Contents",
-      required: true
-    }
-
     // Check if a config file has already been saved for this block. If so, load in the current settings.
 
     iris.readConfig("blocks/" + formTitle.split("_")[1], thisHook.const.params[1]).then(function (output) {
