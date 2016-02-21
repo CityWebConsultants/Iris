@@ -46,7 +46,9 @@ iris.modules.forms.registerHook("hook_form_submit_newBlockForm", 0, function (th
 
   data = function (res) {
 
-    res.send("/admin/blocks/create/" + thisHook.const.params.blockType)
+    res.json({
+      redirect: "/admin/blocks/create/" + thisHook.const.params.blockType
+    })
 
   }
 
@@ -399,12 +401,6 @@ iris.modules.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function
 
 iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook, data) {
 
-  if (thisHook.const.params.blockTitle === 'starting-up') {
-
-    thisHook.finish(false, data);
-
-  }
-
   if (iris.modules.blocks.globals.blocks[thisHook.const.params.blockType] && iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle]) {
 
     delete iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle];
@@ -412,16 +408,12 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
   }
 
   iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function (err) {
-
-    if (err) {
-
-      thisHook.finish(false, data);
-
-    }
-
+    
     var data = function (res) {
 
-      res.send("/admin/blocks");
+      res.json({
+        redirect: "/admin/blocks"
+      });
 
     };
 
@@ -453,7 +445,9 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
       var data = function (res) {
 
-        res.send("/admin/blocks")
+        res.json({
+          redirect: "/admin/blocks"
+        })
 
       }
 
