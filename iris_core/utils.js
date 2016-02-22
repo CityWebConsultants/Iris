@@ -258,3 +258,17 @@ iris.findRoute = function (path, method) {
   return irisRoute;
 
 }
+
+iris.mkdirSync = function (path) {
+
+  var fs = require('fs');
+
+  try {
+    fs.mkdirSync(path);
+  } catch (e) {
+    if (e.code !== 'EEXIST') {
+      throw e;
+    }
+  }
+
+}
