@@ -91,8 +91,10 @@ iris.deleteConfig = function (directory, filename, callback) {
 
   } else {
 
-    delete iris.configStore[directory][filename];
-
+    if (iris.configStore[directory]) {
+      delete iris.configStore[directory][filename];
+    }
+    
   }
 
   var filePath = path.join(iris.sitePath, "/configurations", directory);
