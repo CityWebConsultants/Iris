@@ -12,14 +12,6 @@ iris.registerModule("frontend");
 var fs = require('fs');
 var express = require('express');
 
-var mkdirSync = function (path) {
-  try {
-    fs.mkdirSync(path);
-  } catch (e) {
-    if (e.code != 'EEXIST') throw e;
-  }
-}
-
 /**
  *  Load theme
  */
@@ -171,8 +163,6 @@ try {
 
   } catch (e) {
 
-    console.log(e);
-
     iris.log("error", e);
 
   }
@@ -315,7 +305,7 @@ var glob = require("glob");
  *
  * @returns promise which, if successful, takes the template HTML output as its first argument.
  */
-var findTemplate = function (paths, extension) {
+iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
   if (!extension) {
 
@@ -502,57 +492,6 @@ var findTemplate = function (paths, extension) {
 
 };
 
-iris.modules.frontend.globals.findTemplate = findTemplate;
-
-/**
- * @function getEmbeds
- * @memberof frontend
- *
- * @desc Given some `text`, if will search for all instances of a given embed `type` and return 
- * an array of all such embeds. Embed types include form, menu, entity etc.
- *
- * @param {string} type - the type of embed to find, eg. form, menu
- * @param {string} text - the HTML to process; that contains the embeds that need to be parsed
- *
- * @returns an array of embeds found in this snippet of `type`
- */
-var getEmbeds = function (type, text) {
-
-  function getIndicesOf(searchStr, str, caseSensitive) {
-    var startIndex = 0,
-      searchStrLen = searchStr.length;
-    var index, indices = [];
-    if (!caseSensitive) {
-      str = str.toLowerCase();
-      searchStr = searchStr.toLowerCase();
-    }
-    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
-      indices.push(index);
-      startIndex = index + searchStrLen;
-    }
-    return indices;
-  }
-
-  var start = getIndicesOf("[[[" + type, text, false);
-
-  var embeds = [];
-
-  start.forEach(function (element, index) {
-
-    var restOfString = text.substring(start[index], text.length);
-
-    var embedEnd = restOfString.indexOf("]]]");
-
-    embeds.push(restOfString.substring(3 + type.length + 1, embedEnd));
-
-  })
-
-  if (embeds.length) {
-    return embeds;
-  }
-
-}
-
 // Function for finding embeds within a template, returns keyed list of embed types. Used for hook_frontend_embed__
 
 var findEmbeds = function (text, leaveCurlies) {
@@ -725,7 +664,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
     // Get template
 
     iris.modules.frontend.globals.parseTemplateFile([searchArray], null, thisHook.const.vars, thisHook.authPass, thisHook.const.vars.req).then(function (success) {
-      
+
       thisHook.finish(true, success)
 
     }, function (fail) {
@@ -1212,7 +1151,15 @@ var insertTags = function (html, vars) {
 
   }
 
-  var tags = getEmbeds("tags", html);
+  var embeds = findEmbeds(html);
+  
+  var tags;
+
+  if (embeds && embeds.tags) {
+    
+    tags = embeds.tags;
+
+  }
 
   if (!tags) {
 
