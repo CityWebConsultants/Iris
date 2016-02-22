@@ -196,7 +196,7 @@ iris.modules.menu_ui.registerHook("hook_form_submit_menu", 0, function (thisHook
     var data = function (res) {
 
       res.json({
-        redirect: "/admin"
+        redirect: "/admin/structure/menu"
       });
 
     }
@@ -273,6 +273,34 @@ iris.app.get("/admin/structure/menu/edit/:menuName", function (req, res) {
 
 });
 
+iris.modules.menu_ui.globals.getMenuList = function () {
+
+  return new Promise(function (pass) {
+
+    var fs = require("fs");
+
+    fs.readdir(iris.configPath + "/menu", function (err, savedMenus) {
+
+        var menus = [];
+
+        if (!err && savedMenus) {
+
+          savedMenus.map(function (menu) {
+
+            menus.push(menu.replace(".json", ""));
+
+          })
+
+        }
+
+        pass(menus);
+
+      }
+
+    )
+  })
+}
+
 /**
  * List of menus page.
  * Page for editing an existing menu.
@@ -296,18 +324,22 @@ iris.route.get("/admin/structure/menu", {
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_menu_list"], ['admin_wrapper'], {
-    menuList: iris.configStore["menu"]
-  }, req.authPass, req).then(function (success) {
+  iris.modules.menu_ui.globals.getMenuList().then(function (menuList) {
+    
+    iris.modules.frontend.globals.parseTemplateFile(["admin_menu_list"], ['admin_wrapper'], {
+      menuList: menuList
+    }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+      res.send(success)
 
-  }, function (fail) {
+    }, function (fail) {
 
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+      iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+      iris.log("error", e);
 
-  });
+    });
+
+  })
 
 });
