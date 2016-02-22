@@ -1,6 +1,6 @@
 var io = require('socket.io-client');
 var frisby = require('frisby');
-var config = require('../../../../test_config');
+var config = require('./test_config');
 
 var admin = config.adminUser.login;
 var baseurl = config.baseURL;
