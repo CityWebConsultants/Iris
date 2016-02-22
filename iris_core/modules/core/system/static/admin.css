@@ -223,3 +223,20 @@ form[data-formid=schemaFieldListing] .jsonform-error-weightFields {
 .help-block {
   font-size:12px;
 }
+
+.dropdown-checkboxes {
+  position: relative;
+  background: #fff;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 300px;
+  height: 34px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: white;
+}
+
+.dropdown-checkboxes.open {
+  height:auto;
+}

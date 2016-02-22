@@ -41,3 +41,13 @@ if (iris.readCookie("userid")) {
   };
 
 }
+
+// Dropdown checkbox behaviour
+$( "html" ).on( "click", ".dropdown-checkboxes", function(e) {
+  e.stopPropagation();
+  $(".dropdown-checkboxes").addClass('open');
+});
+
+$('html').click(function() {
+  $(".dropdown-checkboxes").removeClass('open');
+});
