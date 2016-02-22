@@ -172,3 +172,73 @@ iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
   }
 
 });
+
+/**
+ * Get child links for a route.
+ * Useful on top level menu landing pages.
+ */
+
+iris.modules.menu.globals.getBaseLinks = function (baseurl) {
+
+  var links = [];
+
+  if (baseurl) {
+
+    // Find other matching routes
+
+    Object.keys(iris.routes).forEach(function (routePath) {
+
+      var route = iris.routes[routePath];
+      if (route.get && route.get.options && route.get.options.menu) {
+
+        var menu = route.get.options.menu;
+
+        var url = require("url");
+
+        var basePath = url.parse(baseurl).pathname;
+
+        menu.forEach(function (menuLink) {
+
+          if (menuLink.parent && menuLink.parent.indexOf(basePath) !== -1) {
+
+            links.push({
+              path: routePath,
+              title: menuLink.title
+            });
+
+          }
+
+        })
+
+      }
+
+    })
+
+    links.sort(function (a, b) {
+
+      a = a.path.split("/").length;
+      b = b.path.split("/").length;
+
+      if (a > b) {
+
+        return 1
+
+      } else if (a < b) {
+
+        return -1;
+
+      } else {
+
+        return 0;
+      }
+
+    })
+
+  }
+
+  return {
+    name: baseurl,
+    links: links
+  };
+
+}

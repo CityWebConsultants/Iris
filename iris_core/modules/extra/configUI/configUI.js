@@ -33,9 +33,9 @@ iris.route.get("/admin/config", {
     title: "Config"
   }]
 }, function (req, res) {
-  
+
   res.send("Config top level to go here.")
-  
+
 });
 
 iris.route.get("/admin/config/export", {
@@ -170,28 +170,12 @@ iris.route.get("/admin/config", {
 
     }
 
-    // Load in admin menu
-
-    var structureMenu = {};
-
-    if (iris.configStore["menu"]["admin_toolbar"]) {
-
-      iris.configStore["menu"]["admin_toolbar"].items.forEach(function (item) {
-
-        if (item.path === "/admin/config") {
-
-          configMenu = item;
-
-        }
-
-      })
-
-    }
-
     var fs = require('fs');
 
+    var menu = iris.modules.menu.globals.getBaseLinks(req.url);
+
     iris.modules.frontend.globals.parseTemplateFile(["admin_config"], ['admin_wrapper'], {
-      configMenu: configMenu,
+      configMenu: menu,
       clashes: clashes
     }, req.authPass, req).then(function (success) {
 
