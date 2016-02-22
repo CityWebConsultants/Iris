@@ -273,6 +273,84 @@ iris.app.get("/admin/structure/menu/edit/:menuName", function (req, res) {
 
 });
 
+/**
+ * Page for deleting an existing menu.
+ */
+
+iris.app.get("/admin/structure/menu/delete/:menuName", function (req, res) {
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_menu_form_delete"], ['admin_wrapper'], {
+    menuName: req.params.menuName
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
+/**
+ * Form for deleting an existing menu.
+ */
+
+iris.modules.menu.registerHook("hook_form_render_menu_delete", 0, function (thisHook, data) {
+
+  if (!data.schema) {
+
+    data.schema = {};
+
+  }
+    
+  data.schema["menuName"] = {
+    type: "hidden",
+    default: thisHook.const.params[1]
+  };
+
+  thisHook.finish(true, data);
+
+});
+
+/**
+ * Menu delete form submit handler.
+ */
+
+iris.modules.menu.registerHook("hook_form_submit_menu_delete", 0, function (thisHook, data) {
+    
+  var menu = iris.sanitizeName(thisHook.const.params.menuName);
+  
+  iris.deleteConfig("menu", menu, function (err) {
+
+    var data = function (res) {
+
+      res.json({
+        redirect: "/admin/structure/menu"
+      });
+
+    };
+
+    thisHook.finish(true, data);
+
+  });
+
+});
+
+
 iris.modules.menu_ui.globals.getMenuList = function () {
 
   return new Promise(function (pass) {
@@ -325,7 +403,7 @@ iris.route.get("/admin/structure/menu", {
   }
 
   iris.modules.menu_ui.globals.getMenuList().then(function (menuList) {
-    
+
     iris.modules.frontend.globals.parseTemplateFile(["admin_menu_list"], ['admin_wrapper'], {
       menuList: menuList
     }, req.authPass, req).then(function (success) {
