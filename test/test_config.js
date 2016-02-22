@@ -2,8 +2,8 @@ var exports = {};
 
 exports.adminUser = {
     login: {
-        username: "chito@cloudemployee.co.uk",
-        password: "Zxcvbnm"
+        username: "foo",
+        password: "foo"
     },
     auth: {
         token: "",
