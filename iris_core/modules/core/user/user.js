@@ -12,10 +12,50 @@ var bcrypt = require("bcrypt-nodejs");
 
 // First ever login form
 
-iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
+// Set up first user account via API
+
+iris.route.post("/api/user/first", function (req, res) {
+
+  if (!req.body.password || !req.body.username) {
+
+    res.status(400).send("Need to supply a username and a password");
+
+    return false;
+
+  }
 
   iris.dbCollections["user"].count({}, function (err, count) {
 
+    if (count === 0) {
+
+      iris.hook("hook_form_submit_set_first_user", "root", {
+        params: {
+          password: req.body.password,
+          username: req.body.username
+        }
+      }, null).then(function (success) {
+
+        res.status(200).send("First user created");
+
+      }, function (fail) {
+
+        res.status(400).send(fail);
+
+      })
+
+    } else {
+
+      res.status(403).send("Admin user already set up");
+
+    }
+
+  });
+
+})
+
+iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
+
+  iris.dbCollections["user"].count({}, function (err, count) {
 
     if (count === 0) {
 
@@ -170,7 +210,7 @@ iris.app.get("/", function (req, res, next) {
   iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
 
-      iris.modules.frontend.globals.parseTemplateFile(["first_user"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+      iris.modules.frontend.globals.parseTemplateFile(["first_user"], ['admin_wrapper'], {}, "root", req).then(function (success) {
 
         res.send(success)
 
