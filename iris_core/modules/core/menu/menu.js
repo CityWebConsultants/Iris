@@ -111,7 +111,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     }
 
   })
-
+  
   if (menuLinks.length) {
 
     // Menu ready, check access
@@ -128,7 +128,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
       }, function (noaccess) {
 
-        thisHook.finish(false, noaccess);
+        thisHook.finish(true, "");
 
       })
 
