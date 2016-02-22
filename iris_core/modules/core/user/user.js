@@ -271,7 +271,7 @@ iris.app.get("/user/logout", function (req, res) {
 
 iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
-  if (entity.password && entity.password !== '') {
+  if (entity.password && entity.password.length) {
 
     bcrypt.hash(entity.password, null, null, function (err, hash) {
 
