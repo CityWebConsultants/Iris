@@ -2,7 +2,7 @@ var io = require('socket.io-client');
 var frisby = require('frisby');
 var config = require('../../../../test_config');
 
-var admin = config.adminUser;
+var admin = config.adminUser.login;
 var baseurl = config.baseURL;
 
 var admin, authenticated_user1, authenticated_user2, authenticated_user3;
@@ -10,7 +10,7 @@ describe('Entity', function () {
   it('admin should be able to login', function () {
     frisby.create('Request auth key')
       .post(baseurl + '/api/login',
-        { "username": "chito@cloudemployee.co.uk", "password": "Zxcvbnm" },
+        admin,
         { json: true })
       .expectStatus(200)
       .expectHeaderContains('content-type', 'application/json')
