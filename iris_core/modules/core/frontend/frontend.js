@@ -505,81 +505,6 @@ var findTemplate = function (paths, extension) {
 iris.modules.frontend.globals.findTemplate = findTemplate;
 
 /**
- * @function parseEmbed
- * @memberof frontend
- *
- * @desc Parse `embeds` in *template* _HTML_
- *
- * An 'embed' is a type of directive, embedded in HTML, of the form [[[prefix <data>]]].
- *
- * Embeds are intended to be replaced with code generated from the data provided.
- *
- * For example, the embed [[[form example]]] would render the form named 'example.'
- *
- * @param {string} prefix - the 'prefix' used to identify the embed type
- * @param {string} html - the HTML to process; that contains the embeds that need to be parsed
- * @param {function} action - callback to be run on each embed parsed
- *
- * @returns a promise which, if successful, takes the processed HTML as its first argument.
- */
-iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
-
-  var counter = 0;
-
-  return new Promise(function (yes, no) {
-
-    var embeds = getEmbeds(prefix, html);
-
-    if (embeds) {
-
-      //  Skip embed if it contains Handlebars parameters
-
-      embeds = embeds.filter(function (embed) {
-
-        return embed.indexOf("{{") === -1;
-
-      })
-
-      if (!embeds.length) {
-
-        yes(html);
-
-      }
-
-      embeds.forEach(function (embed) {
-
-        action(embed.split(","), function (content) {
-
-          counter += 1;
-
-          if (content) {
-
-            html = html.split("[[[" + prefix + " " + embed + "]]]").join(content);
-
-          }
-
-          if (counter === embeds.length) {
-
-            yes(html);
-
-          }
-
-        })
-
-      })
-
-    } else {
-
-      yes(html);
-
-    }
-
-  });
-
-};
-
-
-/**
  * @function getEmbeds
  * @memberof frontend
  *
@@ -703,7 +628,6 @@ var findEmbeds = function (text, leaveCurlies) {
  * @param {object} context - extra variables to pass to templating engine.
  *
  * There are other functions that are intended to make parsing templates easier.
- * @see parseEmbed
  * @see parseTemplateFile
  *
  * @returns a promise which, if successful, takes an object with properties 'html' and 'variables',
@@ -881,8 +805,7 @@ var parseTemplate = function (html, authPass, context) {
  *
  * @desc Parse frontend template
  *
- * Hook into the template parsing process using this. Inside, one can run functions such as parseEmbed 
- * on the current state of the template.
+ * Hook into the template parsing process using this. Useful for adding to the context variables
  */
 iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
@@ -1330,7 +1253,7 @@ var unEscape = function (html) {
  * @memberof frontend
  *
  * @desc Function for inserting tags into templates (run last). 
- * TODO: Make generic parseEmbed for embeds that run last. Same for Handlebars templates?
+ * TODO: Move to hook_frontend_embed
  *
  * @returns html where all tags are substituted with their respective markup.
  */

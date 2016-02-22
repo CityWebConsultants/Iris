@@ -202,71 +202,57 @@ glob(iris.configPath + "/blocks/*/*.json", function (er, files) {
 
 })
 
-iris.modules.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (thisHook, data) {
+  
+  var blockType = thisHook.const.embedParams[0],
+    blockName = thisHook.const.embedParams[1];
 
-  iris.modules.frontend.globals.parseEmbed("block", data.html, function (block, next) {
+  if (!blockName || !blockType) {
 
-    var blockType = block[0],
-      blockName = block[1];
+    thisHook.finish(true, "");
+    return false;
 
-    if (!blockName || !blockType) {
+  } else {
 
-      next("<!--- Could not load block " + block + " --->");
-      return false;
+    // Correct parameters, now let's see if we can load a block from config
 
-    } else {
+    if (iris.modules.blocks.globals.blocks[blockType] && iris.modules.blocks.globals.blocks[blockType][blockName]) {
 
-      // Correct parameters, now let's see if we can load a block from config
+      var parameters = {
 
-      if (iris.modules.blocks.globals.blocks[blockType] && iris.modules.blocks.globals.blocks[blockType][blockName]) {
-
-        var parameters = {
-
-          id: blockName,
-          type: blockType,
-          config: iris.modules.blocks.globals.blocks[blockType][blockName]
-
-        }
-
-        iris.hook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
-
-          if (!html) {
-
-            next("<!--- Could not load block " + block + " --->");
-
-          } else {
-
-            // Block loaded!
-
-            next(html);
-
-          }
-
-        }, function (fail) {
-
-          next("<!--- Could not load block " + block + " --->");
-
-        })
-
-      } else {
-
-        next("<!--- Could not load block " + block + " --->");
+        id: blockName,
+        type: blockType,
+        config: iris.modules.blocks.globals.blocks[blockType][blockName]
 
       }
 
+      iris.hook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
+
+        if (!html) {
+
+          thisHook.finish(true, "");
+
+        } else {
+
+          // Block loaded!
+
+          thisHook.finish(true, html);
+
+        }
+
+      }, function (fail) {
+
+        thisHook.finish(true, "");
+
+      })
+
+    } else {
+
+      thisHook.finish(true, "");
+
     }
 
-  }).then(function (html) {
-
-    data.html = html;
-
-    thisHook.finish(true, data)
-
-  }, function (fail) {
-
-    thisHook.finish(true, data)
-
-  });
+  }
 
 });
 
@@ -408,7 +394,7 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
   }
 
   iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function (err) {
-    
+
     var data = function (res) {
 
       res.json({
