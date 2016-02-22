@@ -21,12 +21,6 @@ iris.readConfig('auth', 'auth_roles').then(function (config) {
 
 });
 
-iris.app.get("/admin/users", function (req, res) {
-
-  iris.modules.system.globals.listEntities(req, res, 'user');
-
-});
-
 iris.route.get("/admin/users/roles", {
   "menu": [{
     menuName: "admin_toolbar",

@@ -95,9 +95,9 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[String]
     "title": fieldSettings.label,
     "description": fieldSettings.description,
     "items": {
-      "type": "text",
-      "default": value
-    }
+      "type": "text"
+    },
+    "default": value
   }
 
   thisHook.finish(true, data);

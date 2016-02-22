@@ -4,125 +4,114 @@
 
 var fs = require("fs");
 
-/*
- * This specific implementation of hook_frontend_template_parse processes entity blocks.
+/**
+ * Implements hook_frontend_embed
+ * Process entity embeds
  */
-iris.modules.entity.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-  iris.modules.frontend.globals.parseEmbed("entity", data.html, function (entity, next) {
 
-    var entityTypes = entity[0].split("+");
-    var variableName = entity[1];
-    var query = entity[2];
-    var limit = entity[3];
-    var sort = entity[4];
+iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thisHook, data) {
 
-    if (query) {
+  var entity = thisHook.const.embedParams;
 
-      var queries = query.split("+");
+  var entityTypes = entity[0].split("+");
+  var variableName = entity[1];
+  var query = entity[2];
+  var limit = entity[3];
+  var sort = entity[4];
+  
+  if (query) {
 
-      if (queries && queries.length) {
+    var queries = query.split("+");
 
-        queries.forEach(function (query, index) {
+    if (queries && queries.length) {
 
-          // Split query into sub sections
+      queries.forEach(function (query, index) {
 
-          var query = query.split("|");
+        // Split query into sub sections
 
-          // Skip empty queries
+        var query = query.split("|");
 
-          if (!query[2]) {
+        // Skip empty queries
 
-            queries[index] = undefined;
-            return false;
+        if (!query[2]) {
 
-          }
+          queries[index] = undefined;
+          return false;
 
-          try {
+        }
 
-            JSON.parse(query[2]);
+        try {
 
-          } catch (e) {
+          JSON.parse(query[2]);
 
-            iris.log("debug", query[2]);
-            iris.log("error", e);
+        } catch (e) {
 
-            queries[index] = undefined;
-            return false;
+          iris.log("debug", query[2]);
+          iris.log("error", e);
 
-          };
+          queries[index] = undefined;
+          return false;
 
-          queries[index] = ({
+        };
 
-            field: query[0],
-            operator: query[1],
-            value: JSON.parse(query[2])
+        queries[index] = ({
 
-          });
+          field: query[0],
+          operator: query[1],
+          value: JSON.parse(query[2])
 
         });
 
-      }
+      });
 
     }
 
-    var fetch = {
-      queries: queries,
-      entities: entityTypes,
-    };
+  }
 
-    if (limit) {
+  var fetch = {
+    queries: queries,
+    entities: entityTypes,
+  };
 
-      fetch.limit = limit;
+  if (limit) {
 
+    fetch.limit = limit;
+
+  }
+
+  if (sort) {
+
+    var expandedSort = {};
+
+    expandedSort[sort.split("|")[0]] = sort.split("|")[1];
+
+    fetch.sort = expandedSort;
+
+  }
+  
+  iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
+    
+    thisHook.const.vars[variableName] = result;
+
+    thisHook.const.vars.tags.headTags["entity_fetch"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/entity/templates.js"
+      },
+      rank: 0
     }
 
-    if (sort) {
+    var entityPackage = "\n" + "iris.entityPreFetch(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
 
-      var expandedSort = {};
+    var loader = entityPackage;
 
-      expandedSort[sort.split("|")[0]] = sort.split("|")[1];
+    thisHook.finish(true, "<script>" + loader + "</script>");
 
-      fetch.sort = expandedSort;
-
-    }
-
-    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
-
-      data.variables[variableName] = result;
-
-      data.variables.tags.headTags["entity_fetch"] = {
-        type: "script",
-        attributes: {
-          "src": "/modules/entity/templates.js"
-        },
-        rank: 0
-      }
-
-      var entityPackage = "\n" + "iris.entityPreFetch(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
-
-      var loader = entityPackage;
-
-      next("<script>" + loader + "</script>");
-
-    }, function (error) {
-
-      console.log(error);
-
-      next("");
-
-    });
-
-  }).then(function (html) {
-
-    data.html = html;
+  }, function (error) {
 
     thisHook.finish(true, data);
 
-  }, function (fail) {
-
-    thisHook.finish(true, data);
-
-  })
+  });
 
 });
 
@@ -153,7 +142,10 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
     });
   }
 
-  iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
+  iris.hook("hook_entity_view", {
+    "userid": "anon",
+    "roles": ["anonymous"]
+  }, null, entity).then(function (data) {
 
     iris.sendSocketMessage(["anon"], "entityCreate", data);
 
@@ -188,7 +180,10 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
     });
   }
 
-  iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
+  iris.hook("hook_entity_view", {
+    "userid": "anon",
+    "roles": ["anonymous"]
+  }, null, entity).then(function (data) {
 
     iris.sendSocketMessage(["anon"], "entityUpdate", data);
 
@@ -223,7 +218,10 @@ iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, e
     });
   }
 
-  iris.hook("hook_entity_view", { "userid": "anon", "roles": ["anonymous"] }, null, entity).then(function (data) {
+  iris.hook("hook_entity_view", {
+    "userid": "anon",
+    "roles": ["anonymous"]
+  }, null, entity).then(function (data) {
 
     iris.sendSocketMessage(["anon"], "entityDelete", data);
 
