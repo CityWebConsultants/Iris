@@ -11,14 +11,7 @@ iris.registerModule("frontend");
 
 var fs = require('fs');
 var express = require('express');
-
-var mkdirSync = function (path) {
-  try {
-    fs.mkdirSync(path);
-  } catch (e) {
-    if (e.code != 'EEXIST') throw e;
-  }
-}
+var path = require('path');
 
 /**
  *  Load theme
@@ -52,136 +45,9 @@ process.on("dbReady", function () {
 
 });
 
-var path = require("path");
+// Load in file for setting active theme
 
-/**
- * @function setActiveTheme
- * @memberof frontend
- *
- * @desc Sets the active name from the passed values.
- *
- * @param {string} themePath - path to the theme folder
- * @param {string} themeName - name of the active theme
- *
- * @returns error message if it fails.
- */
-iris.modules.frontend.globals.setActiveTheme = function (themeName) {
-
-  var glob = require("glob");
-
-  // Reset theme lookup registry
-
-  iris.modules.frontend.globals.templateRegistry.theme = [];
-
-  var result = {};
-
-  try {
-
-    var unmet = [];
-    var loadedDeps = [];
-
-    // Find theme
-
-    var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + themeName + "/" + themeName + ".iris.theme" + "," + iris.sitePath + "/themes/" + themeName + "/" + themeName + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + themeName + "/" + themeName + ".iris.theme" + "}");
-
-    var path = require("path");
-
-
-    if (found.length) {
-
-      var themeInfo = JSON.parse(fs.readFileSync(found[0]), "utf8");
-
-      var theme = {
-        name: themeName,
-        path: path.dirname(found[0]),
-        info: themeInfo
-      };
-
-    } else {
-
-      iris.log("error", "Could not find theme " + themeName);
-      return false;
-
-    }
-
-    // Read modules this theme is dependent on
-
-    if (theme.info.dependencies) {
-
-      Object.keys(theme.info.dependencies).forEach(function (dep) {
-
-        if (!iris.modules[dep]) {
-
-          unmet.push(dep);
-
-        }
-
-      })
-
-    }
-
-    // Push in theme templates to template lookup registry
-
-    if (!unmet.length) {
-
-      // Make config into a variable accessible by other modules
-
-      iris.modules.frontend.globals.activeTheme = theme;
-
-      iris.modules.frontend.globals.templateRegistry.theme.push(theme.path + "/templates");
-
-      // Push in theme's static folder
-
-      iris.app.use("/themes/" + themeName, express.static(theme.path + "/static"))
-
-    } else {
-
-      result.errors = "Active theme has unmet dependencies: " + unmet.join(",");
-
-    }
-
-  } catch (e) {
-
-    iris.log("error", e);
-
-    result.errors = "Something went wrong."
-
-  }
-
-  return result;
-
-}
-
-try {
-
-  var themeFile = fs.readFileSync(iris.sitePath + "/active_theme.json", "utf8");
-
-  try {
-
-    var activeTheme = JSON.parse(themeFile);
-
-    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.name);
-
-    if (setTheme.errors) {
-
-      iris.log("error", "Could not enable " + activeTheme.name);
-      iris.log("error", setTheme.errors);
-
-    }
-
-  } catch (e) {
-
-    console.log(e);
-
-    iris.log("error", e);
-
-  }
-
-} catch (e) {
-
-  iris.log("info", "No theme enabled");
-
-}
+require("./theme");
 
 /**
  * @function getTemplate
@@ -315,7 +181,7 @@ var glob = require("glob");
  *
  * @returns promise which, if successful, takes the template HTML output as its first argument.
  */
-var findTemplate = function (paths, extension) {
+iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
   if (!extension) {
 
@@ -502,57 +368,6 @@ var findTemplate = function (paths, extension) {
 
 };
 
-iris.modules.frontend.globals.findTemplate = findTemplate;
-
-/**
- * @function getEmbeds
- * @memberof frontend
- *
- * @desc Given some `text`, if will search for all instances of a given embed `type` and return 
- * an array of all such embeds. Embed types include form, menu, entity etc.
- *
- * @param {string} type - the type of embed to find, eg. form, menu
- * @param {string} text - the HTML to process; that contains the embeds that need to be parsed
- *
- * @returns an array of embeds found in this snippet of `type`
- */
-var getEmbeds = function (type, text) {
-
-  function getIndicesOf(searchStr, str, caseSensitive) {
-    var startIndex = 0,
-      searchStrLen = searchStr.length;
-    var index, indices = [];
-    if (!caseSensitive) {
-      str = str.toLowerCase();
-      searchStr = searchStr.toLowerCase();
-    }
-    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
-      indices.push(index);
-      startIndex = index + searchStrLen;
-    }
-    return indices;
-  }
-
-  var start = getIndicesOf("[[[" + type, text, false);
-
-  var embeds = [];
-
-  start.forEach(function (element, index) {
-
-    var restOfString = text.substring(start[index], text.length);
-
-    var embedEnd = restOfString.indexOf("]]]");
-
-    embeds.push(restOfString.substring(3 + type.length + 1, embedEnd));
-
-  })
-
-  if (embeds.length) {
-    return embeds;
-  }
-
-}
-
 // Function for finding embeds within a template, returns keyed list of embed types. Used for hook_frontend_embed__
 
 var findEmbeds = function (text, leaveCurlies) {
@@ -622,6 +437,8 @@ var findEmbeds = function (text, leaveCurlies) {
  * It recursively loops through finding all variable tags to be inserted, saves them to a global 
  * `context` array which is then present for rendering all templates. This means variables can be 
  * used across all templates when rendering.
+ *
+ * TODO: Now embeds have been moved out into hook_frontend_embed this could be simplified
  *
  * @param {string} html - HTML of template to process
  * @param {object} authPass - authPass of current user
@@ -725,7 +542,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
     // Get template
 
     iris.modules.frontend.globals.parseTemplateFile([searchArray], null, thisHook.const.vars, thisHook.authPass, thisHook.const.vars.req).then(function (success) {
-      
+
       thisHook.finish(true, success)
 
     }, function (fail) {
@@ -774,9 +591,12 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
         "src": "/modules/frontend/iris_core.js"
       },
       rank: 0
+
     }
 
-    data.variables["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
+    if (iris.modules.frontend.globals.activeTheme) {
+      data.variables["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
+    }
 
   }
 
@@ -977,110 +797,7 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 
 });
 
-/**
- * @member hook_frontend_handlebars_extend
- * @memberof frontend
- *
- * @desc Template engine processing - Handlebars extending
- *
- * Attaches partials and extensions onto handlebars templating engine
- *
- * @returns Handlebars object
- */
-
-iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
-
-  // Check route access
-
-  Handlebars.registerHelper("iris_menu", function (item) {
-
-    var route = iris.findRoute(item, "get");
-
-    if (route && route.options && route.options.permissions) {
-
-      if (iris.modules.auth.globals.checkPermissions(route.options.permissions, thisHook.authPass)) {
-
-        return item;
-
-      } else {
-
-        return null;
-
-      }
-
-    } else {
-
-      return item;
-
-    };
-
-  });
-
-  // Handle for a user's messages
-
-  Handlebars.registerHelper("iris_messages", function () {
-
-    var messages = iris.readMessages(thisHook.authPass.userid);
-
-    var output = "";
-
-    if (messages.length) {
-
-      output += "<ul class='iris-messages'>";
-
-      messages.forEach(function (message) {
-
-        output += "<li class='iris-message " + message.type + "'>" + message.message + "</li >";
-
-      });
-
-      output += "</ul>";
-
-      iris.clearMessages(thisHook.authPass.userid);
-
-    }
-
-    return output;
-
-  });
-
-  Handlebars.registerHelper('helperMissing', function (args) {
-
-    if (args.data.root.stripCurlies || args.data.root.finalParse) {
-
-      return "";
-
-    } else {
-
-      return "{{" + args.name + "}}";
-
-    }
-
-  });
-
-  Handlebars.registerHelper('iris_handlebars_delay', function (options) {
-
-    return options.fn();
-
-  });
-
-  Handlebars.registerHelper('iris_handlebars_ignore', function (options) {
-
-    if (options.data.root.finalParse) {
-
-      return options.fn();
-
-    } else {
-
-      return "{{{{iris_handlebars_ignore}}}}" + options.fn() + "{{{{/iris_handlebars_ignore}}}}"
-
-    }
-
-  });
-
-  thisHook.finish(true, Handlebars);
-
-});
+require("./handlebars_helpers")
 
 /**
  * @member hook_frontend_template
@@ -1212,7 +929,15 @@ var insertTags = function (html, vars) {
 
   }
 
-  var tags = getEmbeds("tags", html);
+  var embeds = findEmbeds(html);
+
+  var tags;
+
+  if (embeds && embeds.tags) {
+
+    tags = embeds.tags;
+
+  }
 
   if (!tags) {
 
