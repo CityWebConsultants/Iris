@@ -93,9 +93,9 @@ iris.modules.system.registerHook("hook_form_render_modules", 0, function (thisHo
             "description": (currentModule.description ? currentModule.description : ""),
             "default": iris.modules[moduleName] ? true : false
           },
-          "rank": {
+          "weight": {
             "type": "hidden",
-            "default": currentModule.rank
+            "default": currentModule.weight
           },
           "dependencies": {
             "type": "hidden",
@@ -199,16 +199,16 @@ iris.modules.system.registerHook("hook_form_submit_modules", 0, function (thisHo
   }
 
   enabled.sort(function (a, b) {
-    if (a.rank < b.rank)
+    if (a.weight < b.weight)
       return -1;
-    if (a.rank > b.rank)
+    if (a.weight > b.weight)
       return 1;
     return 0;
   });
 
   enabled.forEach(function (currentModule) {
 
-    delete currentModule.rank;
+    delete currentModule.weight;
 
   })
 

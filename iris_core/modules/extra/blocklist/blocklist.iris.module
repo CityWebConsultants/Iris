@@ -1,4 +1,4 @@
 {
   "name": "IP blocking list",
-  "rank": 0
+  "weight": 0
 }
