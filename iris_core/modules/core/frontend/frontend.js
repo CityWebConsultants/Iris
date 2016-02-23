@@ -725,7 +725,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
     // Get template
 
     iris.modules.frontend.globals.parseTemplateFile([searchArray], null, thisHook.const.vars, thisHook.authPass, thisHook.const.vars.req).then(function (success) {
-      
+
       thisHook.finish(true, success)
 
     }, function (fail) {
@@ -743,6 +743,92 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
   }
 
 })
+
+var parseEmbeds = function (html, variables, authPass) {
+
+  return new Promise(function (pass, fail) {
+
+    // Check for any embeds present in the code
+
+    var embeds = findEmbeds(html);
+
+    // Counter for checking all of the embeds have been parsed
+
+    var embedCount = 0;
+    var doneCount = 0;
+
+    var finished = function () {
+
+      doneCount += 1;
+
+      if (doneCount === embedCount) {
+
+        pass({
+          html: html,
+          variables: variables
+        });
+
+      }
+
+    }
+
+    if (embeds) {
+
+      Object.keys(embeds).forEach(function (category) {
+
+        embedCount += embeds[category].length;
+
+        embeds[category].forEach(function (embed) {
+
+          var params = [];
+
+          embed.split(",").map(function (current) {
+
+            params.push(current.trim());
+
+          })
+
+          iris.hook("hook_frontend_embed__" + category, authPass, {
+            vars: variables,
+            embedParams: params
+          }).then(function (parsedEmbed) {
+
+            html = html.split("[[[" + category + " " + embed + "]]]").join(parsedEmbed);
+
+            finished();
+
+          }, function (fail) {
+
+            if (fail === "No such hook exists") {
+
+              finished();
+
+            } else {
+
+              finished();
+              iris.log("error", fail);
+
+            }
+
+          })
+
+        })
+
+      })
+
+
+    } else {
+
+      pass({
+        html: html,
+        variables: variables
+      });
+
+    }
+
+  })
+
+}
 
 /**
  * @member hook_frontend_template_parse
@@ -780,77 +866,16 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 
   }
 
-  // Check for any embeds present in the code
 
-  var embeds = findEmbeds(data.html);
+  parseEmbeds(data.html, data.variables, thisHook.authPass).then(function (success) {
 
-  // Counter for checking all of the embeds have been parsed
+    thisHook.finish(true, success);
 
-  var embedCount = 0;
-  var doneCount = 0;
+  }, function (fail) {
 
-  var finished = function () {
+    thisHook.finish(false, fail);
 
-    doneCount += 1;
-
-    if (doneCount === embedCount) {
-
-      thisHook.finish(true, data);
-
-    }
-
-  }
-
-  if (embeds) {
-
-    Object.keys(embeds).forEach(function (category) {
-
-      embedCount += embeds[category].length;
-
-      embeds[category].forEach(function (embed) {
-
-        var params = [];
-
-        embed.split(",").map(function (current) {
-
-          params.push(current.trim());
-
-        })
-
-        iris.hook("hook_frontend_embed__" + category, thisHook.authPass, {
-          vars: data.variables,
-          embedParams: params
-        }).then(function (parsedEmbed) {
-
-          data.html = data.html.split("[[[" + category + " " + embed + "]]]").join(parsedEmbed);
-
-          finished();
-
-        }, function (fail) {
-
-          if (fail === "No such hook exists") {
-
-            finished();
-
-          } else {
-
-            iris.log("error", fail);
-
-          }
-
-        })
-
-      })
-
-    })
-
-
-  } else {
-
-    thisHook.finish(true, data);
-
-  }
-
+  })
 
 });
 
@@ -1192,112 +1217,6 @@ var unEscape = function (html) {
 
 }
 
-
-/*
- * @member hook_frontend_template
- * @memberof frontend
- *
- * @desc Function for inserting tags into templates (run last). 
- * TODO: Move to hook_frontend_embed
- *
- * @returns html where all tags are substituted with their respective markup.
- */
-
-var insertTags = function (html, vars) {
-
-
-  if (!html || !vars) {
-
-    return html;
-
-  }
-
-  var tags = getEmbeds("tags", html);
-
-  if (!tags) {
-
-    return html;
-
-  }
-
-  tags.forEach(function (innerTag) {
-
-    var tagName = innerTag.split(",")[0];
-
-    var tagExclude = innerTag.split(",").slice(1, innerTag.split(",").length);
-
-    tagExclude = tagExclude[0];
-
-    if (tagExclude) {
-
-      tagExclude = tagExclude.split(" ").join("").split("-");
-
-    }
-
-    if (vars.tags && vars.tags[tagName]) {
-
-      var tagContainer = vars.tags[tagName];
-
-      var output = "<!-- " + tagName + " -->";
-
-      output += "\n";
-
-      Object.keys(tagContainer).forEach(function (tagName) {
-
-        if (tagExclude && tagExclude.indexOf(tagName) !== -1) {
-
-          return false;
-
-        }
-
-        var tag = tagContainer[tagName];
-
-        output += "\n";
-
-        output += "<!-- " + tagName + " -->";
-
-        output += "\n";
-
-        if (typeof tag == "string") {
-
-          output += "<" + tagName + ">" + tag + "</" + tagName + ">";
-
-        } else {
-
-          output += "<" + tag.type;
-
-          if (tag.attributes) {
-
-            Object.keys(tag.attributes).forEach(function (element) {
-
-              output += " " + element + '=' + '"' + tag.attributes[element] + '"';
-
-            });
-
-          };
-
-          if (tag.type === "script") {
-
-            output += "></" + tag.type + ">"
-
-          } else {
-
-            output += "/>";
-
-          }
-        }
-      });
-
-      html = html.split("[[[tags " + innerTag + "]]]").join(output);
-
-    }
-
-  })
-
-  return html;
-
-}
-
 /**
  * @function parseTemplateFile
  * @memberof frontend
@@ -1365,13 +1284,19 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
             vars: innerOutput.variables
           }).then(function (output) {
 
-            output.html = insertTags(output.html, innerOutput.variables);
+            parseEmbeds(output.html, output.variables, authPass).then(function (success) {
 
-            output.html = unEscape(output.html);
+              output.html = unEscape(success.html);
 
-            output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
+              output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
-            yes(output.html);
+              yes(output.html);
+
+            }, function (fail) {
+
+              no(fail);
+
+            })
 
           }, function (fail) {
 
@@ -1395,13 +1320,19 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
           vars: output.variables
         }).then(function (output) {
 
-          output.html = insertTags(output.html, output.variables);
+          parseEmbeds(output.html, output.variables, authPass).then(function (success) {
 
-          output.html = unEscape(output.html);
+            output.html = unEscape(success.html);
 
-          output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
+            output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
-          yes(output.html);
+            yes(output.html);
+
+          }, function (fail) {
+
+            no(fail);
+
+          })
 
         }, function (fail) {
 
@@ -1416,3 +1347,5 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
   });
 
 }
+
+require("./tags");
