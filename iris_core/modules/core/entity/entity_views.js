@@ -18,7 +18,7 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
   var query = entity[2];
   var limit = entity[3];
   var sort = entity[4];
-  
+
   if (query) {
 
     var queries = query.split("+");
@@ -88,9 +88,9 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
     fetch.sort = expandedSort;
 
   }
-  
+
   iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
-    
+
     thisHook.const.vars[variableName] = result;
 
     thisHook.const.vars.tags.headTags["entity_fetch"] = {
@@ -151,6 +151,8 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 
   });
 
+  thisHook.finish(true, entity);
+
 });
 
 /**
@@ -189,6 +191,8 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 
   });
 
+  thisHook.finish(true, entity);
+
 });
 
 /**
@@ -226,5 +230,7 @@ iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, e
     iris.sendSocketMessage(["anon"], "entityDelete", data);
 
   });
+
+  thisHook.finish(true, entity);
 
 });
