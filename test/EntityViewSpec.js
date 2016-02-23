@@ -8,6 +8,7 @@ var baseurl = config.baseURL;
 var admin, authenticated_user1, authenticated_user2, authenticated_user3;
 describe('Entity', function () {
   it('admin should be able to login', function () {
+    
     frisby.create('Request auth key')
       .post(baseurl + '/api/login',
         admin,
@@ -33,6 +34,7 @@ describe('Entity', function () {
           .expectHeaderContains('content-type', 'application/json')
           .afterJSON(function (res) {
             authenticated_user1 = res;
+            
             frisby.create('testuser1 should be able to request auth key')
               .post(baseurl + '/api/login',
                 { "username": "testuser1", "password": "test1" },
@@ -44,6 +46,7 @@ describe('Entity', function () {
                 token: String
               })
               .afterJSON(function (res) {
+                
                 var socket = io(baseurl);
                 socket.on("connect", function () {
                   if (res.userid) {
@@ -55,6 +58,7 @@ describe('Entity', function () {
                     console.log("Anonymous connected with Iris")
                   }
                 });
+                
                 // listen for tesuser3 being created
                 socket.on("entityCreate", function (data) {
                   expect(data.username).toEqual("testuser3");
@@ -78,6 +82,7 @@ describe('Entity', function () {
           .expectHeaderContains('content-type', 'application/json')
           .afterJSON(function (res) {
             authenticated_user2 = res;
+            
             frisby.create('testuser2 should be able to request auth key')
               .post(baseurl + '/api/login',
                 { "username": "testuser2", "password": "test2" },
@@ -101,11 +106,20 @@ describe('Entity', function () {
                   }
 
                 });
+                
                 // listen for tesuser3 being created
                 socket.on("entityCreate", function (data) {
                   expect(data.username).toEqual("testuser3");
                   socket.disconnect();
                 });
+                
+                //connect as anonymous and listen to entityCreate of testuser3
+                var anon_socket = io(baseurl);
+                anon_socket.on("entityCreate", function (data) {
+                  expect(data.username).toEqual("testuser3");
+                  anon_socket.disconnect();
+                });
+
                 frisby.create('create testuser and emit entityCreate')
                   .post(baseurl + '/entity/create/user',
                     {
@@ -129,6 +143,7 @@ describe('Entity', function () {
                         { json: true })
                       .expectStatus(200)
                       .toss();
+                      
                     frisby.create('Delete test user 2')
                       .post(baseurl + '/entity/delete/user/' + authenticated_user2.eid,
                         {
@@ -137,6 +152,7 @@ describe('Entity', function () {
                         { json: true })
                       .expectStatus(200)
                       .toss();
+                      
                     frisby.create('Delete test user 2')
                       .post(baseurl + '/entity/delete/user/' + authenticated_user3.eid,
                         {
