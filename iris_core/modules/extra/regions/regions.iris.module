@@ -1,6 +1,6 @@
 {
   "name": "Regions",
-  "rank": 2,
+  "weight": 2,
   "dependencies": {
     "blocks": "1"
   }

@@ -1,5 +1,5 @@
 {
   "name": "Triggers",
   "description": "Events and actions",
-  "rank": 0
+  "weight": 0
 }

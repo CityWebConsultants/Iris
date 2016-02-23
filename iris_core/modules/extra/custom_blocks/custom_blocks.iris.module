@@ -1,6 +1,6 @@
 {
   "name": "Custom blocks",
-  "rank": 3,
+  "weight": 3,
    "dependencies": {
     "blocks": "1"
   }
