@@ -1,5 +1,5 @@
 {
   "name": "Permissions UI",
   "description": "Admin pages for administering user permissions",
-  "rank": 0
+  "weight": 0
 }
