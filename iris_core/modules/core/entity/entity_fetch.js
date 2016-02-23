@@ -548,65 +548,69 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     })
 
-  }
+    var entityType = entity.entityType;
 
-  var entityType = entity.entityType;
+    var schema = iris.dbSchemaConfig[entityType];
 
-  var schema = iris.dbSchemaConfig[entityType];
+    // Loop over all the fields on the entity
 
-  // Loop over all the fields on the entity
+    var fieldHooks = [];
 
-  var fieldHooks = [];
+    Object.keys(entity).forEach(function (field) {
 
-  Object.keys(entity).forEach(function (field) {
+      if (schema.fields[field] && schema.fields[field].fieldType) {
 
-    if (schema.fields[field] && schema.fields[field].fieldType) {
+        var fieldType = iris.sanitizeName(schema.fields[field].fieldType);
 
-      var fieldType = iris.sanitizeName(schema.fields[field].fieldType);
+        fieldHooks.push({
+          type: fieldType,
+          field: field
+        });
 
-      fieldHooks.push({
-        type: fieldType,
-        field: field
-      });
-
-    }
-
-  })
-
-  var fieldCheckedCounter = 0;
-
-  var fieldChecked = function () {
-
-    fieldCheckedCounter += 1;
-
-    if (fieldCheckedCounter === fieldHooks.length) {
-
-      thisHook.finish(true, entity);
-
-    }
-
-
-  }
-
-  // Run hook for each field
-
-  fieldHooks.forEach(function (field) {
-
-    iris.hook("hook_entity_view_field__" + field.type, thisHook.authPass, {
-      entityType: entity.entityType,
-      field: iris.dbSchemaConfig[entity.entityType].fields[field.field]
-    }, entity[field.field]).then(function (newValue) {
-
-      entity[field.field] = newValue;
-      fieldChecked();
-
-    }, function (fail) {
-
-      fieldChecked();
+      }
 
     })
 
-  })
+    var fieldCheckedCounter = 0;
+
+    var fieldChecked = function () {
+
+      fieldCheckedCounter += 1;
+
+      if (fieldCheckedCounter === fieldHooks.length) {
+
+        thisHook.finish(true, entity);
+
+      }
+
+
+    }
+
+    // Run hook for each field
+
+    fieldHooks.forEach(function (field) {
+
+      iris.hook("hook_entity_view_field__" + field.type, thisHook.authPass, {
+        entityType: entity.entityType,
+        field: iris.dbSchemaConfig[entity.entityType].fields[field.field]
+      }, entity[field.field]).then(function (newValue) {
+
+        entity[field.field] = newValue;
+        fieldChecked();
+
+      }, function (fail) {
+
+        fieldChecked();
+
+      })
+
+    })
+
+  } else {
+    
+    thisHook.finish(true, entity);
+    
+  }
 
 });
 
