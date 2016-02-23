@@ -102,12 +102,22 @@ iris.route.get("/admin/logs", {
 
   logs.forEach(function (element, index) {
 
-    //console.log('0', logs[index]);
-    logs[index] = iris.sanitizeEmbeds(logs[index]);
-
-    //console.log('1', logs[index]);
     logs[index] = JSON.parse(logs[index]);
-    //console.log('2', logs[index]);
+
+    Object.keys(logs[index]).forEach(function (element) {
+
+      if (logs[index][element]) {
+        
+        logs[index][element] = logs[index][element].toString();
+
+        logs[index][element] = iris.sanitizeEmbeds(logs[index][element]);
+
+        logs[index][element] = logs[index][element].split("{").join("<");
+        logs[index][element] = logs[index][element].split("}").join(">");
+
+      }
+
+    })
 
   });
 
