@@ -12,6 +12,66 @@ iris.configStore = {};
 iris.configPath = path.join(iris.sitePath, "/configurations");
 
 /**
+ * Syncronously saves a JavaScript object as a JSON configuration file.
+ *
+ * Additionally, adds the config to the configStore in memory.
+ *
+ * @param {object} contents - The object (of key-value pairs) to be saved
+ * @param {string} directory - The directory, under "<site path>/configurations", in which to store the file
+ * @param {string} filename - The name of the file
+ *
+ * @returns {boolean} 'err' boolean (false if operation successful)
+ */
+iris.saveConfigSync = function (contents, directory, filename, writeToFile) {
+
+  var current = iris.configStore;
+
+  directory.split("/").forEach(function (path) {
+
+    if (!current[path]) {
+
+      current[path] = {};
+
+    }
+
+    current = current[path];
+
+  });
+
+  current[filename] = contents;
+
+  if (writeToFile !== false) {
+
+    var filePath = path.join(iris.sitePath, "/configurations", directory);
+
+    var mkdirp = require('mkdirp');
+
+    try {
+      mkdirp.sync(filePath);
+      
+      //  Fire config saved hook
+
+      iris.hook("hook_config_saved", "root", {
+        contents: contents,
+        directory: directory,
+        filename: filename
+      });
+
+      return fs.writeFileSync(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8") || false;
+    } catch (e) {
+
+      iris.log("error", e);
+      return true;
+
+    }
+  }
+
+
+
+};
+
+
+/**
  * Saves a JavaScript object as a JSON configuration file.
  *
  * Additionally, adds the config to the configStore in memory.
@@ -94,7 +154,7 @@ iris.deleteConfig = function (directory, filename, callback) {
     if (iris.configStore[directory]) {
       delete iris.configStore[directory][filename];
     }
-    
+
   }
 
   var filePath = path.join(iris.sitePath, "/configurations", directory);
@@ -118,6 +178,57 @@ iris.deleteConfig = function (directory, filename, callback) {
 
 };
 
+/**
+ * Syncronously Reads a stored JSON configuration file
+ *
+ * Will attempt to read from the configStore cache.
+ *
+ * @param {string} directory - The directory, under "<site path>/configurations", in which the file is stored
+ * @param {string} filename - The name of the file
+ *
+ * @returns A promise which, if successful, has the config file as a JavaScript object as its first argument
+ */
+
+iris.readConfigSync = function (directory, filename) {
+
+  function defined(ref, strNames) {
+    var name;
+    var arrNames = strNames.split('/');
+
+    while (name = arrNames.shift()) {
+      if (!ref.hasOwnProperty(name)) {
+        return false;
+      }
+      ref = ref[name];
+    }
+
+    return ref;
+  }
+  var exists = defined(iris.configStore, directory + "/" + filename);
+
+  if (exists) {
+
+    return exists;
+
+  } else {
+    try {
+
+      var contents = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations" + "/" + directory + "/" + filename + ".json", "utf8"));
+
+      if (!iris.saveConfigSync(contents, directory, filename, false)) {
+        return contents;
+      }
+      else {
+        return false;
+      }
+
+
+    } catch (e) {
+      iris.log("error", e);
+      return false;
+    }
+  }
+}
 /**
  * Reads a stored JSON configuration file
  *
