@@ -66,7 +66,7 @@ iris.modules.system.registerHook("hook_form_render_themes", 0, function (thisHoo
       data.schema.activeTheme = {
         type: "text",
         title: "Active theme",
-        default: iris.modules.frontend.globals.activeTheme.name,
+        default: iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.name : null,
         enum: machineNames,
       }
 
