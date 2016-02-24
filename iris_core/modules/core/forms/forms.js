@@ -25,30 +25,40 @@ var toSource = require('tosource');
 iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
   // Call submit handlers that specify the form name
-  var specificFormSubmit = function (callback) {
+  var specificFormSubmit = function (data) {
 
-    if (typeof callback !== "function") {
+    if (typeof data !== "function") {
 
-      // If no callback is supplied provide a basic redirect to the same page
+      if (data.messages && data.messages.length > 0) {
 
-      var callback = function (res) {
+        thisHook.finish(true, function (res) {
 
-        res.json(thisHook.const.req.url);
+          res.json({messages : data.messages});
+
+        });
 
       }
+      else {
+        // If no callback is supplied provide a basic redirect to the same page
+        var callback = function (res) {
 
-      thisHook.finish(true, callback);
+          res.json(thisHook.const.req.url);
+
+        }
+
+        thisHook.finish(true, callback);
+      }
 
     } else {
 
-      thisHook.finish(true, callback);
+      thisHook.finish(true, data);
 
     }
 
   };
 
   // Call all generic submit handlers.
-  var genericFormSubmit = function (callbackfunction) {
+  var genericFormSubmit = function (data) {
 
     var previous = body.formPrevious;
 
@@ -60,7 +70,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       previous: previous,
       req: thisHook.const.req,
       res: thisHook.const.res
-    }, null).then(specificFormSubmit, function (fail) {
+    }, data).then(specificFormSubmit, function (fail) {
 
         thisHook.finish(false, fail);
 
@@ -72,7 +82,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
   var specificFormValidate = function (data) {
 
     // If any errors were found, do not trigger submit handlers.
-    if (data.errors) {
+    if (data.errors && data.errors.length > 0) {
 
       var callback = function (res) {
 
@@ -90,7 +100,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         params: body,
         formid: formid,
         req: thisHook.const.req
-      }).then(genericFormSubmit, function (fail) {
+      }, data).then(genericFormSubmit, function (fail) {
 
         thisHook.finish(false, fail);
 
@@ -157,7 +167,9 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         formid: formid,
         req: thisHook.const.req
       }, {
-        errors : []}
+        errors : [],
+        messages : []
+      }
       ).then(genericFormValidate, function (fail) {
 
         thisHook.finish(true, data);
@@ -423,6 +435,28 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
           else {
 
             $("[data-formid='" + values.formid + "'").prepend('<div class="form-errors">' + errorMessages + '</div>');
+
+          }
+
+        }
+        else if (data.messages && data.messages.length > 0) {
+
+          var messages = '';
+          data.messages.forEach(function (message) {
+
+            messages += "<div class='form-message'>" + message + "</div>";
+
+          });
+
+          // If the form-errors div already exists, replace it, otherwise add to top of form.
+          if ($('.form-messages', $("[data-formid='" + values.formid + "'")).length > 0) {
+
+            $('.form-messages', $("[data-formid='" + values.formid + "'")).html(messages);
+
+          }
+          else {
+
+            $("[data-formid='" + values.formid + "'").prepend('<div class="form-messages">' + messages + '</div>');
 
           }
 
