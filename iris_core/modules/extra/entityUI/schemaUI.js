@@ -641,7 +641,7 @@ iris.modules.entityUI.registerHook("hook_form_render_schemaFieldListing", 0, fun
             "onKeyUp": function (evt, node) {
               var label = $("input[name=label]").val();
               label = label.replace(/[^a-zA-Z]+/g, "_").toLowerCase();
-              $('#machineNameBuilder').html("field_" + label);
+              $('#machineNameBuilder').html(label);
               $("input[name=machineName]").val("field_" + label);
             }
           },
