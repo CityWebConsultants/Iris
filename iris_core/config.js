@@ -186,7 +186,7 @@ iris.deleteConfig = function (directory, filename, callback) {
  * @param {string} directory - The directory, under "<site path>/configurations", in which the file is stored
  * @param {string} filename - The name of the file
  *
- * @returns A promise which, if successful, has the config file as a JavaScript object as its first argument
+ * @returns file content object if successful and boolean false otherwise with error log in iris log
  */
 
 iris.readConfigSync = function (directory, filename) {
