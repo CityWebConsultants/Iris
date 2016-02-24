@@ -99,7 +99,7 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
     if (!hookcalls.length) {
 
-      no("No such hook exists");
+      yes(data);
 
     }
 

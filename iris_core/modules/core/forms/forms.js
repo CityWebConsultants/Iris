@@ -72,7 +72,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
   var specificFormValidate = function (data) {
 
     // If any errors were found, do not trigger submit handlers.
-    if (data.errors) {
+    if (data.errors.length > 0) {
 
       var callback = function (res) {
 
@@ -391,7 +391,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       dataType: "json",
       success: function (data) {
 
-        if (data.errors) {
+        if (data.errors && data.errors.length > 0) {
 
           $("body").animate({
             scrollTop: $("[data-formid='" + values.formid + "'").offset().top
@@ -433,15 +433,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         } else {
 
-          if (data && data.indexOf("doctype") === -1) {
-
-            window.location.href = data;
-
-          } else {
-
-            window.location.href = window.location.href;
-
-          }
+          window.location.href = window.location.href;
 
         }
 
