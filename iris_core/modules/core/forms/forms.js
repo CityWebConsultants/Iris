@@ -203,25 +203,6 @@ iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data)
 
 });
 
-iris.modules.forms.registerHook("hook_form_validate", 0, function (thisHook, data) {
-
-  data.errors.push({
-    message : "Generic error"
-  });
-  thisHook.finish(true, data);
-
-});
-
-iris.modules.forms.registerHook("hook_form_validate_login", 0, function (thisHook, data) {
-
-  data.errors.push({
-    message : "specific error",
-    field: "username"
-  });
-  thisHook.finish(true, data);
-
-});
-
 iris.route.get("/modules/forms/extrafields.js", function (req, res) {
 
   var output = "iris.forms = {}" + "\n";
