@@ -12,21 +12,13 @@ iris.modules.custom_blocks.registerHook("hook_form_render_blockForm_Custom-HTML"
 
   // Add in fields
 
-  var form = {
-    "contents": {
-      "type": "textarea",
-      "title": "Body",
-      "description": "Custom HTML body for this block.",
-      "default": currentContents,
-    },
+  data.schema.contents = {
+    "type": "textarea",
+    "title": "Body",
+    "description": "Custom HTML body for this block.",
+    "default": currentContents,
   };
-
-  Object.keys(form).forEach(function (formField) {
-
-    data.schema[formField] = form[formField];
-
-  })
-
+  
   thisHook.finish(true, data);
 
 });
@@ -34,11 +26,10 @@ iris.modules.custom_blocks.registerHook("hook_form_render_blockForm_Custom-HTML"
 // Render those blocks!
 
 iris.modules.custom_blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
-
+  
   if (thisHook.const.type === "Custom-HTML") {
 
     thisHook.finish(true, thisHook.const.config.contents);
-    return true;
 
   }
 
