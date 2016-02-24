@@ -24,6 +24,96 @@ var toSource = require('tosource');
  */
 iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
+  // Call submit handlers that specify the form name
+  var specificFormSubmit = function (callback) {
+
+    if (typeof callback !== "function") {
+
+      // If no callback is supplied provide a basic redirect to the same page
+
+      var callback = function (res) {
+
+        res.json(thisHook.const.req.url);
+
+      }
+
+      thisHook.finish(true, callback);
+
+    } else {
+
+      thisHook.finish(true, callback);
+
+    }
+
+  };
+
+  // Call all generic submit handlers.
+  var genericFormSubmit = function (callbackfunction) {
+
+    var previous = body.formPrevious;
+
+    delete body.formPrevious;
+
+    iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
+      params: body,
+      formid: formid,
+      previous: previous,
+      req: thisHook.const.req,
+      res: thisHook.const.res
+    }, null).then(specificFormSubmit, function (fail) {
+
+        thisHook.finish(false, fail);
+
+    });
+
+  };
+
+  // Run all validation hooks specific to the form being procesed.
+  var specificFormValidate = function (data) {
+
+    // If any errors were found, do not trigger submit handlers.
+    if (data.errors) {
+
+      var callback = function (res) {
+
+        res.json({
+          errors: data.errors
+        });
+
+      }
+
+      thisHook.finish(true, callback);
+
+    }
+    else {
+      iris.hook("hook_form_submit", thisHook.authPass, {
+        params: body,
+        formid: formid,
+        req: thisHook.const.req
+      }).then(genericFormSubmit, function (fail) {
+
+        thisHook.finish(false, fail);
+
+      });
+    }
+  };
+
+  var genericFormValidate = function (data) {
+
+    iris.hook("hook_form_validate_" + formid, thisHook.authPass, {
+      params: body,
+      formid: formid,
+      req: thisHook.const.req
+    }, data).then(specificFormValidate, function (fail) {
+
+      thisHook.finish(false, fail);
+
+    });
+
+  };
+
+
+
   if (thisHook.const.req.method === "POST") {
 
     var body = thisHook.const.req.body;
@@ -61,94 +151,20 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       delete thisHook.const.req.body.formToken;
       delete thisHook.const.req.body.formid;
 
-      iris.hook("hook_form_submit", thisHook.authPass, {
+
+      iris.hook("hook_form_validate", thisHook.authPass, {
         params: body,
         formid: formid,
         req: thisHook.const.req
-      }).then(function (callbackfunction) {
-        
-        var previous = body.formPrevious;
-        
-        delete body.formPrevious;
-        
-        iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
-          params: body,
-          formid: formid,
-          previous: previous,
-          req: thisHook.const.req,
-          res: thisHook.const.res
-        }, null).then(function (callback) {
-
-          if (typeof callback !== "function") {
-
-            // If no callback is supplied provide a basic redirect to the same page
-
-            var callback = function (res) {
-
-              res.json(thisHook.const.req.url);
-
-            }
-
-            thisHook.finish(true, callback);
-
-          } else {
-
-            thisHook.finish(true, callback);
-
-          }
-
-          // Stop form being submitted a second time
-
-          //          delete iris.modules.forms.globals.formRenderCache[body.formToken];
-
-        }, function (fail) {
-
-
-          if (fail === "No such hook exists") {
-
-            // Default form if not handler
-
-            if (typeof callbackfunction !== "function") {
-
-              // If no callback is supplied provide a basic redirect to the same page
-
-              var callback = function (res) {
-
-                res.json({
-                  errors: fail
-                });
-
-              }
-
-              thisHook.finish(true, callbackfunction);
-
-            } else {
-
-              thisHook.finish(true, callbackfunction);
-
-            }
-
-          } else {
-
-            var callback = function (res) {
-
-              res.json({
-                errors: fail
-              });
-
-            }
-
-            thisHook.finish(true, callback);
-
-          }
-
-        });
-
-      }, function (fail) {
+      }, {
+        errors : []}
+      ).then(genericFormValidate, function (fail) {
 
         thisHook.finish(true, data);
 
       });
+
+
 
     } else {
 
@@ -162,7 +178,10 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
   }
 
+
+
 });
+
 
 /**
  * @member hook_form_submit
@@ -374,13 +393,41 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         if (data.errors) {
 
-          $("html, body").animate({
-            scrollTop: 0
-          }, "slow");
+          $("body").animate({
+            scrollTop: $("[data-formid='" + values.formid + "'").offset().top
+          }, "fast");
 
-          $("[data-formid='" + values.formid + "'").prepend("<div class='form-errors'>" + data.errors + "</div>")
+          var errorMessages = '';
 
-        } else if (data.redirect) {
+          // As this may be a second submission attempt, clear all field errors.
+          $('.form-control', $("[data-formid='" + values.formid + "'")).removeClass('error');
+
+          for (var i = 0; i < data.errors.length; i++) {
+
+            errorMessages += "<div class='form-error'>" + data.errors[i].message + "</div>";
+
+            if (data.errors[i].field) {
+
+              $("input[name=" + data.errors[i].field + ']').addClass('error');
+
+            }
+
+          };
+
+          // If the form-errors div already exists, replace it, otherwise add to top of form.
+          if ($('.form-errors', $("[data-formid='" + values.formid + "'")).length > 0) {
+
+            $('.form-errors', $("[data-formid='" + values.formid + "'")).html(errorMessages);
+
+          }
+          else {
+
+            $("[data-formid='" + values.formid + "'").prepend('<div class="form-errors">' + errorMessages + '</div>');
+
+          }
+
+        }
+        else if (data.redirect) {
 
           window.location.href = data.redirect;
 
