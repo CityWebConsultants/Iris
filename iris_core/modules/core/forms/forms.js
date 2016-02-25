@@ -38,6 +38,13 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         });
 
       }
+      else if (data.callback && data.callback.length > 0) {
+
+        thisHook.finish(true, function (res) {
+          res.json(data.callback);
+        });
+
+      }
       else {
         // If no callback is supplied provide a basic redirect to the same page
         var callback = function (res) {
@@ -168,7 +175,8 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         req: thisHook.const.req
       }, {
         errors : [],
-        messages : []
+        messages : [],
+        callback: null
       }
       ).then(genericFormValidate, function (fail) {
 
