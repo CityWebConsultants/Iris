@@ -38,7 +38,7 @@ module.exports = function (config) {
     });
 
   };
-  
+
   // Store helper paths
 
   iris.rootPath = path.resolve(__dirname + "/../");
@@ -57,7 +57,7 @@ module.exports = function (config) {
   // Launch logging module
 
   require("./log");
-  
+
   // Launch user messaging module
 
   require("./message");
@@ -342,17 +342,20 @@ module.exports = function (config) {
         },
         function (fail) {
 
+          iris.log("error", "Error on request to " + req.url);
+          iris.log("error", fail);
+
           iris.hook("hook_display_error_page", req.authPass, {
-            error: 404,
+            error: 500,
             req: req,
             res: res
           }).then(function (success) {
 
-            res.status(404).send(success);
+            res.status(500).send(success);
 
           }, function (fail) {
 
-            res.status(404).send("404");
+            res.status(500).send("500");
 
           });
 
