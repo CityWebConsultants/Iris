@@ -15,7 +15,7 @@
  */
 iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
-  if (thisHook.const) {
+  if (thisHook.const && !data) {
     data = thisHook.const;
   }
 
