@@ -527,12 +527,12 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
       iris.hook("hook_entity_field_fieldType_save__" + iris.sanitizeName(field.fieldType), thisHook.authPass, {
         value: value,
         field: field
-      }).then(function (newValue) {
+      }, value).then(function (newValue) {
 
         iris.hook("hook_entity_field_fieldTypeType_save__" + fieldTypeType, thisHook.authPass, {
           value: newValue,
           field: field
-        }).then(function (finalValue) {
+        }, value).then(function (finalValue) {
 
           callback(finalValue);
 
@@ -540,21 +540,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
 
       }, function (fail) {
 
-        if (fail === "No such hook exists") {
-
-          iris.hook("hook_entity_field_fieldTypeType_save__" + fieldTypeType, thisHook.authPass, {
-            value: value,
-            field: field
-          }).then(function (finalValue) {
-
-            callback(finalValue);
-
-          });
-
-        } else {
-
-
-        }
+        thisHook.finish(false, fail);
 
       })
 
