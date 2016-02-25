@@ -405,9 +405,9 @@ iris.app.get("/fetch", function (req, res) {
 
   var failed;
 
-  if (req.body.entities) {
+  if (req.query.entities) {
 
-    req.body.entities.forEach(function (entityType) {
+    req.query.entities.forEach(function (entityType) {
 
       if (!iris.modules.auth.globals.checkPermissions(["can fetch " + entityType], req.authPass)) {
 
@@ -433,7 +433,7 @@ iris.app.get("/fetch", function (req, res) {
   }
 
 
-  iris.hook("hook_entity_fetch", req.authPass, null, req.body).then(function (success) {
+  iris.hook("hook_entity_fetch", req.authPass, null, req.query).then(function (success) {
 
     res.respond(200, success);
 

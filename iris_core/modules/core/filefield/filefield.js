@@ -180,9 +180,7 @@ iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__file", 0,
 
     } else {
 
-      iris.log("error", err);
-
-      thisHook.finish(true, null);
+      thisHook.finish(true, value);
 
     }
 
