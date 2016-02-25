@@ -110,3 +110,15 @@ iris.app.post('/admin/file/ckeditorupload', function (req, res) {
   });
 
 });
+
+/*
+ * Add to custom blocks form
+ */
+
+iris.modules.ckeditor.registerHook("hook_form_render_blockForm_Custom-HTML", 1, function (thisHook, data) {
+
+  data.schema.contents.type = "ckeditor";
+
+  thisHook.finish(true, data);
+
+});

@@ -150,7 +150,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
             type: blockType,
             instanceSettings: settings,
             config: iris.modules.blocks.globals.blocks[blockType][blockName],
-            context: thisHook.const.context
+            context: thisHook.const.vars
           }
 
           blockPromises.push(function (object) {
@@ -220,9 +220,9 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
 var minimatch = require("minimatch");
 
 iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, data) {
-
+  
   if (thisHook.const.instanceSettings) {
-
+    
     if (thisHook.const.instanceSettings.pathVisibility) {
 
       // Flag to see if showing the block or not
@@ -230,7 +230,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
       var showing = true;
 
       var paths = thisHook.const.instanceSettings.pathVisibility.replace(/\r\n/g, '\n').split("\n");
-
+            
       if (thisHook.const.context && thisHook.const.context.req && thisHook.const.context.req.url) {
 
         var currentUrl = thisHook.const.context.req.url;
@@ -240,7 +240,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
         paths.forEach(function (path) {
 
           var showing = minimatch(currentUrl, path);
-
+          
         })
 
         thisHook.finish(showing, data);
