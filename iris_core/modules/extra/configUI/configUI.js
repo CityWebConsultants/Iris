@@ -119,7 +119,7 @@ iris.app.get("/admin/config/diff", function (req, res) {
 
   try {
 
-    current = fs.readFileSync(iris.configPath + req.body.path, "utf8")
+    current = fs.readFileSync(iris.configPath + req.query.path, "utf8")
 
   } catch (e) {
 
@@ -128,7 +128,7 @@ iris.app.get("/admin/config/diff", function (req, res) {
 
   try {
 
-    staging = fs.readFileSync(iris.sitePath + "/staging" + req.body.path, "utf8")
+    staging = fs.readFileSync(iris.sitePath + "/staging" + req.query.path, "utf8")
 
   } catch (e) {
 
