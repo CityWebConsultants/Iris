@@ -413,7 +413,7 @@ iris.app.get("/fetch", function (req, res) {
 
         iris.log("warn", "User " + req.authPass.userid + " was denied access to fetch " + entityType + " list ");
 
-        res.status(403).send("Cannot fetch");
+        res.status(403).json("Cannot fetch");
         failed = true;
 
       };
@@ -422,7 +422,7 @@ iris.app.get("/fetch", function (req, res) {
 
   } else {
 
-    res.status(400).send("Not a valid entity fetch query");
+    res.status(400).json("Not a valid entity fetch query");
 
   }
 

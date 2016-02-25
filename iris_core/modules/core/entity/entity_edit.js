@@ -222,12 +222,11 @@ iris.app.post("/entity/edit/:type/:eid", function (req, res) {
 
     if (fail.code) {
 
-      res.status(fail.code);
+      res.status(fail.code).json();
 
     }
     else {
-      res.status(400);
-      res.send(fail.toString());
+      res.status(400).json(fail.toString());
     }
 
   });

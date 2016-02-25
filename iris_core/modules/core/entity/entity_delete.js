@@ -134,7 +134,7 @@ iris.app.post("/entity/delete/:type/:eid", function (req, res) {
 
   }, function (fail) {
 
-    res.send(fail);
+    res.json(fail);
 
   });
 
