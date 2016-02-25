@@ -18,7 +18,7 @@ iris.route.post("/api/user/first", function (req, res) {
 
   if (!req.body.password || !req.body.username) {
 
-    res.status(400).send("Need to supply a username and a password");
+    res.status(400).json("Need to supply a username and a password");
 
     return false;
 
@@ -35,17 +35,17 @@ iris.route.post("/api/user/first", function (req, res) {
         }
       }, null).then(function (success) {
 
-        res.status(200).send("First user created");
+        res.status(200).json("First user created");
 
       }, function (fail) {
 
-        res.status(400).send(fail);
+        res.status(400).json(fail);
 
       })
 
     } else {
 
-      res.status(403).send("Admin user already set up");
+      res.status(403).json("Admin user already set up");
 
     }
 
