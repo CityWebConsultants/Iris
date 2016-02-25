@@ -80,6 +80,8 @@ iris.app.use(function (req, res, next) {
 
     }
 
+    res.header('Content-Type', 'application/json');
+
     res.status(code);
 
     res.end(JSON.stringify(response));

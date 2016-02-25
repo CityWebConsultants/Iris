@@ -194,17 +194,17 @@ iris.app.post("/entity/create/:type", function (req, res) {
 
   iris.hook("hook_entity_create", req.authPass, null, req.body).then(function (success) {
 
-    res.send(success);
+    res.json(success);
 
   }, function (fail) {
 
     if (fail.code) {
 
-      res.status(fail.code);
+      res.status(fail.code).json();
 
     } else {
 
-      res.status(400);
+      res.status(400).json();
 
     }
 
