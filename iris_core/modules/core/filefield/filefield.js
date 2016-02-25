@@ -180,9 +180,20 @@ iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__file", 0,
 
     } else {
 
-      iris.log("error", err);
+      try {
 
-      thisHook.finish(true, null);
+        fs.readFile(iris.sitePath + '/temp/' + value, function (err, data) {
+
+          thisHook.finish(true, "/files/" + value);
+
+        });
+
+      } catch (e) {
+        
+        thisHook.finish(true, null);
+
+      }
+
 
     }
 
