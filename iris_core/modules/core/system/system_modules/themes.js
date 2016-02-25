@@ -111,6 +111,6 @@ iris.modules.system.registerHook("hook_form_submit_themes", 0, function (thisHoo
 
   iris.restart(thisHook.authPass.userid, "themes page");
 
-  thisHook.finish(true);
+  thisHook.finish(true, data);
 
 });
