@@ -113,12 +113,6 @@ iris.app.use(function (req, res, next) {
 
   }
 
-  if (Object.keys(req.query).length) {
-
-    req.body = Object.assign(req.query, req.body);
-
-  }
-
   Object.keys(req.body).forEach(function (element) {
 
     try {
