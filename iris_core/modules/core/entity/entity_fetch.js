@@ -188,14 +188,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     entityTypes.forEach(function (type) {
 
-      //First check if the user can view those entities.
-
-      if (!iris.modules.auth.globals.checkPermissions(["can view any " + type], thisHook.authPass) && !iris.modules.auth.globals.checkPermissions(["can view own " + type], thisHook.authPass)) {
-
-        return false;
-
-      }
-
       dbActions.push(iris.promise(function (data, yes, no) {
 
           var util = require("util");
@@ -267,6 +259,11 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
           //General entity view hook
 
           iris.hook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
+
+            if (viewChecked === undefined) {
+              no("permission denied");
+              return false;
+            }
 
             entities[_id] = viewChecked;
 
@@ -479,10 +476,12 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
   // Check if user can see entity type
 
-  if (!iris.modules.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass) && !iris.modules.auth.globals.checkPermissions(["can view own " + entity.entityType], thisHook.authPass)) {
+  var isOwn = thisHook.authPass.userid == entity.entityAuthor;
+  var viewOwn = iris.modules.auth.globals.checkPermissions(["can view own " + entity.entityType], thisHook.authPass);
+  var viewAny = iris.modules.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass);
+  if (!viewAny && !(isOwn && viewOwn)) {
 
       //Can't view any of this type, delete it
-
       entity = undefined;
 
   }
