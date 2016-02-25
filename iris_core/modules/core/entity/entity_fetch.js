@@ -190,7 +190,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
       //First check if the user can view those entities.
 
-      if (!iris.modules.auth.globals.checkPermissions(["can view any " + type], thisHook.authPass)) {
+      if (!iris.modules.auth.globals.checkPermissions(["can view any " + type], thisHook.authPass) && !iris.modules.auth.globals.checkPermissions(["can view own " + type], thisHook.authPass)) {
 
         return false;
 
@@ -479,26 +479,14 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
   // Check if user can see entity type
 
-  if (!iris.modules.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass)) {
-
-    if (!iris.modules.auth.globals.checkPermissions(["can view own " + entity.entityType], thisHook.authPass)) {
+  if (!iris.modules.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass) && !iris.modules.auth.globals.checkPermissions(["can view own " + entity.entityType], thisHook.authPass)) {
 
       //Can't view any of this type, delete it
 
       entity = undefined;
 
-    } else {
-
-      // Check if owned by user
-
-      if (entity.entityAuthor !== thisHook.authPass.userid) {
-
-        entity = undefined;
-
-      }
-
-    }
   }
+
 
   // Strip out any fields on the entity that a user shouldn't be able to see according to field permissions
 
