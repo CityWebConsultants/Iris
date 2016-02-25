@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+  - "5.5"
+#before_install:
+#  - sudo apt-get install -y mongodb-org
+before_script:
+  - npm install grunt-cli -g
+  - npm install jasmine-node -g
+  - npm install
+  - mongo mydb_test --eval 'db.addUser("travis", "test");'
+  - node iris.js site=default &
+services:
+  - mongodb
+env: site=default
+addons:
+  hosts:
+    - www.iris.local
+
