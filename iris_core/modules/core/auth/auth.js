@@ -529,13 +529,13 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
     } else {
 
-      thisHook.finish(true);
+      thisHook.finish(true, data);
 
     }
 
   } else {
 
-    thisHook.finish(true);
+    thisHook.finish(true, data);
 
   }
 
