@@ -538,7 +538,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
   if (thisHook.const.embedParams[0]) {
 
     var searchArray = thisHook.const.embedParams[0].split("__");
-    
+
     // Get template
 
     iris.modules.frontend.globals.parseTemplateFile(searchArray, null, thisHook.const.vars, thisHook.authPass, thisHook.const.vars.req).then(function (success) {
@@ -546,7 +546,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
       thisHook.finish(true, success)
 
     }, function (fail) {
-      
+
       iris.log("error", "Tried to embed template " + thisHook.const.embedParams[0] + " but no matching template file found.");
 
       thisHook.finish(true, "");
@@ -624,7 +624,10 @@ var parseEmbeds = function (html, variables, authPass) {
             } else {
 
               finished();
-              iris.log("error", fail);
+
+              if (fail) {
+                iris.log("error", fail);
+              }
 
             }
 
