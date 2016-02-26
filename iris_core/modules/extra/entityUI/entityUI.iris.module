@@ -1,5 +1,5 @@
 {
   "name": "Entity UI",
   "description": "Admin pages for editing schemas and entities",
-  "rank": 0
+  "weight": 0
 }

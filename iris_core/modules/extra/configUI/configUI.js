@@ -4,11 +4,6 @@
 
 var ncp = require('ncp').ncp;
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/config", "Config", 1);
-
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/export", "Export config", 1);
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/config", "/admin/config/import", "Import config", 1);
 iris.app.get("/admin/api/config/export", function (req, res) {
 
   ncp(iris.configPath, iris.sitePath + "/staging", function (err) {
@@ -31,8 +26,25 @@ iris.app.get("/admin/api/config/import", function (req, res) {
 
 });
 
+iris.route.get("/admin/config", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Config"
+  }]
+}, function (req, res) {
 
-iris.app.get("/admin/config/export", function (req, res) {
+  res.send("Config top level to go here.")
+
+});
+
+iris.route.get("/admin/config/export", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/config",
+    title: "Config export"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 
@@ -58,7 +70,13 @@ iris.app.get("/admin/config/export", function (req, res) {
 
 });
 
-iris.app.get("/admin/config/import", function (req, res) {
+iris.route.get("/admin/config/import", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/config",
+    title: "Config import"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 
@@ -101,7 +119,7 @@ iris.app.get("/admin/config/diff", function (req, res) {
 
   try {
 
-    current = fs.readFileSync(iris.configPath + req.body.path, "utf8")
+    current = fs.readFileSync(iris.configPath + req.query.path, "utf8")
 
   } catch (e) {
 
@@ -110,7 +128,7 @@ iris.app.get("/admin/config/diff", function (req, res) {
 
   try {
 
-    staging = fs.readFileSync(iris.sitePath + "/staging" + req.body.path, "utf8")
+    staging = fs.readFileSync(iris.sitePath + "/staging" + req.query.path, "utf8")
 
   } catch (e) {
 
@@ -130,7 +148,13 @@ iris.app.get("/admin/config/diff", function (req, res) {
 
 // Config page
 
-iris.app.get("/admin/config/", function (req, res) {
+iris.route.get("/admin/config", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Config"
+  }]
+}, function (req, res) {
 
   // Get list of config clashes
 
@@ -146,28 +170,12 @@ iris.app.get("/admin/config/", function (req, res) {
 
     }
 
-    // Load in admin menu
-
-    var structureMenu = {};
-
-    if (iris.configStore["menu"]["admin_toolbar"]) {
-
-      iris.configStore["menu"]["admin_toolbar"].items.forEach(function (item) {
-
-        if (item.path === "/admin/config") {
-
-          configMenu = item;
-
-        }
-
-      })
-
-    }
-
     var fs = require('fs');
 
+    var menu = iris.modules.menu.globals.getBaseLinks(req.url);
+
     iris.modules.frontend.globals.parseTemplateFile(["admin_config"], ['admin_wrapper'], {
-      configMenu: configMenu,
+      configMenu: menu,
       clashes: clashes
     }, req.authPass, req).then(function (success) {
 
@@ -257,4 +265,3 @@ var showConfigDiff = function (callback) {
   callback(output);
 
 }
-

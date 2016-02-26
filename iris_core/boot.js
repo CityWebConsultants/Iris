@@ -2,10 +2,9 @@
 "use strict";
 
 /**
- * @file Boot-up process for Iris - prepares all modules, manages HTTP requests, provides config storage 
+ * @file Boot-up process for Iris - prepares all modules, manages HTTP requests 
  * functions.
  */
-
 
 module.exports = function (config) {
 
@@ -13,7 +12,12 @@ module.exports = function (config) {
 
   global.iris = {};
 
+  //Load in helper utilities
+
+  require('./utils');
+
   var path = require('path');
+  var fs = require('fs');
 
   // Restart function
 
@@ -31,7 +35,7 @@ module.exports = function (config) {
 
       process.send("restart");
 
-    })
+    });
 
   };
 
@@ -52,196 +56,17 @@ module.exports = function (config) {
 
   // Launch logging module
 
-  require("./log")(config.logdays);
+  require("./log");
 
   // Launch user messaging module
 
   require("./message");
 
-  //Make config folder
-
-  var fs = require('fs');
-
-  var mkdirSync = function (path) {
-    try {
-      fs.mkdirSync(path);
-    } catch (e) {
-      if (e.code !== 'EEXIST') {
-        throw e;
-      }
-    }
-  };
-
-  mkdirSync(iris.sitePath + "/" + "configurations");
-
-  iris.configStore = {};
-
-  iris.configPath = path.join(iris.sitePath, "/configurations");
-
-  /**
-   * Saves a JavaScript object as a JSON configuration file.
-   *
-   * Additionally, adds the config to the configStore in memory.
-   *
-   * @param {object} contents - The object (of key-value pairs) to be saved
-   * @param {string} directory - The directory, under "<site path>/configurations", in which to store the file
-   * @param {string} filename - The name of the file
-   * @param {function} callback - The callback to run once the file has been saved
-   *
-   * @returns Runs callback with 'err' boolean (false if operation successful)
-   */
-  iris.saveConfig = function (contents, directory, filename, callback, writeToFile) {
-
-    var current = iris.configStore;
-
-    directory.split("/").forEach(function (path) {
-
-      if (!current[path]) {
-
-        current[path] = {};
-
-      }
-
-      current = current[path];
-
-    });
-
-    current[filename] = contents;
-
-    if (writeToFile !== false) {
-
-      var filePath = path.join(iris.sitePath, "/configurations", directory);
-
-      var mkdirp = require('mkdirp');
-
-      mkdirp(filePath, function (err) {
-        if (err) {
-          iris.log("error", err);
-        } else {
-          fs.writeFile(filePath + "/" + filename + ".json", JSON.stringify(contents), "utf8", callback);
-        }
-      });
-    }
-
-    // Fire config saved hook
-
-    iris.hook("hook_config_saved", "root", {
-      contents: contents,
-      directory: directory,
-      filename: filename
-    });
-
-  };
-
-  /**
-   * Deletes a saved JSON config file
-   *
-   * Additionally, the saved configStore for the file will be deleted
-   *
-   * @param {string} directory - The directory, under "<site path>/configurations", in which the file is stored
-   * @param {string} filename - The name of the file
-   * @param {string} callback - The callback to run once completed
-   *
-   * @returns Runs callback with 'err' boolean (false if operation successful)
-   */
-  iris.deleteConfig = function (directory, filename, callback) {
-
-    var splitDirectory = directory.split('/');
-
-    if (splitDirectory.length > 1) {
-
-      // Get last parts of the directory, used as key in config store
-      var configStoreCategory = splitDirectory[splitDirectory.length - 2];
-      var configStoreInstance = splitDirectory[splitDirectory.length - 1];
-
-      delete iris.configStore[configStoreCategory][configStoreInstance][filename];
-
-    } else {
-
-      delete iris.configStore[directory][filename];
-
-    }
-
-    var filePath = path.join(iris.sitePath, "/configurations", directory);
-
-    filePath = filePath + '/' + filename + '.json';
-
-    fs.unlink(filePath, function (err) {
-
-      if (err) {
-
-        // Return err = true
-        callback(true);
-
-      } else {
-
-        callback(false);
-
-      }
-
-    });
-
-  };
-
-  /**
-   * Reads a stored JSON configuration file
-   *
-   * Will attempt to read from the configStore cache.
-   *
-   * @param {string} directory - The directory, under "<site path>/configurations", in which the file is stored
-   * @param {string} filename - The name of the file
-   *
-   * @returns A promise which, if successful, has the config file as a JavaScript object as its first argument
-   */
-  iris.readConfig = function (directory, filename) {
-
-    return new Promise(function (yes, no) {
-
-      function defined(ref, strNames) {
-        var name;
-        var arrNames = strNames.split('/');
-
-        while (name = arrNames.shift()) {
-          if (!ref.hasOwnProperty(name)) {
-            return false;
-          }
-          ref = ref[name];
-        }
-
-        return ref;
-      }
-
-      var exists = defined(iris.configStore, directory + "/" + filename);
-
-      if (exists) {
-
-        yes(exists);
-
-      } else {
-
-        try {
-
-          var contents = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations" + "/" + directory + "/" + filename + ".json", "utf8"));
-
-          iris.saveConfig(contents, directory, filename, null, false);
-
-          yes(contents);
-
-        } catch (e) {
-
-          no(e);
-
-        }
-
-      }
-
-    });
-
-  };
+  require("./config");
 
   //Make files directory
 
-  mkdirSync(iris.sitePath + "/" + "files");
+  iris.mkdirSync(iris.sitePath + "/" + "files");
 
   //Fetch command line parameters
 
@@ -284,10 +109,6 @@ module.exports = function (config) {
   //Hook system
 
   iris.hook = require('./hook');
-
-  //Load in helper utilities
-
-  require('./utils');
 
   //Require HTTP sever
 
@@ -339,8 +160,6 @@ module.exports = function (config) {
 
     require('./modules/core/paths/paths.js');
 
-    require('./modules/core/textfilters/textfilters.js');
-
     try {
 
       var file = fs.readFileSync(process.cwd() + '/enabled_modules.json');
@@ -377,10 +196,11 @@ module.exports = function (config) {
       var moduleInfoPath = lookup[lookup.length - 1];
 
       var modulePath = lookup[lookup.length - 1].replace(".iris.module", ".js");
+      var moduleInfo;
 
       try {
 
-        var moduleInfo = JSON.parse(fs.readFileSync(moduleInfoPath));
+        moduleInfo = JSON.parse(fs.readFileSync(moduleInfoPath));
 
       } catch (e) {
 
@@ -428,7 +248,7 @@ module.exports = function (config) {
 
           iris.log("error", e);
 
-        };
+        }
 
       }
 
@@ -522,17 +342,20 @@ module.exports = function (config) {
         },
         function (fail) {
 
+          iris.log("error", "Error on request to " + req.url);
+          iris.log("error", fail);
+
           iris.hook("hook_display_error_page", req.authPass, {
-            error: 404,
+            error: 500,
             req: req,
             res: res
           }).then(function (success) {
 
-            res.status(404).send(success);
+            res.status(500).send(success);
 
           }, function (fail) {
 
-            res.status(404).send("404");
+            res.status(500).send("500");
 
           });
 

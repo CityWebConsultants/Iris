@@ -33,6 +33,18 @@ iris.sendSocketMessage = function (userids, message, data) {
 
   }
 
+  if (userids.indexOf("anon") !== -1) {
+
+    var connected_socket = iris.socketServer.clients().connected;
+    Object.keys(connected_socket).forEach(function (client) {
+      if(!connected_socket[client].authPass){
+        connected_socket[client].emit(message, data)
+      }
+    });
+
+
+  }
+
   userids.forEach(function (userid) {
 
     var user = iris.modules.auth.globals.userList[userid];

@@ -5,9 +5,9 @@
   {{#each menuList}}
 
   <li>
-    {{@key}} <a href="/admin/structure/menu/edit/{{@key}}">- edit</a> </li>
+    {{this}} <a href="/admin/structure/menu/edit/{{this}}">- edit</a> <a href="/admin/structure/menu/delete/{{this}}">delete</a> </li>
   {{/each}}
-
+  
 </ul>
 
 <a class="btn btn-primary" href="/admin/structure/menu/create">Create new menu </a>

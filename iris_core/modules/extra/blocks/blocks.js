@@ -6,10 +6,6 @@
  * @namespace blocks
  */
 
-// Register menu item
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/blocks", "Blocks", 1);
-
 /**
  * @member blockTypes
  * @memberof blocks
@@ -50,7 +46,9 @@ iris.modules.forms.registerHook("hook_form_submit_newBlockForm", 0, function (th
 
   data = function (res) {
 
-    res.send("/admin/blocks/create/" + thisHook.const.params.blockType)
+    res.json({
+      redirect: "/admin/blocks/create/" + thisHook.const.params.blockType
+    })
 
   }
 
@@ -204,71 +202,57 @@ glob(iris.configPath + "/blocks/*/*.json", function (er, files) {
 
 })
 
-iris.modules.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (thisHook, data) {
+  
+  var blockType = thisHook.const.embedParams[0],
+    blockName = thisHook.const.embedParams[1];
 
-  iris.modules.frontend.globals.parseEmbed("block", data.html, function (block, next) {
+  if (!blockName || !blockType) {
 
-    var blockType = block[0],
-      blockName = block[1];
+    thisHook.finish(true, "");
+    return false;
 
-    if (!blockName || !blockType) {
+  } else {
 
-      next("<!--- Could not load block " + block + " --->");
-      return false;
+    // Correct parameters, now let's see if we can load a block from config
 
-    } else {
+    if (iris.modules.blocks.globals.blocks[blockType] && iris.modules.blocks.globals.blocks[blockType][blockName]) {
 
-      // Correct parameters, now let's see if we can load a block from config
+      var parameters = {
 
-      if (iris.modules.blocks.globals.blocks[blockType] && iris.modules.blocks.globals.blocks[blockType][blockName]) {
-
-        var parameters = {
-
-          id: blockName,
-          type: blockType,
-          config: iris.modules.blocks.globals.blocks[blockType][blockName]
-
-        }
-
-        iris.hook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
-
-          if (!html) {
-
-            next("<!--- Could not load block " + block + " --->");
-
-          } else {
-
-            // Block loaded!
-
-            next(html);
-
-          }
-
-        }, function (fail) {
-
-          next("<!--- Could not load block " + block + " --->");
-
-        })
-
-      } else {
-
-        next("<!--- Could not load block " + block + " --->");
+        id: blockName,
+        type: blockType,
+        config: iris.modules.blocks.globals.blocks[blockType][blockName]
 
       }
 
+      iris.hook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
+
+        if (!html) {
+
+          thisHook.finish(true, "");
+
+        } else {
+
+          // Block loaded!
+
+          thisHook.finish(true, html);
+
+        }
+
+      }, function (fail) {
+
+        thisHook.finish(true, "");
+
+      })
+
+    } else {
+
+      thisHook.finish(true, "");
+
     }
 
-  }).then(function (html) {
-
-    data.html = html;
-
-    thisHook.finish(true, data)
-
-  }, function (fail) {
-
-    thisHook.finish(true, data)
-
-  });
+  }
 
 });
 
@@ -352,12 +336,6 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
       type: "hidden",
       default: formTitle.split("_")[1]
     };
-    
-    data.schema.contents = {
-      type : "ckeditor",
-      title : "Contents",
-      required : true
-    }
 
     // Check if a config file has already been saved for this block. If so, load in the current settings.
 
@@ -387,33 +365,27 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
 iris.modules.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook, data) {
 
-    if (!data.schema) {
+  if (!data.schema) {
 
-      data.schema = {};
+    data.schema = {};
 
-    }
+  }
 
-    data.schema["blockTitle"] = {
-      type: "hidden",
-      default: thisHook.const.params[2]
-    };
+  data.schema["blockTitle"] = {
+    type: "hidden",
+    default: thisHook.const.params[2]
+  };
 
-    data.schema["blockType"] = {
-      type: "hidden",
-      default: thisHook.const.params[1]
-    };
+  data.schema["blockType"] = {
+    type: "hidden",
+    default: thisHook.const.params[1]
+  };
 
-    thisHook.finish(true, data);
+  thisHook.finish(true, data);
 
 });
 
 iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook, data) {
-
-  if (thisHook.const.params.blockTitle === 'starting-up') {
-
-    thisHook.finish(false, data);
-
-  }
 
   if (iris.modules.blocks.globals.blocks[thisHook.const.params.blockType] && iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle]) {
 
@@ -421,17 +393,13 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
 
   }
 
-  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function(err) {
-
-    if (err) {
-
-      thisHook.finish(false, data);
-
-    }
+  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function (err) {
 
     var data = function (res) {
 
-      res.send("/admin/blocks");
+      res.json({
+        redirect: "/admin/blocks"
+      });
 
     };
 
@@ -463,7 +431,9 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
       var data = function (res) {
 
-        res.send("/admin/blocks")
+        res.json({
+          redirect: "/admin/blocks"
+        })
 
       }
 
@@ -481,7 +451,13 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
 // Admin page routing handler
 
-iris.app.get("/admin/blocks", function (req, res) {
+iris.route.get("/admin/blocks", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/structure",
+    title: "Blocks"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 

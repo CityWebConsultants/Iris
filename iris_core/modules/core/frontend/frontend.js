@@ -11,14 +11,7 @@ iris.registerModule("frontend");
 
 var fs = require('fs');
 var express = require('express');
-
-var mkdirSync = function (path) {
-  try {
-    fs.mkdirSync(path);
-  } catch (e) {
-    if (e.code != 'EEXIST') throw e;
-  }
-}
+var path = require('path');
 
 /**
  *  Load theme
@@ -52,136 +45,9 @@ process.on("dbReady", function () {
 
 });
 
-var path = require("path");
+// Load in file for setting active theme
 
-/**
- * @function setActiveTheme
- * @memberof frontend
- *
- * @desc Sets the active name from the passed values.
- *
- * @param {string} themePath - path to the theme folder
- * @param {string} themeName - name of the active theme
- *
- * @returns error message if it fails.
- */
-iris.modules.frontend.globals.setActiveTheme = function (themeName) {
-
-  var glob = require("glob");
-
-  // Reset theme lookup registry
-
-  iris.modules.frontend.globals.templateRegistry.theme = [];
-
-  var result = {};
-
-  try {
-
-    var unmet = [];
-    var loadedDeps = [];
-
-    // Find theme
-
-    var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + themeName + "/" + themeName + ".iris.theme" + "," + iris.sitePath + "/themes/" + themeName + "/" + themeName + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + themeName + "/" + themeName + ".iris.theme" + "}");
-
-    var path = require("path");
-
-
-    if (found.length) {
-
-      var themeInfo = JSON.parse(fs.readFileSync(found[0]), "utf8");
-
-      var theme = {
-        name: themeName,
-        path: path.dirname(found[0]),
-        info: themeInfo
-      };
-
-    } else {
-
-      iris.log("error", "Could not find theme " + themeName);
-      return false;
-
-    }
-
-    // Read modules this theme is dependent on
-
-    if (theme.info.dependencies) {
-
-      Object.keys(theme.info.dependencies).forEach(function (dep) {
-
-        if (!iris.modules[dep]) {
-
-          unmet.push(dep);
-
-        }
-
-      })
-
-    }
-
-    // Push in theme templates to template lookup registry
-
-    if (!unmet.length) {
-
-      // Make config into a variable accessible by other modules
-
-      iris.modules.frontend.globals.activeTheme = theme;
-
-      iris.modules.frontend.globals.templateRegistry.theme.push(theme.path + "/templates");
-
-      // Push in theme's static folder
-
-      iris.app.use("/themes/" + themeName, express.static(theme.path + "/static"))
-
-    } else {
-
-      result.errors = "Active theme has unmet dependencies: " + unmet.join(",");
-
-    }
-
-  } catch (e) {
-
-    iris.log("error", e);
-
-    result.errors = "Something went wrong."
-
-  }
-
-  return result;
-
-}
-
-try {
-
-  var themeFile = fs.readFileSync(iris.sitePath + "/active_theme.json", "utf8");
-
-  try {
-
-    var activeTheme = JSON.parse(themeFile);
-
-    var setTheme = iris.modules.frontend.globals.setActiveTheme(activeTheme.name);
-
-    if (setTheme.errors) {
-
-      iris.log("error", "Could not enable " + activeTheme.name);
-      iris.log("error", setTheme.errors);
-
-    }
-
-  } catch (e) {
-
-    console.log(e);
-
-    iris.log("error", e);
-
-  }
-
-} catch (e) {
-
-  iris.log("info", "No theme enabled");
-
-}
+require("./theme");
 
 /**
  * @function getTemplate
@@ -315,7 +181,7 @@ var glob = require("glob");
  *
  * @returns promise which, if successful, takes the template HTML output as its first argument.
  */
-var findTemplate = function (paths, extension) {
+iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
   if (!extension) {
 
@@ -502,135 +368,9 @@ var findTemplate = function (paths, extension) {
 
 };
 
-iris.modules.frontend.globals.findTemplate = findTemplate;
-
-/**
- * @function parseEmbed
- * @memberof frontend
- *
- * @desc Parse `embeds` in *template* _HTML_
- *
- * An 'embed' is a type of directive, embedded in HTML, of the form [[[prefix <data>]]].
- *
- * Embeds are intended to be replaced with code generated from the data provided.
- *
- * For example, the embed [[[form example]]] would render the form named 'example.'
- *
- * @param {string} prefix - the 'prefix' used to identify the embed type
- * @param {string} html - the HTML to process; that contains the embeds that need to be parsed
- * @param {function} action - callback to be run on each embed parsed
- *
- * @returns a promise which, if successful, takes the processed HTML as its first argument.
- */
-iris.modules.frontend.globals.parseEmbed = function (prefix, html, action) {
-
-  var counter = 0;
-
-  return new Promise(function (yes, no) {
-
-    var embeds = getEmbeds(prefix, html);
-
-    if (embeds) {
-
-      //  Skip embed if it contains Handlebars parameters
-
-      embeds = embeds.filter(function (embed) {
-
-        return embed.indexOf("{{") === -1;
-
-      })
-
-      if (!embeds.length) {
-
-        yes(html);
-
-      }
-
-      embeds.forEach(function (embed) {
-
-        action(embed.split(","), function (content) {
-
-          counter += 1;
-
-          if (content) {
-
-            html = html.split("[[[" + prefix + " " + embed + "]]]").join(content);
-
-          }
-
-          if (counter === embeds.length) {
-
-            yes(html);
-
-          }
-
-        })
-
-      })
-
-    } else {
-
-      yes(html);
-
-    }
-
-  });
-
-};
-
-
-/**
- * @function getEmbeds
- * @memberof frontend
- *
- * @desc Given some `text`, if will search for all instances of a given embed `type` and return 
- * an array of all such embeds. Embed types include form, menu, entity etc.
- *
- * @param {string} type - the type of embed to find, eg. form, menu
- * @param {string} text - the HTML to process; that contains the embeds that need to be parsed
- *
- * @returns an array of embeds found in this snippet of `type`
- */
-var getEmbeds = function (type, text) {
-
-  function getIndicesOf(searchStr, str, caseSensitive) {
-    var startIndex = 0,
-      searchStrLen = searchStr.length;
-    var index, indices = [];
-    if (!caseSensitive) {
-      str = str.toLowerCase();
-      searchStr = searchStr.toLowerCase();
-    }
-    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
-      indices.push(index);
-      startIndex = index + searchStrLen;
-    }
-    return indices;
-  }
-
-  var start = getIndicesOf("[[[" + type, text, false);
-
-  var embeds = [];
-
-  start.forEach(function (element, index) {
-
-    var restOfString = text.substring(start[index], text.length);
-
-    var embedEnd = restOfString.indexOf("]]]");
-
-    embeds.push(restOfString.substring(3 + type.length + 1, embedEnd));
-
-  })
-
-  if (embeds.length) {
-    return embeds;
-  }
-
-}
-
 // Function for finding embeds within a template, returns keyed list of embed types. Used for hook_frontend_embed__
 
-var findEmbeds = function (text) {
+var findEmbeds = function (text, leaveCurlies) {
 
   function getIndicesOf(searchStr, str, caseSensitive) {
     var startIndex = 0,
@@ -665,13 +405,19 @@ var findEmbeds = function (text) {
 
     var embed = embed.substring(embedCat.length + 1, embed.length);
 
-    if (!embeds[embedCat]) {
+    // Ignore embeds with curly braces
 
-      embeds[embedCat] = [];
+    if (leaveCurlies || embed.indexOf("{{") === -1) {
+
+      if (!embeds[embedCat]) {
+
+        embeds[embedCat] = [];
+
+      }
+
+      embeds[embedCat].push(embed);
 
     }
-
-    embeds[embedCat].push(embed);
 
   })
 
@@ -692,12 +438,13 @@ var findEmbeds = function (text) {
  * `context` array which is then present for rendering all templates. This means variables can be 
  * used across all templates when rendering.
  *
+ * TODO: Now embeds have been moved out into hook_frontend_embed this could be simplified
+ *
  * @param {string} html - HTML of template to process
  * @param {object} authPass - authPass of current user
  * @param {object} context - extra variables to pass to templating engine.
  *
  * There are other functions that are intended to make parsing templates easier.
- * @see parseEmbed
  * @see parseTemplateFile
  *
  * @returns a promise which, if successful, takes an object with properties 'html' and 'variables',
@@ -721,67 +468,35 @@ var parseTemplate = function (html, authPass, context) {
     }
     var complete = function (HTML, final) {
 
-      // Check for embedded templates
+      iris.hook("hook_frontend_template_parse", authPass, {
+        context: context
+      }, {
+        html: HTML,
+        variables: allVariables
+      }).then(function (parsedData) {
 
-      var embeds = getEmbeds("template", HTML);
+        if (parsedData.variables) {
 
-      if (embeds) {
+          Object.keys(parsedData.variables).forEach(function (variable) {
+            allVariables[variable] = parsedData.variables[variable];
+          })
 
-        parseTemplate(HTML, authPass, context).then(function (data) {
+        };
 
-          if (data.variables) {
-
-            Object.keys(data.variables).forEach(function (variable) {
-
-              allVariables[variable] = data.variables[variable];
-
-            })
-
-          };
+        if (final) {
 
           pass({
-            html: data.html,
+            html: parsedData.html,
             variables: allVariables
           });
 
-        }, function (fail) {
+        } else {
 
+          complete(parsedData.html, true);
 
-        })
+        }
 
-      } else {
-
-        iris.hook("hook_frontend_template_parse", authPass, {
-          context: context
-        }, {
-          html: HTML,
-          variables: allVariables
-        }).then(function (parsedData) {
-
-          if (parsedData.variables) {
-
-            Object.keys(parsedData.variables).forEach(function (variable) {
-              allVariables[variable] = parsedData.variables[variable];
-            })
-
-          };
-
-          if (final) {
-
-            pass({
-              html: parsedData.html,
-              variables: allVariables
-            });
-
-          } else {
-
-            complete(parsedData.html, true);
-
-          }
-
-        });
-
-      }
+      });
 
     };
 
@@ -801,73 +516,137 @@ var parseTemplate = function (html, authPass, context) {
 
     var output = html;
 
-    //Get any embeded templates inside the template file
-
-    var embeds = getEmbeds("template", output);
-
-    if (embeds) {
-
-      var counter = embeds.length;
-
-      embeds.forEach(function (element) {
-
-        if (!entity.eid) {
-
-          entity.eid = entity._id;
-
-        }
-
-        var templates = element.split("_");
-
-        if (entity.entityType) {
-
-          templates.concat([entity.entityType, entity.eid]);
-
-        }
-
-        findTemplate(templates).then(function (subTemplate) {
-
-          parseTemplate(subTemplate, authPass, context).then(function (contents) {
-
-            output = output.split("[[[template " + element + "]]]").join(contents.html);
-
-            counter -= 1;
-
-            if (counter === 0) {
-
-              complete(output);
-
-            }
-
-          });
-
-        }, function (fail) {
-
-          iris.log("error", "Cannot find template " + element);
-
-          // Remove template if it can't be found
-
-          output = output.split("[[[template " + element + "]]]").join("");
-
-          parseTemplate(output, authPass, context).then(function (contents) {
-
-            complete(contents.html);
-
-          });
-
-        });
-
-      });
-
-    } else {
-
-      complete(output);
-
-    }
+    complete(output);
 
   });
 
 };
+
+/**
+ * @member hook_frontend_embed
+ * @memberof frontend
+ *
+ * @desc Parse embedded templates
+ *
+ * Code for parsing [[[template ...]]] embeds
+ */
+
+iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function (thisHook, data) {
+
+  // Split embed code by double underscores
+
+  if (thisHook.const.embedParams[0]) {
+
+    var searchArray = thisHook.const.embedParams[0].split("__");
+    
+    // Get template
+
+    iris.modules.frontend.globals.parseTemplateFile(searchArray, null, thisHook.const.vars, thisHook.authPass, thisHook.const.vars.req).then(function (success) {
+
+      thisHook.finish(true, success)
+
+    }, function (fail) {
+      
+      iris.log("error", "Tried to embed template " + thisHook.const.embedParams[0] + " but no matching template file found.");
+
+      thisHook.finish(true, "");
+
+    });
+
+  } else {
+
+    thisHook.finish(true, "");
+
+  }
+
+})
+
+var parseEmbeds = function (html, variables, authPass) {
+
+  return new Promise(function (pass, fail) {
+
+    // Check for any embeds present in the code
+
+    var embeds = findEmbeds(html);
+
+    // Counter for checking all of the embeds have been parsed
+
+    var embedCount = 0;
+    var doneCount = 0;
+
+    var finished = function () {
+
+
+      doneCount += 1;
+
+      if (doneCount === embedCount) {
+
+        pass({
+          html: html,
+          variables: variables
+        });
+
+      }
+
+    }
+
+    if (embeds) {
+
+      Object.keys(embeds).forEach(function (category) {
+
+        embedCount += embeds[category].length;
+
+        embeds[category].forEach(function (embed) {
+
+          var params = [];
+
+          embed.split(",").map(function (current) {
+
+            params.push(current.trim());
+
+          })
+
+          iris.hook("hook_frontend_embed__" + category, authPass, {
+            vars: variables,
+            embedParams: params
+          }).then(function (parsedEmbed) {
+
+            html = html.split("[[[" + category + " " + embed + "]]]").join(parsedEmbed);
+
+            finished();
+
+          }, function (fail) {
+
+            if (fail === "No such hook exists") {
+
+              finished();
+
+            } else {
+
+              finished();
+              iris.log("error", fail);
+
+            }
+
+          })
+
+        })
+
+      })
+
+
+    } else {
+
+      pass({
+        html: html,
+        variables: variables
+      });
+
+    }
+
+  })
+
+}
 
 /**
  * @member hook_frontend_template_parse
@@ -875,8 +654,7 @@ var parseTemplate = function (html, authPass, context) {
  *
  * @desc Parse frontend template
  *
- * Hook into the template parsing process using this. Inside, one can run functions such as parseEmbed 
- * on the current state of the template.
+ * Hook into the template parsing process using this. Useful for adding to the context variables
  */
 iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
 
@@ -902,71 +680,22 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
       rank: 0
     }
 
-  }
-
-  // Check for any embeds present in the code
-
-  var embeds = findEmbeds(data.html);
-
-  // Counter for checking all of the embeds have been parsed
-
-  var embedCount = 0;
-  var doneCount = 0;
-
-  var finished = function () {
-
-    doneCount += 1;
-
-    if (doneCount === embedCount) {
-
-      thisHook.finish(true, data);
-
+    if (iris.modules.frontend.globals.activeTheme) {
+      data.variables["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
     }
 
   }
 
-  if (embeds) {
 
-    Object.keys(embeds).forEach(function (category) {
+  parseEmbeds(data.html, data.variables, thisHook.authPass).then(function (success) {
 
-      embedCount += embeds[category].length;
+    thisHook.finish(true, success);
 
-      embeds[category].forEach(function (embed) {
+  }, function (fail) {
 
-        iris.hook("hook_frontend_embed__" + category, thisHook.authPass, {
-          vars: data.variables,
-          embedParams: embed.split(",")
-        }).then(function (parsedEmbed) {
+    thisHook.finish(false, fail);
 
-          data.html = data.html.split("[[[" + category + " " + embed + "]]]").join(parsedEmbed);
-
-          finished();
-
-        }, function (fail) {
-
-          if (fail === "No such hook exists") {
-
-            finished();
-
-          } else {
-
-            iris.log("error", fail);
-
-          }
-
-        })
-
-      })
-
-    })
-
-
-  } else {
-
-    thisHook.finish(true, data);
-
-  }
-
+  })
 
 });
 
@@ -1093,76 +822,7 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 
 });
 
-/**
- * @member hook_frontend_handlebars_extend
- * @memberof frontend
- *
- * @desc Template engine processing - Handlebars extending
- *
- * Attaches partials and extensions onto handlebars templating engine
- *
- * @returns Handlebars object
- */
-
-iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
-
-  // Check route access
-
-  Handlebars.registerHelper("iris_menu", function (item) {
-
-    var route = iris.findRoute(item, "get");
-
-    if (route && route.options && route.options.permissions) {
-
-      if (iris.modules.auth.globals.checkPermissions(route.options.permissions, thisHook.authPass)) {
-
-        return item;
-
-      } else {
-
-        return null;
-
-      }
-
-    } else {
-
-      return item;
-
-    };
-
-  });
-
-  // Handle for a user's messages
-
-  Handlebars.registerHelper("iris_messages", function () {
-
-    var messages = iris.readMessages(thisHook.authPass.userid);
-
-    var output = "";
-
-    if (messages.length) {
-
-      output += "<ul class='iris-messages'>";
-
-      messages.forEach(function (message) {
-
-        output += "<li class='iris-message " + message.type + "'>" + message.message + "</li >";
-
-      });
-
-      output += "</ul>";
-
-      iris.clearMessages(thisHook.authPass.userid);
-
-    }
-
-    return output;
-
-  });
-
-  thisHook.finish(true, Handlebars);
-
-});
+require("./handlebars_helpers")
 
 /**
  * @member hook_frontend_template
@@ -1196,7 +856,38 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
       if (data.html.indexOf("[[[") !== -1) {
 
+        var embeds = findEmbeds(data.html, true);
+
+        // Loop over all embeds and compile out missing curlies
+
+        if (embeds) {
+
+          Object.keys(embeds).forEach(function (category) {
+
+            embeds[category].forEach(function (embed) {
+
+              if (embed.indexOf("{{") !== -1) {
+
+                var embed = "[[[" + category + " " + embed + "]]]";
+
+                var compiled = Handlebars.compile(embed)({
+                  stripCurlies: true
+                })
+
+                data.html = data.html.split(embed).join(compiled);
+
+
+              }
+
+            })
+
+          })
+
+        }
+
         parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
+
+          success.variables.finalParse = true;
 
           success.html = Handlebars.compile(success.html)(success.variables);
 
@@ -1243,13 +934,12 @@ var unEscape = function (html) {
 
 }
 
-
 /*
  * @member hook_frontend_template
  * @memberof frontend
  *
  * @desc Function for inserting tags into templates (run last). 
- * TODO: Make generic parseEmbed for embeds that run last. Same for Handlebars templates?
+ * TODO: Move to hook_frontend_embed
  *
  * @returns html where all tags are substituted with their respective markup.
  */
@@ -1263,7 +953,15 @@ var insertTags = function (html, vars) {
 
   }
 
-  var tags = getEmbeds("tags", html);
+  var embeds = findEmbeds(html);
+
+  var tags;
+
+  if (embeds && embeds.tags) {
+
+    tags = embeds.tags;
+
+  }
 
   if (!tags) {
 
@@ -1416,13 +1114,19 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
             vars: innerOutput.variables
           }).then(function (output) {
 
-            output.html = insertTags(output.html, innerOutput.variables);
+            parseEmbeds(output.html, output.variables, authPass).then(function (success) {
 
-            output.html = unEscape(output.html);
+              output.html = unEscape(success.html);
 
-            output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
+              output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
-            yes(output.html);
+              yes(output.html);
+
+            }, function (fail) {
+
+              no(fail);
+
+            })
 
           }, function (fail) {
 
@@ -1446,13 +1150,19 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
           vars: output.variables
         }).then(function (output) {
 
-          output.html = insertTags(output.html, output.variables);
+          parseEmbeds(output.html, output.variables, authPass).then(function (success) {
 
-          output.html = unEscape(output.html);
+            output.html = unEscape(success.html);
 
-          output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
+            output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
 
-          yes(output.html);
+            yes(output.html);
+
+          }, function (fail) {
+
+            no(fail);
+
+          })
 
         }, function (fail) {
 
@@ -1467,3 +1177,5 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
   });
 
 }
+
+require("./tags");

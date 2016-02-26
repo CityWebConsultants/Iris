@@ -24,6 +24,113 @@ var toSource = require('tosource');
  */
 iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
+  // Call submit handlers that specify the form name
+  var specificFormSubmit = function (data) {
+
+    if (typeof data !== "function") {
+
+      if (data.messages && data.messages.length > 0) {
+
+        thisHook.finish(true, function (res) {
+
+          res.json({messages : data.messages});
+
+        });
+
+      }
+      else if (data.callback && data.callback.length > 0) {
+
+        thisHook.finish(true, function (res) {
+          res.json(data.callback);
+        });
+
+      }
+      else {
+        // If no callback is supplied provide a basic redirect to the same page
+        var callback = function (res) {
+
+          res.json(thisHook.const.req.url);
+
+        }
+
+        thisHook.finish(true, callback);
+      }
+
+    } else {
+
+      thisHook.finish(true, data);
+
+    }
+
+  };
+
+  // Call all generic submit handlers.
+  var genericFormSubmit = function (data) {
+
+    var previous = body.formPrevious;
+
+    delete body.formPrevious;
+
+    iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
+      params: body,
+      formid: formid,
+      previous: previous,
+      req: thisHook.const.req,
+      res: thisHook.const.res
+    }, data).then(specificFormSubmit, function (fail) {
+
+        thisHook.finish(false, fail);
+
+    });
+
+  };
+
+  // Run all validation hooks specific to the form being procesed.
+  var specificFormValidate = function (data) {
+
+    // If any errors were found, do not trigger submit handlers.
+    if (data.errors && data.errors.length > 0) {
+
+      var callback = function (res) {
+
+        res.json({
+          errors: data.errors
+        });
+
+      }
+
+      thisHook.finish(true, callback);
+
+    }
+    else {
+      iris.hook("hook_form_submit", thisHook.authPass, {
+        params: body,
+        formid: formid,
+        req: thisHook.const.req
+      }, data).then(genericFormSubmit, function (fail) {
+
+        thisHook.finish(false, fail);
+
+      });
+    }
+  };
+
+  var genericFormValidate = function (data) {
+
+    iris.hook("hook_form_validate_" + formid, thisHook.authPass, {
+      params: body,
+      formid: formid,
+      req: thisHook.const.req
+    }, data).then(specificFormValidate, function (fail) {
+
+      thisHook.finish(false, fail);
+
+    });
+
+  };
+
+
+
   if (thisHook.const.req.method === "POST") {
 
     var body = thisHook.const.req.body;
@@ -61,89 +168,23 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       delete thisHook.const.req.body.formToken;
       delete thisHook.const.req.body.formid;
 
-      iris.hook("hook_form_submit", thisHook.authPass, {
+
+      iris.hook("hook_form_validate", thisHook.authPass, {
         params: body,
         formid: formid,
         req: thisHook.const.req
-      }).then(function (callbackfunction) {
-
-        iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
-          params: body,
-          formid: formid,
-          req: thisHook.const.req,
-          res: thisHook.const.res
-        }, null).then(function (callback) {
-
-          if (typeof callback !== "function") {
-
-            // If no callback is supplied provide a basic redirect to the same page
-
-            var callback = function (res) {
-
-              res.json(thisHook.const.req.url);
-
-            }
-
-            thisHook.finish(true, callback);
-
-          } else {
-
-            thisHook.finish(true, callback);
-
-          }
-
-          // Stop form being submitted a second time
-
-          //          delete iris.modules.forms.globals.formRenderCache[body.formToken];
-
-        }, function (fail) {
-
-
-          if (fail === "No such hook exists") {
-
-            // Default form if not handler
-
-            if (typeof callbackfunction !== "function") {
-
-              // If no callback is supplied provide a basic redirect to the same page
-
-              var callback = function (res) {
-
-                res.json({
-                  errors: fail
-                });
-
-              }
-
-              thisHook.finish(true, callbackfunction);
-
-            } else {
-
-              thisHook.finish(true, callbackfunction);
-
-            }
-
-          } else {
-
-            var callback = function (res) {
-
-              res.json({
-                errors: fail
-              });
-
-            }
-
-            thisHook.finish(true, callback);
-
-          }
-
-        });
-
-      }, function (fail) {
+      }, {
+        errors : [],
+        messages : [],
+        callback: null
+      }
+      ).then(genericFormValidate, function (fail) {
 
         thisHook.finish(true, data);
 
       });
+
+
 
     } else {
 
@@ -157,27 +198,10 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
   }
 
-});
 
-/**
- * @member hook_form_validate
- * @memberof forms
- *
- * @desc Generic form validation handler
- *
- * Use this hook to implement a handler on all submitted forms.
- *
- * The form fields are available keyed under thisHook.const.params.
- *
- * It is easier to handle validation of a single form by appending _ followed by the form name to this hook.
- *
- * @see hook_form_submit_<form_name>
- */
-iris.modules.forms.registerHook("hook_form_validate", 0, function (thisHook, data) {
-
-  thisHook.finish(true, data);
 
 });
+
 
 /**
  * @member hook_form_submit
@@ -217,250 +241,298 @@ iris.route.get("/modules/forms/extrafields.js", function (req, res) {
 /*
  * This implementation of hook_frontend_template_parse adds a "form" block.
  */
-iris.modules.forms.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHook, data) {
 
-  var variables = data;
-  iris.modules.frontend.globals.parseEmbed("form", data.html, function (form, next) {
+  var variables = thisHook.const.vars;
 
-    // Add scripts for forms
+  // Add scripts for forms
 
-    data.variables.tags.headTags["jQuery"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/jsonform/deps/jquery.min.js"
-      },
-      rank: 0
+  variables.tags.headTags["jQuery"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/jsonform/deps/jquery.min.js"
+    },
+    rank: 0
+  }
+
+  variables.tags.headTags["underscore"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/jsonform/deps/underscore-min.js"
+    },
+    rank: 0
+  }
+  variables.tags.headTags["jQueryUI"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/jsonform/deps/opt/jquery.ui.custom.js"
+    },
+    rank: 1
+  }
+
+  variables.tags.headTags["bootstrap-dropdown"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/jsonform/deps/opt/bootstrap-dropdown.js"
+    },
+    rank: 2
+  }
+  variables.tags.headTags["jsonform"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/jsonform/lib/jsonform.js"
+    },
+    rank: 3
+  }
+
+  variables.tags.headTags["extrafields"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/extrafields.js"
+    },
+    rank: 1
+  }
+
+  //
+
+  var formParams = thisHook.const.embedParams;
+
+  var renderForm = function (form, callback) {
+
+    if (!form.schema) {
+
+      form.schema = {}
+
     }
 
-    data.variables.tags.headTags["underscore"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/jsonform/deps/underscore-min.js"
-      },
-      rank: 0
-    }
-    data.variables.tags.headTags["jQueryUI"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/jsonform/deps/opt/jquery.ui.custom.js"
-      },
-      rank: 1
-    }
+    // Add the form id in as a hidden field
 
-    data.variables.tags.headTags["bootstrap-dropdown"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/jsonform/deps/opt/bootstrap-dropdown.js"
-      },
-      rank: 2
-    }
-    data.variables.tags.headTags["jsonform"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/jsonform/lib/jsonform.js"
-      },
-      rank: 3
-    }
+    form.schema.formid = {
+      "type": "hidden",
+      "default": formName
+    };
 
-    data.variables.tags.headTags["extrafields"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/forms/extrafields.js"
-      },
-      rank: 1
-    }
+    // Crete a form token and add to form
 
-    //
+    var crypto = require('crypto');
 
-    var formParams = form.join(",");
+    crypto.randomBytes(16, function (ex, buf) {
 
-    var renderForm = function (form, callback) {
+      var token = buf.toString('hex');
 
-      if (!form.schema) {
+      iris.modules.forms.globals.formRenderCache[token] = {
+        formid: formName,
+        authPass: thisHook.authPass
+      };
 
-        form.schema = {}
+      form.schema.formToken = {
+        "type": "hidden",
+        "default": token
+      };
+
+      form.schema.formPrevious = {
+        "type": "hidden",
+        "default": JSON.stringify(form)
+      }
+
+      // Unset form render object if not set (JSON form provides a default)
+
+      if (!form.form || !form.form.length) {
+
+        if (form.form) {
+
+          delete form.form;
+
+        }
+
+      } else {
+
+        form.form.push({
+          key: "formToken"
+        });
+        form.form.push({
+          key: "formid"
+        });
+
+        form.form.push({
+          key: "formPrevious"
+        });
 
       }
 
-      // Add the form id in as a hidden field
+      // Unset form values object if not set
 
-      form.schema.formid = {
-        "type": "hidden",
-        "default": formName
-      };
+      if (!form.value || !Object.keys(form.value).length) {
 
-      // Crete a form token and add to form
+        if (form.value) {
 
-      var crypto = require('crypto');
-
-      crypto.randomBytes(16, function (ex, buf) {
-
-        var token = buf.toString('hex');
-
-        iris.modules.forms.globals.formRenderCache[token] = {
-          formid: formName,
-          authPass: thisHook.authPass
-        };
-
-        form.schema.formToken = {
-          "type": "hidden",
-          "default": token
-        };
-
-        // Unset form render object if not set (JSON form provides a default)
-
-        if (!form.form || !form.form.length) {
-
-          if (form.form) {
-
-            delete form.form;
-
-          }
-
-        } else {
-
-          form.form.push({
-            key: "formToken"
-          });
-          form.form.push({
-            key: "formid"
-          });
+          delete form.value;
 
         }
 
-        // Unset form values object if not set
+      } else {
 
-        if (!form.value || !Object.keys(form.value).length) {
+        form.value.formid = formName;
+        form.value.formToken = token;
+        form.value.formToken = token;
 
-          if (form.value) {
+      }
 
-            delete form.value;
+      var output = "";
 
-          }
+      var uniqueId = formName + Date.now().toString();
 
-        } else {
+      output += "<form data-params=" + formParams + " method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
-          form.value.formid = formName;
-          form.value.formToken = token;
+      output += "<script>$('#" + uniqueId + "').jsonForm(" + toSource(form) + ");</script>";
 
-        }
+      callback(output);
 
-        var output = "";
+    });
 
-        var uniqueId = formName + Date.now().toString();
+  };
 
-        output += "<form data-params=" + formParams + " method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
+  var formName = formParams[0];
 
-        output += "<script>$('#" + uniqueId + "').jsonForm(" + toSource(form) + ");</script>";
+  var formTemplate = {
+    schema: {},
+    form: {},
+    value: {}
+  }
 
-        callback(output);
-
-      });
-
-    };
-
-    var formName = form[0];
-
-    var formTemplate = {
-      schema: {},
-      form: {},
-      value: {}
-    }
-
-    formTemplate.onSubmit = function (errors, values) {
+  formTemplate.onSubmit = function (errors, values) {
 
 
-      $.ajax({
-        type: "POST",
-        contentType: "application/json",
-        url: window.location,
-        data: JSON.stringify(values),
-        dataType: "json",
-        success: function (data) {
+    $.ajax({
+      type: "POST",
+      contentType: "application/json",
+      url: window.location,
+      data: JSON.stringify(values),
+      dataType: "json",
+      success: function (data) {
 
-          if (data.errors) {
+        if (data.errors) {
 
-            $("html, body").animate({
-              scrollTop: 0
-            }, "slow");
+          $("body").animate({
+            scrollTop: $("[data-formid='" + values.formid + "'").offset().top
+          }, "fast");
 
-            $("[data-formid='" + values.formid + "'").prepend("<div class='form-errors'>" + data.errors + "</div>")
+          var errorMessages = '';
 
-          } else if (data.redirect) {
+          // As this may be a second submission attempt, clear all field errors.
+          $('.form-control', $("[data-formid='" + values.formid + "'")).removeClass('error');
 
-            window.location.href = data.redirect;
+          for (var i = 0; i < data.errors.length; i++) {
 
-          } else {
+            errorMessages += "<div class='form-error'>" + data.errors[i].message + "</div>";
 
-            if (data && data.indexOf("doctype") === -1) {
+            if (data.errors[i].field) {
 
-              window.location.href = data;
-
-            } else {
-
-              window.location.href = window.location.href;
+              $("input[name=" + data.errors[i].field + ']').addClass('error');
 
             }
 
+          };
+
+          // If the form-errors div already exists, replace it, otherwise add to top of form.
+          if ($('.form-errors', $("[data-formid='" + values.formid + "'")).length > 0) {
+
+            $('.form-errors', $("[data-formid='" + values.formid + "'")).html(errorMessages);
+
+          }
+          else {
+
+            $("[data-formid='" + values.formid + "'").prepend('<div class="form-errors">' + errorMessages + '</div>');
+
           }
 
         }
-      });
+        else if (data.messages && data.messages.length > 0) {
 
-    };
+          var messages = '';
+          data.messages.forEach(function (message) {
 
-    iris.hook("hook_form_render", thisHook.authPass, {
-      formId: form[0],
-      params: form,
-      context: variables
-    }, formTemplate).then(function (formTemplate) {
-
-      iris.hook("hook_form_render_" + formName, thisHook.authPass, {
-        formId: form[0],
-        params: form,
-        context: variables
-      }, formTemplate).then(function (form) {
-
-        renderForm(form, function (output) {
-
-          next(output);
-
-        });
-
-      }, function (fail) {
-
-        if (fail = "No such hook exists") {
-
-          renderForm(formTemplate, function (output) {
-
-            next(output);
+            messages += "<div class='form-message'>" + message + "</div>";
 
           });
 
-        } else {
+          // If the form-errors div already exists, replace it, otherwise add to top of form.
+          if ($('.form-messages', $("[data-formid='" + values.formid + "'")).length > 0) {
 
-          next(false);
+            $('.form-messages', $("[data-formid='" + values.formid + "'")).html(messages);
+
+          }
+          else {
+
+            $("[data-formid='" + values.formid + "'").prepend('<div class="form-messages">' + messages + '</div>');
+
+          }
 
         }
+        else if (data.redirect) {
+
+          window.location.href = data.redirect;
+
+        } else {
+
+          if (data && data.indexOf("doctype") === -1) {
+
+            window.location.href = data;
+
+          } else {
+
+            window.location.href = window.location.href;
+
+          }
+
+        }
+
+      }
+    });
+
+  };
+
+  iris.hook("hook_form_render", thisHook.authPass, {
+    formId: formParams[0],
+    params: formParams,
+    context: variables
+  }, formTemplate).then(function (formTemplate) {
+
+    iris.hook("hook_form_render_" + formName, thisHook.authPass, {
+      formId: formParams[0],
+      params: formParams,
+      context: variables
+    }, formTemplate).then(function (form) {
+
+      renderForm(form, function (output) {
+
+        thisHook.finish(true, output);
 
       });
 
     }, function (fail) {
 
-      next(false);
+      if (fail = "No such hook exists") {
+
+        renderForm(formTemplate, function (output) {
+
+          thisHook.finish(true, output);
+
+        });
+
+      } else {
+
+        thisHook.finish(false);
+
+      }
 
     });
-  }).then(function (html) {
-
-    data.html = html;
-
-    thisHook.finish(true, data);
 
   }, function (fail) {
 
-    thisHook.finish(true, data);
+    thisHook.finish(false);
 
-  })
+  });
 
 });
 

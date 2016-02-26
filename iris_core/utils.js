@@ -138,17 +138,6 @@ iris.t = function (translationString, args, language) {
 
 }
 
-// Example
-
-//iris.registerTranslation("german", "Hello %first %second", "Hallo %second %first");
-//iris.registerTranslation("german", "Hello user", "User hallo!");
-//
-//console.log(iris.t("Hello user", "german"));
-//console.log(iris.t("Hello %first %second", {
-//  first: "Filip",
-//  second: "Hnízdo"
-//}, "german"));
-
 /**
  * @function typeCheck
  * @memberof iris
@@ -218,14 +207,17 @@ iris.sanitizeName = function (name) {
 
 iris.sanitizeEmbeds = function (html) {
 
-  html = html.split("[[[").join("&#91;&#91;&#91;");
-  html = html.split("]]]").join("&#93;&#93;&#93;");
+  if (html && typeof html === "String") {
 
-  html = html.split("{{").join("&#123;&#123;");
-  html = html.split("}}").join("&#125;&#123;");
+    html = html.split("[[[").join("/[/[/[");
+    html = html.split("]]]").join("/]/]/]");
 
-  html = html.split("{{{").join("&#123;&#123;&#123;");
-  html = html.split("}}}").join("&#125;&#125;&#125;");
+
+    html = html.split("{").join("/{");
+    html = html.split("}").join("/}");
+
+
+  }
 
   return html;
 
@@ -264,5 +256,19 @@ iris.findRoute = function (path, method) {
   })
 
   return irisRoute;
+
+}
+
+iris.mkdirSync = function (path) {
+
+  var fs = require('fs');
+
+  try {
+    fs.mkdirSync(path);
+  } catch (e) {
+    if (e.code !== 'EEXIST') {
+      throw e;
+    }
+  }
 
 }

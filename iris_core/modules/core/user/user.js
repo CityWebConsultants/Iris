@@ -10,9 +10,48 @@ iris.registerModule("user");
 
 var bcrypt = require("bcrypt-nodejs");
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/users", "Users", 1);
-
 // First ever login form
+
+// Set up first user account via API
+
+iris.route.post("/api/user/first", function (req, res) {
+
+  if (!req.body.password || !req.body.username) {
+
+    res.status(400).json("Need to supply a username and a password");
+
+    return false;
+
+  }
+
+  iris.dbCollections["user"].count({}, function (err, count) {
+
+      if (count === 0) {
+
+        iris.hook("hook_form_submit_set_first_user", "root", {
+          params: {
+            password: req.body.password,
+            username: req.body.username
+          }
+        }, null).then(function (success) {
+
+          res.status(200).json("First user created");
+
+        }, function (fail) {
+
+          res.status(400).json(fail);
+
+        })
+
+      } else {
+
+        res.status(403).json("Admin user already set up");
+
+      }
+
+  });
+
+})
 
 iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
 
@@ -41,8 +80,8 @@ iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (t
         {
           "key": "profile",
           "description": "The Minimal profile will exclude all optional UI modules and features. In a Minimal setup, " +
-          "Iris can be used as a lightweight webservice.<br/>Use Standard profile to build a user-facing CMS type system.<br/>" +
-          "If choosing Standard, please wait after clicking 'Install' for the server to restart. The blank page is expected.",
+            "Iris can be used as a lightweight webservice.<br/>Use Standard profile to build a user-facing CMS type system.<br/>" +
+            "If choosing Standard, please wait after clicking 'Install' for the server to restart. The blank page is expected.",
           "titleMap": {
             "minimal": "Minimal",
             "standard": "Standard"
@@ -62,8 +101,7 @@ iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (t
 
       thisHook.finish(true, data);
 
-    }
-    else {
+    } else {
 
       thisHook.finish(false, data);
 
@@ -154,8 +192,7 @@ iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (t
 
       });
 
-    }
-    else {
+    } else {
 
       thisHook.finish(false, data);
 
@@ -172,7 +209,7 @@ iris.app.get("/", function (req, res, next) {
   iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
 
-      iris.modules.frontend.globals.parseTemplateFile(["first_user"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+      iris.modules.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
 
         res.send(success)
 
@@ -184,8 +221,7 @@ iris.app.get("/", function (req, res, next) {
 
       });
 
-    }
-    else {
+    } else {
 
       next();
 
@@ -227,8 +263,7 @@ iris.modules.user.globals.login = function (auth, res, callback) {
 
               callback(userid);
 
-            }
-            else {
+            } else {
 
               callback(userid, token.id);
 
@@ -240,8 +275,7 @@ iris.modules.user.globals.login = function (auth, res, callback) {
 
           });
 
-        }
-        else {
+        } else {
 
           callback(false);
 
@@ -249,8 +283,7 @@ iris.modules.user.globals.login = function (auth, res, callback) {
 
       });
 
-    }
-    else {
+    } else {
 
       callback(false);
 
@@ -277,7 +310,7 @@ iris.app.get("/user/logout", function (req, res) {
 
 iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
-  if (entity.password && entity.password !== '') {
+  if (entity.password && entity.password.length) {
 
     bcrypt.hash(entity.password, null, null, function (err, hash) {
 
@@ -285,8 +318,7 @@ iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, ent
 
         thisHook.finish(false, "Could not hash password");
 
-      }
-      else {
+      } else {
 
         entity.password = hash;
         thisHook.finish(true, entity);
@@ -295,8 +327,7 @@ iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, ent
 
     });
 
-  }
-  else {
+  } else {
 
     // If password is blank or not set, don't bother hashing it
 
@@ -332,8 +363,7 @@ iris.modules.user.globals.getRole = function (userid, callback) {
 
     callback(iris.modules.user.globals.userRoles[userid]);
 
-  }
-  else {
+  } else {
 
     iris.dbCollections['user'].findOne({
       eid: parseInt(userid)
@@ -345,8 +375,7 @@ iris.modules.user.globals.getRole = function (userid, callback) {
 
         callback(doc.roles);
 
-      }
-      else {
+      } else {
 
         callback([]);
 
@@ -370,8 +399,7 @@ iris.modules.user.registerHook("hook_auth_authpass", 5, function (thisHook, data
 
     });
 
-  }
-  else {
+  } else {
 
     thisHook.finish(true, data);
 
@@ -432,8 +460,7 @@ iris.app.get("/user", function (req, res) {
   if (req.authPass.roles.indexOf('authenticated') == -1) {
     // Anonymous. Redirect to login page.
     res.redirect('/user/login');
-  }
-  else {
+  } else {
     // Redirect to own user page.
     res.redirect('/user/' + req.authPass.userid);
   }
@@ -531,6 +558,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
     return cookies;
   }
 
+
   var cookies = parse_cookies(thisHook.const.socket.handshake.headers.cookie);
 
   if (cookies && cookies.userid && cookies.token) {
@@ -541,15 +569,15 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
       iris.socketLogin(cookies.userid, cookies.token, thisHook.const.socket);
 
-    }
-    else {
+    } else {
       thisHook.finish(true, data);
     }
 
-  }
-  ;
+  } else {
 
-  thisHook.finish(true, data);
+    thisHook.finish(true, data)
+  }
+
 });
 
 // Username + password to token
@@ -564,8 +592,7 @@ iris.app.post("/api/login", function (req, res) {
 
         res.status(403).send("Not valid credentials");
 
-      }
-      else {
+      } else {
 
         res.send({
           userid: userid,
@@ -576,8 +603,7 @@ iris.app.post("/api/login", function (req, res) {
 
     })
 
-  }
-  else {
+  } else {
 
     res.status(400).send("Must send username and password");
 
@@ -585,16 +611,40 @@ iris.app.post("/api/login", function (req, res) {
 
 });
 
-iris.app.get("/admin/users", function (req, res) {
+iris.route.get("/admin/users", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Users"
+  }]
+}, function (req, res) {
+
+  var menu = iris.modules.menu.globals.getBaseLinks(req.url);
+
+  iris.modules.frontend.globals.parseTemplateFile(["baselinks"], ['admin_wrapper'], {
+    menu: menu,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success);
+
+  })
+
+})
+
+iris.route.get("/admin/users/list", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/users",
+    title: "User list"
+  }]
+}, function (req, res) {
 
   if (iris.modules.entityUI) {
 
     res.redirect("/admin/entitylist/user");
 
-  }
-  else {
+  } else {
     iris.modules.frontend.globals.displayErrorPage(404, req, res);
   }
 
 });
-

@@ -80,6 +80,8 @@ iris.app.use(function (req, res, next) {
 
     }
 
+    res.header('Content-Type', 'application/json');
+
     res.status(code);
 
     res.end(JSON.stringify(response));
@@ -108,12 +110,6 @@ iris.app.use(function (req, res, next) {
   } catch (e) {
 
     // Must be URL encoded
-
-  }
-
-  if (Object.keys(req.query).length) {
-
-    req.body = Object.assign(req.query, req.body);
 
   }
 

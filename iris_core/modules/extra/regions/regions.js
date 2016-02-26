@@ -1,9 +1,5 @@
 var fs = require('fs');
 
-// Register menu item
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/regions", "Regions", 1);
-
 iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
 
   // Loop over available block types and add their blocks to a list for the form
@@ -119,61 +115,57 @@ iris.modules.forms.registerHook("hook_form_submit_regions", 0, function (thisHoo
 
 // Load regions
 
-iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (thisHook, data) {
 
-  iris.modules.frontend.globals.parseEmbed("region", data.html, function (region, next) {
+  var regionName = thisHook.const.embedParams[0];
 
-    var regionName = region[0];
+  // Get list of regions
 
-    // Get list of regions
+  iris.readConfig("regions", "regions").then(function (output) {
 
-    iris.readConfig("regions", "regions").then(function (output) {
+      if (output[regionName]) {
+        // Render each block in the region
 
-        if (output[regionName]) {
-          // Render each block in the region
+        var blockPromises = [];
+        var blockData = {};
 
-          var blockPromises = [];
-          var blockData = {};
+        output[regionName].forEach(function (block, index) {
 
-          output[regionName].forEach(function (block, index) {
+          var settings = block.settings;
 
-            var settings = block.settings;
+          var block = block.block;
 
-            var block = block.block;
+          if (block.toLowerCase() === "none") {
 
-            if (block.toLowerCase() === "none") {
+            return false;
 
-              return false;
+          }
 
-            }
+          var blockName = block.split("|")[0],
+            blockType = block.split("|")[1];
 
-            var blockName = block.split("|")[0],
-              blockType = block.split("|")[1];
+          var paramaters = {
+            index: index,
+            id: blockName,
+            type: blockType,
+            instanceSettings: settings,
+            config: iris.modules.blocks.globals.blocks[blockType][blockName],
+            context: thisHook.const.vars
+          }
 
-            var paramaters = {
-              index: index,
-              id: blockName,
-              type: blockType,
-              instanceSettings: settings,
-              config: iris.modules.blocks.globals.blocks[blockType][blockName],
-              context: thisHook.const.context
-            }
+          blockPromises.push(function (object) {
 
-            blockPromises.push(function (object) {
+            return new Promise(function (yes, no) {
 
-              return new Promise(function (yes, no) {
+              iris.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
 
-                iris.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
+                blockData[blockType + "|" + blockName + "|" + index] = html;
 
-                  blockData[blockType + "|" + blockName + "|" + index] = html;
+                yes(blockData);
 
-                  yes(blockData);
+              }, function (fail) {
 
-                }, function (fail) {
-
-                  yes("");
-
-                });
+                yes("");
 
               });
 
@@ -181,55 +173,45 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
 
           });
 
+        });
 
-          iris.promiseChain(blockPromises, {}, function (pass) {
 
-            // Run parse template file for a regions template
+        iris.promiseChain(blockPromises, {}, function (pass) {
 
-            iris.modules.frontend.globals.parseTemplateFile(["region", regionName], null, {
-              blocks: pass
-            }, thisHook.authPass, null).then(function (success) {
+          // Run parse template file for a regions template
 
-              next(success);
+          iris.modules.frontend.globals.parseTemplateFile(["region", regionName], null, {
+            blocks: pass
+          }, thisHook.authPass, null).then(function (success) {
 
-            }, function (fail) {
-
-              next(false);
-
-              iris.log("error", fail);
-
-            });
+            thisHook.finish(true, success);
 
           }, function (fail) {
 
-            next(false);
+            thisHook.finish(true, data);
+
+            iris.log("error", fail);
 
           });
 
-        } else {
+        }, function (fail) {
 
-          next(false);
+          thisHook.finish(true, data);
 
-        }
+        });
 
-      },
-      function (fail) {
+      } else {
 
-        next(false);
+        thisHook.finish(true, data);
 
-      });
+      }
 
-  }).then(function (html) {
+    },
+    function (fail) {
 
-    data.html = html;
+      thisHook.finish(true, data);
 
-    thisHook.finish(true, data)
-
-  }, function (fail) {
-
-    thisHook.finish(true, data)
-
-  });
+    });
 
 });
 
@@ -238,9 +220,9 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
 var minimatch = require("minimatch");
 
 iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, data) {
-
+  
   if (thisHook.const.instanceSettings) {
-
+    
     if (thisHook.const.instanceSettings.pathVisibility) {
 
       // Flag to see if showing the block or not
@@ -248,7 +230,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
       var showing = true;
 
       var paths = thisHook.const.instanceSettings.pathVisibility.replace(/\r\n/g, '\n').split("\n");
-
+            
       if (thisHook.const.context && thisHook.const.context.req && thisHook.const.context.req.url) {
 
         var currentUrl = thisHook.const.context.req.url;
@@ -258,7 +240,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
         paths.forEach(function (path) {
 
           var showing = minimatch(currentUrl, path);
-
+          
         })
 
         thisHook.finish(showing, data);
@@ -287,7 +269,13 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
 
 // Regions admin system
 
-iris.app.get("/admin/regions", function (req, res) {
+iris.route.get("/admin/regions", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: "/admin/structure",
+    title: "Regions"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 

@@ -1,8 +1,12 @@
 // Register menu item
 
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/themes", "Themes", 1);
-
-iris.app.get("/admin/themes", function (req, res) {
+iris.route.get("/admin/themes", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Themes"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 
@@ -62,7 +66,7 @@ iris.modules.system.registerHook("hook_form_render_themes", 0, function (thisHoo
       data.schema.activeTheme = {
         type: "text",
         title: "Active theme",
-        default: iris.modules.frontend.globals.activeTheme.name,
+        default: iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.name : null,
         enum: machineNames,
       }
 
@@ -107,6 +111,6 @@ iris.modules.system.registerHook("hook_form_submit_themes", 0, function (thisHoo
 
   iris.restart(thisHook.authPass.userid, "themes page");
 
-  thisHook.finish(true);
+  thisHook.finish(true, data);
 
 });

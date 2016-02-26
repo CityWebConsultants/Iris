@@ -9,474 +9,148 @@
 iris.registerModule("menu");
 
 /**
- * @function registerMenuLink
- * @memberof menu
- *
- * @desc Function to register a menu item as part of a menu
- *
- * It is possible to nest menu items by providing the path of the desired parent menu item that the new item should be inserted under.
- *
- * @param {string} menuName - the name of the menu under which this item should be saved
- * @param {string} [parentPath] - optional; if this menu item has a parent, the path that the parent item links to
- * @param {string} path - the path to which this menu item links
- * @param {string} title - the title of this menu item displayed to the user
- * @param {number} weight - the weight of this menu item. Lower weights are displayed first.
+ * Embed function for [[[menu __]]] embeds.
+ * This is for those registered through iris.route.
  */
-iris.modules.menu.globals.registerMenuLink = function (menuName, parentPath, path, title, weight) {
 
-  if (!weight) {
+iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHook, data) {
 
-    weight = 0;
+  var menuName = thisHook.const.embedParams[0];
 
-  }
+  var menuItems = [];
 
-  if (!iris.configStore["menu"]) {
+  Object.keys(iris.routes).forEach(function (path) {
 
-    return false;
+    if (iris.routes[path].get) {
 
-  }
+      var route = iris.routes[path].get;
 
-  if (!iris.configStore['menu'][iris.sanitizeName(menuName)]) {
-    iris.log("error", "no such menu - " + menuName)
-    return false;
-  } else {
+      if (route.options && route.options.menu && route.options.menu.length) {
 
-    var menuConfig = iris.configStore['menu'][iris.sanitizeName(menuName)];
+        // Route has a menu
 
-    if (parentPath) {
+        route.options.menu.forEach(function (menu) {
 
-      menuConfig.items.forEach(function (item) {
+          if (menu.menuName === menuName) {
 
-        if (item.path === parentPath) {
+            if (!menu.weight) {
 
-          if (!item.children) {
+              menu.weight = 0;
 
-            item.children = [];
+            }
+
+            if (!menu.path) {
+              menu.path = path;
+            }
+            menuItems.push(menu);
 
           }
 
-          item.children.push({
-            title: title,
-            path: path,
-            weight: weight
-          });
+        })
 
-        }
+      }
 
-      })
+    }
+
+  })
+
+  // Order by weight
+
+  menuItems.sort(function (a, b) {
+
+    if (a.weight < b.weight) {
+
+      return -1;
+
+    } else if (a.weight > b.weight) {
+
+      return 1;
 
     } else {
 
-      menuConfig.items.push({
-        title: title,
-        path: path,
-        weight: weight
-      });
-
-    }
-
-    // Order menu items by rank
-
-    function compare(a, b) {
-      if (a.weight < b.weight) {
-        return -1;
-      }
-      if (a.weight > b.weight) {
-        return 1;
-      }
-      // a must be equal to b
       return 0;
+
     }
 
-    menuConfig.items.sort(compare);
-
-  }
-}
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", "/admin/structure", "/admin/structure/menu", "Menus", 1);
-
-/**
- * Get any already saved config.
- */
-
-var fs = require('fs');
-var glob = require("glob");
-
-glob(iris.configPath + "/menu/*.json", function (er, files) {
-
-  files.forEach(function (file) {
-
-    var config = fs.readFileSync(file, "utf8");
-
-    config = JSON.parse(config);
-
-    if (config.menuName) {
-
-      iris.saveConfig(config, "menu", iris.sanitizeName(config.menuName), function () {
-
-        },
-        function (fail) {
-
-          console.log(fail);
-
-        });
-    }
   })
 
-})
+  // Generate menu
 
-/**
- * Function for getting menu add/edit form.
- */
+  var menuLinks = [];
 
-iris.modules.menu.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
+  // Top level items first
 
-  // Check if menu name supplied and previous values available
+  menuItems.forEach(function (item) {
 
-  if (thisHook.const.params[1] && thisHook.const.params[1].indexOf("{") !== -1) {
+    if (!item.parent) {
 
-    thisHook.finish(false, data);
-    return false;
+      item.children = [];
 
-  } else {
-
-    iris.readConfig('menu', thisHook.const.params[1]).then(function (config) {
-
-      data.value = config;
-
-      // Create form for menus
-
-      data.schema = {
-        "menuName": {
-          "type": "text",
-          "title": "Menu title"
-        },
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "title": {
-                "type": "text",
-                "title": "Title"
-              },
-              "path": {
-                "type": "text",
-                "title": "path"
-              },
-              "children": {
-                "type": "array",
-                "title": "Children",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "text",
-                      "title": "Title"
-                    },
-                    "path": {
-                      "type": "text",
-                      "title": "path"
-                    },
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // Hide menu title if editing
-
-      if (data.value.menuName) {
-
-        data.schema.menuName.type = "hidden";
-
-      }
-
-      thisHook.finish(true, data);
-
-    }, function (fail) {
-
-      data.schema = {
-        "menuName": {
-          "type": "text",
-          "title": "Menu title"
-        },
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "title": {
-                "type": "text",
-                "title": "Title"
-              },
-              "path": {
-                "type": "text",
-                "title": "path"
-              },
-              "children": {
-                "type": "array",
-                "title": "Children",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "text",
-                      "title": "Title"
-                    },
-                    "path": {
-                      "type": "text",
-                      "title": "path"
-                    },
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      thisHook.finish(true, data);
-
-    });
-
-  }
-
-});
-
-/**
- * Form submit handler for menu add/edit form.
- */
-
-iris.modules.menu.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
-
-  // Remove blank items. TODO, this should be automatic. How come it's getting stuck?
-
-  if (thisHook.const.params.items) {
-
-    thisHook.const.params.items.forEach(function (menuitem, index) {
-
-      var item = thisHook.const.params.items[index];
-
-      if (item.children) {
-
-        item.children.forEach(function (child, childindex) {
-
-          if (!child.path || !child.title) {
-
-            item.children.splice(childindex, 1);
-
-          }
-
-        })
-
-      }
-
-    })
-
-  }
-
-  iris.saveConfig(thisHook.const.params, "menu", iris.sanitizeName(thisHook.const.params.menuName), function () {
-
-    var data = function (res) {
-
-      res.send("/admin")
+      menuLinks.push(item);
 
     }
 
-    thisHook.finish(true, data);
+  })
 
-  }, function (fail) {
+  // Then parent items
 
-    console.log(fail);
+  menuItems.forEach(function (item) {
 
-  });
+    if (item.parent) {
 
-});
+      menuLinks.forEach(function (menuItem) {
 
-/* 
- * Page callback for creating a new menu.
- */
+        if (menuItem.path === item.parent) {
 
-iris.app.get("/admin/structure/menu/create", function (req, res) {
+          menuItem.children.push(item);
 
-  // If not admin, present 403 page
+        }
 
-  if (req.authPass.roles.indexOf('admin') === -1) {
+      })
 
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+    }
 
-    return false;
+  })
+  
+  if (menuLinks.length) {
 
-  }
+    // Menu ready, check access
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_menu_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+    iris.modules.frontend.globals.parseTemplateFile(["menu", menuName], null, {
+      menu: menuLinks
+    }, thisHook.authPass).then(function (html) {
 
-    res.send(success)
+      // Check if user can view menu
 
-  }, function (fail) {
+      iris.hook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
 
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+        thisHook.finish(true, html);
 
-    iris.log("error", e);
+      }, function (noaccess) {
 
-  });
-
-});
-
-/**
- * Page for editing an existing menu.
- */
-
-iris.app.get("/admin/structure/menu/edit/:menuName", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_menu_form_edit"], ['admin_wrapper'], {
-    menuName: req.params.menuName
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-});
-
-/**
- * List of menus page.
- * Page for editing an existing menu.
- */
-
-iris.app.get("/admin/structure/menu", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_menu_list"], ['admin_wrapper'], {
-    menuList: iris.configStore["menu"]
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-});
-
-
-/**
- * Parse menu templates.
- * Here templates are parsed for [[[menu]]] embeds and substitues them for the desired menu markup.
- */
-
-iris.modules.menu.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-
-  var variables = data.variables;
-
-  iris.modules.frontend.globals.parseEmbed("menu", data.html, function (menu, next) {
-
-    var menuName = menu[0];
-
-    iris.readConfig("menu", menuName).then(function (output) {
-
-      iris.modules.frontend.globals.parseTemplateFile(["menu", menuName], null, {
-        menu: output
-      }, thisHook.authPass).then(function (html) {
-
-        // Check if user can view menu
-
-        iris.hook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
-
-          next(html);
-
-        }, function (noaccess) {
-
-          next("<!-- " + menuName + "-->");
-
-        })
-
-      }, function (fail) {
-
-        next(false);
+        thisHook.finish(true, "");
 
       })
 
     }, function (fail) {
 
-      next(false);
+      thisHook.finish(false, fail);
 
-    });
+    })
 
-  }).then(function (html) {
+  } else {
 
-    data.html = html;
+    thisHook.finish(true, "");
 
-    thisHook.finish(true, data);
-
-  }, function (fail) {
-
-    thisHook.finish(true, data);
-
-  });
-
-});
-
-// Programatic menu generation functions
-
-/**
- * @function registerMenu
- * @memberof menu
- *
- * @desc Function to register a new menu
- *
- * @param {string} menuName - the name of the new menu
- */
-iris.modules.menu.globals.registerMenu = function (menuName) {
-
-  if (!iris.configStore["menu"]) {
-    iris.configStore['menu'] = {};
   }
 
-  iris.configStore['menu'][iris.sanitizeName(menuName)] = {
-    "menuName": menuName,
-    "items": []
-  };
-
-}
-
+})
 
 /**
  * Default menu view function.
  * Used to check permissions.
  */
+
 iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
   if (thisHook.const !== "admin_toolbar") {
@@ -498,3 +172,73 @@ iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
   }
 
 });
+
+/**
+ * Get child links for a route.
+ * Useful on top level menu landing pages.
+ */
+
+iris.modules.menu.globals.getBaseLinks = function (baseurl) {
+
+  var links = [];
+
+  if (baseurl) {
+
+    // Find other matching routes
+
+    Object.keys(iris.routes).forEach(function (routePath) {
+
+      var route = iris.routes[routePath];
+      if (route.get && route.get.options && route.get.options.menu) {
+
+        var menu = route.get.options.menu;
+
+        var url = require("url");
+
+        var basePath = url.parse(baseurl).pathname;
+
+        menu.forEach(function (menuLink) {
+
+          if (menuLink.parent && menuLink.parent.indexOf(basePath) !== -1) {
+
+            links.push({
+              path: routePath,
+              title: menuLink.title
+            });
+
+          }
+
+        })
+
+      }
+
+    })
+
+    links.sort(function (a, b) {
+
+      a = a.path.split("/").length;
+      b = b.path.split("/").length;
+
+      if (a > b) {
+
+        return 1
+
+      } else if (a < b) {
+
+        return -1;
+
+      } else {
+
+        return 0;
+      }
+
+    })
+
+  }
+
+  return {
+    name: baseurl,
+    links: links
+  };
+
+}

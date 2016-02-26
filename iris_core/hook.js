@@ -1,3 +1,5 @@
+/*jslint node: true */
+
 /**
  * @file Implements the hook invocation function for the hook system.
  */
@@ -21,15 +23,14 @@
  */
 var hook = function (hookname, authPass, staticVariables, variables) {
 
-  var auth = authPass;
+  "use strict";
 
-  var thisHook;
-  
+  var auth = authPass,
+    thisHook,
+    constants = staticVariables,
+    data = variables;
+
   // TODO should probably clone static variables so they're proper constants and can't be changed elsewhere
-
-  var constants = staticVariables;
-
-  var data = variables;
 
   return new Promise(function (yes, no) {
 
@@ -44,7 +45,16 @@ var hook = function (hookname, authPass, staticVariables, variables) {
           userid: "root",
           roles: ["admin"]
 
-        }
+        };
+
+      } else if (auth === "anon") {
+
+        auth = {
+
+          userid: "anon",
+          roles: ["anonymous"]
+
+        };
 
       } else {
 
@@ -89,7 +99,7 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
     if (!hookcalls.length) {
 
-      no("No such hook exists");
+      yes(data);
 
     }
 
@@ -111,7 +121,7 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
     //Create a promise for each of the hooks with a finishing function for success and failure, pass in auth parameters
 
-    hookCallPromises = [];
+    var hookCallPromises = [];
 
     hookcalls.forEach(function (hookcall, index) {
 
@@ -143,6 +153,8 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
           }
 
+          // TODO - const is a reserved word!
+
           thisHook.const = constants;
           thisHook.name = hookcall.name;
           thisHook.path = hookcall.parentModule;
@@ -152,20 +164,10 @@ var hook = function (hookname, authPass, staticVariables, variables) {
           try {
             hookcall.event(thisHook, vars);
           } catch (e) {
-            console.log("***********");
-            console.log("Hook error");
-            console.log("hook: " + thisHook.name);
-            console.log("path: " + thisHook.path);
-            console.log("rank: " + thisHook.rank);
-            console.log("index: " + thisHook.index);
-            console.log("authPass:");
-            console.log(thisHook.authPass);
-            console.log("message:");
             if (e.stack) {
-              iris.log("error", "Error on line " + e.stack[0].getLineNumber() + " of " + e.stack[0].getFileName() + " " + e.message);
+              iris.log("error", "Error when calling hook " + thisHook.name + " from " + thisHook.path + " on line " + e.stack[0].getLineNumber() + " of " + e.stack[0].getFileName() + " " + e.message);
             }
-            console.log("***********");
-            no("ERROR");
+            no("Hook error");
           }
 
         });

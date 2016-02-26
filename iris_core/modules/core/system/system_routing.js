@@ -62,7 +62,13 @@ iris.app.get("/admin", function (req, res) {
 })
 
 
-iris.app.get("/admin/logs", function (req, res) {
+iris.route.get("/admin/logs", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Logs"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 
@@ -96,12 +102,22 @@ iris.app.get("/admin/logs", function (req, res) {
 
   logs.forEach(function (element, index) {
 
-    //console.log('0', logs[index]);
-    logs[index] = iris.sanitizeEmbeds(logs[index]);
-
-    //console.log('1', logs[index]);
     logs[index] = JSON.parse(logs[index]);
-    //console.log('2', logs[index]);
+
+    Object.keys(logs[index]).forEach(function (element) {
+
+      if (logs[index][element]) {
+        
+        logs[index][element] = logs[index][element].toString();
+
+        logs[index][element] = iris.sanitizeEmbeds(logs[index][element]);
+
+        logs[index][element] = logs[index][element].split("{").join("<");
+        logs[index][element] = logs[index][element].split("}").join(">");
+
+      }
+
+    })
 
   });
 
@@ -131,7 +147,13 @@ iris.app.get("/admin/logs", function (req, res) {
 
 // Structure page
 
-iris.app.get("/admin/structure/", function (req, res) {
+iris.route.get("/admin/structure", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Structure"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 
@@ -178,7 +200,13 @@ iris.app.get("/admin/structure/", function (req, res) {
 
 // Restart page
 
-iris.app.get("/admin/restart", function (req, res) {
+iris.route.get("/admin/restart", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Restart"
+  }]
+}, function (req, res) {
 
   // If not admin, present 403 page
 

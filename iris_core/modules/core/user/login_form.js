@@ -31,7 +31,7 @@ iris.modules.system.registerHook("hook_form_submit_login", 0, function (thisHook
 
     }
 
-    thisHook.finish(true);
+    thisHook.finish(true, data);
 
   });
 

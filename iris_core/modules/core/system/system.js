@@ -6,18 +6,6 @@ iris.registerModule("system");
 
 require('./system_routing.js');
 
-iris.modules.menu.globals.registerMenu("admin-toolbar");
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/", "Home", 0);
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/structure", "Structure", 1);
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/logs", "Logs", 1);
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/logout", "Log Out", 6);
-
-iris.modules.menu.globals.registerMenuLink("admin-toolbar", null, "/admin/restart", "Restart server", 5);
-
 iris.modules.auth.globals.registerPermission("can view admin menu", "admin");
 
 iris.modules.auth.globals.registerPermission("can access admin pages", "admin");
@@ -75,3 +63,23 @@ iris.modules.system.registerHook("hook_log", 0, function (thisHook, data) {
   thisHook.finish(true, data);
 
 });
+
+iris.route.get("/admin/structure", {
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Structure"
+  }]
+}, function (req, res) {
+
+  var menu = iris.modules.menu.globals.getBaseLinks(req.url);
+
+  iris.modules.frontend.globals.parseTemplateFile(["baselinks"], ['admin_wrapper'], {
+    menu: menu,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success);
+
+  })
+
+})

@@ -1,8 +1,9 @@
 {
   "name": "menu block",
   "description": "Provides a block for menus",
-  "rank": 1,
+  "weight": 1,
   "dependencies": {
-    "blocks": "1"
+    "blocks": "1",
+    "menu_ui": "1"
   }
 }

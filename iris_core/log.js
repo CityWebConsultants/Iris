@@ -2,16 +2,8 @@
  * @file Implements the iris logging system.
  */
 
-var initLogger = function (daycount) {
-
-  // Default to 10 days logging
-
-  if (!daycount) {
-
-    var daycount = 10
-
-  }
-
+var initLogger = function () {
+  
   var fs = require('fs');
   var bunyan = require('bunyan');
 
@@ -104,6 +96,6 @@ var initLogger = function (daycount) {
 
   }
 
-}
+}();
 
 module.exports = initLogger;
