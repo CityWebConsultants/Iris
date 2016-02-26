@@ -19,7 +19,8 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
   var limit = entity[3];
   var sort = entity[4];
 
-  if (query) {
+
+  if (query && typeof query === "Object") {
 
     var queries = query.split("+");
 
