@@ -8,13 +8,17 @@ iris.app.get("/checkauth", function (req, res) {
 
 iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, data) {
 
-
   if (thisHook.req && thisHook.req.cookies && thisHook.req.cookies.userid && thisHook.req.cookies.token) {
 
     if (iris.modules.auth.globals.checkAccessToken(thisHook.req.cookies.userid, thisHook.req.cookies.token)) {
 
       data.userid = thisHook.req.cookies.userid;
       data.roles.push("authenticated");
+
+      if (thisHook.const.req.cookies.anonID) {
+
+        thisHook.const.res.cookie('anonID', '');
+      }
 
       // Remove anonymous role
 
@@ -24,6 +28,10 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
 
       }
 
+    }
+    else {
+      thisHook.const.res.cookie('userid', '');
+      thisHook.const.res.cookie('token', '');
     }
 
   }
@@ -41,26 +49,28 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
         var anonID = "anon" + "_" + buf.toString('hex');
 
         thisHook.const.res.cookie('anonID', anonID);
-        
+
         data.userid = anonID;
         thisHook.finish(true, data);
-        
+
       })
 
-
-    } else if (thisHook.const.req && thisHook.const.req.cookies && thisHook.const.req.cookies.anonID) {
+    }
+    else if (thisHook.const.req && thisHook.const.req.cookies && thisHook.const.req.cookies.anonID) {
 
       data.userid = thisHook.const.req.cookies.anonID;
 
       thisHook.finish(true, data);
 
-    } else {
+    }
+    else {
 
       thisHook.finish(true, data);
 
     }
 
-  } else {
+  }
+  else {
 
     if (thisHook.const.req && thisHook.const.req.cookies && thisHook.const.req.cookies.anonID) {
 
@@ -89,6 +99,6 @@ iris.modules.sessions.globals.writeCookies = function (userid, token, res, maxAg
 
 iris.modules.sessions.registerHook("hook_entity_deleted", 1, function (thisHook, entity) {
 
-    delete iris.modules.auth.globals.userList[entity.eid];
-    
+  delete iris.modules.auth.globals.userList[entity.eid];
+
 });
