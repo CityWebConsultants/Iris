@@ -111,7 +111,7 @@ iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (t
 })
 
 iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, data) {
-    
+
   iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
 
@@ -570,7 +570,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
       iris.socketLogin(cookies.userid, cookies.token, thisHook.const.socket);
 
     } else {
-      thisHook.finish(false);
+      thisHook.finish(true, data);
     }
 
   };

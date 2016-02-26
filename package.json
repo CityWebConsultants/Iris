@@ -33,5 +33,13 @@
     "url": "https://github.com/CityWebConsultants/Iris.git"
   },
   "author": "City Web Consultants",
-  "license": "GPL-2.0"
+  "license": "GPL-2.0",
+  "devDependencies": {
+    "frisby": "^0.8.5",
+    "jasmine-node": "^1.14.5",
+    "jshint": "^2.9.1"
+  },
+  "scripts": {
+    "test": "jasmine-node iris_core/test/*"
+  }
 }

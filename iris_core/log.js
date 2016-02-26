@@ -3,7 +3,7 @@
  */
 
 var initLogger = function () {
-  
+
   var fs = require('fs');
   var bunyan = require('bunyan');
 
@@ -21,7 +21,7 @@ var initLogger = function () {
     name: 'iris',
     streams: [{
       path: iris.sitePath + '/logs/' + "main.log",
-    }]
+  }]
   };
 
   var logger = bunyan.createLogger(bunyanSettings);
@@ -35,13 +35,42 @@ var initLogger = function () {
    * @params {string} message - Log message
    */
 
+  _getCallerFile = function () {
+    try {
+      var err = new Error();
+      var callerfile;
+      var currentfile;
+
+      Error.prepareStackTrace = function (err, stack) {
+        return stack;
+      };
+
+      currentfile = err.stack.shift().getFileName();
+
+      while (err.stack.length) {
+        callerfile = err.stack.shift().getFileName();
+
+        if (currentfile !== callerfile) return callerfile;
+      }
+    } catch (err) {}
+    return undefined;
+  }
+
   iris.log = function () {
+
+    if (arguments && !arguments[1]) {
+
+      arguments[1] = "Empty log called from " + _getCallerFile();
+
+    }
 
     // If an exception gets passed in, process it into log messages
 
     if (arguments && arguments[1] && Array.isArray(arguments[1].stack)) {
 
       var e = arguments[1];
+
+      // If no error message send the file that called the log
 
       var errorMessage = '';
 
@@ -50,6 +79,8 @@ var initLogger = function () {
         errorMessage += "Error on line " + e.stack[index].getLineNumber() + " of " + e.stack[index].getFileName() + " " + e.message + '\n';
 
       })
+
+      errorMessage += "Log called from " + _getCallerFile();
 
       iris.log("fatal", errorMessage);
 

@@ -15,6 +15,10 @@
  */
 iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
+  if (thisHook.const && !data) {
+    data = thisHook.const;
+  }
+
   //Not allowed to send _id when creating as it is set automatically
 
   if (data._id) {

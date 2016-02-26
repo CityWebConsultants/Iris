@@ -100,8 +100,6 @@ iris.dbPopulate = function () {
 
       } catch (e) {
 
-        console.log(e);
-
         iris.log("error", e);
 
       }
@@ -338,7 +336,7 @@ iris.dbPopulate = function () {
       iris.dbCollections[schema] = mongoose.model(schema, readySchema);
 
     } catch (e) {
-
+      
       iris.log("error", e);
 
     }
