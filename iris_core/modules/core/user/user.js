@@ -26,28 +26,28 @@ iris.route.post("/api/user/first", function (req, res) {
 
   iris.dbCollections["user"].count({}, function (err, count) {
 
-    if (count === 0) {
+      if (count === 0) {
 
-      iris.hook("hook_form_submit_set_first_user", "root", {
-        params: {
-          password: req.body.password,
-          username: req.body.username
-        }
-      }, null).then(function (success) {
+        iris.hook("hook_form_submit_set_first_user", "root", {
+          params: {
+            password: req.body.password,
+            username: req.body.username
+          }
+        }, null).then(function (success) {
 
-        res.status(200).json("First user created");
+          res.status(200).json("First user created");
 
-      }, function (fail) {
+        }, function (fail) {
 
-        res.status(400).json(fail);
+          res.status(400).json(fail);
 
-      })
+        })
 
-    } else {
+      } else {
 
-      res.status(403).json("Admin user already set up");
+        res.status(403).json("Admin user already set up");
 
-    }
+      }
 
   });
 
@@ -455,7 +455,6 @@ iris.route.get("/user/login", {
 
 });
 
-
 iris.app.get("/user", function (req, res) {
 
   if (req.authPass.roles.indexOf('authenticated') == -1) {
@@ -548,8 +547,6 @@ iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook
 
 iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, data) {
 
-  var cookies = parse_cookies(thisHook.const.socket.handshake.headers.cookie);
-
   function parse_cookies(_cookies) {
     var cookies = {};
 
@@ -560,6 +557,9 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
     return cookies;
   }
+
+
+  var cookies = parse_cookies(thisHook.const.socket.handshake.headers.cookie);
 
   if (cookies && cookies.userid && cookies.token) {
 
@@ -573,8 +573,11 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
       thisHook.finish(true, data);
     }
 
-  };
-  thisHook.finish(true, data);
+  } else {
+
+    thisHook.finish(true, data)
+  }
+
 });
 
 // Username + password to token
