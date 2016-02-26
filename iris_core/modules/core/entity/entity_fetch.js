@@ -34,7 +34,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   } else {
 
-    thisHook.finish(false, "Not a valid query");
+    thisHook.fail( "Not a valid query");
     return false;
 
 
@@ -224,9 +224,9 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
           };
 
-          iris.hook("hook_entity_query_alter", thisHook.authPass, null, query).then(function (query) {
+          iris.invokeHook("hook_entity_query_alter", thisHook.authPass, null, query).then(function (query) {
 
-            iris.hook("hook_entity_query_alter_" + type, thisHook.authPass, null, query).then(function (query) {
+            iris.invokeHook("hook_entity_query_alter_" + type, thisHook.authPass, null, query).then(function (query) {
 
               fetch(query);
 
@@ -266,11 +266,11 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
           //General entity view hook
 
-          iris.hook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
+          iris.invokeHook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
 
             entities[_id] = viewChecked;
 
-            iris.hook("hook_entity_view_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
+            iris.invokeHook("hook_entity_view_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
 
               entities[_id] = validated;
               yes();
@@ -309,7 +309,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         }
 
-        iris.hook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
+        iris.invokeHook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
 
             // Apply sort if one is set
 
@@ -360,18 +360,18 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
             }
 
-            thisHook.finish(true, output);
+            thisHook.pass( output);
 
           },
           function (fail) {
 
-            thisHook.finish(false, fail);
+            thisHook.fail( fail);
 
           });
 
       }, function (fail) {
 
-        thisHook.finish(false, "Fetch failed");
+        thisHook.fail( "Fetch failed");
 
       });
 
@@ -379,13 +379,13 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     var fail = function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail( fail);
 
     };
 
     if (!dbActions.length) {
 
-      thisHook.finish(true, null);
+      thisHook.pass( null);
 
     }
 
@@ -393,7 +393,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   } else {
 
-    thisHook.finish(false, "not a valid query");
+    thisHook.fail( "not a valid query");
 
   }
 
@@ -433,7 +433,7 @@ iris.app.get("/fetch", function (req, res) {
   }
 
 
-  iris.hook("hook_entity_fetch", req.authPass, null, req.query).then(function (success) {
+  iris.invokeHook("hook_entity_fetch", req.authPass, null, req.query).then(function (success) {
 
     res.respond(200, success);
 
@@ -455,7 +455,7 @@ iris.app.get("/fetch", function (req, res) {
  */
 iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHook, query) {
 
-  thisHook.finish(true, query);
+  thisHook.pass( query);
 
 });
 
@@ -579,7 +579,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       if (fieldCheckedCounter === fieldHooks.length) {
 
-        thisHook.finish(true, entity);
+        thisHook.pass( entity);
 
       }
 
@@ -590,7 +590,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     fieldHooks.forEach(function (field) {
 
-      iris.hook("hook_entity_view_field__" + field.type, thisHook.authPass, {
+      iris.invokeHook("hook_entity_view_field__" + field.type, thisHook.authPass, {
         entityType: entity.entityType,
         field: iris.dbSchemaConfig[entity.entityType].fields[field.field]
       }, entity[field.field]).then(function (newValue) {
@@ -608,7 +608,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
   } else {
     
-    thisHook.finish(true, entity);
+    thisHook.pass( entity);
     
   }
 
@@ -624,7 +624,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
  */
 iris.modules.entity.registerHook("hook_entity_view_bulk", 0, function (thisHook, entityList) {
 
-  thisHook.finish(true, entityList);
+  thisHook.pass( entityList);
 
 });
 

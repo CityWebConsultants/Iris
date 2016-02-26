@@ -99,6 +99,6 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   });
 
-  thisHook.finish(true, Handlebars);
+  thisHook.pass( Handlebars);
 
 });

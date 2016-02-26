@@ -11,7 +11,7 @@ var fs = require("fs");
 
 iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thisHook, data) {
 
-  var entity = thisHook.const.embedParams;
+  var entity = thisHook.context.embedParams;
 
   var entityTypes = entity[0].split("+");
   var variableName = entity[1];
@@ -89,11 +89,11 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
 
   }
 
-  iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
+  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
 
-    thisHook.const.vars[variableName] = result;
+    thisHook.context.vars[variableName] = result;
 
-    thisHook.const.vars.tags.headTags["entity_fetch"] = {
+    thisHook.context.vars.tags.headTags["entity_fetch"] = {
       type: "script",
       attributes: {
         "src": "/modules/entity/templates.js"
@@ -105,11 +105,11 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
 
     var loader = entityPackage;
 
-    thisHook.finish(true, "<script>" + loader + "</script>");
+    thisHook.pass( "<script>" + loader + "</script>");
 
   }, function (error) {
 
-    thisHook.finish(true, data);
+    thisHook.pass( data);
 
   });
 
@@ -129,7 +129,7 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 
     iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
 
-      iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
+      iris.invokeHook("hook_entity_view", authPass, null, entity).then(function (data) {
 
         iris.sendSocketMessage([authPass.userid], "entityCreate", data);
 
@@ -137,12 +137,12 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 
     }, function (fail) {
 
-      thisHook.finish(true, fail);
+      thisHook.pass( fail);
 
     });
   }
 
-  iris.hook("hook_entity_view", {
+  iris.invokeHook("hook_entity_view", {
     "userid": "anon",
     "roles": ["anonymous"]
   }, null, entity).then(function (data) {
@@ -151,7 +151,7 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 
   });
 
-  thisHook.finish(true, entity);
+  thisHook.pass( entity);
 
 });
 
@@ -169,7 +169,7 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 
     iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
 
-      iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
+      iris.invokeHook("hook_entity_view", authPass, null, entity).then(function (data) {
 
         iris.sendSocketMessage([authPass.userid], "entityUpdate", data);
 
@@ -177,12 +177,12 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 
     }, function (fail) {
 
-      thisHook.finish(true, fail);
+      thisHook.pass( fail);
 
     });
   }
 
-  iris.hook("hook_entity_view", {
+  iris.invokeHook("hook_entity_view", {
     "userid": "anon",
     "roles": ["anonymous"]
   }, null, entity).then(function (data) {
@@ -191,7 +191,7 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 
   });
 
-  thisHook.finish(true, entity);
+  thisHook.pass( entity);
 
 });
 
@@ -209,7 +209,7 @@ iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, e
 
     iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
 
-      iris.hook("hook_entity_view", authPass, null, entity).then(function (data) {
+      iris.invokeHook("hook_entity_view", authPass, null, entity).then(function (data) {
 
         iris.sendSocketMessage([authPass.userid], "entityDelete", data);
 
@@ -217,12 +217,12 @@ iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, e
 
     }, function (fail) {
 
-      thisHook.finish(true, fail);
+      thisHook.pass( fail);
 
     });
   }
 
-  iris.hook("hook_entity_view", {
+  iris.invokeHook("hook_entity_view", {
     "userid": "anon",
     "roles": ["anonymous"]
   }, null, entity).then(function (data) {
@@ -231,6 +231,6 @@ iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, e
 
   });
 
-  thisHook.finish(true, entity);
+  thisHook.pass( entity);
 
 });

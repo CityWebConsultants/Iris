@@ -14,7 +14,7 @@ require('./system_modules.js');
 
 
 
-iris.modules.system.registerHook("hook_form_render_restart", 0, function (thisHook, data) {
+iris.modules.system.registerHook("hook_form_render__restart", 0, function (thisHook, data) {
 
   data.onSubmit = function (errors, values) {
 
@@ -26,15 +26,15 @@ iris.modules.system.registerHook("hook_form_render_restart", 0, function (thisHo
 
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
-iris.modules.system.registerHook("hook_form_submit_restart", 0, function (thisHook, data) {
+iris.modules.system.registerHook("hook_form_submit__restart", 0, function (thisHook, data) {
 
   iris.restart(thisHook.authPass.userid, "restart button");
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
@@ -60,7 +60,7 @@ iris.modules.system.registerHook("hook_log", 0, function (thisHook, data) {
 
   });
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 

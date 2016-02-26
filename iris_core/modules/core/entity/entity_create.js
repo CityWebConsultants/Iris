@@ -15,15 +15,15 @@
  */
 iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, data) {
 
-  if (thisHook.const && !data) {
-    data = thisHook.const;
+  if (thisHook.context && !data) {
+    data = thisHook.context;
   }
 
   //Not allowed to send _id when creating as it is set automatically
 
   if (data._id) {
 
-    thisHook.finish(false, iris.error(400, "Can't send an ID or current entity when creating an entity. Try update"));
+    thisHook.fail( iris.error(400, "Can't send an ID or current entity when creating an entity. Try update"));
     return false;
 
   };
@@ -32,7 +32,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
   if (!data.entityType || !iris.dbCollections[data.entityType]) {
 
-    thisHook.finish(false, iris.error(400, "Needs to have a valid entityType"));
+    thisHook.fail( iris.error(400, "Needs to have a valid entityType"));
     return false;
 
   }
@@ -47,9 +47,9 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
   //Check if user has access to create entities
 
-  iris.hook("hook_entity_access_create", thisHook.authPass, null, data).then(function (success) {
+  iris.invokeHook("hook_entity_access_create", thisHook.authPass, null, data).then(function (success) {
 
-    iris.hook("hook_entity_access_create_" + data.entityType, thisHook.authPass, null, data).then(function (successData) {
+    iris.invokeHook("hook_entity_access_create_" + data.entityType, thisHook.authPass, null, data).then(function (successData) {
 
       validate(data);
 
@@ -61,7 +61,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
       } else {
 
-        thisHook.finish(false, iris.error(403, "Access denied"));
+        thisHook.fail( iris.error(403, "Access denied"));
         return false;
 
       }
@@ -70,7 +70,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
   }, function (fail) {
 
-    thisHook.finish(false, iris.error(403, "Access denied"));
+    thisHook.fail( iris.error(403, "Access denied"));
     return false;
 
   });
@@ -85,9 +85,9 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
     //    Object.freeze(dummyBody);
 
-    iris.hook("hook_entity_validate", thisHook.authPass, null, dummyBody).then(function (successData) {
+    iris.invokeHook("hook_entity_validate", thisHook.authPass, null, dummyBody).then(function (successData) {
 
-      iris.hook("hook_entity_validate_" + data.entityType, thisHook.authPass, null, dummyBody).then(function (pass) {
+      iris.invokeHook("hook_entity_validate_" + data.entityType, thisHook.authPass, null, dummyBody).then(function (pass) {
 
         preSave(data);
 
@@ -99,7 +99,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
         } else {
 
-          thisHook.finish(false, fail);
+          thisHook.fail( fail);
           return false;
 
         }
@@ -108,7 +108,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
     }, function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail( fail);
       return false;
 
     });
@@ -119,9 +119,9 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
   var preSave = function (entity) {
 
-    iris.hook("hook_entity_presave", thisHook.authPass, null, entity).then(function (successData) {
+    iris.invokeHook("hook_entity_presave", thisHook.authPass, null, entity).then(function (successData) {
 
-      iris.hook("hook_entity_presave_" + data.entityType, thisHook.authPass, null, entity).then(function (pass) {
+      iris.invokeHook("hook_entity_presave_" + data.entityType, thisHook.authPass, null, entity).then(function (pass) {
 
         create(successData);
 
@@ -134,7 +134,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
         } else {
 
 
-          thisHook.finish(false, fail);
+          thisHook.fail( fail);
           return false;
 
         }
@@ -143,7 +143,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
     }, function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail( fail);
       return false;
 
     });
@@ -164,17 +164,17 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
           if (err) {
 
-            thisHook.finish(false, err);
+            thisHook.fail( err);
 
           } else if (doc) {
 
             doc = doc.toObject();
 
-            thisHook.finish(true, doc);
+            thisHook.pass( doc);
 
-            iris.hook("hook_entity_created", thisHook.authPass, null, doc);
+            iris.invokeHook("hook_entity_created", thisHook.authPass, null, doc);
 
-            iris.hook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
+            iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
 
             iris.log("info", data.entityType + " created by " + doc.entityAuthor);
 
@@ -196,7 +196,7 @@ iris.app.post("/entity/create/:type", function (req, res) {
 
   req.body.entityType = req.params.type;
 
-  iris.hook("hook_entity_create", req.authPass, null, req.body).then(function (success) {
+  iris.invokeHook("hook_entity_create", req.authPass, null, req.body).then(function (success) {
 
     res.json(success);
 
@@ -228,7 +228,7 @@ iris.app.post("/entity/create/:type", function (req, res) {
  */
 iris.modules.entity.registerHook("hook_entity_validate", 0, function (thisHook, data) {
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
@@ -244,12 +244,12 @@ iris.modules.entity.registerHook("hook_entity_access_create", 0, function (thisH
 
   if (!iris.modules.auth.globals.checkPermissions(["can create " + data.entityType], thisHook.authPass)) {
 
-    thisHook.finish(false, "Access denied");
+    thisHook.fail( "Access denied");
     return false;
 
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
@@ -316,7 +316,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
   if (!uniqueFields.length) {
 
-    thisHook.finish(true, data);
+    thisHook.pass( data);
 
   } else {
 
@@ -344,11 +344,11 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
         })
 
-        thisHook.finish(false, errors.join(" ") + " should be unique");
+        thisHook.fail( errors.join(" ") + " should be unique");
 
       } else {
 
-        thisHook.finish(true, data);
+        thisHook.pass( data);
 
       }
 

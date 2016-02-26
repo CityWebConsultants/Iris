@@ -164,7 +164,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
 iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__file", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value.split(" ").join("_");
+  var value = thisHook.context.value.split(" ").join("_");
 
   // Check if temp folder contains this file
 
@@ -174,13 +174,13 @@ iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__file", 0,
 
       fs.rename(iris.sitePath + '/temp/' + value, iris.sitePath + '/files/' + value, function () {
 
-        thisHook.finish(true, "/files/" + value);
+        thisHook.pass( "/files/" + value);
 
       });
 
     } else {
 
-      thisHook.finish(true, value);
+      thisHook.pass( value);
 
     }
 
@@ -190,8 +190,8 @@ iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__file", 0,
 
 iris.modules.entity.registerHook("hook_entity_field_fieldType_form__file", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
     "type": "file",
@@ -200,6 +200,6 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__file", 0, fu
     "default": value
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });

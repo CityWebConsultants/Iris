@@ -51,7 +51,7 @@ iris.saveConfigSync = function (contents, directory, filename, writeToFile) {
       
       //  Fire config saved hook
 
-      iris.hook("hook_config_saved", "root", {
+      iris.invokeHook("hook_config_saved", "root", {
         contents: contents,
         directory: directory,
         filename: filename
@@ -118,7 +118,7 @@ iris.saveConfig = function (contents, directory, filename, callback, writeToFile
 
   // Fire config saved hook
 
-  iris.hook("hook_config_saved", "root", {
+  iris.invokeHook("hook_config_saved", "root", {
     contents: contents,
     directory: directory,
     filename: filename

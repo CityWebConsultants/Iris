@@ -108,7 +108,7 @@ module.exports = function (config) {
 
   //Hook system
 
-  iris.hook = require('./hook');
+  iris.invokeHook = require('./hook');
 
   //Require HTTP sever
 
@@ -277,7 +277,7 @@ module.exports = function (config) {
 
     iris.app.use(function (req, res) {
 
-      iris.hook("hook_catch_request", req.authPass, {
+      iris.invokeHook("hook_catch_request", req.authPass, {
         req: req,
         res: res
       }, null).then(function (success) {
@@ -314,7 +314,7 @@ module.exports = function (config) {
 
           } else {
 
-            iris.hook("hook_display_error_page", req.authPass, {
+            iris.invokeHook("hook_display_error_page", req.authPass, {
               error: 404,
               req: req,
               res: res
@@ -345,7 +345,7 @@ module.exports = function (config) {
           iris.log("error", "Error on request to " + req.url);
           iris.log("error", fail);
 
-          iris.hook("hook_display_error_page", req.authPass, {
+          iris.invokeHook("hook_display_error_page", req.authPass, {
             error: 500,
             req: req,
             res: res
@@ -374,7 +374,7 @@ module.exports = function (config) {
 
         iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
 
-        iris.hook("hook_display_error_page", req.authPass, {
+        iris.invokeHook("hook_display_error_page", req.authPass, {
           error: 500,
           req: req,
           res: res
