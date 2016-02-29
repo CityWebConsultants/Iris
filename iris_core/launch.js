@@ -30,12 +30,20 @@ if (parameters.site) {
 
   start = function () {
 
-    var sub = fork(__dirname + "/launch_site.js", process.argv.slice(2), {
-      execArgv:['--debug=5850'],
+    var options = {
       env: {
         'NODE_ENV': process.env.NODE_ENV
       }
+    };
+
+    process.argv.forEach(function(item){
+      var itemParts = item.split("=");
+      if(itemParts[0] == "--debug-port"){
+        options.execArgv = ['--debug=' + itemParts[1]];
+      }
     });
+
+    var sub = fork(__dirname + "/launch_site.js", process.argv.slice(2), options);
 
     sub.on('message', function (cmd) {
 
