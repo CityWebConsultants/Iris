@@ -31,7 +31,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
       if (data.messages && data.messages.length > 0) {
 
-        thisHook.finish(true, function (res) {
+        thisHook.pass(function (res) {
 
           res.json({
             messages: data.messages
@@ -41,7 +41,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
       } else if (data.callback && data.callback.length > 0) {
 
-        thisHook.finish(true, function (res) {
+        thisHook.pass(function (res) {
           res.json(data.callback);
         });
 
@@ -53,12 +53,12 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
         }
 
-        thisHook.finish(true, callback);
+        thisHook.pass(callback);
       }
 
     } else {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }
 
@@ -80,7 +80,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
     }, data).then(specificFormSubmit, function (fail) {
 
       var errors;
-      
+
       if (typeof fail === "string") {
 
         errors = [{
@@ -93,8 +93,8 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
       }
 
-      thisHook.finish(true, function (res) {
-        
+      thisHook.pass(function (res) {
+
         res.json({
           errors: errors
         });
@@ -119,7 +119,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
       }
 
-      thisHook.finish(true, callback);
+      thisHook.pass(callback);
 
     } else {
       iris.hook("hook_form_submit", thisHook.authPass, {
@@ -128,7 +128,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         req: thisHook.context.req
       }, data).then(genericFormSubmit, function (fail) {
 
-        thisHook.finish(false, fail);
+        thisHook.fail(fail);
 
       });
     }
@@ -142,7 +142,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       req: thisHook.context.req
     }, data).then(specificFormValidate, function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail(fail);
 
     });
 
@@ -166,14 +166,14 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
         } else {
 
-          thisHook.finish(false, "Bad request");
+          thisHook.fail("Bad request");
           return false;
 
         }
 
       } else {
 
-        thisHook.finish(false, "Bad request");
+        thisHook.fail("Bad request");
         return false;
 
       }
@@ -198,7 +198,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         callback: null
       }).then(genericFormValidate, function (fail) {
 
-        thisHook.finish(true, data);
+        thisHook.pass(data);
 
       });
 
@@ -206,13 +206,13 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
     } else {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 
@@ -237,7 +237,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
  */
 iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
@@ -520,7 +520,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
       renderForm(form, function (output) {
 
-        thisHook.finish(true, output);
+        thisHook.pass(output);
 
       });
 
@@ -530,13 +530,13 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         renderForm(formTemplate, function (output) {
 
-          thisHook.finish(true, output);
+          thisHook.pass(output);
 
         });
 
       } else {
 
-        thisHook.finish(false);
+        thisHook.fail();
 
       }
 
@@ -544,7 +544,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
   }, function (fail) {
 
-    thisHook.finish(false);
+    thisHook.fail();
 
   });
 
@@ -557,7 +557,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
  */
 iris.modules.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 })
 
