@@ -33,19 +33,19 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
         thisHook.finish(true, function (res) {
 
-          res.json({messages : data.messages});
+          res.json({
+            messages: data.messages
+          });
 
         });
 
-      }
-      else if (data.callback && data.callback.length > 0) {
+      } else if (data.callback && data.callback.length > 0) {
 
         thisHook.finish(true, function (res) {
           res.json(data.callback);
         });
 
-      }
-      else {
+      } else {
         // If no callback is supplied provide a basic redirect to the same page
         var callback = function (res) {
 
@@ -79,7 +79,27 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       res: thisHook.const.res
     }, data).then(specificFormSubmit, function (fail) {
 
-        thisHook.finish(false, fail);
+      var errors;
+      
+      if (typeof fail === "string") {
+
+        errors = [{
+          message: fail
+        }]
+
+      } else {
+
+        errors = fail;
+
+      }
+
+      thisHook.finish(true, function (res) {
+        
+        res.json({
+          errors: errors
+        });
+
+      });
 
     });
 
@@ -101,8 +121,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
       thisHook.finish(true, callback);
 
-    }
-    else {
+    } else {
       iris.hook("hook_form_submit", thisHook.authPass, {
         params: body,
         formid: formid,
@@ -174,11 +193,10 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         formid: formid,
         req: thisHook.const.req
       }, {
-        errors : [],
-        messages : [],
+        errors: [],
+        messages: [],
         callback: null
-      }
-      ).then(genericFormValidate, function (fail) {
+      }).then(genericFormValidate, function (fail) {
 
         thisHook.finish(true, data);
 
@@ -439,15 +457,13 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
             $('.form-errors', $("[data-formid='" + values.formid + "'")).html(errorMessages);
 
-          }
-          else {
+          } else {
 
             $("[data-formid='" + values.formid + "'").prepend('<div class="form-errors">' + errorMessages + '</div>');
 
           }
 
-        }
-        else if (data.messages && data.messages.length > 0) {
+        } else if (data.messages && data.messages.length > 0) {
 
           var messages = '';
           data.messages.forEach(function (message) {
@@ -461,15 +477,13 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
             $('.form-messages', $("[data-formid='" + values.formid + "'")).html(messages);
 
-          }
-          else {
+          } else {
 
             $("[data-formid='" + values.formid + "'").prepend('<div class="form-messages">' + messages + '</div>');
 
           }
 
-        }
-        else if (data.redirect) {
+        } else if (data.redirect) {
 
           window.location.href = data.redirect;
 
