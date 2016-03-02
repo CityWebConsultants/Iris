@@ -71,7 +71,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
     delete body.formPrevious;
 
-    iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
+    iris.invokeHook("hook_form_submit__" + formid, thisHook.authPass, {
       params: body,
       formid: formid,
       previous: previous,
@@ -122,7 +122,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       thisHook.pass(callback);
 
     } else {
-      iris.hook("hook_form_submit", thisHook.authPass, {
+      iris.invokeHook("hook_form_submit", thisHook.authPass, {
         params: body,
         formid: formid,
         req: thisHook.context.req
@@ -136,7 +136,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
   var genericFormValidate = function (data) {
 
-    iris.hook("hook_form_validate_" + formid, thisHook.authPass, {
+    iris.invokeHook("hook_form_validate__" + formid, thisHook.authPass, {
       params: body,
       formid: formid,
       req: thisHook.context.req
@@ -188,7 +188,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       delete thisHook.context.req.body.formid;
 
 
-      iris.hook("hook_form_validate", thisHook.authPass, {
+      iris.invokeHook("hook_form_validate", thisHook.authPass, {
         params: body,
         formid: formid,
         req: thisHook.context.req
@@ -506,13 +506,13 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
   };
 
-  iris.hook("hook_form_render", thisHook.authPass, {
+  iris.invokeHook("hook_form_render", thisHook.authPass, {
     formId: formParams[0],
     params: formParams,
     context: variables
   }, formTemplate).then(function (formTemplate) {
 
-    iris.hook("hook_form_render_" + formName, thisHook.authPass, {
+    iris.invokeHook("hook_form_render__" + formName, thisHook.authPass, {
       formId: formParams[0],
       params: formParams,
       context: variables
