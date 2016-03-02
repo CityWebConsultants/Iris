@@ -5,7 +5,7 @@
 
 iris.modules.angular_live_load.registerHook("hook_frontend_embed__entity", 1, function (thisHook, data) {
 
-  thisHook.const.vars.tags.headTags["socket.io"] = {
+  thisHook.context.vars.tags.headTags["socket.io"] = {
     type: "script",
     attributes: {
       "src": "/socket.io/socket.io.js"
@@ -13,7 +13,7 @@ iris.modules.angular_live_load.registerHook("hook_frontend_embed__entity", 1, fu
     rank: -1
   }
 
-  thisHook.const.vars.tags.headTags["angular"] = {
+  thisHook.context.vars.tags.headTags["angular"] = {
     type: "script",
     attributes: {
       "src": "https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.js"
@@ -21,7 +21,7 @@ iris.modules.angular_live_load.registerHook("hook_frontend_embed__entity", 1, fu
     rank: 0
   }
 
-  thisHook.const.vars.tags.headTags["angular_live_load"] = {
+  thisHook.context.vars.tags.headTags["angular_live_load"] = {
     type: "script",
     attributes: {
       "src": "/modules/angular_live_load/angular_live_load_client.js"
@@ -29,6 +29,6 @@ iris.modules.angular_live_load.registerHook("hook_frontend_embed__entity", 1, fu
     rank: 1
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 })

@@ -1,6 +1,6 @@
 // Login form
 
-iris.modules.forms.registerHook("hook_form_render_login", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_render__login", 0, function (thisHook, data) {
 
   data.schema = {
     username: {
@@ -14,16 +14,16 @@ iris.modules.forms.registerHook("hook_form_render_login", 0, function (thisHook,
     }
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
-iris.modules.system.registerHook("hook_form_submit_login", 0, function (thisHook, data) {
+iris.modules.system.registerHook("hook_form_submit__login", 0, function (thisHook, data) {
 
   iris.modules.user.globals.login({
-    username: thisHook.const.params.username,
-    password: thisHook.const.params.password
-  }, thisHook.const.res, function (userid) {
+    username: thisHook.context.params.username,
+    password: thisHook.context.params.password
+  }, thisHook.context.res, function (userid) {
 
     if (!userid) {
 
@@ -31,7 +31,7 @@ iris.modules.system.registerHook("hook_form_submit_login", 0, function (thisHook
 
     }
 
-    thisHook.finish(true, data);
+    thisHook.pass( data);
 
   });
 

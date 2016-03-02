@@ -116,9 +116,9 @@ var initLogger = function () {
       }
     })
 
-    if (iris.hook) {
+    if (iris.invokeHook) {
 
-      iris.hook("hook_log", "root", {
+      iris.invokeHook("hook_log", "root", {
         type: type,
         message: message
       })

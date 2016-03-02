@@ -17,7 +17,7 @@ var fs = require('fs');
  */
 iris.modules.frontend.globals.displayErrorPage = function (code, req, res) {
 
-  iris.hook("hook_display_error_page", req.authPass, {
+  iris.invokeHook("hook_display_error_page", req.authPass, {
     error: code,
     req: req,
     res: res

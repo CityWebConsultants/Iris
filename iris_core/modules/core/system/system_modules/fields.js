@@ -2,8 +2,8 @@
 
 iris.modules.entity.registerHook("hook_entity_field_fieldType_form__password", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
     "type": "password",
@@ -12,14 +12,14 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__password", 0
     "default": null
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
 iris.modules.entity.registerHook("hook_entity_field_fieldType_form__select", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
     "type": "text",
@@ -29,7 +29,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__select", 0, 
     "enum": fieldSettings.settings.options
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
@@ -37,8 +37,8 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__select", 0, 
 
 iris.modules.entity.registerHook("hook_entity_field_fieldType_form__longtext", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
     "type": "textarea",
@@ -47,7 +47,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__longtext", 0
     "default": value
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
@@ -55,8 +55,8 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__longtext", 0
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Boolean", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
     "type": "boolean",
@@ -65,14 +65,14 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Boolean"
     "default": value
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__String", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
     "type": "text",
@@ -81,14 +81,14 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__String",
     "default": value
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[String]", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
     "type": "array",
@@ -100,14 +100,14 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[String]
     "default": value
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Number", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
     "type": "number",
@@ -116,14 +116,14 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Number",
     "default": value
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Number]", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
     "type": "array",
@@ -135,7 +135,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Number]
     }
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
@@ -170,8 +170,8 @@ var dateToForm = function (value) {
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Date", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   if (value) {
 
@@ -194,14 +194,14 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Date", 0
     }
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Date]", 0, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
 
   if (value) {
@@ -236,7 +236,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Date]",
     }
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
@@ -244,47 +244,47 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Date]",
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__String", 0, function (thisHook, data) {
 
-  thisHook.finish(true, thisHook.const.value);
+  thisHook.pass( thisHook.context.value);
 
 })
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Boolean", 0, function (thisHook, data) {
 
-  thisHook.finish(true, thisHook.const.value);
+  thisHook.pass( thisHook.context.value);
 
 })
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[String]", 0, function (thisHook, data) {
 
-  thisHook.finish(true, thisHook.const.value);
+  thisHook.pass( thisHook.context.value);
 
 })
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Number]", 0, function (thisHook, data) {
 
-  thisHook.finish(true, thisHook.const.value);
+  thisHook.pass( thisHook.context.value);
 
 })
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Number", 0, function (thisHook, data) {
 
-  thisHook.finish(true, thisHook.const.value);
+  thisHook.pass( thisHook.context.value);
 
 })
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Date", 0, function (thisHook, data) {
 
-  if (thisHook.const.value.date) {
+  if (thisHook.context.value.date) {
 
-    var date = new Date(thisHook.const.value.date);
-    date.setUTCHours(thisHook.const.value.time.split(":")[0]);
-    date.setUTCMinutes(thisHook.const.value.time.split(":")[1]);
+    var date = new Date(thisHook.context.value.date);
+    date.setUTCHours(thisHook.context.value.time.split(":")[0]);
+    date.setUTCMinutes(thisHook.context.value.time.split(":")[1]);
 
-    thisHook.finish(true, date);
+    thisHook.pass( date);
 
   } else {
 
-    thisHook.finish(true, undefined);
+    thisHook.pass( undefined);
 
   }
 
@@ -294,7 +294,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Date]",
 
   var dates = [];
 
-  thisHook.const.value.forEach(function (value, index) {
+  thisHook.context.value.forEach(function (value, index) {
 
     if (value.date) {
 
@@ -309,6 +309,6 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Date]",
 
   })
 
-  thisHook.finish(true, dates);
+  thisHook.pass( dates);
 
 })

@@ -28,7 +28,7 @@ iris.route.post("/api/user/first", function (req, res) {
 
       if (count === 0) {
 
-        iris.hook("hook_form_submit_set_first_user", "root", {
+        iris.invokeHook("hook_form_submit__set_first_user", "root", {
           params: {
             password: req.body.password,
             username: req.body.username
@@ -53,7 +53,7 @@ iris.route.post("/api/user/first", function (req, res) {
 
 })
 
-iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (thisHook, data) {
+iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (thisHook, data) {
 
   iris.dbCollections["user"].count({}, function (err, count) {
 
@@ -99,18 +99,18 @@ iris.modules.user.registerHook("hook_form_render_set_first_user", 0, function (t
         }
       ];
 
-      thisHook.finish(true, data);
+      thisHook.pass( data);
 
     } else {
 
-      thisHook.finish(false, data);
+      thisHook.fail( data);
 
     }
   });
 
 })
 
-iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (thisHook, data) {
+iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (thisHook, data) {
 
   iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
@@ -119,21 +119,21 @@ iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (t
 
         entityType: "user",
         entityAuthor: "system",
-        password: thisHook.const.params.password,
-        username: thisHook.const.params.username,
+        password: thisHook.context.params.password,
+        username: thisHook.context.params.username,
         roles: ["admin"]
       }
 
-      iris.hook("hook_entity_create", "root", newUser, newUser).then(function (user) {
+      iris.invokeHook("hook_entity_create", "root", newUser, newUser).then(function (user) {
 
         var auth = {
-          password: thisHook.const.params.password,
-          username: thisHook.const.params.username
+          password: thisHook.context.params.password,
+          username: thisHook.context.params.username
         }
 
-        iris.modules.user.globals.login(auth, thisHook.const.res, function (uid) {
+        iris.modules.user.globals.login(auth, thisHook.context.res, function (uid) {
 
-          if (thisHook.const.params.profile == 'standard') {
+          if (thisHook.context.params.profile == 'standard') {
 
             var enabled = [
               {
@@ -175,7 +175,7 @@ iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (t
 
           }
           iris.message(uid, "Welcome to your new Iris site!", "info");
-          thisHook.finish(true, function (res) {
+          thisHook.pass( function (res) {
             res.json("/admin");
             if (enabled) {
               console.log('restarting');
@@ -188,13 +188,13 @@ iris.modules.user.registerHook("hook_form_submit_set_first_user", 0, function (t
       }, function (fail) {
 
         iris.log(fail);
-        thisHook.finish(false, data);
+        thisHook.fail( data);
 
       });
 
     } else {
 
-      thisHook.finish(false, data);
+      thisHook.fail( data);
 
     }
 
@@ -253,7 +253,7 @@ iris.modules.user.globals.login = function (auth, res, callback) {
 
         if (!err && match === true) {
 
-          iris.hook("hook_auth_maketoken", "root", null, {
+          iris.invokeHook("hook_auth_maketoken", "root", null, {
             userid: userid
           }).then(function (token) {
 
@@ -316,12 +316,12 @@ iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, ent
 
       if (err) {
 
-        thisHook.finish(false, "Could not hash password");
+        thisHook.fail( "Could not hash password");
 
       } else {
 
         entity.password = hash;
-        thisHook.finish(true, entity);
+        thisHook.pass( entity);
 
       }
 
@@ -336,7 +336,7 @@ iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, ent
 
     delete entity.password;
 
-    thisHook.finish(true, entity);
+    thisHook.pass( entity);
 
   }
 
@@ -395,13 +395,13 @@ iris.modules.user.registerHook("hook_auth_authpass", 5, function (thisHook, data
 
       data.roles = data.roles.concat(roles);
 
-      thisHook.finish(true, data);
+      thisHook.pass( data);
 
     });
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass( data);
 
   }
 
@@ -419,7 +419,7 @@ iris.modules.user.registerHook("hook_entity_updated", 1, function (thisHook, ent
 
   }
 
-  thisHook.finish(true, entity);
+  thisHook.pass( entity);
 
 });
 
@@ -470,9 +470,9 @@ iris.app.get("/user", function (req, res) {
 
 // Prepopulate roles
 
-iris.modules.user.registerHook("hook_form_render_editEntity", 1, function (thisHook, data) {
+iris.modules.user.registerHook("hook_form_render__editEntity", 1, function (thisHook, data) {
 
-  if (thisHook.const.params[1] === "user" && data.schema && data.schema.password) {
+  if (thisHook.context.params[1] === "user" && data.schema && data.schema.password) {
 
     data.schema.password.default = null;
     data.schema.password.required = false;
@@ -495,13 +495,13 @@ iris.modules.user.registerHook("hook_form_render_editEntity", 1, function (thisH
 
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
-iris.modules.user.registerHook("hook_form_render_createEntity", 1, function (thisHook, data) {
+iris.modules.user.registerHook("hook_form_render__createEntity", 1, function (thisHook, data) {
 
-  if (thisHook.const.params[1] === "user") {
+  if (thisHook.context.params[1] === "user") {
 
     var roles = ["none", "admin"];
     Object.keys(iris.modules.auth.globals.roles).forEach(function (role) {
@@ -519,7 +519,7 @@ iris.modules.user.registerHook("hook_form_render_createEntity", 1, function (thi
 
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
@@ -537,7 +537,7 @@ iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook
 
   iris.dbCollections["user"].update(conditions, update, function (err, doc) {
 
-    thisHook.finish(true, doc);
+    thisHook.pass( doc);
 
   });
 
@@ -559,7 +559,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
   }
 
 
-  var cookies = parse_cookies(thisHook.const.socket.handshake.headers.cookie);
+  var cookies = parse_cookies(thisHook.context.socket.handshake.headers.cookie);
 
   if (cookies && cookies.userid && cookies.token) {
 
@@ -567,15 +567,15 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
     if (iris.modules.auth.globals.checkAccessToken(cookies.userid, cookies.token)) {
 
-      iris.socketLogin(cookies.userid, cookies.token, thisHook.const.socket);
+      iris.socketLogin(cookies.userid, cookies.token, thisHook.context.socket);
 
     } else {
-      thisHook.finish(true, data);
+      thisHook.pass( data);
     }
 
   } else {
 
-    thisHook.finish(true, data)
+    thisHook.pass( data)
   }
 
 });

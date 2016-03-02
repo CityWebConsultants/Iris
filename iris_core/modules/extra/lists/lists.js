@@ -24,11 +24,11 @@ process.on("dbReady", function () {
 
     iris.modules.blocks.globals.registerBlockType('List-of-' + entityType);
 
-    iris.modules.lists.registerHook("hook_form_render_blockForm_List-of-" + entityType, 0, function (thisHook, data) {
+    iris.modules.lists.registerHook("hook_form_render__blockForm_List-of-" + entityType, 0, function (thisHook, data) {
 
-      if (thisHook.const.params[1] && iris.modules.blocks.globals.blocks["List-of-" + entityType] && iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.const.params[1]]) {
+      if (thisHook.context.params[1] && iris.modules.blocks.globals.blocks["List-of-" + entityType] && iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params[1]]) {
 
-        var existingView = iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.const.params[1]];
+        var existingView = iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params[1]];
 
         data.value = existingView;
 
@@ -102,7 +102,7 @@ process.on("dbReady", function () {
 
       })
 
-      thisHook.finish(true, data);
+      thisHook.pass( data);
 
     })
 
@@ -114,9 +114,9 @@ process.on("dbReady", function () {
 
 iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data) {
 
-  if (thisHook.const.type.split("-")[0] === "List") {
+  if (thisHook.context.type.split("-")[0] === "List") {
 
-    var config = thisHook.const.config;
+    var config = thisHook.context.config;
 
     if (config.conditions) {
 
@@ -133,18 +133,18 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
     }
 
     var fetch = {
-      entities: [thisHook.const.type.replace("List-of-", "")],
+      entities: [thisHook.context.type.replace("List-of-", "")],
       queries: config.conditions,
       limit: config.limit
     }
 
-    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
+    iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
 
         var output = [];
 
         if (!result || !result.length) {
 
-          thisHook.finish(true, "<!-- No results for " + thisHook.const.type + " " + thisHook.const.id + "-->");
+          thisHook.pass( "<!-- No results for " + thisHook.context.type + " " + thisHook.context.id + "-->");
           return false;
 
         }
@@ -179,9 +179,9 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
 
         });
 
-        iris.modules.frontend.globals.parseTemplateFile(["lists", thisHook.const.type], null, {
+        iris.modules.frontend.globals.parseTemplateFile(["lists", thisHook.context.type], null, {
           list: output,
-          listName: thisHook.const.id
+          listName: thisHook.context.id
         }, thisHook.authPass).then(function (success) {
 
           // Add in entity embed template
@@ -195,7 +195,7 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
 
           embed += ",";
 
-          embed += "list_" + thisHook.const.id;
+          embed += "list_" + thisHook.context.id;
 
           embed += ",";
 
@@ -215,24 +215,24 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
 
           embed += "]]]"
 
-          thisHook.finish(true, embed + "\n" + success);
+          thisHook.pass( embed + "\n" + success);
 
         }, function (fail) {
 
-          thisHook.finish(true, fail);
+          thisHook.pass( fail);
 
         })
 
       },
       function (fail) {
 
-        thisHook.finish(true, fail);
+        thisHook.pass( fail);
 
       });
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass( data);
 
   }
 

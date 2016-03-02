@@ -93,11 +93,11 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
     // Check if the current person can access the entity itself
 
-    iris.hook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
+    iris.invokeHook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
 
       if (!viewChecked) {
 
-        iris.hook("hook_display_error_page", req.authPass, {
+        iris.invokeHook("hook_display_error_page", req.authPass, {
           error: 403,
           req: req
         }).then(function (success) {
@@ -118,7 +118,7 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
       }
 
-      iris.hook("hook_entity_view_" + entity.entityType, req.authPass, null, entity).then(function (validated) {
+      iris.invokeHook("hook_entity_view_" + entity.entityType, req.authPass, null, entity).then(function (validated) {
 
         if (validated) {
 
@@ -468,7 +468,7 @@ var parseTemplate = function (html, authPass, context) {
     }
     var complete = function (HTML, final) {
 
-      iris.hook("hook_frontend_template_parse", authPass, {
+      iris.invokeHook("hook_frontend_template_parse", authPass, {
         context: context
       }, {
         html: HTML,
@@ -535,27 +535,27 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
   // Split embed code by double underscores
 
-  if (thisHook.const.embedParams[0]) {
+  if (thisHook.context.embedParams[0]) {
 
-    var searchArray = thisHook.const.embedParams[0].split("__");
+    var searchArray = thisHook.context.embedParams[0].split("__");
 
     // Get template
 
-    iris.modules.frontend.globals.parseTemplateFile(searchArray, null, thisHook.const.vars, thisHook.authPass, thisHook.const.vars.req).then(function (success) {
+    iris.modules.frontend.globals.parseTemplateFile(searchArray, null, thisHook.context.vars, thisHook.authPass, thisHook.context.vars.req).then(function (success) {
 
-      thisHook.finish(true, success)
+      thisHook.pass( success)
 
     }, function (fail) {
 
-      iris.log("error", "Tried to embed template " + thisHook.const.embedParams[0] + " but no matching template file found.");
+      iris.log("error", "Tried to embed template " + thisHook.context.embedParams[0] + " but no matching template file found.");
 
-      thisHook.finish(true, "");
+      thisHook.pass( "");
 
     });
 
   } else {
 
-    thisHook.finish(true, "");
+    thisHook.pass( "");
 
   }
 
@@ -606,7 +606,7 @@ var parseEmbeds = function (html, variables, authPass) {
 
           })
 
-          iris.hook("hook_frontend_embed__" + category, authPass, {
+          iris.invokeHook("hook_frontend_embed__" + category, authPass, {
             vars: variables,
             embedParams: params
           }).then(function (parsedEmbed) {
@@ -692,11 +692,11 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 
   parseEmbeds(data.html, data.variables, thisHook.authPass).then(function (success) {
 
-    thisHook.finish(true, success);
+    thisHook.pass( success);
 
   }, function (fail) {
 
-    thisHook.finish(false, fail);
+    thisHook.fail( fail);
 
   })
 
@@ -735,7 +735,7 @@ iris.app.use(function (req, res, next) {
 
     }
 
-    iris.hook("hook_entity_fetch", req.authPass, null, {
+    iris.invokeHook("hook_entity_fetch", req.authPass, null, {
       entities: [splitUrl[1]],
       queries: [{
         field: 'eid',
@@ -756,7 +756,7 @@ iris.app.use(function (req, res, next) {
 
         }, function (fail) {
 
-          iris.hook("hook_display_error_page", req.authPass, {
+          iris.invokeHook("hook_display_error_page", req.authPass, {
             error: 500,
             req: req
           }).then(function (success) {
@@ -797,7 +797,7 @@ iris.app.use(function (req, res, next) {
  *
  * @desc Return a friendly error page to the user
  *
- * Expects thisHook.const.error to be an HTTP error code.
+ * Expects thisHook.context.error to be an HTTP error code.
  *
  * @returns as data the HTML error page ready to be displayed to the user.
  */
@@ -805,21 +805,21 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 
   var isFront = false;
 
-  if (thisHook.const.req.url === '/' || thisHook.const.req.url === '/force_front_404') {
+  if (thisHook.context.req.url === '/' || thisHook.context.req.url === '/force_front_404') {
 
     isFront = true;
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile([thisHook.const.error], null, {
+  iris.modules.frontend.globals.parseTemplateFile([thisHook.context.error], null, {
     front: isFront
-  }, thisHook.const.req.authPass, thisHook.const.req).then(function (success) {
+  }, thisHook.context.req.authPass, thisHook.context.req).then(function (success) {
 
-    thisHook.finish(true, success)
+    thisHook.pass( success)
 
   }, function (fail) {
 
-    thisHook.finish(true, "<h1>Error " + thisHook.const.error + "</h1>");
+    thisHook.pass( "<h1>Error " + thisHook.context.error + "</h1>");
 
   });
 
@@ -847,7 +847,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
   var Handlebars = require('handlebars');
 
-  iris.hook("hook_frontend_handlebars_extend", thisHook.authPass, {
+  iris.invokeHook("hook_frontend_handlebars_extend", thisHook.authPass, {
     variables: data.vars
   }, Handlebars).then(function () {
 
@@ -894,25 +894,25 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
           success.html = Handlebars.compile(success.html)(success.variables);
 
-          thisHook.finish(true, success);
+          thisHook.pass( success);
 
         });
 
       } else {
 
-        thisHook.finish(true, data);
+        thisHook.pass( data);
 
       }
 
     } catch (e) {
 
-      thisHook.finish(false, e);
+      thisHook.fail( e);
 
     }
 
   }, function (fail) {
 
-    thisHook.finish(false, fail);
+    thisHook.fail( fail);
 
   })
 
@@ -1115,7 +1115,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
           var output = wrapperOutput.html.split("[[[MAINCONTENT]]]").join(innerOutput.html);
 
-          iris.hook("hook_frontend_template", authPass || "root", {
+          iris.invokeHook("hook_frontend_template", authPass || "root", {
             html: output,
             vars: innerOutput.variables
           }, {
@@ -1151,7 +1151,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
       parseTemplateFile(templateName, parameters, function (output) {
 
-        iris.hook("hook_frontend_template", authPass || "root", {
+        iris.invokeHook("hook_frontend_template", authPass || "root", {
           html: output.html,
           vars: output.variables
         }, {

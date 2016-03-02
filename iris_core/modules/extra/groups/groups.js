@@ -16,7 +16,7 @@
  }]
  }
 
- iris.hook("hook_entity_fetch", req.authPass, null,
+ iris.invokeHook("hook_entity_fetch", req.authPass, null,
  fetch
  ).then(function (groupResult) {
 
@@ -46,7 +46,7 @@
  }]
  }
 
- iris.hook("hook_entity_fetch", req.authPass, null, fetch).then(function (userResult) {
+ iris.invokeHook("hook_entity_fetch", req.authPass, null, fetch).then(function (userResult) {
 
  if (userResult.length) {
 
@@ -61,7 +61,7 @@
 
  newGroup[name] += ', ' + userResult[0].field_username;
 
- iris.hook("hook_entity_edit", req.authPass, newGroup, req.params.entityType).then(function (success) {
+ iris.invokeHook("hook_entity_edit", req.authPass, newGroup, req.params.entityType).then(function (success) {
 
  }, function (fail) {
 
@@ -72,7 +72,7 @@
  else {
  // Update entity
 
- iris.hook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
+ iris.invokeHook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
 
  }, function (fail) {
 
@@ -126,7 +126,7 @@
  }]
  }
 
- iris.hook("hook_entity_fetch", req.authPass, null, fetch).then(function (groupResult) {
+ iris.invokeHook("hook_entity_fetch", req.authPass, null, fetch).then(function (groupResult) {
 
  if (groupResult.length) {
 
@@ -146,7 +146,7 @@
 
  // Update entity
 
- iris.hook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
+ iris.invokeHook("hook_entity_edit", req.authPass, groupResult[0], groupResult[0]).then(function (success) {
 
  res.send(success);
 
@@ -188,7 +188,7 @@ iris.route.get("/read-group/:gid/:uid", {}, function (req, res) {
     }]
   };
 
-  iris.hook("hook_entity_fetch", req.authPass, null, fetch).then(function (group) {
+  iris.invokeHook("hook_entity_fetch", req.authPass, null, fetch).then(function (group) {
 
     group = group[0];
 
@@ -200,7 +200,7 @@ iris.route.get("/read-group/:gid/:uid", {}, function (req, res) {
         group.field_users[index].field_last_checked = Math.floor(Date.now() / 1000);
 
         // Save the entity.
-        iris.hook("hook_entity_edit", 'root', group, group).then(function (success) {
+        iris.invokeHook("hook_entity_edit", 'root', group, group).then(function (success) {
 
         }, function (fail) {
 
@@ -234,7 +234,7 @@ iris.modules.groups.registerHook("hook_entity_presave", 0, function (thisHook, e
     };
 
     // Fetch the parent group.
-    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (groupResult) {
+    iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (groupResult) {
 
       if (groupResult.length > 0) {
 
@@ -242,7 +242,7 @@ iris.modules.groups.registerHook("hook_entity_presave", 0, function (thisHook, e
 
           group.field_last_updated = Math.floor(Date.now() / 1000);
 
-          iris.hook("hook_entity_edit", thisHook.authPass, null, group).then(function (success) {
+          iris.invokeHook("hook_entity_edit", thisHook.authPass, null, group).then(function (success) {
 
           }, function (fail) {
 
@@ -259,7 +259,7 @@ iris.modules.groups.registerHook("hook_entity_presave", 0, function (thisHook, e
 
   }
 
-  thisHook.finish(true, entity);
+  thisHook.pass( entity);
 
 });
 
@@ -299,7 +299,7 @@ iris.modules.groups.registerHook("hook_entity_view_group", 0, function (thisHook
       ]
     };
 
-    iris.hook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (messages) {
+    iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (messages) {
 
       // If there are unread messages, add a temporary field to the group that is broadcast to clients but not saved
       // to the entity.
@@ -309,19 +309,19 @@ iris.modules.groups.registerHook("hook_entity_view_group", 0, function (thisHook
 
       }
 
-      thisHook.finish(true, entity);
+      thisHook.pass( entity);
 
     }, function (fail) {
 
       iris.log("error", fail);
 
-      thisHook.finish(false, fail);
+      thisHook.fail( fail);
 
     });
   }
   else {
 
-    thisHook.finish(true, entity);
+    thisHook.pass( entity);
 
   }
 
@@ -344,7 +344,7 @@ iris.modules.groups.registerHook("hook_entity_view_user", 0, function (thisHook,
 
   }
 
-  thisHook.finish(true, user);
+  thisHook.pass( user);
 
 });
 
@@ -354,9 +354,9 @@ iris.modules.groups.registerHook("hook_entity_view_user", 0, function (thisHook,
  */
 iris.modules.groups.registerHook("hook_socket_authenticated", 1, function (thisHook, data) {
 
-  iris.sendSocketMessage(['*'], 'userConnect', thisHook.const.socket.authPass.userid);
+  iris.sendSocketMessage(['*'], 'userConnect', thisHook.context.socket.authPass.userid);
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
 
@@ -366,8 +366,8 @@ iris.modules.groups.registerHook("hook_socket_authenticated", 1, function (thisH
  */
 iris.modules.groups.registerHook("hook_socket_disconnected", 1, function (thisHook, data) {
 
-  iris.sendSocketMessage(['*'], 'userDisconnect', thisHook.const.userid);
+  iris.sendSocketMessage(['*'], 'userDisconnect', thisHook.context.userid);
 
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 });
