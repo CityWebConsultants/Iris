@@ -1069,7 +1069,13 @@ var insertTags = function (html, vars) {
  *
  * @returns a promise which, if successful, takes the output HTML as its first argument.
  */
-iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass) {
+iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
+
+  if (req) {
+
+    parameters.req = req;
+
+  }
 
   return new Promise(function (yes, no) {
 
