@@ -1071,6 +1071,12 @@ var insertTags = function (html, vars) {
  */
 iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
 
+  if (!parameters) {
+
+    parameters = {};
+
+  }
+
   if (req) {
 
     parameters.req = req;
