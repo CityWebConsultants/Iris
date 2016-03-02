@@ -40,7 +40,7 @@ iris.modules.triggers.globals.registerAction("email", {
 iris.modules.email.registerHook("hook_triggers_email", 0, function (thisHook, data) {
 
     iris.modules.email.globals.sendEmail(thisHook.context);
-    thisHook.pass( data);
+    thisHook.pass(data);
 
 });
 
@@ -98,12 +98,12 @@ iris.modules.email.registerHook("hook_form_render__mailSettings", 0, function (t
         }];
     
 
-        thisHook.pass( data);
+        thisHook.pass(data);
 
     }, function(fail){
 
         iris.log("error", fail);
-        thisHook.fail( data);
+        thisHook.fail(data);
 
     });
     
@@ -120,7 +120,7 @@ iris.modules.email.registerHook("hook_form_submit__mailSettings", 0, function (t
     iris.saveConfig(thisHook.context.params, 'email', 'mail_system');
     
     iris.message(thisHook.authPass.userid, "Settings saved", "notice");
-    thisHook.pass( function (res) {
+    thisHook.pass(function (res) {
         res.send("/admin/config/mail-settings");
 
     });
@@ -137,7 +137,7 @@ iris.modules.email.registerHook("hook_form_submit__mailSettings", 0, function (t
 iris.modules.email.registerHook("hook_registerMailSystem", 0, function(thisHook, data){
 
     data.mailSystem["email"] = "Simple mail";
-    thisHook.pass( data);
+    thisHook.pass(data);
 
 });
 
@@ -159,7 +159,7 @@ iris.modules.email.registerHook("hook_sendMail", 0, function(thisHook, data){
         data.log = (err || response);
     });
     
-    thisHook.pass( data);
+    thisHook.pass(data);
 
 });
 

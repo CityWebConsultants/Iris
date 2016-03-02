@@ -38,7 +38,7 @@ iris.modules.forms.registerHook("hook_form_render__newBlockForm", 0, function (t
     }
   };
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -52,7 +52,7 @@ iris.modules.forms.registerHook("hook_form_submit__newBlockForm", 0, function (t
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -209,7 +209,7 @@ iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (this
 
   if (!blockName || !blockType) {
 
-    thisHook.pass( "");
+    thisHook.pass("");
     return false;
 
   } else {
@@ -230,25 +230,25 @@ iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (this
 
         if (!html) {
 
-          thisHook.pass( "");
+          thisHook.pass("");
 
         } else {
 
           // Block loaded!
 
-          thisHook.pass( html);
+          thisHook.pass(html);
 
         }
 
       }, function (fail) {
 
-        thisHook.pass( "");
+        thisHook.pass("");
 
       })
 
     } else {
 
-      thisHook.pass( "");
+      thisHook.pass("");
 
     }
 
@@ -294,19 +294,19 @@ iris.modules.blocks.registerHook("hook_block_render", 0, function (thisHook, dat
 
   if (!thisHook.context.id) {
 
-    thisHook.fail( "must have an id");
+    thisHook.fail("must have an id");
 
   } else if (!thisHook.context.type) {
 
-    thisHook.fail( "must have a type");
+    thisHook.fail("must have a type");
 
   } else if (!thisHook.context.config) {
 
-    thisHook.fail( "must have a configuration");
+    thisHook.fail("must have a configuration");
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 
@@ -347,17 +347,17 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
       data.schema.blockTitle.type = "hidden";
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     }, function (fail) {
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     });
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   };
 
@@ -381,7 +381,7 @@ iris.modules.blocks.registerHook("hook_form_render__blockDeleteForm", 0, functio
     default: thisHook.context.params[1]
   };
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -403,7 +403,7 @@ iris.modules.blocks.registerHook("hook_form_submit__blockDeleteForm", 0, functio
 
     };
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   });
 
@@ -437,13 +437,13 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
       }
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     });
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 

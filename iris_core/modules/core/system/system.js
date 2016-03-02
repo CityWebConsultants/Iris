@@ -26,7 +26,7 @@ iris.modules.system.registerHook("hook_form_render__restart", 0, function (thisH
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -34,7 +34,7 @@ iris.modules.system.registerHook("hook_form_submit__restart", 0, function (thisH
 
   iris.restart(thisHook.authPass.userid, "restart button");
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -60,7 +60,7 @@ iris.modules.system.registerHook("hook_log", 0, function (thisHook, data) {
 
   });
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 

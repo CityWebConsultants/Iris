@@ -105,11 +105,11 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
 
     var loader = entityPackage;
 
-    thisHook.pass( "<script>" + loader + "</script>");
+    thisHook.pass("<script>" + loader + "</script>");
 
   }, function (error) {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   });
 
@@ -137,7 +137,7 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 
     }, function (fail) {
 
-      thisHook.pass( fail);
+      thisHook.pass(fail);
 
     });
   }
@@ -151,7 +151,7 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 
   });
 
-  thisHook.pass( entity);
+  thisHook.pass(entity);
 
 });
 
@@ -177,7 +177,7 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 
     }, function (fail) {
 
-      thisHook.pass( fail);
+      thisHook.pass(fail);
 
     });
   }
@@ -191,7 +191,7 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 
   });
 
-  thisHook.pass( entity);
+  thisHook.pass(entity);
 
 });
 
@@ -217,7 +217,7 @@ iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, e
 
     }, function (fail) {
 
-      thisHook.pass( fail);
+      thisHook.pass(fail);
 
     });
   }
@@ -231,6 +231,6 @@ iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, e
 
   });
 
-  thisHook.pass( entity);
+  thisHook.pass(entity);
 
 });

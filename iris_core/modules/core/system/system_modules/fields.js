@@ -12,7 +12,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__password", 0
     "default": null
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -29,7 +29,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__select", 0, 
     "enum": fieldSettings.settings.options
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -47,7 +47,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__longtext", 0
     "default": value
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -65,7 +65,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Boolean"
     "default": value
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -81,7 +81,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__String",
     "default": value
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -100,7 +100,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[String]
     "default": value
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -116,7 +116,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Number",
     "default": value
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -135,7 +135,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Number]
     }
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -194,7 +194,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Date", 0
     }
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -236,7 +236,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Date]",
     }
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -244,31 +244,31 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Date]",
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__String", 0, function (thisHook, data) {
 
-  thisHook.pass( thisHook.context.value);
+  thisHook.pass(thisHook.context.value);
 
 })
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Boolean", 0, function (thisHook, data) {
 
-  thisHook.pass( thisHook.context.value);
+  thisHook.pass(thisHook.context.value);
 
 })
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[String]", 0, function (thisHook, data) {
 
-  thisHook.pass( thisHook.context.value);
+  thisHook.pass(thisHook.context.value);
 
 })
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Number]", 0, function (thisHook, data) {
 
-  thisHook.pass( thisHook.context.value);
+  thisHook.pass(thisHook.context.value);
 
 })
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Number", 0, function (thisHook, data) {
 
-  thisHook.pass( thisHook.context.value);
+  thisHook.pass(thisHook.context.value);
 
 })
 
@@ -280,11 +280,11 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Date", 0
     date.setUTCHours(thisHook.context.value.time.split(":")[0]);
     date.setUTCMinutes(thisHook.context.value.time.split(":")[1]);
 
-    thisHook.pass( date);
+    thisHook.pass(date);
 
   } else {
 
-    thisHook.pass( undefined);
+    thisHook.pass(undefined);
 
   }
 
@@ -309,6 +309,6 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Date]",
 
   })
 
-  thisHook.pass( dates);
+  thisHook.pass(dates);
 
 })

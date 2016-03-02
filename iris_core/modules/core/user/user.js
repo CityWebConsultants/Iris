@@ -99,11 +99,11 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
         }
       ];
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     } else {
 
-      thisHook.fail( data);
+      thisHook.fail(data);
 
     }
   });
@@ -175,7 +175,7 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
 
           }
           iris.message(uid, "Welcome to your new Iris site!", "info");
-          thisHook.pass( function (res) {
+          thisHook.pass(function (res) {
             res.json("/admin");
             if (enabled) {
               console.log('restarting');
@@ -188,13 +188,13 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
       }, function (fail) {
 
         iris.log(fail);
-        thisHook.fail( data);
+        thisHook.fail(data);
 
       });
 
     } else {
 
-      thisHook.fail( data);
+      thisHook.fail(data);
 
     }
 
@@ -316,12 +316,12 @@ iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, ent
 
       if (err) {
 
-        thisHook.fail( "Could not hash password");
+        thisHook.fail("Could not hash password");
 
       } else {
 
         entity.password = hash;
-        thisHook.pass( entity);
+        thisHook.pass(entity);
 
       }
 
@@ -336,7 +336,7 @@ iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, ent
 
     delete entity.password;
 
-    thisHook.pass( entity);
+    thisHook.pass(entity);
 
   }
 
@@ -395,13 +395,13 @@ iris.modules.user.registerHook("hook_auth_authpass", 5, function (thisHook, data
 
       data.roles = data.roles.concat(roles);
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     });
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 
@@ -419,7 +419,7 @@ iris.modules.user.registerHook("hook_entity_updated", 1, function (thisHook, ent
 
   }
 
-  thisHook.pass( entity);
+  thisHook.pass(entity);
 
 });
 
@@ -495,7 +495,7 @@ iris.modules.user.registerHook("hook_form_render__editEntity", 1, function (this
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -519,7 +519,7 @@ iris.modules.user.registerHook("hook_form_render__createEntity", 1, function (th
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -537,7 +537,7 @@ iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook
 
   iris.dbCollections["user"].update(conditions, update, function (err, doc) {
 
-    thisHook.pass( doc);
+    thisHook.pass(doc);
 
   });
 
@@ -570,12 +570,12 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
       iris.socketLogin(cookies.userid, cookies.token, thisHook.context.socket);
 
     } else {
-      thisHook.pass( data);
+      thisHook.pass(data);
     }
 
   } else {
 
-    thisHook.pass( data)
+    thisHook.pass(data)
   }
 
 });

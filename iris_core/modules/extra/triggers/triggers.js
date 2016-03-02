@@ -417,7 +417,7 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
     });
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 })
 
@@ -461,7 +461,7 @@ iris.modules.triggers.registerHook("hook_form_submit__actions", 0, function (thi
 
     };
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   })
 
@@ -604,7 +604,7 @@ iris.modules.triggers.registerHook("hook_form_render__action_delete", 0, functio
     default: thisHook.context.params[1]
   };
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -624,7 +624,7 @@ iris.modules.triggers.registerHook("hook_form_submit__action_delete", 0, functio
 
     if (err) {
 
-      thisHook.fail( data);
+      thisHook.fail(data);
 
     }
 
@@ -634,7 +634,7 @@ iris.modules.triggers.registerHook("hook_form_submit__action_delete", 0, functio
 
     };
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   });
 
@@ -757,7 +757,7 @@ iris.modules.triggers.registerHook("hook_triggers_event", 0, function (thisHook,
 
   data = thisHook.context.params;
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 })
 
@@ -775,7 +775,7 @@ iris.modules.triggers.registerHook("hook_request_intercept", 0, function (thisHo
 
   iris.modules.triggers.globals.triggerEvent("page_visit", thisHook.authPass, params);
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 })
 
@@ -799,6 +799,6 @@ iris.modules.triggers.registerHook("hook_triggers_log", 0, function (thisHook, d
 
   iris.log(thisHook.context.params.level, thisHook.context.params.message)
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 })

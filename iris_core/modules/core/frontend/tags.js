@@ -15,7 +15,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
 
   if (!vars.finalParse) {
 
-    thisHook.fail( data);
+    thisHook.fail(data);
     return false;
 
   }
@@ -76,6 +76,6 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
 
   }
 
-  thisHook.pass( output);
+  thisHook.pass(output);
 
 })

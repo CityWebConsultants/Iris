@@ -51,7 +51,7 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
         thisHook.context.res.cookie('anonID', anonID);
 
         data.userid = anonID;
-        thisHook.pass( data);
+        thisHook.pass(data);
 
       })
 
@@ -60,12 +60,12 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
 
       data.userid = thisHook.context.req.cookies.anonID;
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     }
     else {
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     }
 
@@ -78,7 +78,7 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
 
     }
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 

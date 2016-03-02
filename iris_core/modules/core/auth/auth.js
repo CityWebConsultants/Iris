@@ -258,12 +258,12 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 
   } else if (!data.roles || !data.userid) {
 
-    thisHook.fail( "invalid authPass");
+    thisHook.fail("invalid authPass");
     return false;
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -271,13 +271,13 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
   /*if(iris.modules.auth.globals.userList[data.userid]) {
-    thisHook.pass( "Already authenticated");
+    thisHook.pass("Already authenticated");
     return true;
   }*/
 
   if (!data.userid || typeof data.userid !== "string") {
 
-    thisHook.fail( iris.error(400, "No user ID"));
+    thisHook.fail(iris.error(400, "No user ID"));
     return false;
 
   }
@@ -315,10 +315,10 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
       iris.modules.auth.globals.userList[data.userid].tokens[authToken] = token;
       
       iris.invokeHook("hook_user_login", thisHook.authPass, null, data.userid).then(function(success) {
-        thisHook.pass( success);
+        thisHook.pass(success);
       }, function (fail) {
 
-        thisHook.fail( fail);
+        thisHook.fail(fail);
 
       });
 
@@ -349,14 +349,14 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
 
       iris.modules.auth.globals.userList[data.userid].lastActivity = Date.now();
 
-      thisHook.pass( token);
+      thisHook.pass(token);
 
     });
 
 
   } else {
 
-    thisHook.fail( iris.error(403, "Access denied"));
+    thisHook.fail(iris.error(403, "Access denied"));
 
   }
 
@@ -382,23 +382,23 @@ iris.modules.auth.registerHook("hook_auth_deletetoken", 0, function (thisHook, d
 
         }
 
-        thisHook.pass( data.token);
+        thisHook.pass(data.token);
 
       } else {
 
-        thisHook.fail( "No such token present");
+        thisHook.fail("No such token present");
 
       }
 
     } else {
 
-      thisHook.fail( "No tokens present");
+      thisHook.fail("No tokens present");
 
     }
 
   } else {
 
-    thisHook.fail( "Access Denied");
+    thisHook.fail("Access Denied");
 
   }
 
@@ -411,25 +411,25 @@ iris.modules.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, use
     if (iris.modules.auth.globals.userList[userid]) {
 
       iris.invokeHook("hook_user_logout", thisHook.authPass, null, userid).then(function(success){
-        thisHook.pass( success);
+        thisHook.pass(success);
       }, function(fail) {
 
-        thisHook.fail( fail);
+        thisHook.fail(fail);
 
       });
       delete iris.modules.auth.globals.userList[userid];
        
-      thisHook.pass( userid);
+      thisHook.pass(userid);
 
     } else {
 
-      thisHook.fail( "No tokens present");
+      thisHook.fail("No tokens present");
 
     }
 
   } else {
 
-    thisHook.fail( "Access Denied");
+    thisHook.fail("Access Denied");
 
   }
 
@@ -537,25 +537,25 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
         thisHook.context.res.send(success);
 
-        thisHook.fail( data);
+        thisHook.fail(data);
 
       }, function (fail) {
 
         thisHook.context.res.status(403);
         thisHook.context.res.end(403);
-        thisHook.fail( data);
+        thisHook.fail(data);
 
       });
 
     } else {
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     }
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 

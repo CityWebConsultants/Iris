@@ -259,7 +259,7 @@ iris.modules.groups.registerHook("hook_entity_presave", 0, function (thisHook, e
 
   }
 
-  thisHook.pass( entity);
+  thisHook.pass(entity);
 
 });
 
@@ -309,19 +309,19 @@ iris.modules.groups.registerHook("hook_entity_view_group", 0, function (thisHook
 
       }
 
-      thisHook.pass( entity);
+      thisHook.pass(entity);
 
     }, function (fail) {
 
       iris.log("error", fail);
 
-      thisHook.fail( fail);
+      thisHook.fail(fail);
 
     });
   }
   else {
 
-    thisHook.pass( entity);
+    thisHook.pass(entity);
 
   }
 
@@ -344,7 +344,7 @@ iris.modules.groups.registerHook("hook_entity_view_user", 0, function (thisHook,
 
   }
 
-  thisHook.pass( user);
+  thisHook.pass(user);
 
 });
 
@@ -356,7 +356,7 @@ iris.modules.groups.registerHook("hook_socket_authenticated", 1, function (thisH
 
   iris.sendSocketMessage(['*'], 'userConnect', thisHook.context.socket.authPass.userid);
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -368,6 +368,6 @@ iris.modules.groups.registerHook("hook_socket_disconnected", 1, function (thisHo
 
   iris.sendSocketMessage(['*'], 'userDisconnect', thisHook.context.userid);
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });

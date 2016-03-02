@@ -18,7 +18,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   if (!data.eid) {
 
-    thisHook.fail( iris.error(400, "Have to have an ID to edit something"));
+    thisHook.fail(iris.error(400, "Have to have an ID to edit something"));
     return false;
 
   };
@@ -27,7 +27,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   if (!data.entityType || !iris.dbCollections[data.entityType]) {
 
-    thisHook.fail( iris.error(400, "Needs to have a valid entityType"));
+    thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
     return false;
 
   }
@@ -40,7 +40,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     
     if (err) {
 
-      thisHook.fail( iris.error(500, "Database error"));
+      thisHook.fail(iris.error(500, "Database error"));
       iris.log("error", err);
       return false;
 
@@ -48,7 +48,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     if (!doc) {
 
-      thisHook.fail( iris.error(400, "Trying to update an entity which doesn't exist"));
+      thisHook.fail(iris.error(400, "Trying to update an entity which doesn't exist"));
       return false;
 
     }
@@ -82,7 +82,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
         } else {
 
-          thisHook.fail( fail);
+          thisHook.fail(fail);
 
         }
 
@@ -91,7 +91,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     }, function (fail) {
 
-      thisHook.fail( fail);
+      thisHook.fail(fail);
 
     });
 
@@ -121,7 +121,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
         } else {
           
-          thisHook.fail( fail);
+          thisHook.fail(fail);
           return false;
 
         }
@@ -130,7 +130,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     }, function (fail) {
 
-      thisHook.fail( fail);
+      thisHook.fail(fail);
       return false;
 
     });
@@ -155,7 +155,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
         } else {
 
-          thisHook.fail( fail);
+          thisHook.fail(fail);
           return false;
 
         }
@@ -164,7 +164,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     }, function (fail) {
 
-      thisHook.fail( fail);
+      thisHook.fail(fail);
       return false;
 
     });
@@ -190,12 +190,12 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
       
       if (err) {
 
-        thisHook.fail( err);
+        thisHook.fail(err);
         return false;
 
       }
 
-      thisHook.pass( "Updated");
+      thisHook.pass("Updated");
 
       data.eid = conditions.eid;
 
@@ -247,14 +247,14 @@ iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHoo
 
     if (!iris.modules.auth.globals.checkPermissions(["can edit own " + data.entityType], thisHook.authPass)) {
 
-      thisHook.fail( "Access denied");
+      thisHook.fail("Access denied");
       return false;
 
     } else {
 
       if (data.entityAuthor !== thisHook.authPass.userid) {
 
-        thisHook.fail( "Access denied");
+        thisHook.fail("Access denied");
         return false;
 
       }
@@ -263,6 +263,6 @@ iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHoo
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });

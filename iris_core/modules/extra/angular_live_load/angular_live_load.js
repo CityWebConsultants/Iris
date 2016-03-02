@@ -29,6 +29,6 @@ iris.modules.angular_live_load.registerHook("hook_frontend_embed__entity", 1, fu
     rank: 1
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 })
