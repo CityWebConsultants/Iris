@@ -31,21 +31,21 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
       if (data.messages && data.messages.length > 0) {
 
-        thisHook.pass( function (res) {
+        thisHook.finish(true, function (res) {
 
-          res.json({messages : data.messages});
+          res.json({
+            messages: data.messages
+          });
 
         });
 
-      }
-      else if (data.callback && data.callback.length > 0) {
+      } else if (data.callback && data.callback.length > 0) {
 
-        thisHook.pass( function (res) {
+        thisHook.finish(true, function (res) {
           res.json(data.callback);
         });
 
-      }
-      else {
+      } else {
         // If no callback is supplied provide a basic redirect to the same page
         var callback = function (res) {
 
@@ -53,12 +53,12 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
         }
 
-        thisHook.pass( callback);
+        thisHook.finish(true, callback);
       }
 
     } else {
 
-      thisHook.pass( data);
+      thisHook.finish(true, data);
 
     }
 
@@ -71,7 +71,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
     delete body.formPrevious;
 
-    iris.invokeHook("hook_form_submit__" + formid, thisHook.authPass, {
+    iris.hook("hook_form_submit_" + formid, thisHook.authPass, {
       params: body,
       formid: formid,
       previous: previous,
@@ -79,7 +79,27 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       res: thisHook.context.res
     }, data).then(specificFormSubmit, function (fail) {
 
-        thisHook.fail( fail);
+      var errors;
+      
+      if (typeof fail === "string") {
+
+        errors = [{
+          message: fail
+        }]
+
+      } else {
+
+        errors = fail;
+
+      }
+
+      thisHook.finish(true, function (res) {
+        
+        res.json({
+          errors: errors
+        });
+
+      });
 
     });
 
@@ -99,17 +119,16 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
       }
 
-      thisHook.pass( callback);
+      thisHook.finish(true, callback);
 
-    }
-    else {
-      iris.invokeHook("hook_form_submit", thisHook.authPass, {
+    } else {
+      iris.hook("hook_form_submit", thisHook.authPass, {
         params: body,
         formid: formid,
         req: thisHook.context.req
       }, data).then(genericFormSubmit, function (fail) {
 
-        thisHook.fail( fail);
+        thisHook.finish(false, fail);
 
       });
     }
@@ -117,13 +136,13 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
   var genericFormValidate = function (data) {
 
-    iris.invokeHook("hook_form_validate_" + formid, thisHook.authPass, {
+    iris.hook("hook_form_validate_" + formid, thisHook.authPass, {
       params: body,
       formid: formid,
       req: thisHook.context.req
     }, data).then(specificFormValidate, function (fail) {
 
-      thisHook.fail( fail);
+      thisHook.finish(false, fail);
 
     });
 
@@ -147,14 +166,14 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
         } else {
 
-          thisHook.fail( "Bad request");
+          thisHook.finish(false, "Bad request");
           return false;
 
         }
 
       } else {
 
-        thisHook.fail( "Bad request");
+        thisHook.finish(false, "Bad request");
         return false;
 
       }
@@ -169,18 +188,17 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       delete thisHook.context.req.body.formid;
 
 
-      iris.invokeHook("hook_form_validate", thisHook.authPass, {
+      iris.hook("hook_form_validate", thisHook.authPass, {
         params: body,
         formid: formid,
         req: thisHook.context.req
       }, {
-        errors : [],
-        messages : [],
+        errors: [],
+        messages: [],
         callback: null
-      }
-      ).then(genericFormValidate, function (fail) {
+      }).then(genericFormValidate, function (fail) {
 
-        thisHook.pass( data);
+        thisHook.finish(true, data);
 
       });
 
@@ -188,13 +206,13 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
     } else {
 
-      thisHook.pass( data);
+      thisHook.finish(true, data);
 
     }
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.finish(true, data);
 
   }
 
@@ -215,11 +233,11 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
  *
  * It is easier to handle submission of a single form by appending _ followed by the form name to this hook.
  *
- * @see hook_form_submit__<form_name>
+ * @see hook_form_submit_<form_name>
  */
 iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
-  thisHook.pass( data);
+  thisHook.finish(true, data);
 
 });
 
@@ -439,15 +457,13 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
             $('.form-errors', $("[data-formid='" + values.formid + "'")).html(errorMessages);
 
-          }
-          else {
+          } else {
 
             $("[data-formid='" + values.formid + "'").prepend('<div class="form-errors">' + errorMessages + '</div>');
 
           }
 
-        }
-        else if (data.messages && data.messages.length > 0) {
+        } else if (data.messages && data.messages.length > 0) {
 
           var messages = '';
           data.messages.forEach(function (message) {
@@ -461,15 +477,13 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
             $('.form-messages', $("[data-formid='" + values.formid + "'")).html(messages);
 
-          }
-          else {
+          } else {
 
             $("[data-formid='" + values.formid + "'").prepend('<div class="form-messages">' + messages + '</div>');
 
           }
 
-        }
-        else if (data.redirect) {
+        } else if (data.redirect) {
 
           window.location.href = data.redirect;
 
@@ -492,13 +506,13 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
   };
 
-  iris.invokeHook("hook_form_render", thisHook.authPass, {
+  iris.hook("hook_form_render", thisHook.authPass, {
     formId: formParams[0],
     params: formParams,
     context: variables
   }, formTemplate).then(function (formTemplate) {
 
-    iris.invokeHook("hook_form_render__" + formName, thisHook.authPass, {
+    iris.hook("hook_form_render_" + formName, thisHook.authPass, {
       formId: formParams[0],
       params: formParams,
       context: variables
@@ -506,7 +520,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
       renderForm(form, function (output) {
 
-        thisHook.pass( output);
+        thisHook.finish(true, output);
 
       });
 
@@ -516,13 +530,13 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         renderForm(formTemplate, function (output) {
 
-          thisHook.pass( output);
+          thisHook.finish(true, output);
 
         });
 
       } else {
 
-        thisHook.fail();
+        thisHook.finish(false);
 
       }
 
@@ -530,7 +544,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
   }, function (fail) {
 
-    thisHook.fail();
+    thisHook.finish(false);
 
   });
 
@@ -543,7 +557,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
  */
 iris.modules.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
 
-  thisHook.pass( data);
+  thisHook.finish(true, data);
 
 })
 

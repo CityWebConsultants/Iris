@@ -535,19 +535,19 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
   // Split embed code by double underscores
 
-  if (thisHook.const.embedParams[0]) {
+  if (thisHook.context.embedParams[0]) {
 
-    var searchArray = thisHook.const.embedParams[0].split("__");
+    var searchArray = thisHook.context.embedParams[0].split("__");
 
     // Get template
 
-    iris.modules.frontend.globals.parseTemplateFile(searchArray, null, thisHook.const.vars, thisHook.authPass, thisHook.const.vars.req).then(function (success) {
+    iris.modules.frontend.globals.parseTemplateFile(searchArray, null, thisHook.context.vars, thisHook.authPass, thisHook.context.vars.req).then(function (success) {
 
       thisHook.pass( success)
 
     }, function (fail) {
 
-      iris.log("error", "Tried to embed template " + thisHook.const.embedParams[0] + " but no matching template file found.");
+      iris.log("error", "Tried to embed template " + thisHook.context.embedParams[0] + " but no matching template file found.");
 
       thisHook.pass( "");
 
@@ -797,7 +797,7 @@ iris.app.use(function (req, res, next) {
  *
  * @desc Return a friendly error page to the user
  *
- * Expects thisHook.const.error to be an HTTP error code.
+ * Expects thisHook.context.error to be an HTTP error code.
  *
  * @returns as data the HTML error page ready to be displayed to the user.
  */
@@ -805,21 +805,21 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 
   var isFront = false;
 
-  if (thisHook.const.req.url === '/' || thisHook.const.req.url === '/force_front_404') {
+  if (thisHook.context.req.url === '/' || thisHook.context.req.url === '/force_front_404') {
 
     isFront = true;
 
   }
 
-  iris.modules.frontend.globals.parseTemplateFile([thisHook.const.error], null, {
+  iris.modules.frontend.globals.parseTemplateFile([thisHook.context.error], null, {
     front: isFront
-  }, thisHook.const.req.authPass, thisHook.const.req).then(function (success) {
+  }, thisHook.context.req.authPass, thisHook.context.req).then(function (success) {
 
     thisHook.pass( success)
 
   }, function (fail) {
 
-    thisHook.pass( "<h1>Error " + thisHook.const.error + "</h1>");
+    thisHook.pass( "<h1>Error " + thisHook.context.error + "</h1>");
 
   });
 
@@ -1069,7 +1069,13 @@ var insertTags = function (html, vars) {
  *
  * @returns a promise which, if successful, takes the output HTML as its first argument.
  */
-iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass) {
+iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrapperTemplateName, parameters, authPass, req) {
+
+  if (req) {
+
+    parameters.req = req;
+
+  }
 
   return new Promise(function (yes, no) {
 
