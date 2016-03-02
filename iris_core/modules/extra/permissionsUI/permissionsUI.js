@@ -94,7 +94,7 @@ iris.modules.permissionsUI.registerHook("hook_form_render__permissions", 0, func
 
   data.value["formid"] = "permissions";
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 })
 
@@ -108,7 +108,7 @@ iris.modules.permissionsUI.registerHook("hook_form_submit__permissions", 0, func
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 

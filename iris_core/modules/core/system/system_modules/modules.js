@@ -116,7 +116,7 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
       title: "submit"
     })
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   });
 
@@ -193,7 +193,7 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
   if (unmet.length) {
 
-    thisHook.fail( unmet.join("/n"));
+    thisHook.fail(unmet.join("/n"));
     return false;
 
   }
@@ -215,7 +215,7 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
   fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 
   if (enabledList.length) {

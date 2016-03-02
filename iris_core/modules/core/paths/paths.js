@@ -37,7 +37,7 @@ iris.modules.paths.registerHook("hook_entity_validate", 0, function (thisHook, d
 
   if (!data.path) {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
     return false;
 
   }
@@ -57,11 +57,11 @@ iris.modules.paths.registerHook("hook_entity_validate", 0, function (thisHook, d
 
   if (iris.modules.paths.globals.entityPaths[path] && iris.modules.paths.globals.entityPaths[path].eid.toString() !== eid.toString()) {
 
-    thisHook.fail( "Entity with that path already exists");
+    thisHook.fail("Entity with that path already exists");
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 
@@ -80,11 +80,11 @@ iris.modules.paths.registerHook("hook_entity_created", 0, function (thisHook, da
       entityType: entityType
     };
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 
@@ -106,7 +106,7 @@ iris.modules.paths.registerHook("hook_entity_deleted", 0, function (thisHook, da
 
   })
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 })
 
@@ -139,11 +139,11 @@ iris.modules.paths.registerHook("hook_entity_updated", 0, function (thisHook, da
       entityType: entityType
     };
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 

@@ -82,13 +82,13 @@ iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHo
         title: "submit"
       })
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     } catch (e) {
 
       console.log(e);
 
-      thisHook.fail( e);
+      thisHook.fail(e);
 
     }
 
@@ -111,6 +111,6 @@ iris.modules.system.registerHook("hook_form_submit__themes", 0, function (thisHo
 
   iris.restart(thisHook.authPass.userid, "themes page");
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });

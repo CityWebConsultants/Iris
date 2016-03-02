@@ -124,23 +124,23 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
       iris.invokeHook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
 
-        thisHook.pass( html);
+        thisHook.pass(html);
 
       }, function (noaccess) {
 
-        thisHook.pass( "");
+        thisHook.pass("");
 
       })
 
     }, function (fail) {
 
-      thisHook.fail( fail);
+      thisHook.fail(fail);
 
     })
 
   } else {
 
-    thisHook.pass( "");
+    thisHook.pass("");
 
   }
 
@@ -155,7 +155,7 @@ iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
   if (thisHook.context !== "admin_toolbar") {
 
-    thisHook.pass( thisHook.context);
+    thisHook.pass(thisHook.context);
 
     return false;
 
@@ -163,11 +163,11 @@ iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
   if (iris.modules.auth.globals.checkPermissions(["can view admin menu"], thisHook.authPass)) {
 
-    thisHook.pass( thisHook.context);
+    thisHook.pass(thisHook.context);
 
   } else {
 
-    thisHook.fail( thisHook.context);
+    thisHook.fail(thisHook.context);
 
   }
 

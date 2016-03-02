@@ -16,23 +16,23 @@ iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (this
 
       iris.invokeHook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
 
-        thisHook.pass( html);
+        thisHook.pass(html);
 
       }, function (noaccess) {
 
-        thisHook.fail( noaccess);
+        thisHook.fail(noaccess);
 
       })
 
     }, function (fail) {
 
-      thisHook.fail( fail);
+      thisHook.fail(fail);
 
     })
 
   }, function (fail) {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   });
 
@@ -48,7 +48,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
 
   if (thisHook.context.params[1] && thisHook.context.params[1].indexOf("{") !== -1) {
 
-    thisHook.fail( data);
+    thisHook.fail(data);
     return false;
 
   } else {
@@ -107,7 +107,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
 
       }
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     }, function (fail) {
 
@@ -151,7 +151,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
         }
       }
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     });
 
@@ -201,7 +201,7 @@ iris.modules.menu_ui.registerHook("hook_form_submit__menu", 0, function (thisHoo
 
     }
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }, function (fail) {
 
@@ -322,7 +322,7 @@ iris.modules.menu.registerHook("hook_form_render__menu_delete", 0, function (thi
     default: thisHook.context.params[1]
   };
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -344,7 +344,7 @@ iris.modules.menu.registerHook("hook_form_submit__menu_delete", 0, function (thi
 
     };
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   });
 

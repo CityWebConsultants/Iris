@@ -19,7 +19,7 @@ iris.modules.custom_blocks.registerHook("hook_form_render__blockForm_Custom-HTML
     "default": currentContents,
   };
   
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -29,10 +29,10 @@ iris.modules.custom_blocks.registerHook("hook_block_render", 0, function (thisHo
   
   if (thisHook.context.type === "Custom-HTML") {
 
-    thisHook.pass( thisHook.context.config.contents);
+    thisHook.pass(thisHook.context.config.contents);
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });

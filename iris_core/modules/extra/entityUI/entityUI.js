@@ -100,7 +100,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
   if (!schema) {
 
-    thisHook.fail( "No such schema");
+    thisHook.fail("No such schema");
     return false;
 
   }
@@ -188,7 +188,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
           value: "Save " + entityType
         });
 
-        thisHook.pass( data);
+        thisHook.pass(data);
 
       }
 
@@ -239,7 +239,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                 }, function (fail) {
 
                   iris.log("error", "Failed to load entity edit form. " + fail);
-                  thisHook.fail( fail);
+                  thisHook.fail(fail);
 
                 })
 
@@ -248,7 +248,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
             }, function (fail) {
 
               iris.log("error", "Failed to load entity edit form. " + fail);
-              thisHook.fail( fail);
+              thisHook.fail(fail);
 
 
             });
@@ -279,7 +279,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
               }, function (fail) {
 
                 iris.log("error", "Failed to load entity edit form. " + fail);
-                thisHook.fail( fail);
+                thisHook.fail(fail);
 
               })
 
@@ -288,7 +288,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
           }, function (fail) {
 
             iris.log("error", "Failed to load entity edit form. " + fail);
-            thisHook.fail( fail);
+            thisHook.fail(fail);
 
           })
 
@@ -491,7 +491,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
       iris.invokeHook(hook, thisHook.authPass, finalValues, finalValues).then(function (success) {
 
-        thisHook.pass( function (res) {
+        thisHook.pass(function (res) {
 
           res.send({
             redirect: "/admin/structure/entities"
@@ -501,7 +501,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
       }, function (fail) {
 
-        thisHook.pass( function (res) {
+        thisHook.pass(function (res) {
 
           res.send({
             errors: JSON.stringify(fail)
@@ -540,7 +540,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
       }, function (fail) {
 
-        thisHook.fail( fail);
+        thisHook.fail(fail);
 
       })
 

@@ -14,11 +14,11 @@ iris.modules.blocklist.registerHook("hook_request_intercept", 0, function (thisH
 
     iris.log("info", "Blocked IP " + ip + " tried to access url " + thisHook.context.req.url);
 
-    thisHook.fail( "Blocked");
+    thisHook.fail("Blocked");
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 

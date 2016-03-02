@@ -18,7 +18,7 @@ iris.modules.ckeditor.registerHook("hook_entity_field_widget_form__ckeditor_fiel
     "default": value
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -119,6 +119,6 @@ iris.modules.ckeditor.registerHook("hook_form_render__blockForm_Custom-HTML", 1,
 
   data.schema.contents.type = "ckeditor";
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });

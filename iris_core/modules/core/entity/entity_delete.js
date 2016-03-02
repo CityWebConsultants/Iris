@@ -18,14 +18,14 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
   if (!data.eid) {
 
-    thisHook.fail( iris.error(400, "Have to have an ID to delete something"));
+    thisHook.fail(iris.error(400, "Have to have an ID to delete something"));
     return false;
 
   };
 
   if (!data.entityType || !iris.dbCollections[data.entityType]) {
 
-    thisHook.fail( iris.error(400, "Needs to have a valid entityType"));
+    thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
     return false;
 
   }
@@ -38,14 +38,14 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
     if (err) {
 
-      thisHook.fail( iris.error(500, "Database error"));
+      thisHook.fail(iris.error(500, "Database error"));
       return false;
 
     }
 
     if (!doc) {
 
-      thisHook.fail( iris.error(400, "Trying to delete an entity which doesn't exist"));
+      thisHook.fail(iris.error(400, "Trying to delete an entity which doesn't exist"));
       return false;
 
     }
@@ -78,7 +78,7 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
         } else {
 
-          thisHook.fail( fail);
+          thisHook.fail(fail);
 
         }
 
@@ -87,7 +87,7 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
     }, function (fail) {
 
-      thisHook.fail( fail);
+      thisHook.fail(fail);
 
     })
 
@@ -109,7 +109,7 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
     function callback(err, numAffected) {
 
-      thisHook.pass( "Deleted");
+      thisHook.pass("Deleted");
 
       data.eid = conditions.eid;
 
@@ -154,14 +154,14 @@ iris.modules.entity.registerHook("hook_entity_access_delete", 0, function (thisH
 
     if (!iris.modules.auth.globals.checkPermissions(["can delete own " + data.entityType], thisHook.authPass)) {
 
-      thisHook.fail( "Access denied");
+      thisHook.fail("Access denied");
       return false;
 
     } else {
 
       if (data.entityAuthor !== thisHook.authPass.userid) {
 
-        thisHook.fail( "Access denied");
+        thisHook.fail("Access denied");
         return false;
 
       }
@@ -170,6 +170,6 @@ iris.modules.entity.registerHook("hook_entity_access_delete", 0, function (thisH
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });

@@ -543,19 +543,19 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
     iris.modules.frontend.globals.parseTemplateFile(searchArray, null, thisHook.context.vars, thisHook.authPass, thisHook.context.vars.req).then(function (success) {
 
-      thisHook.pass( success)
+      thisHook.pass(success)
 
     }, function (fail) {
 
       iris.log("error", "Tried to embed template " + thisHook.context.embedParams[0] + " but no matching template file found.");
 
-      thisHook.pass( "");
+      thisHook.pass("");
 
     });
 
   } else {
 
-    thisHook.pass( "");
+    thisHook.pass("");
 
   }
 
@@ -692,11 +692,11 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 
   parseEmbeds(data.html, data.variables, thisHook.authPass).then(function (success) {
 
-    thisHook.pass( success);
+    thisHook.pass(success);
 
   }, function (fail) {
 
-    thisHook.fail( fail);
+    thisHook.pass(fail);
 
   })
 
@@ -815,11 +815,11 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
     front: isFront
   }, thisHook.context.req.authPass, thisHook.context.req).then(function (success) {
 
-    thisHook.pass( success)
+    thisHook.pass(success)
 
   }, function (fail) {
 
-    thisHook.pass( "<h1>Error " + thisHook.context.error + "</h1>");
+    thisHook.pass("<h1>Error " + thisHook.context.error + "</h1>");
 
   });
 
@@ -894,25 +894,25 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
           success.html = Handlebars.compile(success.html)(success.variables);
 
-          thisHook.pass( success);
+          thisHook.pass(success);
 
         });
 
       } else {
 
-        thisHook.pass( data);
+        thisHook.pass(data);
 
       }
 
     } catch (e) {
 
-      thisHook.fail( e);
+      thisHook.pass(e);
 
     }
 
   }, function (fail) {
 
-    thisHook.fail( fail);
+    thisHook.pass(fail);
 
   })
 

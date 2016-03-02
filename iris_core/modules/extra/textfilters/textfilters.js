@@ -48,7 +48,7 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter", 0, functio
 
     }
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 
@@ -114,7 +114,7 @@ iris.modules.textfilters.registerHook("hook_form_render__field_settings__longtex
       }
     }
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   });
 
@@ -136,7 +136,7 @@ iris.modules.textfilters.registerHook("hook_form_submit__textfilter", 0, functio
 
     }
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   });
 
@@ -286,7 +286,7 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter_delete", 0, 
     default: thisHook.context.params[1]
   };
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -308,7 +308,7 @@ iris.modules.textfilters.registerHook("hook_form_submit__textfilter_delete", 0, 
 
     };
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   });
 
@@ -332,17 +332,17 @@ iris.modules.textfilters.registerHook("hook_entity_view_field__longtext", 0, fun
 
       });
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     }, function (fail) {
 
-      thisHook.fail( fail);
+      thisHook.fail(fail);
 
     })
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 

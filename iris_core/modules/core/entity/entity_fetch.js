@@ -34,7 +34,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   } else {
 
-    thisHook.fail( "Not a valid query");
+    thisHook.fail("Not a valid query");
     return false;
 
 
@@ -357,18 +357,18 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
             }
 
-            thisHook.pass( output);
+            thisHook.pass(output);
 
           },
           function (fail) {
 
-            thisHook.fail( fail);
+            thisHook.fail(fail);
 
           });
 
       }, function (fail) {
 
-        thisHook.fail( "Fetch failed");
+        thisHook.fail("Fetch failed");
 
       });
 
@@ -376,13 +376,13 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     var fail = function (fail) {
 
-      thisHook.fail( fail);
+      thisHook.fail(fail);
 
     };
 
     if (!dbActions.length) {
 
-      thisHook.pass( null);
+      thisHook.pass(null);
 
     }
 
@@ -390,7 +390,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   } else {
 
-    thisHook.fail( "not a valid query");
+    thisHook.fail("not a valid query");
 
   }
 
@@ -452,7 +452,7 @@ iris.app.get("/fetch", function (req, res) {
  */
 iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHook, query) {
 
-  thisHook.pass( query);
+  thisHook.pass(query);
 
 });
 
@@ -566,7 +566,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       if (fieldCheckedCounter === fieldHooks.length) {
 
-        thisHook.pass( entity);
+        thisHook.pass(entity);
 
       }
 
@@ -595,7 +595,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
   } else {
     
-    thisHook.pass( entity);
+    thisHook.pass(entity);
     
   }
 
@@ -611,7 +611,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
  */
 iris.modules.entity.registerHook("hook_entity_view_bulk", 0, function (thisHook, entityList) {
 
-  thisHook.pass( entityList);
+  thisHook.pass(entityList);
 
 });
 

@@ -174,13 +174,13 @@ iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__file", 0,
 
       fs.rename(iris.sitePath + '/temp/' + value, iris.sitePath + '/files/' + value, function () {
 
-        thisHook.pass( "/files/" + value);
+        thisHook.pass("/files/" + value);
 
       });
 
     } else {
 
-      thisHook.pass( value);
+      thisHook.pass(value);
 
     }
 
@@ -200,6 +200,6 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__file", 0, fu
     "default": value
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });

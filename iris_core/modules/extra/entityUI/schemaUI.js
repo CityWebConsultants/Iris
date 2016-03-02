@@ -372,7 +372,7 @@ iris.app.get("/admin/schema/:type/:field/delete", function (req, res) {
 }
   ];
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 });
 
 
@@ -425,7 +425,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
     iris.dbPopulate();
 
 
-    thisHook.pass( function (res) {
+    thisHook.pass(function (res) {
 
       iris.message(thisHook.authPass.userid, "Field " + fieldName + " saved on entity " + entityType, "status");
       // If field belongs to a fieldset, redirect back to fieldset manage page.
@@ -466,7 +466,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
 
       iris.message(thisHook.authPass.userid, "No such entity type", "error");
 
-      thisHook.fail( data);
+      thisHook.fail(data);
 
       return false;
 
@@ -597,7 +597,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
           }
         }
       }
-    }
+    };
 
     data.schema = {
       "table": {
@@ -664,9 +664,9 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
     data.value.weightFields = weightsList;
     data.value.entityType = entityType;
 
-    thisHook.pass( data);
+    thisHook.pass(data);
   } else {
-    thisHook.fail( data);
+    thisHook.fail(data);
     iris.log("error", "No entityType field passed to hook_form_render__schemaFieldListing");
   }
 
@@ -763,7 +763,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
 
     iris.dbPopulate();
 
-    thisHook.pass( function (res) {
+    thisHook.pass(function (res) {
 
       iris.message(thisHook.authPass.userid, "Fields sucessfully saved", "status");
       var redirect = '/admin/schema/' + entityType;
@@ -881,7 +881,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
 
       iris.message(thisHook.authPass.userid, "No such entity type", "error");
 
-      thisHook.fail( data);
+      thisHook.fail(data);
 
       return false;
 
@@ -924,7 +924,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -972,7 +972,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 
     }
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   });
 
@@ -1082,7 +1082,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
         "type": "submit",
         "title": "Save field"
       });
-      thisHook.pass( form);
+      thisHook.pass(form);
 
     }, function (fail) {
 
@@ -1092,7 +1092,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
       });
 
       iris.log("error", "No field type hook for: " + field["fieldType"]);
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     })
 
@@ -1100,7 +1100,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
   } else {
 
     iris.log("error", "No field properties found for field" + fieldName);
-    thisHook.fail( data);
+    thisHook.fail(data);
 
   }
 
@@ -1217,7 +1217,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafield", 0, function 
 
     iris.dbPopulate();
 
-    thisHook.pass( function (res) {
+    thisHook.pass(function (res) {
 
       iris.message(thisHook.authPass.userid, "Field " + fieldName + " saved on entity " + entityType, "status");
 
@@ -1259,7 +1259,7 @@ iris.modules.entityUI.registerHook("hook_form_render__field_settings__textfield"
     }
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -1280,7 +1280,7 @@ iris.modules.entityUI.registerHook("hook_form_render__field_settings__fieldset",
     }
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -1304,7 +1304,7 @@ iris.modules.entityUI.registerHook("hook_form_render__field_settings__select", 0
     }
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -1375,7 +1375,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
         }
     ];
     iris.log("error", "No widget defined for field: " + fieldTypeName);
-    thisHook.pass( data);
+    thisHook.pass(data);
     return false;
 
   }
@@ -1459,7 +1459,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
 
   }
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -1504,7 +1504,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldwidgets", 0, fu
 
     }
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   })
 

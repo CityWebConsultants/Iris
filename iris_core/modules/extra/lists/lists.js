@@ -102,7 +102,7 @@ process.on("dbReady", function () {
 
       })
 
-      thisHook.pass( data);
+      thisHook.pass(data);
 
     })
 
@@ -144,7 +144,7 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
 
         if (!result || !result.length) {
 
-          thisHook.pass( "<!-- No results for " + thisHook.context.type + " " + thisHook.context.id + "-->");
+          thisHook.pass("<!-- No results for " + thisHook.context.type + " " + thisHook.context.id + "-->");
           return false;
 
         }
@@ -215,24 +215,24 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
 
           embed += "]]]"
 
-          thisHook.pass( embed + "\n" + success);
+          thisHook.pass(embed + "\n" + success);
 
         }, function (fail) {
 
-          thisHook.pass( fail);
+          thisHook.pass(fail);
 
         })
 
       },
       function (fail) {
 
-        thisHook.pass( fail);
+        thisHook.pass(fail);
 
       });
 
   } else {
 
-    thisHook.pass( data);
+    thisHook.pass(data);
 
   }
 

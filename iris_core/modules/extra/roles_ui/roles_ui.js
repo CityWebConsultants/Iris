@@ -85,7 +85,7 @@ iris.modules.roles_ui.registerHook("hook_form_render__manageRoles", 0, function 
     }
   };
 
-  thisHook.pass( data);
+  thisHook.pass(data);
 
 });
 
@@ -111,7 +111,7 @@ iris.modules.roles_ui.registerHook("hook_form_submit__manageRoles", 0, function 
 
   iris.saveConfig(formatRoles, 'auth', 'auth_roles');
   iris.message(thisHook.authPass.userid, "Saved", "notice");
-  thisHook.pass( function (res) {
+  thisHook.pass(function (res) {
     res.send("/admin/users/roles");
 
   })
