@@ -498,8 +498,6 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
       if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
 
         var schemaField = iris.dbCollections[type].schema.tree[field];
-        console.log(iris.dbCollections[type].schema.tree[field]);
-        console.log(field);
 
         if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 
