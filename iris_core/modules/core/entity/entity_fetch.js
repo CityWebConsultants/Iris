@@ -495,7 +495,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     Object.keys(entity).forEach(function (field) {
 
-      if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id") {
+      if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
 
         var schemaField = iris.dbCollections[type].schema.tree[field];
 
@@ -575,6 +575,10 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     // Run hook for each field
 
+    if(fieldHooks.length == 0)
+      thisHook.pass(entity);
+
+
     fieldHooks.forEach(function (field) {
 
       iris.invokeHook("hook_entity_view_field__" + field.type, thisHook.authPass, {
@@ -591,7 +595,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       })
 
-    })
+    });
 
   } else {
     
