@@ -1378,7 +1378,7 @@ iris.modules.entityUI.registerHook("hook_form_render_schemafieldwidgets", 0, fun
         "helpvalue": "No widgets available for this field"
         }
     ];
-    iris.log("error", "No widget defined for field: " + fieldTypeName);
+
     thisHook.finish(true, data);
     return false;
 
