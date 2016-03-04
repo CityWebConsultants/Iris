@@ -33,7 +33,7 @@ iris.route.get("/admin/themes", {
 
 });
 
-iris.modules.system.registerHook("hook_form_render_themes", 0, function (thisHook, data) {
+iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHook, data) {
 
   // Find all themes
 
@@ -82,13 +82,13 @@ iris.modules.system.registerHook("hook_form_render_themes", 0, function (thisHoo
         title: "submit"
       })
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     } catch (e) {
 
       console.log(e);
 
-      thisHook.finish(false, e);
+      thisHook.fail(e);
 
     }
 
@@ -99,18 +99,18 @@ iris.modules.system.registerHook("hook_form_render_themes", 0, function (thisHoo
 var path = require("path");
 var fs = require("fs");
 
-iris.modules.system.registerHook("hook_form_submit_themes", 0, function (thisHook, data) {
+iris.modules.system.registerHook("hook_form_submit__themes", 0, function (thisHook, data) {
 
   iris.message(thisHook.authPass.userid, "theme config changed ", "success");
 
   var output = {
-    name: thisHook.const.params.activeTheme
+    name: thisHook.context.params.activeTheme
   }
 
   fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify(output));
 
   iris.restart(thisHook.authPass.userid, "themes page");
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });

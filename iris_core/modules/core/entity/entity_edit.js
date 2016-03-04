@@ -18,7 +18,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   if (!data.eid) {
 
-    thisHook.finish(false, iris.error(400, "Have to have an ID to edit something"));
+    thisHook.fail(iris.error(400, "Have to have an ID to edit something"));
     return false;
 
   };
@@ -27,7 +27,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   if (!data.entityType || !iris.dbCollections[data.entityType]) {
 
-    thisHook.finish(false, iris.error(400, "Needs to have a valid entityType"));
+    thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
     return false;
 
   }
@@ -40,7 +40,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     
     if (err) {
 
-      thisHook.finish(false, iris.error(500, "Database error"));
+      thisHook.fail(iris.error(500, "Database error"));
       iris.log("error", err);
       return false;
 
@@ -48,7 +48,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     if (!doc) {
 
-      thisHook.finish(false, iris.error(400, "Trying to update an entity which doesn't exist"));
+      thisHook.fail(iris.error(400, "Trying to update an entity which doesn't exist"));
       return false;
 
     }
@@ -68,9 +68,9 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   var runUpdate = function () {
     
-    iris.hook("hook_entity_access_edit", thisHook.authPass, null, data).then(function (success) {
+    iris.invokeHook("hook_entity_access_edit", thisHook.authPass, null, data).then(function (success) {
       
-      iris.hook("hook_entity_access_edit_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
+      iris.invokeHook("hook_entity_access_edit_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
 
         validate()
 
@@ -82,7 +82,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
         } else {
 
-          thisHook.finish(false, fail);
+          thisHook.fail(fail);
 
         }
 
@@ -91,7 +91,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     }, function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail(fail);
 
     });
 
@@ -107,9 +107,9 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     //    Object.freeze(dummyBody);
 
-    iris.hook("hook_entity_validate", thisHook.authPass, null, dummyBody).then(function (successData) {
+    iris.invokeHook("hook_entity_validate", thisHook.authPass, null, dummyBody).then(function (successData) {
 
-      iris.hook("hook_entity_validate_" + data.entityType, thisHook.authPass, null, dummyBody).then(function (pass) {
+      iris.invokeHook("hook_entity_validate_" + data.entityType, thisHook.authPass, null, dummyBody).then(function (pass) {
 
         preSave(data);
 
@@ -121,7 +121,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
         } else {
           
-          thisHook.finish(false, fail);
+          thisHook.fail(fail);
           return false;
 
         }
@@ -130,7 +130,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     }, function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail(fail);
       return false;
 
     });
@@ -141,9 +141,9 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   var preSave = function () {
 
-    iris.hook("hook_entity_presave", thisHook.authPass, null, data).then(function (successData) {
+    iris.invokeHook("hook_entity_presave", thisHook.authPass, null, data).then(function (successData) {
 
-      iris.hook("hook_entity_presave_" + data.entityType, thisHook.authPass, null, data).then(function (pass) {
+      iris.invokeHook("hook_entity_presave_" + data.entityType, thisHook.authPass, null, data).then(function (pass) {
 
         update(pass);
 
@@ -155,7 +155,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
         } else {
 
-          thisHook.finish(false, fail);
+          thisHook.fail(fail);
           return false;
 
         }
@@ -164,7 +164,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     }, function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail(fail);
       return false;
 
     });
@@ -190,16 +190,16 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
       
       if (err) {
 
-        thisHook.finish(false, err);
+        thisHook.fail(err);
         return false;
 
       }
 
-      thisHook.finish(true, "Updated");
+      thisHook.pass("Updated");
 
       data.eid = conditions.eid;
 
-      iris.hook("hook_entity_updated", thisHook.authPass, null, data)
+      iris.invokeHook("hook_entity_updated", thisHook.authPass, null, data)
 
       iris.log("info", data.entityType + " " + conditions.eid + " edited by " + thisHook.authPass.userid);
 
@@ -214,7 +214,7 @@ iris.app.post("/entity/edit/:type/:eid", function (req, res) {
   req.body.entityType = req.params.type;
   req.body.eid = req.params.eid;
 
-  iris.hook("hook_entity_edit", req.authPass, null, req.body).then(function (success) {
+  iris.invokeHook("hook_entity_edit", req.authPass, null, req.body).then(function (success) {
 
     res.respond(200, success);
 
@@ -247,14 +247,14 @@ iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHoo
 
     if (!iris.modules.auth.globals.checkPermissions(["can edit own " + data.entityType], thisHook.authPass)) {
 
-      thisHook.finish(false, "Access denied");
+      thisHook.fail("Access denied");
       return false;
 
     } else {
 
       if (data.entityAuthor !== thisHook.authPass.userid) {
 
-        thisHook.finish(false, "Access denied");
+        thisHook.fail("Access denied");
         return false;
 
       }
@@ -263,6 +263,6 @@ iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHoo
 
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });

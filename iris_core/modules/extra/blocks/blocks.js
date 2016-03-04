@@ -27,7 +27,7 @@ var glob = require("glob");
 
 // Form for making new blocks
 
-iris.modules.forms.registerHook("hook_form_render_newBlockForm", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_render__newBlockForm", 0, function (thisHook, data) {
 
   data.schema = {
     "blockType": {
@@ -38,21 +38,21 @@ iris.modules.forms.registerHook("hook_form_render_newBlockForm", 0, function (th
     }
   };
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
-iris.modules.forms.registerHook("hook_form_submit_newBlockForm", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_submit__newBlockForm", 0, function (thisHook, data) {
 
   data = function (res) {
 
     res.json({
-      redirect: "/admin/blocks/create/" + thisHook.const.params.blockType
+      redirect: "/admin/blocks/create/" + thisHook.context.params.blockType
     })
 
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
@@ -204,12 +204,12 @@ glob(iris.configPath + "/blocks/*/*.json", function (er, files) {
 
 iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (thisHook, data) {
   
-  var blockType = thisHook.const.embedParams[0],
-    blockName = thisHook.const.embedParams[1];
+  var blockType = thisHook.context.embedParams[0],
+    blockName = thisHook.context.embedParams[1];
 
   if (!blockName || !blockType) {
 
-    thisHook.finish(true, "");
+    thisHook.pass("");
     return false;
 
   } else {
@@ -226,29 +226,29 @@ iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (this
 
       }
 
-      iris.hook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
+      iris.invokeHook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
 
         if (!html) {
 
-          thisHook.finish(true, "");
+          thisHook.pass("");
 
         } else {
 
           // Block loaded!
 
-          thisHook.finish(true, html);
+          thisHook.pass(html);
 
         }
 
       }, function (fail) {
 
-        thisHook.finish(true, "");
+        thisHook.pass("");
 
       })
 
     } else {
 
-      thisHook.finish(true, "");
+      thisHook.pass("");
 
     }
 
@@ -286,27 +286,27 @@ iris.modules.blocks.globals.registerBlockType = function (name) {
  *
  * @desc Block render hook
  *
- * Expects to have thisHook.const contain an id, type and config pertaining to the block that is being rendered.
+ * Expects to have thisHook.context contain an id, type and config pertaining to the block that is being rendered.
  *
  * May be hooked into to change the display of blocks.
  */
 iris.modules.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
 
-  if (!thisHook.const.id) {
+  if (!thisHook.context.id) {
 
-    thisHook.finish(false, "must have an id");
+    thisHook.fail("must have an id");
 
-  } else if (!thisHook.const.type) {
+  } else if (!thisHook.context.type) {
 
-    thisHook.finish(false, "must have a type");
+    thisHook.fail("must have a type");
 
-  } else if (!thisHook.const.config) {
+  } else if (!thisHook.context.config) {
 
-    thisHook.finish(false, "must have a configuration");
+    thisHook.fail("must have a configuration");
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 
@@ -316,7 +316,7 @@ iris.modules.blocks.registerHook("hook_block_render", 0, function (thisHook, dat
 
 iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
-  var formTitle = thisHook.const.formId;
+  var formTitle = thisHook.context.formId;
 
   if (formTitle.split("_")[0] === "blockForm") {
 
@@ -339,7 +339,7 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
     // Check if a config file has already been saved for this block. If so, load in the current settings.
 
-    iris.readConfig("blocks/" + formTitle.split("_")[1], thisHook.const.params[1]).then(function (output) {
+    iris.readConfig("blocks/" + formTitle.split("_")[1], thisHook.context.params[1]).then(function (output) {
 
       data.value = output;
 
@@ -347,23 +347,23 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
       data.schema.blockTitle.type = "hidden";
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }, function (fail) {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     });
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   };
 
 });
 
-iris.modules.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_form_render__blockDeleteForm", 0, function (thisHook, data) {
 
   if (!data.schema) {
 
@@ -373,27 +373,27 @@ iris.modules.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function
 
   data.schema["blockTitle"] = {
     type: "hidden",
-    default: thisHook.const.params[2]
+    default: thisHook.context.params[2]
   };
 
   data.schema["blockType"] = {
     type: "hidden",
-    default: thisHook.const.params[1]
+    default: thisHook.context.params[1]
   };
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
-iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_form_submit__blockDeleteForm", 0, function (thisHook, data) {
 
-  if (iris.modules.blocks.globals.blocks[thisHook.const.params.blockType] && iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle]) {
+  if (iris.modules.blocks.globals.blocks[thisHook.context.params.blockType] && iris.modules.blocks.globals.blocks[thisHook.context.params.blockType][thisHook.context.params.blockTitle]) {
 
-    delete iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle];
+    delete iris.modules.blocks.globals.blocks[thisHook.context.params.blockType][thisHook.context.params.blockTitle];
 
   }
 
-  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function (err) {
+  iris.deleteConfig("blocks/" + thisHook.context.params.blockType, iris.sanitizeName(thisHook.context.params.blockTitle), function (err) {
 
     var data = function (res) {
 
@@ -403,7 +403,7 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
 
     };
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   });
 
@@ -413,21 +413,21 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
 
 iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
-  var formId = thisHook.const.formid;
+  var formId = thisHook.context.formid;
 
   if (formId.split("_")[0] === "blockForm") {
 
-    thisHook.const.params.blockTitle = iris.sanitizeName(thisHook.const.params.blockTitle);
+    thisHook.context.params.blockTitle = iris.sanitizeName(thisHook.context.params.blockTitle);
 
-    if (!iris.modules.blocks.globals.blocks[thisHook.const.params.blockType]) {
+    if (!iris.modules.blocks.globals.blocks[thisHook.context.params.blockType]) {
 
-      iris.modules.blocks.globals.blocks[thisHook.const.params.blockType] = {};
+      iris.modules.blocks.globals.blocks[thisHook.context.params.blockType] = {};
 
     }
 
-    iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle] = thisHook.const.params;
+    iris.modules.blocks.globals.blocks[thisHook.context.params.blockType][thisHook.context.params.blockTitle] = thisHook.context.params;
 
-    iris.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function () {
+    iris.saveConfig(thisHook.context.params, "blocks" + "/" + thisHook.context.params.blockType, iris.sanitizeName(thisHook.context.params.blockTitle), function () {
 
       var data = function (res) {
 
@@ -437,13 +437,13 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
       }
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     });
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 

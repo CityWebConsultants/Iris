@@ -96,7 +96,7 @@ iris.socketLogin = function (userid, token, socket) {
         timestamp: Date.now()
       };
 
-      iris.hook("hook_socket_authenticated", authPass, {
+      iris.invokeHook("hook_socket_authenticated", authPass, {
         socket: socket
       }, null).then(function () {
 
@@ -138,7 +138,7 @@ iris.socketServer.on("connection", function (socket) {
   }
 
   // Run socket through connection hook for things like getting user data from cookies
-  iris.hook("hook_socket_connect", "root", {
+  iris.invokeHook("hook_socket_connect", "root", {
     socket: socket
   }, null).then(function () {
 
@@ -175,7 +175,7 @@ iris.socketServer.on("connection", function (socket) {
     }
 
     // Run hook for disconnected socket.
-    iris.hook("hook_socket_disconnected", socket.authPass, socket.authPass, Date.now())
+    iris.invokeHook("hook_socket_disconnected", socket.authPass, socket.authPass, Date.now())
 
   });
 

@@ -5,7 +5,7 @@ var fs = require('fs');
 
 // Permissions form
 
-iris.modules.permissionsUI.registerHook("hook_form_render_permissions", 0, function (thisHook, data) {
+iris.modules.permissionsUI.registerHook("hook_form_render__permissions", 0, function (thisHook, data) {
 
   // Check if menu name supplied and previous values available
 
@@ -94,13 +94,13 @@ iris.modules.permissionsUI.registerHook("hook_form_render_permissions", 0, funct
 
   data.value["formid"] = "permissions";
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 })
 
-iris.modules.permissionsUI.registerHook("hook_form_submit_permissions", 0, function (thisHook, data) {
+iris.modules.permissionsUI.registerHook("hook_form_submit__permissions", 0, function (thisHook, data) {
 
-  fs.writeFileSync(iris.sitePath + "/configurations/auth/permissions.json", JSON.stringify(thisHook.const.params), "utf8");
+  fs.writeFileSync(iris.sitePath + "/configurations/auth/permissions.json", JSON.stringify(thisHook.context.params), "utf8");
 
   data = function (res) {
 
@@ -108,7 +108,7 @@ iris.modules.permissionsUI.registerHook("hook_form_submit_permissions", 0, funct
 
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 

@@ -40,7 +40,7 @@ var glob = require("glob");
 var fs = require("fs");
 var path = require("path");
 
-iris.modules.system.registerHook("hook_form_render_modules", 0, function (thisHook, data) {
+iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisHook, data) {
 
   // Search for iris files
 
@@ -116,25 +116,25 @@ iris.modules.system.registerHook("hook_form_render_modules", 0, function (thisHo
       title: "submit"
     })
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   });
 
 })
 
-iris.modules.system.registerHook("hook_form_submit_modules", 0, function (thisHook, data) {
+iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisHook, data) {
 
   // check previous values
 
   var enabledList = [];
   var disabledList = [];
 
-  Object.keys(thisHook.const.previous.schema).forEach(function (field) {
+  Object.keys(thisHook.context.previous.schema).forEach(function (field) {
 
-    if (thisHook.const.previous.schema[field] && thisHook.const.previous.schema[field].properties && thisHook.const.previous.schema[field].properties.enabled) {
+    if (thisHook.context.previous.schema[field] && thisHook.context.previous.schema[field].properties && thisHook.context.previous.schema[field].properties.enabled) {
 
-      var oldValue = thisHook.const.previous.schema[field].properties.enabled.default;
-      var newValue = thisHook.const.params[field].enabled;
+      var oldValue = thisHook.context.previous.schema[field].properties.enabled.default;
+      var newValue = thisHook.context.params[field].enabled;
 
       if (oldValue !== newValue) {
 
@@ -158,21 +158,21 @@ iris.modules.system.registerHook("hook_form_submit_modules", 0, function (thisHo
   var enabled = [];
   var unmet = [];
 
-  Object.keys(thisHook.const.params).forEach(function (moduleName) {
+  Object.keys(thisHook.context.params).forEach(function (moduleName) {
 
-    if (thisHook.const.params[moduleName].enabled === true) {
+    if (thisHook.context.params[moduleName].enabled === true) {
 
-      thisHook.const.params[moduleName].name = moduleName;
+      thisHook.context.params[moduleName].name = moduleName;
 
       // Check dependencies
 
-      if (thisHook.const.params[moduleName].dependencies) {
+      if (thisHook.context.params[moduleName].dependencies) {
 
-        var dependencies = thisHook.const.params[moduleName].dependencies.split(",");
+        var dependencies = thisHook.context.params[moduleName].dependencies.split(",");
 
         dependencies.forEach(function (dependency) {
 
-          if (!thisHook.const.params[dependency] || thisHook.const.params[dependency].enabled === false) {
+          if (!thisHook.context.params[dependency] || thisHook.context.params[dependency].enabled === false) {
 
             unmet.push(moduleName + " requires " + dependency);
 
@@ -182,10 +182,10 @@ iris.modules.system.registerHook("hook_form_submit_modules", 0, function (thisHo
 
       }
 
-      delete thisHook.const.params[moduleName].enabled;
-      delete thisHook.const.params[moduleName].dependencies;
+      delete thisHook.context.params[moduleName].enabled;
+      delete thisHook.context.params[moduleName].dependencies;
 
-      enabled.push(thisHook.const.params[moduleName]);
+      enabled.push(thisHook.context.params[moduleName]);
 
     }
 
@@ -193,7 +193,7 @@ iris.modules.system.registerHook("hook_form_submit_modules", 0, function (thisHo
 
   if (unmet.length) {
 
-    thisHook.finish(false, unmet.join("/n"));
+    thisHook.fail(unmet.join("/n"));
     return false;
 
   }
@@ -215,7 +215,7 @@ iris.modules.system.registerHook("hook_form_submit_modules", 0, function (thisHo
 
   fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 
   if (enabledList.length) {
