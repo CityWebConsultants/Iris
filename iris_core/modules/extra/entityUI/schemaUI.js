@@ -1076,7 +1076,11 @@ iris.modules.entityUI.registerHook("hook_form_render_schemafield", 0, function (
       data
     ).then(function (form) {
 
-      form.form.push("settings");
+      if (form.schema.settings) {
+
+        form.form.push("settings");
+
+      }
 
       form.form.push({
         "type": "submit",
