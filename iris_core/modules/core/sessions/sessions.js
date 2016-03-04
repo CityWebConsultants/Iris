@@ -15,9 +15,9 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
       data.userid = thisHook.req.cookies.userid;
       data.roles.push("authenticated");
 
-      if (thisHook.const.req.cookies.anonID) {
+      if (thisHook.context.req.cookies.anonID) {
 
-        thisHook.const.res.cookie('anonID', '');
+        thisHook.context.res.cookie('anonID', '');
       }
 
       // Remove anonymous role
@@ -30,17 +30,17 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
 
     }
     else {
-      thisHook.const.res.cookie('userid', '');
-      thisHook.const.res.cookie('token', '');
+      thisHook.context.res.cookie('userid', '');
+      thisHook.context.res.cookie('token', '');
     }
 
   }
 
   // Check if anonymous cookie written
 
-  if (data.userid === "anonymous" && thisHook.const.res) {
+  if (data.userid === "anonymous" && thisHook.context.res) {
 
-    if (thisHook.const.req && thisHook.const.req.cookies && !thisHook.const.req.cookies.anonID) {
+    if (thisHook.context.req && thisHook.context.req.cookies && !thisHook.context.req.cookies.anonID) {
 
       var crypto = require("crypto");
 
@@ -48,37 +48,37 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
 
         var anonID = "anon" + "_" + buf.toString('hex');
 
-        thisHook.const.res.cookie('anonID', anonID);
+        thisHook.context.res.cookie('anonID', anonID);
 
         data.userid = anonID;
-        thisHook.finish(true, data);
+        thisHook.pass(data);
 
       })
 
     }
-    else if (thisHook.const.req && thisHook.const.req.cookies && thisHook.const.req.cookies.anonID) {
+    else if (thisHook.context.req && thisHook.context.req.cookies && thisHook.context.req.cookies.anonID) {
 
-      data.userid = thisHook.const.req.cookies.anonID;
+      data.userid = thisHook.context.req.cookies.anonID;
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }
     else {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }
 
   }
   else {
 
-    if (thisHook.const.req && thisHook.const.req.cookies && thisHook.const.req.cookies.anonID) {
+    if (thisHook.context.req && thisHook.context.req.cookies && thisHook.context.req.cookies.anonID) {
 
-      thisHook.const.res.cookie('anonID', "");
+      thisHook.context.res.cookie('anonID', "");
 
     }
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 

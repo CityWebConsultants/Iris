@@ -131,19 +131,17 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
           thisHook = {};
 
-          thisHook.finish = function (outcome, output) {
+          thisHook.pass = function (output) {
 
-            if (outcome) {
-
-              yes(output);
-
-            } else {
-
-              no(output);
-
-            }
+            yes(output);
 
           };
+
+          thisHook.fail = function (output) {
+
+            no(output);
+
+          }
 
           thisHook.authPass = auth;
 
@@ -155,7 +153,7 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
           // TODO - const is a reserved word!
 
-          thisHook.const = constants;
+          thisHook.context = constants;
           thisHook.name = hookcall.name;
           thisHook.path = hookcall.parentModule;
           thisHook.rank = hookcall.rank;

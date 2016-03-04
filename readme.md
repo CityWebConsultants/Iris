@@ -44,7 +44,7 @@ So you really like a form that someone's made for Iris but you want to change so
 
 ``` JavaScript
 
-iris.modules.mymodule.registerHook("hook_form_render_someform", 0, function(thisHook, form){
+iris.modules.mymodule.registerHook("hook_form_render__someform", 0, function(thisHook, form){
 
   form.schema.title = {
   
@@ -54,7 +54,7 @@ iris.modules.mymodule.registerHook("hook_form_render_someform", 0, function(this
   
   }
   
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 })
 

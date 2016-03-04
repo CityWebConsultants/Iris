@@ -15,7 +15,7 @@ iris.registerModule("menu");
 
 iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHook, data) {
 
-  var menuName = thisHook.const.embedParams[0];
+  var menuName = thisHook.context.embedParams[0];
 
   var menuItems = [];
 
@@ -122,25 +122,25 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
       // Check if user can view menu
 
-      iris.hook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
+      iris.invokeHook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
 
-        thisHook.finish(true, html);
+        thisHook.pass(html);
 
       }, function (noaccess) {
 
-        thisHook.finish(true, "");
+        thisHook.pass("");
 
       })
 
     }, function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail(fail);
 
     })
 
   } else {
 
-    thisHook.finish(true, "");
+    thisHook.pass("");
 
   }
 
@@ -153,9 +153,9 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
 iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
-  if (thisHook.const !== "admin_toolbar") {
+  if (thisHook.context !== "admin_toolbar") {
 
-    thisHook.finish(true, thisHook.const);
+    thisHook.pass(thisHook.context);
 
     return false;
 
@@ -163,11 +163,11 @@ iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
   if (iris.modules.auth.globals.checkPermissions(["can view admin menu"], thisHook.authPass)) {
 
-    thisHook.finish(true, thisHook.const);
+    thisHook.pass(thisHook.context);
 
   } else {
 
-    thisHook.finish(false, thisHook.const);
+    thisHook.fail(thisHook.context);
 
   }
 

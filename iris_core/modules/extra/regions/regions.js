@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_render__regions", 0, function (thisHook, data) {
 
   // Loop over available block types and add their blocks to a list for the form
 
@@ -77,31 +77,31 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
 
       data.value = output;
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }, function (fail) {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     });
 
   } catch (e) {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
-iris.modules.forms.registerHook("hook_form_submit_regions", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_submit__regions", 0, function (thisHook, data) {
 
   try {
 
-    iris.saveConfig(thisHook.const.params, "regions", "regions", function () {
+    iris.saveConfig(thisHook.context.params, "regions", "regions", function () {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     });
 
@@ -117,7 +117,7 @@ iris.modules.forms.registerHook("hook_form_submit_regions", 0, function (thisHoo
 
 iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (thisHook, data) {
 
-  var regionName = thisHook.const.embedParams[0];
+  var regionName = thisHook.context.embedParams[0];
 
   // Get list of regions
 
@@ -150,14 +150,14 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
             type: blockType,
             instanceSettings: settings,
             config: iris.modules.blocks.globals.blocks[blockType][blockName],
-            context: thisHook.const.vars
+            context: thisHook.context.vars
           }
 
           blockPromises.push(function (object) {
 
             return new Promise(function (yes, no) {
 
-              iris.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
+              iris.invokeHook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
 
                 blockData[blockType + "|" + blockName + "|" + index] = html;
 
@@ -184,11 +184,11 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
             blocks: pass
           }, thisHook.authPass, null).then(function (success) {
 
-            thisHook.finish(true, success);
+            thisHook.pass(success);
 
           }, function (fail) {
 
-            thisHook.finish(true, data);
+            thisHook.pass(data);
 
             iris.log("error", fail);
 
@@ -196,20 +196,20 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
 
         }, function (fail) {
 
-          thisHook.finish(true, data);
+          thisHook.pass(data);
 
         });
 
       } else {
 
-        thisHook.finish(true, data);
+        thisHook.pass(data);
 
       }
 
     },
     function (fail) {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     });
 
@@ -220,48 +220,56 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
 var minimatch = require("minimatch");
 
 iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, data) {
-  
-  if (thisHook.const.instanceSettings) {
-    
-    if (thisHook.const.instanceSettings.pathVisibility) {
+
+  if (thisHook.context.instanceSettings) {
+
+    if (thisHook.context.instanceSettings.pathVisibility) {
 
       // Flag to see if showing the block or not
 
       var showing = true;
 
-      var paths = thisHook.const.instanceSettings.pathVisibility.replace(/\r\n/g, '\n').split("\n");
-            
-      if (thisHook.const.context && thisHook.const.context.req && thisHook.const.context.req.url) {
+      var paths = thisHook.context.instanceSettings.pathVisibility.replace(/\r\n/g, '\n').split("\n");
 
-        var currentUrl = thisHook.const.context.req.url;
+      if (thisHook.context.context && thisHook.context.context.req && thisHook.context.context.req.url) {
+
+        var currentUrl = thisHook.context.context.req.url;
 
         // Loop over paths
 
         paths.forEach(function (path) {
 
           var showing = minimatch(currentUrl, path);
-          
+
         })
 
-        thisHook.finish(showing, data);
+        if (showing) {
+
+          thisHook.pass(data);
+
+        } else {
+
+          thisHook.fail(data);
+
+        }
 
       } else {
 
         // No url, safer to not show
 
-        thisHook.finish(false, data);
+        thisHook.fail(data);
 
       }
 
     } else {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 

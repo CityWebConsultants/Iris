@@ -55,7 +55,7 @@ iris.route.get("/admin/users/roles", {
 
 });
 
-iris.modules.roles_ui.registerHook("hook_form_render_manageRoles", 0, function (thisHook, data) {
+iris.modules.roles_ui.registerHook("hook_form_render__manageRoles", 0, function (thisHook, data) {
 
 
   var roles = iris.modules.auth.globals.roles;
@@ -85,18 +85,18 @@ iris.modules.roles_ui.registerHook("hook_form_render_manageRoles", 0, function (
     }
   };
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
-iris.modules.roles_ui.registerHook("hook_form_submit_manageRoles", 0, function (thisHook, data) {
+iris.modules.roles_ui.registerHook("hook_form_submit__manageRoles", 0, function (thisHook, data) {
 
   var roles = iris.modules.auth.globals.roles;
   var formatRoles = {};
   var query = [];
-  for (i = 0; i < thisHook.const.params.roles.length; i++) {
-    formatRoles[thisHook.const.params.roles[i].roleName] = {
-      "name": thisHook.const.params.roles[i].roleName
+  for (i = 0; i < thisHook.context.params.roles.length; i++) {
+    formatRoles[thisHook.context.params.roles[i].roleName] = {
+      "name": thisHook.context.params.roles[i].roleName
     }
   }
   iris.modules.auth.globals.roles = formatRoles;
@@ -111,7 +111,7 @@ iris.modules.roles_ui.registerHook("hook_form_submit_manageRoles", 0, function (
 
   iris.saveConfig(formatRoles, 'auth', 'auth_roles');
   iris.message(thisHook.authPass.userid, "Saved", "notice");
-  thisHook.finish(true, function (res) {
+  thisHook.pass(function (res) {
     res.send("/admin/users/roles");
 
   })

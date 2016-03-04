@@ -7,15 +7,15 @@
  */
 iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thisHook, data) {
 
-  var tagName = thisHook.const.embedParams[0];
+  var tagName = thisHook.context.embedParams[0];
 
-  var tagExclude = thisHook.const.embedParams[1];
+  var tagExclude = thisHook.context.embedParams[1];
 
-  var vars = thisHook.const.vars;
+  var vars = thisHook.context.vars;
 
   if (!vars.finalParse) {
 
-    thisHook.finish(false, data);
+    thisHook.fail(data);
     return false;
 
   }
@@ -76,6 +76,6 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
 
   }
 
-  thisHook.finish(true, output);
+  thisHook.pass(output);
 
 })
