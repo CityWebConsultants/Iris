@@ -1076,7 +1076,11 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
       data
     ).then(function (form) {
 
-      form.form.push("settings");
+      if (form.schema.settings) {
+
+        form.form.push("settings");
+
+      }
 
       form.form.push({
         "type": "submit",
@@ -1374,7 +1378,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
         "helpvalue": "No widgets available for this field"
         }
     ];
-    iris.log("error", "No widget defined for field: " + fieldTypeName);
+
     thisHook.pass(data);
     return false;
 
