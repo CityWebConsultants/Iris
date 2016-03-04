@@ -118,7 +118,7 @@ iris.modules.paths.registerHook("hook_entity_updated", 0, function (thisHook, da
 
     var currentPath = iris.modules.paths.globals.entityPaths[path];
 
-    if (currentPath.eid.toString() === data.eid.toString()) {
+    if ((currentPath.eid.toString() === data.eid.toString()) && (currentPath.entityType === data.entityType)) {
 
       delete iris.modules.paths.globals.entityPaths[path];
 
