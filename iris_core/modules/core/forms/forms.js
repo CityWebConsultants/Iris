@@ -311,6 +311,12 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
     rank: 1
   }
 
+    type: "script",
+    attributes: {
+      "src": "/modules/forms/clientforms.js"
+    },
+  }
+
   //
 
   var formParams = thisHook.context.embedParams;
@@ -398,11 +404,11 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
       var output = "";
 
-      var uniqueId = formName + Date.now().toString();
+      var uniqueId = formName + token;
 
       output += "<form data-params=" + formParams + " method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
-      output += "<script>$('#" + uniqueId + "').jsonForm(" + toSource(form) + ");</script>";
+      output += "<script>iris.forms['" + uniqueId + "'] = " + toSource(form) + "</script>";
 
       callback(output);
 
