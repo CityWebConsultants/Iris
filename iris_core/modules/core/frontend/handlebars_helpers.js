@@ -99,20 +99,6 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   });
 
-  Handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options) {
-    if (arguments.length < 4) {
-      throw new Error("Handlerbars Helper 'compare' needs 3 parameters");
-    }
-
-    var result = eval("'" + lvalue + "' " + operator + " '" + rvalue + "'");
-    if (result) {
-      return options.fn(this);
-    } else {
-      return options.inverse(this);
-    }
-  });
-
   thisHook.pass(Handlebars);
 
 });
-
