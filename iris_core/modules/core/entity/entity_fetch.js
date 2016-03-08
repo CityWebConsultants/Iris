@@ -597,6 +597,8 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     });
 
+    thisHook.pass(entity);
+
   } else {
     
     thisHook.pass(entity);
