@@ -68,9 +68,18 @@ iris.route.get("/admin/structure", {
   "menu": [{
     menuName: "admin_toolbar",
     parent: null,
-    title: "Structure"
+    title: "Structure",
+    permissions: ["can access admin pages"]
   }]
 }, function (req, res) {
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
 
   var menu = iris.modules.menu.globals.getBaseLinks(req.url);
 
