@@ -673,22 +673,21 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
       bodyTags: {},
     };
 
-    // Default tags
-
-    data.variables.tags.headTags["iris_core"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/frontend/iris_core.js"
-      },
-      rank: 0
-    }
-
-    if (iris.modules.frontend.globals.activeTheme) {
-      data.variables["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
-    }
-
   }
 
+  // Default tags
+
+  data.variables.tags.headTags["iris_core"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/frontend/iris_core.js"
+    },
+    rank: 0
+  }
+
+  if (iris.modules.frontend.globals.activeTheme) {
+    data.variables["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
+  }
 
   parseEmbeds(data.html, data.variables, thisHook.authPass).then(function (success) {
 
