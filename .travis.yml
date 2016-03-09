@@ -5,7 +5,7 @@ before_install:
 before_script:
   - npm install jasmine-node -g
   - node iris.js site=default &
-  - grunt build
+#  - grunt build
 install: 
   - npm install
 services:

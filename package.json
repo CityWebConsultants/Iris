@@ -36,10 +36,12 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "frisby": "^0.8.5",
+    "grunt": "^0.4.5",
+    "grunt-jasmine-node-coverage": "^0.4.1",
     "jasmine-node": "^1.14.5",
     "jshint": "^2.9.1"
   },
   "scripts": {
-    "test": "jasmine-node iris_core/test/*"
+    "test": "grunt default"
   }
 }
