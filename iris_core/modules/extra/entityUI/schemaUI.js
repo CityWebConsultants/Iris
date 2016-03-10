@@ -852,6 +852,11 @@ iris.modules.entityUI.globals.basicFieldForm = function (field, fieldName, entit
             "enum": Object.keys(iris.modules.auth.globals.roles)
           }
         },
+        "required": {
+          "type": "boolean",
+          "title": "Required field",
+          "description": "Should this field be required?"
+        },
         "unique": {
           "type": "boolean",
           "title": "Unique field",

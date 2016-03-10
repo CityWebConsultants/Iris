@@ -366,6 +366,12 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
               getFieldForm(field.subfields[subFieldName], function (form) {
 
+                if (field.subfields[subFieldName].required) {
+
+                  form.required = true;
+
+                }
+
                 fieldset.default[index][subFieldName] = form.default;
 
                 delete form.default;
@@ -394,6 +400,12 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
       var field = schema.fields[fieldName];
 
       getFieldForm(field, function (form) {
+
+        if (field.required) {
+
+          form.required = true;
+
+        }
 
         data.schema[fieldName] = form;
         fieldLoaded();
