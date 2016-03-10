@@ -397,8 +397,8 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 });
 
 iris.app.get("/fetch", function (req, res) {
-  [
-  var failed;
+
+  var failed = true;
 
   if (req.query.entities) {
 
