@@ -397,9 +397,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 });
 
 iris.app.get("/fetch", function (req, res) {
-
-  // Check if user can fetch this entity type
-
+  [
   var failed;
 
   if (req.query.entities) {
@@ -418,13 +416,13 @@ iris.app.get("/fetch", function (req, res) {
     })
 
   } else {
-
+    console.log('FAIL !!!!!!!!!!!!!!!!!!');
     res.status(400).json("Not a valid entity fetch query");
 
   }
 
   if (failed) {
-
+    res.status(400).json("FOO BOO MOO GLOO WAS HERE");
     return false;
 
   }
