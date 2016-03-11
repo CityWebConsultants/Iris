@@ -405,10 +405,9 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       var output = "";
 
       var uniqueId = formName + token;
+      output += "<form data-params='" + formParams + "' method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
-      output += "<form data-params=" + formParams + " method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
-
-      output += "<script>iris.forms['" + uniqueId + "'] = " + toSource(form) + "</script>";
+      output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}</script>";
 
       callback(output);
 
