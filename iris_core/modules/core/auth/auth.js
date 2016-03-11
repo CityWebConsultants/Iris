@@ -263,6 +263,23 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 
   }
 
+  // This is required to add i18n to the authPass object. This allows each user to have a separate language set for
+  // their request. It's an alternative to passing the req object everywhere.
+  // Translated text can be achieved by thisHook.authPass.t('Text to translate');
+  // To change the users language, use hook_auth_authpass and then thisHook.authPass.setLocale([language code]);
+  if (thisHook.req.headers['accept-language']) {
+
+    data.headers = {'accept-language' : thisHook.req.headers['accept-language']};
+
+  }
+  else {
+
+    data.headers = {'accept-language' : 'en-US,en'};
+
+  }
+
+  iris.i18n.init(data);
+
   thisHook.pass(data);
 
 });
