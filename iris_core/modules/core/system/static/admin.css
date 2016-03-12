@@ -196,28 +196,28 @@ thead tr {
   margin-bottom: 10px;
 }
 
-.form-group {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group {
   padding:20px;
   background:#eee;
   border-radius: 5px;
 }
 
-.form-group .form-group {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group .form-group {
   padding:5px 20px;
   margin-bottom:0;
 }
 
-.form-group .ui-sortable-handle {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group .ui-sortable-handle {
   padding: 10px;
   border: 1px solid #bbb;
   border-radius: 5px;
   margin-bottom: 10px;
 }
 
-.form-group[data-jsonform-type="array"] > label {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label {
   cursor:pointer;
 }
-.form-group[data-jsonform-type="array"] > label:after {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label:after {
   content: "\e259";
   position: relative;
   top: 1px;
@@ -232,11 +232,11 @@ thead tr {
   left: 5px;
 }
 
-.form-group[data-jsonform-type="array"] > .controls {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > .controls {
   display:none;
 }
 
-.form-group ul {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group ul {
   padding-left:0;
 }
 
