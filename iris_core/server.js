@@ -3,7 +3,8 @@
  */
 var express = require('express'),
   bodyParser = require('body-parser'),
-  i18n = require("i18n");
+  i18n = require("i18n"),
+  fs = require("fs");
 
 iris.app = express();
 
@@ -18,7 +19,9 @@ iris.app.use(bodyParser.urlencoded({
 }));
 
 // I18n.
-
+if (!fs.existsSync(iris.configPath + '/locales')){
+  fs.mkdirSync(iris.configPath + '/locales');
+}
 i18n.configure({
   defaultLocale: 'en',
   autoReload: true,
