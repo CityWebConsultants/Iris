@@ -66,6 +66,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
         },
         "items": {
           "type": "array",
+          "title" : "Menu links",
           "items": {
             "type": "object",
             "properties": {
