@@ -9,4 +9,8 @@ $(document).on("ready", function () {
     }
   })
 
+  $( "html" ).on( "click", ".form-group[data-jsonform-type=array] > label", function(e) {
+    $(this).next().slideToggle();
+  });
+
 });

@@ -214,6 +214,9 @@ thead tr {
   margin-bottom: 10px;
 }
 
+.form-group[data-jsonform-type="array"] > label {
+  cursor:pointer;
+}
 .form-group[data-jsonform-type="array"] > label:after {
   content: "\e259";
   position: relative;
