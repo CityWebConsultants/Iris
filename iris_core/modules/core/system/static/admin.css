@@ -196,6 +196,47 @@ thead tr {
   margin-bottom: 10px;
 }
 
+.form-group {
+  padding:20px;
+  background:#eee;
+  border-radius: 5px;
+}
+
+.form-group .form-group {
+  padding:5px 20px;
+  margin-bottom:0;
+}
+
+.form-group .ui-sortable-handle {
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.form-group[data-jsonform-type="array"] > label:after {
+  content: "\e259";
+  position: relative;
+  top: 1px;
+  display: inline-block;
+  font-family: 'Glyphicons Halflings';
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 0.9em;
+  left: 5px;
+}
+
+.form-group[data-jsonform-type="array"] > .controls {
+  display:none;
+}
+
+.form-group ul {
+  padding-left:0;
+}
+
 form[data-formid=schemafield] fieldset{
   padding:20px;
   background-color:#eee;
