@@ -214,10 +214,12 @@ form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .f
   margin-bottom: 10px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label,
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend{
   cursor:pointer;
 }
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label:after {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label:after,
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend:after{
   content: "\e259";
   position: relative;
   top: 1px;
@@ -232,7 +234,8 @@ form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .f
   left: 5px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > .controls {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > .controls,
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > .jsonform-node {
   display:none;
 }
 

@@ -17,7 +17,11 @@ $(document).on("ready", function () {
     iris.forms.renderForm(form);
   })
 
-  $( "html" ).on( "click", ".form-group[data-jsonform-type=array] > label", function(e) {
+  $( "html" ).on( "click", ".form-group[data-jsonform-type='array'] > label", function(e) {
+    $(this).next().slideToggle();
+  });
+
+  $( "html" ).on( "click", "fieldset[data-jsonform-type='fieldset'] > legend", function(e) {
     $(this).next().slideToggle();
   });
 
