@@ -249,7 +249,7 @@ iris.route.get("/modules/forms/extrafields.js", function (req, res) {
 
     output += "iris.forms['" + field + "'] = " + iris.modules.forms.globals.widgets[field] + "()\n" + "\n";
 
-  })
+  });
 
   res.setHeader('content-type', 'application/javascript');
   res.send(output);
@@ -407,7 +407,8 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       var uniqueId = formName + token;
       output += "<form data-params='" + formParams + "' method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
-      output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}</script>";
+      output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}" +
+        "\n if(typeof iris.forms.renderForm == \"function\") iris.forms.renderForm('" + uniqueId + "');</script>";
 
       callback(output);
 

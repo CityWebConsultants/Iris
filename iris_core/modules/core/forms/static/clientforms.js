@@ -1,12 +1,23 @@
 iris.forms = {};
 
 $(document).on("ready", function () {
-  Object.keys(iris.forms).forEach(function (form) {
-    $("#"+form).jsonForm(iris.forms[form].form);
-    var tmpFunc = new Function(iris.forms[form].onComplete + "()");
-    if (typeof window[iris.forms[form].onComplete] == 'function') {
-      tmpFunc();
+  iris.forms.cache = [];
+
+  iris.forms.renderForm = function(formId){
+    if(iris.forms.cache.indexOf(formId) > -1) return;
+    $("#"+formId).jsonForm(iris.forms[formId].form);
+    var onComplete = new Function(iris.forms[formId].onComplete + "()");
+    if (typeof window[iris.forms[formId].onComplete] == 'function') {
+      onComplete();
     }
+    iris.forms.cache.push(formId);
+  }
+
+  Object.keys(iris.forms).forEach(function (form) {
+    iris.forms.renderForm(form);
   })
+
+
+
 
 });
