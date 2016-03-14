@@ -234,6 +234,10 @@ form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fi
   left: 5px;
 }
 
+fieldset[data-jsonform-type="fieldset"] fieldset[data-jsonform-type="fieldset"] {
+  padding-left:20px;
+}
+
 form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > .controls,
 form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > .jsonform-node {
   display:none;
