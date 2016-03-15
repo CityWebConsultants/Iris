@@ -2,7 +2,9 @@
  * @file Express HTTP server setup and management functions.
  */
 var express = require('express'),
-  bodyParser = require('body-parser');
+  bodyParser = require('body-parser'),
+  i18n = require("i18n"),
+  fs = require("fs");
 
 iris.app = express();
 
@@ -15,6 +17,22 @@ iris.app.use(bodyParser.urlencoded({
   parameterLimit: 10000,
   limit: 10485760
 }));
+
+// I18n.
+if (!fs.existsSync(iris.configPath + '/locales')){
+  fs.mkdirSync(iris.configPath + '/locales');
+}
+i18n.configure({
+  defaultLocale: 'en',
+  autoReload: true,
+  directory: iris.configPath + '/locales',
+  api: {
+    '__' : 't',
+    '__n' : 'tn'
+  }
+});
+
+iris.i18n = i18n;
 
 var cookieParser = require('cookie-parser')
 iris.app.use(cookieParser());
