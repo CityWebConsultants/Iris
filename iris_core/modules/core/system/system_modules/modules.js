@@ -1,20 +1,28 @@
-iris.route.get("/admin/modules", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Modules"
-  }]
-}, function (req, res) {
 
-  // If not admin, present 403 page
+var glob = require("glob");
+var fs = require("fs");
+var path = require("path");
 
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
+/**
+ * Define callback routes.
+ */
+var routes = {
+  modules : {
+    title: "Modules",
+    description: "Administer modules",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: null,
+      title: "Modules"
+    }]
   }
+}
+
+/**
+ * Admin page callback: Administer modules.
+ */
+iris.route.get("/admin/modules", routes.modules, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_modules"], ['admin_wrapper'], null, req.authPass, req).then(function (success) {
 
@@ -33,12 +41,6 @@ iris.route.get("/admin/modules", {
   });
 
 });
-
-// Register menu item
-
-var glob = require("glob");
-var fs = require("fs");
-var path = require("path");
 
 iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisHook, data) {
 
