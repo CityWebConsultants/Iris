@@ -203,8 +203,8 @@ form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .f
 }
 
 form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group .form-group {
-  padding:5px 20px;
-  margin-bottom:0;
+  padding:15px 20px;
+  margin-bottom:15px;
 }
 
 form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group .ui-sortable-handle {
@@ -214,10 +214,12 @@ form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .f
   margin-bottom: 10px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label,
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend{
   cursor:pointer;
 }
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label:after {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label:after,
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend:after{
   content: "\e259";
   position: relative;
   top: 1px;
@@ -232,12 +234,41 @@ form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .f
   left: 5px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > .controls {
+fieldset[data-jsonform-type="fieldset"] fieldset[data-jsonform-type="fieldset"] {
+  padding-left:20px;
+}
+
+
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > .controls,
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] >  legend ~ .jsonform-node {
   display:none;
 }
 
 form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group ul {
   padding-left:0;
+}
+
+fieldset {
+  background: #eee;
+  border-radius: 5px;
+}
+
+form > div > fieldset {
+  padding:20px;
+}
+
+legend {
+  border-bottom: 0;
+  margin-bottom:10px;
+}
+form > div > fieldset > legend {
+  position: relative;
+  top: 30px;
+  margin-bottom:20px;
+}
+
+form fieldset div.form-group {
+  background-color: #fefefe !important;
 }
 
 form[data-formid=schemafield] fieldset{
@@ -266,4 +297,15 @@ form[data-formid=schemaFieldListing] .jsonform-error-weightFields {
 }
 .help-block {
   font-size:12px;
+}
+
+div[data-jsonform-type="checkbox"] .controls{
+  display:inline-block;
+}
+
+.checkbox {
+  margin: 0;
+  position: relative;
+  left: 10px;
+  top: 5px;
 }
