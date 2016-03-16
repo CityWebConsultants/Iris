@@ -532,7 +532,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
     }, function (fail) {
 
-      if (fail == "No such hook exists") {
+      if (fail = "No such hook exists") {
 
         renderForm(formTemplate, function (output) {
 
