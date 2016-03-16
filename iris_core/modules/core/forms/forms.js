@@ -42,7 +42,9 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       } else if (data.callback && data.callback.length > 0) {
 
         thisHook.pass(function (res) {
-          res.json(data.callback);
+          res.json({
+            'redirect' : data.callback
+          });
         });
 
       } else {
@@ -471,10 +473,14 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         } else if (data.messages && data.messages.length > 0) {
 
-          var messages = '';
-          data.messages.forEach(function (message) {
+          $("body").animate({
+            scrollTop: $("[data-formid='" + values.formid + "'").offset().top
+          }, "fast");
 
-            messages += "<div class='form-message'>" + message + "</div>";
+          var messages = '';
+          data.messages.forEach(function (obj) {
+
+            messages += "<div class='form-message ' + obj.type>" + obj.message + "</div>";
 
           });
 
