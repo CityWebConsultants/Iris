@@ -9,6 +9,7 @@
 
 iris.modules.textfilters.registerHook("hook_form_render__textfilter", 0, function (thisHook, data) {
 
+  var ap = thisHook.authPass;
   if (!data.schema) {
 
     data.schema = {};
@@ -20,7 +21,7 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter", 0, functio
     data.schema.name = {
 
       "type": "text",
-      "title": "Filter name",
+      "title": ap.t("Filter name"),
       "required": true
     };
 
@@ -28,15 +29,15 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter", 0, functio
     data.schema.elements = {
 
       "type": "text",
-      "title": "Allowed HTML elements",
-      "description": "Divided by commas. List without brackets.",
+      "title": ap.t("Allowed HTML elements"),
+      "description": ap.t("Divided by commas. List without brackets."),
     }
 
     data.schema.attributes = {
 
       "type": "text",
-      "title": "Allowed HTML attributes",
-      "description": "Divided by commas",
+      "title": ap.t("Allowed HTML attributes"),
+      "description": ap.t("Divided by commas"),
     }
 
     if (config) {
@@ -106,7 +107,7 @@ iris.modules.textfilters.registerHook("hook_form_render__field_settings__longtex
       type: "object",
       properties: {
         textFilter: {
-          "title": "Text filter",
+          "title": thisHook.authPass.t("Text filter"),
           "type": "text",
           "enum": ["none"].concat(filters)
         }

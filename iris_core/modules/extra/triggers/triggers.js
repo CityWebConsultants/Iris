@@ -241,22 +241,18 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
 iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thisHook, data) {
 
+  var ap = thisHook.authPass;
+
   if (!data.schema) {
-
     data.schema = {}
-
   }
 
   data.schema.name = {
-
-    "title": "Name of action"
-
+    "title": ap.t("Name of action")
   }
 
   data.schema.event = {
-
-    "title": "Event"
-
+    "title": ap.t("Event")
   }
 
   // Generate form presentation
@@ -286,27 +282,27 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
 
     events[eventType] = {
       "type": "object",
-      "title": "This event provides the tokens " + tokens.join(",") + " which can be used as placeholders in the actions and conditions section of this form",
+      "title": ap.t("This event provides the tokens {{token}} which can be used as placeholders in the actions and conditions section of this form", {tokens: tokens.join(",")}),
       "properties": {
         "conditions": {
-          "title": "Conditions",
+          "title": ap.t("Conditions"),
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
               "thing": {
                 "type": "text",
-                "title": "property",
+                "title": ap.t("property"),
                 "enum": ["Pick a parameter"].concat(iris.modules.triggers.globals.events[eventType].parameters)
               },
               "operator": {
                 "type": "text",
-                "title": "operator",
+                "title": ap.t("operator"),
                 "enum": ["is", "contains"]
               },
               "value": {
                 "type": "text",
-                "title": "value"
+                "title": ap.t("value")
               }
             }
           }
@@ -325,7 +321,7 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
     "type": "choose",
     "required": true,
     "options": Object.keys(events),
-    "title": "Choose an event type"
+    "title": ap.t("Choose an event type")
   }
 
   Object.keys(events).forEach(function (event) {
@@ -363,7 +359,7 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
       "action": {
         "type": "choose",
         "options": Object.keys(actions),
-        "title": "Choose an action type"
+        "title": ap.t("Choose an action type")
       }
     }
   }
@@ -382,7 +378,7 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
 
   data.form.push({
     type: "submit",
-    title: "Save action"
+    title: ap.t("Save action")
   });
 
   // Check if already submitted form exists

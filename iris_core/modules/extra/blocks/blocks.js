@@ -329,7 +329,7 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
     data.schema.blockTitle = {
       type: "string",
       required: true,
-      title: "Block title"
+      title: thisHook.authPass.t("Block title")
     };
 
     data.schema.blockType = {

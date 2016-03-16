@@ -3,7 +3,7 @@ var fs = require('fs');
 iris.modules.forms.registerHook("hook_form_render__regions", 0, function (thisHook, data) {
 
   // Loop over available block types and add their blocks to a list for the form
-
+  var ap = thisHook.authPass;
   var blocks = [];
 
   Object.keys(iris.modules.blocks.globals.blocks).forEach(function (blockType) {
@@ -49,7 +49,7 @@ iris.modules.forms.registerHook("hook_form_render__regions", 0, function (thisHo
               "properties": {
                 "pathVisibility": {
                   "type": "textarea",
-                  "title": "Path visibility",
+                  "title": ap.t("Path visibility"),
                   "description": "Paths this block is visible at (each on a new line). <a href='https://github.com/isaacs/minimatch'><small>Read information on accepted patterns from the minimatch documentation</small></a>",
                 }
 

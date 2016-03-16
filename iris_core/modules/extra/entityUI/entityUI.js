@@ -220,7 +220,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
         data.form.push({
           type: "submit",
-          value: "Save " + entityType
+          value: thisHook.authPass.t("Save {{type}}", {type: entityType})
         });
 
         thisHook.pass(data);

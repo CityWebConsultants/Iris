@@ -72,14 +72,14 @@ iris.modules.roles_ui.registerHook("hook_form_render__manageRoles", 0, function 
   data.schema.roles = {
     "type": "array",
     "title": "Roles",
-    "description": "Default roles: anonymous, authenticated",
+    "description": thisHook.authPass.t("Default roles: anonymous, authenticated"),
     "default": rolesDefaults,
     "items": {
       "type": "object",
       "properties": {
         "roleName": {
           "type": "string",
-          "title": "Name"
+          "title": thisHook.authPass.t("Name")
         },
       }
     }

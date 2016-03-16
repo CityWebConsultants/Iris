@@ -10,7 +10,7 @@ iris.app.get("/admin/api/config/export", function (req, res) {
     if (err) {
       return console.error(err);
     }
-    res.send("Config exported")
+    res.send(req.authPass.t("Config exported"));
   });
 
 });
@@ -21,7 +21,7 @@ iris.app.get("/admin/api/config/import", function (req, res) {
     if (err) {
       return console.error(err);
     }
-    res.send("Config imported")
+    res.send(req.authPass.t("Config imported"));
   });
 
 });
@@ -34,7 +34,7 @@ iris.route.get("/admin/config", {
   }]
 }, function (req, res) {
 
-  res.send("Config top level to go here.")
+  res.send(req.authPass.t("Config top level to go here."));
 
 });
 

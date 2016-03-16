@@ -46,7 +46,7 @@ iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (this
 iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHook, data) {
 
   // Check if menu name supplied and previous values available
-
+  var ap = thisHook.authPass;
   if (thisHook.context.params[1] && thisHook.context.params[1].indexOf("{") !== -1) {
 
     thisHook.fail(data);
@@ -63,7 +63,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
       data.schema = {
         "menuName": {
           "type": "text",
-          "title": "Menu title"
+          "title": ap.t("Menu title")
         },
         "items": {
           "type": "array",
@@ -72,25 +72,25 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
             "properties": {
               "title": {
                 "type": "text",
-                "title": "Title"
+                "title": ap.t("Title")
               },
               "path": {
                 "type": "text",
-                "title": "path"
+                "title": ap.t("path")
               },
               "children": {
                 "type": "array",
-                "title": "Children",
+                "title": ap.t("Children"),
                 "items": {
                   "type": "object",
                   "properties": {
                     "title": {
                       "type": "text",
-                      "title": "Title"
+                      "title": ap.t("Title")
                     },
                     "path": {
                       "type": "text",
-                      "title": "path"
+                      "title": ap.t("path")
                     },
                   }
                 }
@@ -115,7 +115,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
       data.schema = {
         "menuName": {
           "type": "text",
-          "title": "Menu title"
+          "title": ap.t("Menu title")
         },
         "items": {
           "type": "array",
@@ -124,25 +124,25 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
             "properties": {
               "title": {
                 "type": "text",
-                "title": "Title"
+                "title": ap.t("Title")
               },
               "path": {
                 "type": "text",
-                "title": "path"
+                "title": ap.t("path")
               },
               "children": {
                 "type": "array",
-                "title": "Children",
+                "title": ap.t("Children"),
                 "items": {
                   "type": "object",
                   "properties": {
                     "title": {
                       "type": "text",
-                      "title": "Title"
+                      "title": ap.t("Title")
                     },
                     "path": {
                       "type": "text",
-                      "title": "path"
+                      "title": ap.t("path")
                     },
                   }
                 }
