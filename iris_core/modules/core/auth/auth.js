@@ -539,12 +539,24 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
   // Check if a matching route is found
 
-  if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissions) {
+  if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && (thisHook.context.req.irisRoute.options.permissions || thisHook.context.req.irisRoute.options.permissionsCallback)) {
 
-    var permissions = thisHook.context.req.irisRoute.options.permissions;
+    if (thisHook.context.req.irisRoute.options.permissionsCallback) {
 
-    var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.context.req.authPass);
+      if (typeof thisHook.context.req.irisRoute.options.permissionsCallback == 'function') {
 
+        var access = thisHook.context.req.irisRoute.options.permissionsCallback(thisHook.context.req.irisRoute.options, thisHook.authPass);
+
+      }
+
+    }
+    else {
+
+      var permissions = thisHook.context.req.irisRoute.options.permissions;
+
+      var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.context.req.authPass);
+
+    }
     if (!access) {
 
       iris.invokeHook("hook_display_error_page", thisHook.context.req.authPass, {
