@@ -137,37 +137,18 @@ iris.route.get("/admin/logs", routes.logs, function (req, res) {
  */
 iris.route.get("/admin/structure", routes.structure, function (req, res) {
 
-  // Load in admin menu
+  var menu = iris.modules.menu.globals.getBaseLinks(req.url);
+  menu.name = req.irisRoute.options.title;
 
-  var structureMenu = {};
-
-  if (iris.configStore["menu"]["admin-toolbar"]) {
-
-    iris.configStore["menu"]["admin-toolbar"].items.forEach(function (item) {
-
-      if (item.path === "/admin/structure") {
-
-        structureMenu = item;
-
-      }
-
-    })
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_structure"], ['admin_wrapper'], {
-    structureMenu: structureMenu
+  iris.modules.frontend.globals.parseTemplateFile(["baselinks"], ['admin_wrapper'], {
+    menu: menu,
   }, req.authPass, req).then(function (success) {
-    res.send(success)
-  }, function (fail) {
 
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", fail);
+    res.send(success);
 
   });
 
-})
+});
 
 /**
  * Admin page callback: Restart server.
