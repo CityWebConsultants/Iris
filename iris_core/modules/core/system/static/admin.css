@@ -267,7 +267,7 @@ form > div > fieldset > legend {
   margin-bottom:20px;
 }
 
-form fieldset div.form-group {
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset div.form-group {
   background-color: #fefefe !important;
 }
 
