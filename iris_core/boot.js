@@ -277,34 +277,18 @@ module.exports = function (config) {
 
     iris.app.use(function (req, res) {
 
-      if (!res.headersSent) {
+      iris.invokeHook("hook_catch_request", req.authPass, {
+        req: req,
+        res: res
+      }, null).then(function (success) {
 
-        iris.invokeHook("hook_catch_request", req.authPass, {
-          req: req,
-          res: res
-        }, null).then(function (success) {
+          if (typeof success === "function") {
 
-            if (typeof success === "function") {
+            var output = success(res, req);
 
-              var output = success(res, req);
+            if (output && output.then) {
 
-              if (output && output.then) {
-
-                output.then(function () {
-
-                  if (!res.headersSent) {
-
-                    res.redirect(req.url);
-
-                  }
-
-                }, function (fail) {
-
-                  res.send(fail);
-
-                });
-
-              } else {
+              output.then(function () {
 
                 if (!res.headersSent) {
 
@@ -312,58 +296,70 @@ module.exports = function (config) {
 
                 }
 
-              }
-
-            } else {
-
-              iris.invokeHook("hook_display_error_page", req.authPass, {
-                error: 404,
-                req: req,
-                res: res
-              }).then(function (success) {
-
-                if (!res.headersSent) {
-
-                  res.status(404).send(success);
-
-                }
-
-
               }, function (fail) {
 
-                if (!res.headersSent) {
-
-                  res.status(404).send("404");
-
-                }
+                res.send(fail);
 
               });
 
+            } else {
+
+              if (!res.headersSent) {
+
+                res.redirect(req.url);
+
+              }
+
             }
 
-          },
-          function (fail) {
-
-            iris.log("error", "Error on request to " + req.url);
-            iris.log("error", fail);
+          } else {
 
             iris.invokeHook("hook_display_error_page", req.authPass, {
-              error: 500,
+              error: 404,
               req: req,
               res: res
             }).then(function (success) {
 
-              res.status(500).send(success);
+              if (!res.headersSent) {
+
+                res.status(404).send(success);
+
+              }
+
 
             }, function (fail) {
 
-              res.status(500).send("500");
+              if (!res.headersSent) {
+
+                res.status(404).send("404");
+
+              }
 
             });
 
+          }
+
+        },
+        function (fail) {
+
+          iris.log("error", "Error on request to " + req.url);
+          iris.log("error", fail);
+
+          iris.invokeHook("hook_display_error_page", req.authPass, {
+            error: 500,
+            req: req,
+            res: res
+          }).then(function (success) {
+
+            res.status(500).send(success);
+
+          }, function (fail) {
+
+            res.status(500).send("500");
+
           });
 
-      }
+        });
 
     });
 
