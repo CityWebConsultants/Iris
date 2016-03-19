@@ -63,32 +63,3 @@ iris.modules.system.registerHook("hook_log", 0, function (thisHook, data) {
   thisHook.pass(data);
 
 });
-
-iris.route.get("/admin/structure", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Structure",
-    permissions: ["can access admin pages"]
-  }]
-}, function (req, res) {
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  var menu = iris.modules.menu.globals.getBaseLinks(req.url);
-
-  iris.modules.frontend.globals.parseTemplateFile(["baselinks"], ['admin_wrapper'], {
-    menu: menu,
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success);
-
-  })
-
-})

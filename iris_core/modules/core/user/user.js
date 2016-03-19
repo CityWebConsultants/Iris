@@ -7,13 +7,85 @@
  */
 
 iris.registerModule("user");
-
 var bcrypt = require("bcrypt-nodejs");
+require('./login_form.js');
 
-// First ever login form
+/**
+ * Define callback routes.
+ */
+var routes = {
+  login: {
+    title: "Login",
+    description: "User login page."
+  }
+};
 
-// Set up first user account via API
+/**
+ * Page callback: User login page.
+ */
+iris.route.get("/user/login", routes.login, function (req, res) {
 
+  // If not admin, present 403 page
+  if (req.authPass.roles.indexOf('authenticated') !== -1) {
+
+    res.redirect('/user/' + req.authPass.userid);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["login"], ['html'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
+/**
+ * Page callback: User page.
+ */
+iris.route.get("/user", {}, function (req, res) {
+
+  if (req.authPass.roles.indexOf('authenticated') == -1) {
+    // Anonymous. Redirect to login page.
+    res.redirect('/user/login');
+  } else {
+    // Redirect to own user page.
+    res.redirect('/user/' + req.authPass.userid);
+  }
+});
+
+/**
+ * Page callback.
+ * User logout.
+ */
+iris.route.get("/user/logout", {}, function (req, res) {
+
+  // Delete session
+
+  delete iris.modules.auth.globals.userList[req.authPass.userid];
+
+  res.clearCookie('userid');
+  res.clearCookie('token');
+
+  res.clearCookie('admin_auth');
+
+  res.redirect("/");
+
+});
+
+/**
+ * API POST
+ * First ever login form.
+ * Set up first user account via API.
+ */
 iris.route.post("/api/user/first", function (req, res) {
 
   if (!req.body.password || !req.body.username) {
@@ -202,9 +274,10 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
 
 });
 
-// First ever login page (should only show if no user has been set up)
-
-iris.app.get("/", function (req, res, next) {
+/**
+ * First ever login page (should only show if no user has been set up).
+ */
+iris.route.get("/", function (req, res, next) {
 
   iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
@@ -292,21 +365,6 @@ iris.modules.user.globals.login = function (auth, res, callback) {
   });
 
 };
-
-iris.app.get("/user/logout", function (req, res) {
-
-  // Delete session
-
-  delete iris.modules.auth.globals.userList[req.authPass.userid];
-
-  res.clearCookie('userid');
-  res.clearCookie('token');
-
-  res.clearCookie('admin_auth');
-
-  res.redirect("/");
-
-});
 
 iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
@@ -421,49 +479,6 @@ iris.modules.user.registerHook("hook_entity_updated", 1, function (thisHook, ent
 
   thisHook.pass(entity);
 
-});
-
-require('./login_form.js');
-
-// Login form
-
-iris.route.get("/user/login", {
-  "title": "Login"
-}, function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('authenticated') !== -1) {
-
-    res.send("Already logged in");
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["login"], ['html'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", fail);
-
-  });
-
-});
-
-iris.app.get("/user", function (req, res) {
-
-  if (req.authPass.roles.indexOf('authenticated') == -1) {
-    // Anonymous. Redirect to login page.
-    res.redirect('/user/login');
-  } else {
-    // Redirect to own user page.
-    res.redirect('/user/' + req.authPass.userid);
-  }
 });
 
 // Blank password field on entity edit
