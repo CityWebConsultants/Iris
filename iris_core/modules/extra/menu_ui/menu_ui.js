@@ -9,7 +9,8 @@ iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (this
   iris.readConfig('menu', menuName).then(function (config) {
 
     iris.modules.frontend.globals.parseTemplateFile(["menu", menuName], null, {
-      menu: config.items
+      menu: config.items,
+      menuName: menuName
     }, thisHook.authPass).then(function (html) {
 
       // Check if user can view menu
@@ -66,6 +67,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
         },
         "items": {
           "type": "array",
+          "title" : "Menu links",
           "items": {
             "type": "object",
             "properties": {

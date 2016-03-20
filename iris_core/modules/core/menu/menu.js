@@ -117,6 +117,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     // Menu ready, check access
 
     iris.modules.frontend.globals.parseTemplateFile(["menu", menuName], null, {
+      menuName: menuName,
       menu: menuLinks
     }, thisHook.authPass).then(function (html) {
 

@@ -42,7 +42,9 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       } else if (data.callback && data.callback.length > 0) {
 
         thisHook.pass(function (res) {
-          res.json(data.callback);
+          res.json({
+            'redirect' : data.callback
+          });
         });
 
       } else {
@@ -249,7 +251,7 @@ iris.route.get("/modules/forms/extrafields.js", function (req, res) {
 
     output += "iris.forms['" + field + "'] = " + iris.modules.forms.globals.widgets[field] + "()\n" + "\n";
 
-  })
+  });
 
   res.setHeader('content-type', 'application/javascript');
   res.send(output);
@@ -407,7 +409,8 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       var uniqueId = formName + token;
       output += "<form data-params='" + formParams + "' method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
-      output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}</script>";
+      output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}" +
+        "\n if(typeof iris.forms.renderForm == \"function\") iris.forms.renderForm('" + uniqueId + "');</script>";
 
       callback(output);
 
@@ -470,10 +473,14 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         } else if (data.messages && data.messages.length > 0) {
 
-          var messages = '';
-          data.messages.forEach(function (message) {
+          $("body").animate({
+            scrollTop: $("[data-formid='" + values.formid + "'").offset().top
+          }, "fast");
 
-            messages += "<div class='form-message'>" + message + "</div>";
+          var messages = '';
+          data.messages.forEach(function (obj) {
+
+            messages += "<div class='form-message ' + obj.type>" + obj.message + "</div>";
 
           });
 
@@ -531,7 +538,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
     }, function (fail) {
 
-      if (fail = "No such hook exists") {
+      if (fail == "No such hook exists") {
 
         renderForm(formTemplate, function (output) {
 
