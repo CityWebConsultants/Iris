@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise*/
+
 /**
  * @file Functions and hooks for creating entities
  */
@@ -26,7 +29,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
     thisHook.fail(iris.error(400, "Can't send an ID or current entity when creating an entity. Try update"));
     return false;
 
-  };
+  }
 
   //Set author and entity type
 
@@ -66,7 +69,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
       }
 
-    })
+    });
 
   }, function (fail) {
 
@@ -104,7 +107,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
         }
 
-      })
+      });
 
     }, function (fail) {
 
@@ -139,7 +142,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
         }
 
-      })
+      });
 
     }, function (fail) {
 
@@ -184,11 +187,11 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
       });
 
-    }
+    };
 
     saveEntity();
 
-  }
+  };
 
 });
 
@@ -288,13 +291,13 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
           }
 
-        })
+        });
 
       }
 
     }
 
-  })
+  });
 
   // Check for any unique fields
 
@@ -310,9 +313,9 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
       uniqueFields.push(condition);
 
-    };
+    }
 
-  })
+  });
 
   if (!uniqueFields.length) {
 
@@ -340,9 +343,9 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
             }
 
-          })
+          });
 
-        })
+        });
 
         thisHook.fail(errors.join(" ") + " should be unique");
 
@@ -352,7 +355,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
       }
 
-    })
+    });
 
 
   }

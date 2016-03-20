@@ -1,5 +1,5 @@
-/*jslint node: true nomen: true*/
-
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise*/
 
 "use strict";
 
@@ -11,7 +11,7 @@ var mkdirSync = function (path) {
   } catch (e) {
     if (e.code != 'EEXIST') throw e;
   }
-}
+};
 
 mkdirSync(iris.configPath + "/" + "entity");
 
@@ -56,11 +56,11 @@ iris.app.get("/api/entitySchema", function (req, res) {
 
     output[entityType] = iris.dbCollections[entityType].schema.tree;
 
-  })
+  });
 
   res.send(output);
 
-})
+});
 
 iris.app.get("/api/entitySchema/:type", function (req, res) {
 
@@ -77,4 +77,4 @@ iris.app.get("/api/entitySchema/:type", function (req, res) {
 
   res.send(iris.dbCollections[req.params.type].schema.tree);
 
-})
+});
