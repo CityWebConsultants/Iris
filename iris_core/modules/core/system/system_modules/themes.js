@@ -1,22 +1,27 @@
-// Register menu item
 
-iris.route.get("/admin/themes", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Themes"
-  }]
-}, function (req, res) {
+var path = require("path");
+var fs = require("fs");
 
-  // If not admin, present 403 page
+/**
+ * Define callback routes.
+ */
+var routes = {
+  themes: {
+    title: "Themes",
+    description: "Choose which frontend theme to use.",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: null,
+      title: "Themes"
+    }]
+  },
+};
 
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: Administer themes.
+ */
+iris.route.get("/admin/themes", routes.themes, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_themes"], ['admin_wrapper'], null, req.authPass, req).then(function (success) {
 
@@ -95,9 +100,6 @@ iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHo
   });
 
 })
-
-var path = require("path");
-var fs = require("fs");
 
 iris.modules.system.registerHook("hook_form_submit__themes", 0, function (thisHook, data) {
 

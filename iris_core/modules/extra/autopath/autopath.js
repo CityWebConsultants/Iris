@@ -5,17 +5,25 @@
 iris.modules.auth.globals.registerPermission("can adminster autopath", "paths");
 
 /**
+ * Define callback routes.
+ */
+var routes = {
+  adminStructure : {
+    title: "Autopath",
+    description: "Auto-generate tokenised url paths for entities.",
+    permissions: ["can administer autopath"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: "/admin/structure",
+      title: "Autopath"
+    }]
+  }
+}
+
+/**
  * Create route for autopath administration page.
  */
-
-iris.route.get("/admin/structure/autopath", {
-  permissions: ["can administer autopath"],
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: "/admin/structure",
-    title: "Autopath"
-  }]
-}, function (req, res) {
+iris.route.get("/admin/structure/autopath", routes.adminStructure, function (req, res) {
 
   // Push in all entity types that have a path field
 

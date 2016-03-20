@@ -6,6 +6,137 @@ iris.modules.triggers.globals.events = {};
 var fs = require('fs');
 var glob = require("glob");
 
+/**
+ * Define callback routes.
+ */
+var routes = {
+  create: {
+    title: "Create trigger",
+    description: "Create system trigger routine.",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config/triggers',
+      title: "Create trigger"
+    }]
+  },
+  edit: {
+    title: "Edit action",
+    description: "Edit custom action",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config/triggers',
+      title: "Edit action"
+    }]
+  },
+  delete: {
+    title: "Delete trigger",
+    description: "Delete trigger",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config/triggers',
+      title: "Delete trigger"
+    }]
+  },
+  triggers: {
+    title: "Triggers",
+    description: "Manage system triggers and actions",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config',
+      title: "Triggers"
+    }]
+  }
+};
+
+/**
+ * Admin page callback: Create trigger.
+ */
+iris.route.get("/admin/config/triggers/create", routes.create, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+/**
+ * Admin page callback: Edit action.
+ * Register actions create form
+ */
+iris.route.get("/admin/config/triggers/edit/:action", routes.edit, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {
+    action: iris.sanitizeName(req.params.action)
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+/**
+ * Admin page callback: Triggers UI.
+ * Manage system triggers and actions.
+ */
+iris.route.get("/admin/config/triggers", routes.triggers, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers"], ['admin_wrapper'], {
+    actions: iris.configStore.triggers,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+/**
+ * Admin page callback: Delete trigger.
+ */
+iris.route.get("/admin/config/triggers/delete/:name", routes.delete, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_delete"], ['admin_wrapper'], {
+    action: req.params.name
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
+
 glob(iris.configPath + "/triggers/*.json", function (er, files) {
 
   files.forEach(function (file) {
@@ -464,130 +595,6 @@ iris.modules.triggers.registerHook("hook_form_submit__actions", 0, function (thi
     thisHook.pass(data);
 
   })
-
-});
-
-// Register actions create form
-
-iris.app.get("/admin/triggers/create", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-})
-
-// Register actions create form
-
-iris.app.get("/admin/triggers/edit/:action", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {
-    action: iris.sanitizeName(req.params.action)
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-})
-
-// Main actions landing page
-
-iris.route.get("/admin/triggers", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Triggers"
-  }]
-}, function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers"], ['admin_wrapper'], {
-    actions: iris.configStore.triggers,
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-})
-
-// Delete action
-
-iris.app.get("/admin/triggers/delete/:name", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_delete"], ['admin_wrapper'], {
-    action: req.params.name
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
 
 });
 
