@@ -210,7 +210,7 @@ iris.sanitizeName = function (name) {
 
 iris.sanitizeEmbeds = function (html) {
 
-  if (html && typeof html === "String") {
+  if (html && typeof html === "string") {
 
     html = html.split("[[[").join("/[/[/[");
     html = html.split("]]]").join("/]/]/]");

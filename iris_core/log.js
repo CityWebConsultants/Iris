@@ -60,18 +60,20 @@ var initLogger = function () {
   };
 
   iris.log = function () {
+    
+    var args = [].slice.call(arguments, 0);
+    
+    if (args && !args[1]) {
 
-    if (arguments && !arguments[1]) {
-
-      arguments[1] = "Empty log called from " + _getCallerFile();
+      args[1] = "Empty log called from " + _getCallerFile();
 
     }
 
     // If an exception gets passed in, process it into log messages
 
-    if (arguments && arguments[1] && Array.isArray(arguments[1].stack)) {
+    if (args && args[1] && Array.isArray(args[1].stack)) {
 
-      var e = arguments[1];
+      var e = args[1];
 
       // If no error message send the file that called the log
 
@@ -95,7 +97,7 @@ var initLogger = function () {
 
     var logLevels = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
 
-    var type = arguments[0];
+    var type = args[0];
 
     // Check if type is valid
 
@@ -107,15 +109,15 @@ var initLogger = function () {
 
     }
 
-    var message = arguments[1];
+    var message = args[1];
 
     logger[type](message);
 
     process.send({
       type: "log",
       data: {
-        type: arguments[0],
-        message: arguments[1]
+        type: args[0],
+        message: args[1]
       }
     });
 

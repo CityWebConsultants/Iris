@@ -198,7 +198,7 @@ iris.readConfigSync = function (directory, filename) {
     var name;
     var arrNames = strNames.split('/');
 
-    while (name = arrNames.shift()) {
+    while (typeof (name = arrNames.shift()) === "string") {
       if (!ref.hasOwnProperty(name)) {
         return false;
       }
@@ -251,8 +251,8 @@ iris.readConfig = function (directory, filename) {
     function defined(ref, strNames) {
       var name;
       var arrNames = strNames.split('/');
-
-      while (name = arrNames.shift()) {
+            
+      while (typeof (name = arrNames.shift()) === "string") {
         if (!ref.hasOwnProperty(name)) {
           return false;
         }
