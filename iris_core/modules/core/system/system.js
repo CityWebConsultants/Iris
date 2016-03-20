@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise,$,window */
+
 /**
  * @file General hooks and functions for the admin system.
  */
@@ -24,7 +27,7 @@ iris.modules.system.registerHook("hook_form_render__restart", 0, function (thisH
 
     });
 
-  }
+  };
 
   thisHook.pass(data);
 

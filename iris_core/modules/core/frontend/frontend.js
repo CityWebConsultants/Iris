@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Hooks and functions for the templating and routing systems that make up the 
  * frontend module.
@@ -41,7 +44,7 @@ process.on("dbReady", function () {
 
     iris.modules.frontend.globals.templateRegistry.external.push(iris.modules[moduleName].path + '/templates');
 
-  })
+  });
 
 });
 
@@ -85,7 +88,7 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
   }
 
-  context = optionalContext;
+  var context = optionalContext;
 
   //  context.current = entity;
 
@@ -140,7 +143,7 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
         }
 
-      })
+      });
 
     }, function (fail) {
 
@@ -187,7 +190,7 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
     extension = "html";
 
-  };
+  }
 
   var args = paths;
 
@@ -219,7 +222,7 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
           }
 
-        })
+        });
 
         if (found) {
 
@@ -229,7 +232,7 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
         searchArgs.splice(searchArgs.length - 1, 1);
 
-      };
+      }
 
       return false;
 
@@ -275,7 +278,7 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
         return false;
 
-      };
+      }
 
       var result = lookForTemplate(files, args);
 
@@ -354,7 +357,7 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
           no(false);
 
-        })
+        });
 
       } else {
 
@@ -403,7 +406,7 @@ var findEmbeds = function (text, leaveCurlies) {
 
     var embedCat = embed.split(" ")[0];
 
-    var embed = embed.substring(embedCat.length + 1, embed.length);
+    embed = embed.substring(embedCat.length + 1, embed.length);
 
     // Ignore embeds with curly braces
 
@@ -419,7 +422,7 @@ var findEmbeds = function (text, leaveCurlies) {
 
     }
 
-  })
+  });
 
   if (Object.keys(embeds).length) {
 
@@ -427,7 +430,7 @@ var findEmbeds = function (text, leaveCurlies) {
 
   }
 
-}
+};
 
 /**
  * @function parseTemplace
@@ -479,9 +482,9 @@ var parseTemplate = function (html, authPass, context) {
 
           Object.keys(parsedData.variables).forEach(function (variable) {
             allVariables[variable] = parsedData.variables[variable];
-          })
+          });
 
-        };
+        }
 
         if (final) {
 
@@ -543,7 +546,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
     iris.modules.frontend.globals.parseTemplateFile(searchArray, null, thisHook.context.vars, thisHook.authPass, thisHook.context.vars.req).then(function (success) {
 
-      thisHook.pass(success)
+      thisHook.pass(success);
 
     }, function (fail) {
 
@@ -559,7 +562,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
   }
 
-})
+});
 
 var parseEmbeds = function (html, variables, authPass) {
 
@@ -588,7 +591,7 @@ var parseEmbeds = function (html, variables, authPass) {
 
       }
 
-    }
+    };
 
     if (embeds) {
 
@@ -604,7 +607,7 @@ var parseEmbeds = function (html, variables, authPass) {
 
             params.push(current.trim());
 
-          })
+          });
 
           iris.invokeHook("hook_frontend_embed__" + category, authPass, {
             vars: variables,
@@ -631,11 +634,11 @@ var parseEmbeds = function (html, variables, authPass) {
 
             }
 
-          })
+          });
 
-        })
+        });
 
-      })
+      });
 
 
     } else {
@@ -647,9 +650,9 @@ var parseEmbeds = function (html, variables, authPass) {
 
     }
 
-  })
+  });
 
-}
+};
 
 /**
  * @member hook_frontend_template_parse
@@ -683,7 +686,7 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
       "src": "/modules/frontend/iris_core.js"
     },
     rank: 0
-  }
+  };
 
   if (iris.modules.frontend.globals.activeTheme) {
     data.variables["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
@@ -697,7 +700,7 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
 
     thisHook.pass(fail);
 
-  })
+  });
 
 });
 
@@ -726,7 +729,7 @@ iris.app.use(function (req, res, next) {
 
       if (iris.modules.paths.globals.entityPaths[path].eid && iris.modules.paths.globals.entityPaths[path].eid.toString() === splitUrl[2] && iris.modules.paths.globals.entityPaths[path].entityType === splitUrl[1]) {
 
-        res.redirect(path)
+        res.redirect(path);
 
         return false;
 
@@ -814,7 +817,7 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
     front: isFront
   }, thisHook.context.req.authPass, thisHook.context.req).then(function (success) {
 
-    thisHook.pass(success)
+    thisHook.pass(success);
 
   }, function (fail) {
 
@@ -824,7 +827,7 @@ iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisH
 
 });
 
-require("./handlebars_helpers")
+require("./handlebars_helpers");
 
 /**
  * @member hook_frontend_template
@@ -870,20 +873,20 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
               if (embed.indexOf("{{") !== -1) {
 
-                var embed = "[[[" + category + " " + embed + "]]]";
+                embed = "[[[" + category + " " + embed + "]]]";
 
                 var compiled = Handlebars.compile(embed)({
                   stripCurlies: true
-                })
+                });
 
                 data.html = data.html.split(embed).join(compiled);
 
 
               }
 
-            })
+            });
 
-          })
+          });
 
         }
 
@@ -913,7 +916,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
     thisHook.pass(fail);
 
-  })
+  });
 
 });
 
@@ -934,7 +937,7 @@ var unEscape = function (html) {
   }
   return html;
 
-}
+};
 
 /*
  * @member hook_frontend_template
@@ -1025,11 +1028,11 @@ var insertTags = function (html, vars) {
 
             });
 
-          };
+          }
 
           if (tag.type === "script") {
 
-            output += "></" + tag.type + ">"
+            output += "></" + tag.type + ">";
 
           } else {
 
@@ -1043,11 +1046,11 @@ var insertTags = function (html, vars) {
 
     }
 
-  })
+  });
 
   return html;
 
-}
+};
 
 /**
  * @function parseTemplateFile
@@ -1140,17 +1143,17 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
               no(fail);
 
-            })
+            });
 
           }, function (fail) {
 
             no(fail);
 
-          })
+          });
 
-        })
+        });
 
-      })
+      });
 
     } else {
 
@@ -1176,20 +1179,20 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
             no(fail);
 
-          })
+          });
 
         }, function (fail) {
 
           no(fail);
 
-        })
+        });
 
-      })
+      });
 
     }
 
   });
 
-}
+};
 
 require("./tags");

@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 iris.registerModule("paths");
 
 iris.modules.paths.globals.entityPaths = {};
@@ -27,7 +30,7 @@ process.on("dbReady", function () {
 
     });
 
-  };
+  }
 
 });
 
@@ -104,11 +107,11 @@ iris.modules.paths.registerHook("hook_entity_deleted", 0, function (thisHook, da
 
     }
 
-  })
+  });
 
   thisHook.pass(data);
 
-})
+});
 
 iris.modules.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 

@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @member hook_frontend_handlebars_extend
  * @memberof frontend
@@ -33,7 +36,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       return item;
 
-    };
+    }
 
   });
 
@@ -93,7 +96,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     } else {
 
-      return "{{{{iris_handlebars_ignore}}}}" + options.fn() + "{{{{/iris_handlebars_ignore}}}}"
+      return "{{{{iris_handlebars_ignore}}}}" + options.fn() + "{{{{/iris_handlebars_ignore}}}}";
 
     }
 
