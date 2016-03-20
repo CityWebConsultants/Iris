@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Express HTTP server setup and management functions.
  */
@@ -34,7 +37,7 @@ i18n.configure({
 
 iris.i18n = i18n;
 
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
 iris.app.use(cookieParser());
 
 /**
@@ -48,7 +51,7 @@ iris.error = function (code, message, notes) {
     code: code,
     message: message,
     notes: notes
-  }
+  };
 
 };
 
@@ -64,7 +67,7 @@ iris.app.use(function (req, res, next) {
 
       res.redirect(req.url);
 
-    }, 500)
+    }, 500);
 
 
     return false;
@@ -104,7 +107,7 @@ iris.app.use(function (req, res, next) {
 
     res.end(JSON.stringify(response));
 
-  }
+  };
 
   next();
 
@@ -171,13 +174,13 @@ iris.app.use(function (req, res, next) {
           req.irisRoute = {
             path: route,
             options: iris.routes[route][req.method.toLowerCase()].options
-          }
+          };
 
         }
 
-      };
+      }
 
-    })
+    });
 
     // Run request intercept in case anything
 
@@ -213,7 +216,7 @@ iris.app.use(function (req, res, next) {
 
 // Menu registering function
 
-var methods = ["get", "post", "put", "head", "delete", "options", "trace", "copy", "lock", "mkcol", "move", "purge", "propfind", "proppatch", "unlock", "report", "mkactivity", "checkout", "merge", "m-search", "notify", "subscribe", "unsubscribe", "patch", "search", "connect"]
+var methods = ["get", "post", "put", "head", "delete", "options", "trace", "copy", "lock", "mkcol", "move", "purge", "propfind", "proppatch", "unlock", "report", "mkactivity", "checkout", "merge", "m-search", "notify", "subscribe", "unsubscribe", "patch", "search", "connect"];
 
 iris.route = {};
 iris.routes = {};
@@ -257,7 +260,7 @@ methods.forEach(function (method) {
       options: options,
       callback: callback
 
-    }
+    };
 
     if (rank) {
 
@@ -265,9 +268,9 @@ methods.forEach(function (method) {
 
     }
 
-  }
+  };
 
-})
+});
 
 // Convert stored routes into express handlers
 
@@ -283,11 +286,11 @@ iris.populateRoutes = function () {
 
       iris.app[method](route, methodInstance.callback);
 
-    })
+    });
 
-  })
+  });
 
-}
+};
 
 //Public files folder
 

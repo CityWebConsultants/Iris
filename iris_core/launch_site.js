@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Launches Iris with the settings and context of the given site.
  * Launch_site.js is the child process that actually loads and runs the site. It is passed the user sessions
@@ -28,7 +31,7 @@ try {
 
 } catch (e) {
 
-  console.log("* Failed to launch. '" + parameters.site + "' isn't a valid sitename. Or there isn't a settings.json file in that site's directory. Check you are using the correct site name or create a sites folder with a valid settings.json file (copy it from the default site folder) in the home/sites directory. *")
+  console.log("* Failed to launch. '" + parameters.site + "' isn't a valid sitename. Or there isn't a settings.json file in that site's directory. Check you are using the correct site name or create a sites folder with a valid settings.json file (copy it from the default site folder) in the home/sites directory. *");
   process.exit();
 
 }
@@ -42,7 +45,7 @@ process.on("unhandledRejection", function (e) {
 
     e.stack.forEach(function (error, index) {
 
-      var error = "Error on line " + e.stack[index].getLineNumber() + " of " + e.stack[index].getFileName() + " " + e.message;
+      error = "Error on line " + e.stack[index].getLineNumber() + " of " + e.stack[index].getFileName() + " " + e.message;
 
       console.error(error);
 
@@ -52,7 +55,7 @@ process.on("unhandledRejection", function (e) {
 
       }
 
-    })
+    });
 
 
   }
@@ -72,7 +75,7 @@ process.on("uncaughtException", function (e) {
 
       errorMessage += "Error on line " + e.stack[index].getLineNumber() + " of " + e.stack[index].getFileName() + " " + e.message + '\n';
 
-    })
+    });
 
     console.error(errorMessage);
 
@@ -90,7 +93,7 @@ process.on("uncaughtException", function (e) {
 
   process.send("restart");
 
-})
+});
 
 var config = JSON.parse(config);
 

@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file General utility functions used throughout
  */
@@ -63,7 +66,7 @@ iris.promise = function (callback) {
 
     });
 
-  }
+  };
 
 };
 
@@ -132,11 +135,11 @@ iris.t = function (translationString, args, language) {
 
     translationString = translationString.split("%" + argument).join(args[argument]);
 
-  })
+  });
 
   return translationString;
 
-}
+};
 
 /**
  * @function typeCheck
@@ -181,7 +184,7 @@ iris.typeCheck = function (allowed, entity, data) {
   } else {
     return {
       valid: true
-    }
+    };
   }
 
 };
@@ -203,7 +206,7 @@ iris.sanitizeName = function (name) {
   // Doesn't currently support anything not English
   return name.replace(/[^a-zA-Z]+/g, '_').toLowerCase();
 
-}
+};
 
 iris.sanitizeEmbeds = function (html) {
 
@@ -221,7 +224,7 @@ iris.sanitizeEmbeds = function (html) {
 
   return html;
 
-}
+};
 
 iris.findRoute = function (path, method) {
 
@@ -247,17 +250,17 @@ iris.findRoute = function (path, method) {
         irisRoute = {
           path: route,
           options: iris.routes[route][method.toLowerCase()].options
-        }
+        };
 
       }
 
-    };
+    }
 
-  })
+  });
 
   return irisRoute;
 
-}
+};
 
 iris.mkdirSync = function (path) {
 
@@ -271,4 +274,4 @@ iris.mkdirSync = function (path) {
     }
   }
 
-}
+};

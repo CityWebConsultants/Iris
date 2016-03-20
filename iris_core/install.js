@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Install script to load in module dependencies of other iris modules
  */
@@ -23,9 +26,9 @@ var toInstall = [];
 
 moduleFiles.forEach(function (file) {
 
-  var file = fs.readFileSync(file, "utf-8");
+  file = fs.readFileSync(file, "utf-8");
 
-  var file = JSON.parse(file);
+  file = JSON.parse(file);
 
   if (file.dependencies) {
 
@@ -33,7 +36,7 @@ moduleFiles.forEach(function (file) {
 
   }
 
-})
+});
 
 npm.load(function (err) {
   
@@ -49,7 +52,7 @@ npm.load(function (err) {
 
       } else {
 
-        console.log(data)
+        console.log(data);
 
       }
 

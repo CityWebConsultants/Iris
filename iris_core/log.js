@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Implements the iris logging system.
  */
@@ -13,7 +16,7 @@ var initLogger = function () {
     } catch (e) {
       if (e.code != 'EEXIST') throw e;
     }
-  }
+  };
 
   mkdirSync(iris.sitePath + "/" + "logs");
 
@@ -35,7 +38,7 @@ var initLogger = function () {
    * @params {string} message - Log message
    */
 
-  _getCallerFile = function () {
+  var _getCallerFile = function () {
     try {
       var err = new Error();
       var callerfile;
@@ -54,7 +57,7 @@ var initLogger = function () {
       }
     } catch (err) {}
     return undefined;
-  }
+  };
 
   iris.log = function () {
 
@@ -78,7 +81,7 @@ var initLogger = function () {
 
         errorMessage += "Error on line " + e.stack[index].getLineNumber() + " of " + e.stack[index].getFileName() + " " + e.message + '\n';
 
-      })
+      });
 
       errorMessage += "Log called from " + _getCallerFile();
 
@@ -114,18 +117,18 @@ var initLogger = function () {
         type: arguments[0],
         message: arguments[1]
       }
-    })
+    });
 
     if (iris.invokeHook) {
 
       iris.invokeHook("hook_log", "root", {
         type: type,
         message: message
-      })
+      });
 
     }
 
-  }
+  };
 
 }();
 
