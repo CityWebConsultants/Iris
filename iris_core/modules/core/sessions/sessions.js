@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 iris.registerModule("sessions");
 
 iris.app.get("/checkauth", function (req, res) {
@@ -53,7 +56,7 @@ iris.modules.sessions.registerHook("hook_auth_authpass", 2, function (thisHook, 
         data.userid = anonID;
         thisHook.pass(data);
 
-      })
+      });
 
     }
     else if (thisHook.context.req && thisHook.context.req.cookies && thisHook.context.req.cookies.anonID) {
@@ -89,7 +92,7 @@ iris.modules.sessions.globals.writeCookies = function (userid, token, res, maxAg
   var cookieOptions = {};
 
   if (maxAge) {
-    cookieOptions.maxAge = maxAge
+    cookieOptions.maxAge = maxAge;
   }
 
   res.cookie('userid', userid, cookieOptions);

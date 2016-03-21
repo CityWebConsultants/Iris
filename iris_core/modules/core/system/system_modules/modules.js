@@ -1,3 +1,5 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
 
 var glob = require("glob");
 var fs = require("fs");
@@ -17,7 +19,7 @@ var routes = {
       title: "Modules"
     }]
   }
-}
+};
 
 /**
  * Admin page callback: Administer modules.
@@ -30,7 +32,7 @@ iris.route.get("/admin/modules", routes.modules, function (req, res) {
 
     iris.clearMessages(req.authPass.userid);
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -76,7 +78,7 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
 
       }
 
-    })
+    });
 
     // Add enabled modules to form
 
@@ -104,25 +106,25 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
             "default": (currentModule.dependencies ? Object.keys(currentModule.dependencies).join(",") : null)
           }
         }
-      }
+      };
 
       data.form.push({
         "key": moduleName,
         "inlinetitle": "Enable the <b>" + currentModule.name + "</b> module",
-      })
+      });
 
-    })
+    });
 
     data.form.push({
       type: "submit",
       title: "submit"
-    })
+    });
 
     thisHook.pass(data);
 
   });
 
-})
+});
 
 iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisHook, data) {
 
@@ -154,7 +156,7 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
     }
 
-  })
+  });
 
 
   var enabled = [];
@@ -180,7 +182,7 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
           }
 
-        })
+        });
 
       }
 
@@ -191,7 +193,7 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
     }
 
-  })
+  });
 
   if (unmet.length) {
 
@@ -212,7 +214,7 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
     delete currentModule.weight;
 
-  })
+  });
 
 
   fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));

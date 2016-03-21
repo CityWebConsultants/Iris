@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise*/
+
 /**
  * @file Functions and hooks for editing entities
  */
@@ -21,7 +24,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     thisHook.fail(iris.error(400, "Have to have an ID to edit something"));
     return false;
 
-  };
+  }
 
   //Set entity type
 
@@ -60,9 +63,9 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
       runUpdate();
 
-    };
+    }
 
-  })
+  });
 
   //Actual run update function
 
@@ -72,13 +75,13 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
       
       iris.invokeHook("hook_entity_access_edit_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
 
-        validate()
+        validate();
 
       }, function (fail) {
 
         if (fail === "No such hook exists") {
 
-          validate()
+          validate();
 
         } else {
 
@@ -95,7 +98,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     });
 
-  }
+  };
 
   //Validate function before passing to presave
 
@@ -126,7 +129,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
         }
 
-      })
+      });
 
     }, function (fail) {
 
@@ -160,7 +163,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
         }
 
-      })
+      });
 
     }, function (fail) {
 
@@ -179,7 +182,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     };
 
     delete validatedEntity.eid;
-    delete validatedEntity['$$hashKey'];
+    delete validatedEntity.$$hashKey;
     
     var update = validatedEntity;
 
@@ -199,13 +202,13 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
       data.eid = conditions.eid;
 
-      iris.invokeHook("hook_entity_updated", thisHook.authPass, null, data)
+      iris.invokeHook("hook_entity_updated", thisHook.authPass, null, data);
 
       iris.log("info", data.entityType + " " + conditions.eid + " edited by " + thisHook.authPass.userid);
 
     }
 
-  }
+  };
 
 });
 

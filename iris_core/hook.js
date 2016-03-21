@@ -1,4 +1,5 @@
-/*jslint node: true */
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
 
 /**
  * @file Implements the hook invocation function for the hook system.
@@ -141,7 +142,7 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
             no(output);
 
-          }
+          };
 
           thisHook.authPass = auth;
 

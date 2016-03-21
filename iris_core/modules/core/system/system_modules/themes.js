@@ -1,3 +1,5 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
 
 var path = require("path");
 var fs = require("fs");
@@ -26,7 +28,7 @@ iris.route.get("/admin/themes", routes.themes, function (req, res) {
   iris.modules.frontend.globals.parseTemplateFile(["admin_themes"], ['admin_wrapper'], null, req.authPass, req).then(function (success) {
 
     iris.clearMessages(req.authPass.userid);
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -73,19 +75,19 @@ iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHo
         title: "Active theme",
         default: iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.name : null,
         enum: machineNames,
-      }
+      };
 
       data.form = [];
 
       data.form.push({
         key: "activeTheme",
         titleMap: names
-      })
+      });
 
       data.form.push({
         type: "submit",
         title: "submit"
-      })
+      });
 
       thisHook.pass(data);
 
@@ -99,7 +101,7 @@ iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHo
 
   });
 
-})
+});
 
 iris.modules.system.registerHook("hook_form_submit__themes", 0, function (thisHook, data) {
 
@@ -107,7 +109,7 @@ iris.modules.system.registerHook("hook_form_submit__themes", 0, function (thisHo
 
   var output = {
     name: thisHook.context.params.activeTheme
-  }
+  };
 
   fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify(output));
 

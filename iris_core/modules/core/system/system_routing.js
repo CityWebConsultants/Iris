@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Manages routing for the admin configuration pages.
  */
@@ -42,7 +45,7 @@ var routes = {
       title: "Restart"
     }]
   }
-}
+};
 
 /**
  * Admin page callback: Root admin page.
@@ -51,7 +54,7 @@ iris.route.get("/admin", routes.admin, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_dashboard"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -61,7 +64,7 @@ iris.route.get("/admin", routes.admin, function (req, res) {
 
   });
 
-})
+});
 
 /**
  * Admin page callback: System logs.
@@ -105,7 +108,7 @@ iris.route.get("/admin/logs", routes.logs, function (req, res) {
 
       }
 
-    })
+    });
 
   });
 
@@ -120,7 +123,7 @@ iris.route.get("/admin/logs", routes.logs, function (req, res) {
     keys: keys
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -130,7 +133,7 @@ iris.route.get("/admin/logs", routes.logs, function (req, res) {
 
   });
 
-})
+});
 
 /**
  * Admin page callback: Structure items.
@@ -157,7 +160,7 @@ iris.route.get("/admin/restart", routes.restart, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_restart"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 

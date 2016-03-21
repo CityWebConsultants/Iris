@@ -1,4 +1,5 @@
-/*jslint node: true */
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise*/
 
 "use strict";
 
@@ -357,12 +358,12 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
 
             fail(reason);
 
-          })
+          });
 
 
-        })
+        });
 
-      }
+      };
 
       iris.modules.auth.globals.userList[data.userid].lastActivity = Date.now();
 
