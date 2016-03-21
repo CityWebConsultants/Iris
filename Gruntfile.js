@@ -22,10 +22,18 @@ module.exports = function (grunt) {
                 },
                 src: ['**/*.js']
             }
+        },
+        jshint: {
+            options: {
+                jshintrc: true
+            },
+            all: ['iris_core/*.js', 'iris_core/modules/core/*/*.js', 'iris_core/modules/extra/*/*.js', '!iris_core/modules/core/**/deps/*', '!*min.js']
         }
     });
 
     grunt.loadNpmTasks('grunt-jasmine-node-coverage');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
 
-    grunt.registerTask('default', 'jasmine_node');
+    grunt.registerTask('default', ['jasmine_node','jshint']);
+
 };
