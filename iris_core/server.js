@@ -148,6 +148,24 @@ iris.app.use(function (req, res, next) {
 
   });
 
+  if (req.query) {
+
+    Object.keys(req.query).forEach(function (element) {
+
+      try {
+
+        req.query[element] = JSON.parse(req.query[element]);
+
+      } catch (e) {
+
+        // Allowing non-JSON encoded data
+
+      }
+
+    });
+
+  }
+
   iris.modules.auth.globals.credentialsToPass(req.body.credentials, req, res).then(function (authPass) {
 
     delete req.body.credentials;
