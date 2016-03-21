@@ -1,0 +1,7 @@
+{
+  "undef": true,
+  "unused": false,
+  "predef": ["iris","mongoose","Promise"],
+  "node" : true,
+  "browser": true
+}
