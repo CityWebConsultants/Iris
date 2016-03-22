@@ -27,7 +27,7 @@ module.exports = function (grunt) {
             options: {
                 jshintrc: true,
                 // Squash warning on dot-notation.
-                '-W069': false
+                '-W069': true
             },
             // Include core and exclude libraries and dependencies.
             all: ['iris_core/*.js', 'iris_core/modules/core/*/*.js', 'iris_core/modules/extra/*/*.js', '!iris_core/modules/core/**/deps/*', '!*min.js']
