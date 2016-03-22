@@ -22,10 +22,21 @@ module.exports = function (grunt) {
                 },
                 src: ['**/*.js']
             }
+        },
+        jshint: {
+            options: {
+                jshintrc: true,
+                // Squash warning on dot-notation.
+                '-W069': true
+            },
+            // Include core and exclude libraries and dependencies.
+            all: ['iris_core/*.js', 'iris_core/modules/core/*/*.js', 'iris_core/modules/extra/*/*.js', '!iris_core/modules/core/**/deps/*', '!*min.js']
         }
     });
 
     grunt.loadNpmTasks('grunt-jasmine-node-coverage');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
 
-    grunt.registerTask('default', 'jasmine_node');
+    grunt.registerTask('default', ['jasmine_node','jshint']);
+
 };
