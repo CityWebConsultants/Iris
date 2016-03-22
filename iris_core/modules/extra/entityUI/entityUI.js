@@ -6,17 +6,52 @@ require('./schemaUI.js');
 
 var fs = require("fs");
 
-iris.app.get("/admin/edit/:type/:eid", function (req, res) {
+/**
+ * Page permissions callback to allow authorised users to edit entities.
+ *
+ * @param req
+ * @param callback
+ */
+iris.modules.entityUI.globals.editPermissionsCallback = function(req, callback) {
 
-  // If not admin, present 403 page
+  var urlParams = req.originalUrl.split('/');
+  var entityType = urlParams[3];
+  var isOwn = false;
 
-  if (req.authPass.roles.indexOf('admin') === -1) {
+  // Fetch the entity in question.
+  iris.dbCollections[entityType].find({'eid' : urlParams[4]}).exec(function (err, doc) {
 
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+    // Is this user the author?
+    if (doc[0].entityAuthor == req.authPass.userid) {
+      isOwn = true;
+    }
 
-    return false;
+    var viewOwn = iris.modules.auth.globals.checkPermissions(["can edit own " + entityType], req.authPass);
+    var viewAny = iris.modules.auth.globals.checkPermissions(["can edit any " + entityType], req.authPass);
 
+    if (!viewAny && !(isOwn && viewOwn)) {
+
+      callback(false);
+
+    }
+    else {
+
+      callback(true);
+
+    }
+
+  });
+
+}
+
+var routes = {
+  'edit': {
+    "title": "Edit entity",
+    "permissionsCallback": iris.modules.entityUI.globals.editPermissionsCallback
   }
+};
+
+iris.route.get("/admin/edit/:type/:eid", routes.edit, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_entity"], ['admin_wrapper'], {
     eid: req.params.eid,
