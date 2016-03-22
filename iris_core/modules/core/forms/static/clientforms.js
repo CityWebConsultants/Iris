@@ -12,10 +12,6 @@ $(window).load( function () {
       $(this).next().slideToggle();
     });
 
-    $form.on( "click", "fieldset[data-jsonform-type='fieldset'] > legend", function(e) {
-      $(this).siblings().slideToggle();
-    });
-
     var onComplete = new Function(iris.forms[formId].onComplete + "()");
     if (typeof window[iris.forms[formId].onComplete] == 'function') {
       onComplete();

@@ -336,6 +336,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
         var fieldset = {
           "type": "array",
           "title": field.label,
+          "expandable": true,
           "default": [],
           "description": field.description,
           "items": {
