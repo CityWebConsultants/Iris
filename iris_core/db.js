@@ -359,3 +359,19 @@ iris.dbPopulate = function () {
   }
 
 };
+
+/**
+ * Drop all indexes of a given entity during update of schema field
+ * 
+ **/
+iris.syncSchemaIndex = function(entity){
+   var model = iris.dbCollections[entity];
+   model.collection.dropAllIndexes(function(err,result){
+     if(err){
+       iris.log("error", e);
+     }
+     else{
+       iris.log("info", result);
+     }
+   });
+}
