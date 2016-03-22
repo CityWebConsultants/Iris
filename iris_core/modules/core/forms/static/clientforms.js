@@ -1,6 +1,6 @@
 iris.forms = {};
 
-$(document).on("ready", function () {
+$(window).load( function () {
   iris.forms.cache = [];
   var $form;
   iris.forms.renderForm = function(formId){
