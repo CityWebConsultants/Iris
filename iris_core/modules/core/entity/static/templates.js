@@ -1,12 +1,19 @@
 // Create global iris object if it doesn't yet exist
 
 function irisReady(fn) {
-  if (document.readyState != 'loading') {
+
+  if (document.readyState !== 'loading') {
+
     fn();
+
   }
+
   else {
+
     document.addEventListener('DOMContentLoaded', fn);
+
   }
+
 }
 
 if (!window.iris) {
@@ -60,6 +67,7 @@ irisReady(function () {
     if (iris.fetched) {
 
       var updated = [];
+
       var inserted = [];
 
       Object.keys(iris.fetched).forEach(function (loader) {
@@ -149,12 +157,14 @@ irisReady(function () {
               });
 
               if (!present) {
+
                 loader.entities.push(iris.fetchedEntities[entity.entityType][entity.eid]);
               }
 
               updated.push(entity);
 
             }
+
             else {
 
               if (!iris.fetchedEntities[entity.entityType]) {
@@ -177,27 +187,40 @@ irisReady(function () {
               if (direction === "asc") {
 
                 loader.entities.sort(function asc(a, b) {
+
                   if (a[property] < b[property]) {
+
                     return -1;
                   }
+
                   if (a[property] > b[property]) {
+
                     return 1;
+
                   }
                   return 0;
-                })
+                });
 
               }
               else if (direction === "desc") {
 
                 loader.entities.sort(function asc(a, b) {
+
                   if (a[property] > b[property]) {
+
                     return -1;
+
                   }
+
                   if (a[property] < b[property]) {
+
                     return 1;
+
                   }
+
                   return 0;
-                })
+
+                });
 
               }
 
@@ -207,9 +230,9 @@ irisReady(function () {
 
               Object.keys(loader.query.sort).forEach(function (sorter) {
 
-                sort(sorter, loader.query.sort[sorter])
+                sort(sorter, loader.query.sort[sorter]);
 
-              })
+              });
 
             }
 
@@ -242,9 +265,13 @@ irisReady(function () {
       var detail = {
         entities: {}
       };
+
       detail.entities[entity.entityType] = [entity];
+
       detail.event = 'update';
+
       iris.entityListUpdate.detail = detail;
+
       document.dispatchEvent(iris.entityListUpdate);
 
     }
@@ -281,7 +308,7 @@ irisReady(function () {
 
             }
 
-          })
+          });
 
         }
 
@@ -294,12 +321,16 @@ irisReady(function () {
     var detail = {
       entities: {}
     };
+
     detail.entities[entity.entityType] = [entity];
+
     iris.entityListUpdate.detail = detail;
+
     detail.event = 'delete';
+
     document.dispatchEvent(iris.entityListUpdate);
 
-  }
+  };
 });
 
 iris.entityListUpdate = new Event('entityListUpdate');
@@ -310,7 +341,8 @@ iris.fetchEntities = function (variableName, query) {
 
   if (!iris.server) {
 
-    console.error("You need to initialise Iris with a base url for entity fetching to work. Try setting iris.server to the location of the Iris server.");
+    iris.log("error", "You need to initialise Iris with a base url for entity fetching to work. Try setting iris.server to the location of the Iris server.");
+
     return false;
 
   }
@@ -329,23 +361,36 @@ iris.fetchEntities = function (variableName, query) {
   }
 
   function formatParams(params) {
+
     return "?" + Object
+
         .keys(params)
+
         .map(function (key) {
+
           if (params[key]) {
-            return key + "=" + params[key]
+
+            return key + "=" + params[key];
+
           }
+
         })
-        .join("&")
+
+        .join("&");
   }
 
   var sendQuery = {};
 
   sendQuery.queries = query.queries ? JSON.stringify(query.queries) : undefined;
+
   sendQuery.entities = JSON.stringify(query.entities);
+
   sendQuery.limit = query.limit ? JSON.stringify(query.limit) : undefined;
+
   sendQuery.sort = query.sort ? JSON.stringify(query.sort) : undefined;
+
   sendQuery.skip = query.skip ? JSON.stringify(query.skip) : undefined;
+
   sendQuery.credentials = JSON.stringify(iris.credentials);
 
   var querystring = formatParams(sendQuery);
@@ -363,26 +408,38 @@ iris.fetchEntities = function (variableName, query) {
       try {
 
         var fetched = request.response;
+
         var grouped = {};
 
         var result = JSON.parse(fetched).response;
 
         if (variableName) {
+
           result ? null : result = [];
+
           window.iris ? null : window.iris = {};
+
           window.iris.fetchedEntities ? null : window.iris.fetchedEntities = {};
+
           window.iris.fetched ? null : window.iris.fetched = {};
+
           window.iris.fetched[variableName] = {
             query: query,
             entities: []
           };
+
           result.forEach(function (entity) {
 
             if (!grouped[entity.entityType]) {
+
               grouped[entity.entityType] = [JSON.parse(JSON.stringify(entity))];
+
             }
+
             else {
+
               grouped[entity.entityType].push(JSON.parse(JSON.stringify(entity)));
+
             }
 
             window.iris.fetchedEntities[entity.entityType] ? null : window.iris.fetchedEntities[entity.entityType] = {};
@@ -403,11 +460,12 @@ iris.fetchEntities = function (variableName, query) {
             else {
 
               window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
+
               window.iris.fetched[variableName].entities.push(entity);
 
             }
 
-          })
+          });
 
         }
 
@@ -415,6 +473,7 @@ iris.fetchEntities = function (variableName, query) {
           entities: grouped,
           event: 'fetch'
         };
+
         document.dispatchEvent(iris.entityListUpdate);
 
       }
@@ -437,22 +496,29 @@ iris.fetchEntities = function (variableName, query) {
 iris.entityPreFetch = function (result, variableName, query) {
 
   if (variableName) {
+
     result ? null : result = [];
+
     window.iris ? null : window.iris = {};
+
     window.iris.fetchedEntities ? null : window.iris.fetchedEntities = {};
+
     window.iris.fetched ? null : window.iris.fetched = {};
+
     window.iris.fetched[variableName] = {
       query: query,
       entities: []
     };
+
     result.forEach(function (entity) {
 
       window.iris.fetchedEntities[entity.entityType] ? null : window.iris.fetchedEntities[entity.entityType] = {};
 
       window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
+
       window.iris.fetched[variableName].entities.push(entity);
 
-    })
+    });
 
   }
 
