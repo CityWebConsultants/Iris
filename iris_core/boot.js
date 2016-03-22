@@ -1,4 +1,6 @@
-/*jslint nomen: true, node:true */
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise*/
+
 "use strict";
 
 /**
@@ -385,7 +387,7 @@ module.exports = function (config) {
         }, function (fail) {
 
           // Used if you don't have a 500 error template file.
-          res.status(500).send('Something went wrong');;
+          res.status(500).send('Something went wrong');
 
         });
 

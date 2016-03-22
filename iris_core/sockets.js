@@ -1,4 +1,5 @@
-/*jslint node: true */
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
 
 "use strict";
 
@@ -38,7 +39,7 @@ iris.sendSocketMessage = function (userids, message, data) {
     var connected_socket = iris.socketServer.clients().connected;
     Object.keys(connected_socket).forEach(function (client) {
       if(!connected_socket[client].authPass){
-        connected_socket[client].emit(message, data)
+        connected_socket[client].emit(message, data);
       }
     });
 
@@ -55,7 +56,7 @@ iris.sendSocketMessage = function (userids, message, data) {
 
         iris.socketServer.clients().connected[socket.id].socket.emit(message, data);
 
-      })
+      });
 
     }
 
@@ -170,12 +171,12 @@ iris.socketServer.on("connection", function (socket) {
     if (socket.user) {
 
       // Remove socket.
-      delete socket.user.sockets[socket.id]
+      delete socket.user.sockets[socket.id];
 
     }
 
     // Run hook for disconnected socket.
-    iris.invokeHook("hook_socket_disconnected", socket.authPass, socket.authPass, Date.now())
+    iris.invokeHook("hook_socket_disconnected", socket.authPass, socket.authPass, Date.now());
 
   });
 

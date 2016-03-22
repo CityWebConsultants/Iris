@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 var path = require("path");
 var fs = require("fs");
 var express = require("express");
@@ -64,7 +67,7 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
 
         }
 
-      })
+      });
 
     }
 
@@ -80,7 +83,7 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
 
       // Push in theme's static folder
 
-      iris.app.use("/themes/" + themeName, express.static(theme.path + "/static"))
+      iris.app.use("/themes/" + themeName, express.static(theme.path + "/static"));
 
     } else {
 
@@ -92,13 +95,13 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
 
     iris.log("error", e);
 
-    result.errors = "Something went wrong."
+    result.errors = "Something went wrong.";
 
   }
 
   return result;
 
-}
+};
 
 try {
 

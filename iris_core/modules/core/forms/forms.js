@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise,$,window */
+
 /**
  * @file Provides hooks and functions to create forms for use on the frontend
  */
@@ -53,7 +56,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
           res.json(thisHook.context.req.url);
 
-        }
+        };
 
         thisHook.pass(callback);
       }
@@ -87,7 +90,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
         errors = [{
           message: fail
-        }]
+        }];
 
       } else {
 
@@ -119,7 +122,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
           errors: data.errors
         });
 
-      }
+      };
 
       thisHook.pass(callback);
 
@@ -256,7 +259,7 @@ iris.route.get("/modules/forms/extrafields.js", function (req, res) {
   res.setHeader('content-type', 'application/javascript');
   res.send(output);
 
-})
+});
 
 /*
  * This implementation of hook_frontend_template_parse adds a "form" block.
@@ -267,28 +270,28 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
   // Add scripts for forms
 
-  variables.tags.headTags["jQuery"] = {
+  variables.tags.headTags.jQuery = {
     type: "script",
     attributes: {
       "src": "/modules/forms/jsonform/deps/jquery.min.js"
     },
     rank: 0
-  }
+  };
 
-  variables.tags.headTags["underscore"] = {
+  variables.tags.headTags.underscore = {
     type: "script",
     attributes: {
       "src": "/modules/forms/jsonform/deps/underscore-min.js"
     },
     rank: 0
-  }
-  variables.tags.headTags["jQueryUI"] = {
+  };
+  variables.tags.headTags.jQueryUI = {
     type: "script",
     attributes: {
       "src": "/modules/forms/jsonform/deps/opt/jquery.ui.custom.js"
     },
     rank: 1
-  }
+  };
 
   variables.tags.headTags["bootstrap-dropdown"] = {
     type: "script",
@@ -296,14 +299,14 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       "src": "/modules/forms/jsonform/deps/opt/bootstrap-dropdown.js"
     },
     rank: 2
-  }
+  };
   variables.tags.headTags["jsonform"] = {
     type: "script",
     attributes: {
       "src": "/modules/forms/jsonform/lib/jsonform.js"
     },
     rank: 3
-  }
+  };
 
   variables.tags.headTags["extrafields"] = {
     type: "script",
@@ -311,7 +314,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       "src": "/modules/forms/extrafields.js"
     },
     rank: 1
-  }
+  };
 
   variables.tags.headTags["clientforms"] = {
     type: "script",
@@ -319,7 +322,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       "src": "/modules/forms/clientforms.js"
     },
     rank: 4
-  }
+  };
 
   //
 
@@ -329,7 +332,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
     if (!form.schema) {
 
-      form.schema = {}
+      form.schema = {};
 
     }
 
@@ -361,7 +364,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       form.schema.formPrevious = {
         "type": "hidden",
         "default": JSON.stringify(form)
-      }
+      };
 
       // Unset form render object if not set (JSON form provides a default)
 
@@ -424,7 +427,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
     schema: {},
     form: {},
     value: {}
-  }
+  };
 
   formTemplate.onSubmit = function (errors, values) {
 
@@ -458,7 +461,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
             }
 
-          };
+          }
 
           // If the form-errors div already exists, replace it, otherwise add to top of form.
           if ($('.form-errors', $("[data-formid='" + values.formid + "'")).length > 0) {
@@ -571,7 +574,7 @@ iris.modules.forms.registerHook("hook_form_render", 0, function (thisHook, data)
 
   thisHook.pass(data);
 
-})
+});
 
 iris.modules.forms.globals.widgets = {};
 
@@ -590,4 +593,4 @@ iris.modules.forms.globals.registerWidget = function (widgetFunction, name) {
 
   iris.modules.forms.globals.widgets[name] = toSource(widgetFunction);
 
-}
+};

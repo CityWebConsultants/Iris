@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Manages the database connection and schemas for entity types.
  *
@@ -18,13 +21,13 @@ var connectionUri = 'mongodb://' + iris.config.db_server;
 
 if (iris.config.db_Port) {
 
-  connectionUri += +':' + iris.config.db_port
+  connectionUri += +':' + iris.config.db_port;
 
 }
 
 if (iris.config.db_name) {
 
-  connectionUri += '/' + iris.config.db_name
+  connectionUri += '/' + iris.config.db_name;
 
 }
 
@@ -104,7 +107,7 @@ iris.dbPopulate = function () {
 
       }
 
-    })
+    });
 
 
   });
@@ -115,7 +118,7 @@ iris.dbPopulate = function () {
 
     delete iris.dbSchema[oldSchema];
 
-  })
+  });
 
   // Loop over all enabled modules and check for schema files
 
@@ -162,8 +165,10 @@ iris.dbPopulate = function () {
 
     var schemaName = schemafile.toLowerCase().replace(".json", "");
 
+    var file;
+    
     try {
-      var file = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations/entity/" + schemafile, "UTF8"));
+      file = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations/entity/" + schemafile, "UTF8"));
     } catch (e) {
 
       iris.log("error", schemaName + " failed db schema insertion valid JSON");
@@ -193,28 +198,20 @@ iris.dbPopulate = function () {
     switch (type) {
       case "[String]":
         return [String];
-        break;
       case "String":
         return String;
-        break;
       case "[Number]":
         return [Number];
-        break;
       case "Number":
         return Number;
-        break;
       case "[Boolean]":
         return [Boolean];
-        break;
       case "Boolean":
         return Boolean;
-        break;
       case "Date":
         return Date;
-        break;
       case "[Date]":
         return [Date];
-        break;
     }
 
     return false;
@@ -282,7 +279,7 @@ iris.dbPopulate = function () {
 
       }
 
-    }
+    };
 
     Object.keys(schemaConfig.fields).forEach(function (fieldName) {
 
@@ -301,21 +298,21 @@ iris.dbPopulate = function () {
       description: "The type of entity this is",
       title: "Entity type",
       required: true
-    }
+    };
 
     iris.dbSchema[schema].entityAuthor = {
       type: String,
       description: "The name of the author",
       title: "Author",
       required: true
-    }
+    };
 
     iris.dbSchema[schema].eid = {
       type: Number,
       description: "Entity ID",
       title: "Unique ID",
       required: false
-    }
+    };
 
     try {
 
@@ -343,14 +340,14 @@ iris.dbPopulate = function () {
 
     //Create permissions for this entity type
 
-    iris.modules.auth.globals.registerPermission("can create " + schema, "entity")
-    iris.modules.auth.globals.registerPermission("can edit any " + schema, "entity")
-    iris.modules.auth.globals.registerPermission("can edit own " + schema, "entity")
-    iris.modules.auth.globals.registerPermission("can view any " + schema, "entity")
-    iris.modules.auth.globals.registerPermission("can view own " + schema, "entity")
-    iris.modules.auth.globals.registerPermission("can delete any " + schema, "entity")
-    iris.modules.auth.globals.registerPermission("can delete own " + schema, "entity")
-    iris.modules.auth.globals.registerPermission("can fetch " + schema, "entity", "Can use the API to <b>fetch</b> entities.")
+    iris.modules.auth.globals.registerPermission("can create " + schema, "entity");
+    iris.modules.auth.globals.registerPermission("can edit any " + schema, "entity");
+    iris.modules.auth.globals.registerPermission("can edit own " + schema, "entity");
+    iris.modules.auth.globals.registerPermission("can view any " + schema, "entity");
+    iris.modules.auth.globals.registerPermission("can view own " + schema, "entity");
+    iris.modules.auth.globals.registerPermission("can delete any " + schema, "entity");
+    iris.modules.auth.globals.registerPermission("can delete own " + schema, "entity");
+    iris.modules.auth.globals.registerPermission("can fetch " + schema, "entity", "Can use the API to <b>fetch</b> entities.");
 
   });
 

@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @member hook_frontend_embed__tags
  * @memberof frontend
@@ -60,11 +63,11 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
 
           });
 
-        };
+        }
 
         if (tag.type === "script") {
 
-          output += "></" + tag.type + ">"
+          output += "></" + tag.type + ">";
 
         } else {
 
@@ -78,4 +81,4 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
 
   thisHook.pass(output);
 
-})
+});

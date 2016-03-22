@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 iris.messageStore = {};
 
 iris.message = function (userid, message, type) {
@@ -13,7 +16,7 @@ iris.message = function (userid, message, type) {
     message: message,
     type: type
 
-  })
+  });
 
   // Send messages to server for persistence
 
@@ -21,7 +24,7 @@ iris.message = function (userid, message, type) {
     messages: iris.messageStore
   });
 
-}
+};
 
 iris.readMessages = function (userid) {
 
@@ -35,16 +38,16 @@ iris.readMessages = function (userid) {
 
       messages.push(message);
 
-    })
+    });
 
   }
 
   return messages;
 
-}
+};
 
 iris.clearMessages = function (userid) {
 
   iris.messageStore[userid] = [];
 
-}
+};

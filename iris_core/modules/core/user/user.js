@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file User management module
  */
@@ -36,7 +39,7 @@ iris.route.get("/user/login", routes.login, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["login"], ['html'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -113,7 +116,7 @@ iris.route.post("/api/user/first", function (req, res) {
 
           res.status(400).json(fail);
 
-        })
+        });
 
       } else {
 
@@ -123,7 +126,7 @@ iris.route.post("/api/user/first", function (req, res) {
 
   });
 
-})
+});
 
 iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (thisHook, data) {
 
@@ -135,12 +138,12 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
         "type": "string",
         "title": "Installation profile",
         "enum": ["minimal", "standard"]
-      }
+      };
 
       data.schema.username = {
         "type": "text",
         "title": "Administrator email address"
-      }
+      };
 
       data.schema.password = {
         "type": "password",
@@ -180,7 +183,7 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
     }
   });
 
-})
+});
 
 iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (thisHook, data) {
 
@@ -194,14 +197,14 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
         password: thisHook.context.params.password,
         username: thisHook.context.params.username,
         roles: ["admin"]
-      }
+      };
 
       iris.invokeHook("hook_entity_create", "root", newUser, newUser).then(function (user) {
 
         var auth = {
           password: thisHook.context.params.password,
           username: thisHook.context.params.username
-        }
+        };
 
         iris.modules.user.globals.login(auth, thisHook.context.res, function (uid) {
 
@@ -284,7 +287,7 @@ iris.route.get("/", function (req, res, next) {
 
       iris.modules.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
 
-        res.send(success)
+        res.send(success);
 
       }, function (fail) {
 
@@ -299,8 +302,8 @@ iris.route.get("/", function (req, res, next) {
       next();
 
     }
-  })
-})
+  });
+});
 
 /**
  * @function login
@@ -498,10 +501,10 @@ iris.modules.user.registerHook("hook_form_render__editEntity", 1, function (this
     Object.keys(iris.modules.auth.globals.roles).forEach(function (role) {
 
       if (role !== "anonymous" && role !== "authenticated") {
-        roles.push(role)
+        roles.push(role);
       }
 
-    })
+    });
 
     data.schema.roles.items = {
       type: "string",
@@ -522,10 +525,10 @@ iris.modules.user.registerHook("hook_form_render__createEntity", 1, function (th
     Object.keys(iris.modules.auth.globals.roles).forEach(function (role) {
 
       if (role !== "anonymous" && role !== "authenticated") {
-        roles.push(role)
+        roles.push(role);
       }
 
-    })
+    });
 
     data.schema.roles.items = {
       type: "string",
@@ -590,7 +593,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
   } else {
 
-    thisHook.pass(data)
+    thisHook.pass(data);
   }
 
 });
@@ -616,7 +619,7 @@ iris.app.post("/api/login", function (req, res) {
 
       }
 
-    })
+    });
 
   } else {
 
@@ -642,9 +645,9 @@ iris.route.get("/admin/users", {
 
     res.send(success);
 
-  })
+  });
 
-})
+});
 
 iris.route.get("/admin/users/list", {
   "menu": [{

@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Provides configuration storage
  */
@@ -195,7 +198,7 @@ iris.readConfigSync = function (directory, filename) {
     var name;
     var arrNames = strNames.split('/');
 
-    while (name = arrNames.shift()) {
+    while (typeof (name = arrNames.shift()) === "string") {
       if (!ref.hasOwnProperty(name)) {
         return false;
       }
@@ -228,7 +231,8 @@ iris.readConfigSync = function (directory, filename) {
       return false;
     }
   }
-}
+};
+
 /**
  * Reads a stored JSON configuration file
  *
@@ -247,8 +251,8 @@ iris.readConfig = function (directory, filename) {
     function defined(ref, strNames) {
       var name;
       var arrNames = strNames.split('/');
-
-      while (name = arrNames.shift()) {
+            
+      while (typeof (name = arrNames.shift()) === "string") {
         if (!ref.hasOwnProperty(name)) {
           return false;
         }
