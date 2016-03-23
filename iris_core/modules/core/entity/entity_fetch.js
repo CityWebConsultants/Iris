@@ -35,8 +35,8 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
   } else {
 
     thisHook.fail("Not a valid query");
-    return false;
 
+    return false;
 
   }
 
@@ -68,12 +68,14 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         var queryItem = {};
 
-        queryItem[fieldQuery["field"]] = fieldQuery.value
+        queryItem[fieldQuery["field"]] = fieldQuery.value;
 
         // Check if negative
 
         if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
+
           query.$and.push(queryItem);
+
         } else {
 
           negativeQueryItem = {};
@@ -82,7 +84,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
             $ne: queryItem[Object.keys(queryItem)[0]]
 
-          }
+          };
 
           query.$and.push(negativeQueryItem);
 
@@ -96,7 +98,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         queryItem[fieldQuery["field"]] = {
           $gt: fieldQuery.value
-        }
+        };
 
         query.$and.push(queryItem);
 
@@ -114,14 +116,16 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
           queryItem[fieldQuery["field"]] = {
             '$elemMatch': fieldQuery.value
-          }
+          };
 
         }
 
         // Check if negative
 
         if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
+
           query.$and.push(queryItem);
+
         } else {
 
           negativeQueryItem = {};
@@ -130,12 +134,12 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
             $ne: queryItem[Object.keys(queryItem)[0]]
 
-          }
+          };
 
           query.$and.push(negativeQueryItem);
         }
 
-      };
+      }
 
       if (fieldQuery.operator.toLowerCase().indexOf("contains") !== -1) {
 
@@ -145,15 +149,18 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         queryItem[fieldQuery["field"]] = {
           '$regex': regex
-        }
+        };
 
         // Check if negative
 
         if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
+
           query.$and.push(queryItem);
+
         } else {
 
           queryItem[fieldQuery["field"]].$not = regex;
+
           delete queryItem[fieldQuery["field"]].$regex;
 
           query.$and.push(queryItem);
@@ -169,14 +176,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
       query = [];
 
     }
-
-    //    Debugger for queries
-
-    /*var util = require("util");
-
-    console.log(util.inspect(query, {
-      depth: 10
-    }));*/
 
     var entities = {};
 
@@ -234,7 +233,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
               }
 
-            })
+            });
 
           }, function (fail) {
 
@@ -284,7 +283,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
               }
 
-            })
+            });
 
           }, function (fail) {
 
@@ -324,7 +323,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
                     return 1;
                   }
                   return 0;
-                })
+                });
 
               } else if (direction === "desc") {
 
@@ -336,18 +335,19 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
                     return 1;
                   }
                   return 0;
-                })
+                });
 
               }
 
-            }
+            };
 
             if (fetchRequest.sort) {
 
               Object.keys(fetchRequest.sort).forEach(function (sorter) {
-                sort(sorter, fetchRequest.sort[sorter])
 
-              })
+                sort(sorter, fetchRequest.sort[sorter]);
+
+              });
 
             }
 
@@ -413,9 +413,9 @@ iris.app.get("/fetch", function (req, res) {
         res.status(403).json("Cannot fetch");
         failed = true;
 
-      };
+      }
 
-    })
+    });
 
   } else {
 
@@ -511,14 +511,13 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
             thisHook.authPass.roles.forEach(function (role) {
 
-
               if (schemaField.permissions.indexOf(role) !== -1) {
 
                 canView = true;
 
               }
 
-            })
+            });
 
             if (!canView) {
 
@@ -528,12 +527,11 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
           }
 
-
         }
 
       }
 
-    })
+    });
 
     var entityType = entity.entityType;
 
@@ -570,14 +568,13 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       }
 
-
-    }
+    };
 
     // Run hook for each field
 
-    if(fieldHooks.length == 0)
+    if(fieldHooks.length === 0) {
       thisHook.pass(entity);
-
+    }
 
     fieldHooks.forEach(function (field) {
 
@@ -593,14 +590,14 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
         fieldChecked();
 
-      })
+      });
 
     });
 
     thisHook.pass(entity);
 
   } else {
-    
+
     thisHook.pass(entity);
     
   }
@@ -621,4 +618,4 @@ iris.modules.entity.registerHook("hook_entity_view_bulk", 0, function (thisHook,
 
 });
 
-require("./entity_views.js")
+require("./entity_views.js");
