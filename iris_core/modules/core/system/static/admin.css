@@ -218,8 +218,8 @@ form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .f
 form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend{
   cursor:pointer;
 }
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label:after,
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend:after{
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]):not(fieldset) .form-group[data-jsonform-type="array"] > label:after
+/*form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend:after*/ {
   content: "\e259";
   position: relative;
   top: 1px;
