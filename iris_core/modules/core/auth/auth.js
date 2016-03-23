@@ -221,7 +221,7 @@ iris.modules.auth.globals = {
 
     });
 
-    if (authPass.roles.indexOf("admin") !== -1) {
+    if (authPass.roles.indexOf("admin") >= 0) {
 
       access = true;
 

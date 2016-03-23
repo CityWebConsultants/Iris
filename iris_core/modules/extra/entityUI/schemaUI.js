@@ -118,6 +118,36 @@ iris.app.get("/admin/schema/:type/edit", function (req, res) {
 });
 
 
+iris.app.get("/admin/schema/:type/delete", function(req, res){
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  // Render admin_schema template.
+  iris.modules.frontend.globals.parseTemplateFile(["admin_schema_delete"], ['admin_wrapper'], {
+    entityType: req.params.type
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
+
 /**
  * Page callback to manage schema fields for a given entity type.
  */
@@ -300,12 +330,56 @@ iris.app.get("/admin/schema/:type/:field/delete", function (req, res) {
 
 });
 
+iris.modules.entityUI.registerHook("hook_form_render__schemaDelete", 0, function (thisHook, data) {
+  var entityType = thisHook.context.params[1];
+
+  data.schema = {
+    "schema": {
+      "key": "schema"
+    }
+  };
+
+  data.form = [
+    {
+    "type": "button",
+    "id": "yes",
+    "value": "delete",
+    "title": "Delete Scheme " + entityType
+    },
+    {
+      "type": "hidden",
+      "id": "schema",
+      "value": entityType,
+      "key": "schema"
+    }
+  ];
+
+  thisHook.pass(data);
+
+});
+
+iris.modules.entityUI.registerHook("hook_form_submit__schemaDelete", 0, function (thisHook, data) {
+  var schema = thisHook.context.params.schema;
+  iris.invokeHook("hook_schema_delete", thisHook.authPass, null, thisHook.context.params)
+  .then(function(data){
+    data.callback = "/admin/structure/entities";
+    data.message = [{
+      'type' : 'success',
+      'message' : 'Successfully deleted schema "' + schema + '".'
+    }];
+
+    thisHook.pass(data);
+
+  }, function(err){
+    thisHook.fail(err);
+  });
+});
 
 /**
  * Defines form schemaFieldDelete.
  * Allows the user to delete a field from the schema.
  */
-+ iris.modules.entityUI.registerHook("hook_form_render__schemafieldDelete", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render__schemafieldDelete", 0, function (thisHook, data) {
 
 
   var entityType = thisHook.context.params[1];
