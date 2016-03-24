@@ -539,23 +539,29 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
       iris.invokeHook(hook, thisHook.authPass, finalValues, finalValues).then(function (success) {
 
-        thisHook.pass(function (res) {
-
-          res.send({
-            redirect: "/admin/structure/entities"
-          })
-
-        });
+        data.callback = "/admin/structure/entities";
+        thisHook.pass(data);
 
       }, function (fail) {
 
-        thisHook.pass(function (res) {
+        var msg = thisHook.authPass.t("Error saving entity");
 
-          res.send({
-            errors: JSON.stringify(fail)
-          });
+        if (fail.errmsg) {
 
+          msg = fail.errmsg;
+
+        }
+        else {
+
+          msg = JSON.stringify(fail);
+          
+        }
+        data.errors.push({
+          'message' : msg
         });
+
+        iris.log("error", msg);
+        thisHook.pass(data);
 
       });
 

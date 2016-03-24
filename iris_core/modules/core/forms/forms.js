@@ -50,7 +50,18 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
           });
         });
 
-      } else {
+      }
+      else if (data.errors && data.errors.length > 0) {
+
+        thisHook.pass(function (res) {
+
+          res.json({
+            errors: data.errors
+          });
+
+        });
+      }
+      else {
         // If no callback is supplied provide a basic redirect to the same page
         var callback = function (res) {
 

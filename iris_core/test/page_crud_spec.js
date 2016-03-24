@@ -50,7 +50,7 @@ frisby.create('Set first time user')
         })
         .afterJSON(function (res) {
           user.auth.token = res.token;
-
+            console.log('User Token', res.token);
 
           frisby.create('Create a page')
             .post(baseURL + '/entity/create/page',
@@ -67,11 +67,11 @@ frisby.create('Set first time user')
 
                 pageQuery.queries[0].value = pageContent.eid = res.eid;
 
-                //frisby.create('Fetch a page')
-                //  .get(baseURL + '/fetch' + prepareQuery())
-                //  .expectStatus(200)
-                //  .expectHeaderContains('content-type', 'application/json')
-                //  .afterJSON(function (res) {
+                frisby.create('Fetch a page')
+                  .get(baseURL + '/fetch' + prepareQuery())
+                  .expectStatus(200)
+                  .expectHeaderContains('content-type', 'application/json')
+                  .afterJSON(function (res) {
 
                     frisby.create('Edit a page')
                       .post(baseURL + '/entity/edit/page/' + pageContent.eid,
@@ -97,8 +97,8 @@ frisby.create('Set first time user')
                     .toss()
                   })
                  .toss()
-             // })
-             //.toss();
+              })
+             .toss();
         })
         .toss();
   })
