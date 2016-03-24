@@ -1222,9 +1222,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafield", 0, function 
   // Save and repopulate database schemas
 
   iris.saveConfig(schema, "entity", entityType, function (data) {
-    iris.syncSchemaIndex(entityType);
     iris.dbPopulate();
-
     thisHook.pass(function (res) {
 
       iris.message(thisHook.authPass.userid, "Field " + fieldName + " saved on entity " + entityType, "status");
