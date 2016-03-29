@@ -7,7 +7,7 @@
     
       {{#if (iris_menu path)}}
       
-        <li {{#children}} class="has-children" {{/children}}>
+        <li {{#if children}} class="has-children" {{/if}}>
 
       <a href="{{path}}">{{title}}</a>
           

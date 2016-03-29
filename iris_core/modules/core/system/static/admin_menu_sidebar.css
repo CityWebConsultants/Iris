@@ -1,0 +1,59 @@
+#admin_sidebar{
+    position: fixed;
+    top: 30px;
+    bottom: 0px;
+    overflow-x: hidden;
+    background: #2B3249;
+    overflow-y: auto;
+    padding: 0px;
+}
+
+#adminSidebar{
+    padding: 0px;
+}
+
+#admin_sidebar .icon-bar{
+    background: white;
+}
+
+#admin_sidebar ul {
+    list-style: none;
+}
+
+#admin_sidebar ul a{
+    color: white;
+    font-size: 15px;
+}
+
+#admin_sidebar > .menu ul.menu > li > a {
+    display: block;
+    padding: 20px 5px 20px 20px;
+    background: #1C2440;
+    position: relative;
+}
+
+#admin_sidebar > .menu ul.menu > li > a > span {
+    position: absolute;
+    right: 15px;
+    top: 25px;
+}
+
+#admin_sidebar > .menu ul.menu > li > a:hover{
+    background: #444C68;
+    text-decoration: none;
+}
+
+#admin_sidebar .menu{
+    padding-left: 0px;
+}
+
+.sub-menu{
+    display: none;
+    padding-left: 0px;
+}
+
+.sub-menu li a {
+    padding: 10px 5px 10px 10px;
+    background: #586180;
+    display: block;
+}

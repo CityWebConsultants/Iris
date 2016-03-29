@@ -599,8 +599,8 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
       row['fieldId'] = fieldName;
       row['fieldType'] = field.fieldType;
       row['fieldWeight'] = field.weight;
-      row['fieldEdit'] = '<a href="/admin/schema/' + entityType + '/' + fieldName + '" >Edit</a>';
-      row['fieldDelete'] = '<a href="/admin/schema/' + entityType + '/' + fieldName + '/delete" >Delete</a>';
+      row['fieldOptions'] = '<a class="btn btn-default" href="/admin/schema/' + entityType + '/' + fieldName + '" >Edit</a>' +
+                            '&nbsp;<a class="btn btn-danger" href="/admin/schema/' + entityType + '/' + fieldName + '/delete" >Delete</a>';
       rows.push(row);
 
       // Currently a hacky way to alter the weights of fields, this creates a fidden field that gets updated
@@ -633,12 +633,13 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
     // Generate table markup. This should be replaced with a handlebars wrapper that generates a table from JSON.
     var tableHtml = '<table>' +
       '<thead>' +
+      '<tr class="admin-header">' +
       '<th></th>' +
       '<th>Label</th>' +
       '<th>Machine name</th>' +
       '<th>Type</th>' +
-      '<th>Edit</th>' +
-      '<th>Delete</th>' +
+      '<th>Options</th>' +
+      '</tr>' +
       '</thead>' +
       '<tbody class="ui-sortable">';
     var counter = 0;
@@ -996,6 +997,15 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
       "default": schema['entityTypeDescription'] ? schema['entityTypeDescription'] : ''
     }
   }
+
+  data.form = [
+      "*",
+      {
+        "type": "submit",
+        "title": "Submit",
+        "htmlClass": "submit-form"
+      }
+    ];
 
   if (entityType) {
 
