@@ -1,6 +1,6 @@
 iris.forms = {};
 
-$(document).on("ready", function () {
+$(window).load( function () {
   iris.forms.cache = [];
   var $form;
   iris.forms.renderForm = function(formId){
@@ -10,10 +10,6 @@ $(document).on("ready", function () {
 
     $form.on( "click", ".form-group[data-jsonform-type=array] > label", function(e) {
       $(this).next().slideToggle();
-    });
-
-    $form.on( "click", "fieldset[data-jsonform-type='fieldset'] > legend", function(e) {
-      $(this).siblings().slideToggle();
     });
 
     var onComplete = new Function(iris.forms[formId].onComplete + "()");

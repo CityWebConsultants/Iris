@@ -40,6 +40,29 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   });
 
+  /**
+   * Test if variable equals a string.
+   *
+   * {{#if_eq this "some message"}}
+   *   ...
+   * {{else}}
+   *   ...
+   * {{/if_eq}}
+   */
+
+  Handlebars.registerHelper('if_eq', function(a, b, opts) {
+    if(a == b) // Or === depending on your needs
+      return opts.fn(this);
+    else
+      return opts.inverse(this);
+  });
+
+  // Parse JSON
+
+  Handlebars.registerHelper('json', function(context) {
+    return JSON.stringify(context);
+  });
+
   // Handle for a user's messages
 
   Handlebars.registerHelper("iris_messages", function () {
