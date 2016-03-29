@@ -1,15 +1,15 @@
 #admin_sidebar{
     position: fixed;
-    top: 30px;
-    bottom: 0px;
+    top: 0;
+    bottom: 0;
     overflow-x: hidden;
     background: #2B3249;
     overflow-y: auto;
-    padding: 0px;
+    padding: 0;
 }
 
 #adminSidebar{
-    padding: 0px;
+    padding: 0;
 }
 
 #admin_sidebar .icon-bar{

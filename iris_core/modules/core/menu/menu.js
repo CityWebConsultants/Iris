@@ -135,8 +135,6 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
       parseTemplate.push(embedOptions.template);
     }
 
-    console.log(parseTemplate);
-
     iris.modules.frontend.globals.parseTemplateFile(parseTemplate, null, {
       menuName: menuName,
       menu: menuLinks

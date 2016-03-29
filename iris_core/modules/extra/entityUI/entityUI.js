@@ -225,12 +225,6 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
           value: "Save " + entityType
         });
 
-        console.log(data);
-
-
-        console.log(data.form);
-        //data.fields.title.fieldHtmlClass = "testing";
-        //console.log(schema);
         thisHook.pass(data);
 
       }
