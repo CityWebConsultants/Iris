@@ -1,3 +1,5 @@
+**The npm package iris-fw has been moved to irisjs, please use irisjs instead**
+
 # Iris
 
 Iris is a modular content management system and web application framework built using Node.js and MongoDB. 
