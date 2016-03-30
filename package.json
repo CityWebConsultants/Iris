@@ -1,9 +1,9 @@
 {
-  "name": "iris",
+  "name": "irisjs",
   "engines": {
     "node": ">=5.0.0"
   },
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "Modular content management and web application framework built with Node.js and MongoDB",
   "main": "iris.js",
   "dependencies": {
