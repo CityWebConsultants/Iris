@@ -117,8 +117,6 @@ iris.dbPopulate = function() {
   Object.keys(iris.dbSchema).forEach(function(oldSchema) {
 
     delete iris.dbSchema[oldSchema];
-    delete iris.dbSchemaConfig[oldSchema];
-
   });
 
   // Loop over all enabled modules and check for schema files
@@ -332,8 +330,8 @@ iris.dbPopulate = function() {
         field: 'eid',
         startAt: 1,
       });
-      
-      iris.dbCollections[schema] = mongoose.model(schema, readySchema); 
+
+      iris.dbCollections[schema] = mongoose.model(schema, readySchema);
 
     } catch (e) {
 
@@ -368,17 +366,14 @@ iris.dbPopulate = function() {
  * 
  **/
 iris.syncSchemaIndex = function(schema) {
-  
+
   // set index through the schema
   for (var i in iris.dbSchema[schema]) {
     if (iris.dbSchema[schema][i].required == true) {
-      if (iris.dbSchema[schema][i].unique) {
-        iris.dbSchema[schema][i].index = { unique: true };
-      }
-      else {
-        iris.dbSchema[schema][i].index = true;
-      }
-
+      iris.dbSchema[schema][i].index = true;
+    }
+    if (iris.dbSchema[schema][i].unique) {
+      iris.dbSchema[schema][i].index = { unique: true };
     }
   }
 
