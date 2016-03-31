@@ -276,7 +276,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
 
         paths.forEach(function (path) {
 
-          var showing = minimatch(currentUrl, path);
+          showing = minimatch(currentUrl, path);
 
         })
 
