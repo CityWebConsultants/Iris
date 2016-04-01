@@ -1,4 +1,4 @@
-**'npm install irisjs' does not currently work for setting up this project. Instead run git clone https://github.com/CityWebConsultants/Iris.git iris; cd iris; npm install;**
+**'npm install irisjs' does not currently work for setting up this project. Instead run: git clone https://github.com/CityWebConsultants/Iris.git iris; cd iris; npm install;**
 
 # Iris
 
