@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=5.0.0"
   },
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Modular content management and web application framework built with Node.js and MongoDB",
   "main": "iris.js",
   "dependencies": {
