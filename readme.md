@@ -1,4 +1,4 @@
-**The npm package iris-fw has been moved to irisjs, please use irisjs instead**
+**'npm install irisjs' does not currently work for setting up this project. Instead run git clone https://github.com/CityWebConsultants/Iris.git iris; cd iris; npm install;**
 
 # Iris
 
