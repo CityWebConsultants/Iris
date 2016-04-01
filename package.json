@@ -43,7 +43,7 @@
     "jshint": "^2.9.1"
   },
   "scripts": {
-    "preinstall": "git clone https://github.com/CityWebConsultants/Iris.git .",
+    "preinstall": "git init; git remote add -t https://github.com/CityWebConsultants/Iris.git; git checkout master;",
     "test": "grunt default"
   }
 }
