@@ -19,20 +19,14 @@
 </style>
 
 {{#if entityType}}
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Delete Schema: {{entityType}}</div>
 
-<h1>Delete Schema Type: {{entityType}}</h1>
+  <div id="current-fields">
+    [[[form schemaDelete,{{entityType}}]]]
+  </div>
 
-<p>
-
-  Are you sure you want to delete this entity? This will also delete all it's data in the database.
-
-</p>
-<br />
-
-<div id="current-fields">
-  [[[form schemaDelete,{{entityType}}]]]
 </div>
-
 {{else}}
 
 <h1>Schema Not Found</h1>

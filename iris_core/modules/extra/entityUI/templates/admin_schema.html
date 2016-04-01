@@ -20,12 +20,13 @@
 
 {{#if entityType}}
 
-<!--<h1>Edit entity type {{entityType}}</h1>-->
 
-<br />
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Edit Entity</div>
 
-<div id="current-fields">
-  [[[form schema,{{entityType}},existing]]]
+  <div id="current-fields">
+    [[[form schema,{{entityType}},existing]]]
+  </div>
 </div>
 
 {{else}}

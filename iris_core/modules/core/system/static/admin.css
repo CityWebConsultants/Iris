@@ -253,6 +253,9 @@ fieldset {
   border-radius: 5px;
 }
 
+.no-fieldset-bg fieldset{
+  background: none;
+}
 form > div > fieldset {
   padding:20px;
 }
@@ -331,10 +334,10 @@ div[data-jsonform-type="checkbox"] .controls{
   cursor: ns-resize;
 }
 
-div.admin-inputs div.form-group{
+html body div.admin-inputs div.form-group.jsonform-node{
   margin-bottom: 0px;
   border-radius: 0px;
-  background: white !important;
+  background: white;
 }
 
 .admin-header-padding{
@@ -345,7 +348,7 @@ div.admin-inputs div.form-group{
   margin-top: 20px;
 }
 
-.admin-inputs form {
+.admin-inputs form, .admin-inputs .borders {
   border-left: 1px solid;
   border-right: 1px solid;
   border-bottom: 1px solid;
@@ -353,8 +356,22 @@ div.admin-inputs div.form-group{
   border-color: #1C2440;
 }
 
+
+
 .submit-form{
   margin-left: 20px;
+}
+
+.no-margin{
+  margin: 0px;
+}
+
+.no-margin-top{
+  margin-top: 0px;
+}
+
+.admin-header-lighter {
+  background: #633379;
 }
 
 @media only screen and (max-width : 768px) {

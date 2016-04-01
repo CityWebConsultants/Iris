@@ -341,10 +341,15 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaDelete", 0, function
 
   data.form = [
     {
+      "type": "help",
+      "helpvalue": "<div class='alert alert-danger'>Are you sure you want to delete this entity? This will also delete all it's data in the database.</div>",
+    },
+    {
     "type": "button",
     "id": "yes",
     "value": "delete",
-    "title": "Delete Scheme " + entityType
+    "title": "Delete Scheme " + entityType,
+      "htmlClass": "btn-danger"
     },
     {
       "type": "hidden",
