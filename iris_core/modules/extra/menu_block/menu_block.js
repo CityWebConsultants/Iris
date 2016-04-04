@@ -6,7 +6,7 @@ iris.modules.menu_block.registerHook("hook_form_render__blockForm_menu", 0, func
 
     data.schema.menu = {
       type: "text",
-      "title": "Menu",
+      "title": thisHook.authPass.t("Menu"),
       enum: menuList
     }
 
@@ -15,7 +15,7 @@ iris.modules.menu_block.registerHook("hook_form_render__blockForm_menu", 0, func
 
   })
 
-})
+});
 
 
 iris.modules.menu_block.registerHook("hook_block_render", 0, function (thisHook, data) {

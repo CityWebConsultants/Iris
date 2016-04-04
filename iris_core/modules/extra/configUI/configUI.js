@@ -62,7 +62,7 @@ iris.route.get("/admin/api/config/export", {}, function (req, res) {
     if (err) {
       return console.error(err);
     }
-    res.send("Config exported")
+    res.send(req.authPass.t("Config exported"));
   });
 
 });
@@ -76,7 +76,7 @@ iris.route.get("/admin/api/config/import", {}, function (req, res) {
     if (err) {
       return console.error(err);
     }
-    res.send("Config imported")
+    res.send(req.authPass.t("Config imported"));
   });
 
 });

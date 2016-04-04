@@ -118,6 +118,36 @@ iris.app.get("/admin/schema/:type/edit", function (req, res) {
 });
 
 
+iris.app.get("/admin/schema/:type/delete", function(req, res){
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  // Render admin_schema template.
+  iris.modules.frontend.globals.parseTemplateFile(["admin_schema_delete"], ['admin_wrapper'], {
+    entityType: req.params.type
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
+
 /**
  * Page callback to manage schema fields for a given entity type.
  */
@@ -300,12 +330,61 @@ iris.app.get("/admin/schema/:type/:field/delete", function (req, res) {
 
 });
 
+iris.modules.entityUI.registerHook("hook_form_render__schemaDelete", 0, function (thisHook, data) {
+  var entityType = thisHook.context.params[1];
+
+  data.schema = {
+    "schema": {
+      "key": "schema"
+    }
+  };
+
+  data.form = [
+    {
+      "type": "help",
+      "helpvalue": "<div class='alert alert-danger'>Are you sure you want to delete this entity? This will also delete all it's data in the database.</div>",
+    },
+    {
+    "type": "button",
+    "id": "yes",
+    "value": "delete",
+    "title": "Delete Scheme " + entityType,
+      "htmlClass": "btn-danger"
+    },
+    {
+      "type": "hidden",
+      "id": "schema",
+      "value": entityType,
+      "key": "schema"
+    }
+  ];
+
+  thisHook.pass(data);
+
+});
+
+iris.modules.entityUI.registerHook("hook_form_submit__schemaDelete", 0, function (thisHook, data) {
+  var schema = thisHook.context.params.schema;
+  iris.invokeHook("hook_schema_delete", thisHook.authPass, null, thisHook.context.params)
+  .then(function(data){
+    data.callback = "/admin/structure/entities";
+    data.message = [{
+      'type' : 'success',
+      'message' : 'Successfully deleted schema "' + schema + '".'
+    }];
+
+    thisHook.pass(data);
+
+  }, function(err){
+    thisHook.fail(err);
+  });
+});
 
 /**
  * Defines form schemaFieldDelete.
  * Allows the user to delete a field from the schema.
  */
-+ iris.modules.entityUI.registerHook("hook_form_render__schemafieldDelete", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render__schemafieldDelete", 0, function (thisHook, data) {
 
 
   var entityType = thisHook.context.params[1];
@@ -316,27 +395,18 @@ iris.app.get("/admin/schema/:type/:field/delete", function (req, res) {
 
 
   data.schema.message = {
-
     "type": "markup",
-
-    "markup": "<h3>Are you sure you want to delete this field?"
-
+    "markup": "<h3>" + thisHook.authPass.t("Are you sure you want to delete this field?") + "</h3>"
   };
 
   data.schema.entityType = {
-
     "type": "hidden",
-
     "default": entityType
-
   };
 
   data.schema.fieldName = {
-
     "type": "hidden",
-
     "default": fieldName
-
   };
 
 
@@ -353,7 +423,7 @@ iris.app.get("/admin/schema/:type/:field/delete", function (req, res) {
 
       "type": "submit",
 
-      "title": "Delete"
+      "title": thisHook.authPass.t("Delete")
 
 },
 
@@ -361,7 +431,7 @@ iris.app.get("/admin/schema/:type/:field/delete", function (req, res) {
 
       "type": "button",
 
-      "title": "Cancel",
+      "title": thisHook.authPass.t("Cancel"),
 
       "onClick": function () {
 
@@ -427,7 +497,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
 
     thisHook.pass(function (res) {
 
-      iris.message(thisHook.authPass.userid, "Field " + fieldName + " saved on entity " + entityType, "status");
+      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Field {{name}} saved on entity {{type}}", {name: fieldName, type: entityType}), "status");
       // If field belongs to a fieldset, redirect back to fieldset manage page.
       if (parent) {
 
@@ -458,13 +528,14 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
 iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, function (thisHook, data) {
 
 
+  var ap = thisHook.authPass;
   if (thisHook.context.params[1]) {
 
     var entityType = thisHook.context.params[1];
 
     if (!iris.dbSchemaConfig[entityType]) {
 
-      iris.message(thisHook.authPass.userid, "No such entity type", "error");
+      iris.message(thisHook.authPass.userid, ap.t("No such entity type"), "error");
 
       thisHook.fail(data);
 
@@ -525,8 +596,8 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
       row['fieldId'] = fieldName;
       row['fieldType'] = field.fieldType;
       row['fieldWeight'] = field.weight;
-      row['fieldEdit'] = '<a href="/admin/schema/' + entityType + '/' + fieldName + '" >Edit</a>';
-      row['fieldDelete'] = '<a href="/admin/schema/' + entityType + '/' + fieldName + '/delete" >Delete</a>';
+      row['fieldOptions'] = '<a class="btn btn-default" href="/admin/schema/' + entityType + '/' + fieldName + '" >' + ap.t('Edit') + '</a>' +
+                            '&nbsp;<a class="btn btn-danger" href="/admin/schema/' + entityType + '/' + fieldName + '/delete" >' + ap.t('Delete') + '</a>';
       rows.push(row);
 
       // Currently a hacky way to alter the weights of fields, this creates a fidden field that gets updated
@@ -559,12 +630,13 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
     // Generate table markup. This should be replaced with a handlebars wrapper that generates a table from JSON.
     var tableHtml = '<table>' +
       '<thead>' +
+      '<tr class="admin-header">' +
       '<th></th>' +
-      '<th>Label</th>' +
-      '<th>Machine name</th>' +
-      '<th>Type</th>' +
-      '<th>Edit</th>' +
-      '<th>Delete</th>' +
+      '<th>' + ap.t('Label') + '</th>' +
+      '<th>' + ap.t('Machine name') + '</th>' +
+      '<th>' + ap.t('Type') + '</th>' +
+      '<th>' + ap.t('Options') + '</th>' +
+      '</tr>' +
       '</thead>' +
       '<tbody class="ui-sortable">';
     var counter = 0;
@@ -585,7 +657,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
 
     var weightFields = {
       "type": "array",
-      "title": "weights",
+      "title": ap.t("weights"),
       "items": {
         "type": "object",
         "properties": {
@@ -607,15 +679,15 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
       weightFields,
       "label": {
         "type": "text",
-        "title": "Field label"
+        "title": ap.t("Field label")
       },
       "machineName": {
         "type": "text",
-        "title": "Database name",
+        "title": ap.t("Database name"),
       },
       "fieldType": {
         "type": "text",
-        "title": "Field type",
+        "title": ap.t("Field type"),
         "enum": Object.keys(iris.fieldTypes).concat(["Fieldset"])
       },
       "entityType": {
@@ -633,7 +705,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
       "parentItem",
       {
         "type": "fieldset",
-        "title": "Add new field",
+        "title": ap.t("Add new field"),
         "expandable": true,
         "items": [
           {
@@ -656,7 +728,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
       },
       {
         "type": "submit",
-        "title": "Save"
+        "title": ap.t("Save")
       }
     ];
 
@@ -765,7 +837,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
 
     thisHook.pass(function (res) {
 
-      iris.message(thisHook.authPass.userid, "Fields sucessfully saved", "status");
+      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Fields sucessfully saved"), "status");
       var redirect = '/admin/schema/' + entityType;
 
       if (thisHook.context.params.machineName != '') {
@@ -884,7 +956,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
 
     if (!iris.dbSchemaConfig[entityType]) {
 
-      iris.message(thisHook.authPass.userid, "No such entity type", "error");
+      iris.message(thisHook.authPass.userid, thisHook.authPass.t("No such entity type"), "error");
 
       thisHook.fail(data);
 
@@ -912,7 +984,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
   data.schema = {
     "entityTypeName": {
       "type": "text",
-      "title": "Entity type name",
+      "title": thisHook.authPass.t("Entity type name"),
       "required": true,
       "default": entityType
     },
@@ -922,6 +994,15 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
       "default": schema['entityTypeDescription'] ? schema['entityTypeDescription'] : ''
     }
   }
+
+  data.form = [
+      "*",
+      {
+        "type": "submit",
+        "title": "Submit",
+        "htmlClass": "submit-form"
+      }
+    ];
 
   if (entityType) {
 
@@ -960,7 +1041,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 
       if (Object.keys(finishedSchema.fields).length == 0) {
 
-        iris.message(thisHook.authPass.userid, "New entity type created", "status");
+        iris.message(thisHook.authPass.userid, thisHook.authPass.t("New entity type created"), "status");
         res.json({
           redirect: "/admin/schema/" + iris.sanitizeName(thisHook.context.params.entityTypeName) + "/manage-fields"
         });
@@ -968,7 +1049,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 
       } else {
 
-        iris.message(thisHook.authPass.userid, "Entity type " + entityType + " has been updated.", "status");
+        iris.message(thisHook.authPass.userid, thisHook.authPass.t("Entity type {{type}} has been updated.", {type: entityType}), "status");
         res.json({
           "redirect": "/admin/schema/" + iris.sanitizeName(thisHook.context.params.entityTypeName) + "/edit"
         });
@@ -1089,7 +1170,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
 
       form.form.push({
         "type": "submit",
-        "title": "Save field"
+        "title": thisHook.authPass.t("Save field")
       });
       thisHook.pass(form);
 
@@ -1097,7 +1178,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
 
       data.form.push({
         "type": "submit",
-        "title": "Save field"
+        "title": thisHook.authPass.t("Save field")
       });
 
       iris.log("error", "No field type hook for: " + field["fieldType"]);
@@ -1228,7 +1309,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafield", 0, function 
 
     thisHook.pass(function (res) {
 
-      iris.message(thisHook.authPass.userid, "Field " + fieldName + " saved on entity " + entityType, "status");
+      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Field {{name}} saved on entity {{type}}", {name: fieldName, type: entityType}), "status");
 
       // If field belongs to a fieldset, redirect back to fieldset manage page.
       if (parent) {
@@ -1284,7 +1365,7 @@ iris.modules.entityUI.registerHook("hook_form_render__field_settings__fieldset",
     "properties": {
       "linkToField": {
         "type": "markup",
-        "markup": "<a href=\"/admin/schema/" + data.value.entityType + "/fieldset/" + data.value.fieldName + "\">Manage subfields</a>"
+        "markup": "<a href=\"/admin/schema/" + data.value.entityType + "/fieldset/" + data.value.fieldName + "\">" + thisHook.authPass.t('Manage subfields') + "</a>"
       }
     }
   }
@@ -1305,7 +1386,7 @@ iris.modules.entityUI.registerHook("hook_form_render__field_settings__select", 0
     "properties": {
       "options": {
         "type": "array",
-        "title": "List of options",
+        "title": thisHook.authPass.t("List of options"),
         "items": {
           "type": "text"
         }
@@ -1380,7 +1461,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
      "*",
       {
         "type": "help",
-        "helpvalue": "No widgets available for this field"
+        "helpvalue": thisHook.authPass.t("No widgets available for this field")
         }
     ];
 
@@ -1398,7 +1479,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
       properties: widgets[widgetName] ? widgets[widgetName] : {
         empty: {
           "type": "markup",
-          "markup": "This widget has no settings"
+          "markup": thisHook.authPass.t("This widget has no settings")
         }
       }
     };
@@ -1407,7 +1488,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
 
   data.schema.widgetChoice = {
     "type": "string",
-    "title": "Make a choice",
+    "title":thisHook.authPass.t( "Make a choice"),
     "enum": Object.keys(widgets)
   }
 
@@ -1423,10 +1504,10 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
 
   data.form = [{
     type: "help",
-    helpvalue: "<h2>Widgets</h2><p>Pick a widget to use to display this field to the user on entity forms</p>"
+    helpvalue: thisHook.authPass.t("<h2>Widgets</h2><p>Pick a widget to use to display this field to the user on entity forms</p>")
   }, {
     "type": "selectfieldset",
-    "title": "Make a choice",
+    "title": thisHook.authPass.t("Make a choice"),
     "key": "widgetChoice",
     "items": []
     }];
@@ -1450,7 +1531,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
 
   data.form.push({
     type: "submit",
-    value: "Save widget settings"
+    value: thisHook.authPass.t("Save widget settings")
   })
 
   // Check if widgets already set and prepopulate form if so

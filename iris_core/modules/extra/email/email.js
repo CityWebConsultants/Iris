@@ -97,7 +97,7 @@ iris.modules.email.registerHook("hook_form_render__mailSettings", 0, function (t
 
         data.schema.mailSystem = {
             "type": "string",
-            "title": "Choose mail system",
+            "title": thisHook.authPass.t("Choose mail system"),
             "enum": Object.keys(success.mailSystem)
         };
         
@@ -109,7 +109,7 @@ iris.modules.email.registerHook("hook_form_render__mailSettings", 0, function (t
         },
         {
           "type": "submit",
-          "title": "Submit"
+          "title": thisHook.authPass.t("Submit")
         }];
     
 
@@ -212,7 +212,7 @@ iris.modules.email.globals.sendEmail = function(args, authPass) {
     
         iris.invokeHook("hook_sendMail", authPass, transporter, args).then(function(success){
             iris.log('notice', success.log);
-            iris.message(authPass.userid, "Email sent", "notice");
+            iris.message(authPass.userid, authPass.t("Email sent"), "notice");
         }
         , function(fail){
 

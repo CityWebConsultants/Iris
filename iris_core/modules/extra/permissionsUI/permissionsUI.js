@@ -98,7 +98,7 @@ iris.modules.permissionsUI.registerHook("hook_form_render__permissions", 0, func
     form.push({
       "type": "fieldset",
       "title": category,
-      "expandable": false,
+      "expandable": true,
       "items": items
     })
 

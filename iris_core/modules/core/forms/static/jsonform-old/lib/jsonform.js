@@ -1167,7 +1167,7 @@ jsonform.elementTypes = {
       // Build up choices from the enumeration list
       var choices = null;
       var choiceshtml = null;
-      var template = '<label class="<%= cls.buttonClass %> ' + data.fieldHtmlClass + '">' +
+      var template = '<label class="<%= cls.buttonClass %> btn btn-default' + data.fieldHtmlClass + '">' +
         '<input type="checkbox" style="position:absolute;left:-9999px;" <% if (checked) { %> checked="checked" <% } %> name="<%= name %>" value="<%= value %>"' +
         '<%= (node.disabled? " disabled" : "")%>' +
         '/><span><%= title %></span></label>';

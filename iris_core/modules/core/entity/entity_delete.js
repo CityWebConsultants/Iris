@@ -1,6 +1,8 @@
 /*jshint nomen: true, node:true */
 /* globals iris,mongoose,Promise*/
 
+var fs = require('fs');
+
 /**
  * @file Functions and hooks for managing deletion of entities
  */
@@ -142,6 +144,58 @@ iris.app.post("/entity/delete/:type/:eid", function (req, res) {
   });
 
 });
+
+
+/*
+*  Things to remove...
+*  1. Database table
+*  2. identitycounters index
+*  3. iris.dbCollections[schema]
+*  4. configurations/entity/{{schema.json}}
+*
+ */
+iris.modules.entity.registerHook("hook_schema_delete", 0, function (thisHook, data) {
+  if (iris.modules.auth.globals.checkPermissions(["can delete schema " + data.schema], thisHook.authPass)) {
+
+    if(!iris.dbCollections[data.schema]) return thisHook.fail(iris.error(400, "Invalid schema"));
+
+    var mongoose = require('mongoose');
+
+    // 1.
+    var tableName = data.schema;
+    if(data.schema.substr(tableName.length - 1) != "s"){
+      tableName = data.schema + "s";
+    }
+
+    mongoose.connection.db.dropCollection(tableName, function(err){
+      if(err) return thisHook.fail("Error deleting collection");
+
+
+      // 2.
+      mongoose.connection.db.collection("identitycounters").remove({"model": data.schema});
+
+      // 3.
+      delete iris.dbCollections[data.schema];
+
+      // 4.
+      var filePath = iris.sitePath + "/configurations/entity/" + data.schema.replace("../", "") + ".json";
+      fs.exists(filePath, function(exists) {
+
+        if(exists)
+          fs.unlinkSync(filePath);
+
+        iris.dbPopulate();
+      });
+
+      return thisHook.pass(data);
+
+    });
+
+  } else {
+    thisHook.fail(400);
+  }
+});
+
 
 /**
  * @member hook_entity_access_delete
