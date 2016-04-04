@@ -14,8 +14,8 @@ iris.modules.custom_blocks.registerHook("hook_form_render__blockForm_Custom-HTML
 
   data.schema.contents = {
     "type": "textarea",
-    "title": "Body",
-    "description": "Custom HTML body for this block.",
+    "title": thisHook.authPass.t("Body"),
+    "description": thisHook.authPass.t("Custom HTML body for this block."),
     "default": currentContents,
   };
   

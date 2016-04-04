@@ -72,7 +72,7 @@ iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHo
 
       data.schema.activeTheme = {
         type: "text",
-        title: "Active theme",
+        title: thisHook.authPass.t("Active theme"),
         default: iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.name : null,
         enum: machineNames,
       };
