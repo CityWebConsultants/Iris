@@ -21,13 +21,26 @@ iris.modules.system.registerHook("hook_form_render__restart", 0, function (thisH
 
   data.onSubmit = function (errors, values) {
 
-    $.post(window.location, values, function (data, err) {
-
-      window.location.href = window.location.href;
-
-    });
+  //  $.post(window.location, values, function (data, err) {
+  ////    window.location.href = window.location.href;
+  //    console.log(values);
+  //    console.log(window.location);
+  //  });
 
   };
+
+  data.form = [
+    "*",
+    {
+    "type": "help",
+    "helpvalue": "Click below to restart the server."
+    },
+    {
+      "type": "submit",
+      "id": "submit",
+      "value": "Restart the server"
+    }
+  ];
 
   thisHook.pass(data);
 
@@ -36,6 +49,8 @@ iris.modules.system.registerHook("hook_form_render__restart", 0, function (thisH
 iris.modules.system.registerHook("hook_form_submit__restart", 0, function (thisHook, data) {
 
   iris.restart(thisHook.authPass.userid, "restart button");
+
+
 
   thisHook.pass(data);
 

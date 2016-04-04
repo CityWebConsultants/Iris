@@ -118,6 +118,36 @@ iris.app.get("/admin/schema/:type/edit", function (req, res) {
 });
 
 
+iris.app.get("/admin/schema/:type/delete", function(req, res){
+
+  // If not admin, present 403 page
+
+  if (req.authPass.roles.indexOf('admin') === -1) {
+
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    return false;
+
+  }
+
+  // Render admin_schema template.
+  iris.modules.frontend.globals.parseTemplateFile(["admin_schema_delete"], ['admin_wrapper'], {
+    entityType: req.params.type
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
+
 /**
  * Page callback to manage schema fields for a given entity type.
  */
@@ -300,12 +330,61 @@ iris.app.get("/admin/schema/:type/:field/delete", function (req, res) {
 
 });
 
+iris.modules.entityUI.registerHook("hook_form_render__schemaDelete", 0, function (thisHook, data) {
+  var entityType = thisHook.context.params[1];
+
+  data.schema = {
+    "schema": {
+      "key": "schema"
+    }
+  };
+
+  data.form = [
+    {
+      "type": "help",
+      "helpvalue": "<div class='alert alert-danger'>Are you sure you want to delete this entity? This will also delete all it's data in the database.</div>",
+    },
+    {
+    "type": "button",
+    "id": "yes",
+    "value": "delete",
+    "title": "Delete Scheme " + entityType,
+      "htmlClass": "btn-danger"
+    },
+    {
+      "type": "hidden",
+      "id": "schema",
+      "value": entityType,
+      "key": "schema"
+    }
+  ];
+
+  thisHook.pass(data);
+
+});
+
+iris.modules.entityUI.registerHook("hook_form_submit__schemaDelete", 0, function (thisHook, data) {
+  var schema = thisHook.context.params.schema;
+  iris.invokeHook("hook_schema_delete", thisHook.authPass, null, thisHook.context.params)
+  .then(function(data){
+    data.callback = "/admin/structure/entities";
+    data.message = [{
+      'type' : 'success',
+      'message' : 'Successfully deleted schema "' + schema + '".'
+    }];
+
+    thisHook.pass(data);
+
+  }, function(err){
+    thisHook.fail(err);
+  });
+});
 
 /**
  * Defines form schemaFieldDelete.
  * Allows the user to delete a field from the schema.
  */
-+ iris.modules.entityUI.registerHook("hook_form_render__schemafieldDelete", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render__schemafieldDelete", 0, function (thisHook, data) {
 
 
   var entityType = thisHook.context.params[1];
@@ -517,8 +596,8 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
       row['fieldId'] = fieldName;
       row['fieldType'] = field.fieldType;
       row['fieldWeight'] = field.weight;
-      row['fieldEdit'] = '<a href="/admin/schema/' + entityType + '/' + fieldName + '" >' + ap.t('Edit') + '</a>';
-      row['fieldDelete'] = '<a href="/admin/schema/' + entityType + '/' + fieldName + '/delete" >' + ap.t('Delete') + '</a>';
+      row['fieldOptions'] = '<a class="btn btn-default" href="/admin/schema/' + entityType + '/' + fieldName + '" >' + ap.t('Edit') + '</a>' +
+                            '&nbsp;<a class="btn btn-danger" href="/admin/schema/' + entityType + '/' + fieldName + '/delete" >' + ap.t('Delete') + '</a>';
       rows.push(row);
 
       // Currently a hacky way to alter the weights of fields, this creates a fidden field that gets updated
@@ -551,12 +630,13 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
     // Generate table markup. This should be replaced with a handlebars wrapper that generates a table from JSON.
     var tableHtml = '<table>' +
       '<thead>' +
+      '<tr class="admin-header">' +
       '<th></th>' +
       '<th>' + ap.t('Label') + '</th>' +
       '<th>' + ap.t('Machine name') + '</th>' +
       '<th>' + ap.t('Type') + '</th>' +
-      '<th>' + ap.t('Edit') + '</th>' +
-      '<th>' + ap.t('Delete') + '</th>' +
+      '<th>' + ap.t('Options') + '</th>' +
+      '</tr>' +
       '</thead>' +
       '<tbody class="ui-sortable">';
     var counter = 0;
@@ -914,6 +994,15 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
       "default": schema['entityTypeDescription'] ? schema['entityTypeDescription'] : ''
     }
   }
+
+  data.form = [
+      "*",
+      {
+        "type": "submit",
+        "title": "Submit",
+        "htmlClass": "submit-form"
+      }
+    ];
 
   if (entityType) {
 

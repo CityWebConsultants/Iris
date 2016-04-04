@@ -14,11 +14,10 @@
 
 <body>
 
-  <!--- This is intended as a general wrapper for all admin pages. --->
-
-  [[[menu admin_toolbar]]]
-
-  <section id="main">
+  <section class="col-sm-2" id="admin_sidebar">
+    [[[menu admin_toolbar,{"template":"admin_sidebar"}]]]
+  </section>
+  <section class="col-sm-10 col-sm-offset-2" id="main_content">
 
     {{{iris_messages}}} 
     

@@ -22,6 +22,17 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
   var menuItems = [];
 
+  var embedOptions = {};
+
+
+  if(thisHook.context.embedParams[1] != undefined){
+    try {
+      embedOptions = JSON.parse(thisHook.context.embedParams[1]);
+    } catch (err){
+
+    }
+  }
+
   Object.keys(iris.routes).forEach(function (path) {
 
     if (iris.routes[path].get) {
@@ -118,8 +129,13 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
   if (menuLinks.length) {
 
     // Menu ready, check access
+    var parseTemplate = ["menu", menuName];
 
-    iris.modules.frontend.globals.parseTemplateFile(["menu", menuName], null, {
+    if(embedOptions.template != undefined){
+      parseTemplate.push(embedOptions.template);
+    }
+
+    iris.modules.frontend.globals.parseTemplateFile(parseTemplate, null, {
       menuName: menuName,
       menu: menuLinks
     }, thisHook.authPass).then(function (html) {
@@ -157,7 +173,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
 iris.modules.menu.registerHook("hook_view_menu", 0, function (thisHook, data) {
 
-  if (thisHook.context !== "admin_toolbar") {
+  if (thisHook.context !== "admin_toolbar" && thisHook.context !== "admin_sidebar") {
 
     thisHook.pass(thisHook.context);
 
