@@ -1,7 +1,7 @@
 
-var config = require('./test_config');
+var config = require('../test_config');
 var fs = require('fs'), cookies;
-casper.test.begin('Test if schema are properly indexed', 4, function(test) {
+casper.test.begin('Test if schema are properly indexed', 3, function(test) {
   casper.start("http://localhost:4000/admin", function() {
     test.assertExists('form[data-formid="login"]', "login form is found");
     casper.waitForSelector("form input[name='username']", function() {
@@ -28,8 +28,7 @@ casper.test.begin('Test if schema are properly indexed', 4, function(test) {
           this.fillSelectors('form[data-formid="entity"]', {
             'input[name = username]': config.adminUser.login.username,
             'input[name = password]': 'poo'
-          }, false);
-          this.click('form input[type="submit"]');
+          }, true);
 
         });
       });

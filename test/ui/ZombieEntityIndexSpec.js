@@ -1,5 +1,5 @@
 var Browser = require("zombie");
-var config = require('./test_config');
+var config = require('../test_config');
 
 Browser.localhost('localhost', 4000);
 
