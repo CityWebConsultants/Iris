@@ -1,20 +1,30 @@
-iris.route.get("/admin/modules", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Modules"
-  }]
-}, function (req, res) {
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
 
-  // If not admin, present 403 page
+var glob = require("glob");
+var fs = require("fs");
+var path = require("path");
 
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
+/**
+ * Define callback routes.
+ */
+var routes = {
+  modules : {
+    title: "Modules",
+    description: "Administer modules",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: null,
+      title: "Modules"
+    }]
   }
+};
+
+/**
+ * Admin page callback: Administer modules.
+ */
+iris.route.get("/admin/modules", routes.modules, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_modules"], ['admin_wrapper'], null, req.authPass, req).then(function (success) {
 
@@ -22,7 +32,7 @@ iris.route.get("/admin/modules", {
 
     iris.clearMessages(req.authPass.userid);
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -33,12 +43,6 @@ iris.route.get("/admin/modules", {
   });
 
 });
-
-// Register menu item
-
-var glob = require("glob");
-var fs = require("fs");
-var path = require("path");
 
 iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisHook, data) {
 
@@ -74,7 +78,7 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
 
       }
 
-    })
+    });
 
     // Add enabled modules to form
 
@@ -102,25 +106,25 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
             "default": (currentModule.dependencies ? Object.keys(currentModule.dependencies).join(",") : null)
           }
         }
-      }
+      };
 
       data.form.push({
         "key": moduleName,
         "inlinetitle": thisHook.authPass.t("Enable the <b>{{name}}</b> module", {name: currentModule.name})
       })
 
-    })
+    });
 
     data.form.push({
       type: "submit",
       title: "submit"
-    })
+    });
 
     thisHook.pass(data);
 
   });
 
-})
+});
 
 iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisHook, data) {
 
@@ -152,7 +156,7 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
     }
 
-  })
+  });
 
 
   var enabled = [];
@@ -178,7 +182,7 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
           }
 
-        })
+        });
 
       }
 
@@ -189,7 +193,7 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
     }
 
-  })
+  });
 
   if (unmet.length) {
 
@@ -210,7 +214,7 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
     delete currentModule.weight;
 
-  })
+  });
 
 
   fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));

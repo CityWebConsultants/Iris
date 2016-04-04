@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 // Password field hook
 
 iris.modules.entity.registerHook("hook_entity_field_fieldType_form__password", 0, function (thisHook, data) {
@@ -10,7 +13,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__password", 0
     title: fieldSettings.label,
     "description": fieldSettings.description,
     "default": null
-  }
+  };
 
   thisHook.pass(data);
 
@@ -27,7 +30,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__select", 0, 
     "description": fieldSettings.description,
     "default": value,
     "enum": fieldSettings.settings.options
-  }
+  };
 
   thisHook.pass(data);
 
@@ -45,7 +48,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__longtext", 0
     title: fieldSettings.label,
     "description": fieldSettings.description,
     "default": value
-  }
+  };
 
   thisHook.pass(data);
 
@@ -63,7 +66,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Boolean"
     title: fieldSettings.label,
     "description": fieldSettings.description,
     "default": value
-  }
+  };
 
   thisHook.pass(data);
 
@@ -79,7 +82,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__String",
     title: fieldSettings.label,
     "description": fieldSettings.description,
     "default": value
-  }
+  };
 
   thisHook.pass(data);
 
@@ -98,7 +101,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[String]
       "type": "text"
     },
     "default": value
-  }
+  };
 
   thisHook.pass(data);
 
@@ -114,7 +117,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Number",
     "title": fieldSettings.label,
     "description": fieldSettings.description,
     "default": value
-  }
+  };
 
   thisHook.pass(data);
 
@@ -133,7 +136,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Number]
     "items": {
       "type": "number"
     }
-  }
+  };
 
   thisHook.pass(data);
 
@@ -147,7 +150,7 @@ var dateToForm = function (value) {
     len = len || 2;
     while (s.length < len) s = c + s;
     return s;
-  }
+  };
 
   if (value) {
 
@@ -160,13 +163,13 @@ var dateToForm = function (value) {
     value = {
       date: year.toString() + "-" + month.toString() + "-" + day.toString(),
       time: value.getUTCHours().padZero() + ":" + value.getUTCMinutes().padZero()
-    }
+    };
 
   }
 
   return value;
 
-}
+};
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Date", 0, function (thisHook, data) {
 
@@ -192,7 +195,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Date", 0
         "type": "time"
       }
     }
-  }
+  };
 
   thisHook.pass(data);
 
@@ -212,7 +215,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Date]",
 
       values.push(dateToForm(date));
 
-    })
+    });
 
     value = values;
 
@@ -234,7 +237,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Date]",
         }
       }
     }
-  }
+  };
 
   thisHook.pass(data);
 
@@ -246,31 +249,31 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__String",
 
   thisHook.pass(thisHook.context.value);
 
-})
+});
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Boolean", 0, function (thisHook, data) {
 
   thisHook.pass(thisHook.context.value);
 
-})
+});
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[String]", 0, function (thisHook, data) {
 
   thisHook.pass(thisHook.context.value);
 
-})
+});
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Number]", 0, function (thisHook, data) {
 
   thisHook.pass(thisHook.context.value);
 
-})
+});
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Number", 0, function (thisHook, data) {
 
   thisHook.pass(thisHook.context.value);
 
-})
+});
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Date", 0, function (thisHook, data) {
 
@@ -288,7 +291,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__Date", 0
 
   }
 
-})
+});
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Date]", 0, function (thisHook, data) {
 
@@ -307,8 +310,8 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Date]",
 
     }
 
-  })
+  });
 
   thisHook.pass(dates);
 
-})
+});

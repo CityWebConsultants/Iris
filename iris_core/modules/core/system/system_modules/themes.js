@@ -1,27 +1,34 @@
-// Register menu item
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
 
-iris.route.get("/admin/themes", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Themes"
-  }]
-}, function (req, res) {
+var path = require("path");
+var fs = require("fs");
 
-  // If not admin, present 403 page
+/**
+ * Define callback routes.
+ */
+var routes = {
+  themes: {
+    title: "Themes",
+    description: "Choose which frontend theme to use.",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: null,
+      title: "Themes"
+    }]
+  },
+};
 
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: Administer themes.
+ */
+iris.route.get("/admin/themes", routes.themes, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_themes"], ['admin_wrapper'], null, req.authPass, req).then(function (success) {
 
     iris.clearMessages(req.authPass.userid);
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -68,19 +75,19 @@ iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHo
         title: thisHook.authPass.t("Active theme"),
         default: iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.name : null,
         enum: machineNames,
-      }
+      };
 
       data.form = [];
 
       data.form.push({
         key: "activeTheme",
         titleMap: names
-      })
+      });
 
       data.form.push({
         type: "submit",
         title: "submit"
-      })
+      });
 
       thisHook.pass(data);
 
@@ -94,10 +101,7 @@ iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHo
 
   });
 
-})
-
-var path = require("path");
-var fs = require("fs");
+});
 
 iris.modules.system.registerHook("hook_form_submit__themes", 0, function (thisHook, data) {
 
@@ -105,7 +109,7 @@ iris.modules.system.registerHook("hook_form_submit__themes", 0, function (thisHo
 
   var output = {
     name: thisHook.context.params.activeTheme
-  }
+  };
 
   fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify(output));
 

@@ -50,7 +50,7 @@ frisby.create('Set first time user')
         })
         .afterJSON(function (res) {
           user.auth.token = res.token;
-
+            console.log('User Token', res.token);
 
           frisby.create('Create a page')
             .post(baseURL + '/entity/create/page',
@@ -92,7 +92,6 @@ frisby.create('Set first time user')
                           { json: true })
                           .expectStatus(200)
                           .expectHeaderContains('content-type', 'application/json')
-                          .inspectJSON()
                           .toss();
                       })
                     .toss()

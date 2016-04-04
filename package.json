@@ -1,9 +1,9 @@
 {
-  "name": "iris",
+  "name": "irisjs",
   "engines": {
     "node": ">=5.0.0"
   },
-  "version": "0.0.1",
+  "version": "1.0.8",
   "description": "Modular content management and web application framework built with Node.js and MongoDB",
   "main": "iris.js",
   "dependencies": {
@@ -27,8 +27,7 @@
     "prettydiff": "^1.16.6",
     "sanitize-html": "^1.10.0",
     "socket.io": "^1.2.1",
-    "tosource": "^1.0.0",
-    "i18n": "^0.8.1"
+    "tosource": "^1.0.0"
   },
   "repository": {
     "type": "git",
@@ -38,10 +37,12 @@
   "license": "GPL-2.0",
   "devDependencies": {
     "frisby": "^0.8.5",
+    "grunt": "^0.4.5",
+    "grunt-jasmine-node-coverage": "^0.4.1",
     "jasmine-node": "^1.14.5",
     "jshint": "^2.9.1"
   },
   "scripts": {
-    "test": "jasmine-node iris_core/test/*"
+    "test": "grunt default"
   }
 }

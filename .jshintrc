@@ -1,0 +1,8 @@
+{
+  "undef": true,
+  "unused": false,
+  "predef": ["iris","mongoose","Promise", "CKEDITOR", "JSONForm", "ckeditor"],
+  "node" : true,
+  "browser": true,
+  "sub" : true
+}

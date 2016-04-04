@@ -3,10 +3,185 @@
  */
 
 /**
+ * Define callback routes.
+ */
+var routes = {
+  filters: {
+    title: "Text filters",
+    description: "Manage text filters",
+    permissions: ["can access admin pages"],
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config/content-authoring',
+      title: "Text filters"
+    }]
+  },
+  create: {
+    title: "Create text filter",
+    description: "Create new text filter",
+    permissions: ["can access admin pages"],
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config/content-authoring/textfilters',
+      title: "Create"
+    }]
+  },
+  edit: {
+    title: "Edit text filter",
+    description: "Edit existing text filter",
+    permissions: ["can access admin pages"],
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config/content-authoring/textfilters',
+      title: "Edit"
+    }]
+  },
+  delete: {
+    title: "Delete text filter",
+    description: "Delete existing text filter",
+    permissions: ["can access admin pages"],
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config/content-authoring/textfilters',
+      title: "Delete"
+    }]
+  },
+  content: {
+    title: "Content authoring",
+    description: "Administer content authoring options",
+    permissions: ["can access admin pages"],
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config',
+      title: "Content authoring"
+    }]
+  }
+}
+
+/**
+ * Admin page callback: Text filters.
+ *
+ * Manage text filters.
+ */
+iris.route.get("/admin/config/content-authoring/textfilters", routes.filters, function (req, res) {
+
+  var fs = require("fs");
+
+  fs.readdir(iris.configPath + "/textfilters", function (err, data) {
+
+    var filters = [];
+
+    if (data) {
+
+      data.map(function (item) {
+
+        filters.push(item.replace(".json", ""))
+
+      })
+
+    }
+
+    iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters"], ['admin_wrapper'], {
+      textfilters: filters,
+    }, req.authPass, req).then(function (success) {
+
+      res.send(success)
+
+    }, function (fail) {
+
+      iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+      iris.log("error", fail);
+
+    });
+
+  })
+
+})
+
+/**
+ * Admin page callback: Create text filter.
+ */
+iris.route.get("/admin/config/content-authoring/textfilters/create", routes.create, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
+/**
+ * Admin page callback: Edit text filter.
+ */
+iris.route.get("/admin/config/content-authoring/textfilters/edit/:name", routes.edit, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_form"], ['admin_wrapper'], {
+    formatname: req.params.name
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
+/**
+ * Delete page callback: Delete text filter.
+ */
+iris.route.get("/admin/config/content-authoring/textfilters/delete/:name", routes.delete, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_delete"], ['admin_wrapper'], {
+    formatname: req.params.name
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
+/**
+ * Delete page callback: Delete text filter.
+ */
+iris.route.get("/admin/config/content-authoring", routes.content, function (req, res) {
+
+  var menu = iris.modules.menu.globals.getBaseLinks(req.url);
+  menu.name = req.irisRoute.options.title;
+
+  iris.modules.frontend.globals.parseTemplateFile(["baselinks"], ['admin_wrapper'], {
+    menu: menu,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success);
+
+  });
+
+});
+
+/**
  * Defines textformat form.
  * Allows edit and creation of text filters
  */
-
 iris.modules.textfilters.registerHook("hook_form_render__textfilter", 0, function (thisHook, data) {
 
   var ap = thisHook.authPass;
@@ -143,132 +318,6 @@ iris.modules.textfilters.registerHook("hook_form_submit__textfilter", 0, functio
 
 })
 
-iris.route.get("/admin/textfilters", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Textfilters"
-  }]
-}, function (req, res) {
-
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  var fs = require("fs");
-
-  fs.readdir(iris.configPath + "/textfilters", function (err, data) {
-
-    var filters = [];
-
-    if (data) {
-
-      data.map(function (item) {
-
-        filters.push(item.replace(".json", ""))
-
-      })
-
-    }
-
-    iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters"], ['admin_wrapper'], {
-      textfilters: filters,
-    }, req.authPass, req).then(function (success) {
-
-      res.send(success)
-
-    }, function (fail) {
-
-      iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-      iris.log("error", fail);
-
-    });
-
-  })
-
-})
-
-iris.app.get("/admin/textfilters/create", function (req, res) {
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-})
-
-iris.app.get("/admin/textfilters/edit/:name", function (req, res) {
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_form"], ['admin_wrapper'], {
-    formatname: req.params.name
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-})
-
-iris.app.get("/admin/textfilters/delete/:name", function (req, res) {
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_delete"], ['admin_wrapper'], {
-    formatname: req.params.name
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-});
 
 /**
  * Defines textfilter delete form.

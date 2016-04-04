@@ -1,5 +1,42 @@
 var fs = require('fs');
 
+/**
+ * Define callback routes.
+ */
+var routes = {
+  regions: {
+    title: "Regions",
+    description: "Manage block visibility within different regions of the page",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: "/admin/structure",
+      title: "Regions"
+    }]
+  }
+}
+
+/**
+ * Admin page callback: Regions UI.
+ *
+ * Manage block visibility within different regions of the page.
+ */
+iris.route.get("/admin/regions", routes.regions, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
 iris.modules.forms.registerHook("hook_form_render__regions", 0, function (thisHook, data) {
 
   // Loop over available block types and add their blocks to a list for the form
@@ -239,7 +276,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
 
         paths.forEach(function (path) {
 
-          var showing = minimatch(currentUrl, path);
+          showing = minimatch(currentUrl, path);
 
         })
 
@@ -275,36 +312,3 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
 
 });
 
-// Regions admin system
-
-iris.route.get("/admin/regions", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: "/admin/structure",
-    title: "Regions"
-  }]
-}, function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-})

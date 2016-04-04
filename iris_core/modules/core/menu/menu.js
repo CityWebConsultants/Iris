@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Methods and hooks to implement menus for navigation and categorisation
  */
@@ -46,13 +49,13 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
           }
 
-        })
+        });
 
       }
 
     }
 
-  })
+  });
 
   // Order by weight
 
@@ -72,7 +75,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
     }
 
-  })
+  });
 
   // Generate menu
 
@@ -90,7 +93,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
     }
 
-  })
+  });
 
   // Then parent items
 
@@ -106,11 +109,11 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
         }
 
-      })
+      });
 
     }
 
-  })
+  });
   
   if (menuLinks.length) {
 
@@ -131,13 +134,13 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
         thisHook.pass("");
 
-      })
+      });
 
     }, function (fail) {
 
       thisHook.fail(fail);
 
-    })
+    });
 
   } else {
 
@@ -145,7 +148,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
   }
 
-})
+});
 
 /**
  * Default menu view function.
@@ -209,11 +212,11 @@ iris.modules.menu.globals.getBaseLinks = function (baseurl) {
 
           }
 
-        })
+        });
 
       }
 
-    })
+    });
 
     links.sort(function (a, b) {
 
@@ -222,7 +225,7 @@ iris.modules.menu.globals.getBaseLinks = function (baseurl) {
 
       if (a > b) {
 
-        return 1
+        return 1;
 
       } else if (a < b) {
 
@@ -233,7 +236,7 @@ iris.modules.menu.globals.getBaseLinks = function (baseurl) {
         return 0;
       }
 
-    })
+    });
 
   }
 
@@ -242,4 +245,4 @@ iris.modules.menu.globals.getBaseLinks = function (baseurl) {
     links: links
   };
 
-}
+};

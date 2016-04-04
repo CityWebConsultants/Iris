@@ -1,5 +1,45 @@
 var nodemailer = require('nodemailer');
 
+/**
+ * Define callback routes.
+ */
+var routes = {
+  mail: {
+    title: "Administer mail system",
+    description: "Settings and configurations for email sending",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: "/admin/config",
+      title: "Mail system"
+    }]
+  }
+}
+
+/**
+ * Admin page callback: mail settings admin page.
+ *
+ * This form allows modules to list their mailSystem handler that the user can select from.
+ */
+iris.route.get('/admin/config/mail-settings', routes.mail, function (req, res) {
+
+
+  iris.modules.frontend.globals.parseTemplateFile(["mail-settings"], ['admin_wrapper'], {
+    title : "Administer mail system"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.email.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
   /**
    * Implements iris.modules.triggers.globals.registerAction().
    *
@@ -41,31 +81,6 @@ iris.modules.email.registerHook("hook_triggers_email", 0, function (thisHook, da
 
     iris.modules.email.globals.sendEmail(thisHook.context);
     thisHook.pass(data);
-
-});
-
-
-  /**
-   * Page callback for mail settings admin page.
-   *
-   * This form allows modules to list their mailSystem handler that the user can select from.
-   */
-iris.app.get('/admin/config/mail-settings', function (req, res) {
-
-  
-    iris.modules.frontend.globals.parseTemplateFile(["mail-settings"], ['admin_wrapper'], {
-        title : req.authPass.t("Administer mail system")
-    }, req.authPass, req).then(function (success) {
-
-        res.send(success)
-
-    }, function (fail) {
-
-        iris.modules.email.globals.displayErrorPage(500, req, res);
-
-        iris.log("error", e);
-
-    });
 
 });
 

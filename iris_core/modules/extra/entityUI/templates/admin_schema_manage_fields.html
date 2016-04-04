@@ -23,16 +23,17 @@
 
 <br />
 <script>
-$(function() {
-    $( ".ui-sortable" ).sortable();
-    $( ".ui-sortable" ).disableSelection();
-  }).on('sortstop', function (event, ui) {
-          $('.ui-sortable').children().each(function (index, value) {
-            $(value).find('.fieldWeight').html(index);
-            $('input[value=weight_' + $(value).find('.fieldId').text() + ']').parents('fieldset').find('input[type=number]').val(index);
-          });
+  window.formComplete_schemaFieldListing = function() {
+      $(function () {
+        $(".ui-sortable").sortable();
+        $(".ui-sortable").disableSelection();
+      }).on('sortstop', function (event, ui) {
+        $('.ui-sortable').children().each(function (index, value) {
+          $(value).find('.fieldWeight').html(index);
+          $('input[value=weight_' + $(value).find('.fieldId').text() + ']').parents('fieldset').find('input[type=number]').val(index);
         });
-  
+      });
+  }
   
 </script>
 <div id="current-fields">

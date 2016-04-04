@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise*/
+
 /**
  * @file Functions and hooks for managing deletion of entities
  */
@@ -21,7 +24,7 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
     thisHook.fail(iris.error(400, "Have to have an ID to delete something"));
     return false;
 
-  };
+  }
 
   if (!data.entityType || !iris.dbCollections[data.entityType]) {
 
@@ -56,9 +59,9 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
       runDelete(data);
 
-    };
+    }
 
-  })
+  });
 
   //Actual run update function
 
@@ -68,13 +71,13 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
       iris.invokeHook("hook_entity_access_delete_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
 
-        deleteEntity(data)
+        deleteEntity(data);
 
       }, function (fail) {
 
         if (fail === "No such hook exists") {
 
-          deleteEntity(data)
+          deleteEntity(data);
 
         } else {
 
@@ -89,9 +92,9 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
       thisHook.fail(fail);
 
-    })
+    });
 
-  }
+  };
 
   var deleteEntity = function (validatedEntity) {
 
@@ -113,13 +116,13 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
       data.eid = conditions.eid;
 
-      iris.invokeHook("hook_entity_deleted", thisHook.authPass, null, data)
+      iris.invokeHook("hook_entity_deleted", thisHook.authPass, null, data);
 
       iris.log("info", data.entityType + " " + conditions.eid + " deleted by " + thisHook.authPass.userid);
 
     }
 
-  }
+  };
 
 });
 

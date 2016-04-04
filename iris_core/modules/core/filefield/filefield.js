@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise,$,JSONForm,document,FormData,alert*/
+
 /**
  * @file Provides a file upload field for entity forms
  */
@@ -24,7 +27,7 @@ iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', functio
     } catch (e) {
       if (e.code != 'EEXIST') throw e;
     }
-  }
+  };
 
   mkdirSync(iris.sitePath + "/" + "temp");
 
@@ -82,11 +85,11 @@ iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', functio
 
         res.send(filename);
 
-      })
+      });
 
       wstream.end();
 
-    })
+    });
 
   });
 
@@ -98,9 +101,9 @@ iris.modules.auth.globals.registerPermission("Can upload files", "files");
 
 iris.modules.forms.globals.registerWidget(function () {
 
-  JSONForm.elementTypes['file'] = Object.create(JSONForm.elementTypes['text']);
+  JSONForm.elementTypes.file = Object.create(JSONForm.elementTypes.text);
 
-  JSONForm.elementTypes['file'].template = '<span class="currentFile"><%= value ? "Current file: " + escape(value) : ""  %></span><input class="filefield" type="file" ' +
+  JSONForm.elementTypes.file.template = '<span class="currentFile"><%= value ? "Current file: " + escape(value) : ""  %></span><input class="filefield" type="file" ' +
     '<%= (fieldHtmlClass ? "class=\'" + fieldHtmlClass + "\' " : "") %>' +
     'name="FILEFIELD<%= node.name %>" value="<%= escape(value) %>" id="FILEFIELD<%= id %>"' +
     '<%= (node.disabled? " disabled" : "")%>' +
@@ -109,50 +112,46 @@ iris.modules.forms.globals.registerWidget(function () {
     '<%= (node.schemaElement && node.schemaElement.required && (node.schemaElement.type !== "boolean") ? " required=\'required\'" : "") %>' +
     '<%= (node.placeholder? "placeholder=" + \'"\' + escape(node.placeholder) + \'"\' : "")%>' +
     ' /><input style="display:none" id="<%= id %>" type="text" value="<%= escape(value) %>" name="<%= node.name %>" />';
-  JSONForm.elementTypes['file'].fieldTemplate = true;
-  JSONForm.elementTypes['file'].inputfield = true;
+  JSONForm.elementTypes.file.fieldTemplate = true;
+  JSONForm.elementTypes.file.inputfield = true;
 
-  $(document).ready(function () {
+  $(document).on("change", "input.filefield", function (data) {
 
-    $("input.filefield").on("change", function (data) {
+    var fileInput = data.target;
+    var file = fileInput.files[0];
+    var formData = new FormData();
+    formData.append('file', file);
 
-      var fileInput = data.target;
-      var file = fileInput.files[0];
-      var formData = new FormData();
-      formData.append('file', file);
+    var id = $(data.target).attr("id").replace("FILEFIELD", "");
 
-      var id = $(data.target).attr("id").replace("FILEFIELD", "");
+    var parentForm = $(fileInput).closest("form")[0];
 
-      var parentForm = $(fileInput).closest("form")[0];
+    // Get form parameters
 
-      // Get form parameters
+    var params = $(parentForm).attr("data-params").split(",");
 
-      var params = $(parentForm).attr("data-params").split(",");;
+    var formID = $(parentForm).attr("id");
 
-      var formID = $(parentForm).attr("id");
+    id = id.substring(id.indexOf("elt-") + 4);
 
-      var id = id.substring(id.indexOf("elt-") + 4);
+    $.ajax({
+      url: '/admin/file/fileFieldUpload/' + id + "/" + formID + "/" + JSON.stringify(params),
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+    }).done(function (response) {
 
-      $.ajax({
-        url: '/admin/file/fileFieldUpload/' + id + "/" + formID + "/" + JSON.stringify(params),
-        type: 'POST',
-        data: formData,
-        contentType: false,
-        processData: false,
-      }).done(function (response) {
+      $(fileInput).parent().find(".currentFile").hide();
 
-        $(fileInput).parent().find(".currentFile").hide();
+      $("input[name=" + id + "]").attr("value", response);
 
-        $("input[name=" + id + "]").attr("value", response);
+    }).fail(function (error) {
 
-      }).fail(function (error) {
-
-        $("input[name=" + id + "]").attr("value", null);
-        $(fileInput).parent().find(".currentFile").hide();
-        fileInput.value = null;
-        alert(error.responseText);
-
-      });
+      $("input[name=" + id + "]").attr("value", null);
+      $(fileInput).parent().find(".currentFile").hide();
+      fileInput.value = null;
+      alert(error.responseText);
 
     });
 
@@ -198,7 +197,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__file", 0, fu
     "title": fieldSettings.label,
     "description": fieldSettings.description,
     "default": value
-  }
+  };
 
   thisHook.pass(data);
 

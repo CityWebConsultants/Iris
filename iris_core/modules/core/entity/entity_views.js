@@ -99,7 +99,7 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
         "src": "/modules/entity/templates.js"
       },
       rank: 0
-    }
+    };
 
     var entityPackage = "\n" + "iris.entityPreFetch(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
 

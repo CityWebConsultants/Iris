@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file User management module
  */
@@ -7,13 +10,85 @@
  */
 
 iris.registerModule("user");
-
 var bcrypt = require("bcrypt-nodejs");
+require('./login_form.js');
 
-// First ever login form
+/**
+ * Define callback routes.
+ */
+var routes = {
+  login: {
+    title: "Login",
+    description: "User login page."
+  }
+};
 
-// Set up first user account via API
+/**
+ * Page callback: User login page.
+ */
+iris.route.get("/user/login", routes.login, function (req, res) {
 
+  // If not admin, present 403 page
+  if (req.authPass.roles.indexOf('authenticated') !== -1) {
+
+    res.redirect('/user/' + req.authPass.userid);
+
+    return false;
+
+  }
+
+  iris.modules.frontend.globals.parseTemplateFile(["login"], ['html'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success);
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
+/**
+ * Page callback: User page.
+ */
+iris.route.get("/user", {}, function (req, res) {
+
+  if (req.authPass.roles.indexOf('authenticated') == -1) {
+    // Anonymous. Redirect to login page.
+    res.redirect('/user/login');
+  } else {
+    // Redirect to own user page.
+    res.redirect('/user/' + req.authPass.userid);
+  }
+});
+
+/**
+ * Page callback.
+ * User logout.
+ */
+iris.route.get("/user/logout", {}, function (req, res) {
+
+  // Delete session
+
+  delete iris.modules.auth.globals.userList[req.authPass.userid];
+
+  res.clearCookie('userid');
+  res.clearCookie('token');
+
+  res.clearCookie('admin_auth');
+
+  res.redirect("/");
+
+});
+
+/**
+ * API POST
+ * First ever login form.
+ * Set up first user account via API.
+ */
 iris.route.post("/api/user/first", function (req, res) {
 
   if (!req.body.password || !req.body.username) {
@@ -41,7 +116,7 @@ iris.route.post("/api/user/first", function (req, res) {
 
           res.status(400).json(fail);
 
-        })
+        });
 
       } else {
 
@@ -51,7 +126,7 @@ iris.route.post("/api/user/first", function (req, res) {
 
   });
 
-})
+});
 
 iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (thisHook, data) {
 
@@ -65,7 +140,7 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
         "type": "string",
         "title": ap.t("Installation profile"),
         "enum": ["minimal", "standard"]
-      }
+      };
 
       data.schema.username = {
         "type": "text",
@@ -110,7 +185,7 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
     }
   });
 
-})
+});
 
 iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (thisHook, data) {
 
@@ -126,14 +201,14 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
         password: thisHook.context.params.password,
         username: thisHook.context.params.username,
         roles: ["admin"]
-      }
+      };
 
       iris.invokeHook("hook_entity_create", "root", newUser, newUser).then(function (user) {
 
         var auth = {
           password: thisHook.context.params.password,
           username: thisHook.context.params.username
-        }
+        };
 
         iris.modules.user.globals.login(auth, thisHook.context.res, function (uid) {
 
@@ -206,16 +281,17 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
 
 });
 
-// First ever login page (should only show if no user has been set up)
-
-iris.app.get("/", function (req, res, next) {
+/**
+ * First ever login page (should only show if no user has been set up).
+ */
+iris.route.get("/", function (req, res, next) {
 
   iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
 
       iris.modules.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
 
-        res.send(success)
+        res.send(success);
 
       }, function (fail) {
 
@@ -230,8 +306,8 @@ iris.app.get("/", function (req, res, next) {
       next();
 
     }
-  })
-})
+  });
+});
 
 /**
  * @function login
@@ -296,21 +372,6 @@ iris.modules.user.globals.login = function (auth, res, callback) {
   });
 
 };
-
-iris.app.get("/user/logout", function (req, res) {
-
-  // Delete session
-
-  delete iris.modules.auth.globals.userList[req.authPass.userid];
-
-  res.clearCookie('userid');
-  res.clearCookie('token');
-
-  res.clearCookie('admin_auth');
-
-  res.redirect("/");
-
-});
 
 iris.modules.user.registerHook("hook_entity_presave", 1, function (thisHook, entity) {
 
@@ -427,49 +488,6 @@ iris.modules.user.registerHook("hook_entity_updated", 1, function (thisHook, ent
 
 });
 
-require('./login_form.js');
-
-// Login form
-
-iris.route.get("/user/login", {
-  "title": "Login"
-}, function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('authenticated') !== -1) {
-
-    res.send("Already logged in");
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["login"], ['html'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", fail);
-
-  });
-
-});
-
-iris.app.get("/user", function (req, res) {
-
-  if (req.authPass.roles.indexOf('authenticated') == -1) {
-    // Anonymous. Redirect to login page.
-    res.redirect('/user/login');
-  } else {
-    // Redirect to own user page.
-    res.redirect('/user/' + req.authPass.userid);
-  }
-});
-
 // Blank password field on entity edit
 
 // Prepopulate roles
@@ -487,10 +505,10 @@ iris.modules.user.registerHook("hook_form_render__editEntity", 1, function (this
     Object.keys(iris.modules.auth.globals.roles).forEach(function (role) {
 
       if (role !== "anonymous" && role !== "authenticated") {
-        roles.push(role)
+        roles.push(role);
       }
 
-    })
+    });
 
     data.schema.roles.items = {
       type: "string",
@@ -511,10 +529,10 @@ iris.modules.user.registerHook("hook_form_render__createEntity", 1, function (th
     Object.keys(iris.modules.auth.globals.roles).forEach(function (role) {
 
       if (role !== "anonymous" && role !== "authenticated") {
-        roles.push(role)
+        roles.push(role);
       }
 
-    })
+    });
 
     data.schema.roles.items = {
       type: "string",
@@ -579,7 +597,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
   } else {
 
-    thisHook.pass(data)
+    thisHook.pass(data);
   }
 
 });
@@ -605,7 +623,7 @@ iris.app.post("/api/login", function (req, res) {
 
       }
 
-    })
+    });
 
   } else {
 
@@ -631,9 +649,9 @@ iris.route.get("/admin/users", {
 
     res.send(success);
 
-  })
+  });
 
-})
+});
 
 iris.route.get("/admin/users/list", {
   "menu": [{

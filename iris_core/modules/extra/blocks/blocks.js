@@ -25,48 +25,28 @@ iris.modules.blocks.globals.blocks = {};
 var fs = require('fs');
 var glob = require("glob");
 
-// Form for making new blocks
-
-iris.modules.forms.registerHook("hook_form_render__newBlockForm", 0, function (thisHook, data) {
-
-  data.schema = {
-    "blockType": {
-      type: 'string',
-      title: 'Block type',
-      required: true,
-      enum: Object.keys(iris.modules.blocks.globals.blockTypes)
-    }
-  };
-
-  thisHook.pass(data);
-
-});
-
-iris.modules.forms.registerHook("hook_form_submit__newBlockForm", 0, function (thisHook, data) {
-
-  data = function (res) {
-
-    res.json({
-      redirect: "/admin/blocks/create/" + thisHook.context.params.blockType
-    })
-
+/**
+ * Define callback routes.
+ */
+var routes = {
+  createBlock : {
+    title: "Create block",
+    permissions: ["can access admin pages"],
+  },
+  editBlock : {
+    title: "Edit block",
+    permissions: ["can access admin pages"],
+  },
+  deleteBlock : {
+    title: "Delete block",
+    permissions: ["can access admin pages"],
   }
+}
 
-  thisHook.pass(data);
-
-});
-
-iris.app.get("/admin/blocks/create/:type", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: create block of type :type.
+ */
+iris.route.get("/admin/blocks/create/:type", routes.createBlock, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
     blocktype: req.params.type,
@@ -84,17 +64,10 @@ iris.app.get("/admin/blocks/create/:type", function (req, res) {
 
 });
 
-iris.app.get("/admin/blocks/edit/:type/:id", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: edit block.
+ */
+iris.route.get("/admin/blocks/edit/:type/:id", routes.editBlock, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
     blocktype: req.params.type,
@@ -113,17 +86,10 @@ iris.app.get("/admin/blocks/edit/:type/:id", function (req, res) {
 
 });
 
-iris.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: delete block.
+ */
+iris.route.get("/admin/blocks/delete/:type/:id", routes.deleteBlock, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_blockdelete"], ['admin_wrapper'], {
     blocktype: req.params.type,
@@ -139,6 +105,42 @@ iris.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
     iris.log("error", e);
 
   });
+
+});
+
+/**
+ * Defines form newBlockForm.
+ * Form for making new blocks.
+ */
+iris.modules.forms.registerHook("hook_form_render__newBlockForm", 0, function (thisHook, data) {
+
+  data.schema = {
+    "blockType": {
+      type: 'string',
+      title: 'Block type',
+      required: true,
+      enum: Object.keys(iris.modules.blocks.globals.blockTypes)
+    }
+  };
+
+  thisHook.pass(data);
+
+});
+
+/**
+ * Form submit handler for newBlockForm.
+ */
+iris.modules.forms.registerHook("hook_form_submit__newBlockForm", 0, function (thisHook, data) {
+
+  data = function (res) {
+
+    res.json({
+      redirect: "/admin/blocks/create/" + thisHook.context.params.blockType
+    })
+
+  }
+
+  thisHook.pass(data);
 
 });
 
