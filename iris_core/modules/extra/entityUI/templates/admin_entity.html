@@ -1,11 +1,5 @@
-{{#unless eid}}
 
-<h1>Create new {{type}}</h1> 
-
-{{else}}
-
-<h1>Edit {{type}} {{eid}}</h1> 
-
-{{/unless}}
-
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Edit {{type}} {{#if eid}}{{eid}}{{/if}}</div>
 [[[form entity,{{type}},{{eid}}]]]
+</div>

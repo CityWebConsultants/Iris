@@ -191,9 +191,11 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       fields.forEach(function (field) {
 
-        data.form.push(field.name)
+        data.form.push({
+          "key": field.name
+      });
 
-      })
+      });
 
 
       counter += 1;
@@ -449,6 +451,8 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
       }, editingEntity ? editingEntity[fieldName] : null);
 
     })
+
+
 
   }
 

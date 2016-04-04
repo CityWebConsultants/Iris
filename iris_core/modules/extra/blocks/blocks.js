@@ -383,6 +383,19 @@ iris.modules.blocks.registerHook("hook_form_render__blockDeleteForm", 0, functio
     default: thisHook.context.params[1]
   };
 
+  data.form = [
+    {
+      "type": "help",
+      "helpvalue": "<div class='alert alert-danger'>Are you sure you want to delete this form?</div>"
+    },
+    {
+      "type": "button",
+      "value": "delete",
+      "title": "Delete block ",
+      "htmlClass": "btn-danger"
+    }
+  ];
+
   thisHook.pass(data);
 
 });

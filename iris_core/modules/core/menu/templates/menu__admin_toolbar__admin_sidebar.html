@@ -1,0 +1,61 @@
+<link rel="stylesheet" href="/modules/system/admin_menu_sidebar.css" />
+<script>
+$(document).ready(function(){
+    $('ul.menu .has-children').hover(function(){
+      $(this).find('.sub-menu').stop().slideDown();
+    }, function(){
+      $(this).find('.sub-menu').stop().slideUp();
+    });
+});
+
+</script>
+
+
+<nav class="menu menu-admin-sidebar">
+  <div class="navbar-header">
+    <button type="button" data-target="#adminSidebar" data-toggle="collapse" class="navbar-toggle">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+  </div>
+
+  <div id="adminSidebar" class="collapse navbar-collapse">
+    <ul class="menu">
+
+      {{#menu}}
+
+      {{#if (iris_menu path)}}
+
+      <li {{#if children}} class="has-children" {{/if}}>
+
+      <a href="{{path}}">{{title}} {{#if children}}<span class="glyphicon glyphicon-triangle-bottom"></span>{{/if}}</a>
+
+      {{#if this.children}}
+
+      <ul class="sub-menu">
+
+        {{#children}}
+
+        {{#if (iris_menu path)}}
+
+        <li><a href="{{path}}">{{title}}</a></li>
+
+        {{/if}}
+
+        {{/children}}
+
+      </ul>
+
+      {{/if}}
+
+      </li>
+
+      {{/if}}
+
+      {{/menu}}
+
+    </ul>
+  </div>
+</nav>
