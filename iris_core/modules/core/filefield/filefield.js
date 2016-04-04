@@ -115,47 +115,43 @@ iris.modules.forms.globals.registerWidget(function () {
   JSONForm.elementTypes.file.fieldTemplate = true;
   JSONForm.elementTypes.file.inputfield = true;
 
-  $(document).ready(function () {
+  $(document).on("change", "input.filefield", function (data) {
 
-    $("input.filefield").on("change", function (data) {
+    var fileInput = data.target;
+    var file = fileInput.files[0];
+    var formData = new FormData();
+    formData.append('file', file);
 
-      var fileInput = data.target;
-      var file = fileInput.files[0];
-      var formData = new FormData();
-      formData.append('file', file);
+    var id = $(data.target).attr("id").replace("FILEFIELD", "");
 
-      var id = $(data.target).attr("id").replace("FILEFIELD", "");
+    var parentForm = $(fileInput).closest("form")[0];
 
-      var parentForm = $(fileInput).closest("form")[0];
+    // Get form parameters
 
-      // Get form parameters
+    var params = $(parentForm).attr("data-params").split(",");
 
-      var params = $(parentForm).attr("data-params").split(",");
+    var formID = $(parentForm).attr("id");
 
-      var formID = $(parentForm).attr("id");
+    id = id.substring(id.indexOf("elt-") + 4);
 
-      id = id.substring(id.indexOf("elt-") + 4);
+    $.ajax({
+      url: '/admin/file/fileFieldUpload/' + id + "/" + formID + "/" + JSON.stringify(params),
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+    }).done(function (response) {
 
-      $.ajax({
-        url: '/admin/file/fileFieldUpload/' + id + "/" + formID + "/" + JSON.stringify(params),
-        type: 'POST',
-        data: formData,
-        contentType: false,
-        processData: false,
-      }).done(function (response) {
+      $(fileInput).parent().find(".currentFile").hide();
 
-        $(fileInput).parent().find(".currentFile").hide();
+      $("input[name=" + id + "]").attr("value", response);
 
-        $("input[name=" + id + "]").attr("value", response);
+    }).fail(function (error) {
 
-      }).fail(function (error) {
-
-        $("input[name=" + id + "]").attr("value", null);
-        $(fileInput).parent().find(".currentFile").hide();
-        fileInput.value = null;
-        alert(error.responseText);
-
-      });
+      $("input[name=" + id + "]").attr("value", null);
+      $(fileInput).parent().find(".currentFile").hide();
+      fileInput.value = null;
+      alert(error.responseText);
 
     });
 

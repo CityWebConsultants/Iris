@@ -110,8 +110,8 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
 
       data.form.push({
         "key": moduleName,
-        "inlinetitle": "Enable the <b>" + currentModule.name + "</b> module",
-      });
+        "inlinetitle": thisHook.authPass.t("Enable the <b>{{name}}</b> module", {name: currentModule.name})
+      })
 
     });
 
@@ -224,13 +224,13 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
   if (enabledList.length) {
 
-    iris.message(thisHook.authPass.userid, "Enabled: " + enabledList.join(", "), "success");
+    iris.message(thisHook.authPass.userid, thisHook.authPass.t("Enabled: {{list}}", {list: enabledList.join(", ")}), "success");
     
   }
 
   if (disabledList.length) {
 
-    iris.message(thisHook.authPass.userid, "Disabled: " + disabledList.join(", "), "success");
+    iris.message(thisHook.authPass.userid, thisHook.authPass.t("Disabled: {{list}}", {list: disabledList.join(", ")}), "success");
 
   }
 

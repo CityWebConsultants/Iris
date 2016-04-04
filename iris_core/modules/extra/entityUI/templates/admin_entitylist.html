@@ -1,24 +1,23 @@
-<h1>List of {{type}} entities</h1> 
+<!--<h1>List of {{type}} entities</h1> -->
 
-<p><a class="btn btn-primary" href="/admin/create/{{type}}">Create new {{type}}</a>
+<p>
 </p>
 
 <table class="table" id="entity-list">
   
   <tbody>
-
+    <tr class="admin-header">
     <th>ID</th>
     <th>Title (if applicable)</th>
-    <th>Edit</th>
-    <th>Delete</th>
-
+    <th>Options <a class="btn btn-info right" href="/admin/create/{{type}}">Create new {{type}}</a></th>
+    </tr>
     {{#each entities}} 
     
     <tr>
       <td>{{#if path}}<a href="{{path}}">{{eid}}</a>{{else}}{{eid}}{{/if}}</td>
       <td>{{#if path}}<a href="{{path}}">{{username}}{{title}}</a>{{else}}{{username}}{{title}}{{/if}}</td>
-      <td><a href="/admin/edit/{{ entityType }}/{{ eid }}">Edit</a></td>
-      <td><a href="/admin/delete/{{ entityType }}/{{ eid }}">Delete</a></td>
+      <td><a class="btn btn-default" href="/admin/edit/{{ entityType }}/{{ eid }}">Edit</a> &nbsp;
+        <a class="btn btn-danger" href="/admin/delete/{{ entityType }}/{{ eid }}">Delete</a></td>
     </tr>
     
     {{/each}}
