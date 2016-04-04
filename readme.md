@@ -1,4 +1,4 @@
-**'npm install irisjs' does not currently work for setting up this project. Instead run: git clone https://github.com/CityWebConsultants/Iris.git iris; cd iris; npm install;**
+**DO NOT USE NPM TO INSTALL THIS FRAMEWWORK. 'npm install irisjs' does NOT currently work for setting up this project. Instead run: git clone https://github.com/CityWebConsultants/Iris.git iris; cd iris; npm install;**
 
 # Iris
 
