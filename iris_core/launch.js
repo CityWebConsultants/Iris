@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Launch script run by user to start an Iris site. Keeps sessions persistent by managing a sub-process.
  * Launch.js is the parent process that remains persistant even if there is a fatal error or the server is 
@@ -28,14 +31,22 @@ if (parameters.site) {
 
   var restartCounter = 2;
 
-  start = function () {
+  var start = function () {
 
-    var sub = fork(__dirname + "/launch_site.js", process.argv.slice(2), {
-      execArgv:['--debug=5850'],
+    var options = {
       env: {
         'NODE_ENV': process.env.NODE_ENV
       }
+    };
+
+    process.argv.forEach(function(item){
+      var itemParts = item.split("=");
+      if(itemParts[0] == "--debug-port"){
+        options.execArgv = ['--debug=' + itemParts[1]];
+      }
     });
+
+    var sub = fork(__dirname + "/launch_site.js", process.argv.slice(2), options);
 
     sub.on('message', function (cmd) {
 
@@ -49,14 +60,14 @@ if (parameters.site) {
           messages: messages
         });
 
-      };
+      }
 
       if (cmd === 'restart') {
         sub.on('exit', function () {
 
           if (restartCounter > 1) {
 
-            console.error("Too many restarts. Error on startup.")
+            console.error("Too many restarts. Error on startup.");
             process.exit();
 
           } else {
@@ -79,7 +90,7 @@ if (parameters.site) {
 
       if (cmd.messages) {
 
-        messages = cmd.messages
+        messages = cmd.messages;
 
       }
 

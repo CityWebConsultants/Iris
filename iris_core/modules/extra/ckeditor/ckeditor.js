@@ -8,8 +8,8 @@ iris.modules.entityUI.globals.registerFieldWidget("Longtext", "CKeditor field");
 
 iris.modules.ckeditor.registerHook("hook_entity_field_widget_form__ckeditor_field", 2, function (thisHook, data) {
 
-  var value = thisHook.const.value;
-  var fieldSettings = thisHook.const.fieldSettings;
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
     "type": "ckeditor",
@@ -18,7 +18,7 @@ iris.modules.ckeditor.registerHook("hook_entity_field_widget_form__ckeditor_fiel
     "default": value
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
@@ -108,5 +108,17 @@ iris.app.post('/admin/file/ckeditorupload', function (req, res) {
 
     });
   });
+
+});
+
+/*
+ * Add to custom blocks form
+ */
+
+iris.modules.ckeditor.registerHook("hook_form_render__blockForm_Custom-HTML", 1, function (thisHook, data) {
+
+  data.schema.contents.type = "ckeditor";
+
+  thisHook.pass(data);
 
 });

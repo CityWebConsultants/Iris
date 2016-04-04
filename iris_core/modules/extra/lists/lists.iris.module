@@ -3,5 +3,5 @@
   "dependencies": {
     "blocks": "1"
   },
-  "rank": 3
+  "weight": 3
 }

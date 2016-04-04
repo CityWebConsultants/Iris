@@ -1,55 +1,60 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Manages routing for the admin configuration pages.
  */
 var fs = require('fs');
 
 /**
- * @function displayErrorPage
- * @memberof frontend
- *
- * @desc Respond to a request with an error page.
- *
- * Wrapper for hook_display_error_page; returns error page HTML on response automatically.
- *
- * @param {number} code - The HTTP error code to return the page for
- * @param {object} req - The current Express request object
- * @param {object} res - The current Express response object
+ * Define callback routes.
  */
-iris.modules.frontend.globals.displayErrorPage = function (code, req, res) {
-
-  iris.hook("hook_display_error_page", req.authPass, {
-    error: code,
-    req: req,
-    res: res
-  }).then(function (success) {
-
-    res.status(code).send(success);
-
-  }, function (fail) {
-
-    res.status(code).send(code.toString());
-
-  });
-
+var routes = {
+  admin : {
+    title: "Admin",
+    description: "Auto-generate tokenised url paths for entities.",
+    permissions: ["can access admin pages"],
+  },
+  logs : {
+    title: "Logs",
+    description: "A list of all log messages",
+    permissions: ["can access admin pages"],
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: null,
+      title: "Logs"
+    }]
+  },
+  structure : {
+    title: "Structure",
+    description: "Information architecture components",
+    permissions: ["can access admin pages"],
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: null,
+      title: "Structure"
+    }]
+  },
+  restart: {
+    title: "Restart system",
+    description: "Restart to reload configurations and code changes",
+    permissions: ["can access admin pages"],
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: null,
+      title: "Restart"
+    }]
+  }
 };
 
-
-
-iris.app.get("/admin", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: Root admin page.
+ */
+iris.route.get("/admin", routes.admin, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_dashboard"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -59,26 +64,12 @@ iris.app.get("/admin", function (req, res) {
 
   });
 
-})
+});
 
-
-iris.route.get("/admin/logs", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Logs"
-  }]
-}, function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: System logs.
+ */
+iris.route.get("/admin/logs", routes.logs, function (req, res) {
 
   try {
 
@@ -102,12 +93,22 @@ iris.route.get("/admin/logs", {
 
   logs.forEach(function (element, index) {
 
-    //console.log('0', logs[index]);
-    logs[index] = iris.sanitizeEmbeds(logs[index]);
-
-    //console.log('1', logs[index]);
     logs[index] = JSON.parse(logs[index]);
-    //console.log('2', logs[index]);
+
+    Object.keys(logs[index]).forEach(function (element) {
+
+      if (logs[index][element]) {
+        
+        logs[index][element] = logs[index][element].toString();
+
+        logs[index][element] = iris.sanitizeEmbeds(logs[index][element]);
+
+        logs[index][element] = logs[index][element].split("{").join("<");
+        logs[index][element] = logs[index][element].split("}").join(">");
+
+      }
+
+    });
 
   });
 
@@ -122,7 +123,7 @@ iris.route.get("/admin/logs", {
     keys: keys
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -132,85 +133,34 @@ iris.route.get("/admin/logs", {
 
   });
 
-})
+});
 
+/**
+ * Admin page callback: Structure items.
+ */
+iris.route.get("/admin/structure", routes.structure, function (req, res) {
 
-// Structure page
+  var menu = iris.modules.menu.globals.getBaseLinks(req.url);
+  menu.name = req.irisRoute.options.title;
 
-iris.route.get("/admin/structure", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Structure"
-  }]
-}, function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  // Load in admin menu
-
-  var structureMenu = {};
-
-  if (iris.configStore["menu"]["admin-toolbar"]) {
-
-    iris.configStore["menu"]["admin-toolbar"].items.forEach(function (item) {
-
-      if (item.path === "/admin/structure") {
-
-        structureMenu = item;
-
-      }
-
-    })
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_structure"], ['admin_wrapper'], {
-    structureMenu: structureMenu
+  iris.modules.frontend.globals.parseTemplateFile(["baselinks"], ['admin_wrapper'], {
+    menu: menu,
   }, req.authPass, req).then(function (success) {
-    res.send(success)
-  }, function (fail) {
 
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", fail);
+    res.send(success);
 
   });
 
-})
+});
 
-
-// Restart page
-
-iris.route.get("/admin/restart", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Restart"
-  }]
-}, function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: Restart server.
+ */
+iris.route.get("/admin/restart", routes.restart, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_restart"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -220,4 +170,34 @@ iris.route.get("/admin/restart", {
 
   });
 
-})
+});
+
+/**
+ * @function displayErrorPage
+ * @memberof frontend
+ *
+ * @desc Respond to a request with an error page.
+ *
+ * Wrapper for hook_display_error_page; returns error page HTML on response automatically.
+ *
+ * @param {number} code - The HTTP error code to return the page for
+ * @param {object} req - The current Express request object
+ * @param {object} res - The current Express response object
+ */
+iris.modules.frontend.globals.displayErrorPage = function (code, req, res) {
+
+  iris.invokeHook("hook_display_error_page", req.authPass, {
+    error: code,
+    req: req,
+    res: res
+  }).then(function (success) {
+
+    res.status(code).send(success);
+
+  }, function (fail) {
+
+    res.status(code).send(code.toString());
+
+  });
+
+};

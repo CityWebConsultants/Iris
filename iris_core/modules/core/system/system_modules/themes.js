@@ -1,27 +1,34 @@
-// Register menu item
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
 
-iris.route.get("/admin/themes", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Themes"
-  }]
-}, function (req, res) {
+var path = require("path");
+var fs = require("fs");
 
-  // If not admin, present 403 page
+/**
+ * Define callback routes.
+ */
+var routes = {
+  themes: {
+    title: "Themes",
+    description: "Choose which frontend theme to use.",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: null,
+      title: "Themes"
+    }]
+  },
+};
 
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: Administer themes.
+ */
+iris.route.get("/admin/themes", routes.themes, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_themes"], ['admin_wrapper'], null, req.authPass, req).then(function (success) {
 
     iris.clearMessages(req.authPass.userid);
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -33,7 +40,7 @@ iris.route.get("/admin/themes", {
 
 });
 
-iris.modules.system.registerHook("hook_form_render_themes", 0, function (thisHook, data) {
+iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHook, data) {
 
   // Find all themes
 
@@ -66,51 +73,48 @@ iris.modules.system.registerHook("hook_form_render_themes", 0, function (thisHoo
       data.schema.activeTheme = {
         type: "text",
         title: "Active theme",
-        default: iris.modules.frontend.globals.activeTheme.name,
+        default: iris.modules.frontend.globals.activeTheme ? iris.modules.frontend.globals.activeTheme.name : null,
         enum: machineNames,
-      }
+      };
 
       data.form = [];
 
       data.form.push({
         key: "activeTheme",
         titleMap: names
-      })
+      });
 
       data.form.push({
         type: "submit",
         title: "submit"
-      })
+      });
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     } catch (e) {
 
       console.log(e);
 
-      thisHook.finish(false, e);
+      thisHook.fail(e);
 
     }
 
   });
 
-})
+});
 
-var path = require("path");
-var fs = require("fs");
-
-iris.modules.system.registerHook("hook_form_submit_themes", 0, function (thisHook, data) {
+iris.modules.system.registerHook("hook_form_submit__themes", 0, function (thisHook, data) {
 
   iris.message(thisHook.authPass.userid, "theme config changed ", "success");
 
   var output = {
-    name: thisHook.const.params.activeTheme
-  }
+    name: thisHook.context.params.activeTheme
+  };
 
   fs.writeFileSync(iris.sitePath + "/active_theme.json", JSON.stringify(output));
 
   iris.restart(thisHook.authPass.userid, "themes page");
 
-  thisHook.finish(true);
+  thisHook.pass(data);
 
 });

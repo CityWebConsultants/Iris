@@ -1,8 +1,13 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Express HTTP server setup and management functions.
  */
 var express = require('express'),
-  bodyParser = require('body-parser');
+  bodyParser = require('body-parser'),
+  i18n = require("i18n"),
+  fs = require("fs");
 
 iris.app = express();
 
@@ -16,7 +21,23 @@ iris.app.use(bodyParser.urlencoded({
   limit: 10485760
 }));
 
-var cookieParser = require('cookie-parser')
+// I18n.
+if (!fs.existsSync(iris.configPath + '/locales')){
+  fs.mkdirSync(iris.configPath + '/locales');
+}
+i18n.configure({
+  defaultLocale: 'en',
+  autoReload: true,
+  directory: iris.configPath + '/locales',
+  api: {
+    '__' : 't',
+    '__n' : 'tn'
+  }
+});
+
+iris.i18n = i18n;
+
+var cookieParser = require('cookie-parser');
 iris.app.use(cookieParser());
 
 /**
@@ -30,7 +51,7 @@ iris.error = function (code, message, notes) {
     code: code,
     message: message,
     notes: notes
-  }
+  };
 
 };
 
@@ -46,7 +67,7 @@ iris.app.use(function (req, res, next) {
 
       res.redirect(req.url);
 
-    }, 500)
+    }, 500);
 
 
     return false;
@@ -80,11 +101,13 @@ iris.app.use(function (req, res, next) {
 
     }
 
+    res.header('Content-Type', 'application/json');
+
     res.status(code);
 
     res.end(JSON.stringify(response));
 
-  }
+  };
 
   next();
 
@@ -111,12 +134,6 @@ iris.app.use(function (req, res, next) {
 
   }
 
-  if (Object.keys(req.query).length) {
-
-    req.body = Object.assign(req.query, req.body);
-
-  }
-
   Object.keys(req.body).forEach(function (element) {
 
     try {
@@ -130,6 +147,24 @@ iris.app.use(function (req, res, next) {
     }
 
   });
+
+  if (req.query) {
+
+    Object.keys(req.query).forEach(function (element) {
+
+      try {
+
+        req.query[element] = JSON.parse(req.query[element]);
+
+      } catch (e) {
+
+        // Allowing non-JSON encoded data
+
+      }
+
+    });
+
+  }
 
   iris.modules.auth.globals.credentialsToPass(req.body.credentials, req, res).then(function (authPass) {
 
@@ -157,17 +192,17 @@ iris.app.use(function (req, res, next) {
           req.irisRoute = {
             path: route,
             options: iris.routes[route][req.method.toLowerCase()].options
-          }
+          };
 
         }
 
-      };
+      }
 
-    })
+    });
 
     // Run request intercept in case anything
 
-    iris.hook("hook_request_intercept", req.authPass, {
+    iris.invokeHook("hook_request_intercept", req.authPass, {
       req: req,
       res: res
     }).then(function () {
@@ -199,7 +234,7 @@ iris.app.use(function (req, res, next) {
 
 // Menu registering function
 
-var methods = ["get", "post", "put", "head", "delete", "options", "trace", "copy", "lock", "mkcol", "move", "purge", "propfind", "proppatch", "unlock", "report", "mkactivity", "checkout", "merge", "m-search", "notify", "subscribe", "unsubscribe", "patch", "search", "connect"]
+var methods = ["get", "post", "put", "head", "delete", "options", "trace", "copy", "lock", "mkcol", "move", "purge", "propfind", "proppatch", "unlock", "report", "mkactivity", "checkout", "merge", "m-search", "notify", "subscribe", "unsubscribe", "patch", "search", "connect"];
 
 iris.route = {};
 iris.routes = {};
@@ -243,7 +278,7 @@ methods.forEach(function (method) {
       options: options,
       callback: callback
 
-    }
+    };
 
     if (rank) {
 
@@ -251,9 +286,9 @@ methods.forEach(function (method) {
 
     }
 
-  }
+  };
 
-})
+});
 
 // Convert stored routes into express handlers
 
@@ -269,11 +304,11 @@ iris.populateRoutes = function () {
 
       iris.app[method](route, methodInstance.callback);
 
-    })
+    });
 
-  })
+  });
 
-}
+};
 
 //Public files folder
 

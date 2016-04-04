@@ -15,6 +15,7 @@
     "express": "^4.13.3",
     "glob": "^5.0.15",
     "handlebars": "^4.0.4",
+    "i18n": "^0.8.1",
     "merge": "^1.2.0",
     "minimatch": "^3.0.0",
     "mkdirp": "^0.5.1",
@@ -23,6 +24,7 @@
     "ncp": "^2.0.0",
     "npm": "^3.5.2",
     "path-to-regexp": "^1.2.1",
+    "phantom": "^2.0.10",
     "prettydiff": "^1.16.6",
     "sanitize-html": "^1.10.0",
     "socket.io": "^1.2.1",
@@ -35,6 +37,13 @@
   "author": "City Web Consultants",
   "license": "GPL-2.0",
   "devDependencies": {
-    "frisby": "^0.8.5"
+    "frisby": "^0.8.5",
+    "grunt": "^0.4.5",
+    "grunt-jasmine-node-coverage": "^0.4.1",
+    "jasmine-node": "^1.14.5",
+    "jshint": "^2.9.1"
+  },
+  "scripts": {
+    "test": "grunt default"
   }
 }

@@ -4,35 +4,36 @@
 
 iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (thisHook, data) {
 
-  var menuName = thisHook.const.embedParams[0];
+  var menuName = thisHook.context.embedParams[0];
 
   iris.readConfig('menu', menuName).then(function (config) {
 
     iris.modules.frontend.globals.parseTemplateFile(["menu", menuName], null, {
-      menu: config.items
+      menu: config.items,
+      menuName: menuName
     }, thisHook.authPass).then(function (html) {
 
       // Check if user can view menu
 
-      iris.hook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
+      iris.invokeHook("hook_view_menu", thisHook.authPass, menuName, menuName).then(function (access) {
 
-        thisHook.finish(true, html);
+        thisHook.pass(html);
 
       }, function (noaccess) {
 
-        thisHook.finish(false, noaccess);
+        thisHook.fail(noaccess);
 
       })
 
     }, function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail(fail);
 
     })
 
   }, function (fail) {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   });
 
@@ -42,18 +43,18 @@ iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (this
  * Function for getting menu add/edit form.
  */
 
-iris.modules.menu_ui.registerHook("hook_form_render_menu", 0, function (thisHook, data) {
+iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHook, data) {
 
   // Check if menu name supplied and previous values available
 
-  if (thisHook.const.params[1] && thisHook.const.params[1].indexOf("{") !== -1) {
+  if (thisHook.context.params[1] && thisHook.context.params[1].indexOf("{") !== -1) {
 
-    thisHook.finish(false, data);
+    thisHook.fail(data);
     return false;
 
   } else {
 
-    iris.readConfig('menu', thisHook.const.params[1]).then(function (config) {
+    iris.readConfig('menu', thisHook.context.params[1]).then(function (config) {
 
       data.value = config;
 
@@ -66,6 +67,7 @@ iris.modules.menu_ui.registerHook("hook_form_render_menu", 0, function (thisHook
         },
         "items": {
           "type": "array",
+          "title" : "Menu links",
           "items": {
             "type": "object",
             "properties": {
@@ -107,7 +109,7 @@ iris.modules.menu_ui.registerHook("hook_form_render_menu", 0, function (thisHook
 
       }
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }, function (fail) {
 
@@ -151,7 +153,7 @@ iris.modules.menu_ui.registerHook("hook_form_render_menu", 0, function (thisHook
         }
       }
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     });
 
@@ -163,15 +165,15 @@ iris.modules.menu_ui.registerHook("hook_form_render_menu", 0, function (thisHook
  * Form submit handler for menu add/edit form.
  */
 
-iris.modules.menu_ui.registerHook("hook_form_submit_menu", 0, function (thisHook, data) {
+iris.modules.menu_ui.registerHook("hook_form_submit__menu", 0, function (thisHook, data) {
 
   // Remove blank items. TODO, this should be automatic. How come it's getting stuck?
 
-  if (thisHook.const.params.items) {
+  if (thisHook.context.params.items) {
 
-    thisHook.const.params.items.forEach(function (menuitem, index) {
+    thisHook.context.params.items.forEach(function (menuitem, index) {
 
-      var item = thisHook.const.params.items[index];
+      var item = thisHook.context.params.items[index];
 
       if (item.children) {
 
@@ -191,7 +193,7 @@ iris.modules.menu_ui.registerHook("hook_form_submit_menu", 0, function (thisHook
 
   }
 
-  iris.saveConfig(thisHook.const.params, "menu", iris.sanitizeName(thisHook.const.params.menuName), function () {
+  iris.saveConfig(thisHook.context.params, "menu", iris.sanitizeName(thisHook.context.params.menuName), function () {
 
     var data = function (res) {
 
@@ -201,7 +203,7 @@ iris.modules.menu_ui.registerHook("hook_form_submit_menu", 0, function (thisHook
 
     }
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }, function (fail) {
 
@@ -309,7 +311,7 @@ iris.app.get("/admin/structure/menu/delete/:menuName", function (req, res) {
  * Form for deleting an existing menu.
  */
 
-iris.modules.menu.registerHook("hook_form_render_menu_delete", 0, function (thisHook, data) {
+iris.modules.menu.registerHook("hook_form_render__menu_delete", 0, function (thisHook, data) {
 
   if (!data.schema) {
 
@@ -319,10 +321,10 @@ iris.modules.menu.registerHook("hook_form_render_menu_delete", 0, function (this
     
   data.schema["menuName"] = {
     type: "hidden",
-    default: thisHook.const.params[1]
+    default: thisHook.context.params[1]
   };
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
@@ -330,9 +332,9 @@ iris.modules.menu.registerHook("hook_form_render_menu_delete", 0, function (this
  * Menu delete form submit handler.
  */
 
-iris.modules.menu.registerHook("hook_form_submit_menu_delete", 0, function (thisHook, data) {
+iris.modules.menu.registerHook("hook_form_submit__menu_delete", 0, function (thisHook, data) {
     
-  var menu = iris.sanitizeName(thisHook.const.params.menuName);
+  var menu = iris.sanitizeName(thisHook.context.params.menuName);
   
   iris.deleteConfig("menu", menu, function (err) {
 
@@ -344,7 +346,7 @@ iris.modules.menu.registerHook("hook_form_submit_menu_delete", 0, function (this
 
     };
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   });
 

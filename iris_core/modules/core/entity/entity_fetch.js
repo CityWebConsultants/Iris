@@ -34,9 +34,9 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   } else {
 
-    thisHook.finish(false, "Not a valid query");
-    return false;
+    thisHook.fail("Not a valid query");
 
+    return false;
 
   }
 
@@ -68,12 +68,14 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         var queryItem = {};
 
-        queryItem[fieldQuery["field"]] = fieldQuery.value
+        queryItem[fieldQuery["field"]] = fieldQuery.value;
 
         // Check if negative
 
         if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
+
           query.$and.push(queryItem);
+
         } else {
 
           negativeQueryItem = {};
@@ -82,7 +84,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
             $ne: queryItem[Object.keys(queryItem)[0]]
 
-          }
+          };
 
           query.$and.push(negativeQueryItem);
 
@@ -96,7 +98,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         queryItem[fieldQuery["field"]] = {
           $gt: fieldQuery.value
-        }
+        };
 
         query.$and.push(queryItem);
 
@@ -114,14 +116,16 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
           queryItem[fieldQuery["field"]] = {
             '$elemMatch': fieldQuery.value
-          }
+          };
 
         }
 
         // Check if negative
 
         if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
+
           query.$and.push(queryItem);
+
         } else {
 
           negativeQueryItem = {};
@@ -130,12 +134,12 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
             $ne: queryItem[Object.keys(queryItem)[0]]
 
-          }
+          };
 
           query.$and.push(negativeQueryItem);
         }
 
-      };
+      }
 
       if (fieldQuery.operator.toLowerCase().indexOf("contains") !== -1) {
 
@@ -145,15 +149,18 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         queryItem[fieldQuery["field"]] = {
           '$regex': regex
-        }
+        };
 
         // Check if negative
 
         if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
+
           query.$and.push(queryItem);
+
         } else {
 
           queryItem[fieldQuery["field"]].$not = regex;
+
           delete queryItem[fieldQuery["field"]].$regex;
 
           query.$and.push(queryItem);
@@ -170,14 +177,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     }
 
-    //    Debugger for queries
-
-    /*var util = require("util");
-
-    console.log(util.inspect(query, {
-      depth: 10
-    }));*/
-
     var entities = {};
 
     //Query complete, now run on all entities and collect them
@@ -187,14 +186,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
     var util = require('util');
 
     entityTypes.forEach(function (type) {
-
-      //First check if the user can view those entities.
-
-      if (!iris.modules.auth.globals.checkPermissions(["can view any " + type], thisHook.authPass)) {
-
-        return false;
-
-      }
 
       dbActions.push(iris.promise(function (data, yes, no) {
 
@@ -224,9 +215,9 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
           };
 
-          iris.hook("hook_entity_query_alter", thisHook.authPass, null, query).then(function (query) {
+          iris.invokeHook("hook_entity_query_alter", thisHook.authPass, null, query).then(function (query) {
 
-            iris.hook("hook_entity_query_alter_" + type, thisHook.authPass, null, query).then(function (query) {
+            iris.invokeHook("hook_entity_query_alter_" + type, thisHook.authPass, null, query).then(function (query) {
 
               fetch(query);
 
@@ -242,7 +233,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
               }
 
-            })
+            });
 
           }, function (fail) {
 
@@ -266,11 +257,16 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
           //General entity view hook
 
-          iris.hook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
+          iris.invokeHook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
+
+            if (viewChecked === undefined) {
+              no("permission denied");
+              return false;
+            }
 
             entities[_id] = viewChecked;
 
-            iris.hook("hook_entity_view_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
+            iris.invokeHook("hook_entity_view_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
 
               entities[_id] = validated;
               yes();
@@ -287,7 +283,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
               }
 
-            })
+            });
 
           }, function (fail) {
 
@@ -309,7 +305,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         }
 
-        iris.hook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
+        iris.invokeHook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
 
             // Apply sort if one is set
 
@@ -327,7 +323,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
                     return 1;
                   }
                   return 0;
-                })
+                });
 
               } else if (direction === "desc") {
 
@@ -339,18 +335,19 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
                     return 1;
                   }
                   return 0;
-                })
+                });
 
               }
 
-            }
+            };
 
             if (fetchRequest.sort) {
 
               Object.keys(fetchRequest.sort).forEach(function (sorter) {
-                sort(sorter, fetchRequest.sort[sorter])
 
-              })
+                sort(sorter, fetchRequest.sort[sorter]);
+
+              });
 
             }
 
@@ -360,18 +357,18 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
             }
 
-            thisHook.finish(true, output);
+            thisHook.pass(output);
 
           },
           function (fail) {
 
-            thisHook.finish(false, fail);
+            thisHook.fail(fail);
 
           });
 
       }, function (fail) {
 
-        thisHook.finish(false, "Fetch failed");
+        thisHook.fail("Fetch failed");
 
       });
 
@@ -379,13 +376,13 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     var fail = function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail(fail);
 
     };
 
     if (!dbActions.length) {
 
-      thisHook.finish(true, null);
+      thisHook.pass(null);
 
     }
 
@@ -393,7 +390,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   } else {
 
-    thisHook.finish(false, "not a valid query");
+    thisHook.fail("not a valid query");
 
   }
 
@@ -405,24 +402,24 @@ iris.app.get("/fetch", function (req, res) {
 
   var failed;
 
-  if (req.body.entities) {
+  if (req.query.entities) {
 
-    req.body.entities.forEach(function (entityType) {
+    req.query.entities.forEach(function (entityType) {
 
       if (!iris.modules.auth.globals.checkPermissions(["can fetch " + entityType], req.authPass)) {
 
         iris.log("warn", "User " + req.authPass.userid + " was denied access to fetch " + entityType + " list ");
 
-        res.status(403).send("Cannot fetch");
+        res.status(403).json("Cannot fetch");
         failed = true;
 
-      };
+      }
 
-    })
+    });
 
   } else {
 
-    res.status(400).send("Not a valid entity fetch query");
+    res.status(400).json("Not a valid entity fetch query");
 
   }
 
@@ -433,7 +430,7 @@ iris.app.get("/fetch", function (req, res) {
   }
 
 
-  iris.hook("hook_entity_fetch", req.authPass, null, req.body).then(function (success) {
+  iris.invokeHook("hook_entity_fetch", req.authPass, null, req.query).then(function (success) {
 
     res.respond(200, success);
 
@@ -455,7 +452,7 @@ iris.app.get("/fetch", function (req, res) {
  */
 iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHook, query) {
 
-  thisHook.finish(true, query);
+  thisHook.pass(query);
 
 });
 
@@ -479,26 +476,16 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
   // Check if user can see entity type
 
-  if (!iris.modules.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass)) {
-
-    if (!iris.modules.auth.globals.checkPermissions(["can view own " + entity.entityType], thisHook.authPass)) {
+  var isOwn = thisHook.authPass.userid == entity.entityAuthor;
+  var viewOwn = iris.modules.auth.globals.checkPermissions(["can view own " + entity.entityType], thisHook.authPass);
+  var viewAny = iris.modules.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass);
+  if (!viewAny && !(isOwn && viewOwn)) {
 
       //Can't view any of this type, delete it
-
       entity = undefined;
 
-    } else {
-
-      // Check if owned by user
-
-      if (entity.entityAuthor !== thisHook.authPass.userid) {
-
-        entity = undefined;
-
-      }
-
-    }
   }
+
 
   // Strip out any fields on the entity that a user shouldn't be able to see according to field permissions
 
@@ -508,7 +495,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     Object.keys(entity).forEach(function (field) {
 
-      if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id") {
+      if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
 
         var schemaField = iris.dbCollections[type].schema.tree[field];
 
@@ -524,14 +511,13 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
             thisHook.authPass.roles.forEach(function (role) {
 
-
               if (schemaField.permissions.indexOf(role) !== -1) {
 
                 canView = true;
 
               }
 
-            })
+            });
 
             if (!canView) {
 
@@ -541,72 +527,80 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
           }
 
-
         }
+
+      }
+
+    });
+
+    var entityType = entity.entityType;
+
+    var schema = iris.dbSchemaConfig[entityType];
+
+    // Loop over all the fields on the entity
+
+    var fieldHooks = [];
+
+    Object.keys(entity).forEach(function (field) {
+
+      if (schema.fields[field] && schema.fields[field].fieldType) {
+
+        var fieldType = iris.sanitizeName(schema.fields[field].fieldType);
+
+        fieldHooks.push({
+          type: fieldType,
+          field: field
+        });
 
       }
 
     })
 
-  }
+    var fieldCheckedCounter = 0;
 
-  var entityType = entity.entityType;
+    var fieldChecked = function () {
 
-  var schema = iris.dbSchemaConfig[entityType];
+      fieldCheckedCounter += 1;
 
-  // Loop over all the fields on the entity
+      if (fieldCheckedCounter === fieldHooks.length) {
 
-  var fieldHooks = [];
+        thisHook.pass(entity);
 
-  Object.keys(entity).forEach(function (field) {
+      }
 
-    if (schema.fields[field] && schema.fields[field].fieldType) {
+    };
 
-      var fieldType = iris.sanitizeName(schema.fields[field].fieldType);
+    // Run hook for each field
 
-      fieldHooks.push({
-        type: fieldType,
-        field: field
+    if(fieldHooks.length === 0) {
+      thisHook.pass(entity);
+    }
+
+    fieldHooks.forEach(function (field) {
+
+      iris.invokeHook("hook_entity_view_field__" + field.type, thisHook.authPass, {
+        entityType: entity.entityType,
+        field: iris.dbSchemaConfig[entity.entityType].fields[field.field]
+      }, entity[field.field]).then(function (newValue) {
+
+        entity[field.field] = newValue;
+        fieldChecked();
+
+      }, function (fail) {
+
+        fieldChecked();
+
       });
 
-    }
+    });
 
-  })
+    thisHook.pass(entity);
 
-  var fieldCheckedCounter = 0;
+  } else {
 
-  var fieldChecked = function () {
-
-    fieldCheckedCounter += 1;
-
-    if (fieldCheckedCounter === fieldHooks.length) {
-
-      thisHook.finish(true, entity);
-
-    }
-
-
+    thisHook.pass(entity);
+    
   }
-
-  // Run hook for each field
-
-  fieldHooks.forEach(function (field) {
-
-    iris.hook("hook_entity_view_field__" + field.type, thisHook.authPass, {
-      entityType: entity.entityType,
-      field: iris.dbSchemaConfig[entity.entityType].fields[field.field]
-    }, entity[field.field]).then(function (newValue) {
-
-      entity[field.field] = newValue;
-      fieldChecked();
-
-    }, function (fail) {
-
-      fieldChecked();
-
-    })
-
-  })
 
 });
 
@@ -620,8 +614,8 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
  */
 iris.modules.entity.registerHook("hook_entity_view_bulk", 0, function (thisHook, entityList) {
 
-  thisHook.finish(true, entityList);
+  thisHook.pass(entityList);
 
 });
 
-require("./entity_views.js")
+require("./entity_views.js");

@@ -1,9 +1,12 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Implements the iris logging system.
  */
 
 var initLogger = function () {
-  
+
   var fs = require('fs');
   var bunyan = require('bunyan');
 
@@ -13,7 +16,7 @@ var initLogger = function () {
     } catch (e) {
       if (e.code != 'EEXIST') throw e;
     }
-  }
+  };
 
   mkdirSync(iris.sitePath + "/" + "logs");
 
@@ -21,7 +24,7 @@ var initLogger = function () {
     name: 'iris',
     streams: [{
       path: iris.sitePath + '/logs/' + "main.log",
-    }]
+  }]
   };
 
   var logger = bunyan.createLogger(bunyanSettings);
@@ -35,13 +38,44 @@ var initLogger = function () {
    * @params {string} message - Log message
    */
 
+  var _getCallerFile = function () {
+    try {
+      var err = new Error();
+      var callerfile;
+      var currentfile;
+
+      Error.prepareStackTrace = function (err, stack) {
+        return stack;
+      };
+
+      currentfile = err.stack.shift().getFileName();
+
+      while (err.stack.length) {
+        callerfile = err.stack.shift().getFileName();
+
+        if (currentfile !== callerfile) return callerfile;
+      }
+    } catch (err) {}
+    return undefined;
+  };
+
   iris.log = function () {
+    
+    var args = [].slice.call(arguments, 0);
+    
+    if (args && !args[1]) {
+
+      args[1] = "Empty log called from " + _getCallerFile();
+
+    }
 
     // If an exception gets passed in, process it into log messages
 
-    if (arguments && arguments[1] && Array.isArray(arguments[1].stack)) {
+    if (args && args[1] && Array.isArray(args[1].stack)) {
 
-      var e = arguments[1];
+      var e = args[1];
+
+      // If no error message send the file that called the log
 
       var errorMessage = '';
 
@@ -49,7 +83,9 @@ var initLogger = function () {
 
         errorMessage += "Error on line " + e.stack[index].getLineNumber() + " of " + e.stack[index].getFileName() + " " + e.message + '\n';
 
-      })
+      });
+
+      errorMessage += "Log called from " + _getCallerFile();
 
       iris.log("fatal", errorMessage);
 
@@ -61,7 +97,7 @@ var initLogger = function () {
 
     var logLevels = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
 
-    var type = arguments[0];
+    var type = args[0];
 
     // Check if type is valid
 
@@ -73,28 +109,28 @@ var initLogger = function () {
 
     }
 
-    var message = arguments[1];
+    var message = args[1];
 
     logger[type](message);
 
     process.send({
       type: "log",
       data: {
-        type: arguments[0],
-        message: arguments[1]
+        type: args[0],
+        message: args[1]
       }
-    })
+    });
 
-    if (iris.hook) {
+    if (iris.invokeHook) {
 
-      iris.hook("hook_log", "root", {
+      iris.invokeHook("hook_log", "root", {
         type: type,
         message: message
-      })
+      });
 
     }
 
-  }
+  };
 
 }();
 

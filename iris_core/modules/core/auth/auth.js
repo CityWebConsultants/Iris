@@ -1,4 +1,5 @@
-/*jslint node: true */
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise*/
 
 "use strict";
 
@@ -138,7 +139,7 @@ iris.modules.auth.globals = {
 
       //Run any hooks that latch onto this one to extend the authpass
 
-      iris.hook('hook_auth_authpass', authPass, {
+      iris.invokeHook('hook_auth_authpass', authPass, {
         req: req,
         res: res
       }, authPass).then(function (authPass) {
@@ -258,21 +259,43 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 
   } else if (!data.roles || !data.userid) {
 
-    thisHook.finish(false, "invalid authPass");
+    thisHook.fail("invalid authPass");
     return false;
 
   }
 
-  thisHook.finish(true, data);
+  // This is required to add i18n to the authPass object. This allows each user to have a separate language set for
+  // their request. It's an alternative to passing the req object everywhere.
+  // Translated text can be achieved by thisHook.authPass.t('Text to translate');
+  // To change the users language, use hook_auth_authpass and then thisHook.authPass.setLocale([language code]);
+  if (thisHook.req && thisHook.req.headers && thisHook.req.headers['accept-language']) {
+
+    data.headers = {'accept-language' : thisHook.req.headers['accept-language']};
+
+  }
+  else {
+
+    data.headers = {'accept-language' : 'en-US,en'};
+
+  }
+
+  iris.i18n.init(data);
+
+  thisHook.pass(data);
 
 });
 
 
 iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
+  /*if(iris.modules.auth.globals.userList[data.userid]) {
+    thisHook.pass("Already authenticated");
+    return true;
+  }*/
+
   if (!data.userid || typeof data.userid !== "string") {
 
-    thisHook.finish(false, iris.error(400, "No user ID"));
+    thisHook.fail(iris.error(400, "No user ID"));
     return false;
 
   }
@@ -308,6 +331,14 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
       };
 
       iris.modules.auth.globals.userList[data.userid].tokens[authToken] = token;
+      
+      iris.invokeHook("hook_user_login", thisHook.authPass, null, data.userid).then(function(success) {
+        thisHook.pass(success);
+      }, function (fail) {
+
+        thisHook.fail(fail);
+
+      });
 
       iris.modules.auth.globals.userList[data.userid].getAuthPass = function () {
 
@@ -327,23 +358,23 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
 
             fail(reason);
 
-          })
+          });
 
 
-        })
+        });
 
-      }
+      };
 
       iris.modules.auth.globals.userList[data.userid].lastActivity = Date.now();
 
-      thisHook.finish(true, token);
+      thisHook.pass(token);
 
     });
 
 
   } else {
 
-    thisHook.finish(false, iris.error(403, "Access denied"));
+    thisHook.fail(iris.error(403, "Access denied"));
 
   }
 
@@ -365,27 +396,27 @@ iris.modules.auth.registerHook("hook_auth_deletetoken", 0, function (thisHook, d
 
         if (!Object.keys(iris.modules.auth.globals.userList[data.userid].tokens).length) {
 
-          iris.hook("hook_auth_clearauth", data.userid, thisHook.authPass);
+          iris.invokeHook("hook_auth_clearauth", data.userid, thisHook.authPass);
 
         }
 
-        thisHook.finish(true, data.token);
+        thisHook.pass(data.token);
 
       } else {
 
-        thisHook.finish(false, "No such token present");
+        thisHook.fail("No such token present");
 
       }
 
     } else {
 
-      thisHook.finish(false, "No tokens present");
+      thisHook.fail("No tokens present");
 
     }
 
   } else {
 
-    thisHook.finish(false, "Access Denied");
+    thisHook.fail("Access Denied");
 
   }
 
@@ -397,19 +428,26 @@ iris.modules.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, use
 
     if (iris.modules.auth.globals.userList[userid]) {
 
-      delete iris.modules.auth.globals.userList[userid];
+      iris.invokeHook("hook_user_logout", thisHook.authPass, null, userid).then(function(success){
+        thisHook.pass(success);
+      }, function(fail) {
 
-      thisHook.finish(true, userid);
+        thisHook.fail(fail);
+
+      });
+      delete iris.modules.auth.globals.userList[userid];
+       
+      thisHook.pass(userid);
 
     } else {
 
-      thisHook.finish(false, "No tokens present");
+      thisHook.fail("No tokens present");
 
     }
 
   } else {
 
-    thisHook.finish(false, "Access Denied");
+    thisHook.fail("Access Denied");
 
   }
 
@@ -417,7 +455,7 @@ iris.modules.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, use
 
 iris.app.post('/auth/clearauth', function (req, res) {
 
-  iris.hook("hook_auth_clearauth", req.body.userid, req.authPass).then(function (success) {
+  iris.invokeHook("hook_auth_clearauth", req.authPass, req.body.userid, req.body.userid).then(function (success) {
 
     res.send(success);
 
@@ -431,7 +469,7 @@ iris.app.post('/auth/clearauth', function (req, res) {
 
 iris.app.post('/auth/deletetoken', function (req, res) {
 
-  iris.hook("hook_auth_deletetoken", req.body, req.authPass).then(function (success) {
+  iris.invokeHook("hook_auth_deletetoken", req.authPass, req.body, req.authPass).then(function (success) {
 
     res.send(success);
 
@@ -444,8 +482,8 @@ iris.app.post('/auth/deletetoken', function (req, res) {
 });
 
 iris.app.post('/auth/maketoken', function (req, res) {
-
-  iris.hook("hook_auth_maketoken", req.authPass, null, {
+  
+  iris.invokeHook("hook_auth_maketoken", req.authPass, null, {
     userid: req.body.userid
   }).then(function (success) {
 
@@ -482,7 +520,7 @@ iris.route.get("/logout", {
   }]
 }, function (req, res) {
 
-  iris.hook("hook_auth_clearauth", "root", null, req.authPass.userid);
+  iris.invokeHook("hook_auth_clearauth", "root", null, req.authPass.userid);
 
   res.send("logged out");
 
@@ -490,7 +528,7 @@ iris.route.get("/logout", {
 
 iris.app.post("/logout", function (req, res) {
 
-  iris.hook("hook_auth_clearauth", "root", null, req.authPass.userid);
+  iris.invokeHook("hook_auth_clearauth", "root", null, req.authPass.userid);
 
   res.send("logged out");
 
@@ -502,40 +540,55 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
   // Check if a matching route is found
 
-  if (thisHook.const.req.irisRoute && thisHook.const.req.irisRoute.options && thisHook.const.req.irisRoute.options.permissions) {
-
-    var permissions = thisHook.const.req.irisRoute.options.permissions;
-
-    var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.const.req.authPass);
+  var actOnResult = function(access) {
 
     if (!access) {
 
-      iris.hook("hook_display_error_page", thisHook.const.req.authPass, {
+      iris.invokeHook("hook_display_error_page", thisHook.context.req.authPass, {
         error: 403,
-        req: thisHook.const.req
+        req: thisHook.context.req
       }).then(function (success) {
 
-        thisHook.const.res.send(success);
+        thisHook.context.res.send(success);
 
-        thisHook.finish(false, data);
+        thisHook.fail(data);
 
       }, function (fail) {
 
-        thisHook.const.res.status(403);
-        thisHook.const.res.end(403);
-        thisHook.finish(false, data);
+        thisHook.context.res.status(403);
+        thisHook.context.res.end(403);
+        thisHook.fail(data);
 
       });
 
     } else {
 
-      thisHook.finish(true);
+      thisHook.pass(data);
 
     }
 
+  };
+
+  if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissionsCallback) {
+
+    if (typeof thisHook.context.req.irisRoute.options.permissionsCallback == 'function') {
+
+      thisHook.context.req.irisRoute.options.permissionsCallback(thisHook.context.req, actOnResult);
+
+    }
+
+  }
+  else if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissions) {
+
+    var permissions = thisHook.context.req.irisRoute.options.permissions;
+
+    var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.context.req.authPass);
+
+    actOnResult(access);
+
   } else {
 
-    thisHook.finish(true);
+    thisHook.pass(data);
 
   }
 

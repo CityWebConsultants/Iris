@@ -15,7 +15,7 @@ h1, h2, h3, h4 {
 #site-name {
     font-size:40px;
 }
-.menu-Main {
+.menu--main-menu {
     float:right;
 }
 .caption {
@@ -42,35 +42,35 @@ h1, h2, h3, h4 {
     color: #fff;
 }
 
-.menu-Main li {
+.menu--main-menu li {
     list-style:none;
     display:inline-block;;
     padding:5px;
     font-size:1.2em;
     position:relative;
 }
-.menu-Main nav ul li.has-children ul {
+.menu--main-menu nav ul li.has-children ul {
     padding: 0;
     position: absolute;
     top: 37px;
     display: none;    
 }
 
-.menu-Main nav ul li.has-children:hover a, .menu-Main nav ul li.has-children:focus a{
+.menu--main-menu nav ul li.has-children:hover a, .menu--main-menu nav ul li.has-children:focus a{
     color:#fff !important;
 } 
-.menu-Main nav ul li.has-children:hover ul, .menu-Main nav ul li.has-children:focus ul {
+.menu--main-menu nav ul li.has-children:hover ul, .menu--main-menu nav ul li.has-children:focus ul {
     display:block;
 }
 
-.menu-Main nav ul li.has-children:after {
+.menu--main-menu nav ul li.has-children:after {
   content: '▼';
   font-size: 10px;
   position: relative;
   bottom: 3px;
 }
 
-.menu-Main nav ul li.has-children ul li {
+.menu--main-menu nav ul li.has-children ul li {
     display: block;
     text-align: left;
     background: #666;
@@ -81,16 +81,16 @@ h1, h2, h3, h4 {
     font-size: 80%;
     white-space:nowrap;
 }
-.menu-Main nav ul li.has-children ul li a {
+.menu--main-menu nav ul li.has-children ul li a {
     color: #fff;
 }
 
-.menu-Main nav ul li.has-children ul li:hover,
-.menu-Main nav ul li.has-children ul li:focus {
+.menu--main-menu nav ul li.has-children ul li:hover,
+.menu--main-menu nav ul li.has-children ul li:focus {
   background-color: #969696;
 }
-.menu-Main nav ul li.has-children:hover,
-.menu-Main nav ul li.has-children:focus {
+.menu--main-menu nav ul li.has-children:hover,
+.menu--main-menu nav ul li.has-children:focus {
     color:#fff !important;
   background: #666;
 }

@@ -1,5 +1,45 @@
 var nodemailer = require('nodemailer');
 
+/**
+ * Define callback routes.
+ */
+var routes = {
+  mail: {
+    title: "Administer mail system",
+    description: "Settings and configurations for email sending",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: "/admin/config",
+      title: "Mail system"
+    }]
+  }
+}
+
+/**
+ * Admin page callback: mail settings admin page.
+ *
+ * This form allows modules to list their mailSystem handler that the user can select from.
+ */
+iris.route.get('/admin/config/mail-settings', routes.mail, function (req, res) {
+
+
+  iris.modules.frontend.globals.parseTemplateFile(["mail-settings"], ['admin_wrapper'], {
+    title : "Administer mail system"
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.email.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
   /**
    * Implements iris.modules.triggers.globals.registerAction().
    *
@@ -39,46 +79,21 @@ iris.modules.triggers.globals.registerAction("email", {
    */
 iris.modules.email.registerHook("hook_triggers_email", 0, function (thisHook, data) {
 
-    iris.modules.email.globals.sendEmail(thisHook.const);
-    thisHook.finish(true, data);
-
-});
-
-
-  /**
-   * Page callback for mail settings admin page.
-   *
-   * This form allows modules to list their mailSystem handler that the user can select from.
-   */
-iris.app.get('/admin/config/mail-settings', function (req, res) {
-
-  
-    iris.modules.frontend.globals.parseTemplateFile(["mail-settings"], ['admin_wrapper'], {
-        title : "Administer mail system"
-    }, req.authPass, req).then(function (success) {
-
-        res.send(success)
-
-    }, function (fail) {
-
-        iris.modules.email.globals.displayErrorPage(500, req, res);
-
-        iris.log("error", e);
-
-    });
+    iris.modules.email.globals.sendEmail(thisHook.context);
+    thisHook.pass(data);
 
 });
 
   /**
-   * Implements hook_form_render_[form_name].
+   * Implements hook_form_render__[form_name].
    *
    * This form gets a list of mailSystem handlers from modules implementing hook_registerMailSystem.
    */
 
-iris.modules.email.registerHook("hook_form_render_mailSettings", 0, function (thisHook, data) {
+iris.modules.email.registerHook("hook_form_render__mailSettings", 0, function (thisHook, data) {
     
     var defaultSettings = {"mailSystem" : {}};
-    iris.hook("hook_registerMailSystem", thisHook.authPass, {}, defaultSettings).then(function(success){
+    iris.invokeHook("hook_registerMailSystem", thisHook.authPass, {}, defaultSettings).then(function(success){
 
         data.schema.mailSystem = {
             "type": "string",
@@ -98,29 +113,29 @@ iris.modules.email.registerHook("hook_form_render_mailSettings", 0, function (th
         }];
     
 
-        thisHook.finish(true, data);
+        thisHook.pass(data);
 
     }, function(fail){
 
         iris.log("error", fail);
-        thisHook.finish(false, data);
+        thisHook.fail(data);
 
     });
     
 });
 
   /**
-   * Implements hook_form_submit_[form_name].
+   * Implements hook_form_submit__[form_name].
    *
    * Saves the chosen mailSystem.
    *
    */
-iris.modules.email.registerHook("hook_form_submit_mailSettings", 0, function (thisHook, data) {
+iris.modules.email.registerHook("hook_form_submit__mailSettings", 0, function (thisHook, data) {
     
-    iris.saveConfig(thisHook.const.params, 'email', 'mail_system');
+    iris.saveConfig(thisHook.context.params, 'email', 'mail_system');
     
     iris.message(thisHook.authPass.userid, "Settings saved", "notice");
-    thisHook.finish(true, function (res) {
+    thisHook.pass(function (res) {
         res.send("/admin/config/mail-settings");
 
     });
@@ -137,7 +152,7 @@ iris.modules.email.registerHook("hook_form_submit_mailSettings", 0, function (th
 iris.modules.email.registerHook("hook_registerMailSystem", 0, function(thisHook, data){
 
     data.mailSystem["email"] = "Simple mail";
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
 });
 
@@ -150,7 +165,7 @@ iris.modules.email.registerHook("hook_registerMailSystem", 0, function(thisHook,
    */
 iris.modules.email.registerHook("hook_sendMail", 0, function(thisHook, data){
 
-    thisHook.const.sendMail({
+    thisHook.context.sendMail({
         from: data.from,
         to: data.to,
         subject: data.subject,
@@ -159,7 +174,7 @@ iris.modules.email.registerHook("hook_sendMail", 0, function(thisHook, data){
         data.log = (err || response);
     });
     
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
 });
 
@@ -195,7 +210,7 @@ iris.modules.email.globals.sendEmail = function(args, authPass) {
         // Get selected mail system
         var transporter = iris.modules[config.mailSystem].globals.mailTransporter();
     
-        iris.hook("hook_sendMail", authPass, transporter, args).then(function(success){
+        iris.invokeHook("hook_sendMail", authPass, transporter, args).then(function(success){
             iris.log('notice', success.log);
             iris.message(authPass.userid, "Email sent", "notice");
         }

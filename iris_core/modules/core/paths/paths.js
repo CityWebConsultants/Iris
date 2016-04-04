@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true, sub:true */
+/* globals iris,mongoose,Promise */
+
 iris.registerModule("paths");
 
 iris.modules.paths.globals.entityPaths = {};
@@ -27,7 +30,7 @@ process.on("dbReady", function () {
 
     });
 
-  };
+  }
 
 });
 
@@ -37,7 +40,7 @@ iris.modules.paths.registerHook("hook_entity_validate", 0, function (thisHook, d
 
   if (!data.path) {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
     return false;
 
   }
@@ -57,11 +60,11 @@ iris.modules.paths.registerHook("hook_entity_validate", 0, function (thisHook, d
 
   if (iris.modules.paths.globals.entityPaths[path] && iris.modules.paths.globals.entityPaths[path].eid.toString() !== eid.toString()) {
 
-    thisHook.finish(false, "Entity with that path already exists");
+    thisHook.fail("Entity with that path already exists");
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 
@@ -80,11 +83,11 @@ iris.modules.paths.registerHook("hook_entity_created", 0, function (thisHook, da
       entityType: entityType
     };
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 
@@ -104,11 +107,11 @@ iris.modules.paths.registerHook("hook_entity_deleted", 0, function (thisHook, da
 
     }
 
-  })
+  });
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
-})
+});
 
 iris.modules.paths.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 
@@ -118,7 +121,7 @@ iris.modules.paths.registerHook("hook_entity_updated", 0, function (thisHook, da
 
     var currentPath = iris.modules.paths.globals.entityPaths[path];
 
-    if (currentPath.eid.toString() === data.eid.toString()) {
+    if ((currentPath.eid.toString() === data.eid.toString()) && (currentPath.entityType === data.entityType)) {
 
       delete iris.modules.paths.globals.entityPaths[path];
 
@@ -139,11 +142,11 @@ iris.modules.paths.registerHook("hook_entity_updated", 0, function (thisHook, da
       entityType: entityType
     };
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 
@@ -180,7 +183,7 @@ iris.app.use(function (req, res, next) {
 
         }, function (fail) {
 
-          iris.hook("hook_display_error_page", req.authPass, {
+          iris.invokeHook("hook_display_error_page", req.authPass, {
             error: 500,
             req: req
           }).then(function (success) {

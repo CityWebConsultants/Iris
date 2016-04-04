@@ -25,48 +25,28 @@ iris.modules.blocks.globals.blocks = {};
 var fs = require('fs');
 var glob = require("glob");
 
-// Form for making new blocks
-
-iris.modules.forms.registerHook("hook_form_render_newBlockForm", 0, function (thisHook, data) {
-
-  data.schema = {
-    "blockType": {
-      type: 'string',
-      title: 'Block type',
-      required: true,
-      enum: Object.keys(iris.modules.blocks.globals.blockTypes)
-    }
-  };
-
-  thisHook.finish(true, data);
-
-});
-
-iris.modules.forms.registerHook("hook_form_submit_newBlockForm", 0, function (thisHook, data) {
-
-  data = function (res) {
-
-    res.json({
-      redirect: "/admin/blocks/create/" + thisHook.const.params.blockType
-    })
-
+/**
+ * Define callback routes.
+ */
+var routes = {
+  createBlock : {
+    title: "Create block",
+    permissions: ["can access admin pages"],
+  },
+  editBlock : {
+    title: "Edit block",
+    permissions: ["can access admin pages"],
+  },
+  deleteBlock : {
+    title: "Delete block",
+    permissions: ["can access admin pages"],
   }
+}
 
-  thisHook.finish(true, data);
-
-});
-
-iris.app.get("/admin/blocks/create/:type", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: create block of type :type.
+ */
+iris.route.get("/admin/blocks/create/:type", routes.createBlock, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
     blocktype: req.params.type,
@@ -84,17 +64,10 @@ iris.app.get("/admin/blocks/create/:type", function (req, res) {
 
 });
 
-iris.app.get("/admin/blocks/edit/:type/:id", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: edit block.
+ */
+iris.route.get("/admin/blocks/edit/:type/:id", routes.editBlock, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_blockform"], ['admin_wrapper'], {
     blocktype: req.params.type,
@@ -113,17 +86,10 @@ iris.app.get("/admin/blocks/edit/:type/:id", function (req, res) {
 
 });
 
-iris.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+/**
+ * Admin page callback: delete block.
+ */
+iris.route.get("/admin/blocks/delete/:type/:id", routes.deleteBlock, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_blockdelete"], ['admin_wrapper'], {
     blocktype: req.params.type,
@@ -139,6 +105,42 @@ iris.app.get("/admin/blocks/delete/:type/:id", function (req, res) {
     iris.log("error", e);
 
   });
+
+});
+
+/**
+ * Defines form newBlockForm.
+ * Form for making new blocks.
+ */
+iris.modules.forms.registerHook("hook_form_render__newBlockForm", 0, function (thisHook, data) {
+
+  data.schema = {
+    "blockType": {
+      type: 'string',
+      title: 'Block type',
+      required: true,
+      enum: Object.keys(iris.modules.blocks.globals.blockTypes)
+    }
+  };
+
+  thisHook.pass(data);
+
+});
+
+/**
+ * Form submit handler for newBlockForm.
+ */
+iris.modules.forms.registerHook("hook_form_submit__newBlockForm", 0, function (thisHook, data) {
+
+  data = function (res) {
+
+    res.json({
+      redirect: "/admin/blocks/create/" + thisHook.context.params.blockType
+    })
+
+  }
+
+  thisHook.pass(data);
 
 });
 
@@ -202,71 +204,57 @@ glob(iris.configPath + "/blocks/*/*.json", function (er, files) {
 
 })
 
-iris.modules.blocks.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (thisHook, data) {
+  
+  var blockType = thisHook.context.embedParams[0],
+    blockName = thisHook.context.embedParams[1];
 
-  iris.modules.frontend.globals.parseEmbed("block", data.html, function (block, next) {
+  if (!blockName || !blockType) {
 
-    var blockType = block[0],
-      blockName = block[1];
+    thisHook.pass("");
+    return false;
 
-    if (!blockName || !blockType) {
+  } else {
 
-      next("<!--- Could not load block " + block + " --->");
-      return false;
+    // Correct parameters, now let's see if we can load a block from config
 
-    } else {
+    if (iris.modules.blocks.globals.blocks[blockType] && iris.modules.blocks.globals.blocks[blockType][blockName]) {
 
-      // Correct parameters, now let's see if we can load a block from config
+      var parameters = {
 
-      if (iris.modules.blocks.globals.blocks[blockType] && iris.modules.blocks.globals.blocks[blockType][blockName]) {
-
-        var parameters = {
-
-          id: blockName,
-          type: blockType,
-          config: iris.modules.blocks.globals.blocks[blockType][blockName]
-
-        }
-
-        iris.hook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
-
-          if (!html) {
-
-            next("<!--- Could not load block " + block + " --->");
-
-          } else {
-
-            // Block loaded!
-
-            next(html);
-
-          }
-
-        }, function (fail) {
-
-          next("<!--- Could not load block " + block + " --->");
-
-        })
-
-      } else {
-
-        next("<!--- Could not load block " + block + " --->");
+        id: blockName,
+        type: blockType,
+        config: iris.modules.blocks.globals.blocks[blockType][blockName]
 
       }
 
+      iris.invokeHook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
+
+        if (!html) {
+
+          thisHook.pass("");
+
+        } else {
+
+          // Block loaded!
+
+          thisHook.pass(html);
+
+        }
+
+      }, function (fail) {
+
+        thisHook.pass("");
+
+      })
+
+    } else {
+
+      thisHook.pass("");
+
     }
 
-  }).then(function (html) {
-
-    data.html = html;
-
-    thisHook.finish(true, data)
-
-  }, function (fail) {
-
-    thisHook.finish(true, data)
-
-  });
+  }
 
 });
 
@@ -300,27 +288,27 @@ iris.modules.blocks.globals.registerBlockType = function (name) {
  *
  * @desc Block render hook
  *
- * Expects to have thisHook.const contain an id, type and config pertaining to the block that is being rendered.
+ * Expects to have thisHook.context contain an id, type and config pertaining to the block that is being rendered.
  *
  * May be hooked into to change the display of blocks.
  */
 iris.modules.blocks.registerHook("hook_block_render", 0, function (thisHook, data) {
 
-  if (!thisHook.const.id) {
+  if (!thisHook.context.id) {
 
-    thisHook.finish(false, "must have an id");
+    thisHook.fail("must have an id");
 
-  } else if (!thisHook.const.type) {
+  } else if (!thisHook.context.type) {
 
-    thisHook.finish(false, "must have a type");
+    thisHook.fail("must have a type");
 
-  } else if (!thisHook.const.config) {
+  } else if (!thisHook.context.config) {
 
-    thisHook.finish(false, "must have a configuration");
+    thisHook.fail("must have a configuration");
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 
@@ -330,7 +318,7 @@ iris.modules.blocks.registerHook("hook_block_render", 0, function (thisHook, dat
 
 iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data) {
 
-  var formTitle = thisHook.const.formId;
+  var formTitle = thisHook.context.formId;
 
   if (formTitle.split("_")[0] === "blockForm") {
 
@@ -353,7 +341,7 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
     // Check if a config file has already been saved for this block. If so, load in the current settings.
 
-    iris.readConfig("blocks/" + formTitle.split("_")[1], thisHook.const.params[1]).then(function (output) {
+    iris.readConfig("blocks/" + formTitle.split("_")[1], thisHook.context.params[1]).then(function (output) {
 
       data.value = output;
 
@@ -361,23 +349,23 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
       data.schema.blockTitle.type = "hidden";
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }, function (fail) {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     });
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   };
 
 });
 
-iris.modules.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_form_render__blockDeleteForm", 0, function (thisHook, data) {
 
   if (!data.schema) {
 
@@ -387,28 +375,28 @@ iris.modules.blocks.registerHook("hook_form_render_blockDeleteForm", 0, function
 
   data.schema["blockTitle"] = {
     type: "hidden",
-    default: thisHook.const.params[2]
+    default: thisHook.context.params[2]
   };
 
   data.schema["blockType"] = {
     type: "hidden",
-    default: thisHook.const.params[1]
+    default: thisHook.context.params[1]
   };
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
-iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function (thisHook, data) {
+iris.modules.blocks.registerHook("hook_form_submit__blockDeleteForm", 0, function (thisHook, data) {
 
-  if (iris.modules.blocks.globals.blocks[thisHook.const.params.blockType] && iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle]) {
+  if (iris.modules.blocks.globals.blocks[thisHook.context.params.blockType] && iris.modules.blocks.globals.blocks[thisHook.context.params.blockType][thisHook.context.params.blockTitle]) {
 
-    delete iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle];
+    delete iris.modules.blocks.globals.blocks[thisHook.context.params.blockType][thisHook.context.params.blockTitle];
 
   }
 
-  iris.deleteConfig("blocks/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function (err) {
-    
+  iris.deleteConfig("blocks/" + thisHook.context.params.blockType, iris.sanitizeName(thisHook.context.params.blockTitle), function (err) {
+
     var data = function (res) {
 
       res.json({
@@ -417,7 +405,7 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
 
     };
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   });
 
@@ -427,21 +415,21 @@ iris.modules.blocks.registerHook("hook_form_submit_blockDeleteForm", 0, function
 
 iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data) {
 
-  var formId = thisHook.const.formid;
+  var formId = thisHook.context.formid;
 
   if (formId.split("_")[0] === "blockForm") {
 
-    thisHook.const.params.blockTitle = iris.sanitizeName(thisHook.const.params.blockTitle);
+    thisHook.context.params.blockTitle = iris.sanitizeName(thisHook.context.params.blockTitle);
 
-    if (!iris.modules.blocks.globals.blocks[thisHook.const.params.blockType]) {
+    if (!iris.modules.blocks.globals.blocks[thisHook.context.params.blockType]) {
 
-      iris.modules.blocks.globals.blocks[thisHook.const.params.blockType] = {};
+      iris.modules.blocks.globals.blocks[thisHook.context.params.blockType] = {};
 
     }
 
-    iris.modules.blocks.globals.blocks[thisHook.const.params.blockType][thisHook.const.params.blockTitle] = thisHook.const.params;
+    iris.modules.blocks.globals.blocks[thisHook.context.params.blockType][thisHook.context.params.blockTitle] = thisHook.context.params;
 
-    iris.saveConfig(thisHook.const.params, "blocks" + "/" + thisHook.const.params.blockType, iris.sanitizeName(thisHook.const.params.blockTitle), function () {
+    iris.saveConfig(thisHook.context.params, "blocks" + "/" + thisHook.context.params.blockType, iris.sanitizeName(thisHook.context.params.blockTitle), function () {
 
       var data = function (res) {
 
@@ -451,13 +439,13 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
       }
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     });
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 

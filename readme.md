@@ -44,7 +44,7 @@ So you really like a form that someone's made for Iris but you want to change so
 
 ``` JavaScript
 
-iris.modules.mymodule.registerHook("hook_form_render_someform", 0, function(thisHook, form){
+iris.modules.mymodule.registerHook("hook_form_render__someform", 0, function(thisHook, form){
 
   form.schema.title = {
   
@@ -54,7 +54,7 @@ iris.modules.mymodule.registerHook("hook_form_render_someform", 0, function(this
   
   }
   
-  thisHook.finish(true, data);
+  thisHook.pass( data);
 
 })
 
@@ -122,4 +122,16 @@ Iris was built with version control in mind so, instead of storing blocks, regio
 ### Operating system support
 
 Iris was made using computers running Windows, Linux and OSX. It should run on all three.
+
+### Testing
+
+```
+install casper, http://docs.casperjs.org/en/latest/installation.html
+install phantom, http://phantomjs.org/
+run :
+
+cd <project folder>
+casperjs.cmd test .\test\ui
+
+```
 

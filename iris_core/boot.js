@@ -1,4 +1,6 @@
-/*jslint nomen: true, node:true */
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise*/
+
 "use strict";
 
 /**
@@ -38,7 +40,7 @@ module.exports = function (config) {
     });
 
   };
-  
+
   // Store helper paths
 
   iris.rootPath = path.resolve(__dirname + "/../");
@@ -57,7 +59,7 @@ module.exports = function (config) {
   // Launch logging module
 
   require("./log");
-  
+
   // Launch user messaging module
 
   require("./message");
@@ -108,7 +110,7 @@ module.exports = function (config) {
 
   //Hook system
 
-  iris.hook = require('./hook');
+  iris.invokeHook = require('./hook');
 
   //Require HTTP sever
 
@@ -277,18 +279,34 @@ module.exports = function (config) {
 
     iris.app.use(function (req, res) {
 
-      iris.hook("hook_catch_request", req.authPass, {
-        req: req,
-        res: res
-      }, null).then(function (success) {
+      if (!res.headersSent) {
 
-          if (typeof success === "function") {
+        iris.invokeHook("hook_catch_request", req.authPass, {
+          req: req,
+          res: res
+        }, null).then(function (success) {
 
-            var output = success(res, req);
+            if (typeof success === "function") {
 
-            if (output && output.then) {
+              var output = success(res, req);
 
-              output.then(function () {
+              if (output && output.then) {
+
+                output.then(function () {
+
+                  if (!res.headersSent) {
+
+                    res.redirect(req.url);
+
+                  }
+
+                }, function (fail) {
+
+                  res.send(fail);
+
+                });
+
+              } else {
 
                 if (!res.headersSent) {
 
@@ -296,67 +314,58 @@ module.exports = function (config) {
 
                 }
 
-              }, function (fail) {
-
-                res.send(fail);
-
-              });
+              }
 
             } else {
 
-              if (!res.headersSent) {
+              iris.invokeHook("hook_display_error_page", req.authPass, {
+                error: 404,
+                req: req,
+                res: res
+              }).then(function (success) {
 
-                res.redirect(req.url);
+                if (!res.headersSent) {
 
-              }
+                  res.status(404).send(success);
+
+                }
+
+
+              }, function (fail) {
+
+                if (!res.headersSent) {
+
+                  res.status(404).send("404");
+
+                }
+
+              });
 
             }
 
-          } else {
+          },
+          function (fail) {
 
-            iris.hook("hook_display_error_page", req.authPass, {
-              error: 404,
+            iris.log("error", "Error on request to " + req.url);
+            iris.log("error", fail);
+
+            iris.invokeHook("hook_display_error_page", req.authPass, {
+              error: 500,
               req: req,
               res: res
             }).then(function (success) {
 
-              if (!res.headersSent) {
-
-                res.status(404).send(success);
-
-              }
-
+              res.status(500).send(success);
 
             }, function (fail) {
 
-              if (!res.headersSent) {
-
-                res.status(404).send("404");
-
-              }
+              res.status(500).send("500");
 
             });
 
-          }
-
-        },
-        function (fail) {
-
-          iris.hook("hook_display_error_page", req.authPass, {
-            error: 404,
-            req: req,
-            res: res
-          }).then(function (success) {
-
-            res.status(404).send(success);
-
-          }, function (fail) {
-
-            res.status(404).send("404");
-
           });
 
-        });
+      }
 
     });
 
@@ -371,7 +380,7 @@ module.exports = function (config) {
 
         iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
 
-        iris.hook("hook_display_error_page", req.authPass, {
+        iris.invokeHook("hook_display_error_page", req.authPass, {
           error: 500,
           req: req,
           res: res
@@ -382,7 +391,7 @@ module.exports = function (config) {
         }, function (fail) {
 
           // Used if you don't have a 500 error template file.
-          res.status(500).send('Something went wrong');;
+          res.status(500).send('Something went wrong');
 
         });
 

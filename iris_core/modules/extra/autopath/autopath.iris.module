@@ -1,0 +1,4 @@
+{
+  "name": "Autopath",
+  "description": "Allows for automatically generated entity type paths based on fields on the entity."
+}

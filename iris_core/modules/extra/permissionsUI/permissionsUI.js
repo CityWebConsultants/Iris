@@ -3,9 +3,47 @@
  */
 var fs = require('fs');
 
+/**
+ * Define callback routes.
+ */
+var routes = {
+  perms: {
+    title: "Permissions",
+    description: "Allocate permissions to different roles",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: "/admin/users",
+      title: "Permissions"
+    }]
+  }
+}
+
+/**
+ * Admin page callback: Permissions UI.
+ *
+ * This form allows admins to allocate permissions to different roles.
+ */
+iris.route.get("/admin/users/permissions", routes.perms, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
+
 // Permissions form
 
-iris.modules.permissionsUI.registerHook("hook_form_render_permissions", 0, function (thisHook, data) {
+iris.modules.permissionsUI.registerHook("hook_form_render__permissions", 0, function (thisHook, data) {
 
   // Check if menu name supplied and previous values available
 
@@ -94,13 +132,13 @@ iris.modules.permissionsUI.registerHook("hook_form_render_permissions", 0, funct
 
   data.value["formid"] = "permissions";
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 })
 
-iris.modules.permissionsUI.registerHook("hook_form_submit_permissions", 0, function (thisHook, data) {
+iris.modules.permissionsUI.registerHook("hook_form_submit__permissions", 0, function (thisHook, data) {
 
-  fs.writeFileSync(iris.sitePath + "/configurations/auth/permissions.json", JSON.stringify(thisHook.const.params), "utf8");
+  fs.writeFileSync(iris.sitePath + "/configurations/auth/permissions.json", JSON.stringify(thisHook.context.params), "utf8");
 
   data = function (res) {
 
@@ -108,39 +146,6 @@ iris.modules.permissionsUI.registerHook("hook_form_submit_permissions", 0, funct
 
   }
 
-  thisHook.finish(true, data);
-
-});
-
-
-iris.route.get("/admin/users/permissions", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: "/admin/users",
-    title: "Permissions"
-  }]
-}, function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", fail);
-
-  });
+  thisHook.pass(data);
 
 });

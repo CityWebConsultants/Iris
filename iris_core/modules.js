@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
+
 /**
  * @file Base for the module system. Provides functions for module registration and management.
  */
@@ -8,7 +11,7 @@ var moduleTemplate = (function () {
 
   var hooks = {},
     socketListeners = {},
-    path
+    path;
 
   return {
 
@@ -63,7 +66,7 @@ var moduleTemplate = (function () {
             rank: rank,
             event: callback
 
-          }
+          };
 
         } else {
 
@@ -86,9 +89,9 @@ var moduleTemplate = (function () {
       return socketListeners;
     },
 
-  }
+  };
 
-})
+});
 
 function _getCallerFile() {
   try {
@@ -131,7 +134,7 @@ iris.registerModule = function (name, modulePath) {
 
   } else {
 
-    iris.modules[name] = new moduleTemplate;
+    iris.modules[name] = new moduleTemplate();
     iris.modules[name].path = modulePath ? modulePath : path.parse(_getCallerFile()).dir;
 
     iris.app.use('/modules/' + name, express.static(iris.modules[name].path + "/static"));
@@ -154,7 +157,7 @@ iris.registerModule = function (name, modulePath) {
  */
 iris.include = function (defaultLocation, customLocation) {
 
-  var customLocation = customLocation;
+  customLocation = customLocation;
 
   //  Check file exists
 

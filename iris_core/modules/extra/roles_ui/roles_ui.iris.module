@@ -1,5 +1,5 @@
 {
   "name": "Roles UI",
   "description": "Admin page to manage roles",
-  "rank": 0
+  "weight": 0
 }

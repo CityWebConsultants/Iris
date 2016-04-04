@@ -1,3 +1,6 @@
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise*/
+
 /**
  * @file Functions and hooks for managing deletion of entities
  */
@@ -18,14 +21,14 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
   if (!data.eid) {
 
-    thisHook.finish(false, iris.error(400, "Have to have an ID to delete something"));
+    thisHook.fail(iris.error(400, "Have to have an ID to delete something"));
     return false;
 
-  };
+  }
 
   if (!data.entityType || !iris.dbCollections[data.entityType]) {
 
-    thisHook.finish(false, iris.error(400, "Needs to have a valid entityType"));
+    thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
     return false;
 
   }
@@ -38,14 +41,14 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
     if (err) {
 
-      thisHook.finish(false, iris.error(500, "Database error"));
+      thisHook.fail(iris.error(500, "Database error"));
       return false;
 
     }
 
     if (!doc) {
 
-      thisHook.finish(false, iris.error(400, "Trying to delete an entity which doesn't exist"));
+      thisHook.fail(iris.error(400, "Trying to delete an entity which doesn't exist"));
       return false;
 
     }
@@ -56,29 +59,29 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
       runDelete(data);
 
-    };
+    }
 
-  })
+  });
 
   //Actual run update function
 
   var runDelete = function () {
 
-    iris.hook("hook_entity_access_delete", thisHook.authPass, null, data).then(function (success) {
+    iris.invokeHook("hook_entity_access_delete", thisHook.authPass, null, data).then(function (success) {
 
-      iris.hook("hook_entity_access_delete_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
+      iris.invokeHook("hook_entity_access_delete_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
 
-        deleteEntity(data)
+        deleteEntity(data);
 
       }, function (fail) {
 
         if (fail === "No such hook exists") {
 
-          deleteEntity(data)
+          deleteEntity(data);
 
         } else {
 
-          thisHook.finish(false, fail);
+          thisHook.fail(fail);
 
         }
 
@@ -87,11 +90,11 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
     }, function (fail) {
 
-      thisHook.finish(false, fail);
+      thisHook.fail(fail);
 
-    })
+    });
 
-  }
+  };
 
   var deleteEntity = function (validatedEntity) {
 
@@ -109,17 +112,17 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
     function callback(err, numAffected) {
 
-      thisHook.finish(true, "Deleted");
+      thisHook.pass("Deleted");
 
       data.eid = conditions.eid;
 
-      iris.hook("hook_entity_deleted", thisHook.authPass, null, data)
+      iris.invokeHook("hook_entity_deleted", thisHook.authPass, null, data);
 
       iris.log("info", data.entityType + " " + conditions.eid + " deleted by " + thisHook.authPass.userid);
 
     }
 
-  }
+  };
 
 });
 
@@ -128,13 +131,13 @@ iris.app.post("/entity/delete/:type/:eid", function (req, res) {
   req.body.entityType = req.params.type;
   req.body.eid = req.params.eid;
 
-  iris.hook("hook_entity_delete", req.authPass, null, req.body).then(function (success) {
+  iris.invokeHook("hook_entity_delete", req.authPass, null, req.body).then(function (success) {
 
     res.respond(200, success);
 
   }, function (fail) {
 
-    res.send(fail);
+    res.json(fail);
 
   });
 
@@ -154,14 +157,14 @@ iris.modules.entity.registerHook("hook_entity_access_delete", 0, function (thisH
 
     if (!iris.modules.auth.globals.checkPermissions(["can delete own " + data.entityType], thisHook.authPass)) {
 
-      thisHook.finish(false, "Access denied");
+      thisHook.fail("Access denied");
       return false;
 
     } else {
 
       if (data.entityAuthor !== thisHook.authPass.userid) {
 
-        thisHook.finish(false, "Access denied");
+        thisHook.fail("Access denied");
         return false;
 
       }
@@ -170,6 +173,6 @@ iris.modules.entity.registerHook("hook_entity_access_delete", 0, function (thisH
 
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });

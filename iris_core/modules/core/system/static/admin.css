@@ -196,6 +196,81 @@ thead tr {
   margin-bottom: 10px;
 }
 
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group {
+  padding:20px;
+  background:#eee;
+  border-radius: 5px;
+}
+
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group .form-group {
+  padding:15px 20px;
+  margin-bottom:15px;
+}
+
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group .ui-sortable-handle {
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label,
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend{
+  cursor:pointer;
+}
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label:after,
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend:after{
+  content: "\e259";
+  position: relative;
+  top: 1px;
+  display: inline-block;
+  font-family: 'Glyphicons Halflings';
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 0.9em;
+  left: 5px;
+}
+
+fieldset[data-jsonform-type="fieldset"] fieldset[data-jsonform-type="fieldset"] {
+  padding-left:20px;
+}
+
+
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > .controls,
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] >  legend ~ .jsonform-node {
+  display:none;
+}
+
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group ul {
+  padding-left:0;
+}
+
+fieldset {
+  background: #eee;
+  border-radius: 5px;
+}
+
+form > div > fieldset {
+  padding:20px;
+}
+
+legend {
+  border-bottom: 0;
+  margin-bottom:10px;
+}
+form > div > fieldset > legend {
+  position: relative;
+  top: 30px;
+  margin-bottom:20px;
+}
+
+form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset div.form-group {
+  background-color: #fefefe !important;
+}
+
 form[data-formid=schemafield] fieldset{
   padding:20px;
   background-color:#eee;
@@ -222,4 +297,15 @@ form[data-formid=schemaFieldListing] .jsonform-error-weightFields {
 }
 .help-block {
   font-size:12px;
+}
+
+div[data-jsonform-type="checkbox"] .controls{
+  display:inline-block;
+}
+
+.checkbox {
+  margin: 0;
+  position: relative;
+  left: 10px;
+  top: 5px;
 }

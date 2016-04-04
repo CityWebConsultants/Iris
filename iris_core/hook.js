@@ -1,4 +1,5 @@
-/*jslint node: true */
+/*jshint nomen: true, node:true */
+/* globals iris,mongoose,Promise */
 
 /**
  * @file Implements the hook invocation function for the hook system.
@@ -99,7 +100,7 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
     if (!hookcalls.length) {
 
-      no("No such hook exists");
+      yes(data);
 
     }
 
@@ -131,17 +132,15 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
           thisHook = {};
 
-          thisHook.finish = function (outcome, output) {
+          thisHook.pass = function (output) {
 
-            if (outcome) {
+            yes(output);
 
-              yes(output);
+          };
 
-            } else {
+          thisHook.fail = function (output) {
 
-              no(output);
-
-            }
+            no(output);
 
           };
 
@@ -155,7 +154,7 @@ var hook = function (hookname, authPass, staticVariables, variables) {
 
           // TODO - const is a reserved word!
 
-          thisHook.const = constants;
+          thisHook.context = constants;
           thisHook.name = hookcall.name;
           thisHook.path = hookcall.parentModule;
           thisHook.rank = hookcall.rank;

@@ -1,6 +1,43 @@
 var fs = require('fs');
 
-iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHook, data) {
+/**
+ * Define callback routes.
+ */
+var routes = {
+  regions: {
+    title: "Regions",
+    description: "Manage block visibility within different regions of the page",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: "/admin/structure",
+      title: "Regions"
+    }]
+  }
+}
+
+/**
+ * Admin page callback: Regions UI.
+ *
+ * Manage block visibility within different regions of the page.
+ */
+iris.route.get("/admin/regions", routes.regions, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
+iris.modules.forms.registerHook("hook_form_render__regions", 0, function (thisHook, data) {
 
   // Loop over available block types and add their blocks to a list for the form
 
@@ -77,31 +114,31 @@ iris.modules.forms.registerHook("hook_form_render_regions", 0, function (thisHoo
 
       data.value = output;
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }, function (fail) {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     });
 
   } catch (e) {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
-iris.modules.forms.registerHook("hook_form_submit_regions", 0, function (thisHook, data) {
+iris.modules.forms.registerHook("hook_form_submit__regions", 0, function (thisHook, data) {
 
   try {
 
-    iris.saveConfig(thisHook.const.params, "regions", "regions", function () {
+    iris.saveConfig(thisHook.context.params, "regions", "regions", function () {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     });
 
@@ -115,61 +152,57 @@ iris.modules.forms.registerHook("hook_form_submit_regions", 0, function (thisHoo
 
 // Load regions
 
-iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
+iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (thisHook, data) {
 
-  iris.modules.frontend.globals.parseEmbed("region", data.html, function (region, next) {
+  var regionName = thisHook.context.embedParams[0];
 
-    var regionName = region[0];
+  // Get list of regions
 
-    // Get list of regions
+  iris.readConfig("regions", "regions").then(function (output) {
 
-    iris.readConfig("regions", "regions").then(function (output) {
+      if (output[regionName]) {
+        // Render each block in the region
 
-        if (output[regionName]) {
-          // Render each block in the region
+        var blockPromises = [];
+        var blockData = {};
 
-          var blockPromises = [];
-          var blockData = {};
+        output[regionName].forEach(function (block, index) {
 
-          output[regionName].forEach(function (block, index) {
+          var settings = block.settings;
 
-            var settings = block.settings;
+          var block = block.block;
 
-            var block = block.block;
+          if (block.toLowerCase() === "none") {
 
-            if (block.toLowerCase() === "none") {
+            return false;
 
-              return false;
+          }
 
-            }
+          var blockName = block.split("|")[0],
+            blockType = block.split("|")[1];
 
-            var blockName = block.split("|")[0],
-              blockType = block.split("|")[1];
+          var paramaters = {
+            index: index,
+            id: blockName,
+            type: blockType,
+            instanceSettings: settings,
+            config: iris.modules.blocks.globals.blocks[blockType][blockName],
+            context: thisHook.context.vars
+          }
 
-            var paramaters = {
-              index: index,
-              id: blockName,
-              type: blockType,
-              instanceSettings: settings,
-              config: iris.modules.blocks.globals.blocks[blockType][blockName],
-              context: thisHook.const.context
-            }
+          blockPromises.push(function (object) {
 
-            blockPromises.push(function (object) {
+            return new Promise(function (yes, no) {
 
-              return new Promise(function (yes, no) {
+              iris.invokeHook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
 
-                iris.hook("hook_block_render", thisHook.authPass, paramaters, null).then(function (html) {
+                blockData[blockType + "|" + blockName + "|" + index] = html;
 
-                  blockData[blockType + "|" + blockName + "|" + index] = html;
+                yes(blockData);
 
-                  yes(blockData);
+              }, function (fail) {
 
-                }, function (fail) {
-
-                  yes("");
-
-                });
+                yes("");
 
               });
 
@@ -177,55 +210,45 @@ iris.modules.regions.registerHook("hook_frontend_template_parse", 0, function (t
 
           });
 
+        });
 
-          iris.promiseChain(blockPromises, {}, function (pass) {
 
-            // Run parse template file for a regions template
+        iris.promiseChain(blockPromises, {}, function (pass) {
 
-            iris.modules.frontend.globals.parseTemplateFile(["region", regionName], null, {
-              blocks: pass
-            }, thisHook.authPass, null).then(function (success) {
+          // Run parse template file for a regions template
 
-              next(success);
+          iris.modules.frontend.globals.parseTemplateFile(["region", regionName], null, {
+            blocks: pass
+          }, thisHook.authPass, null).then(function (success) {
 
-            }, function (fail) {
-
-              next(false);
-
-              iris.log("error", fail);
-
-            });
+            thisHook.pass(success);
 
           }, function (fail) {
 
-            next(false);
+            thisHook.pass(data);
+
+            iris.log("error", fail);
 
           });
 
-        } else {
+        }, function (fail) {
 
-          next(false);
+          thisHook.pass(data);
 
-        }
+        });
 
-      },
-      function (fail) {
+      } else {
 
-        next(false);
+        thisHook.pass(data);
 
-      });
+      }
 
-  }).then(function (html) {
+    },
+    function (fail) {
 
-    data.html = html;
+      thisHook.pass(data);
 
-    thisHook.finish(true, data)
-
-  }, function (fail) {
-
-    thisHook.finish(true, data)
-
-  });
+    });
 
 });
 
@@ -235,19 +258,19 @@ var minimatch = require("minimatch");
 
 iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, data) {
 
-  if (thisHook.const.instanceSettings) {
+  if (thisHook.context.instanceSettings) {
 
-    if (thisHook.const.instanceSettings.pathVisibility) {
+    if (thisHook.context.instanceSettings.pathVisibility) {
 
       // Flag to see if showing the block or not
 
       var showing = true;
 
-      var paths = thisHook.const.instanceSettings.pathVisibility.replace(/\r\n/g, '\n').split("\n");
+      var paths = thisHook.context.instanceSettings.pathVisibility.replace(/\r\n/g, '\n').split("\n");
 
-      if (thisHook.const.context && thisHook.const.context.req && thisHook.const.context.req.url) {
+      if (thisHook.context.context && thisHook.context.context.req && thisHook.context.context.req.url) {
 
-        var currentUrl = thisHook.const.context.req.url;
+        var currentUrl = thisHook.context.context.req.url;
 
         // Loop over paths
 
@@ -257,60 +280,35 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
 
         })
 
-        thisHook.finish(showing, data);
+        if (showing) {
+
+          thisHook.pass(data);
+
+        } else {
+
+          thisHook.fail(data);
+
+        }
 
       } else {
 
         // No url, safer to not show
 
-        thisHook.finish(false, data);
+        thisHook.fail(data);
 
       }
 
     } else {
 
-      thisHook.finish(true, data);
+      thisHook.pass(data);
 
     }
 
   } else {
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   }
 
 });
 
-// Regions admin system
-
-iris.route.get("/admin/regions", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: "/admin/structure",
-    title: "Regions"
-  }]
-}, function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-})

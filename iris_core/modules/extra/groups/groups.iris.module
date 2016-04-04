@@ -3,5 +3,5 @@
   "dependencies": {
     "messages": "1"
   },
-  "rank": 2
+  "weight": 2
 }

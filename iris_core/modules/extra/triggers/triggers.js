@@ -6,6 +6,137 @@ iris.modules.triggers.globals.events = {};
 var fs = require('fs');
 var glob = require("glob");
 
+/**
+ * Define callback routes.
+ */
+var routes = {
+  create: {
+    title: "Create trigger",
+    description: "Create system trigger routine.",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config/triggers',
+      title: "Create trigger"
+    }]
+  },
+  edit: {
+    title: "Edit action",
+    description: "Edit custom action",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config/triggers',
+      title: "Edit action"
+    }]
+  },
+  delete: {
+    title: "Delete trigger",
+    description: "Delete trigger",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config/triggers',
+      title: "Delete trigger"
+    }]
+  },
+  triggers: {
+    title: "Triggers",
+    description: "Manage system triggers and actions",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: '/admin/config',
+      title: "Triggers"
+    }]
+  }
+};
+
+/**
+ * Admin page callback: Create trigger.
+ */
+iris.route.get("/admin/config/triggers/create", routes.create, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+/**
+ * Admin page callback: Edit action.
+ * Register actions create form
+ */
+iris.route.get("/admin/config/triggers/edit/:action", routes.edit, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {
+    action: iris.sanitizeName(req.params.action)
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+/**
+ * Admin page callback: Triggers UI.
+ * Manage system triggers and actions.
+ */
+iris.route.get("/admin/config/triggers", routes.triggers, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers"], ['admin_wrapper'], {
+    actions: iris.configStore.triggers,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+})
+
+/**
+ * Admin page callback: Delete trigger.
+ */
+iris.route.get("/admin/config/triggers/delete/:name", routes.delete, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_delete"], ['admin_wrapper'], {
+    action: req.params.name
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", e);
+
+  });
+
+});
+
+
 glob(iris.configPath + "/triggers/*.json", function (er, files) {
 
   files.forEach(function (file) {
@@ -95,7 +226,7 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
   }
 
-  iris.hook("hook_triggers_event", authPass, {
+  iris.invokeHook("hook_triggers_event", authPass, {
     params: params,
     event: name,
   }).then(function (params) {
@@ -201,7 +332,7 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
                 })
 
-                iris.hook("hook_triggers_" + actionName, authPass, {
+                iris.invokeHook("hook_triggers_" + actionName, authPass, {
                   params: rule.actions[index].parameters
                 }).then(function (success) {
 
@@ -239,7 +370,7 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
 };
 
-iris.modules.triggers.registerHook("hook_form_render_actions", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thisHook, data) {
 
   if (!data.schema) {
 
@@ -387,16 +518,16 @@ iris.modules.triggers.registerHook("hook_form_render_actions", 0, function (this
 
   // Check if already submitted form exists
 
-  if (thisHook.const.params[1] && thisHook.const.params[1].indexOf("{{") !== -1) {
+  if (thisHook.context.params[1] && thisHook.context.params[1].indexOf("{{") !== -1) {
 
-    thisHook.finish(false);
+    thisHook.fail();
     return false;
 
   }
 
-  if (thisHook.const.params[1] && iris.configStore.triggers[thisHook.const.params[1]]) {
+  if (thisHook.context.params[1] && iris.configStore.triggers[thisHook.context.params[1]]) {
 
-    data.value = iris.configStore.triggers[thisHook.const.params[1]];
+    data.value = iris.configStore.triggers[thisHook.context.params[1]];
 
     // Swap values back into format schema understands. This is madness.
 
@@ -417,19 +548,19 @@ iris.modules.triggers.registerHook("hook_form_render_actions", 0, function (this
     });
   }
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 })
 
 // Register action save hook
 
-iris.modules.triggers.registerHook("hook_form_submit_actions", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_form_submit__actions", 0, function (thisHook, data) {
 
   // Juggle around schema for saving to make it more human readable
 
-  Object.keys(thisHook.const.params).forEach(function (fieldName) {
+  Object.keys(thisHook.context.params).forEach(function (fieldName) {
 
-    var field = thisHook.const.params[fieldName];
+    var field = thisHook.context.params[fieldName];
 
     if (field.event) {
 
@@ -453,7 +584,7 @@ iris.modules.triggers.registerHook("hook_form_submit_actions", 0, function (this
 
   })
 
-  iris.saveConfig(thisHook.const.params, "triggers", iris.sanitizeName(thisHook.const.params.name), function (saved) {
+  iris.saveConfig(thisHook.context.params, "triggers", iris.sanitizeName(thisHook.context.params.name), function (saved) {
 
     var data = function (res) {
 
@@ -461,137 +592,13 @@ iris.modules.triggers.registerHook("hook_form_submit_actions", 0, function (this
 
     };
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   })
 
 });
 
-// Register actions create form
-
-iris.app.get("/admin/triggers/create", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-})
-
-// Register actions create form
-
-iris.app.get("/admin/triggers/edit/:action", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {
-    action: iris.sanitizeName(req.params.action)
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-})
-
-// Main actions landing page
-
-iris.route.get("/admin/triggers", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Triggers"
-  }]
-}, function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers"], ['admin_wrapper'], {
-    actions: iris.configStore.triggers,
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-})
-
-// Delete action
-
-iris.app.get("/admin/triggers/delete/:name", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_delete"], ['admin_wrapper'], {
-    action: req.params.name
-  }, req.authPass, req).then(function (success) {
-
-    res.send(success)
-
-  }, function (fail) {
-
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
-
-    iris.log("error", e);
-
-  });
-
-});
-
-iris.modules.triggers.registerHook("hook_form_render_action_delete", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_form_render__action_delete", 0, function (thisHook, data) {
 
   if (!data.schema) {
 
@@ -601,16 +608,16 @@ iris.modules.triggers.registerHook("hook_form_render_action_delete", 0, function
 
   data.schema["action"] = {
     type: "hidden",
-    default: thisHook.const.params[1]
+    default: thisHook.context.params[1]
   };
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 });
 
-iris.modules.triggers.registerHook("hook_form_submit_action_delete", 0, function (thisHook, data) {
+iris.modules.triggers.registerHook("hook_form_submit__action_delete", 0, function (thisHook, data) {
 
-  var action = iris.sanitizeName(thisHook.const.params.action);
+  var action = iris.sanitizeName(thisHook.context.params.action);
 
   if (iris.configStore.triggers && iris.configStore.triggers[action]) {
 
@@ -624,7 +631,7 @@ iris.modules.triggers.registerHook("hook_form_submit_action_delete", 0, function
 
     if (err) {
 
-      thisHook.finish(false, data);
+      thisHook.fail(data);
 
     }
 
@@ -634,7 +641,7 @@ iris.modules.triggers.registerHook("hook_form_submit_action_delete", 0, function
 
     };
 
-    thisHook.finish(true, data);
+    thisHook.pass(data);
 
   });
 
@@ -755,9 +762,9 @@ iris.modules.forms.globals.registerWidget(function () {
 
 iris.modules.triggers.registerHook("hook_triggers_event", 0, function (thisHook, data) {
 
-  data = thisHook.const.params;
+  data = thisHook.context.params;
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 })
 
@@ -768,14 +775,14 @@ iris.modules.triggers.globals.registerEvent("page_visit", ["url", "userid", "rol
 iris.modules.triggers.registerHook("hook_request_intercept", 0, function (thisHook, data) {
 
   var params = {
-    "url": thisHook.const.req.url,
+    "url": thisHook.context.req.url,
     "userid": thisHook.authPass.userid,
     "roles": thisHook.authPass.roles.join(",")
   }
 
   iris.modules.triggers.globals.triggerEvent("page_visit", thisHook.authPass, params);
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 })
 
@@ -797,8 +804,8 @@ iris.modules.triggers.globals.registerAction("log", {
 
 iris.modules.triggers.registerHook("hook_triggers_log", 0, function (thisHook, data) {
 
-  iris.log(thisHook.const.params.level, thisHook.const.params.message)
+  iris.log(thisHook.context.params.level, thisHook.context.params.message)
 
-  thisHook.finish(true, data);
+  thisHook.pass(data);
 
 })

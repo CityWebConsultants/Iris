@@ -6,17 +6,52 @@ require('./schemaUI.js');
 
 var fs = require("fs");
 
-iris.app.get("/admin/edit/:type/:eid", function (req, res) {
+/**
+ * Page permissions callback to allow authorised users to edit entities.
+ *
+ * @param req
+ * @param callback
+ */
+iris.modules.entityUI.globals.editPermissionsCallback = function(req, callback) {
 
-  // If not admin, present 403 page
+  var urlParams = req.originalUrl.split('/');
+  var entityType = urlParams[3];
+  var isOwn = false;
 
-  if (req.authPass.roles.indexOf('admin') === -1) {
+  // Fetch the entity in question.
+  iris.dbCollections[entityType].find({'eid' : urlParams[4]}).exec(function (err, doc) {
 
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
+    // Is this user the author?
+    if (doc[0].entityAuthor == req.authPass.userid) {
+      isOwn = true;
+    }
 
-    return false;
+    var viewOwn = iris.modules.auth.globals.checkPermissions(["can edit own " + entityType], req.authPass);
+    var viewAny = iris.modules.auth.globals.checkPermissions(["can edit any " + entityType], req.authPass);
 
+    if (!viewAny && !(isOwn && viewOwn)) {
+
+      callback(false);
+
+    }
+    else {
+
+      callback(true);
+
+    }
+
+  });
+
+}
+
+var routes = {
+  'edit': {
+    "title": "Edit entity",
+    "permissionsCallback": iris.modules.entityUI.globals.editPermissionsCallback
   }
+};
+
+iris.route.get("/admin/edit/:type/:eid", routes.edit, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_entity"], ['admin_wrapper'], {
     eid: req.params.eid,
@@ -91,16 +126,16 @@ iris.app.get("/admin/delete/:type/:id", function (req, res) {
 
 // Render entity form
 
-iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (thisHook, data) {
 
   // Check if entity type exists in the system
 
-  var entityType = thisHook.const.params[1],
+  var entityType = thisHook.context.params[1],
     schema = iris.dbSchemaConfig[entityType];
 
   if (!schema) {
 
-    thisHook.finish(false, "No such schema");
+    thisHook.fail("No such schema");
     return false;
 
   }
@@ -188,7 +223,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
           value: "Save " + entityType
         });
 
-        thisHook.finish(true, data);
+        thisHook.pass(data);
 
       }
 
@@ -208,7 +243,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
         if (field.widget) {
 
-          iris.hook("hook_entity_field_widget_form__" + iris.sanitizeName(field.widget.name), thisHook.authPass, {
+          iris.invokeHook("hook_entity_field_widget_form__" + iris.sanitizeName(field.widget.name), thisHook.authPass, {
             value: currentValue ? currentValue : null,
             fieldSettings: field,
             widgetSettings: field.widget.settings
@@ -220,29 +255,36 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
             // Load default field widget as a fallback and finally fall back to field type widget if nothing else available
 
-            iris.hook("hook_entity_field_fieldType_form__" + iris.sanitizeName(fieldType), thisHook.authPass, {
+            iris.invokeHook("hook_entity_field_fieldType_form__" + iris.sanitizeName(fieldType), thisHook.authPass, {
               value: currentValue ? currentValue : null,
               fieldSettings: field
             }).then(function (form) {
 
-              callback(form);
+              if (form) {
+                callback(form);
+              } else {
+
+                iris.invokeHook("hook_entity_field_fieldTypeType_form__" + fieldTypeType, thisHook.authPass, {
+                  value: currentValue ? currentValue : null,
+                  fieldSettings: field
+                }).then(function (form) {
+
+                  callback(form);
+
+                }, function (fail) {
+
+                  iris.log("error", "Failed to load entity edit form. " + fail);
+                  thisHook.fail(fail);
+
+                })
+
+              }
 
             }, function (fail) {
 
+              iris.log("error", "Failed to load entity edit form. " + fail);
+              thisHook.fail(fail);
 
-              iris.hook("hook_entity_field_fieldTypeType_form__" + fieldTypeType, thisHook.authPass, {
-                value: currentValue ? currentValue : null,
-                fieldSettings: field
-              }).then(function (form) {
-
-                callback(form);
-
-              }, function (fail) {
-
-                iris.log("error", "Failed to load entity edit form. " + fail);
-                thisHook.finish(false, fail);
-
-              })
 
             });
 
@@ -253,28 +295,35 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
           // Otherwise run a general hook for that field type
 
-          iris.hook("hook_entity_field_fieldType_form__" + iris.sanitizeName(fieldType), thisHook.authPass, {
+          iris.invokeHook("hook_entity_field_fieldType_form__" + iris.sanitizeName(fieldType), thisHook.authPass, {
             value: currentValue ? currentValue : null,
             fieldSettings: field
           }).then(function (form) {
 
-            callback(form);
+            if (form) {
+              callback(form);
+            } else {
+
+              iris.invokeHook("hook_entity_field_fieldTypeType_form__" + fieldTypeType, thisHook.authPass, {
+                value: currentValue ? currentValue : null,
+                fieldSettings: field
+              }).then(function (form) {
+
+                callback(form);
+
+              }, function (fail) {
+
+                iris.log("error", "Failed to load entity edit form. " + fail);
+                thisHook.fail(fail);
+
+              })
+
+            }
 
           }, function (fail) {
 
-            iris.hook("hook_entity_field_fieldTypeType_form__" + fieldTypeType, thisHook.authPass, {
-              value: currentValue ? currentValue : null,
-              fieldSettings: field
-            }).then(function (form) {
-
-              callback(form);
-
-            }, function (fail) {
-
-              iris.log("error", "Failed to load entity edit form. " + fail);
-              thisHook.finish(false, fail);
-
-            })
+            iris.log("error", "Failed to load entity edit form. " + fail);
+            thisHook.fail(fail);
 
           })
 
@@ -287,6 +336,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
         var fieldset = {
           "type": "array",
           "title": field.label,
+          "expandable": true,
           "default": [],
           "description": field.description,
           "items": {
@@ -352,6 +402,12 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
               getFieldForm(field.subfields[subFieldName], function (form) {
 
+                if (field.subfields[subFieldName].required) {
+
+                  form.required = true;
+
+                }
+
                 fieldset.default[index][subFieldName] = form.default;
 
                 delete form.default;
@@ -381,6 +437,12 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
       getFieldForm(field, function (form) {
 
+        if (field.required) {
+
+          form.required = true;
+
+        }
+
         data.schema[fieldName] = form;
         fieldLoaded();
 
@@ -392,7 +454,7 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
   // Check if an entity id was provided
 
-  var eid = thisHook.const.params[2];
+  var eid = thisHook.context.params[2];
 
   if (eid) {
     iris.dbCollections[entityType].findOne({
@@ -417,15 +479,15 @@ iris.modules.entityUI.registerHook("hook_form_render_entity", 0, function (thisH
 
 // Submit new entity form
 
-iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisHook, data) {
+iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (thisHook, data) {
 
   // Store entity type and then delete from parameters object. Not needed any more there.
 
-  var entityType = thisHook.const.params.entityType;
-  var eid = thisHook.const.params.eid;
+  var entityType = thisHook.context.params.entityType;
+  var eid = thisHook.context.params.eid;
 
-  delete thisHook.const.params.entityType;
-  delete thisHook.const.params.eid;
+  delete thisHook.context.params.entityType;
+  delete thisHook.context.params.eid;
 
   // Fetch entity type schema
 
@@ -437,7 +499,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
 
   // Get number of fields so we can tell once all the form widgets have been loaded
 
-  var fieldCount = Object.keys(thisHook.const.params).length;
+  var fieldCount = Object.keys(thisHook.context.params).length;
 
   // Function for checking if all the fields have been loaded, run every time a new field has been processed
 
@@ -475,25 +537,31 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
 
       }
 
-      iris.hook(hook, thisHook.authPass, finalValues, finalValues).then(function (success) {
+      iris.invokeHook(hook, thisHook.authPass, finalValues, finalValues).then(function (success) {
 
-        thisHook.finish(true, function (res) {
-
-          res.send({
-            redirect: "/admin/structure/entities"
-          })
-
-        });
+        data.callback = "/admin/structure/entities";
+        thisHook.pass(data);
 
       }, function (fail) {
 
-        thisHook.finish(true, function (res) {
+        var msg = thisHook.authPass.t("Error saving entity");
 
-          res.send({
-            errors: JSON.stringify(fail)
-          });
+        if (fail.errmsg) {
 
+          msg = fail.errmsg;
+
+        }
+        else {
+
+          msg = JSON.stringify(fail);
+          
+        }
+        data.errors.push({
+          'message' : msg
         });
+
+        iris.log("error", msg);
+        thisHook.pass(data);
 
       });
 
@@ -510,15 +578,15 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
 
       var fieldTypeType = iris.fieldTypes[field.fieldType].type;
 
-      iris.hook("hook_entity_field_fieldType_save__" + iris.sanitizeName(field.fieldType), thisHook.authPass, {
+      iris.invokeHook("hook_entity_field_fieldType_save__" + iris.sanitizeName(field.fieldType), thisHook.authPass, {
         value: value,
         field: field
-      }).then(function (newValue) {
+      }, value).then(function (newValue) {
 
-        iris.hook("hook_entity_field_fieldTypeType_save__" + fieldTypeType, thisHook.authPass, {
+        iris.invokeHook("hook_entity_field_fieldTypeType_save__" + fieldTypeType, thisHook.authPass, {
           value: newValue,
           field: field
-        }).then(function (finalValue) {
+        }, value).then(function (finalValue) {
 
           callback(finalValue);
 
@@ -526,21 +594,7 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
 
       }, function (fail) {
 
-        if (fail === "No such hook exists") {
-
-          iris.hook("hook_entity_field_fieldTypeType_save__" + fieldTypeType, thisHook.authPass, {
-            value: value,
-            field: field
-          }).then(function (finalValue) {
-
-            callback(finalValue);
-
-          });
-
-        } else {
-
-
-        }
+        thisHook.fail(fail);
 
       })
 
@@ -626,9 +680,9 @@ iris.modules.entityUI.registerHook("hook_form_submit_entity", 0, function (thisH
 
   }
 
-  Object.keys(thisHook.const.params).forEach(function (field) {
+  Object.keys(thisHook.context.params).forEach(function (field) {
 
-    processField(schema.fields[field], thisHook.const.params[field], function (value) {
+    processField(schema.fields[field], thisHook.context.params[field], function (value) {
 
       finalValues[field] = value;
       fieldProcessed();
@@ -653,7 +707,7 @@ iris.route.get("/admin/entitylist/:type", function (req, res) {
 
   }
 
-  iris.hook("hook_entity_fetch", req.authPass, null, {
+  iris.invokeHook("hook_entity_fetch", req.authPass, null, {
     entities: [req.params.type]
   }).then(function (result) {
 
