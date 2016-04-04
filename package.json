@@ -24,11 +24,11 @@
     "ncp": "^2.0.0",
     "npm": "^3.5.2",
     "path-to-regexp": "^1.2.1",
+    "phantom": "^2.0.10",
     "prettydiff": "^1.16.6",
     "sanitize-html": "^1.10.0",
     "socket.io": "^1.2.1",
-    "tosource": "^1.0.0",
-    "i18n": "^0.8.1"
+    "tosource": "^1.0.0"
   },
   "repository": {
     "type": "git",

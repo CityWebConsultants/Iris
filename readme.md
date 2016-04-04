@@ -123,3 +123,15 @@ Iris was built with version control in mind so, instead of storing blocks, regio
 
 Iris was made using computers running Windows, Linux and OSX. It should run on all three.
 
+### Testing
+
+```
+install casper, http://docs.casperjs.org/en/latest/installation.html
+install phantom, http://phantomjs.org/
+run :
+
+cd <project folder>
+casperjs.cmd test .\test\ui
+
+```
+
