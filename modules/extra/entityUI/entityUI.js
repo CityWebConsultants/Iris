@@ -152,13 +152,23 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       })
 
+      // Reorder form elements
+
+      var formRaw = data.form;
+
       data.form = [];
 
       fields.forEach(function (field) {
 
-        data.form.push({
-          "key": field.name
-      });
+        formRaw.forEach(function (formField) {
+
+          if (formField === field.name || formField.key === field.name) {
+
+            data.form.push(formField);
+
+          }
+
+        })
 
       });
 
@@ -187,7 +197,9 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
         data.form.push({
           type: "submit",
-          value: thisHook.authPass.t("Save {{type}}", {type: entityType})
+          value: thisHook.authPass.t("Save {{type}}", {
+            type: entityType
+          })
         });
 
         thisHook.pass(data);
@@ -404,6 +416,30 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       getFieldForm(field, function (form) {
 
+        if (!data.form) {
+
+          data.form = [];
+
+        }
+
+        if (form.form) {
+
+          form.form.key = fieldName;
+
+          data.form.push(form.form);
+
+        } else {
+
+          data.form.push(fieldName);
+
+        }
+
+        if (form.schema) {
+
+          form = form.schema;
+
+        }
+
         if (field.required) {
 
           form.required = true;
@@ -519,14 +555,13 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
           msg = fail.errmsg;
 
-        }
-        else {
+        } else {
 
           msg = JSON.stringify(fail);
-          
+
         }
         data.errors.push({
-          'message' : msg
+          'message': msg
         });
 
         iris.log("error", msg);

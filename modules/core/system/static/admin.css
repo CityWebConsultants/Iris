@@ -196,29 +196,29 @@ thead tr {
   margin-bottom: 10px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group {
+body:not(.schema-admin) .form-group {
   padding:20px;
   background:#eee;
   border-radius: 5px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group .form-group {
+body:not(.schema-admin) .form-group .form-group {
   padding:15px 20px;
   margin-bottom:15px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group .ui-sortable-handle {
+body:not(.schema-admin) .form-group .ui-sortable-handle {
   padding: 10px;
   border: 1px solid #bbb;
   border-radius: 5px;
   margin-bottom: 10px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label,
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend{
+body:not(.schema-admin) .form-group[data-jsonform-type="array"] > label,
+body:not(.schema-admin) fieldset[data-jsonform-type="fieldset"] > legend{
   cursor:pointer;
 }
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]):not(fieldset) .form-group[data-jsonform-type="array"] > label:after
+body:not(.schema-admin) form:not(fieldset) .form-group[data-jsonform-type="array"] > label:after
 /*form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend:after*/ {
   content: "\e259";
   position: relative;
@@ -239,12 +239,12 @@ fieldset[data-jsonform-type="fieldset"] fieldset[data-jsonform-type="fieldset"] 
 }
 
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > .controls,
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] >  legend ~ .jsonform-node {
+body:not(.schema-admin) form .form-group[data-jsonform-type="array"] > .controls,
+body:not(.schema-admin) form fieldset[data-jsonform-type="fieldset"] >  legend ~ .jsonform-node {
   display:none;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group ul {
+body:not(.schema-admin) form .form-group ul {
   padding-left:0;
 }
 
@@ -270,27 +270,44 @@ form > div > fieldset > legend {
   margin-bottom:20px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset div.form-group {
-  background-color: #fefefe !important;
-}
 
-form[data-formid=schemafield] fieldset{
+.schema-admin fieldset{
   padding:20px;
   background-color:#eee;
-  border-radius: 10px;
+  border-radius: 0 10px 0px 10px;
+  border:1px solid #ddd;
+  margin-top:-20px;
+  margin-bottom:20px;
 }
 
-form[data-formid=schemafield] legend {
-  position:relative;
-  top:20px;
-  border-bottom:none;
+.schema-admin.no-legend fieldset {
+  margin-top:0;
+}
+
+.schema-admin legend {
+  position: relative;
+  top: 20px;
+  border-bottom: none;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.schema-admin .form-group[data-jsonform-type=checkbox] label, .schema-admin .form-group[data-jsonform-type=checkbox] .controls {
+  display:block;
+}
+.schema-admin .form-group[data-jsonform-type=checkbox] .help-block {
+  margin:0;
+}
+.schema-admin .form-group[data-jsonform-type=checkbox] .checkbox {
+  left:0;
 }
 
 form[data-formid=schemaFieldListing] fieldset.jsonform-node div .form-group {
   display:inline-block;
-  width:300px;
+  width:33%;
   vertical-align: top;
-  margin-right:20px;
+  padding-right:20px;
+  box-sizing:border-box;
 }
 form[data-formid=schemaFieldListing] input[name=machineName] {
   display:none;
@@ -379,4 +396,35 @@ html body div.admin-inputs div.form-group.jsonform-node{
   section#admin_sidebar{
     position: inherit;
   }
+}
+
+#tabs {
+  list-style: none;
+  padding: 0;
+  overflow: hidden;
+  margin: 0;
+  position: relative;
+  top: 1px;
+  z-index: 9;
+}
+
+#tabs li {
+  float: left;
+  background: #444C68;
+  padding: 10px;
+  color: #555;
+  border-top: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-radius: 5px 5px 0 0;
+}
+#tabs li a{
+  color: #fff;
+}
+#tabs li.active {
+  background: #eee;
+}
+
+#tabs li.active a{
+  color: #000;
 }

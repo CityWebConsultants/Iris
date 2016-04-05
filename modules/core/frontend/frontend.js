@@ -614,7 +614,11 @@ var parseEmbeds = function (html, variables, authPass) {
             embedParams: params
           }).then(function (parsedEmbed) {
 
-            html = html.split("[[[" + category + " " + embed + "]]]").join(parsedEmbed);
+            var filler = '';
+            if (embed && embed != '' || category == 'MAINCONTENT') {
+              filler = ' ' + embed;
+            }
+            html = html.split("[[[" + category + filler + "]]]").join(parsedEmbed);
 
             finished();
 
@@ -1196,3 +1200,4 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 };
 
 require("./tags");
+require("./tabs");
