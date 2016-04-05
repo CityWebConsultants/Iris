@@ -154,7 +154,7 @@ iris.modules.forms.registerHook("hook_form_submit__regions", 0, function (thisHo
 
 iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (thisHook, data) {
 
-  var regionName = thisHook.context.embedID;
+  var regionName = thisHook.context.embedParams[0];
 
   // Get list of regions
 
