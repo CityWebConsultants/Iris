@@ -221,7 +221,7 @@ iris.modules.auth.globals = {
 
     });
 
-    if (authPass.roles.indexOf("admin") !== -1) {
+    if (authPass.roles.indexOf("admin") >= 0) {
 
       access = true;
 
@@ -540,7 +540,11 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
   // Check if a matching route is found
 
-  var actOnResult = function(access) {
+  if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissions) {
+
+    var permissions = thisHook.context.req.irisRoute.options.permissions;
+
+    var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.context.req.authPass);
 
     if (!access) {
 
@@ -566,25 +570,6 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
       thisHook.pass(data);
 
     }
-
-  };
-
-  if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissionsCallback) {
-
-    if (typeof thisHook.context.req.irisRoute.options.permissionsCallback == 'function') {
-
-      thisHook.context.req.irisRoute.options.permissionsCallback(thisHook.context.req, actOnResult);
-
-    }
-
-  }
-  else if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissions) {
-
-    var permissions = thisHook.context.req.irisRoute.options.permissions;
-
-    var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.context.req.authPass);
-
-    actOnResult(access);
 
   } else {
 

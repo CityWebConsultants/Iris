@@ -90,8 +90,8 @@ iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (th
     data.schema.pattern = {
 
       "type": "text",
-      "title": "Path pattern",
-      "description": "Fill in a path, you may include any of the following tokens to substitute field values from the entity itself. <br /> Available tokens: <b>" + tokens.join(" ") + "</b>",
+      "title": thisHook.authPass.t("Path pattern"),
+      "description": thisHook.authPass.t("Fill in a path, you may include any of the following tokens to substitute field values from the entity itself. <br /> Available tokens: <b>{{tokens}}</b>", {tokens: tokens.join(" ") }),
 
     }
 
@@ -154,7 +154,7 @@ iris.modules.autopath.registerHook("hook_form_render__entity", 2, function (this
 
     }
 
-    data.schema.path.description = data.schema.path.description + "Leave empty or clear to set path automatically based on autopath settings."
+    data.schema.path.description = thisHook.authPass.t("{{desc}} Leave empty or clear to set path automatically based on autopath settings.", {desc: data.schema.path.description})
 
     thisHook.pass(data);
 

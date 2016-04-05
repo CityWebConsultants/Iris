@@ -28,7 +28,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['ckeditor'] = Object.create(JSONForm.elementTypes['text']);
 
-  $(document).ready(function () {
+  document.addEventListener('formsLoaded', function (e) {
 
     $.getScript("//cdn.ckeditor.com/4.5.3/standard/ckeditor.js", function () {
 
@@ -62,7 +62,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
     });
 
-  });
+  }, false);
 
   JSONForm.requiredFlip = function (required) {
 

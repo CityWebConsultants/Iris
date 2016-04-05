@@ -6,52 +6,17 @@ require('./schemaUI.js');
 
 var fs = require("fs");
 
-/**
- * Page permissions callback to allow authorised users to edit entities.
- *
- * @param req
- * @param callback
- */
-iris.modules.entityUI.globals.editPermissionsCallback = function(req, callback) {
+iris.app.get("/admin/edit/:type/:eid", function (req, res) {
 
-  var urlParams = req.originalUrl.split('/');
-  var entityType = urlParams[3];
-  var isOwn = false;
+  // If not admin, present 403 page
 
-  // Fetch the entity in question.
-  iris.dbCollections[entityType].find({'eid' : urlParams[4]}).exec(function (err, doc) {
+  if (req.authPass.roles.indexOf('admin') === -1) {
 
-    // Is this user the author?
-    if (doc[0].entityAuthor == req.authPass.userid) {
-      isOwn = true;
-    }
+    iris.modules.frontend.globals.displayErrorPage(403, req, res);
 
-    var viewOwn = iris.modules.auth.globals.checkPermissions(["can edit own " + entityType], req.authPass);
-    var viewAny = iris.modules.auth.globals.checkPermissions(["can edit any " + entityType], req.authPass);
+    return false;
 
-    if (!viewAny && !(isOwn && viewOwn)) {
-
-      callback(false);
-
-    }
-    else {
-
-      callback(true);
-
-    }
-
-  });
-
-}
-
-var routes = {
-  'edit': {
-    "title": "Edit entity",
-    "permissionsCallback": iris.modules.entityUI.globals.editPermissionsCallback
   }
-};
-
-iris.route.get("/admin/edit/:type/:eid", routes.edit, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_entity"], ['admin_wrapper'], {
     eid: req.params.eid,
@@ -187,13 +152,25 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       })
 
+      // Reorder form elements
+
+      var formRaw = data.form;
+
       data.form = [];
 
       fields.forEach(function (field) {
 
-        data.form.push(field.name)
+        formRaw.forEach(function (formField) {
 
-      })
+          if (formField === field.name || formField.key === field.name) {
+
+            data.form.push(formField);
+
+          }
+
+        })
+
+      });
 
 
       counter += 1;
@@ -220,7 +197,9 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
         data.form.push({
           type: "submit",
-          value: "Save " + entityType
+          value: thisHook.authPass.t("Save {{type}}", {
+            type: entityType
+          })
         });
 
         thisHook.pass(data);
@@ -437,6 +416,30 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       getFieldForm(field, function (form) {
 
+        if (!data.form) {
+
+          data.form = [];
+
+        }
+
+        if (form.form) {
+
+          form.form.key = fieldName;
+
+          data.form.push(form.form);
+
+        } else {
+
+          data.form.push(fieldName);
+
+        }
+
+        if (form.schema) {
+
+          form = form.schema;
+
+        }
+
         if (field.required) {
 
           form.required = true;
@@ -449,6 +452,8 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
       }, editingEntity ? editingEntity[fieldName] : null);
 
     })
+
+
 
   }
 
@@ -550,14 +555,13 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
           msg = fail.errmsg;
 
-        }
-        else {
+        } else {
 
           msg = JSON.stringify(fail);
-          
+
         }
         data.errors.push({
-          'message' : msg
+          'message': msg
         });
 
         iris.log("error", msg);

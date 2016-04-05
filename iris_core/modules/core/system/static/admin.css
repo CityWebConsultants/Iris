@@ -145,37 +145,37 @@ thead tr {
 
 /* Entities page */
 
-#entity-types {
-  width: 100%;
-}
-#entity-types .dropdown {
-  overflow: hidden;
-  background: #fff;
-  width: auto;
-  display: inline-block;
-  padding: 3px 10px 0 10px;
-  border-radius: 10px;
-  border: 1px solid #999;
-  position: absolute;
-  margin-top: -15px;
-  z-index: 2;
-}
-#entity-types .dropdown.closed {
-  height: 30px;
-  z-index: 1;
-}
-#entity-types .glyphicon {
-  float: left;
-  padding-top: 3px;
-  cursor: pointer;
-}
-#entity-types ul {
-  list-style: none;
-  padding-left: 25px;
-}
-#entity-types ul a {
-  white-space: nowrap;
-}
+/*#entity-types {*/
+  /*width: 100%;*/
+/*}*/
+/*#entity-types .dropdown {*/
+  /*overflow: hidden;*/
+  /*background: #fff;*/
+  /*width: auto;*/
+  /*display: inline-block;*/
+  /*padding: 3px 10px 0 10px;*/
+  /*border-radius: 10px;*/
+  /*border: 1px solid #999;*/
+  /*position: absolute;*/
+  /*margin-top: -15px;*/
+  /*z-index: 2;*/
+/*}*/
+/*#entity-types .dropdown.closed {*/
+  /*height: 30px;*/
+  /*z-index: 1;*/
+/*}*/
+/*#entity-types .glyphicon {*/
+  /*float: left;*/
+  /*padding-top: 3px;*/
+  /*cursor: pointer;*/
+/*}*/
+/*#entity-types ul {*/
+  /*list-style: none;*/
+  /*padding-left: 25px;*/
+/*}*/
+/*#entity-types ul a {*/
+  /*white-space: nowrap;*/
+/*}*/
 .expandable > legend:before {
   content: '\25B8';
   padding-right: 5px;
@@ -196,30 +196,30 @@ thead tr {
   margin-bottom: 10px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group {
+body:not(.schema-admin) .form-group {
   padding:20px;
   background:#eee;
   border-radius: 5px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group .form-group {
+body:not(.schema-admin) .form-group .form-group {
   padding:15px 20px;
   margin-bottom:15px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group .ui-sortable-handle {
+body:not(.schema-admin) .form-group .ui-sortable-handle {
   padding: 10px;
   border: 1px solid #bbb;
   border-radius: 5px;
   margin-bottom: 10px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label,
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend{
+body:not(.schema-admin) .form-group[data-jsonform-type="array"] > label,
+body:not(.schema-admin) fieldset[data-jsonform-type="fieldset"] > legend{
   cursor:pointer;
 }
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > label:after,
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend:after{
+body:not(.schema-admin) form:not(fieldset) .form-group[data-jsonform-type="array"] > label:after
+/*form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] > legend:after*/ {
   content: "\e259";
   position: relative;
   top: 1px;
@@ -239,12 +239,12 @@ fieldset[data-jsonform-type="fieldset"] fieldset[data-jsonform-type="fieldset"] 
 }
 
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group[data-jsonform-type="array"] > .controls,
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset[data-jsonform-type="fieldset"] >  legend ~ .jsonform-node {
+body:not(.schema-admin) form .form-group[data-jsonform-type="array"] > .controls,
+body:not(.schema-admin) form fieldset[data-jsonform-type="fieldset"] >  legend ~ .jsonform-node {
   display:none;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) .form-group ul {
+body:not(.schema-admin) form .form-group ul {
   padding-left:0;
 }
 
@@ -253,6 +253,9 @@ fieldset {
   border-radius: 5px;
 }
 
+.no-fieldset-bg fieldset{
+  background: none;
+}
 form > div > fieldset {
   padding:20px;
 }
@@ -267,27 +270,44 @@ form > div > fieldset > legend {
   margin-bottom:20px;
 }
 
-form:not([data-formid="schemaFieldListing"]):not([data-formid="schemafield"]) fieldset div.form-group {
-  background-color: #fefefe !important;
-}
 
-form[data-formid=schemafield] fieldset{
+.schema-admin fieldset{
   padding:20px;
   background-color:#eee;
-  border-radius: 10px;
+  border-radius: 0 10px 0px 10px;
+  border:1px solid #ddd;
+  margin-top:-20px;
+  margin-bottom:20px;
 }
 
-form[data-formid=schemafield] legend {
-  position:relative;
-  top:20px;
-  border-bottom:none;
+.schema-admin.no-legend fieldset {
+  margin-top:0;
+}
+
+.schema-admin legend {
+  position: relative;
+  top: 20px;
+  border-bottom: none;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.schema-admin .form-group[data-jsonform-type=checkbox] label, .schema-admin .form-group[data-jsonform-type=checkbox] .controls {
+  display:block;
+}
+.schema-admin .form-group[data-jsonform-type=checkbox] .help-block {
+  margin:0;
+}
+.schema-admin .form-group[data-jsonform-type=checkbox] .checkbox {
+  left:0;
 }
 
 form[data-formid=schemaFieldListing] fieldset.jsonform-node div .form-group {
   display:inline-block;
-  width:300px;
+  width:33%;
   vertical-align: top;
-  margin-right:20px;
+  padding-right:20px;
+  box-sizing:border-box;
 }
 form[data-formid=schemaFieldListing] input[name=machineName] {
   display:none;
@@ -308,4 +328,103 @@ div[data-jsonform-type="checkbox"] .controls{
   position: relative;
   left: 10px;
   top: 5px;
+}
+
+.admin-header{
+  background: #1C2440;
+  color: white;
+}
+
+.right{
+  float: right;
+}
+
+.left{
+  float: left;
+}
+
+.clear{
+  clear: both;
+}
+
+.glyphicon-resize-vertical{
+  cursor: ns-resize;
+}
+
+html body div.admin-inputs div.form-group.jsonform-node{
+  margin-bottom: 0px;
+  border-radius: 0px;
+  background: white;
+}
+
+.admin-header-padding{
+  padding: 10px;
+}
+
+.admin-inputs{
+  margin-top: 20px;
+}
+
+.admin-inputs form, .admin-inputs .borders {
+  border-left: 1px solid;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  padding-bottom: 20px;
+  border-color: #1C2440;
+}
+
+
+
+.submit-form{
+  margin-left: 20px;
+}
+
+.no-margin{
+  margin: 0px;
+}
+
+.no-margin-top{
+  margin-top: 0px;
+}
+
+.admin-header-lighter {
+  background: #633379;
+}
+
+@media only screen and (max-width : 768px) {
+
+  section#admin_sidebar{
+    position: inherit;
+  }
+}
+
+#tabs {
+  list-style: none;
+  padding: 0;
+  overflow: hidden;
+  margin: 0;
+  position: relative;
+  top: 1px;
+  z-index: 9;
+}
+
+#tabs li {
+  float: left;
+  background: #444C68;
+  padding: 10px;
+  color: #555;
+  border-top: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-radius: 5px 5px 0 0;
+}
+#tabs li a{
+  color: #fff;
+}
+#tabs li.active {
+  background: #eee;
+}
+
+#tabs li.active a{
+  color: #000;
 }

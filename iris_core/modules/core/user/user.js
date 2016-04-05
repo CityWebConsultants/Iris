@@ -93,7 +93,7 @@ iris.route.post("/api/user/first", function (req, res) {
 
   if (!req.body.password || !req.body.username) {
 
-    res.status(400).json("Need to supply a username and a password");
+    res.status(400).json(req.authPass.t("Need to supply a username and a password"));
 
     return false;
 
@@ -110,7 +110,7 @@ iris.route.post("/api/user/first", function (req, res) {
           }
         }, null).then(function (success) {
 
-          res.status(200).json("First user created");
+          res.status(200).json(req.authPass.t("First user created"));
 
         }, function (fail) {
 
@@ -130,47 +130,49 @@ iris.route.post("/api/user/first", function (req, res) {
 
 iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (thisHook, data) {
 
+  var ap = thisHook.authPass;
+
   iris.dbCollections["user"].count({}, function (err, count) {
 
     if (count === 0) {
 
       data.schema.profile = {
         "type": "string",
-        "title": "Installation profile",
+        "title": ap.t("Installation profile"),
         "enum": ["minimal", "standard"]
       };
 
       data.schema.username = {
         "type": "text",
-        "title": "Administrator email address"
-      };
+        "title": ap.t("Administrator email address")
+      }
 
       data.schema.password = {
         "type": "password",
-        "title": "Password",
-        "description": "Make it strong"
+        "title": ap.t("Password"),
+        "description": ap.t("Make it strong")
       };
 
       data.form = [
         {
           "key": "profile",
-          "description": "The Minimal profile will exclude all optional UI modules and features. In a Minimal setup, " +
+          "description": ap.t("The Minimal profile will exclude all optional UI modules and features. In a Minimal setup, " +
             "Iris can be used as a lightweight webservice.<br/>Use Standard profile to build a user-facing CMS type system.<br/>" +
-            "If choosing Standard, please wait after clicking 'Install' for the server to restart. The blank page is expected.",
+            "If choosing Standard, please wait after clicking 'Install' for the server to restart. The blank page is expected."),
           "titleMap": {
-            "minimal": "Minimal",
-            "standard": "Standard"
+            "minimal": ap.t("Minimal"),
+            "standard": ap.t("Standard")
           }
         },
         {
           "key": "username",
           "type": "email",
-          "description": "Use this to login with in future"
+          "description": ap.t("Use this to login with in future")
         },
         "password",
         {
           "type": "submit",
-          "title": "Install"
+          "title": ap.t("Install")
         }
       ];
 
@@ -186,6 +188,8 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
 });
 
 iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (thisHook, data) {
+
+  var ap = thisHook.authPass;
 
   iris.dbCollections["user"].count({}, function (err, count) {
     if (count === 0) {
@@ -249,13 +253,13 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
             fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));
 
           }
-          iris.message(uid, "Welcome to your new Iris site!", "info");
+          iris.message(uid, ap.t("Welcome to your new Iris site!"), "info");
           thisHook.pass(function (res) {
             res.json("/admin");
             if (enabled) {
               console.log('restarting');
-              iris.message(uid, "Don't worry, that short glitch was the server restarting to install the Standard profile.", "info");
-              iris.restart(uid, "UI modules enabled.");
+              iris.message(uid, ap.t("Don't worry, that short glitch was the server restarting to install the Standard profile."), "info");
+              iris.restart(uid, ap.t("UI modules enabled."));
             }
           });
         });
@@ -494,8 +498,8 @@ iris.modules.user.registerHook("hook_form_render__editEntity", 1, function (this
 
     data.schema.password.default = null;
     data.schema.password.required = false;
-    data.schema.password.title = "Change password";
-    data.schema.password.description = "Change your password by typing a new one into the form below";
+    data.schema.password.title = thisHook.authPass.t("Change password");
+    data.schema.password.description = thisHook.authPass.t("Change your password by typing a new one into the form below");
 
     var roles = ["none", "admin"];
     Object.keys(iris.modules.auth.globals.roles).forEach(function (role) {
@@ -608,7 +612,7 @@ iris.app.post("/api/login", function (req, res) {
 
       if (!userid) {
 
-        res.status(403).send("Not valid credentials");
+        res.status(403).send(req.authPass.t("Not valid credentials"));
 
       } else {
 
@@ -623,7 +627,7 @@ iris.app.post("/api/login", function (req, res) {
 
   } else {
 
-    res.status(400).send("Must send username and password");
+    res.status(400).send(req.authPass.t("Must send username and password"));
 
   }
 

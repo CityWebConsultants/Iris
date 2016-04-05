@@ -349,7 +349,7 @@ iris.dbPopulate = function() {
     iris.modules.auth.globals.registerPermission("can delete any " + schema, "entity");
     iris.modules.auth.globals.registerPermission("can delete own " + schema, "entity");
     iris.modules.auth.globals.registerPermission("can fetch " + schema, "entity", "Can use the API to <b>fetch</b> entities.");
-
+    iris.modules.auth.globals.registerPermission("can delete schema " + schema, "entity", "Delete the entire schema. <strong>This includes the data</strong>.");
   });
 
   if (!dbReady) {
@@ -378,4 +378,3 @@ iris.syncSchemaIndex = function(schema) {
   }
 
 }
-

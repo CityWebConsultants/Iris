@@ -163,12 +163,16 @@ iris.app.use(function (req, res, next) {
 
   }
 
+  // we only want the pathname, not hash/querystrings
+  var url = require('url'),
+    currentPath = url.parse(req.url).pathname;
+
   // Look up entity with the current 'path'
 
-  if (iris.modules.paths.globals.entityPaths[req.url]) {
+  if (iris.modules.paths.globals.entityPaths[currentPath]) {
 
-    iris.dbCollections[iris.modules.paths.globals.entityPaths[req.url].entityType].findOne({
-      eid: iris.modules.paths.globals.entityPaths[req.url].eid
+    iris.dbCollections[iris.modules.paths.globals.entityPaths[currentPath].entityType].findOne({
+      eid: iris.modules.paths.globals.entityPaths[currentPath].eid
     }, function (err, doc) {
 
       if (!err && doc) {
