@@ -117,6 +117,8 @@ iris.dbPopulate = function() {
   Object.keys(iris.dbSchema).forEach(function(oldSchema) {
 
     delete iris.dbSchema[oldSchema];
+    delete iris.dbSchemaConfig[oldSchema];
+    delete iris.dbCollections[oldSchema];
   });
 
   // Loop over all enabled modules and check for schema files
