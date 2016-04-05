@@ -46,14 +46,14 @@ module.exports = function (config) {
   iris.rootPath = __dirname;
 
   // Change iris folder name if name is specified in config
-  
+
   var directory;
+
+  var mkdirp = require('mkdirp');
   
-  config.name ? directory = "iris_" + config.name: directory = "iris";
+  mkdirp.sync(process.cwd() + config.path);
 
-  iris.mkdirSync(process.cwd() + "/" + directory);
-
-  iris.sitePath = process.cwd() + "/" + directory;
+  iris.sitePath = process.cwd() + config.path;
 
   // Detect/change Windows file paths
 
