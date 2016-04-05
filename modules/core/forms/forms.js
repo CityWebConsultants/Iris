@@ -276,7 +276,7 @@ iris.route.get("/modules/forms/extrafields.js", function (req, res) {
  * This implementation of hook_frontend_template_parse adds a "form" block.
  */
 iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHook, data) {
-
+  
   var variables = thisHook.context.vars;
 
   // Add scripts for forms
@@ -337,8 +337,8 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
   //
 
-  var formParams = thisHook.context.embedParams;
-
+  var formParams = thisHook.context.embedOptions;
+  
   var renderForm = function (form, callback) {
 
     if (!form.schema) {
@@ -432,7 +432,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
   };
 
-  var formName = formParams[0];
+  var formName = thisHook.context.embedID;
 
   var formTemplate = {
     schema: {},
@@ -533,13 +533,13 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
   };
 
   iris.invokeHook("hook_form_render", thisHook.authPass, {
-    formId: formParams[0],
+    formId: thisHook.context.embedID,
     params: formParams,
     context: variables
   }, formTemplate).then(function (formTemplate) {
 
     iris.invokeHook("hook_form_render__" + formName, thisHook.authPass, {
-      formId: formParams[0],
+      formId: thisHook.context.embedID,
       params: formParams,
       context: variables
     }, formTemplate).then(function (form) {

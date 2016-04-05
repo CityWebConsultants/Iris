@@ -206,8 +206,8 @@ glob(iris.configPath + "/blocks/*/*.json", function (er, files) {
 
 iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (thisHook, data) {
   
-  var blockType = thisHook.context.embedParams[0],
-    blockName = thisHook.context.embedParams[1];
+  var blockType = thisHook.context.embedID,
+    blockName = thisHook.context.embedOptions; // TODO - Allow JSON object for more tag options
 
   if (!blockName || !blockType) {
 

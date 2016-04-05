@@ -538,9 +538,9 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
   // Split embed code by double underscores
 
-  if (thisHook.context.embedParams[0]) {
+  if (thisHook.context.embedID) {
 
-    var searchArray = thisHook.context.embedParams[0].split("__");
+    var searchArray = thisHook.context.embedID.split("__");
 
     // Get template
 
@@ -550,7 +550,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
     }, function (fail) {
 
-      iris.log("error", "Tried to embed template " + thisHook.context.embedParams[0] + " but no matching template file found.");
+      iris.log("error", "Tried to embed template " + thisHook.context.embedID + " but no matching template file found.");
 
       thisHook.pass("");
 
@@ -601,17 +601,33 @@ var parseEmbeds = function (html, variables, authPass) {
 
         embeds[category].forEach(function (embed) {
 
-          var params = [];
+          // Split parameters by , to get arguments
 
-          embed.split(",").map(function (current) {
+          var arguments = embed.split(","),
+            embedID = arguments[0],
+            embedOptions;
 
-            params.push(current.trim());
+          if (arguments[1]) {
 
-          });
+            try {
+              
+              arguments.shift();
+
+              embedOptions = JSON.parse(arguments.join(","));
+
+            } catch (e) {
+
+              iris.log("error", e);
+              iris.log("error", "error parsing options in template " + category + " " + embedID);
+
+            }
+
+          }
 
           iris.invokeHook("hook_frontend_embed__" + category, authPass, {
             vars: variables,
-            embedParams: params
+            embedID: embedID,
+            embedOptions: embedOptions
           }).then(function (parsedEmbed) {
 
             var filler = '';
