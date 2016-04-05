@@ -10,9 +10,7 @@
  */
 iris.modules.frontend.registerHook("hook_frontend_embed__tabs", 0, function (thisHook, data) {
 
-  var output = '';
-
-  var output = '<ul id="tabs">';
+  var list = [];
   Object.keys(iris.routes).forEach(function(key) {
 
     try {
@@ -28,7 +26,8 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tabs", 0, function (thi
         Object.keys(thisHook.context.vars.req.params).forEach(function (param) {
           key = key.replace(':' + param, thisHook.context.vars.req.params[param]);
         });
-        output += '<li class="' + activeClass + '"><a href="' + key + '">' + item.get.options.tab.title + '</a></li>';
+        list.push({link: key, title: item.get.options.tab.title, class: activeClass});
+
 
       }
 
@@ -37,11 +36,23 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tabs", 0, function (thi
 
     }
 
+  });
+
+  // Render admin_schema_field template.
+  iris.modules.frontend.globals.parseTemplateFile(["tabs"], null, {
+    list: list
+  }, thisHook.authPass, thisHook.context.vars.req).then(function (output) {
+
+    thisHook.pass(output);
+
+  }, function (fail) {
+
+    thisHook.fail(fail);
+
+    iris.log("error", fail);
 
   });
 
-  output += '</ul>';
 
-  thisHook.pass(output);
 
 });
