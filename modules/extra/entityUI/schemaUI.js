@@ -514,7 +514,6 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
 
   iris.saveConfig(schema, "entity", entityType, function (data) {
 
-
     iris.dbPopulate();
 
 
@@ -1348,9 +1347,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafield", 0, function 
   // Save and repopulate database schemas
 
   iris.saveConfig(schema, "entity", entityType, function (data) {
-
     iris.dbPopulate();
-
     thisHook.pass(function (res) {
 
       iris.message(thisHook.authPass.userid, thisHook.authPass.t("Field {{name}} saved on entity {{type}}", {name: fieldName, type: entityType}), "status");

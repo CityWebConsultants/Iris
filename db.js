@@ -48,7 +48,7 @@ autoIncrement.initialize(mongoose.connection);
 
 //Wait until database is open and fail on error
 
-mongoose.connection.on('error', function (error) {
+mongoose.connection.on('error', function(error) {
 
   console.log(error);
   process.send("restart");
@@ -65,7 +65,7 @@ iris.dbSchema = {};
 
 var dbReady = false;
 
-iris.dbPopulate = function () {
+iris.dbPopulate = function() {
 
   var glob = require("glob");
 
@@ -73,13 +73,13 @@ iris.dbPopulate = function () {
 
   // Get field types
 
-  Object.keys(iris.modules).forEach(function (moduleName) {
+  Object.keys(iris.modules).forEach(function(moduleName) {
 
     var modulePath = iris.modules[moduleName].path;
 
     var fields = glob.sync(modulePath + "/**/*.iris.field");
 
-    fields.forEach(function (fieldPath) {
+    fields.forEach(function(fieldPath) {
 
       try {
 
@@ -114,18 +114,19 @@ iris.dbPopulate = function () {
 
   // Delete any existing schema so they can be re-written
 
-  Object.keys(iris.dbSchema).forEach(function (oldSchema) {
+  Object.keys(iris.dbSchema).forEach(function(oldSchema) {
 
     delete iris.dbSchema[oldSchema];
-
+    delete iris.dbSchemaConfig[oldSchema];
+    delete iris.dbCollections[oldSchema];
   });
 
   // Loop over all enabled modules and check for schema files
 
-  Object.keys(iris.modules).forEach(function (moduleName) {
+  Object.keys(iris.modules).forEach(function(moduleName) {
 
     try {
-      fs.readdirSync(iris.modules[moduleName].path + "/schema").forEach(function (schemafile) {
+      fs.readdirSync(iris.modules[moduleName].path + "/schema").forEach(function(schemafile) {
 
         schemafile = schemafile.toLowerCase().replace(".json", "");
 
@@ -161,12 +162,12 @@ iris.dbPopulate = function () {
 
   // See if site config has added any schema or schemafields
 
-  fs.readdirSync(iris.sitePath + "/configurations/entity").forEach(function (schemafile) {
+  fs.readdirSync(iris.sitePath + "/configurations/entity").forEach(function(schemafile) {
 
     var schemaName = schemafile.toLowerCase().replace(".json", "");
 
     var file;
-    
+
     try {
       file = JSON.parse(fs.readFileSync(iris.sitePath + "/configurations/entity/" + schemafile, "UTF8"));
     } catch (e) {
@@ -183,7 +184,7 @@ iris.dbPopulate = function () {
 
     }
 
-    Object.keys(file).forEach(function (field) {
+    Object.keys(file).forEach(function(field) {
 
       iris.dbSchema[schemaName][field] = file[field];
 
@@ -193,7 +194,7 @@ iris.dbPopulate = function () {
 
   // Schema ready, now unstringify it and save it as a database model
 
-  var typeConverter = function (type) {
+  var typeConverter = function(type) {
 
     switch (type) {
       case "[String]":
@@ -218,7 +219,7 @@ iris.dbPopulate = function () {
 
   };
 
-  Object.keys(iris.dbSchema).forEach(function (schema) {
+  Object.keys(iris.dbSchema).forEach(function(schema) {
 
     // Make JSON copy of complete schema and save to non mongoosed object for reference
 
@@ -236,7 +237,7 @@ iris.dbPopulate = function () {
 
     }
 
-    var fieldConverter = function (field) {
+    var fieldConverter = function(field) {
 
       var fieldType = field.fieldType;
 
@@ -255,7 +256,7 @@ iris.dbPopulate = function () {
 
         if (field.subfields) {
 
-          Object.keys(field.subfields).forEach(function (fieldSetField, index) {
+          Object.keys(field.subfields).forEach(function(fieldSetField, index) {
 
             fieldsetFields[fieldSetField] = fieldConverter(field.subfields[fieldSetField]);
 
@@ -281,7 +282,7 @@ iris.dbPopulate = function () {
 
     };
 
-    Object.keys(schemaConfig.fields).forEach(function (fieldName) {
+    Object.keys(schemaConfig.fields).forEach(function(fieldName) {
 
       finalSchema[fieldName] = fieldConverter(schemaConfig.fields[fieldName]);
 
@@ -316,7 +317,9 @@ iris.dbPopulate = function () {
 
     try {
 
+      iris.syncSchemaIndex(schema);
       var readySchema = mongoose.Schema(iris.dbSchema[schema]);
+      readySchema.set('autoIndex', false);
 
       if (mongoose.models[schema]) {
 
@@ -333,7 +336,7 @@ iris.dbPopulate = function () {
       iris.dbCollections[schema] = mongoose.model(schema, readySchema);
 
     } catch (e) {
-      
+
       iris.log("error", e);
 
     }
@@ -360,3 +363,20 @@ iris.dbPopulate = function () {
 
 };
 
+/**
+ * Define index for each schema including unique
+ * 
+ **/
+iris.syncSchemaIndex = function(schema) {
+
+  // set index through the schema
+  for (var i in iris.dbSchema[schema]) {
+    if (iris.dbSchema[schema][i].required == true) {
+      iris.dbSchema[schema][i].index = true;
+    }
+    if (iris.dbSchema[schema][i].unique) {
+      iris.dbSchema[schema][i].index = { unique: true };
+    }
+  }
+
+}
