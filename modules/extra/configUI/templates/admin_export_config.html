@@ -1,0 +1,37 @@
+<script>
+$(document).ready(function(){
+  $('#export-config').on('click', function(e){
+    e.preventDefault();
+    var thiss = $(this);
+
+    thiss.button("loading");
+
+    $.ajax({
+      url: thiss.attr("href"),
+      success: function(data){
+        if(data = "Config exported"){
+          thiss.button("reset");
+          $('#exported').slideDown();
+
+        }
+      }
+    });
+
+  })
+})
+
+</script>
+<div class="admin-inputs no-fieldset-bg">
+
+  <div class="admin-header admin-header-padding">Export Config</div>
+  <div class="borders">
+
+    <div style="padding: 10px; ">
+      <div class="alert alert-info" role="alert">Your site configuration wil be copied to the <i>staging</i> directory.</div>
+      <div class="alert alert-success" style="display: none;" id="exported" role="alert">Great! Your config has been exported into the <i>staging</i> directory</div>
+    </div>
+    <a class="btn btn-primary" id="export-config" data-loading-text="Exporting..." href="/admin/api/config/export">Export configuration</a>
+  </div>
+</div>
+
+

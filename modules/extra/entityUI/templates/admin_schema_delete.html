@@ -1,0 +1,37 @@
+<style>
+  ._jsonform-array-addmore {
+    display: none;
+  }
+  
+  ._jsonform-array-deletelast {
+    display: none;
+  }
+
+  
+  #new-field ._jsonform-array-item-delete {
+    display: none !important;
+  }
+  
+  #new-field .draggable {
+    display: none;
+  }
+
+</style>
+
+{{#if entityType}}
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Delete Schema: {{entityType}}</div>
+
+  <div id="current-fields">
+    [[[form schemaDelete,{{entityType}}]]]
+  </div>
+
+</div>
+{{else}}
+
+<h1>Schema Not Found</h1>
+
+[[[form schema,{{entityType}}]]]
+
+{{/if}}
+

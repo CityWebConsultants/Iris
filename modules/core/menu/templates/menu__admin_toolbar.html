@@ -1,0 +1,40 @@
+<link rel="stylesheet" href="/modules/system/admin_menu.css" />
+<nav class="menu menu-admin-toolbar">
+
+  <ul class="menu">
+    
+    {{#menu}}
+    
+      {{#if (iris_menu path)}}
+      
+        <li {{#if children}} class="has-children" {{/if}}>
+
+      <a href="{{path}}">{{title}}</a>
+          
+          {{#if this.children}}
+          
+          <ul class="sub-menu">
+            
+            {{#children}}
+
+          {{#if (iris_menu path)}}
+
+            <li><a href="{{path}}">{{title}}</a></li>
+
+          {{/if}}
+
+          {{/children}}
+            
+          </ul>
+          
+          {{/if}}
+      
+    </li>
+    
+    {{/if}}
+
+    {{/menu}}
+
+  </ul>
+
+</nav>

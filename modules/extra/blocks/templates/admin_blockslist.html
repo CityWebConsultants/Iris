@@ -1,0 +1,35 @@
+
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Blocks</div>
+  <table class="table no-margin-top" id="entity-list">
+
+    <tbody>
+      <tr class="admin-header admin-header-lighter">
+        <th style="border-top: 0px;">Block</th>
+        <th style="border-top: 0px;">Options</th>
+      </tr>
+      {{#each blocks}}
+      {{#each this}}
+      <tr>
+        <td>{{this.blockTitle}} ({{this.blockType}})</td>
+        <td><a class="btn btn-default" href="/admin/blocks/edit/{{this.blockType}}/{{this.blockTitle}}">Edit</a>
+          <a class="btn btn-danger" href="/admin/blocks/delete/{{this.blockType}}/{{this.blockTitle}}">Delete</a></li></td>
+      </tr>
+      {{/each}}
+      {{/each}}
+    </tbody>
+  </table>
+  <div class="admin-header admin-header-padding">Create a new block</div>
+  {{#if blockTypes}}
+
+  [[[form newBlockForm]]]
+
+  {{else}}
+
+  <p>No block types are enabled. Please enable a module that provides block types.</p>
+
+  {{/if}}
+</div>
+
+
+

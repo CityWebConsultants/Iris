@@ -1,0 +1,17 @@
+{{#if blockid}}
+
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Editing {{blocktype}} {{blockid}}</div>
+  [[[form blockForm_{{blocktype}},{{blockid}}]]]
+</div>
+{{else}}
+
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Creating new {{blocktype}}</div>
+  [[[form blockForm_{{blocktype}}]]]
+</div>
+
+
+{{/if}}
+
+

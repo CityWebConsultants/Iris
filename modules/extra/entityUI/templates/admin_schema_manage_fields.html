@@ -1,0 +1,43 @@
+<style>
+  ._jsonform-array-addmore {
+    display: none;
+  }
+  
+  ._jsonform-array-deletelast {
+    display: none;
+  }
+
+  
+  #new-field ._jsonform-array-item-delete {
+    display: none !important;
+  }
+  
+  #new-field .draggable {
+    display: none;
+  }
+
+</style>
+
+<!--<h1>Manage fields for {{entityType}}</h1>-->
+
+
+<br />
+<script>
+  window.formComplete_schemaFieldListing = function() {
+      $(function () {
+        $(".ui-sortable").sortable();
+        $(".ui-sortable").disableSelection();
+      }).on('sortstop', function (event, ui) {
+        $('.ui-sortable').children().each(function (index, value) {
+          $(value).find('.fieldWeight').html(index);
+          $('input[value=weight_' + $(value).find('.fieldId').text() + ']').parents('fieldset').find('input[type=number]').val(index);
+        });
+      });
+  }
+  
+</script>
+<div id="current-fields">
+
+    [[[form schemaFieldListing,{{entityType}},{{parent}}]]]
+
+</div>

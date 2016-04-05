@@ -1,0 +1,92 @@
+<script>
+  $(document).ready(function(){
+    var defaultSubmitValue = "";
+
+    window.formComplete_restart = function(){
+      defaultSubmitValue = $('#submit').val();
+
+      $('form[data-formid=\"restart\"]').on('submit', function(e) {
+        e.preventDefault();
+
+        $('#submit').val("Restarting the server...").attr("disabled", "disabled");
+        var items = {};
+        var ar = $(this).serializeArray();
+
+        ar.map(function(item, index){
+          items[item['name']] = item['value'];
+        });
+
+
+        $.ajax({
+          type: "POST",
+          url: window.location,
+          data: "formid=" + items.formid + "&formToken=" + items.formToken,
+          success: function () {
+            checkIfOnline();
+          },
+          error: function () {
+            checkIfOnline();
+          }
+        });
+      });
+    };
+
+
+
+    function checkIfOnline(){
+      $.ajax({
+        url: window.location.href,
+        type: "GET",
+        success: function (data) {
+          window.location = window.location.href + "?reloaded=true";
+          $('#submit').val(defaultSubmitValue).removeAttr("disabled");
+        },
+        error: function (jXHR, textStatus, errorThrown) {
+          setTimeout(function(){
+            checkIfOnline();
+          }, 3000);
+        }
+      });
+    }
+
+    if(QueryString.reloaded != undefined && QueryString.reloaded == "true"){
+      $('#restarted').slideDown();
+    }
+
+  });
+
+
+
+  var QueryString = function () {
+    // This function is anonymous, is executed immediately and
+    // the return value is assigned to QueryString!
+    var query_string = {};
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i=0;i<vars.length;i++) {
+      var pair = vars[i].split("=");
+      // If first entry with this name
+      if (typeof query_string[pair[0]] === "undefined") {
+        query_string[pair[0]] = decodeURIComponent(pair[1]);
+        // If second entry with this name
+      } else if (typeof query_string[pair[0]] === "string") {
+        var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+        query_string[pair[0]] = arr;
+        // If third or later entry with this name
+      } else {
+        query_string[pair[0]].push(decodeURIComponent(pair[1]));
+      }
+    }
+    return query_string;
+  }();
+
+</script>
+<div style="padding: 10px; ">
+  <div class="alert alert-success" style="display: none;" id="restarted" role="alert">Welcome back! The server has been restarted.</div>
+</div>
+<div class="admin-inputs no-fieldset-bg">
+
+  <div class="admin-header admin-header-padding">Restart the server</div>
+
+  [[[form restart]]]
+</div>

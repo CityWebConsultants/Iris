@@ -1,0 +1,15 @@
+
+{{#if clashes}}
+
+<h3>File clashes</h3>
+<ul>
+  {{#each clashes}} <li>{{this.file}} <a href="/admin/config/diff?path={{this.file}}">(view diff)</a></li> {{/each}}
+</ul>
+
+{{/if}}
+
+<h3>Options</h3>
+
+  {{#each configMenu.links}}
+  <a class="btn btn-primary" href="{{this.path}}">{{this.title}}</a>
+  {{/each}}

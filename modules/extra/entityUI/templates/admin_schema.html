@@ -1,0 +1,41 @@
+<style>
+  ._jsonform-array-addmore {
+    display: none;
+  }
+  
+  ._jsonform-array-deletelast {
+    display: none;
+  }
+
+  
+  #new-field ._jsonform-array-item-delete {
+    display: none !important;
+  }
+  
+  #new-field .draggable {
+    display: none;
+  }
+
+</style>
+
+{{#if entityType}}
+
+
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Edit Entity</div>
+
+  <div id="current-fields">
+    [[[form schema,{{entityType}},existing]]]
+  </div>
+</div>
+
+{{else}}
+
+<!--<h1>Create new entity type</h1>-->
+
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Create A New Schema</div>
+  [[[form schema,{{entityType}}]]]
+</div>
+{{/if}}
+

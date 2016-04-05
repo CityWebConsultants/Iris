@@ -1,0 +1,34 @@
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Menus
+    <a class="btn btn-primary right" href="/admin/structure/menu/create">Create new menu </a>
+    <div class="clear"></div>
+  </div>
+
+  <table class="table" style="margin-top: 0px;">
+
+    <tbody>
+    {{#each menuList}}
+    <tr>
+      <td>{{this}}</td>
+      <td><a class="btn btn-default" href="/admin/structure/menu/edit/{{this}}">Edit</a> &nbsp;
+        <a class="btn btn-danger" href="/admin/structure/menu/delete/{{this}}">Delete</a></td>
+    </tr>
+
+    {{/each}}
+
+
+
+
+    </tbody>
+  </table>
+
+  <ul>
+
+
+
+  </ul>
+
+
+</div>
+
+

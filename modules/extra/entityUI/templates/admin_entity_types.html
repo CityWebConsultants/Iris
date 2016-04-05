@@ -1,0 +1,40 @@
+<script>
+  $('body').on('click', '#entity-types .dropdown .glyphicon', function(e) {
+    $(this).parent().toggleClass('closed');
+  });
+
+</script>
+
+
+<div class="admin-inputs">
+  <div class="admin-header admin-header-padding">Manage entity types</div>
+
+  <table id="entity-types" style="margin-top: 0px;">
+
+  {{#each entityTypes}}
+
+  <tr>
+    <td>{{this}}</td>
+    <td>
+      <div class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+          Options
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+          <li><a href='/admin/entitylist/{{this}}'>View content</a></li>
+          <li><a href='/admin/create/{{this}}'>Create new</a></li>
+          <li><a href='/admin/schema/{{this}}/edit'>Edit entity type</a></li>
+          <li><a href='/admin/schema/{{this}}/fields'>Manage fields</a></li>
+          <li><a href='/admin/schema/{{this}}/delete'>Delete schema</a></li>
+        </ul>
+      </div>
+    </td>
+  </tr>
+
+  {{/each}}
+
+
+</table>
+  <a class="btn btn-primary" href="/admin/schema/create">Create a new entity type</a>
+</div>

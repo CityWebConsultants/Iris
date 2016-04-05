@@ -1,0 +1,32 @@
+<!doctype html>
+
+<html>
+
+<!-- CSS and JS common to all pages --->
+
+<head>
+  <title>{{req.irisRoute.options.title}}</title>
+  <script src="/modules/forms/jsonform/deps/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/modules/system/admin.css" />
+  <script type="text/javascript" src="/modules/system/bootstrap/js/bootstrap.min.js"></script>
+  [[[tags headTags,-jQuery]]]
+</head>
+
+<body class="{{bodyClass}}">
+
+  <section class="col-sm-2" id="admin_sidebar">
+    [[[menu admin_toolbar,{"template":"admin_sidebar"}]]]
+  </section>
+  <section class="col-sm-10 col-sm-offset-2" id="main_content">
+
+    <h1>{{req.irisRoute.options.title}}</h1>
+    {{{iris_messages}}} 
+    [[[tabs]]]
+    [[[MAINCONTENT]]]
+
+  </section>
+
+</body>
+
+</html>

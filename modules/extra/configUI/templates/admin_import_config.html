@@ -1,0 +1,35 @@
+<script>
+  $(document).ready(function(){
+    $('#import-config').on('click', function(e){
+      e.preventDefault();
+      var thiss = $(this);
+
+      thiss.button("loading");
+
+      $.ajax({
+        url: thiss.attr("href"),
+        success: function(data){
+          if(data = "Config exported"){
+            thiss.button("reset");
+            $('#exported').slideDown();
+
+          }
+        }
+      });
+
+    })
+  })
+
+</script>
+<div class="admin-inputs no-fieldset-bg">
+
+  <div class="admin-header admin-header-padding">Import Config</div>
+  <div class="borders">
+    <div style="padding: 10px; ">
+      <div class="alert alert-info" role="alert">Your site configuration will be loaded from the <i>staging</i> directory.</div>
+      <div class="alert alert-success" style="display: none;" id="exported" role="alert">Great! Your config has been imported</div>
+    </div>
+
+    <a class="btn btn-primary" id="import-config" data-loading-text="Importing..." href="/admin/api/config/import">Import configuration</a>
+  </div>
+</div>
