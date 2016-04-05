@@ -1196,3 +1196,4 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 };
 
 require("./tags");
+require("./tabs");
