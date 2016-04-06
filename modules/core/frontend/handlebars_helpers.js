@@ -77,7 +77,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       messages.forEach(function (message) {
 
-        output += "<li class='iris-message " + message.type + "'>" + message.message + "</li >";
+        output += "<li class='alert alert-" + message.type + "'>" + message.message + "</li >";
 
       });
 

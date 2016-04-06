@@ -94,3 +94,7 @@ h1, h2, h3, h4 {
     color:#fff !important;
   background: #666;
 }
+.iris-messages {
+    max-width:960px;
+    margin:auto;
+}
