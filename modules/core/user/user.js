@@ -397,6 +397,28 @@ iris.modules.user.registerHook("hook_form_render__passwordReset", 0, function (t
 /**
  * Submit handler for passwordReset.
  */
+iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function (thisHook, data) {
+
+  iris.dbCollections['user'].findOne({
+    "username": thisHook.context.params.username
+  }, function (err, doc) {
+
+    if (err != null || doc === null) {
+
+      data.errors.push({
+        field: 'username',
+        message: thisHook.authPass.t('Email address not recognised.')
+      });
+
+    }
+    thisHook.pass(data);
+  });
+
+});
+
+/**
+ * Submit handler for passwordReset.
+ */
 iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (thisHook, data) {
 
   iris.dbCollections['user'].findOne({
@@ -405,12 +427,11 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
 
     var date = Date.now().toString();
     var eid = doc.eid;
-    var data = date + doc.lastlogin.toString() + eid;
+    var hash = date + doc.lastlogin.toString() + eid;
     var key = doc.password;
-    var hash = iris.hmacBase64(data, key);
 
     // TODO : Simplify construction of urls, need to know if http or https etc.
-    var link = 'http://' + thisHook.req.headers.host + "/user/reset/" + eid + "/" + date + "/" + iris.hmacBase64(data, key);
+    var link = 'http://' + thisHook.req.headers.host + "/user/reset/" + eid + "/" + date + "/" + iris.hmacBase64(hash, key);
 
     iris.modules.frontend.globals.parseTemplateFile(["emailPasswordReset"], null, {
       "one-time-login-url" : link,
@@ -427,7 +448,7 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
 
       iris.log("error", fail);
 
-      data.errors({
+      data.errors.push({
         'field' : 'username',
         'message' : fail
       });
