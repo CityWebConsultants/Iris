@@ -33,7 +33,7 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
 
     // Find theme
 
-    var found = glob.sync("{" + iris.rootPath + "/iris_core/themes/" + themeName + "/" + themeName + ".iris.theme" + "," + iris.sitePath + "/themes/" + themeName + "/" + themeName + ".iris.theme" + "," + iris.rootPath + "/home/themes/" + themeName + "/" + themeName + ".iris.theme" + "}");
+    var found = glob.sync("{" + iris.rootPath + "/themes/*/" + themeName + ".iris.theme" + "," + iris.sitePath + "/themes/*/" + themeName + ".iris.theme" + "," + iris.rootPath + "/home/themes/*/" + themeName + ".iris.theme" + "}");
 
     var path = require("path");
 
