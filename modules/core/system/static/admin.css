@@ -150,12 +150,6 @@ thead tr {
   font-size: 100%;
   margin-left: 2px;
 }
-.form-errors {
-  background-color: #F8B5B5;
-  color: black;
-  padding: 10px;
-  margin-bottom: 10px;
-}
 
 body:not(.schema-admin) .form-group {
   padding:20px;
