@@ -1,12 +1,47 @@
-**DO NOT USE NPM TO INSTALL THIS FRAMEWWORK. 'npm install irisjs' does NOT currently work for setting up this project. Instead run: git clone https://github.com/CityWebConsultants/Iris.git iris; cd iris; npm install;**
-
 # Iris
 
 Iris is a modular content management system and web application framework built using Node.js and MongoDB. 
 
 After a year of keeping it to ourselves, we'd love for you to try out Iris, let us know what we've done right and wrong and help us build it by contributing to its source code via pull requests and by building modules and themes.
 
-[Look at the Iris documentation](https://github.com/CityWebConsultants/Iris/wiki).
+## Quick start
+
+You'll need Node.js and MongoDB. After you've got them:
+
+* Install iris via npm
+
+```
+npm install irisfw
+```
+
+* Create a launch file in the directory you launched from. Call it something like `mysite.js`. In this file, require the `irisfw` module and pass in some configuration options. For example:
+
+```JavaScript
+
+var config = {
+  "sitePath": "/mysite", // this is where your configuration and templates will go 
+  "port": 4000, // the port the site will run on
+  "https": false, // using SSL?
+  "https_key": "", // see above
+  "https_cert": "", // see above
+  "db_server": "localhost", // where is the MongoDB database running?
+  "db_port": 27017, // which port is the database running on?
+  "db_name": "test1", // what do you want the database name to be?
+}
+
+require("irisfw")(config);
+
+```
+
+* Run this file using node.js:
+
+```
+node mysite.js
+```
+
+* Visit `localhost:4000` or wherever you ran the site from.
+
+[Look at the Iris documentation for more details](https://github.com/CityWebConsultants/Iris/wiki).
 
 ## Key features
 
