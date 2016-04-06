@@ -605,3 +605,16 @@ iris.modules.forms.globals.registerWidget = function (widgetFunction, name) {
   iris.modules.forms.globals.widgets[name] = toSource(widgetFunction);
 
 };
+
+/**
+ * Register custom JSON form field for simple HTML.
+ */
+iris.modules.forms.globals.registerWidget(function () {
+
+  JSONForm.elementTypes['markup'] = Object.create(JSONForm.elementTypes['text']);
+  JSONForm.elementTypes['markup'].template = '<% if(value && !node.markup){node.markup = value} %><%= node.markup ? node.markup : node.schemaElement.markup  %>';
+  JSONForm.elementTypes['markup'].fieldTemplate = true;
+  JSONForm.elementTypes['markup'].inputfield = true;
+
+
+}, "markup");
