@@ -11,8 +11,22 @@ iris.modules.forms.registerHook("hook_form_render__login", 0, function (thisHook
     password: {
       type: 'password',
       title: 'Password'
+    },
+    reset: {
+      type: 'markup',
+      markup : '<a href="/user/password">' + thisHook.authPass.t('Forgot your password?') + '</a>'
     }
   }
+
+  data.form = [
+    'username',
+    'password',
+    {
+      type: 'submit',
+      value: thisHook.authPass.t('Login')
+    },
+    'reset'
+  ];
 
   thisHook.pass(data);
 
