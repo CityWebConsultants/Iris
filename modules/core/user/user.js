@@ -84,7 +84,7 @@ iris.route.get("/user/login", routes.login, function (req, res) {
  */
 iris.route.get("/user/password", routes.password, function (req, res) {
 
-  iris.modules.frontend.globals.parseTemplateFile(["password-reset"], ['html'], {}, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["passwordReset"], ['html'], {}, req.authPass, req).then(function (success) {
 
     res.send(success);
 
