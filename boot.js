@@ -170,6 +170,8 @@ module.exports = function (config) {
 
     require('./modules/core/paths/paths.js');
 
+    require('./modules/core/email/email.js');
+
     try {
 
       var file = fs.readFileSync(iris.configPath + '/system/enabled_modules.json', "utf8");

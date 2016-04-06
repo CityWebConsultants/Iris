@@ -16,7 +16,7 @@
     <tr>
       <td>{{#if path}}<a href="{{path}}">{{eid}}</a>{{else}}{{eid}}{{/if}}</td>
       <td>{{#if path}}<a href="{{path}}">{{username}}{{title}}</a>{{else}}{{username}}{{title}}{{/if}}</td>
-      <td><a class="btn btn-default" href="/admin/edit/{{ entityType }}/{{ eid }}">Edit</a> &nbsp;
+      <td><a class="btn btn-default" href="/{{ entityType }}/{{ eid }}/edit">Edit</a> &nbsp;
         <a class="btn btn-danger" href="/admin/delete/{{ entityType }}/{{ eid }}">Delete</a></td>
     </tr>
     

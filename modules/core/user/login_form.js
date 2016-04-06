@@ -5,7 +5,7 @@ iris.modules.forms.registerHook("hook_form_render__login", 0, function (thisHook
   data.schema = {
     username: {
       type: 'string',
-      title: 'Username',
+      title: 'Username/email',
       required: true,
     },
     password: {

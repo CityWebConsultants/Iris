@@ -6,17 +6,7 @@ require('./schemaUI.js');
 
 var fs = require("fs");
 
-iris.app.get("/admin/edit/:type/:eid", function (req, res) {
-
-  // If not admin, present 403 page
-
-  if (req.authPass.roles.indexOf('admin') === -1) {
-
-    iris.modules.frontend.globals.displayErrorPage(403, req, res);
-
-    return false;
-
-  }
+iris.app.get("/:type/:eid/edit", function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_entity"], ['admin_wrapper'], {
     eid: req.params.eid,
