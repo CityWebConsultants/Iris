@@ -50,10 +50,16 @@ module.exports = function (config) {
   var directory;
 
   var mkdirp = require('mkdirp');
-  
-  mkdirp.sync(process.cwd() + config.path);
 
-  iris.sitePath = process.cwd() + config.path;
+  if(!config.sitePath){
+    
+    config.sitePath = "/";
+    
+  }
+      
+  mkdirp.sync(process.cwd() + config.sitePath);
+
+  iris.sitePath = process.cwd() + config.sitePath;
 
   // Detect/change Windows file paths
 

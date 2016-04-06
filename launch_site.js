@@ -15,9 +15,9 @@ var config;
 
 process.on("message", function (m) {
 
-  if (m.sitePath) {
+  if (m.launchPath) {
     
-    process.chdir(m.sitePath);
+    process.chdir(m.launchPath);
 
     var server = require('./boot')(m);
 

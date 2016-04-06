@@ -15,7 +15,7 @@ module.exports = function (parameters) {
 
   }
 
-  parameters.sitePath = process.cwd();
+  parameters.launchPath = process.cwd();
 
   process.argv.forEach(function (val, index, array) {
 
