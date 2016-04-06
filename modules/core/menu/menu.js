@@ -18,20 +18,11 @@ iris.registerModule("menu");
 
 iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHook, data) {
 
-  var menuName = thisHook.context.embedParams[0];
-
+  var menuName = thisHook.context.embedID;
+  
   var menuItems = [];
 
-  var embedOptions = {};
-
-
-  if(thisHook.context.embedParams[1] != undefined){
-    try {
-      embedOptions = JSON.parse(thisHook.context.embedParams[1]);
-    } catch (err){
-
-    }
-  }
+  var embedOptions = thisHook.context.embedOptions;
 
   Object.keys(iris.routes).forEach(function (path) {
 
@@ -125,13 +116,13 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     }
 
   });
-  
+
   if (menuLinks.length) {
 
     // Menu ready, check access
     var parseTemplate = ["menu", menuName];
 
-    if(embedOptions.template != undefined){
+    if (embedOptions.template != undefined) {
       parseTemplate.push(embedOptions.template);
     }
 

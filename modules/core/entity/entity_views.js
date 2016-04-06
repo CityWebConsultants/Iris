@@ -10,88 +10,10 @@ var fs = require("fs");
  */
 
 iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thisHook, data) {
-
-  var entity = thisHook.context.embedParams;
-
-  var entityTypes = entity[0].split("+");
-  var variableName = entity[1];
-  var query = entity[2];
-  var limit = entity[3];
-  var sort = entity[4];
-
-  if (query && query !== "null") {
-
-    var queries = query.split("+");
-
-    if (queries && queries.length) {
-
-      queries.forEach(function (query, index) {
-
-        // Split query into sub sections
-
-        var query = query.split("|");
-
-        // Skip empty queries
-
-        if (!query[2]) {
-
-          queries[index] = undefined;
-          return false;
-
-        }
-
-        try {
-
-          JSON.parse(query[2]);
-
-        } catch (e) {
-
-          iris.log("debug", query[2]);
-          iris.log("error", e);
-
-          queries[index] = undefined;
-          return false;
-
-        };
-
-        queries[index] = ({
-
-          field: query[0],
-          operator: query[1],
-          value: JSON.parse(query[2])
-
-        });
-
-      });
-
-    }
-
-  }
-
-  var fetch = {
-    queries: queries,
-    entities: entityTypes,
-  };
-
-  if (limit) {
-
-    fetch.limit = limit;
-
-  }
-
-  if (sort) {
-
-    var expandedSort = {};
-
-    expandedSort[sort.split("|")[0]] = sort.split("|")[1];
-
-    fetch.sort = expandedSort;
-
-  }
-
-  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
-
-    thisHook.context.vars[variableName] = result;
+  
+  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, thisHook.context.embedOptions).then(function (result) {
+    
+    thisHook.context.vars[thisHook.context.embedID] = result;
 
     thisHook.context.vars.tags.headTags["entity_fetch"] = {
       type: "script",
@@ -101,7 +23,7 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
       rank: 0
     };
 
-    var entityPackage = "\n" + "iris.entityPreFetch(" + JSON.stringify(result) + ", '" + variableName + "'" + ", " + JSON.stringify(fetch) + ")";
+    var entityPackage = "\n" + "iris.entityPreFetch(" + JSON.stringify(result) + ", '" + thisHook.context.embedID + "'" + ", " + JSON.stringify(thisHook.context.embedOptions) + ")";
 
     var loader = entityPackage;
 
