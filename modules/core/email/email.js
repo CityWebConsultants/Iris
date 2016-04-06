@@ -225,7 +225,11 @@ iris.modules.email.globals.sendEmail = function(args, authPass) {
 
     }, function (fail) {
 
-        iris.log("error", fail);
+      // Add default if it doesn't exist.
+      iris.saveConfig({email: 'Simple mail'}, 'email', 'mail_system');
+      iris.modules.email.globals.sendEmail(args, authPass);
+
+      iris.log("error", fail);
 
     });
     
