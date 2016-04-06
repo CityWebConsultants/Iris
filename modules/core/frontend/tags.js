@@ -10,9 +10,11 @@
  */
 iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thisHook, data) {
 
-  var tagName = thisHook.context.embedParams[0];
+  var tagName = thisHook.context.embedID;
 
-  var tagExclude = thisHook.context.embedParams[1];
+  // TODO - Allow JSON object for more tag options
+  
+  var tagExclude = thisHook.context.embedOptions;
 
   var vars = thisHook.context.vars;
 
