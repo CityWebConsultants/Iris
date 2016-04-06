@@ -610,16 +610,23 @@ var parseEmbeds = function (html, variables, authPass) {
           if (arguments[1]) {
 
             try {
-              
+
               arguments.shift();
 
               embedOptions = JSON.parse(arguments.join(","));
 
             } catch (e) {
+              
+              // Try comma seperated parameter approach
 
-              iris.log("error", e);
-              iris.log("error", "error parsing options in template " + category + " " + embedID);
+              embedOptions = [];
 
+              embed.split(",").map(function (current) {
+
+                embedOptions.push(current.trim())
+
+              })
+          
             }
 
           }
