@@ -1439,19 +1439,6 @@ iris.modules.entityUI.registerHook("hook_form_render__field_settings__select", 0
 
 });
 
-/**
- * Register custom JSON form field for simple HTML.
- */
-iris.modules.forms.globals.registerWidget(function () {
-
-  JSONForm.elementTypes['markup'] = Object.create(JSONForm.elementTypes['text']);
-  JSONForm.elementTypes['markup'].template = '<% if(value && !node.markup){node.markup = value} %><%= node.markup ? node.markup : node.schemaElement.markup  %>';
-  JSONForm.elementTypes['markup'].fieldTemplate = true;
-  JSONForm.elementTypes['markup'].inputfield = true;
-
-
-}, "markup");
-
 
 /**
  * Field Widgets object.
