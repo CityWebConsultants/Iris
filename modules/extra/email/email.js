@@ -134,7 +134,7 @@ iris.modules.email.registerHook("hook_form_submit__mailSettings", 0, function (t
     
     iris.saveConfig(thisHook.context.params, 'email', 'mail_system');
     
-    iris.message(thisHook.authPass.userid, "Settings saved", "notice");
+    iris.message(thisHook.authPass.userid, "Settings saved", "info");
     thisHook.pass(function (res) {
         res.send("/admin/config/mail-settings");
 
@@ -212,7 +212,7 @@ iris.modules.email.globals.sendEmail = function(args, authPass) {
     
         iris.invokeHook("hook_sendMail", authPass, transporter, args).then(function(success){
             iris.log('notice', success.log);
-            iris.message(authPass.userid, authPass.t("Email sent"), "notice");
+            iris.message(authPass.userid, authPass.t("Email sent"), "info");
         }
         , function(fail){
 

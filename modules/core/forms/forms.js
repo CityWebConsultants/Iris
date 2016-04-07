@@ -464,7 +464,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
           for (var i = 0; i < data.errors.length; i++) {
 
-            errorMessages += "<div class='form-error'>" + data.errors[i].message + "</div>";
+            errorMessages += "<div class='alert alert-danger'>" + data.errors[i].message + "</div>";
 
             if (data.errors[i].field) {
 
@@ -494,7 +494,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
           var messages = '';
           data.messages.forEach(function (obj) {
 
-            messages += "<div class='form-message ' + obj.type>" + obj.message + "</div>";
+            messages += "<div class='alert alert-' + obj.type>" + obj.message + "</div>";
 
           });
 
@@ -605,3 +605,16 @@ iris.modules.forms.globals.registerWidget = function (widgetFunction, name) {
   iris.modules.forms.globals.widgets[name] = toSource(widgetFunction);
 
 };
+
+/**
+ * Register custom JSON form field for simple HTML.
+ */
+iris.modules.forms.globals.registerWidget(function () {
+
+  JSONForm.elementTypes['markup'] = Object.create(JSONForm.elementTypes['text']);
+  JSONForm.elementTypes['markup'].template = '<% if(value && !node.markup){node.markup = value} %><%= node.markup ? node.markup : node.schemaElement.markup  %>';
+  JSONForm.elementTypes['markup'].fieldTemplate = true;
+  JSONForm.elementTypes['markup'].inputfield = true;
+
+
+}, "markup");
