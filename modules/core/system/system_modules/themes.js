@@ -48,7 +48,7 @@ iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHo
   var path = require("path");
   var fs = require("fs");
 
-  glob("{" + iris.rootPath + "/iris_core/themes/**/*.iris.theme" + "," + iris.sitePath + "/themes/**/*.iris.theme" + "}", function (er, files) {
+  glob("{" + iris.rootPath + "/themes/**/*.iris.theme" + "," + iris.sitePath + "/themes/**/*.iris.theme" + "}", function (er, files) {
 
     var names = {};
     var machineNames = [];

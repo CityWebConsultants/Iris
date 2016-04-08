@@ -11,10 +11,10 @@ You'll need Node.js and MongoDB. After you've got them:
 * Install iris via npm
 
 ```
-npm install irisfw
+npm install irisjs
 ```
 
-* Create a launch file in the directory you launched from. Call it something like `mysite.js`. In this file, require the `irisfw` module and pass in some configuration options. For example:
+* Create a launch file in the directory you launched from. Call it something like `mysite.js`. In this file, require the `irisjs` module and pass in some configuration options. For example:
 
 ```JavaScript
 

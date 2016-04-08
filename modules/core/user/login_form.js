@@ -41,7 +41,7 @@ iris.modules.system.registerHook("hook_form_submit__login", 0, function (thisHoo
 
     if (!userid) {
 
-      iris.message(thisHook.authPass.userid, "Wrong credentials", "error");
+      iris.message(thisHook.authPass.userid, "Wrong credentials", "danger");
 
     }
 
