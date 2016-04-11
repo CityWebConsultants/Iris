@@ -194,8 +194,7 @@ fieldset[data-jsonform-type="fieldset"] fieldset[data-jsonform-type="fieldset"] 
 }
 
 
-body:not(.schema-admin) form .form-group[data-jsonform-type="array"] > .controls,
-body:not(.schema-admin) form fieldset[data-jsonform-type="fieldset"] >  legend ~ .jsonform-node {
+body:not(.schema-admin) form .form-group[data-jsonform-type="array"] > .controls
   display:none;
 }
 
