@@ -496,7 +496,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
           var messages = '';
           data.messages.forEach(function (obj) {
 
-            messages += "<div class='alert alert-' + obj.type>" + obj.message + "</div>";
+            messages += "<div class='alert alert-" + obj.type + "'>" + obj.message + "</div>";
 
           });
 
