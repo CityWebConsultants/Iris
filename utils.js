@@ -275,3 +275,23 @@ iris.mkdirSync = function (path) {
   }
 
 };
+
+iris.hmacBase64 = function(data, key) {
+
+  // base64 encode: timestamp, login, uid | salt + password
+  var crypto    = require('crypto');
+  var text      = data;
+  var key       = key;
+  var algorithm = 'sha256';
+  var hash, hmac;
+
+  hmac = crypto.createHmac(algorithm, key);
+  hmac.setEncoding('hex');
+  hmac.write(text);
+  hmac.end();
+
+  hash = hmac.read();
+  // Modify the hmac so it's safe to use in URLs.
+  return hash.replace('+', '-').replace('/', '_').replace('=', '');
+
+}

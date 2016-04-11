@@ -1,4 +1,5 @@
 var nodemailer = require('nodemailer');
+iris.registerModule("email");
 
 /**
  * Define callback routes.
@@ -47,30 +48,31 @@ iris.route.get('/admin/config/mail-settings', routes.mail, function (req, res) {
    * the form fields that are used in the execution of the action.
    *
    */
-
-iris.modules.triggers.globals.registerAction("email", {
-  "subject": {
-    "type": "text",
-    "title": "subject"
-  },
-  to: {
-    "type": "text",
-    "title": "Recipient address"
-  },
-  cc: {
-    "type": "text",
-    "title": "CC address"
-  },
-  from: {
-    "type": "text",
-    "title": "Sender address",
-    "required": true,
-  },
-  message: {
-    "type": "textarea",
-    "title": "Message"
+  if(iris.modules.triggers) {
+    iris.modules.triggers.globals.registerAction("email", {
+      "subject": {
+        "type": "text",
+        "title": "subject"
+      },
+      to: {
+        "type": "text",
+        "title": "Recipient address"
+      },
+      cc: {
+        "type": "text",
+        "title": "CC address"
+      },
+      from: {
+        "type": "text",
+        "title": "Sender address",
+        "required": true,
+      },
+      message: {
+        "type": "textarea",
+        "title": "Message"
+      }
+    });
   }
-});
 
   /**
    * Implements hook_triggers_[action_name].
@@ -169,7 +171,7 @@ iris.modules.email.registerHook("hook_sendMail", 0, function(thisHook, data){
         from: data.from,
         to: data.to,
         subject: data.subject,
-        text: data.text
+        html: data.body
     }, function (err, response) {
         data.log = (err || response);
     });
@@ -211,7 +213,7 @@ iris.modules.email.globals.sendEmail = function(args, authPass) {
         var transporter = iris.modules[config.mailSystem].globals.mailTransporter();
     
         iris.invokeHook("hook_sendMail", authPass, transporter, args).then(function(success){
-            iris.log('notice', success.log);
+            iris.log('notice', 'Email sent to: ', success.to);
             iris.message(authPass.userid, authPass.t("Email sent"), "info");
         }
         , function(fail){
@@ -223,7 +225,11 @@ iris.modules.email.globals.sendEmail = function(args, authPass) {
 
     }, function (fail) {
 
-        iris.log("error", fail);
+      // Add default if it doesn't exist.
+      iris.saveConfig({email: 'Simple mail'}, 'email', 'mail_system');
+      iris.modules.email.globals.sendEmail(args, authPass);
+
+      iris.log("error", fail);
 
     });
     
