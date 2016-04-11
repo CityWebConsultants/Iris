@@ -1,0 +1,6 @@
+.jsonform-node.choose-fields {
+    display:none;
+}
+.jsonform-node.choose-fields.open {
+    display:block;
+}
