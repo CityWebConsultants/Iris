@@ -327,13 +327,11 @@ iris.modules.entityUI.globals.widgetForm = function(type, field, parent, req, re
 iris.route.get("/admin/schema/:type/fields/:field/delete", routes.fieldDelete, function (req, res) {
 
   // Render admin_schema_field template.
+  req.irisRoute.options.title = req.authPass.t('Delete field {{field}} on entity type {{type}}', {field: req.params.field, type: req.params.type});
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_schema_field_delete"], ['admin_wrapper'], {
-
     entityType: req.params.type,
-
     field: req.params.field,
-
   }, req.authPass, req).then(function (success) {
 
 
