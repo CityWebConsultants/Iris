@@ -2861,7 +2861,7 @@ formNode.prototype.computeInitialValues = function (values, ignoreDefaultValues,
               // Note applying the array path probably doesn't make any sense,
               // but some geek might want to have a label "foo[].bar[].baz",
               // with the [] replaced by the appropriate array path.
-              this.value = applyArrayPath(this.value, this.arrayPath);
+              //this.value = applyArrayPath(this.value, this.arrayPath);
             }
             if (this.value) {
               this.value = _template(this.value, formData, valueTemplateSettings);
