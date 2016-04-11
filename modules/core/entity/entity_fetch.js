@@ -104,6 +104,18 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
       }
 
+      if (fieldQuery.operator.toLowerCase().indexOf("regex") !== -1) {
+
+        var queryItem = {};
+
+        queryItem[fieldQuery["field"]] = {
+          $regex: fieldQuery.value
+        };
+
+        query.$and.push(queryItem);
+
+      }
+
       if (fieldQuery.operator.toLowerCase().indexOf("includes") !== -1) {
 
         var queryItem = {};

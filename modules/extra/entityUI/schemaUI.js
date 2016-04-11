@@ -863,7 +863,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
       var redirect = '/admin/schema/' + entityType;
 
       if (thisHook.context.params.machineName != '') {
-        redirect += '/' + thisHook.context.params.machineName;
+        redirect += '/fields/' + thisHook.context.params.machineName;
       } else {
         if (parent != '') {
           redirect += '/fieldset/' + parent;
@@ -1195,7 +1195,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
         data
       ).then(function (form) {
 
-        if (form.schema.settings) {
+        if (form.schema.settings && !form.settingsOverride) {
 
           form.form.push("settings");
 
