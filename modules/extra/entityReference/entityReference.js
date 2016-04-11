@@ -1,17 +1,17 @@
-
+/**
+ * Ajax callback to compile a list of entities given the type and field to search on.
+ */
 iris.route.get("/entity-reference/:type/:field", {}, function (req, res) {
 
   var orgQuery = {
     entities: [req.params.type],
     queries: [{
       field: req.params.field,
-      operator: 'regex',
+      operator: 'contains',
       value: ".*" + req.query.term + ".*"
     }]
   };
 
-  var reports = [];
-  // Get the admin generated reports
   iris.invokeHook("hook_entity_fetch", 'root', null, orgQuery).then(function (entities) {
 
     var list = [];
@@ -30,6 +30,9 @@ iris.route.get("/entity-reference/:type/:field", {}, function (req, res) {
 
 });
 
+/**
+ * Defines hook_form_render__field_settings__[fieldname]
+ */
 iris.modules.entityReference.registerHook("hook_form_render__field_settings__entity_reference", 0, function (thisHook, data) {
 
   var collections = iris.dbSchemaConfig;
@@ -112,10 +115,8 @@ iris.modules.entityReference.registerHook("hook_form_render__field_settings__ent
 });
 
 /**
- * Defines hook_entity_field_fieldType_form for tags fields.
- * Displays the autocomplete tags field and prefills values
+ * Defines hook_entity_field_fieldType_form__[entityname] for entity reference fields.
  */
-
 iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__entity_reference", 0, function (thisHook, data) {
 
   data = {};
