@@ -14,14 +14,14 @@ casper.test.begin('Test if schema are properly indexed', 1, function(test) {
       'input[name = "fields.unique"]': true,
       'input[name = "fields.required"]': true
     };
-    util.test.updateSchemaField("user", data, 'input[name = "fields.unique"]',function(){});
+    util.test.updateSchemaField("page","title", data, 'input[name = "fields.unique"]',function(){});
   });
-  casper.waitForText("Manage fields for user", function() {
+  casper.waitForText("Field title saved on entity page", function() {
     var data = {
-      'input[name = username]': config.adminUser.login.username,
-      'input[name = password]': 'poo'
+      'input[name = "title"]': "test title 1",
+      'textarea[name = "body"]': 'test body 1'
     };
-    util.test.createEntity("user", data, 'input[name = username]',function(){
+    util.test.createEntity("page", data, 'input[name = "title"]',function(){
       test.assertExists('form[data-formid="entity"]', "entity form not submitted");
     });
 
