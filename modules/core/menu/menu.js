@@ -122,7 +122,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     // Menu ready, check access
     var parseTemplate = ["menu", menuName];
 
-    if (embedOptions.template != undefined) {
+    if (embedOptions && embedOptions.template != undefined) {
       parseTemplate.push(embedOptions.template);
     }
 
