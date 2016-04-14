@@ -327,13 +327,11 @@ iris.modules.entityUI.globals.widgetForm = function(type, field, parent, req, re
 iris.route.get("/admin/schema/:type/fields/:field/delete", routes.fieldDelete, function (req, res) {
 
   // Render admin_schema_field template.
+  req.irisRoute.options.title = req.authPass.t('Delete field {{field}} on entity type {{type}}', {field: req.params.field, type: req.params.type});
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_schema_field_delete"], ['admin_wrapper'], {
-
     entityType: req.params.type,
-
     field: req.params.field,
-
   }, req.authPass, req).then(function (success) {
 
 
@@ -863,7 +861,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
       var redirect = '/admin/schema/' + entityType;
 
       if (thisHook.context.params.machineName != '') {
-        redirect += '/' + thisHook.context.params.machineName;
+        redirect += '/fields/' + thisHook.context.params.machineName;
       } else {
         if (parent != '') {
           redirect += '/fieldset/' + parent;
@@ -1195,7 +1193,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
         data
       ).then(function (form) {
 
-        if (form.schema.settings) {
+        if (form.schema.settings && !form.settingsOverride) {
 
           form.form.push("settings");
 

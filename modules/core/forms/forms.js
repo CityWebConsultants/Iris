@@ -65,7 +65,9 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
         // If no callback is supplied provide a basic redirect to the same page
         var callback = function (res) {
 
-          res.json(thisHook.context.req.url);
+          res.json({
+            redirect: thisHook.context.req.url
+          });
 
         };
 
@@ -259,11 +261,11 @@ iris.modules.forms.registerHook("hook_form_submit", 0, function (thisHook, data)
 
 iris.route.get("/modules/forms/extrafields.js", function (req, res) {
 
-  var output = "iris.forms = {}" + "\n";
+  var output = "iris.forms = {};" + "\n";
 
   Object.keys(iris.modules.forms.globals.widgets).forEach(function (field) {
 
-    output += "iris.forms['" + field + "'] = " + iris.modules.forms.globals.widgets[field] + "()\n" + "\n";
+    output += "iris.forms['" + field + "'] = " + iris.modules.forms.globals.widgets[field] + "();\n" + "\n";
 
   });
 
@@ -494,7 +496,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
           var messages = '';
           data.messages.forEach(function (obj) {
 
-            messages += "<div class='alert alert-' + obj.type>" + obj.message + "</div>";
+            messages += "<div class='alert alert-" + obj.type + "'>" + obj.message + "</div>";
 
           });
 
