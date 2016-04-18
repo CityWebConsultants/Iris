@@ -2,7 +2,7 @@ var exports = {};
 
 exports.adminUser = {
     login: {
-        username: "foo",
+        username: "foo@foo.com",
         password: "foo"
     },
     auth: {
