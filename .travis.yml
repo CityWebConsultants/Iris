@@ -9,7 +9,7 @@ install:
   - cd iris-project-template
   - mongoimport --db mysite --collection users --file fixtures/users.json
   - mongoimport --db mysite --collection pages --file fixtures/users.json
-  - npm install --dev
+  - npm install --only=dev
   - pm2 start index.js
 services:
   - mongodb
