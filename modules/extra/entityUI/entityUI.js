@@ -177,7 +177,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       // Reorder form elements
 
-     /* var formRaw = data.form;
+     var formRaw = data.form;
 
       data.form = [];
 
@@ -193,7 +193,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
         });
 
-      });*/
+      });
 
 
       counter += 1;
