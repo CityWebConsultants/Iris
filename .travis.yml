@@ -10,6 +10,7 @@ install:
   - mongoimport --db mysite --collection users --file fixtures/users.json
   - mongoimport --db mysite --collection pages --file fixtures/users.json
   - npm install --only=dev
+  - npm install git+https://github.com/facascante/Iris.git#$TRAVIS_BRANCH
   - pm2 start index.js
 services:
   - mongodb
