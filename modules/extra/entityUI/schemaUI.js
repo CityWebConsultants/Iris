@@ -327,13 +327,11 @@ iris.modules.entityUI.globals.widgetForm = function(type, field, parent, req, re
 iris.route.get("/admin/schema/:type/fields/:field/delete", routes.fieldDelete, function (req, res) {
 
   // Render admin_schema_field template.
+  req.irisRoute.options.title = req.authPass.t('Delete field {{field}} on entity type {{type}}', {field: req.params.field, type: req.params.type});
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_schema_field_delete"], ['admin_wrapper'], {
-
     entityType: req.params.type,
-
     field: req.params.field,
-
   }, req.authPass, req).then(function (success) {
 
 
@@ -519,7 +517,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
 
     thisHook.pass(function (res) {
 
-      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Field {{name}} saved on entity {{type}}", {name: fieldName, type: entityType}), "status");
+      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Field {{name}} saved on entity {{type}}", {name: fieldName, type: entityType}), "success");
       // If field belongs to a fieldset, redirect back to fieldset manage page.
       if (parent) {
 
@@ -557,7 +555,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
 
     if (!iris.dbSchemaConfig[entityType]) {
 
-      iris.message(thisHook.authPass.userid, ap.t("No such entity type"), "error");
+      iris.message(thisHook.authPass.userid, ap.t("No such entity type"), "danger");
 
       thisHook.fail(data);
 
@@ -859,11 +857,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
 
     thisHook.pass(function (res) {
 
-      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Fields sucessfully saved"), "status");
+      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Fields sucessfully saved"), "success");
       var redirect = '/admin/schema/' + entityType;
 
       if (thisHook.context.params.machineName != '') {
-        redirect += '/' + thisHook.context.params.machineName;
+        redirect += '/fields/' + thisHook.context.params.machineName;
       } else {
         if (parent != '') {
           redirect += '/fieldset/' + parent;
@@ -985,7 +983,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
 
     if (!iris.dbSchemaConfig[entityType]) {
 
-      iris.message(thisHook.authPass.userid, thisHook.authPass.t("No such entity type"), "error");
+      iris.message(thisHook.authPass.userid, thisHook.authPass.t("No such entity type"), "danger");
 
       thisHook.fail(data);
 
@@ -1070,7 +1068,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 
       if (Object.keys(finishedSchema.fields).length == 0) {
 
-        iris.message(thisHook.authPass.userid, thisHook.authPass.t("New entity type created"), "status");
+        iris.message(thisHook.authPass.userid, thisHook.authPass.t("New entity type created"), "success");
         res.json({
           redirect: "/admin/schema/" + iris.sanitizeName(thisHook.context.params.entityTypeName) + "/fields"
         });
@@ -1078,7 +1076,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 
       } else {
 
-        iris.message(thisHook.authPass.userid, thisHook.authPass.t("Entity type {{type}} has been updated.", {type: entityType}), "status");
+        iris.message(thisHook.authPass.userid, thisHook.authPass.t("Entity type {{type}} has been updated.", {type: entityType}), "success");
         res.json({
           "redirect": "/admin/schema/" + iris.sanitizeName(thisHook.context.params.entityTypeName) + "/edit"
         });
@@ -1195,7 +1193,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
         data
       ).then(function (form) {
 
-        if (form.schema.settings) {
+        if (form.schema.settings && !form.settingsOverride) {
 
           form.form.push("settings");
 
@@ -1350,7 +1348,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafield", 0, function 
     iris.dbPopulate();
     thisHook.pass(function (res) {
 
-      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Field {{name}} saved on entity {{type}}", {name: fieldName, type: entityType}), "status");
+      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Field {{name}} saved on entity {{type}}", {name: fieldName, type: entityType}), "success");
 
       // If field belongs to a fieldset, redirect back to fieldset manage page.
       if (parent) {
@@ -1438,19 +1436,6 @@ iris.modules.entityUI.registerHook("hook_form_render__field_settings__select", 0
   thisHook.pass(data);
 
 });
-
-/**
- * Register custom JSON form field for simple HTML.
- */
-iris.modules.forms.globals.registerWidget(function () {
-
-  JSONForm.elementTypes['markup'] = Object.create(JSONForm.elementTypes['text']);
-  JSONForm.elementTypes['markup'].template = '<% if(value && !node.markup){node.markup = value} %><%= node.markup ? node.markup : node.schemaElement.markup  %>';
-  JSONForm.elementTypes['markup'].fieldTemplate = true;
-  JSONForm.elementTypes['markup'].inputfield = true;
-
-
-}, "markup");
 
 
 /**

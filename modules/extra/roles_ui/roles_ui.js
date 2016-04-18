@@ -117,7 +117,7 @@ iris.modules.roles_ui.registerHook("hook_form_submit__manageRoles", 0, function 
   };
 
   iris.saveConfig(formatRoles, 'auth', 'auth_roles');
-  iris.message(thisHook.authPass.userid, "Saved", "notice");
+  iris.message(thisHook.authPass.userid, "Saved", "info");
   thisHook.pass(function (res) {
     res.send("/admin/users/roles");
 

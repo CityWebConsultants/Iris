@@ -1,16 +1,9 @@
 
-
-<h1></h1>
-
 <script>
   $(document).ready(function() {
 
-    var path = document.location.pathname.split("/");
-
-    var type = path[path.length - 2];
-    var id = path[path.length - 1];
-
-    $("h1").text("Delete " + id + '?');
+    var type = '{{type}}';
+    var id = {{id}};
 
     // Confirmation form handler
 
@@ -40,7 +33,7 @@
 
 </script>
 
-Are you sure you want to delete this entity?
+{{text}}
 
 <form id="delete-confirm">
 

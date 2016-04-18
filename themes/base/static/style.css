@@ -12,6 +12,10 @@ a {
 h1, h2, h3, h4 {
   color: #6258a4;
 }
+#login-form {
+    max-width: 400px;
+    margin: auto;
+}
 #site-name {
     font-size:40px;
 }
@@ -93,4 +97,13 @@ h1, h2, h3, h4 {
 .menu--main-menu nav ul li.has-children:focus {
     color:#fff !important;
   background: #666;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.iris-messages {
+    max-width:960px;
+    margin:auto;
 }

@@ -1,8 +1,0 @@
-{
-  "name": "Email",
-  "weight": 2,
-  "description": "Action for sending email",
-  "dependencies": {
-    "triggers": "1"
-  }
-}

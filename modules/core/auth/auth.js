@@ -511,21 +511,6 @@ Object.observe(iris.modules.auth.globals.userList, function (data) {
 
 });
 
-iris.route.get("/logout", {
-  "menu": [{
-    weight: 5,
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Logout"
-  }]
-}, function (req, res) {
-
-  iris.invokeHook("hook_auth_clearauth", "root", null, req.authPass.userid);
-
-  res.send("logged out");
-
-});
-
 iris.app.post("/logout", function (req, res) {
 
   iris.invokeHook("hook_auth_clearauth", "root", null, req.authPass.userid);
