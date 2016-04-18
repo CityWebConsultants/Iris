@@ -158,7 +158,11 @@ iris.modules.autopath.registerHook("hook_form_render__entity", 2, function (this
 
     thisHook.pass(data);
 
-  };
+  } else {
+    
+    thisHook.pass(data);
+    
+  }
 
 });
 
