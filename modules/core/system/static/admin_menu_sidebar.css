@@ -52,6 +52,10 @@
     padding-left: 0px;
 }
 
+.sub-menu.open {
+    display:block;
+}
+
 .sub-menu li a {
     padding: 10px 5px 10px 10px;
     background: #586180;
