@@ -1,10 +1,9 @@
 <link rel="stylesheet" href="/modules/system/admin_menu_sidebar.css" />
 <script>
 $(document).ready(function(){
-    $('ul.menu .has-children').hover(function(){
-      $(this).find('.sub-menu').stop().slideDown();
-    }, function(){
-      $(this).find('.sub-menu').stop().slideUp();
+    $('ul.menu .has-children span').click(function(e){
+      e.preventDefault();
+      $(this).parents('.has-children').find('.sub-menu').toggleClass('open');
     });
 });
 

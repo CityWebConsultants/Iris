@@ -1,17 +1,19 @@
 language: node_js
 node_js: "5.5"
 before_install: 
-  - npm install -g grunt-cli
+  - npm install -g grunt-cli jasmine-node pm2
 before_script:
-  - npm install jasmine-node -g
-  - node iris.js site=default &
-#  - grunt build
 install: 
   - npm install
+  - git clone https://github.com/CityWebConsultants/iris-project-template.git
+  - cd iris-project-template
+  - mongoimport --db mysite --collection users --file fixtures/users.json
+  - mongoimport --db mysite --collection pages --file fixtures/users.json
+  - npm install --dev
+  - pm2 start index.js
 services:
   - mongodb
 env: site=default
 addons:
   hosts:
     - www.iris.local
-
