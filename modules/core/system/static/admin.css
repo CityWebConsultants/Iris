@@ -288,7 +288,9 @@ div[data-jsonform-type="checkbox"] .controls{
   background: #1C2440;
   color: white;
 }
-
+.admin-inputs input[type=submit] {
+  margin-left:20px;
+}
 .right{
   float: right;
 }
