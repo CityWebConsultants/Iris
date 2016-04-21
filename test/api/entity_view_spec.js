@@ -134,33 +134,6 @@ describe('Entity', function () {
                   .expectHeaderContains('content-type', 'application/json')
                   .afterJSON(function (res) {
                     authenticated_user3 = res;
-
-                    frisby.create('Delete test user 1')
-                      .post(baseurl + '/entity/delete/user/' + authenticated_user1.eid,
-                        {
-                          credentials: admin,
-                        },
-                        { json: true })
-                      .expectStatus(200)
-                      .toss();
-                      
-                    frisby.create('Delete test user 2')
-                      .post(baseurl + '/entity/delete/user/' + authenticated_user2.eid,
-                        {
-                          credentials: admin,
-                        },
-                        { json: true })
-                      .expectStatus(200)
-                      .toss();
-                      
-                    frisby.create('Delete test user 2')
-                      .post(baseurl + '/entity/delete/user/' + authenticated_user3.eid,
-                        {
-                          credentials: admin,
-                        },
-                        { json: true })
-                      .expectStatus(200)
-                      .toss();
                   })
                   .toss();
 
