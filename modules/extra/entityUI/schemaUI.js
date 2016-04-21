@@ -977,7 +977,7 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
 iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (thisHook, data) {
 
   // Check entityType field is provided.
-  if (thisHook.context.params[1]) {
+  if (thisHook.context.params && thisHook.context.params[1]) {
 
     var entityType = thisHook.context.params[1];
 
