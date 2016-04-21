@@ -1,6 +1,6 @@
 var frisby = require('frisby');
-var config = require('./test_config');
-var utils = require('./test_utils');
+var config = require('../test_config');
+var utils = require('../test_utils');
 
 var generateString = utils.generateString;
 var formatParams = utils.formatParams;
