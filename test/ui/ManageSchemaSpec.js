@@ -2,7 +2,7 @@
 var config = require('../test_config');
 var util = require('../util/schema');
 
-casper.test.begin('Test Schema CRUD', 4, function (test) {
+casper.test.begin('Test Schema Management', 4, function (test) {
   casper.start();
   /**
    * Login as admin
