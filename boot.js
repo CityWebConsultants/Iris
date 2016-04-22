@@ -199,8 +199,8 @@ module.exports = function (config) {
     iris.enabledModules.forEach(function (enabledModule, index) {
 
       // Check if module path is a site path
-
-      var lookup = glob.sync("{" + iris.rootPath + "/modules/extra/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "}");
+      var rootParent = iris.rootPath.substring(0, iris.rootPath.length - 7);
+      var lookup = glob.sync("{" + rootParent + "/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "}");
 
       lookup.reverse();
 
