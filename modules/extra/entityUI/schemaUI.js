@@ -1517,7 +1517,6 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
     data.schema.help =
     {
       "type": "object",
-      "title" : thisHook.authPass.t('Widgets'),
       "properties": {
         help: {
           type: 'markup',
