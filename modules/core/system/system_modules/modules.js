@@ -49,7 +49,7 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
   // Search for iris files
 
   var rootParent = iris.rootPath.substring(0, iris.rootPath.length - 7);
-  glob("{" + rootParent + "/**/*.iris.module" +',' +  iris.rootPath + "/modules/extra/**/*.iris.module" + "," + iris.sitePath + "/modules/**/*.iris.module" + "}", function (er, files) {
+  glob("{" + rootParent + "/**/*.iris.module" +',' + iris.rootPath + "/modules/extra/**/*.iris.module" + "," + iris.sitePath + "/modules/**/*.iris.module" + "}", function (er, files) {
 
       var availableModules = {};
 
@@ -60,7 +60,7 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
         var moduleName = path.basename(file).replace(".iris.module", "");
         var fileDir = path.dirname(file);
 
-        fileDir = fileDir.replace(iris.rootPath, "") + "/" + moduleName;
+        //fileDir = fileDir.replace(iris.rootPath, "") + "/" + moduleName;
 
         try {
 
