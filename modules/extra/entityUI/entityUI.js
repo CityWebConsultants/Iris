@@ -7,7 +7,7 @@ require('./schemaUI.js');
 var fs = require("fs");
 
 var routes = {
-  delete : {
+  delete: {
     title: 'Delete entity',
   },
   create: {
@@ -36,7 +36,9 @@ iris.app.get("/:type/:eid/edit", function (req, res) {
 
 iris.route.get("/:type/create", routes.create, function (req, res) {
 
-  req.irisRoute.options.title = req.authPass.t('Create new {{type}}', {type: req.params.type});
+  req.irisRoute.options.title = req.authPass.t('Create new {{type}}', {
+    type: req.params.type
+  });
 
   if (iris.modules.auth.globals.checkPermissions(["can create " + req.params.type], req.authPass)) {
 
@@ -54,8 +56,7 @@ iris.route.get("/:type/create", routes.create, function (req, res) {
 
     });
 
-  }
-  else {
+  } else {
 
     iris.modules.frontend.globals.displayErrorPage(403, req, res);
 
@@ -67,7 +68,9 @@ iris.route.get("/:type/create", routes.create, function (req, res) {
 
 iris.route.get("/:type/:id/delete", routes.delete, function (req, res) {
 
-  req.irisRoute.options.title = req.authPass.t('Delete entity {{id}}?', {id: req.params.id});
+  req.irisRoute.options.title = req.authPass.t('Delete entity {{id}}?', {
+    id: req.params.id
+  });
 
   iris.dbCollections[req.params.type].findOne({
     "eid": req.params.id
@@ -177,7 +180,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       // Reorder form elements
 
-     /* var formRaw = data.form;
+      var formRaw = data.form;
 
       data.form = [];
 
@@ -193,7 +196,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
         });
 
-      });*/
+      });
 
 
       counter += 1;
@@ -402,13 +405,13 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
             var key = [];
             var finished = false;
-            var getFieldPath = function(fields, parent, field, current) {
+            var getFieldPath = function (fields, parent, field, current) {
 
               if (finished) {
                 return;
               }
               var subfields = Object.keys(fields);
-              for(var i = 0; i < subfields.length; i++) {
+              for (var i = 0; i < subfields.length; i++) {
 
                 if (finished) {
                   return;
@@ -423,8 +426,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                 if (fields[subfields[i]].subfields) {
                   current = subfields[i];
                   getFieldPath(fields[subfields[i]].subfields, parent, field, current);
-                }
-                else {
+                } else {
                   key.pop();
                 }
 
@@ -447,8 +449,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
                 if (form.schema && form.schema.default) {
                   fieldset.default[index][subFieldName] = form.schema.default;
-                }
-                else if (form.default){
+                } else if (form.default) {
                   fieldset.default[index][subFieldName] = form.default;
                 }
 
@@ -456,16 +457,16 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
                 //if (form.form) {
 
-                  if (!fieldset.form) {
-                    fieldset.form = {
-                      "key" : fieldName,
-                      "type" : "array",
-                      "items" : [{
-                        "type" : "fieldset",
-                        "items" : []
+                if (!fieldset.form) {
+                  fieldset.form = {
+                    "key": fieldName,
+                    "type": "array",
+                    "items": [{
+                      "type": "fieldset",
+                      "items": []
                       }]
-                    };
-                  }
+                  };
+                }
 
                 getFieldPath(schema.fields, fieldName, subFieldName);
                 var keyPath = key.join('.');
@@ -473,50 +474,48 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                 if (form.form) {
                   form.form.key = keyPath;
                 }
-                  var fieldExists = false;
-                  for (var i = 0; i < fieldset.form.items[0].items.length; i++) {
+                var fieldExists = false;
+                for (var i = 0; i < fieldset.form.items[0].items.length; i++) {
 
-                    if (typeof fieldset.form.items[0].items[i] == 'object') {
+                  if (typeof fieldset.form.items[0].items[i] == 'object') {
 
-                      if (fieldset.form.items[0].items[i].key == keyPath) {
-
-                        fieldExists = true;
-
-                      }
-                    }
-                    else if (fieldset.form.items[0].items[i] == keyPath) {
+                    if (fieldset.form.items[0].items[i].key == keyPath) {
 
                       fieldExists = true;
 
                     }
-                  }
+                  } else if (fieldset.form.items[0].items[i] == keyPath) {
 
-                  if (!fieldExists) {
-
-                    if (form.form) {
-
-                      if (form.schema) {
-                        Object.keys(form.schema).forEach(function (item) {
-
-                          if (!form.form[item]) {
-
-                            form.form[item] = form.schema[item];
-
-                          }
-
-                        });
-                      }
-
-                      fieldset.form.items[0].items.push(form.form);
-
-                    }
-                    else {
-
-                      fieldset.form.items[0].items.push(keyPath);
-
-                    }
+                    fieldExists = true;
 
                   }
+                }
+
+                if (!fieldExists) {
+
+                  if (form.form) {
+
+                    if (form.schema) {
+                      Object.keys(form.schema).forEach(function (item) {
+
+                        if (!form.form[item]) {
+
+                          form.form[item] = form.schema[item];
+
+                        }
+
+                      });
+                    }
+
+                    fieldset.form.items[0].items.push(form.form);
+
+                  } else {
+
+                    fieldset.form.items[0].items.push(keyPath);
+
+                  }
+
+                }
 
                 if (form.form) {
                   delete form.form;
@@ -559,18 +558,17 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
         }
 
-          if (form.form) {
+        if (form.form) {
 
-            form.form.key = fieldName;
+          form.form.key = fieldName;
 
-            data.form.push(form.form);
+          data.form.push(form.form);
 
-          }
-          else {
+        } else {
 
-            data.form.push(fieldName);
+          data.form.push(fieldName);
 
-          }
+        }
 
 
         if (form.schema) {

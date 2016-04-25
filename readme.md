@@ -29,7 +29,7 @@ var config = {
   "db_name": "test1", // what do you want the database name to be?
 }
 
-require("irisfw")(config);
+require("irisjs")(config);
 
 ```
 
