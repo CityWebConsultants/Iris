@@ -2,7 +2,12 @@
 var config = require('../test_config');
 var util = require('../util/schema');
 
-casper.test.begin('Test Schema Management', 4, function (test) {
+var utils = require('../test_utils');
+
+var generateString = utils.generateString;
+var schema = generateString(10).toLowerCase();
+
+casper.test.begin('Test Schema Management', 5, function (test) {
   casper.start();
   /**
    * Login as admin
@@ -25,7 +30,7 @@ casper.test.begin('Test Schema Management', 4, function (test) {
       test.assertEquals(casper.getCurrentUrl(), 'http://www.iris.local:4000/admin');
     }
   });
-  /**
+    /**
    * Wait for login response redirect
    */
   casper.waitForText("This is the Iris administration area", function () {
@@ -33,7 +38,33 @@ casper.test.begin('Test Schema Management', 4, function (test) {
     * Add Schema field
     */
     var options = {
-      url: config.baseURL + "/admin/schema/page/fields",
+      url: config.baseURL + "/admin/schema/create",
+      waitFor: 'input[name="entityTypeName"]',
+      formId: 'form[data-formid="schema"]',
+      data: {
+        'input[name = "entityTypeName"]': schema,
+        'input[name = "entityTypeDescription"]': "sample only"
+      }
+    };
+    util.test.openTransaction(options, function (err, result) {
+      if (err) {
+        console.log(err);
+      }
+      else {
+        console.log("create schema "+schema+" success");
+        test.assertEquals(casper.getCurrentUrl(), 'http://www.iris.local:4000/admin/schema/create');
+      }
+    });
+  });
+  /**
+   * Wait for login response redirect
+   */
+  casper.waitForText("Manage "+schema+" fields", function () {
+    /**
+    * Add Schema field
+    */
+    var options = {
+      url: config.baseURL + "/admin/schema/"+schema+"/fields",
       waitFor: 'input[name="label"]',
       formId: 'form[data-formid="schemaFieldListing"]',
       data: {
@@ -47,20 +78,20 @@ casper.test.begin('Test Schema Management', 4, function (test) {
         console.log(err);
       }
       else {
-        console.log("create schema field page success");
-        test.assertEquals(casper.getCurrentUrl(), 'http://www.iris.local:4000/admin/schema/page/fields');
+        console.log("create schema field sample success");
+        test.assertEquals(casper.getCurrentUrl(), "http://www.iris.local:4000/admin/schema/"+schema+"/fields");
       }
     });
   });
   /**
    * Wait for create schema field redirect
    */
-  casper.waitForText("Edit field sample : page", function () {
+  casper.waitForText("Edit field sample : "+schema, function () {
     /**
     * Edit Schema field
     */
     var options = {
-      url: config.baseURL + "/admin/schema/page/fields/sample",
+      url: config.baseURL + "/admin/schema/"+schema+"/fields/sample",
       waitFor: 'input[name="fields.unique"]',
       formId: 'form[data-formid="schemafield"]',
       data: {
@@ -75,20 +106,20 @@ casper.test.begin('Test Schema Management', 4, function (test) {
         console.log(err);
       }
       else {
-        console.log("edit schema field page success");
-        test.assertEquals(casper.getCurrentUrl(), 'http://www.iris.local:4000/admin/schema/page/fields/sample');
+        console.log("edit schema field "+schema+" success");
+        test.assertEquals(casper.getCurrentUrl(), "http://www.iris.local:4000/admin/schema/"+schema+"/fields/sample");
       }
     });
   });
   /**
    * Wait for edit schema field redirect
    */
-  casper.waitForText("Manage page fields", function () {
+  casper.waitForText("Manage "+schema+" fields", function () {
     /**
     * Delete Schema field
     */
     var options = {
-      url: config.baseURL + "/admin/schema/page/fields/sample/delete",
+      url: config.baseURL + "/admin/schema/"+schema+"/fields/sample/delete",
       waitFor: 'form[data-formid="schemafieldDelete"]',
       formId: 'form[data-formid="schemafieldDelete"]',
       data: {}
@@ -98,15 +129,15 @@ casper.test.begin('Test Schema Management', 4, function (test) {
         console.log(err);
       }
       else {
-        console.log("delete schema field page success ");
-        test.assertEquals(casper.getCurrentUrl(), 'http://www.iris.local:4000/admin/schema/page/fields/sample/delete');
+        console.log("delete schema field sample success ");
+        test.assertEquals(casper.getCurrentUrl(), "http://www.iris.local:4000/admin/schema/"+schema+"/fields/sample/delete");
       }
     });
   });
    /**
    * Wait for delete schema field redirect
    */
-  casper.waitForText("Manage page fields", function () {
+  casper.waitForText("Manage "+schema+" fields", function () {
     /**
     * logout
     */
