@@ -12,7 +12,7 @@ install:
   - mongoimport --db mysite --collection pages --file fixtures/pages.json
   - npm install  --save git+https://github.com/$TRAVIS_REPO_SLUG.git#$TRAVIS_BRANCH
   - npm install --only=dev
-  - pm2 start index.js
+  - node index.js
 services:
   - mongodb
 env: site=default
