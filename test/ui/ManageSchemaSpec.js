@@ -162,7 +162,7 @@ casper.test.begin('Test Schema Management', 6, function (test) {
   /**
    * Wait for delete schema redirect
    */
-  casper.waitForText("Manage "+schema+" fields", function () {
+  casper.waitForText("Entities", function () {
     /**
     * logout
     */
