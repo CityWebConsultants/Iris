@@ -7,7 +7,7 @@ var utils = require('../test_utils');
 var generateString = utils.generateString;
 var schema = generateString(10).toLowerCase();
 
-casper.test.begin('Test Schema Management', 5, function (test) {
+casper.test.begin('Test Schema Management', 6, function (test) {
   casper.start();
   /**
    * Login as admin
@@ -129,13 +129,38 @@ casper.test.begin('Test Schema Management', 5, function (test) {
         console.log(err);
       }
       else {
-        console.log("delete schema field sample success ");
+        console.log("delete schema field success ");
         test.assertEquals(casper.getCurrentUrl(), "http://www.iris.local:4000/admin/schema/"+schema+"/fields/sample/delete");
       }
     });
   });
    /**
    * Wait for delete schema field redirect
+   */
+  casper.waitForText("Manage "+schema+" fields", function () {
+    /**
+    * Delete Schema
+    */
+    var options = {
+      url: config.baseURL + "/admin/schema/"+schema+"/delete",
+      waitFor: 'form[data-formid="schemaDelete"]',
+      formId: 'form[data-formid="schemaDelete"]',
+      data: {
+        'input[name = "schema"]': schema,
+      }
+    };
+    util.test.openTransaction(options, function (err, result) {
+      if (err) {
+        console.log(err);
+      }
+      else {
+        console.log("delete schema success ");
+        test.assertEquals(casper.getCurrentUrl(), "http://www.iris.local:4000/admin/schema/"+schema+"/delete");
+      }
+    });
+  });
+  /**
+   * Wait for delete schema redirect
    */
   casper.waitForText("Manage "+schema+" fields", function () {
     /**
