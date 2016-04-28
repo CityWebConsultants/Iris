@@ -611,8 +611,8 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
                 name: 'lists'
               }
             ];
-            var fs = require("fs");
-            fs.writeFileSync(iris.sitePath + "/enabled_modules.json", JSON.stringify(enabled));
+            
+            iris.saveConfigSync(enabled, "system", "enabled_modules", true);
 
           }
           iris.message(uid, ap.t("Welcome to your new Iris site!"), "info");
