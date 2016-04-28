@@ -144,11 +144,11 @@ iris.modules.forms.globals.registerWidget(function () {
 
       $(fileInput).parent().find(".currentFile").hide();
 
-      $("input[name=" + id + "]").attr("value", response);
+      $('input[name="' + id + '"]').attr("value", response);
 
     }).fail(function (error) {
 
-      $("input[name=" + id + "]").attr("value", null);
+      $('input[name="' + id + '"]').attr("value", null);
       $(fileInput).parent().find(".currentFile").hide();
       fileInput.value = null;
       alert(error.responseText);
