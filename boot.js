@@ -51,12 +51,12 @@ module.exports = function (config) {
 
   var mkdirp = require('mkdirp');
 
-  if(!config.sitePath){
-    
+  if (!config.sitePath) {
+
     config.sitePath = "/";
-    
+
   }
-      
+
   mkdirp.sync(process.cwd() + config.sitePath);
 
   iris.sitePath = process.cwd() + config.sitePath;
@@ -196,25 +196,57 @@ module.exports = function (config) {
 
     var glob = require("glob");
 
+    // Check if cache of module paths exists
+
+    var modulePathCache;
+
+    try {
+
+      modulePathCache = JSON.parse(fs.readFileSync(iris.sitePath + "/local/modulePathCache.json", "utf8"));
+
+    } catch (e) {
+
+      modulePathCache = {};
+
+    }
+
+    // Cache object to save with found modules
+
+    var foundModules = {};
+
     iris.enabledModules.forEach(function (enabledModule, index) {
 
-      // Check if module path is a site path
-      var rootParent = iris.rootPath.substring(0, iris.rootPath.length - 7);
-      var lookup = glob.sync("{" + rootParent + "/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "}");
+      // Check if path in cache
 
-      lookup.reverse();
+      var lookup;
 
-      if (!lookup.length) {
+      try {
+        fs.readFileSync(modulePathCache[enabledModule.name]);
+        var lookup = [modulePathCache[enabledModule.name]];
+      } catch (e) {
 
-        iris.log("error", "error loading module " + enabledModule.name);
-        return false;
+        // Check if module path is a site path
+        var rootParent = iris.rootPath.substring(0, iris.rootPath.length - 7);
+        var lookup = glob.sync("{" + rootParent + "/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "}");
 
+        lookup.reverse();
+
+        if (!lookup.length) {
+
+          iris.log("error", "error loading module " + enabledModule.name);
+          return false;
+
+        }
       }
 
       var moduleInfoPath = lookup[lookup.length - 1];
 
       var modulePath = lookup[lookup.length - 1].replace(".iris.module", ".js");
       var moduleInfo;
+
+      // Add to cache
+
+      foundModules[enabledModule.name] = moduleInfoPath;
 
       try {
 
@@ -271,6 +303,10 @@ module.exports = function (config) {
       }
 
     });
+
+    iris.mkdirSync(iris.sitePath + "/" + "local");
+
+    fs.writeFileSync(iris.sitePath + "/local/modulePathCache.json", JSON.stringify(foundModules));
 
     iris.status.ready = true;
 
