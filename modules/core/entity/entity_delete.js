@@ -168,7 +168,8 @@ iris.modules.entity.registerHook("hook_schema_delete", 0, function (thisHook, da
     }
 
     mongoose.connection.db.dropCollection(tableName, function(err){
-      if(err) return thisHook.fail("Error deleting collection");
+      // 26 - ns not found, collection may not exist in database
+      if(err && (err.code != 26)) return thisHook.fail("Error deleting collection");
 
 
       // 2.
