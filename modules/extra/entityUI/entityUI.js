@@ -239,10 +239,19 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
     var getFieldForm = function (field, callback, currentValue, fieldName) {
 
       var fieldType = field.fieldType;
+      var fieldTypeType;
+
+      try {
+
+        fieldTypeType = iris.fieldTypes[fieldType].type;
+
+      } catch (e) {
+
+        fieldTypeType = field.type
+
+      }
 
       if (fieldType !== "Fieldset") {
-
-        var fieldTypeType = iris.fieldTypes[fieldType].type;
 
         // Check if a widget has been set for the field
 
@@ -314,7 +323,45 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                 fieldSettings: field
               }).then(function (form) {
 
-                callback(form);
+                if (form) {
+
+                  callback(form);
+
+                } else {
+
+                  // Might be a custom complex field type
+
+                  if (typeof fieldTypeType === "object") {
+
+                    var form = {
+                      type: "object",
+                      title: fieldName,
+                      properties: {}
+                    }
+
+                    Object.keys(iris.fieldTypes[fieldType].type).forEach(function (nested) {
+
+                      form.properties[nested] = {
+                        title: nested,
+                        default: currentValue ? currentValue[nested] : null
+                      }
+
+                      switch (iris.fieldTypes[fieldType].type[nested]) {
+                        case "String":
+                          form.properties[nested].type = "text"
+                          break;
+                        case "Number":
+                          form.properties[nested].type = "number"
+                          break;
+                      }
+
+                    })
+
+                    callback(form);
+
+                  }
+
+                }
 
               }, function (fail) {
 

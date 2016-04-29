@@ -214,6 +214,32 @@ iris.dbPopulate = function() {
       case "[Date]":
         return [Date];
     }
+    
+     // May be a more complex field
+
+    if (typeof type === "object") {
+
+      var typeObject = {};
+
+      Object.keys(type).forEach(function (key) {
+
+        var processedtype = typeConverter(type[key]);
+
+        if (processedtype) {
+
+          typeObject[key] = processedtype;
+
+        }
+
+      })
+      
+      return mongoose.Schema(typeObject);
+      
+    } else {
+
+      return false;
+
+    }
 
     return false;
 
