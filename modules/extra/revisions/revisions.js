@@ -59,127 +59,151 @@ iris.modules.revisions.registerHook("hook_entity_updated", 0, function (thisHook
 
 });
 
+iris.modules.revisions.globals.getRevision = function (entityType, eid, revisionID) {
+
+  return new Promise(function (resolve, reject) {
+
+    iris.modules.revisions.globals.collections[entityType].findOne({
+      "eid": parseInt(eid)
+    }, function (err, revisions) {
+
+      if (err) {
+
+        res.status(500).send(err);
+        return false;
+
+      }
+
+      if (revisions) {
+
+        revisions = revisions.revisions.reverse();
+
+        iris.dbCollections[entityType].findOne({
+          eid: parseInt(eid)
+        }, function (err, current) {
+
+          if (current) {
+
+            delete current["__v"];
+            delete current["_id"];
+
+            // Step through patches
+
+            var i;
+
+            if (revisionID > revisions.length) {
+
+              res.status(400).send("no such revision");
+              return false;
+
+            }
+
+
+            var patched = current.toObject();
+            var date;
+
+            for (i = 0; i < revisions.length - revisionID; i += 1) {
+
+              patched = jsondiffpatch.unpatch(patched, revisions[i].diff);
+              date = revisions[i].date;
+
+            }
+
+            resolve({
+              entity: patched,
+              date: date,
+              total: revisions.length
+            })
+
+          } else {
+
+            reject()
+
+          }
+
+        });
+
+      } else {
+
+        reject();
+
+      }
+
+    });
+
+
+  })
+
+};
+
 // View entity at past state
 
 iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
 
-  if (!iris.modules.revisions.globals.collections[req.params.type]) {
+  iris.modules.revisions.globals.getRevision(req.params.type, req.params.eid, req.params.back).then(function (revision) {
 
-    res.status(400).send("not a valid type");
+    var date;
+    
+    if (revision.date) {
 
-  }
-
-  iris.modules.revisions.globals.collections[req.params.type].findOne({
-    "eid": parseInt(req.params.eid)
-  }, function (err, revisions) {
-
-    if (err) {
-
-      res.status(500).send(err);
-      return false;
+      date = revision.date.getDate() + "/" + revision.date.getMonth() + "/" + revision.date.getFullYear() + " @ " + revision.date.getHours() + ":" + revision.date.getMinutes();
 
     }
 
-    if (revisions) {
+    var message = "";
 
-      revisions = revisions.revisions.reverse();
+    if (parseInt(req.params.back) !== 0) {
 
-      iris.dbCollections[req.params.type].findOne({
-        eid: parseInt(req.params.eid)
-      }, function (err, current) {
-
-        if (current) {
-
-          delete current["__v"];
-          delete current["_id"];
-
-          // Step through patches
-
-          var i;
-
-          if (req.params.back > revisions.length) {
-
-            res.status(400).send("no such revision");
-            return false;
-
-          }
-
-
-          var patched = current.toObject();
-          var date;
-
-          for (i = 0; i < revisions.length - req.params.back; i += 1) {
-
-            patched = jsondiffpatch.unpatch(patched, revisions[i].diff);
-            date = revisions[i].date;
-            date = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " @ " + date.getHours() + ":" + date.getMinutes();
-
-          }
-          
-          var message = "";
-
-          if (parseInt(req.params.back) !== 0) {
-
-            message += " <a title='go back' href=/revisions/" + req.params.type + "/" + req.params.eid + "/" + (parseInt(req.params.back) - 1) + ">&#10094;</a> ";
-
-          } else {
-
-            message += " ";
-
-          }
-
-          if (date) {
-
-            message += "Viewing revision from " + date + ".";
-
-          } else {
-
-            message += "Viewing current revision."
-
-          }
-
-          if (req.params.back < revisions.length) {
-
-            message += " <a title='go forward' href=/revisions/" + req.params.type + "/" + req.params.eid + "/" + (parseInt(req.params.back) + 1) + ">&#10095;</a> ";
-
-          } else {
-
-            message += " ";
-
-          }
-
-          iris.message(req.authPass.userid, message, "info");
-
-          iris.modules.frontend.globals.parseTemplateFile([patched.entityType, patched.eid], ["html", patched.entityType, patched.eid], {
-            current: patched
-          }, req.authPass, req).then(function (success) {
-
-
-            res.send(success);
-
-          }, function (fail) {
-
-            iris.log("error", fail);
-
-            res.status(500).send(fail);
-
-          });
-
-
-        } else {
-
-          res.status(400).send("No such entity");
-
-        }
-
-      })
+      message += " <a title='go back' href=/revisions/" + req.params.type + "/" + req.params.eid + "/" + (parseInt(req.params.back) - 1) + ">&#10094;</a> ";
 
     } else {
 
-      res.status(400).send("No such entity");
+      message += " ";
 
     }
 
-  });
+    if (date) {
+
+      message += "Viewing revision from " + date + ".";
+
+    } else {
+
+      message += "Viewing current revision."
+
+    }
+
+    if (req.params.back < revision.total) {
+
+      message += " <a title='go forward' href=/revisions/" + req.params.type + "/" + req.params.eid + "/" + (parseInt(req.params.back) + 1) + ">&#10095;</a> ";
+
+    } else {
+
+      message += " ";
+
+    }
+
+    // Add button to revert
+
+    iris.message(req.authPass.userid, message, "info");
+
+    iris.modules.frontend.globals.parseTemplateFile([revision.entity.entityType, revision.entity.eid], ["html", revision.entity.entityType, revision.entity.eid], {
+      current: revision.entity
+    }, req.authPass, req).then(function (success) {
+
+      res.send(success);
+
+    }, function (fail) {
+
+      iris.log("error", fail);
+
+      res.status(500).send(fail);
+
+    });
+
+  }, function (fail) {
+
+    res.status(400).send(fail);
+
+  })
 
 })
