@@ -112,7 +112,18 @@ iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
 
           }
 
-          res.send(patched);
+          iris.modules.frontend.globals.parseTemplateFile([patched.entityType, patched.eid], ["html", patched.entityType, patched.eid], {current:patched}, req.authPass, req).then(function (success) {
+
+            res.send(success);
+
+          }, function (fail) {
+
+            iris.log("error", fail);
+
+            res.status(500).send(fail);
+
+          });
+
 
         } else {
 
