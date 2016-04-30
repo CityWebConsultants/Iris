@@ -93,7 +93,7 @@ iris.modules.revisions.globals.getRevision = function (entityType, eid, revision
 
             if (revisionID > revisions.length) {
 
-              res.status(400).send("no such revision");
+              reject("no such revision");
               return false;
 
             }
@@ -143,7 +143,7 @@ iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
   iris.modules.revisions.globals.getRevision(req.params.type, req.params.eid, req.params.back).then(function (revision) {
 
     var date;
-    
+
     if (revision.date) {
 
       date = revision.date.getDate() + "/" + revision.date.getMonth() + "/" + revision.date.getFullYear() + " @ " + revision.date.getHours() + ":" + revision.date.getMinutes();
@@ -206,4 +206,83 @@ iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
 
   })
 
+});
+
+iris.modules.revisions.globals.revertRevision = function (entityType, eid, revisionID, authPass) {
+
+  return new Promise(function (resolve, reject) {
+
+    iris.modules.revisions.globals.getRevision(entityType, eid, revisionID).then(function (revision) {
+
+      iris.invokeHook("hook_entity_edit", authPass, null, revision.entity).then(function (success) {
+
+        resolve(success);
+
+      }, function (fail) {
+
+        reject(fail);
+
+      })
+
+    }, function (fail) {
+
+      reject(fail);
+
+    })
+
+  })
+
+};
+
+iris.modules.revisions.registerHook("hook_form_render__revision_revert", 0, function (thisHook, data) {
+
+  thisHook.context.params;
+
+  data.schema.entityType = {
+    type: "hidden",
+    default: thisHook.context.params.entityType
+  }
+
+  data.schema.eid = {
+    type: "hidden",
+    default: thisHook.context.params.eid
+  }
+
+  data.schema.revision = {
+    type: "hidden",
+    default: thisHook.context.params.revision
+  }
+
+  thisHook.pass(data);
+
 })
+
+iris.modules.revisions.registerHook("hook_form_submit__revision_revert", 0, function (thisHook, data) {
+
+  iris.modules.revisions.globals.revertRevision(thisHook.context.params.entityType, thisHook.context.params.eid, thisHook.context.params.revision, thisHook.authPass).then(function (success) {
+
+    iris.message(thisHook.authPass.userid, "Revision reverted", "info");
+    
+    thisHook.pass(data);
+
+  }, function (fail) {
+
+    thisHook.fail(fail);
+
+  });
+
+});
+
+iris.route.get("/revisions/:entityType/:eid/:revision/revert", function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["revision_revert"], ['admin_wrapper'], {
+    revision: req.params.revision,
+    entityType: req.params.entityType,
+    eid: req.params.eid
+  }, req.authPass).then(function (html) {
+
+    res.send(html);
+
+  });
+
+});
