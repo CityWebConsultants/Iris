@@ -104,15 +104,56 @@ iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
 
           }
 
+
           var patched = current.toObject();
+          var date;
 
           for (i = 0; i < revisions.length - req.params.back; i += 1) {
 
             patched = jsondiffpatch.unpatch(patched, revisions[i].diff);
+            date = revisions[i].date;
+            date = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " @ " + date.getHours() + ":" + date.getMinutes();
+
+          }
+          
+          var message = "";
+
+          if (parseInt(req.params.back) !== 0) {
+
+            message += " <a title='go back' href=/revisions/" + req.params.type + "/" + req.params.eid + "/" + (parseInt(req.params.back) - 1) + ">&#10094;</a> ";
+
+          } else {
+
+            message += " ";
 
           }
 
-          iris.modules.frontend.globals.parseTemplateFile([patched.entityType, patched.eid], ["html", patched.entityType, patched.eid], {current:patched}, req.authPass, req).then(function (success) {
+          if (date) {
+
+            message += "Viewing revision from " + date + ".";
+
+          } else {
+
+            message += "Viewing current revision."
+
+          }
+
+          if (req.params.back < revisions.length) {
+
+            message += " <a title='go forward' href=/revisions/" + req.params.type + "/" + req.params.eid + "/" + (parseInt(req.params.back) + 1) + ">&#10095;</a> ";
+
+          } else {
+
+            message += " ";
+
+          }
+
+          iris.message(req.authPass.userid, message, "info");
+
+          iris.modules.frontend.globals.parseTemplateFile([patched.entityType, patched.eid], ["html", patched.entityType, patched.eid], {
+            current: patched
+          }, req.authPass, req).then(function (success) {
+
 
             res.send(success);
 
