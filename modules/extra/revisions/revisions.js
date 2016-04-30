@@ -58,3 +58,76 @@ iris.modules.revisions.registerHook("hook_entity_updated", 0, function (thisHook
   });
 
 });
+
+// View entity at past state
+
+iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
+
+  if (!iris.modules.revisions.globals.collections[req.params.type]) {
+
+    res.status(400).send("not a valid type");
+
+  }
+
+  iris.modules.revisions.globals.collections[req.params.type].findOne({
+    "eid": parseInt(req.params.eid)
+  }, function (err, revisions) {
+
+    if (err) {
+
+      res.status(500).send(err);
+      return false;
+
+    }
+
+    if (revisions) {
+
+      revisions = revisions.revisions.reverse();
+
+      iris.dbCollections[req.params.type].findOne({
+        eid: parseInt(req.params.eid)
+      }, function (err, current) {
+
+        if (current) {
+
+          delete current["__v"];
+          delete current["_id"];
+
+          // Step through patches
+
+          var i;
+
+          if (req.params.back > revisions.length) {
+
+            res.status(400).send("no such revision");
+            return false;
+
+          }
+
+          var patched = current.toObject();
+
+          for (i = 0; i < revisions.length - req.params.back; i += 1) {
+
+            patched = jsondiffpatch.unpatch(patched, revisions[i].diff);
+
+          }
+
+          res.send(patched);
+
+        } else {
+
+          res.status(400).send("No such entity");
+
+        }
+
+      })
+
+    } else {
+
+      res.status(400).send("No such entity");
+
+    }
+
+  });
+
+})
