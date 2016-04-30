@@ -16,6 +16,7 @@
     "glob": "^5.0.15",
     "handlebars": "^4.0.4",
     "i18n": "^0.8.1",
+    "jsondiffpatch": "^0.1.43",
     "merge": "^1.2.0",
     "minimatch": "^3.0.0",
     "mkdirp": "^0.5.1",
