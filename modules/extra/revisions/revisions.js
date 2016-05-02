@@ -126,26 +126,26 @@ iris.modules.revisions.globals.getRevision = function (entityType, eid, revision
 
                 } else {
 
-                  reject();
+                  reject(403);
 
                 }
 
               }, function (fail) {
 
-                reject();
+                reject(403);
 
               });
 
             }, function (fail) {
 
-              reject();
+              reject(403);
 
             })
 
 
           } else {
 
-            reject()
+            reject(400)
 
           }
 
@@ -153,7 +153,7 @@ iris.modules.revisions.globals.getRevision = function (entityType, eid, revision
 
       } else {
 
-        reject();
+        reject(400);
 
       }
 
@@ -230,7 +230,26 @@ iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
 
   }, function (fail) {
 
-    res.status(400).send(fail);
+    if (!isNaN(fail)) {
+
+      iris.invokeHook("hook_display_error_page", req.authPass, {
+        error: fail,
+        req: req
+      }).then(function (success) {
+
+        res.send(success);
+
+      }, function (fail) {
+
+        res.status(fail).send(fail);
+
+      });
+
+    } else {
+
+      res.status(400).send(fail);
+
+    }
 
   })
 
