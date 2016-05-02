@@ -28,34 +28,57 @@ process.on("dbReady", function () {
 
 });
 
+
+var saveRevision = function (current, previous) {
+
+  return new Promise(function (resolve, reject) {
+
+    var diff = jsondiffpatch.diff(previous, current);
+
+    var revisions = iris.modules.revisions.globals.collections[current.entityType];
+
+    revisions.findOneAndUpdate({
+      "eid": current.eid
+    }, {
+      $push: {
+        "revisions": {
+          date: Date.now(),
+          diff: diff
+        }
+      }
+    }, {
+      new: true,
+      upsert: true
+    }, function (err, doc) {
+
+      resolve();
+
+    });
+
+  })
+
+}
+
+iris.modules.revisions.registerHook("hook_entity_created", 0, function (thisHook, data) {
+
+  saveRevision(data, data).then(function () {
+
+    thisHook.pass(data);
+
+  })
+
+});
+
 iris.modules.revisions.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 
   var previous = thisHook.context.previous;
   var current = thisHook.context.new;
 
-  // Create diff
-
-  var diff = jsondiffpatch.diff(previous, current);
-
-  var revisions = iris.modules.revisions.globals.collections[current.entityType];
-
-  revisions.findOneAndUpdate({
-    "eid": current.eid
-  }, {
-    $push: {
-      "revisions": {
-        date: Date.now(),
-        diff: diff
-      }
-    }
-  }, {
-    new: true,
-    upsert: true
-  }, function (err, doc) {
+  saveRevision(current, previous).then(function () {
 
     thisHook.pass(data);
 
-  });
+  })
 
 });
 
