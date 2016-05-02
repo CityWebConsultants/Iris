@@ -159,7 +159,7 @@ iris.modules.revisions.globals.getRevision = function (entityType, eid, revision
 
       } else {
 
-        reject(400);
+        reject(404);
 
       }
 
