@@ -210,7 +210,13 @@ iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
 
     }
 
-    // Add button to revert
+    // Add revert button if not the current revision
+
+    if (parseInt(req.params.back) === parseInt(revision.total) - 1) {
+
+      message += " | <a href=/revisions/" + req.params.type + "/" + req.params.eid + "/" + req.params.back.toString() + "/revert" + ">Revert to this revision</a>";
+
+    }
 
     iris.message(req.authPass.userid, message, "info");
 
