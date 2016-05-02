@@ -91,6 +91,12 @@ iris.modules.revisions.globals.getRevision = function (entityType, eid, revision
 
             var i;
 
+            if (revisionID === "current") {
+
+              revisionID = revisions.length;
+
+            }
+
             if (revisionID > revisions.length) {
 
               reject("no such revision");
@@ -178,6 +184,12 @@ iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
 
     }
 
+    if (req.params.back === "current") {
+
+      req.params.back = revision.total;
+
+    }
+
     var message = "";
 
     if (parseInt(req.params.back) !== 0) {
@@ -212,7 +224,7 @@ iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
 
     // Add revert button if not the current revision
 
-    if (parseInt(req.params.back) === parseInt(revision.total) - 1) {
+    if (parseInt(req.params.back) !== parseInt(revision.total)) {
 
       message += " | <a href=/revisions/" + req.params.type + "/" + req.params.eid + "/" + req.params.back.toString() + "/revert" + ">Revert to this revision</a>";
 
@@ -337,5 +349,24 @@ iris.route.get("/revisions/:entityType/:eid/:revision/revert", function (req, re
     res.send(html);
 
   });
+
+});
+
+/**
+ * @member hook_frontend_entity_links
+ * @memberof revisions
+ *
+ * @desc add links to view entity revisions
+ *
+ */
+
+iris.modules.revisions.registerHook("hook_entity_links", 0, function (thisHook, linkList) {
+
+  linkList.push({
+    link: "/revisions/" + thisHook.context.entity.entityType + "/" + thisHook.context.entity.eid + "/" + "current",
+    title: "Revisions"
+  })
+
+  thisHook.pass(linkList);
 
 });
