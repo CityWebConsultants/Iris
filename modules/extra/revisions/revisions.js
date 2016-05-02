@@ -114,12 +114,6 @@ iris.modules.revisions.globals.getRevision = function (entityType, eid, revision
 
             var i;
 
-            if (revisionID === "current") {
-
-              revisionID = revisions.length;
-
-            }
-
             if (revisionID > revisions.length) {
 
               reject("no such revision");
@@ -204,12 +198,6 @@ iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
     if (revision.date) {
 
       date = revision.date.getDate() + "/" + revision.date.getMonth() + "/" + revision.date.getFullYear() + " @ " + revision.date.getHours() + ":" + revision.date.getMinutes();
-
-    }
-
-    if (req.params.back === "current") {
-
-      req.params.back = revision.total;
 
     }
 
@@ -386,10 +374,51 @@ iris.route.get("/revisions/:entityType/:eid/:revision/revert", function (req, re
 iris.modules.revisions.registerHook("hook_entity_links", 0, function (thisHook, linkList) {
 
   linkList.push({
-    link: "/revisions/" + thisHook.context.entity.entityType + "/" + thisHook.context.entity.eid + "/" + "current",
+    link: "/revisions/" + thisHook.context.entity.entityType + "/" + thisHook.context.entity.eid + "/",
     title: "Revisions"
   })
 
   thisHook.pass(linkList);
+
+});
+
+iris.modules.auth.globals.registerPermission("can view entity revisions", "entity");
+
+iris.route.get("/revisions/:entityType/:eid", {
+  permissions: ["can view entity revisions"]
+}, function (req, res) {
+
+  // Find revisions
+
+  iris.modules.revisions.globals.collections[req.params.entityType].findOne({
+    "eid": parseInt(req.params.eid)
+  }, function (err, revisions) {
+
+    if (err) {
+
+      res.status(500).send(err);
+      return false;
+
+    }
+
+    iris.modules.frontend.globals.parseTemplateFile(["entity_revisions"], ["admin_wrapper"], {
+      revisions: revisions.revisions,
+      entityType: req.params.entityType,
+      eid: req.params.eid
+    }, req.authPass, req).then(function (success) {
+
+      res.send(success);
+
+    }, function (fail) {
+
+      iris.log("error", fail);
+
+      res.status(500).send(fail);
+
+    });
+
+
+  });
+
 
 });
