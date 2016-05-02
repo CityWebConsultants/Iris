@@ -59,7 +59,7 @@ iris.modules.revisions.registerHook("hook_entity_updated", 0, function (thisHook
 
 });
 
-iris.modules.revisions.globals.getRevision = function (entityType, eid, revisionID) {
+iris.modules.revisions.globals.getRevision = function (entityType, eid, revisionID, authPass) {
 
   return new Promise(function (resolve, reject) {
 
@@ -109,11 +109,39 @@ iris.modules.revisions.globals.getRevision = function (entityType, eid, revision
 
             }
 
-            resolve({
-              entity: patched,
-              date: date,
-              total: revisions.length
+            // Do permissions checks on entity
+
+            iris.invokeHook("hook_entity_view", authPass, patched, patched).then(function (entity) {
+
+              iris.invokeHook("hook_entity_view__" + entityType, authPass, entity, entity).then(function (validatedEntity) {
+
+                if (validatedEntity) {
+
+                  resolve({
+                    entity: validatedEntity,
+                    date: date,
+                    total: revisions.length
+                  })
+
+
+                } else {
+
+                  reject();
+
+                }
+
+              }, function (fail) {
+
+                reject();
+
+              });
+
+            }, function (fail) {
+
+              reject();
+
             })
+
 
           } else {
 
@@ -140,7 +168,7 @@ iris.modules.revisions.globals.getRevision = function (entityType, eid, revision
 
 iris.route.get("/revisions/:type/:eid/:back", function (req, res) {
 
-  iris.modules.revisions.globals.getRevision(req.params.type, req.params.eid, req.params.back).then(function (revision) {
+  iris.modules.revisions.globals.getRevision(req.params.type, req.params.eid, req.params.back, req.authPass).then(function (revision) {
 
     var date;
 
@@ -212,7 +240,7 @@ iris.modules.revisions.globals.revertRevision = function (entityType, eid, revis
 
   return new Promise(function (resolve, reject) {
 
-    iris.modules.revisions.globals.getRevision(entityType, eid, revisionID).then(function (revision) {
+    iris.modules.revisions.globals.getRevision(entityType, eid, revisionID, authPass).then(function (revision) {
 
       iris.invokeHook("hook_entity_edit", authPass, null, revision.entity).then(function (success) {
 
@@ -262,7 +290,7 @@ iris.modules.revisions.registerHook("hook_form_submit__revision_revert", 0, func
   iris.modules.revisions.globals.revertRevision(thisHook.context.params.entityType, thisHook.context.params.eid, thisHook.context.params.revision, thisHook.authPass).then(function (success) {
 
     iris.message(thisHook.authPass.userid, "Revision reverted", "info");
-    
+
     thisHook.pass(data);
 
   }, function (fail) {
