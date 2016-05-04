@@ -1,4 +1,7 @@
 {
   "name": "Entity Reference",
-  "type": "String"
+  "type": {
+    "eid": "String",
+    "entityType": "String"
+  }
 }
