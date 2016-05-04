@@ -30,7 +30,7 @@ module.exports = function (grunt) {
                 '-W069': true
             },
             // Include core and exclude libraries and dependencies.
-            all: ['iris_core/*.js', 'iris_core/modules/core/*/*.js', 'iris_core/modules/extra/*/*.js', '!iris_core/modules/core/**/deps/*', '!*min.js']
+            all: ['*.js', 'modules/core/*/*.js', 'modules/extra/*/*.js', '!modules/core/**/deps/*', '!*min.js']
         }
     });
 
