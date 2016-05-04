@@ -23,19 +23,27 @@ module.exports = function (config) {
 
   // Restart function
 
-  iris.restart = function (userid, where) {
+  iris.restart = function (authPass, data) {
+
+    if (!data) {
+
+      var data = {};
+
+    }
 
     process.nextTick(function () {
 
-      if (userid) {
+      iris.message(authPass.userid, "Server restarted", "success");
 
-        iris.message(userid, "Server restarted", "success");
+      iris.log("info", "Server restarted by " + authPass.userid);
 
-      }
+      iris.invokeHook("hook_restart_send", authPass, null, data).then(function (data) {
+        
+        process.send({
+          restart: data
+        });
 
-      iris.log("info", "Server restarted " + (userid ? " by user " + userid : "") + (where ? " via " + where : ""));
-
-      process.send("restart");
+      })
 
     });
 

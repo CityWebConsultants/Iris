@@ -621,7 +621,7 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
             if (enabled) {
               console.log('restarting');
               iris.message(uid, ap.t("Don't worry, that short glitch was the server restarting to install the Standard profile."), "info");
-              iris.restart(uid, ap.t("UI modules enabled."));
+              iris.restart(thisHook.authPass, {});
             }
           });
         });
