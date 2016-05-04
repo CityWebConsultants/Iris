@@ -40,7 +40,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
   iris.dbCollections[data.entityType].findOne({
     eid: data.eid
   }, function (err, doc) {
-    
+
     if (err) {
 
       thisHook.fail(iris.error(500, "Database error"));
@@ -58,10 +58,54 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     if (doc) {
 
-      data.eid = doc.eid;
-      data.entityAuthor = doc.entityAuthor;
+      var type = data.entityType;
+      var fieldFailed = [];
+      Object.keys(data).forEach(function (field) {
 
-      runUpdate();
+        if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
+
+          var schemaField = iris.dbCollections[type].schema.tree[field];
+
+          if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
+
+            if (!schemaField.edit_permissions) {
+              console.log("schemaField.edit_permissions", schemaField.edit_permissions, field);
+              fieldFailed.push(field);
+
+            } else {
+
+              var canEdit = false;
+              thisHook.authPass.roles.forEach(function (role) {
+
+                if (schemaField.edit_permissions.indexOf(role) !== -1) {
+                  console.log("role", role, field);
+                  canEdit = true;
+                }
+
+              });
+
+              if (!canEdit) {
+                console.log("schemaField.edit_permissions", schemaField.edit_permissions, field);
+                fieldFailed.push(field);
+
+              }
+
+            }
+
+          }
+
+        }
+
+      });
+      if (fieldFailed.length == 0) {
+
+        data.eid = doc.eid;
+        data.entityAuthor = doc.entityAuthor;
+
+        runUpdate();
+      } else {
+        thisHook.fail(iris.error(403, "Trying to update an entity field without permission : " + fieldFailed.join()));
+      }
 
     }
 
@@ -70,9 +114,9 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
   //Actual run update function
 
   var runUpdate = function () {
-    
+
     iris.invokeHook("hook_entity_access_edit", thisHook.authPass, null, data).then(function (success) {
-      
+
       iris.invokeHook("hook_entity_access_edit_" + data.entityType, thisHook.authPass, null, data).then(function (success) {
 
         validate();
@@ -123,7 +167,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
           preSave(data);
 
         } else {
-          
+
           thisHook.fail(fail);
           return false;
 
@@ -183,14 +227,14 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     delete validatedEntity.eid;
     delete validatedEntity.$$hashKey;
-    
+
     var update = validatedEntity;
 
     update.entityType = data.entityType;
     iris.dbCollections[data.entityType].update(conditions, update, callback);
 
     function callback(err, numAffected) {
-      
+
       if (err) {
 
         thisHook.fail(err);
