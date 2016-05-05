@@ -151,12 +151,34 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       var fields = [];
 
+      var isAdmin = (thisHook.authPass.roles.indexOf("admin") !== -1);
+
       Object.keys(schema.fields).forEach(function (field) {
 
-        fields.push({
-          name: field,
-          weight: schema.fields[field].weight
-        })
+        var canEdit = false;
+
+        thisHook.authPass.roles.forEach(function (role) {
+
+          var schemafield = schema.fields[field].edit_permissions;
+
+          if (isAdmin || (schemafield && (schemafield.indexOf(role) !== -1))) {
+
+            canEdit = true;
+
+          }
+
+        });
+
+        if (canEdit) {
+
+          fields.push({
+
+            name: field,
+
+            weight: schema.fields[field].weight
+
+          });
+        }
 
       });
 
@@ -239,10 +261,19 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
     var getFieldForm = function (field, callback, currentValue, fieldName) {
 
       var fieldType = field.fieldType;
+      var fieldTypeType;
+
+      try {
+
+        fieldTypeType = iris.fieldTypes[fieldType].type;
+
+      } catch (e) {
+
+        fieldTypeType = field.type
+
+      }
 
       if (fieldType !== "Fieldset") {
-
-        var fieldTypeType = iris.fieldTypes[fieldType].type;
 
         // Check if a widget has been set for the field
 
@@ -314,7 +345,45 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                 fieldSettings: field
               }).then(function (form) {
 
-                callback(form);
+                if (form) {
+
+                  callback(form);
+
+                } else {
+
+                  // Might be a custom complex field type
+
+                  if (typeof fieldTypeType === "object") {
+
+                    var form = {
+                      type: "object",
+                      title: fieldName,
+                      properties: {}
+                    }
+
+                    Object.keys(iris.fieldTypes[fieldType].type).forEach(function (nested) {
+
+                      form.properties[nested] = {
+                        title: nested,
+                        default: currentValue ? currentValue[nested] : null
+                      }
+
+                      switch (iris.fieldTypes[fieldType].type[nested]) {
+                        case "String":
+                          form.properties[nested].type = "text"
+                          break;
+                        case "Number":
+                          form.properties[nested].type = "number"
+                          break;
+                      }
+
+                    })
+
+                    callback(form);
+
+                  }
+
+                }
 
               }, function (fail) {
 
@@ -464,7 +533,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                     "items": [{
                       "type": "fieldset",
                       "items": []
-                      }]
+                    }]
                   };
                 }
 
@@ -727,7 +796,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
         iris.invokeHook("hook_entity_field_fieldTypeType_save__" + fieldTypeType, thisHook.authPass, {
           value: newValue,
           field: field
-        }, value).then(function (finalValue) {
+        }, newValue).then(function (finalValue) {
 
           callback(finalValue);
 
@@ -833,6 +902,30 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
   })
 
 });
+
+// List of entity types with view content links
+
+iris.route.get("/admin/entitylist", {
+  title: "Content",
+  description: "View content",
+  permissions: ["can access admin pages"],
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Content"
+    }]
+}, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_entitytypelist"], ['admin_wrapper'], {
+    entityTypes: Object.keys(iris.dbCollections)
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  });
+
+});
+
 
 // List of entities
 

@@ -15,14 +15,14 @@ iris.route.get("/entity-reference/:type/:field", {}, function (req, res) {
   iris.invokeHook("hook_entity_fetch", 'root', null, orgQuery).then(function (entities) {
 
     var list = [];
-    entities.forEach(function(entity) {
+    entities.forEach(function (entity) {
 
       list.push(entity[req.params.field] + '[' + entity.eid + ']');
 
     });
     res.json(list);
 
-  }, function(fail) {
+  }, function (fail) {
 
     res.json([]);
 
@@ -61,10 +61,10 @@ iris.modules.entityReference.registerHook("hook_form_render__field_settings__ent
 
   }
 
-  Object.keys(collections).forEach(function(schema, index) {
+  Object.keys(collections).forEach(function (schema, index) {
 
     var fields = [];
-    Object.keys(collections[schema].fields).forEach(function(field) {
+    Object.keys(collections[schema].fields).forEach(function (field) {
 
       if (collections[schema].fields[field].fieldType == 'Textfield') {
 
@@ -75,30 +75,29 @@ iris.modules.entityReference.registerHook("hook_form_render__field_settings__ent
     });
 
     settings[schema] = {
-      "type" : "text",
-      "title" : "Choose " + schema + " field to search on",
-      "enum" : fields
+      "type": "text",
+      "title": "Choose " + schema + " field to search on",
+      "enum": fields
     };
 
     var extraClass = '';
 
     if (!hasValue && index == 0) {
       extraClass = 'open';
-    }
-    else if (data.value.settings && data.value.settings.entityType && data.value.settings.entityType == schema) {
+    } else if (data.value.settings && data.value.settings.entityType && data.value.settings.entityType == schema) {
       extraClass = 'open';
     }
 
     data.form.push({
       "key": "settings." + schema,
-      "htmlClass" : "choose-fields " + extraClass
+      "htmlClass": "choose-fields " + extraClass
     });
 
   });
 
   data.schema.title = {
     "type": "markup",
-    "markup" : "<h3>Field settings</h3>"
+    "markup": "<h3>Field settings</h3>"
   };
 
   // Set a maximum character length.
@@ -124,18 +123,61 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
   var value = thisHook.context.value;
   var fieldSettings = thisHook.context.fieldSettings;
 
-  data.schema = {
-    "type": "text",
-    "default": value,
-    "title": fieldSettings.label,
-    "description": fieldSettings.description,
-  };
+  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+    "entities": [value.entityType],
+    queries: [{
+      "operator": "is",
+      "field": "eid",
+      "value": parseInt(value.eid)
+    }]
+  }).then(function (entity) {
 
-  data.form = {
-    "type" : "text",
-    "autocomplete": {
-      "source": '/entity-reference/' + fieldSettings.settings.entityType + '/' + fieldSettings.settings[fieldSettings.settings.entityType]
+    if (entity && entity.length) {
+
+      var entity = entity[0];
+
+      value = entity[fieldSettings.settings[value.entityType]] + "[" + value.eid + "]";
+
+    } else {
+
+      value = "";
+
     }
+
+    data.schema = {
+      "type": "text",
+      "default": value,
+      "title": fieldSettings.label,
+      "description": fieldSettings.description,
+    };
+
+    data.form = {
+      "type": "text",
+      "autocomplete": {
+        "source": '/entity-reference/' + fieldSettings.settings.entityType + '/' + fieldSettings.settings[fieldSettings.settings.entityType]
+      }
+    }
+
+    thisHook.pass(data);
+
+  }, function (fail) {
+
+    console.log(fail);
+
+  })
+
+});
+
+iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__entity_reference", 0, function (thisHook, data) {
+
+  var settings = thisHook.context.field.settings;
+
+  var entityType = settings.entityType;
+  var eid = thisHook.context.value.match(/[^[\]]+(?=])/g)[0];
+
+  var data = {
+    entityType: entityType,
+    eid: eid
   }
 
   thisHook.pass(data);
@@ -181,4 +223,3 @@ iris.modules.entityReference.registerHook("hook_frontend_embed__form", 1, functi
   thisHook.pass(data);
 
 });
-

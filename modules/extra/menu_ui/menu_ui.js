@@ -47,117 +47,111 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
 
   // Check if menu name supplied and previous values available
   var ap = thisHook.authPass;
-  if (thisHook.context.params[1] && thisHook.context.params[1].indexOf("{") !== -1) {
+  
+  var menuId = thisHook.context.params;
+  
+  iris.readConfig('menu', menuId).then(function (config) {
 
-    thisHook.fail(data);
-    return false;
+    data.value = config;
 
-  } else {
+    // Create form for menus
 
-    iris.readConfig('menu', thisHook.context.params[1]).then(function (config) {
-
-      data.value = config;
-
-      // Create form for menus
-
-      data.schema = {
-        "menuName": {
-          "type": "text",
-          "title": ap.t("Menu title")
-        },
+    data.schema = {
+      "menuName": {
+        "type": "text",
+        "title": ap.t("Menu title")
+      },
+      "items": {
+        "type": "array",
+        "title": "Menu links",
         "items": {
-          "type": "array",
-          "title" : "Menu links",
-          "items": {
-            "type": "object",
-            "properties": {
-              "title": {
-                "type": "text",
-                "title": ap.t("Title")
-              },
-              "path": {
-                "type": "text",
-                "title": ap.t("path")
-              },
-              "children": {
-                "type": "array",
-                "title": ap.t("Children"),
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "text",
-                      "title": ap.t("Title")
-                    },
-                    "path": {
-                      "type": "text",
-                      "title": ap.t("path")
-                    },
-                  }
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "text",
+              "title": ap.t("Title")
+            },
+            "path": {
+              "type": "text",
+              "title": ap.t("path")
+            },
+            "children": {
+              "type": "array",
+              "title": ap.t("Children"),
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "text",
+                    "title": ap.t("Title")
+                  },
+                  "path": {
+                    "type": "text",
+                    "title": ap.t("path")
+                  },
                 }
               }
             }
           }
         }
       }
+    }
 
-      // Hide menu title if editing
+    // Hide menu title if editing
 
-      if (data.value.menuName) {
+    if (data.value.menuName) {
 
-        data.schema.menuName.type = "hidden";
+      data.schema.menuName.type = "hidden";
 
-      }
+    }
 
-      thisHook.pass(data);
+    thisHook.pass(data);
 
-    }, function (fail) {
+  }, function (fail) {
 
-      data.schema = {
-        "menuName": {
-          "type": "text",
-          "title": ap.t("Menu title")
-        },
+    data.schema = {
+      "menuName": {
+        "type": "text",
+        "title": ap.t("Menu title")
+      },
+      "items": {
+        "type": "array",
         "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "title": {
-                "type": "text",
-                "title": ap.t("Title")
-              },
-              "path": {
-                "type": "text",
-                "title": ap.t("path")
-              },
-              "children": {
-                "type": "array",
-                "title": ap.t("Children"),
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "text",
-                      "title": ap.t("Title")
-                    },
-                    "path": {
-                      "type": "text",
-                      "title": ap.t("path")
-                    },
-                  }
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "text",
+              "title": ap.t("Title")
+            },
+            "path": {
+              "type": "text",
+              "title": ap.t("path")
+            },
+            "children": {
+              "type": "array",
+              "title": ap.t("Children"),
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "text",
+                    "title": ap.t("Title")
+                  },
+                  "path": {
+                    "type": "text",
+                    "title": ap.t("path")
+                  },
                 }
               }
             }
           }
         }
       }
+    }
 
-      thisHook.pass(data);
+    thisHook.pass(data);
 
-    });
-
-  }
+  });
 
 });
 
@@ -318,7 +312,7 @@ iris.modules.menu.registerHook("hook_form_render__menu_delete", 0, function (thi
     data.schema = {};
 
   }
-    
+
   data.schema["menuName"] = {
     type: "hidden",
     default: thisHook.context.params[1]
@@ -333,9 +327,9 @@ iris.modules.menu.registerHook("hook_form_render__menu_delete", 0, function (thi
  */
 
 iris.modules.menu.registerHook("hook_form_submit__menu_delete", 0, function (thisHook, data) {
-    
+
   var menu = iris.sanitizeName(thisHook.context.params.menuName);
-  
+
   iris.deleteConfig("menu", menu, function (err) {
 
     var data = function (res) {
