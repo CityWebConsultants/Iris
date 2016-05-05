@@ -939,6 +939,14 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
             "enum": Object.keys(iris.modules.auth.globals.roles)
           }
         },
+        "edit_permissions": {
+          "type": "checkboxbuttons",
+          "activeClass": "btn-success",
+          "title": "Field edit permissions",
+          "items": {
+            "enum": Object.keys(iris.modules.auth.globals.roles)
+          }
+        },
         "required": {
           "type": "boolean",
           "title": "Required field",
