@@ -151,7 +151,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       var fields = [];
 
-      var isAdmin = (thisHook.authPass.roles.indexOf("admin") !== -1) || true;
+      var isAdmin = (thisHook.authPass.roles.indexOf("admin") !== -1);
 
       Object.keys(schema.fields).forEach(function (field) {
 
