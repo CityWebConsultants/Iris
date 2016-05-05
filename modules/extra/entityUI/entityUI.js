@@ -796,7 +796,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
         iris.invokeHook("hook_entity_field_fieldTypeType_save__" + fieldTypeType, thisHook.authPass, {
           value: newValue,
           field: field
-        }, value).then(function (finalValue) {
+        }, newValue).then(function (finalValue) {
 
           callback(finalValue);
 
