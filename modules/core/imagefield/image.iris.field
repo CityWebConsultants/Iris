@@ -1,0 +1,8 @@
+{
+  "name": "Image",
+  "type": {
+    "path": "String",
+    "title": "String",
+    "alt": "String"
+  }
+}
