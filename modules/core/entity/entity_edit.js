@@ -57,9 +57,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     }
 
     if (doc) {
-
       var type = data.entityType;
-      var fieldFailed = [];
       Object.keys(data).forEach(function (field) {
 
         if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
@@ -69,24 +67,23 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
           if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 
             if (!schemaField.edit_permissions) {
-              console.log("schemaField.edit_permissions", schemaField.edit_permissions, field);
-              fieldFailed.push(field);
-
+              iris.log("warn", "field edit without permission attempt ignored for field : " + field + "with value : " + data[field]);
+              delete data[field];
             } else {
 
               var canEdit = false;
               thisHook.authPass.roles.forEach(function (role) {
 
                 if (schemaField.edit_permissions.indexOf(role) !== -1) {
-                  console.log("role", role, field);
+
                   canEdit = true;
                 }
 
               });
 
               if (!canEdit) {
-                console.log("schemaField.edit_permissions", schemaField.edit_permissions, field);
-                fieldFailed.push(field);
+                iris.log("warn", "field edit without permission attempt ignored for field : " + field + "with value : " + data[field]);
+                delete data[field];
 
               }
 
@@ -97,15 +94,10 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
         }
 
       });
-      if (fieldFailed.length == 0) {
+      data.eid = doc.eid;
+      data.entityAuthor = doc.entityAuthor;
 
-        data.eid = doc.eid;
-        data.entityAuthor = doc.entityAuthor;
-
-        runUpdate();
-      } else {
-        thisHook.fail(iris.error(403, "Trying to update an entity field without permission : " + fieldFailed.join()));
-      }
+      runUpdate();
 
     }
 

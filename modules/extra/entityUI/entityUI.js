@@ -151,12 +151,34 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       var fields = [];
 
+      var isAdmin = (thisHook.authPass.roles.indexOf("admin") !== -1) || true;
+
       Object.keys(schema.fields).forEach(function (field) {
 
-        fields.push({
-          name: field,
-          weight: schema.fields[field].weight
-        })
+        var canEdit = false;
+
+        thisHook.authPass.roles.forEach(function (role) {
+
+          var schemafield = schema.fields[field].edit_permissions;
+
+          if (isAdmin || (schemafield && (schemafield.indexOf(role) !== -1))) {
+
+            canEdit = true;
+
+          }
+
+        });
+
+        if (canEdit) {
+
+          fields.push({
+
+            name: field,
+
+            weight: schema.fields[field].weight
+
+          });
+        }
 
       });
 
@@ -511,7 +533,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                     "items": [{
                       "type": "fieldset",
                       "items": []
-                      }]
+                    }]
                   };
                 }
 
