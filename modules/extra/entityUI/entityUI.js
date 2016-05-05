@@ -153,6 +153,17 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       var isAdmin = (thisHook.authPass.roles.indexOf("admin") !== -1);
 
+      if (thisHook.authPass.userid !== "anon") {
+
+        thisHook.authPass.roles.push("authenticated");
+
+      }
+      else {
+
+        thisHook.authPass.roles.push("anonymous");
+
+      }
+
       Object.keys(schema.fields).forEach(function (field) {
 
         var canEdit = false;

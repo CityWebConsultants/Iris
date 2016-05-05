@@ -63,6 +63,15 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
         if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
 
           var schemaField = iris.dbCollections[type].schema.tree[field];
+   
+          if(thisHook.authPass.userid !== "anon") {
+            
+            thisHook.authPass.roles.push("authenticated");
+            
+          }
+          else{
+            thisHook.authPass.roles.push("anonymous");
+          }
 
           if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 
