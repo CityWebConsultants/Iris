@@ -69,6 +69,9 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
             thisHook.authPass.roles.push("authenticated");
             
           }
+          else{
+            thisHook.authPass.roles.push("anonymous");
+          }
 
           if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 

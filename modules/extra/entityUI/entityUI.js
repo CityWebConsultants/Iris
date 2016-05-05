@@ -158,6 +158,11 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
         thisHook.authPass.roles.push("authenticated");
 
       }
+      else {
+
+        thisHook.authPass.roles.push("anonymous");
+
+      }
 
       Object.keys(schema.fields).forEach(function (field) {
 
