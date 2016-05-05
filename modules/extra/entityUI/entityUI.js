@@ -903,6 +903,30 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
 });
 
+// List of entity types with view content links
+
+iris.route.get("/admin/entitylist", {
+  title: "Content",
+  description: "View content",
+  permissions: ["can access admin pages"],
+  "menu": [{
+    menuName: "admin_toolbar",
+    parent: null,
+    title: "Content"
+    }]
+}, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_entitytypelist"], ['admin_wrapper'], {
+    entityTypes: Object.keys(iris.dbCollections)
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success)
+
+  });
+
+});
+
+
 // List of entities
 
 iris.route.get("/admin/entitylist/:type", function (req, res) {
