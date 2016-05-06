@@ -318,7 +318,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
     attributes: {
       "src": "/modules/forms/jsonform/lib/jsonform.js"
     },
-    rank: 3
+    rank: 1
   };
 
   variables.tags.headTags["extrafields"] = {
@@ -326,7 +326,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
     attributes: {
       "src": "/modules/forms/extrafields.js"
     },
-    rank: 1
+    rank: 2
   };
 
   variables.tags.headTags["clientforms"] = {
