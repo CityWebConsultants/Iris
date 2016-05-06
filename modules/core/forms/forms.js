@@ -46,12 +46,11 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
         thisHook.pass(function (res) {
           res.json({
-            'redirect' : data.callback
+            'redirect': data.callback
           });
         });
 
-      }
-      else if (data.errors && data.errors.length > 0) {
+      } else if (data.errors && data.errors.length > 0) {
 
         thisHook.pass(function (res) {
 
@@ -60,8 +59,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
           });
 
         });
-      }
-      else {
+      } else {
         // If no callback is supplied provide a basic redirect to the same page
         var callback = function (res) {
 
@@ -278,7 +276,7 @@ iris.route.get("/modules/forms/extrafields.js", function (req, res) {
  * This implementation of hook_frontend_template_parse adds a "form" block.
  */
 iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHook, data) {
-  
+
   var variables = thisHook.context.vars;
 
   // Add scripts for forms
@@ -340,7 +338,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
   //
 
   var formParams = thisHook.context.embedOptions;
-  
+
   var renderForm = function (form, callback) {
 
     if (!form.schema) {
@@ -420,15 +418,26 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
         form.value.formToken = token;
       }
 
-      var output = "";
-
       var uniqueId = formName + token;
-      output += "<form data-params='" + formParams + "' method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
-      output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}" +
-        "\n if(typeof iris.forms.renderForm == \"function\") iris.forms.renderForm('" + uniqueId + "');</script>";
+      var output = "<form data-params='" + formParams + "' method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
-      callback(output);
+      output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}" + "\n if(typeof iris.forms.renderForm == \"function\") iris.forms.renderForm('" + uniqueId + "');</script>";
+
+      var jsdom = require("jsdom");
+
+      var test = `<div id="formwrapper"><form method="post" data-static-form id="${uniqueId}"></form>` + output + "</div>";
+
+      jsdom.env(test, ["http://localhost:1000/modules/frontend/iris_core.js", "http://code.jquery.com/jquery.js", "http://localhost:1000/modules/forms/jsonform/deps/underscore-min.js", "http://localhost:1000/modules/forms/jsonform/lib/jsonform.js", "http://localhost:1000/modules/forms/extrafields.js"],
+        function (err, window) {
+
+          window.$('#' + uniqueId).jsonForm(form);
+
+          var formOutput = window.$("#formwrapper")[0].outerHTML;
+
+          callback(formOutput);
+
+        });
 
     });
 
