@@ -386,7 +386,7 @@ iris.modules.blocks.registerHook("hook_form_render__blockDeleteForm", 0, functio
   data.form = ["blockType", "blockTitle",
     {
       "type": "help",
-      "helpvalue": "<div class='alert alert-danger'>Are you sure you want to delete this form?</div>"
+      "helpvalue": "<div class='alert alert-danger'>Are you sure you want to delete this block?</div>"
     },
     {
       "type": "button",
