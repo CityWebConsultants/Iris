@@ -6,9 +6,7 @@ function irisReady(fn) {
 
     fn();
 
-  }
-
-  else {
+  } else {
 
     document.addEventListener('DOMContentLoaded', fn);
 
@@ -163,9 +161,7 @@ irisReady(function () {
 
               updated.push(entity);
 
-            }
-
-            else {
+            } else {
 
               if (!iris.fetchedEntities[entity.entityType]) {
 
@@ -201,8 +197,7 @@ irisReady(function () {
                   return 0;
                 });
 
-              }
-              else if (direction === "desc") {
+              } else if (direction === "desc") {
 
                 loader.entities.sort(function asc(a, b) {
 
@@ -345,8 +340,7 @@ iris.fetchEntities = function (variableName, query) {
 
     return false;
 
-  }
-  else {
+  } else {
 
     baseurl = iris.server;
 
@@ -364,19 +358,19 @@ iris.fetchEntities = function (variableName, query) {
 
     return "?" + Object
 
-        .keys(params)
+      .keys(params)
 
-        .map(function (key) {
+    .map(function (key) {
 
-          if (params[key]) {
+      if (params[key]) {
 
-            return key + "=" + params[key];
+        return key + "=" + params[key];
 
-          }
+      }
 
-        })
+    })
 
-        .join("&");
+    .join("&");
   }
 
   var sendQuery = {};
@@ -434,9 +428,7 @@ iris.fetchEntities = function (variableName, query) {
 
               grouped[entity.entityType] = [JSON.parse(JSON.stringify(entity))];
 
-            }
-
-            else {
+            } else {
 
               grouped[entity.entityType].push(JSON.parse(JSON.stringify(entity)));
 
@@ -456,8 +448,7 @@ iris.fetchEntities = function (variableName, query) {
 
               window.iris.fetched[variableName].entities.push(window.iris.fetchedEntities[entity.entityType][entity.eid]);
 
-            }
-            else {
+            } else {
 
               window.iris.fetchedEntities[entity.entityType][entity.eid] = entity;
 
@@ -476,8 +467,7 @@ iris.fetchEntities = function (variableName, query) {
 
         document.dispatchEvent(iris.entityListUpdate);
 
-      }
-      catch (e) {
+      } catch (e) {
 
         console.log(e);
 
@@ -523,3 +513,40 @@ iris.entityPreFetch = function (result, variableName, query) {
   }
 
 };
+
+iris.liveLoadUpdate = function () {
+
+  var entityContainers;
+
+  if (iris.fetched) {
+
+    var entityContainers = {};
+
+    Object.keys(iris.fetched).forEach(function (index) {
+
+      entityContainers[index] = iris.fetched[index].entities
+
+    })
+
+  }
+
+  var liveLoaders = document.querySelectorAll(".iris-live-load");
+  var i;
+  for (i = 0; i < liveLoaders.length; i += 1) {
+
+    var parent = liveLoaders[i];
+
+    var template = Handlebars.compile(parent.querySelector(".iris-live-load-source").getAttribute("data-iris-live-load-template"));
+    var child = parent.querySelector(".iris-live-load-output");
+
+    child.innerHTML = template(entityContainers);
+
+  }
+
+}
+
+document.addEventListener('entityListUpdate', function (e) {
+
+  iris.liveLoadUpdate();
+  
+}, false);
