@@ -533,13 +533,17 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
       Object.keys(iris.modules.forms.globals.widgets).forEach(function (field) {
 
-        //        console.log(iris.modules.forms.globals.widgets[field]);
-
         extrafields += "iris.forms['" + field + "'] = " + iris.modules.forms.globals.widgets[field] + "();\n" + "\n";
 
       });
 
-      var static = `<div data-static-form><form ${action} method="post" id="${uniqueId}"></form>` + output + "</div>";
+      var static = `<form ${action} data-static-form method="post" id="${uniqueId}"></form>`;
+
+      var respond = function (staticForm) {
+
+        callback(staticForm + output);
+
+      }
 
       jsdom.env({
         html: static,
@@ -550,7 +554,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
           var formOutput = window.$("[data-static-form]")[0].outerHTML;
 
-          callback(formOutput);
+          respond(formOutput);
 
         }
       });
