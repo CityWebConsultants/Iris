@@ -44,6 +44,18 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
       } else if (data.callback && data.callback.length > 0) {
 
+        if (nojs) {
+
+          thisHook.pass(function (res) {
+
+            res.redirect(data.callback);
+
+          })
+
+          return false;
+
+        }
+
         thisHook.pass(function (res) {
           res.json({
             'redirect': data.callback
@@ -60,14 +72,27 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
         });
       } else {
-        // If no callback is supplied provide a basic redirect to the same page
-        var callback = function (res) {
 
-          res.json({
-            redirect: thisHook.context.req.url
-          });
+        if (nojs) {
 
-        };
+          var callback = function (res) {
+
+            res.redirect(thisHook.context.req.url);
+
+          }
+
+        } else {
+
+          // If no callback is supplied provide a basic redirect to the same page
+          var callback = function (res) {
+
+            res.json({
+              redirect: thisHook.context.req.url
+            });
+
+          };
+
+        }
 
         thisHook.pass(callback);
       }
@@ -171,6 +196,14 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
     var body = thisHook.context.req.body;
 
     if (body && body.formid && body.formToken) {
+
+      // Check if form submitted without client side JavaScript
+
+      if (thisHook.context.req.query && thisHook.context.req.query.nojs) {
+
+        var nojs = true;
+
+      }
 
       // Check if form id exists in cache, if not stop
 
@@ -424,21 +457,77 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
       output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}" + "\n if(typeof iris.forms.renderForm == \"function\") iris.forms.renderForm('" + uniqueId + "');</script>";
 
-      var jsdom = require("jsdom");
+      // Client side form parsing - check if dynamicform variable passed
 
-      var test = `<div id="formwrapper"><form method="post" data-static-form id="${uniqueId}"></form>` + output + "</div>";
+      if (form.dynamicForm) {
 
-      jsdom.env(test, ["http://localhost:1000/modules/frontend/iris_core.js", "http://code.jquery.com/jquery.js", "http://localhost:1000/modules/forms/jsonform/deps/underscore-min.js", "http://localhost:1000/modules/forms/jsonform/lib/jsonform.js", "http://localhost:1000/modules/forms/extrafields.js"],
-        function (err, window) {
+        output += "<noscript>" + thisHook.authPass.t("<noscript>You need JavaScript enabled to display this form") + "</noscript>";
+
+        callback(output);
+
+        return false;
+
+      }
+
+      if (thisHook.context.vars.req) {
+
+        var jsdom = require("jsdom");
+
+        var url = require("url");
+        var querystring = require("querystring");
+
+        // See if an existing query string exists so as to not overwrite it
+
+        var query = JSON.parse(JSON.stringify(thisHook.context.vars.req.query));
+
+        if (!query.nojs) {
+          query.nojs = true;
+        }
+
+        var actionURL = url.parse(thisHook.context.vars.req.url).pathname + "?" + querystring.stringify(query);
+
+        var action = "action='" + actionURL + "'";
+
+      }
+
+      // Load in requirements
+
+      var fs = require("fs");
+
+      var core = fs.readFileSync(iris.modules.frontend.path + "/static/iris_core.js", "utf-8");
+      var jquery = fs.readFileSync(iris.modules.forms.path + "/static/jsonform/deps/jquery.min.js", "utf-8");
+      var underscore = fs.readFileSync(iris.modules.forms.path + "/static/jsonform/deps/underscore-min.js", "utf-8");
+      var jsonform = fs.readFileSync(iris.modules.forms.path + "/static/jsonform/lib/jsonform.js", "utf-8");
+
+      // Put in extra fields
+
+      var extrafields = "";
+
+      extrafields = "iris.forms = {};" + "\n";
+
+      Object.keys(iris.modules.forms.globals.widgets).forEach(function (field) {
+
+        //        console.log(iris.modules.forms.globals.widgets[field]);
+
+        extrafields += "iris.forms['" + field + "'] = " + iris.modules.forms.globals.widgets[field] + "();\n" + "\n";
+
+      });
+
+      var static = `<div data-static-form><form ${action} method="post" id="${uniqueId}"></form>` + output + "</div>";
+
+      jsdom.env({
+        html: static,
+        src: [core, jquery, underscore, jsonform, extrafields],
+        onload: function (window) {
 
           window.$('#' + uniqueId).jsonForm(form);
 
-          var formOutput = window.$("#formwrapper")[0].outerHTML;
+          var formOutput = window.$("[data-static-form]")[0].outerHTML;
 
           callback(formOutput);
 
-        });
-
+        }
+      });
     });
 
   };
