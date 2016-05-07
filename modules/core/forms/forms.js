@@ -64,6 +64,19 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
       } else if (data.errors && data.errors.length > 0) {
 
+        if (nojs) {
+
+          thisHook.pass(function (res) {
+
+            iris.message(thisHook.authPass.userid, data.errors);
+            res.redirect(thisHook.context.req.url);
+
+          })
+
+          return false;
+
+        }
+
         thisHook.pass(function (res) {
 
           res.json({
@@ -151,6 +164,19 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
     // If any errors were found, do not trigger submit handlers.
     if (data.errors && data.errors.length > 0) {
+
+      if (nojs) {
+
+        thisHook.pass(function (res) {
+
+          iris.message(thisHook.authPass.userid, data.errors);
+          res.redirect(thisHook.context.req.url);
+
+        })
+
+        return false;
+
+      }
 
       var callback = function (res) {
 
