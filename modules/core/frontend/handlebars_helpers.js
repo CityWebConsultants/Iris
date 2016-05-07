@@ -111,7 +111,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   });
 
-  Handlebars.registerHelper("iris_handlebars_live", function (options) {
+  Handlebars.registerHelper("iris_liveupdate", function (options) {
 
     if (options.data.root.finalParse) {
 
