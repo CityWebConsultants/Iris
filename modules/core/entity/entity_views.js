@@ -23,6 +23,14 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
       rank: -1
     }
 
+    thisHook.context.vars.tags.headTags["handlebars"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/entity/handlebars.min.js"
+      },
+      rank: -1
+    }
+
     thisHook.context.vars.tags.headTags["entity_fetch"] = {
       type: "script",
       attributes: {
