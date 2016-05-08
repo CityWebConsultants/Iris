@@ -113,7 +113,7 @@ iris.modules.system.registerHook("hook_form_submit__themes", 0, function (thisHo
 
   fs.writeFileSync(iris.configPath + "/system/active_theme.json", JSON.stringify(output));
 
-  iris.restart(thisHook.authPass.userid, "themes page");
+  iris.restart(thisHook.authPass, {});
 
   thisHook.pass(data);
 

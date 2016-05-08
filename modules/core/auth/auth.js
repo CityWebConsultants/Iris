@@ -270,12 +270,15 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
   // To change the users language, use hook_auth_authpass and then thisHook.authPass.setLocale([language code]);
   if (thisHook.req && thisHook.req.headers && thisHook.req.headers['accept-language']) {
 
-    data.headers = {'accept-language' : thisHook.req.headers['accept-language']};
+    data.headers = {
+      'accept-language': thisHook.req.headers['accept-language']
+    };
 
-  }
-  else {
+  } else {
 
-    data.headers = {'accept-language' : 'en-US,en'};
+    data.headers = {
+      'accept-language': 'en-US,en'
+    };
 
   }
 
@@ -331,8 +334,8 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
       };
 
       iris.modules.auth.globals.userList[data.userid].tokens[authToken] = token;
-      
-      iris.invokeHook("hook_user_login", thisHook.authPass, null, data.userid).then(function(success) {
+
+      iris.invokeHook("hook_user_login", thisHook.authPass, null, data.userid).then(function (success) {
         thisHook.pass(success);
       }, function (fail) {
 
@@ -428,15 +431,15 @@ iris.modules.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, use
 
     if (iris.modules.auth.globals.userList[userid]) {
 
-      iris.invokeHook("hook_user_logout", thisHook.authPass, null, userid).then(function(success){
+      iris.invokeHook("hook_user_logout", thisHook.authPass, null, userid).then(function (success) {
         thisHook.pass(success);
-      }, function(fail) {
+      }, function (fail) {
 
         thisHook.fail(fail);
 
       });
       delete iris.modules.auth.globals.userList[userid];
-       
+
       thisHook.pass(userid);
 
     } else {
@@ -482,7 +485,7 @@ iris.app.post('/auth/deletetoken', function (req, res) {
 });
 
 iris.app.post('/auth/maketoken', function (req, res) {
-  
+
   iris.invokeHook("hook_auth_maketoken", req.authPass, null, {
     userid: req.body.userid
   }).then(function (success) {
@@ -503,13 +506,13 @@ iris.app.get('/auth/checkauth', function (req, res) {
 
 });
 
-Object.observe(iris.modules.auth.globals.userList, function (data) {
+iris.modules.auth.registerHook("hook_restart_send", 0, function (thisHook, data) {
 
-  process.send({
-    sessions: iris.modules.auth.globals.userList
-  });
+  data.sessions = iris.modules.auth.globals.userList;
 
-});
+  thisHook.pass(data);
+
+})
 
 iris.app.post("/logout", function (req, res) {
 
