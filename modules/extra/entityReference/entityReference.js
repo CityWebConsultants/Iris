@@ -123,6 +123,12 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
   var value = thisHook.context.value;
   var fieldSettings = thisHook.context.fieldSettings;
 
+  if (!value) {
+
+    value = {};
+
+  }
+
   iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
     "entities": [value.entityType],
     queries: [{
@@ -173,11 +179,25 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__ent
   var settings = thisHook.context.field.settings;
 
   var entityType = settings.entityType;
-  var eid = thisHook.context.value.match(/[^[\]]+(?=])/g)[0];
 
-  var data = {
-    entityType: entityType,
-    eid: eid
+  if (!thisHook.context.value) {
+
+
+    data = {
+      entityType: null,
+      eid: null
+    }
+
+
+  } else {
+
+    var eid = thisHook.context.value.match(/[^[\]]+(?=])/g)[0];
+
+    data = {
+      entityType: entityType,
+      eid: eid
+    }
+
   }
 
   thisHook.pass(data);
