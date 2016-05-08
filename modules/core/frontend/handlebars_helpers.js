@@ -50,8 +50,8 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
    * {{/if_eq}}
    */
 
-  Handlebars.registerHelper('if_eq', function(a, b, opts) {
-    if(a == b) // Or === depending on your needs
+  Handlebars.registerHelper('if_eq', function (a, b, opts) {
+    if (a == b) // Or === depending on your needs
       return opts.fn(this);
     else
       return opts.inverse(this);
@@ -59,7 +59,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   // Parse JSON
 
-  Handlebars.registerHelper('json', function(context) {
+  Handlebars.registerHelper('json', function (context) {
     return JSON.stringify(context);
   });
 
@@ -110,6 +110,31 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
     return options.fn();
 
   });
+
+  Handlebars.registerHelper("iris_liveupdate", function (options) {
+
+    if (options.data.root.finalParse) {
+
+      return options.fn();
+
+    } else {
+
+      var output = "<div class='iris-live-load'>";
+      output += "{{{{iris_handlebars_ignore}}}}";
+      output += '<div class="iris-live-load-source" data-iris-live-load-template="' + options.fn().trim().replace(/(\r\n|\n|\r)/gm, "") + '">';
+      output += "</div>";
+      output += "{{{{/iris_handlebars_ignore}}}}";
+      output += "\n";
+      output += "<div class='iris-live-load-output'>"
+      output += options.fn();
+      output += "</div>";
+      output += "</div>"
+
+      return output;
+      
+    }
+
+  })
 
   Handlebars.registerHelper('iris_handlebars_ignore', function (options) {
 
