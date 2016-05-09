@@ -22,7 +22,7 @@
  *
  * @returns a promise which, if successful, contains the final hook variables as its first argument
  */
-var hook = function (hookname, authPass, staticVariables, variables) {
+var hook = function (hookname, authPass, staticVariables, variables {
 
   "use strict";
 
