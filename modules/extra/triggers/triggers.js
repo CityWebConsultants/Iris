@@ -119,7 +119,7 @@ iris.route.get("/admin/config/triggers", routes.triggers, function (req, res) {
  * Admin page callback: Delete trigger.
  */
 iris.route.get("/admin/config/triggers/delete/:name", routes.delete, function (req, res) {
-
+  
   iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_delete"], ['admin_wrapper'], {
     action: req.params.name
   }, req.authPass, req).then(function (success) {
@@ -407,13 +407,15 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
 
     iris.modules.triggers.globals.events[eventType].parameters.forEach(function (token) {
 
-      tokens.push("<small><b>[" + token + "]</b></small>");
+      tokens.push("[" + token + "]");
 
     })
 
     events[eventType] = {
       "type": "object",
-      "title": ap.t("This event provides the tokens {{token}} which can be used as placeholders in the actions and conditions section of this form", {tokens: tokens.join(",")}),
+      "title": ap.t("This event provides the tokens {{tokens}} which can be used as placeholders in the actions and conditions section of this form", {
+        tokens: tokens.join(",")
+      }),
       "properties": {
         "conditions": {
           "title": ap.t("Conditions"),
@@ -514,16 +516,9 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
 
   // Check if already submitted form exists
 
-  if (thisHook.context.params[1] && thisHook.context.params[1].indexOf("{{") !== -1) {
+  if (thisHook.context.params && iris.configStore.triggers[thisHook.context.params]) {
 
-    thisHook.fail();
-    return false;
-
-  }
-
-  if (thisHook.context.params[1] && iris.configStore.triggers[thisHook.context.params[1]]) {
-
-    data.value = iris.configStore.triggers[thisHook.context.params[1]];
+    data.value = iris.configStore.triggers[thisHook.context.params];
 
     // Swap values back into format schema understands. This is madness.
 
@@ -584,7 +579,9 @@ iris.modules.triggers.registerHook("hook_form_submit__actions", 0, function (thi
 
     var data = function (res) {
 
-      res.send("/admin/triggers");
+      res.json({
+        redirect: "/admin/config/triggers"
+      });
 
     };
 
@@ -604,7 +601,7 @@ iris.modules.triggers.registerHook("hook_form_render__action_delete", 0, functio
 
   data.schema["action"] = {
     type: "hidden",
-    default: thisHook.context.params[1]
+    default: thisHook.context.params
   };
 
   thisHook.pass(data);
@@ -612,18 +609,10 @@ iris.modules.triggers.registerHook("hook_form_render__action_delete", 0, functio
 });
 
 iris.modules.triggers.registerHook("hook_form_submit__action_delete", 0, function (thisHook, data) {
-
+  
   var action = iris.sanitizeName(thisHook.context.params.action);
-
-  if (iris.configStore.triggers && iris.configStore.triggers[action]) {
-
-  } else {
-
-    return false;
-
-  }
-
-  iris.deleteConfig("actions", action, function (err) {
+  
+  iris.deleteConfig("triggers", action, function (err) {
 
     if (err) {
 
@@ -633,7 +622,9 @@ iris.modules.triggers.registerHook("hook_form_submit__action_delete", 0, functio
 
     var data = function (res) {
 
-      res.send("/admin/triggers");
+      res.json({
+        "redirect": "/admin/config/triggers"
+      });
 
     };
 
