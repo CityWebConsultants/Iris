@@ -210,7 +210,7 @@ iris.modules.menu.globals.getBaseLinks = function (baseurl) {
 
         menu.forEach(function (menuLink) {
 
-          if (menuLink.parent && menuLink.parent.indexOf(basePath) !== -1) {
+          if (menuLink.parent && menuLink.parent === basePath) {
 
             links.push({
               path: routePath,
