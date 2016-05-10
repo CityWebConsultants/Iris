@@ -253,3 +253,15 @@ iris.modules.menu.globals.getBaseLinks = function (baseurl) {
   };
 
 };
+
+iris.modules.menu.registerHook("hook_frontend_handlebars_extend", 1, function (thisHook, Handlebars) {
+
+  iris.modules.frontend.globals.findTemplate(["submenu"]).then(function (template) {
+   
+    Handlebars.registerPartial('submenu', template);
+  });
+
+  
+  thisHook.pass(Handlebars);
+
+});
