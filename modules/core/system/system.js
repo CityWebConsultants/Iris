@@ -72,6 +72,8 @@ iris.modules.system.registerHook("hook_restart_receive", 0, function (thisHook, 
     Object.keys(data.sessions).forEach(function (user) {
 
       iris.modules.auth.globals.userList[user] = data.sessions[user];
+      
+      iris.modules.auth.globals.AttachAuthPass(iris.modules.auth.globals.userList[user],user);
 
     });
 

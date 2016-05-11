@@ -288,6 +288,33 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 
 });
 
+iris.modules.auth.globals.AttachAuthPass = function (session, userid) {
+
+  session.getAuthPass = function () {
+
+    var token = Object.keys(session.tokens)[0];
+    var userid = userid;
+
+    return new Promise(function (pass, fail) {
+
+      iris.modules.auth.globals.credentialsToPass({
+        userid: userid,
+        token: token
+      }).then(function (authPass) {
+
+        pass(authPass);
+
+      }, function (reason) {
+
+        fail(reason);
+
+      });
+
+
+    });
+
+  };
+};
 
 iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, data) {
 
@@ -343,30 +370,7 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
 
       });
 
-      iris.modules.auth.globals.userList[data.userid].getAuthPass = function () {
-
-        var token = Object.keys(iris.modules.auth.globals.userList[data.userid].tokens)[0];
-        var userid = data.userid;
-
-        return new Promise(function (pass, fail) {
-
-          iris.modules.auth.globals.credentialsToPass({
-            userid: userid,
-            token: token
-          }).then(function (authPass) {
-
-            pass(authPass);
-
-          }, function (reason) {
-
-            fail(reason);
-
-          });
-
-
-        });
-
-      };
+      iris.modules.auth.globals.AttachAuthPass(iris.modules.auth.globals.userList[data.userid],data.userid);
 
       iris.modules.auth.globals.userList[data.userid].lastActivity = Date.now();
 
