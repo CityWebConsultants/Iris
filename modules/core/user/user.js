@@ -545,6 +545,8 @@ iris.modules.user.registerHook("hook_form_validate__set_first_user", 0, function
 
   }
 
+  data.restart = true;
+
   thisHook.pass(data);
 });
 
