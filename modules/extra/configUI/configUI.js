@@ -17,7 +17,7 @@ var routes = {
     permissions: ["can access admin pages"],
     menu: [{
       menuName: "admin_toolbar",
-      parent: "/admin/config",
+      parent: "/admin/config/manage",
       title: "Export"
     }]
   },
@@ -27,7 +27,7 @@ var routes = {
     permissions: ["can access admin pages"],
     menu: [{
       menuName: "admin_toolbar",
-      parent: "/admin/config",
+      parent: "/admin/config/manage",
       title: "Import"
     }]
   },
@@ -37,7 +37,7 @@ var routes = {
     permissions: ["can access admin pages"],
     menu: [{
       menuName: "admin_toolbar",
-      parent: null,
+      parent: "/admin/config",
       title: "Config"
     }]
   },
@@ -47,7 +47,7 @@ var routes = {
     permissions: ["can access admin pages"],
     menu: [{
       menuName: "admin_toolbar",
-      parent: "/admin/config",
+      parent: "/admin/config/manage",
       title: "Diff"
     }]
   }
@@ -159,7 +159,7 @@ iris.route.get("/admin/config/diff", routes.diff, function (req, res) {
 /**
  * Admin page callback: Show config differences.
  */
-iris.route.get("/admin/config", routes.config, function (req, res) {
+iris.route.get("/admin/config/manage", routes.config, function (req, res) {
 
   // Get list of config clashes
 

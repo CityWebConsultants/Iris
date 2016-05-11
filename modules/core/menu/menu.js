@@ -214,7 +214,8 @@ iris.modules.menu.globals.getBaseLinks = function (baseurl) {
 
             links.push({
               path: routePath,
-              title: menuLink.title
+              title: menuLink.title,
+              description: menuLink.description ? menuLink.description : ''
             });
 
           }

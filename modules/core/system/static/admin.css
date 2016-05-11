@@ -161,10 +161,14 @@ body:not(.schema-admin) .form-group .form-group {
   padding:15px 20px;
   margin-bottom:15px;
 }
+body:not(.schema-admin) .form-group ul.ui-sortable {
+  padding-left:0;
+  background: #eee;
+  border-radius:10px;
+}
 
-body:not(.schema-admin) .form-group .ui-sortable-handle {
+body:not(.schema-admin) .form-group .ui-sortable > li {
   padding: 10px;
-  border: 1px solid #bbb;
   border-radius: 5px;
   margin-bottom: 10px;
 }
@@ -194,7 +198,7 @@ fieldset[data-jsonform-type="fieldset"] fieldset[data-jsonform-type="fieldset"] 
 }
 
 
-body:not(.schema-admin) form .form-group[data-jsonform-type="array"] > .controls
+body:not(.schema-admin) form .form-group[data-jsonform-type="array"] > .controls {
   display:none;
 }
 
@@ -271,6 +275,7 @@ form[data-formid=schemaFieldListing] .jsonform-error-weightFields {
 }
 .help-block {
   font-size:12px;
+  margin-top:0;
 }
 
 div[data-jsonform-type="checkbox"] .controls{
@@ -285,11 +290,20 @@ div[data-jsonform-type="checkbox"] .controls{
 }
 
 .admin-header{
-  background: #1C2440;
-  color: white;
+  font-size:30px;
+  color:#1C2440
 }
 .admin-inputs input[type=submit] {
   margin-left:20px;
+}
+.admin-inputs .form-control {
+  height:45px;
+  font-size:20px;
+}
+.admin-inputs label{
+  color:#1C2440;
+  font-size:20px;
+  margin-bottom:0;
 }
 .right{
   float: right;
@@ -312,9 +326,11 @@ html body div.admin-inputs div.form-group.jsonform-node{
   border-radius: 0px;
   background: white;
 }
-
+html body div.admin-inputs .ui-sortable div.form-group.jsonform-node {
+  background: #eee;
+}
 .admin-header-padding{
-  padding: 10px;
+  padding-left:17px;
 }
 
 .admin-inputs{
@@ -322,11 +338,7 @@ html body div.admin-inputs div.form-group.jsonform-node{
 }
 
 .admin-inputs form, .admin-inputs .borders {
-  border-left: 1px solid;
-  border-right: 1px solid;
-  border-bottom: 1px solid;
   padding-bottom: 20px;
-  border-color: #1C2440;
 }
 
 
@@ -383,4 +395,104 @@ html body div.admin-inputs div.form-group.jsonform-node{
 
 #tabs li.active a{
   color: #000;
+}
+
+/*logs*/
+
+#logs-table {width:100%;}
+#logs-table td {
+  color: black;
+}
+#logs-table .msg {
+  word-break:break-all;
+}
+
+/* Trace */
+.level10 {
+  background-color: #dfefff !important;
+}
+
+/* Debug */
+.level20 {
+  background-color: #bdf !important;
+}
+
+/* Info */
+.level30 {
+  background-color: #cf8 !important;
+}
+
+/* Warn */
+.level40 {
+  background-color: #FCFCA7 !important;
+}
+
+/* Error */
+.level50 {
+  background-color: #F8B5B5 !important;
+}
+
+/* Fatal */
+.level60 {
+  background-color: #e68865 !important;
+}
+
+/* modules page */
+form[data-formid="modules"] fieldset {
+  padding:0;
+  border-top:1px solid #ddd;
+  border-radius: 0;
+  background-color: transparent;
+}
+form[data-formid="modules"] fieldset .jsonform-node {
+  background-color: transparent !important;
+}
+form[data-formid="modules"] fieldset:nth-child(even) {
+  background-color: #E9E6FF;
+}
+form[data-formid="modules"] .help-block {
+  position: absolute;
+  margin-top: 8px;
+  margin-left: 30px;
+}
+form[data-formid="modules"] label {
+  font-size:16px;
+}
+
+/* restart page */
+form[data-formid="restart"] {
+  width:300px;
+  margin:auto;
+  background:#eee;
+  border-radius: 10px;
+  text-align:center;
+}
+form[data-formid="restart"] .jsonform-node {
+  background:transparent !important;
+}
+form[data-formid="restart"] #submit {
+  margin-left:0;
+}
+form[data-formid="restart"] .help-block {
+  color: #444;
+}
+
+/* base links */
+.menu-base-links {
+  background: #eee;
+  padding:20px;
+  border-radius:10px;
+  list-style:none;
+  margin-top:20px;
+}
+.menu-base-links li {
+  padding: 10px 0;
+  border-bottom: 1px solid #ccc;
+}
+.menu-base-links li:last-child {
+  border-bottom:none;
+}
+.menu-base-links a {
+  font-size:20px;
+  display:block;
 }

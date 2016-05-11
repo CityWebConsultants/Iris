@@ -470,7 +470,8 @@ iris.route.get("/admin/blocks", {
   "menu": [{
     menuName: "admin_toolbar",
     parent: "/admin/structure",
-    title: "Blocks"
+    title: "Blocks",
+    description: "Adminster block types and content"
   }]
 }, function (req, res) {
 

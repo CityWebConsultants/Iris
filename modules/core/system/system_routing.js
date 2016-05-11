@@ -35,6 +35,16 @@ var routes = {
       title: "Structure"
     }]
   },
+  config : {
+    title: "Config",
+    description: "Settings and administration of core and contributed functionality.",
+    permissions: ["can access admin pages"],
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: null,
+      title: "Config"
+    }]
+  },
   restart: {
     title: "Restart system",
     description: "Restart to reload configurations and code changes",
@@ -154,11 +164,39 @@ iris.route.get("/admin/structure", routes.structure, function (req, res) {
 });
 
 /**
+ * Admin page callback: Config items.
+ */
+iris.route.get("/admin/config", routes.config, function (req, res) {
+
+  var menu = iris.modules.menu.globals.getBaseLinks(req.url);
+  menu.name = req.irisRoute.options.title;
+
+  iris.modules.frontend.globals.parseTemplateFile(["baselinks"], ['admin_wrapper'], {
+    menu: menu,
+  }, req.authPass, req).then(function (success) {
+
+    res.send(success);
+
+  });
+
+});
+
+/**
  * Admin page callback: Restart server.
  */
 iris.route.get("/admin/restart", routes.restart, function (req, res) {
 
-  iris.modules.frontend.globals.parseTemplateFile(["admin_restart"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
+  var tags = {headTags: {}};
+
+  tags.headTags['adminui-restart'] = {
+    type: "script",
+    attributes: {
+      "src": '/modules/system/adminui-restart.js'
+    },
+    rank: 0
+  };
+
+  iris.modules.frontend.globals.parseTemplateFile(["admin_restart"], ['admin_wrapper'], {'tags' : tags}, req.authPass, req).then(function (success) {
 
     res.send(success);
 
