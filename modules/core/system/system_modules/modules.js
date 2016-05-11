@@ -16,7 +16,8 @@ var routes = {
     menu: [{
       menuName: "admin_toolbar",
       parent: null,
-      title: "Modules"
+      title: "Modules",
+      weight: 3
     }]
   }
 };

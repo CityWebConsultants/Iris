@@ -1,7 +1,10 @@
 
-<ul>
+<ul class="menu-base-links col-md-6">
+
   {{#each menu.links}}
-  <li><a href="{{this.path}}">{{this.title}}</a></li>
-  
+  <li>
+    <a href="{{this.path}}">{{this.title}}</a> <small>{{this.description}}</small>
+  </li>
   {{/each}}
+
 </ul>

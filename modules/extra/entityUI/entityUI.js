@@ -12,6 +12,17 @@ var routes = {
   },
   create: {
     title: 'Create new entity',
+  },
+  entitylist: {
+    title: "Content",
+    description: "View content",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: null,
+      title: "Content",
+      weight:0
+    }]
   }
 };
 
@@ -905,16 +916,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
 // List of entity types with view content links
 
-iris.route.get("/admin/entitylist", {
-  title: "Content",
-  description: "View content",
-  permissions: ["can access admin pages"],
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: null,
-    title: "Content"
-    }]
-}, function (req, res) {
+iris.route.get("/admin/entitylist", routes.entitylist, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_entitytypelist"], ['admin_wrapper'], {
     entityTypes: Object.keys(iris.dbCollections)

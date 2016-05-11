@@ -1,3 +1,17 @@
+
+var routes = {
+  menu: {
+    title: "Menu Listing",
+    description: "View, create and delete menus",
+    permissions: ["can access admin pages"],
+    menu: [{
+      menuName: "admin_toolbar",
+      parent: "/admin/structure",
+      title: "Menu"
+    }]
+  }
+}
+
 /**
  * Embed for [[[menu __]]] menus made using the UI.
  */
@@ -380,13 +394,7 @@ iris.modules.menu_ui.globals.getMenuList = function () {
  * Page for editing an existing menu.
  */
 
-iris.route.get("/admin/structure/menu", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: "/admin/structure",
-    title: "Menu"
-  }]
-}, function (req, res) {
+iris.route.get("/admin/structure/menu", routes.menu, function (req, res) {
 
   // If not admin, present 403 page
 

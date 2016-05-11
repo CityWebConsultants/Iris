@@ -40,6 +40,16 @@ var routes = {
   deleteBlock : {
     title: "Delete block",
     permissions: ["can access admin pages"],
+  },
+  menu: {
+    "title" : "Blocks administration",
+    "description": "Adminster block types and content",
+    "permissions": ["can access admin pages"],
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: "/admin/structure",
+      title: "Blocks"
+    }]
   }
 }
 
@@ -466,13 +476,7 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
 // Admin page routing handler
 
-iris.route.get("/admin/blocks", {
-  "menu": [{
-    menuName: "admin_toolbar",
-    parent: "/admin/structure",
-    title: "Blocks"
-  }]
-}, function (req, res) {
+iris.route.get("/admin/blocks", routes.menu, function (req, res) {
 
   // If not admin, present 403 page
 

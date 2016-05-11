@@ -650,7 +650,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
     // Generate table markup. This should be replaced with a handlebars wrapper that generates a table from JSON.
     var tableHtml = '<table>' +
       '<thead>' +
-      '<tr class="admin-header">' +
+      '<tr>' +
       '<th></th>' +
       '<th>' + ap.t('Label') + '</th>' +
       '<th>' + ap.t('Machine name') + '</th>' +

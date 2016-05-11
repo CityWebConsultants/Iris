@@ -32,7 +32,7 @@
     position: relative;
 }
 
-#admin_sidebar > .menu ul.menu > li > a > span {
+#admin_sidebar .glyphicon-triangle-bottom {
     position: absolute;
     right: 15px;
     top: 25px;
@@ -60,4 +60,14 @@
     padding: 10px 5px 10px 10px;
     background: #586180;
     display: block;
+    position:relative;
+    text-decoration:none;
+}
+
+.sub-menu .sub-menu a {
+    background: #6B769C;
+}
+
+#admin_sidebar .sub-menu li a .glyphicon-triangle-bottom {
+    top:13px;
 }
