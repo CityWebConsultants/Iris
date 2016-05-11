@@ -19,7 +19,7 @@ iris.registerModule("menu");
 iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHook, data) {
 
   var menuName = thisHook.context.embedID;
-  
+
   var menuItems = [];
 
   var embedOptions = thisHook.context.embedOptions;
@@ -35,7 +35,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
         // Route has a menu
 
         route.options.menu.forEach(function (menu) {
-
+          
           if (menu.menuName === menuName) {
 
             if (!menu.weight) {
@@ -59,6 +59,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
   });
 
+
   // Order by weight
 
   menuItems.sort(function (a, b) {
@@ -78,6 +79,31 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     }
 
   });
+  // Order by path
+
+  menuItems.sort(function (a, b) {
+    if (!a.parent) {
+      a.parent = '';
+    }
+    if (!b.parent) {
+      b.parent = '';
+    }
+    if ((a.parent.match(/\//g) || []).length < (b.parent.match(/\//g) || []).length) {
+
+      return -1;
+
+    } else if ((a.parent.match(/\//g) || []).length > (b.parent.match(/\//g) || []).length) {
+
+      return 1;
+
+    } else {
+
+      return 0;
+
+    }
+
+  });
+
 
   // Generate menu
 
@@ -85,39 +111,63 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
   // Top level items first
 
-  menuItems.forEach(function (item) {
+  var fillMenu = function () {
+    var MenuTree = new Array();
 
-    if (!item.parent) {
+    var isItemExist = function (arr, item) {
+      var found = false;
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] && (arr[i].path == item.path)) {
+           found = true;
+           break;
+        }
+      }
+      return found;
+    };
 
-      item.children = [];
+    var findParent = function (menu, item) {
 
-      menuLinks.push(item);
+      if (item.parent) {
+        menu.forEach(function (data) {
+          if (data.path === item.parent) {
+            if (data.children && data.children.length) {
+              if (!isItemExist(data.children, item)) {
+                data.children.push(item);
+              }
 
-    }
+            }
+            else {
+              data.children = [item];
 
-  });
+            }
+          }
+          else {
+            if (data.children && data.children.length) {
+              findParent(data.children, item);
+            }
+          }
+        });
+      }
+      else {
 
-  // Then parent items
-
-  menuItems.forEach(function (item) {
-
-    if (item.parent) {
-
-      menuLinks.forEach(function (menuItem) {
-
-        if (menuItem.path === item.parent) {
-
-          menuItem.children.push(item);
-
+        if (!isItemExist(menu, item)) {
+          menu.push(item);
         }
 
-      });
+      }
+    };
 
-    }
+    menuItems.forEach(function (item) {
+      findParent(MenuTree, item);
+    });
 
-  });
+    return MenuTree;
+  }
 
-  if (menuLinks.length) {
+  var MenuTreeArray = fillMenu();
+
+
+  if (MenuTreeArray.length) {
 
     // Menu ready, check access
     var parseTemplate = ["menu", menuName];
@@ -128,7 +178,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
     iris.modules.frontend.globals.parseTemplateFile(parseTemplate, null, {
       menuName: menuName,
-      menu: menuLinks
+      menu: MenuTreeArray
     }, thisHook.authPass).then(function (html) {
 
       // Check if user can view menu
@@ -257,11 +307,10 @@ iris.modules.menu.globals.getBaseLinks = function (baseurl) {
 iris.modules.menu.registerHook("hook_frontend_handlebars_extend", 1, function (thisHook, Handlebars) {
 
   iris.modules.frontend.globals.findTemplate(["submenu"]).then(function (template) {
-   
+
     Handlebars.registerPartial('submenu', template);
   });
 
-  
   thisHook.pass(Handlebars);
 
 });

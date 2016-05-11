@@ -1,1 +1,11 @@
-<ul class="sub-menu"> {{#children}} {{#if (iris_menu path)}} <li><a href=" {{path}} "> {{title}} </a></li> {{#if children}} {{> submenu}} {{/if}} {{/if}} {{/children}} </ul>
+<ul class="sub-menu"> 
+  {{#children}} 
+      {{#if (iris_menu path)}} 
+        <li {{#if children}} class="has-children" {{/if}}>
+            <a href=" {{path}} "> {{title}} {{#if children}}<span class="glyphicon glyphicon-triangle-bottom"></span>{{/if}}</a></li> 
+            {{#if this.children}} 
+                {{> submenu}} 
+            {{/if}} 
+      {{/if}} 
+   {{/children}} 
+ </ul>
