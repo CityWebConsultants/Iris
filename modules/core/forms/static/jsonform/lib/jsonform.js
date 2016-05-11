@@ -26,9 +26,8 @@
 
 (function(serverside, global, $, _, JSON) {
   // Don't try to load underscore.js if is already loaded
-  if (serverside && typeof _ === 'undefined') {
+  if (serverside && !_) {
     _ = require('underscore');
-    if (_ === 'undefined') throw 'Failed to load underscore.js';
   }
 
   var getDefaultClasses = function(isBootstrap2) {
@@ -103,7 +102,7 @@
    * The jsonform object whose methods will be exposed to the window object
    */
   var jsonform = {util:{}};
-
+  iris.jsonform = jsonform;
 
   // From backbonejs
   var escapeHTML = function (string) {
@@ -202,7 +201,7 @@ var initializeTabs = function (tabs) {
     var $content = $(this).parents('.tabbable').first()
       .find('.tab-content').first();
     var targetIdx = $(this).index();
-    var $target = $content.find('[data-idx=' + targetIdx + ']');
+    var $target = $content.find('> [data-idx=' + targetIdx + ']');
 
     e.preventDefault();
     activate($(this), $(this).parent());
@@ -363,7 +362,7 @@ var numberFieldTemplate = function (type, isTextualInput) {
       '<%= (range.step !== undefined ? " step="+range.step : "")%>' +
       '<%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %>' +
       '<%= (node.required ? " required=\'required\'" : "") %>' +
-      '<%= (node.placeholder? "placeholder=" + \'"\' + escape(node.placeholder) + \'"\' : "")%>' +
+      '<%= (node.placeholder? " placeholder=" + \'"\' + escape(node.placeholder) + \'"\' : "")%>' +
       ' />',
     'fieldtemplate': true,
     'inputfield': true,
@@ -2151,7 +2150,7 @@ var truncateToArrayDepth = function (key, arrayDepth) {
  * @param {Array(Number)} arrayPath The array path to apply, e.g. [4, 2]
  * @return {String} The path to the key that matches the array path.
  */
-var applyArrayPath = function (key, arrayPath) {
+var applyArrayPath = function (key, arrayPath, emptyIdxOnly) {
   var depth = 0;
   if (!key) return null;
   if (!arrayPath || (arrayPath.length === 0)) return key;
@@ -2160,7 +2159,7 @@ var applyArrayPath = function (key, arrayPath) {
     // from left to right in the string. The goal is to replace the [x] with
     // the appropriate index in the new array path, if defined.
     var newIndex = str;
-    if (isSet(arrayPath[depth])) {
+    if ((!emptyIdxOnly || newIndex.length == 2) && isSet(arrayPath[depth])) {
       newIndex = '[' + arrayPath[depth] + ']';
     }
     depth += 1;
@@ -2861,7 +2860,7 @@ formNode.prototype.computeInitialValues = function (values, ignoreDefaultValues,
               // Note applying the array path probably doesn't make any sense,
               // but some geek might want to have a label "foo[].bar[].baz",
               // with the [] replaced by the appropriate array path.
-              //this.value = applyArrayPath(this.value, this.arrayPath);
+              this.value = applyArrayPath(this.value, this.arrayPath, true);
             }
             if (this.value) {
               this.value = _template(this.value, formData, valueTemplateSettings);

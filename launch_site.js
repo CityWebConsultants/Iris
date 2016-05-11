@@ -16,31 +16,17 @@ var config;
 process.on("message", function (m) {
 
   if (m.launchPath) {
-    
+
     process.chdir(m.launchPath);
 
     var server = require('./boot')(m);
 
   }
 
-  if (m.sessions) {
-
-    Object.keys(m.sessions).forEach(function (user) {
-
-      iris.modules.auth.globals.userList[user] = m.sessions[user];
-
-    });
-
-  }
-
-  if (m.messages) {
-
-    Object.keys(m.messages).forEach(function (user) {
-
-      iris.messageStore[user] = m.messages[user];
-
-    });
-
+  if (m.persist) {
+        
+    iris.invokeHook("hook_restart_receive", "root", m.persist, m.persist);
+    
   }
 
 })

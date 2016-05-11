@@ -26,16 +26,13 @@ module.exports = function (parameters) {
 
   });
 
-  // Persistent sessions
-
-  var sessions = {};
-  var messages = {};
-
   var fork = require('child_process').fork;
 
   // Check how many restarts have been performed to catch startup restart loops
 
   var restartCounter = 2;
+
+  var persistentData = {};
 
   var start = function () {
 
@@ -57,20 +54,20 @@ module.exports = function (parameters) {
     sub.send(parameters);
 
     sub.on('message', function (cmd) {
-
+      
       if (cmd === 'started') {
 
         restartCounter = 0;
-
+        
         // Passes persistant sessions and messages to child process.
         sub.send({
-          sessions: sessions,
-          messages: messages
+          persist: persistentData
         });
 
       }
 
-      if (cmd === 'restart') {
+      if (cmd.restart) {
+                        
         sub.on('exit', function () {
 
           if (restartCounter > 1) {
@@ -79,7 +76,8 @@ module.exports = function (parameters) {
             process.exit();
 
           } else {
-
+            
+            persistentData = cmd.restart;
             start();
 
           }
@@ -88,18 +86,6 @@ module.exports = function (parameters) {
 
         });
         sub.kill();
-      }
-
-      if (cmd.sessions) {
-
-        sessions = cmd.sessions;
-
-      }
-
-      if (cmd.messages) {
-
-        messages = cmd.messages;
-
       }
 
     });

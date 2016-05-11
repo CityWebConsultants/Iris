@@ -4,9 +4,9 @@ iris.modules.custom_blocks.registerHook("hook_form_render__blockForm_Custom-HTML
 
   var currentContents = '';
 
-  if (thisHook.context.params[1] && iris.modules.blocks.globals.blocks["Custom-HTML"] && iris.modules.blocks.globals.blocks["Custom-HTML"][thisHook.context.params[1]]) {
+  if (thisHook.context.params && iris.modules.blocks.globals.blocks["Custom-HTML"] && iris.modules.blocks.globals.blocks["Custom-HTML"][thisHook.context.params]) {
 
-    currentContents = iris.modules.blocks.globals.blocks["Custom-HTML"][thisHook.context.params[1]].contents;
+    currentContents = iris.modules.blocks.globals.blocks["Custom-HTML"][thisHook.context.params].contents;
 
   }
 

@@ -18,22 +18,16 @@ iris.message = function (userid, message, type) {
 
   });
 
-  // Send messages to server for persistence
-
-  process.send({
-    messages: iris.messageStore
-  });
-
 };
 
 iris.readMessages = function (userid) {
-
+  
   var messages = [];
 
   // Return messages and wipe them as being read
 
   if (iris.messageStore[userid]) {
-
+    
     iris.messageStore[userid].forEach(function (message, index) {
 
       messages.push(message);

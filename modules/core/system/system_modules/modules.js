@@ -49,83 +49,83 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
   // Search for iris files
 
   var rootParent = iris.rootPath.substring(0, iris.rootPath.length - 7);
-  glob("{" + rootParent + "/**/*.iris.module" +',' + iris.rootPath + "/modules/extra/**/*.iris.module" + "," + iris.sitePath + "/modules/**/*.iris.module" + "}", function (er, files) {
+  glob("{" + rootParent + "/**/*.iris.module" + ',' + iris.rootPath + "/modules/extra/**/*.iris.module" + "," + iris.sitePath + "/modules/**/*.iris.module" + "}", function (er, files) {
 
-      var availableModules = {};
+    var availableModules = {};
 
-      // Loop over all the files and add to the list of available modules
+    // Loop over all the files and add to the list of available modules
 
-      files.forEach(function (file) {
+    files.forEach(function (file) {
 
-        var moduleName = path.basename(file).replace(".iris.module", "");
-        var fileDir = path.dirname(file);
+      var moduleName = path.basename(file).replace(".iris.module", "");
+      var fileDir = path.dirname(file);
 
-        //fileDir = fileDir.replace(iris.rootPath, "") + "/" + moduleName;
+      //fileDir = fileDir.replace(iris.rootPath, "") + "/" + moduleName;
 
-        try {
+      try {
 
-          var file = fs.readFileSync(file, "utf8");
+        var file = fs.readFileSync(file, "utf8");
 
-          file = JSON.parse(file);
+        file = JSON.parse(file);
 
-          file.modueName = moduleName;
-          file.path = fileDir;
+        file.modueName = moduleName;
+        file.path = fileDir;
 
-          availableModules[file.modueName] = file;
+        availableModules[file.modueName] = file;
 
-        } catch (e) {
+      } catch (e) {
 
-          iris.log("error", e);
+        iris.log("error", e);
 
-        }
-
-      });
-
-      // Add enabled modules to form
-
-      data.form = [];
-
-      Object.keys(availableModules).forEach(function (moduleName) {
-
-        var currentModule = availableModules[moduleName];
-
-        data.schema[moduleName] = {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "title": currentModule.name + (currentModule.dependencies ? " - requires " + Object.keys(currentModule.dependencies).join(",") : ""),
-              "description": (currentModule.description ? currentModule.description : ""),
-              "default": iris.modules[moduleName] ? true : false
-            },
-            "weight": {
-              "type": "hidden",
-              "default": currentModule.weight
-            },
-            "dependencies": {
-              "type": "hidden",
-              "default": (currentModule.dependencies ? Object.keys(currentModule.dependencies).join(",") : null)
-            }
-          }
-        };
-
-        data.form.push({
-          "key": moduleName,
-          "inlinetitle": thisHook.authPass.t("Enable the <b>{{name}}</b> module", {
-            name: currentModule.name
-          })
-        })
-
-      });
-
-      data.form.push({
-        type: "submit",
-        title: "submit"
-      });
-
-      thisHook.pass(data);
+      }
 
     });
+
+    // Add enabled modules to form
+
+    data.form = [];
+
+    Object.keys(availableModules).forEach(function (moduleName) {
+
+      var currentModule = availableModules[moduleName];
+
+      data.schema[moduleName] = {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": currentModule.name + (currentModule.dependencies ? " - requires " + Object.keys(currentModule.dependencies).join(",") : ""),
+            "description": (currentModule.description ? currentModule.description : ""),
+            "default": iris.modules[moduleName] ? true : false
+          },
+          "weight": {
+            "type": "hidden",
+            "default": currentModule.weight
+          },
+          "dependencies": {
+            "type": "hidden",
+            "default": (currentModule.dependencies ? Object.keys(currentModule.dependencies).join(",") : null)
+          }
+        }
+      };
+
+      data.form.push({
+        "key": moduleName,
+        "inlinetitle": thisHook.authPass.t("Enable the <b>{{name}}</b> module", {
+          name: currentModule.name
+        })
+      })
+
+    });
+
+    data.form.push({
+      type: "submit",
+      title: "submit"
+    });
+
+    thisHook.pass(data);
+
+  });
 
 });
 
@@ -239,6 +239,9 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
 
   }
 
-  iris.restart(thisHook.authPass.userid, "modules page");
+  iris.restart(thisHook.authPass, {
+    enabledModules: enabledList,
+    disabledModules: disabledList
+  });
 
 });

@@ -228,25 +228,18 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter", 0, functio
 
   }
 
-  if (thisHook.context.params[1]) {
+  if (thisHook.context.params) {
 
-    if (thisHook.context.params[1].indexOf("{{") !== -1) {
+    iris.readConfig("textfilters", thisHook.context.params).then(function (config) {
+
+      renderForm(config)
+
+    }, function (fail) {
 
       thisHook.fail();
 
-    } else {
+    })
 
-      iris.readConfig("textfilters", thisHook.context.params[1]).then(function (config) {
-
-        renderForm(config)
-
-      }, function (fail) {
-
-        thisHook.fail();
-
-      })
-
-    }
 
   } else {
 
@@ -307,7 +300,7 @@ iris.modules.textfilters.registerHook("hook_form_submit__textfilter", 0, functio
     data = function (res) {
 
       res.json({
-        redirect: "/admin/textfilters"
+        redirect: "/admin/config/content-authoring/textfilters/"
       })
 
     }
@@ -333,7 +326,7 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter_delete", 0, 
 
   data.schema["textformat"] = {
     type: "hidden",
-    default: thisHook.context.params[1]
+    default: thisHook.context.params
   };
 
   thisHook.pass(data);
@@ -353,7 +346,7 @@ iris.modules.textfilters.registerHook("hook_form_submit__textfilter_delete", 0, 
     var data = function (res) {
 
       res.json({
-        redirect: "/admin/textfilters"
+        redirect: "/admin/config/content-authoring/textfilters/"
       });
 
     };
