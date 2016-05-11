@@ -1,7 +1,7 @@
 
 <ul>
 
-  {{#each actions}} <li>{{this.name}} - <a href="/admin/triggers/edit/{{this.name}}">edit</a> - <a href="/admin/triggers/delete/{{this.name}}">delete</a></li> {{/each}}
+  {{#each actions}} <li>{{this.name}} - <a href="/admin/config/triggers/edit/{{@key}}">edit</a> - <a href="/admin/config/triggers/delete/{{@key}}">delete</a></li> {{/each}}
 </ul>
 
-<a class="btn btn-primary" href="/admin/triggers/create">Make new trigger</a>
+<a class="btn btn-primary" href="/admin/config/triggers/create">Make new trigger</a>
