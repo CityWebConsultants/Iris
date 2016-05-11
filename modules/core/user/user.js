@@ -42,7 +42,8 @@ var routes = {
     "menu": [{
       menuName: "admin_toolbar",
       parent: null,
-      title: "Users"
+      title: "Users",
+      weight: 5
     }]
   },
   logout: {
@@ -50,7 +51,8 @@ var routes = {
       weight: 5,
       menuName: "admin_toolbar",
       parent: null,
-      title: "Logout"
+      title: "Logout",
+      weight: 8
     }]
   }
 };

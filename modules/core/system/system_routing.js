@@ -22,7 +22,8 @@ var routes = {
     "menu": [{
       menuName: "admin_toolbar",
       parent: null,
-      title: "Logs"
+      title: "Logs",
+      weight: 7
     }]
   },
   structure : {
@@ -32,7 +33,8 @@ var routes = {
     "menu": [{
       menuName: "admin_toolbar",
       parent: null,
-      title: "Structure"
+      title: "Structure",
+      weight:1
     }]
   },
   config : {
@@ -42,7 +44,8 @@ var routes = {
     "menu": [{
       menuName: "admin_toolbar",
       parent: null,
-      title: "Config"
+      title: "Config",
+      weight: 4
     }]
   },
   restart: {
@@ -52,7 +55,8 @@ var routes = {
     "menu": [{
       menuName: "admin_toolbar",
       parent: null,
-      title: "Restart"
+      title: "Restart",
+      weight: 6
     }]
   }
 };

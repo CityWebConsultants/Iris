@@ -166,6 +166,42 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
   var MenuTreeArray = fillMenu();
 
+  var sort = function (a, b) {
+
+    if (a.weight < b.weight) {
+
+      return -1;
+
+    } else if (a.weight > b.weight) {
+
+      return 1;
+
+    } else {
+
+      return 0;
+
+    }
+
+  };
+
+  var recursiveSort = function(menu) {
+
+    menu.forEach(function(item) {
+
+      if (item.children) {
+
+        item.children.sort(sort);
+        recursiveSort(item.children);
+
+      }
+
+    });
+
+  }
+
+  MenuTreeArray.sort(sort);
+
+  recursiveSort(MenuTreeArray);
 
   if (MenuTreeArray.length) {
 
@@ -265,7 +301,7 @@ iris.modules.menu.globals.getBaseLinks = function (baseurl) {
             links.push({
               path: routePath,
               title: menuLink.title,
-              description: menuLink.description ? menuLink.description : ''
+              description: route.get.options.description ? route.get.options.description : ''
             });
 
           }

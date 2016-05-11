@@ -32,13 +32,13 @@ var routes = {
     }]
   },
   config : {
-    title: "Configurations",
+    title: "Configuration management",
     description: "System configurations.",
     permissions: ["can access admin pages"],
     menu: [{
       menuName: "admin_toolbar",
       parent: "/admin/config",
-      title: "Config"
+      title: "Config management"
     }]
   },
   diff : {

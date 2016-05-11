@@ -3,7 +3,7 @@
 $(document).ready(function(){
     $('ul.menu .has-children span').click(function(e){
       e.preventDefault();
-      $(this).parents('.has-children').find('.sub-menu').toggleClass('open');
+      $(this).parent().parent().find('.sub-menu').first().toggleClass('open');
     });
 });
 
@@ -29,13 +29,13 @@ $(document).ready(function(){
 
       <li {{#if children}} class="has-children" {{/if}}>
 
-      <a href="{{path}}">{{title}} {{#if children}}<span class="glyphicon glyphicon-triangle-bottom"></span>{{/if}}</a>
+        <a href="{{path}}">{{title}} {{#if children}}<span class="glyphicon glyphicon-triangle-bottom"></span>{{/if}}</a>
 
-      {{#if this.children}}
+        {{#if this.children}}
 
-      {{> submenu}}
+          {{> submenu}}
 
-      {{/if}}
+        {{/if}}
 
       </li>
 

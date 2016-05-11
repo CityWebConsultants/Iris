@@ -7,13 +7,13 @@ header {
 h1,
 h2 {
   text-align: center;
-  color: #6258A4;
+  color: #586180;
 }
 body {
   font-size: 15px;
 }
 a {
-  color: #6258A4;
+  color: #586180;
 }
 img {
   max-width: 100%;
@@ -50,6 +50,9 @@ form[data-formid=set_first_user] {
     padding: 0 20px;
   }
 }
+.center {
+  text-align:center;
+}
 #logo {
   width: 70px;
   display: inline-block;
@@ -72,7 +75,7 @@ ul.main-menu {
 tr#roles,
 thead tr {
   color: #fff;
-  background-color: #6258A4;
+  background-color: #586180;
 }
 #login-page {
   width: 100%;
