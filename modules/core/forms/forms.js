@@ -30,55 +30,11 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
   // Call submit handlers that specify the form name
   var specificFormSubmit = function (data) {
 
-    if (typeof data !== "function") {
+    thisHook.pass(function (res) {
 
-      if (data.messages && data.messages.length > 0) {
+      res.json(data);
 
-        thisHook.pass(function (res) {
-
-          res.json({
-            messages: data.messages
-          });
-
-        });
-
-      } else if (data.callback && data.callback.length > 0) {
-
-        thisHook.pass(function (res) {
-          res.json({
-            'redirect' : data.callback
-          });
-        });
-
-      }
-      else if (data.errors && data.errors.length > 0) {
-
-        thisHook.pass(function (res) {
-
-          res.json({
-            errors: data.errors
-          });
-
-        });
-      }
-      else {
-        // If no callback is supplied provide a basic redirect to the same page
-        var callback = function (res) {
-
-          res.json({
-            redirect: thisHook.context.req.url
-          });
-
-        };
-
-        thisHook.pass(callback);
-      }
-
-    } else {
-
-      thisHook.pass(data);
-
-    }
+    });
 
   };
 
