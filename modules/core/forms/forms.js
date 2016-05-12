@@ -30,11 +30,20 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
   // Call submit handlers that specify the form name
   var specificFormSubmit = function (data) {
 
-    thisHook.pass(function (res) {
+    if (typeof data !== "function") {
 
-      res.json(data);
+      thisHook.pass(function (res) {
 
-    });
+        res.json(data);
+
+      });
+
+    }
+    else {
+
+      thisHook.pass(data);
+
+    }
 
   };
 

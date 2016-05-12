@@ -133,7 +133,7 @@ iris.forms.onSubmit = function(errors, values) {
         function waitForRestart() {
 
           $.ajax({
-            url: data.callback ? data.callback : window.location.href,
+            url: data.redirect ? data.redirect : window.location.href,
             success: function(result){
 
               JSONForm = null;
@@ -148,6 +148,12 @@ iris.forms.onSubmit = function(errors, values) {
 
         }
 
+        if (data.callback) {
+
+          data.redirect = data.callback;
+
+        }
+
         if (data.restart) {
 
           setTimeout(waitForRestart, 2000);
@@ -155,7 +161,7 @@ iris.forms.onSubmit = function(errors, values) {
         }
         else {
 
-          window.location.href = data.callback ? data.callback : window.location.href;
+          window.location.href = data.redirect ? data.redirect : window.location.href;
 
         }
 

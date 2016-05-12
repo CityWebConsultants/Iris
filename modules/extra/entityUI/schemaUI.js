@@ -517,7 +517,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
 
     thisHook.pass(function (res) {
 
-      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Field {{name}} saved on entity {{type}}", {name: fieldName, type: entityType}), "success");
+      iris.message(thisHook.authPass.userid, thisHook.authPass.t("Deleted field {{name}} on entity {{type}}", {name: fieldName, type: entityType}), "success");
       // If field belongs to a fieldset, redirect back to fieldset manage page.
       if (parent) {
 
@@ -533,6 +533,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
       }
 
     });
+
+  }, function (fail) {
+
+    iris.log("error", fail);
+    thisHook.fail(data);
 
   });
 
@@ -874,6 +879,12 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
       });
 
     });
+
+  }, function(fail) {
+
+    iris.log("error", fail);
+    iris.message(thisHook.authPass.userid, thisHook.authPass.t("Failed to save new field"), "danger");
+    thisHook.fail(data);
 
   });
 
