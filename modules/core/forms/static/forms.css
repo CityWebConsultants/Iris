@@ -1,0 +1,40 @@
+
+/* submit spinner */
+.spinner {
+  display: none;
+  width: 0;
+  margin-left:10px;
+
+  -webkit-transition: opacity 0.25s, width 0.25s;
+  -moz-transition: opacity 0.25s, width 0.25s;
+  -o-transition: opacity 0.25s, width 0.25s;
+  transition: opacity 0.25s, width 0.25s;
+}
+
+.has-spinner.active {
+  cursor:progress;
+}
+
+.has-spinner.active .spinner {
+  display:inline-block;
+  width: auto; /* This doesn't work, just fix for unkown width elements */
+}
+
+.has-spinner.active {
+  cursor:progress;
+}
+
+.glyphicon-refresh-animate {
+  -animation: spin 1s infinite linear;
+  -webkit-animation: spin2 1s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+  from { -webkit-transform: rotate(0deg);}
+  to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+  from { transform: scale(1) rotate(0deg);}
+  to { transform: scale(1) rotate(360deg);}
+}

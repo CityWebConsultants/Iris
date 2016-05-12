@@ -1,5 +1,7 @@
 iris.forms = {};
 
+JSONForm.elementTypes['submit'].template = ' <button type="submit" <% if (id) { %> id="<%= id %>" <% } %> class="btn btn-primary has-spinner <%= cls.buttonClass %> <%= elt.htmlClass?elt.htmlClass:"" %>"><%= value || node.title %><span class="spinner"><i class="glyphicon-refresh-animate glyphicon glyphicon-refresh"></i></span></button> ';
+
 $(window).load( function () {
   iris.forms.cache = [];
   var $form;
@@ -53,7 +55,10 @@ $(window).load( function () {
 
 iris.forms.onSubmit = function(errors, values) {
 
-  $('#' + values.formid + values.formToken).find('input[type=submit]').addClass('active');
+  setTimeout(function() {
+    $('#' + values.formid + values.formToken).find('button[type=submit]').addClass('active');
+  }, 300);
+
   $.ajax({
     type: "POST",
     contentType: "application/json",
@@ -62,10 +67,9 @@ iris.forms.onSubmit = function(errors, values) {
     dataType: "json",
     success: function (data) {
 
-      $('#' + values.formid + values.formToken).find('input[type=submit]').removeClass('active');
+      if (data.errors && data.errors.length > 0) {
 
-      if (data.errors) {
-
+        $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
         $("body").animate({
           scrollTop: $("[data-formid='" + values.formid + "'").offset().top
         }, "fast");
@@ -100,6 +104,8 @@ iris.forms.onSubmit = function(errors, values) {
 
       } else if (data.messages && data.messages.length > 0) {
 
+        $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
+
         $("body").animate({
           scrollTop: $("[data-formid='" + values.formid + "'").offset().top
         }, "fast");
@@ -122,19 +128,40 @@ iris.forms.onSubmit = function(errors, values) {
 
         }
 
-      } else if (data.redirect) {
+      } else  {
 
-        window.location.href = data.redirect;
+        function waitForRestart() {
 
-      } else {
+          $.ajax({
+            url: data.redirect ? data.redirect : window.location.href,
+            success: function(result){
 
-        if (data && data.indexOf("doctype") === -1) {
+              JSONForm = null;
+              var newDoc = document.open("text/html", "replace");
+              newDoc.write(result);
+              newDoc.close();
+            },
+            error: function(result){
+              setTimeout(waitForRestart, 2000);
+            }
+          });
 
-          window.location.href = data;
+        }
 
-        } else {
+        if (data.callback) {
 
-          window.location.href = window.location.href;
+          data.redirect = data.callback;
+
+        }
+
+        if (data.restart) {
+
+          setTimeout(waitForRestart, 2000);
+
+        }
+        else {
+
+          window.location.href = data.redirect ? data.redirect : window.location.href;
 
         }
 

@@ -121,7 +121,7 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
 
     data.form.push({
       type: "submit",
-      title: "submit"
+      title: thisHook.authPass.t("Submit"),
     });
 
     thisHook.pass(data);
@@ -221,6 +221,8 @@ iris.modules.system.registerHook("hook_form_submit__modules", 0, function (thisH
   });
 
   fs.writeFileSync(iris.configPath + "/system/enabled_modules.json", JSON.stringify(enabled));
+
+  data.restart = true;
 
   thisHook.pass(data);
 

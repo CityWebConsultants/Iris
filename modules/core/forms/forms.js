@@ -32,49 +32,14 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
     if (typeof data !== "function") {
 
-      if (data.messages && data.messages.length > 0) {
+      thisHook.pass(function (res) {
 
-        thisHook.pass(function (res) {
+        res.json(data);
 
-          res.json({
-            messages: data.messages
-          });
+      });
 
-        });
-
-      } else if (data.callback && data.callback.length > 0) {
-
-        thisHook.pass(function (res) {
-          res.json({
-            'redirect' : data.callback
-          });
-        });
-
-      }
-      else if (data.errors && data.errors.length > 0) {
-
-        thisHook.pass(function (res) {
-
-          res.json({
-            errors: data.errors
-          });
-
-        });
-      }
-      else {
-        // If no callback is supplied provide a basic redirect to the same page
-        var callback = function (res) {
-
-          res.json({
-            redirect: thisHook.context.req.url
-          });
-
-        };
-
-        thisHook.pass(callback);
-      }
-
-    } else {
+    }
+    else {
 
       thisHook.pass(data);
 
@@ -333,6 +298,15 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
     type: "script",
     attributes: {
       "src": "/modules/forms/clientforms.js"
+    },
+    rank: 4
+  };
+
+  variables.tags.headTags["formscss"] = {
+    type: "link",
+    attributes: {
+      "href": "/modules/forms/forms.css",
+      "rel": "stylesheet"
     },
     rank: 4
   };
