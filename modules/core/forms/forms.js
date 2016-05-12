@@ -293,6 +293,15 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
     rank: 4
   };
 
+  variables.tags.headTags["formscss"] = {
+    type: "link",
+    attributes: {
+      "href": "/modules/forms/forms.css",
+      "rel": "stylesheet"
+    },
+    rank: 4
+  };
+
   //
 
   var formParams = thisHook.context.embedOptions;
