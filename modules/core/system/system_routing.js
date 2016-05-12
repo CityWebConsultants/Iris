@@ -12,7 +12,6 @@ var fs = require('fs');
 var routes = {
   admin : {
     title: "Admin",
-    description: "Auto-generate tokenised url paths for entities.",
     permissions: ["can access admin pages"],
   },
   logs : {
@@ -190,17 +189,8 @@ iris.route.get("/admin/config", routes.config, function (req, res) {
  */
 iris.route.get("/admin/restart", routes.restart, function (req, res) {
 
-  var tags = {headTags: {}};
 
-  tags.headTags['adminui-restart'] = {
-    type: "script",
-    attributes: {
-      "src": '/modules/system/adminui-restart.js'
-    },
-    rank: 0
-  };
-
-  iris.modules.frontend.globals.parseTemplateFile(["admin_restart"], ['admin_wrapper'], {'tags' : tags}, req.authPass, req).then(function (success) {
+  iris.modules.frontend.globals.parseTemplateFile(["admin_restart"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
     res.send(success);
 
