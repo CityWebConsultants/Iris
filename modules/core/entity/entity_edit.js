@@ -17,6 +17,10 @@
  */
 iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data) {
 
+  // Store entity state before update
+
+  var previous;
+
   var util = require("util");
 
   if (!data.eid) {
@@ -57,6 +61,14 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     }
 
     if (doc) {
+
+      previous = doc;
+
+      previous = previous.toObject();
+
+      delete previous["__v"];
+      delete previous["_id"];
+
       var type = data.entityType;
       Object.keys(data).forEach(function (field) {
 
@@ -238,7 +250,10 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
       data.eid = conditions.eid;
 
-      iris.invokeHook("hook_entity_updated", thisHook.authPass, null, data);
+      iris.invokeHook("hook_entity_updated", thisHook.authPass, {
+        previous: previous,
+        new: data
+      }, data);
 
       iris.log("info", data.entityType + " " + conditions.eid + " edited by " + thisHook.authPass.userid);
 
@@ -263,8 +278,7 @@ iris.app.post("/entity/edit/:type/:eid", function (req, res) {
 
       res.status(fail.code).json();
 
-    }
-    else {
+    } else {
       res.status(400).json(fail.toString());
     }
 
