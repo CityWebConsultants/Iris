@@ -1,7 +1,0 @@
-{
-  "name": "lists",
-  "dependencies": {
-    "blocks": "1"
-  },
-  "weight": 3
-}

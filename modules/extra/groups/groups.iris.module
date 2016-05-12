@@ -1,7 +1,0 @@
-{
-  "name": "Groups",
-  "dependencies": {
-    "messages": "1"
-  },
-  "weight": 2
-}
