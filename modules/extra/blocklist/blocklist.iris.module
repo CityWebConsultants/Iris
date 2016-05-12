@@ -1,0 +1,5 @@
+{
+  "name": "IP blocking list",
+  "weight": 0,
+  "description": "Provides a (currently code-only) list of blocked IP addresses to prevent from accessing the system"
+}
