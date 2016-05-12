@@ -11,6 +11,23 @@ $(window).load( function () {
     $form = $("#"+formId);
     $form.jsonForm(iris.forms[formId].form);
 
+    $.each($(".form-group[data-jsonform-type=array]", $form), function(index, value) {
+
+      if ($(value).prev().hasClass('control-label')) {
+
+        $(value).find('.controls').first().hide();
+
+        $(value).find('label').first().click(function(e) {
+
+          $(this).next().slideToggle();
+
+        });
+
+      }
+
+    });
+
+
     $form.on( "click", ".form-group[data-jsonform-type=array] > label", function(e) {
       $(this).next().slideToggle();
     });
