@@ -23,8 +23,25 @@ var routes = {
       title: "Content",
       weight:0
     }]
-  }
+  },
+  userlist: {
+    title: "User list",
+    "menu": [{
+      menuName: "admin_toolbar",
+      parent: "/admin/users",
+      title: "User list"
+    }]
+  },
 };
+
+/**
+ * Page callback: Redirect user list to standard entity list for users.
+ */
+iris.route.get("/admin/users/list", routes.userlist, function (req, res) {
+
+  res.redirect("/admin/entitylist/user");
+
+});
 
 iris.app.get("/:type/:eid/edit", function (req, res) {
 
