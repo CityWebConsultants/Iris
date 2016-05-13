@@ -96,7 +96,15 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
     // Check if the current person can access the entity itself
 
-    iris.invokeHook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
+    var context = {};
+
+    context.tags = {
+      headTags: {},
+      bodyTags: {},
+    };
+
+
+    iris.invokeHook("hook_entity_view", req.authPass, context, entity).then(function (viewChecked) {
 
       if (!viewChecked) {
 
@@ -121,7 +129,7 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
       }
 
-      iris.invokeHook("hook_entity_view_" + entity.entityType, req.authPass, null, entity).then(function (validated) {
+      iris.invokeHook("hook_entity_view_" + entity.entityType, req.authPass, context, entity).then(function (validated) {
 
         if (validated) {
 
