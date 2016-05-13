@@ -1,8 +1,5 @@
 <!--<h1>List of {{type}} entities</h1> -->
 
-<p>
-</p>
-
 <table class="table" id="entity-list">
   
   <tbody>
@@ -17,9 +14,17 @@
       <td>{{#if path}}<a href="{{path}}">{{eid}}</a>{{else}}{{eid}}{{/if}}</td>
       <td>{{#if path}}<a href="{{path}}">{{username}}{{title}}</a>{{else}}{{username}}{{title}}{{/if}}</td>
       <td><a class="btn btn-default" href="/{{ entityType }}/{{ eid }}/edit">Edit</a> &nbsp;
-        <a class="btn btn-danger" href="/{{ entityType }}/{{ eid }}/delete">Delete</a></td>
+        <a class="btn btn-danger" href="/{{ entityType }}/{{ eid }}/delete">Delete</a>
+      
+        {{#each adminLinks}}
+      
+          <a class="btn btn-default" href="{{link}}">{{title}}</a>
+      
+        {{/each}}
+
+      </td>
     </tr>
-    
+      
     {{/each}}
 
   </tbody>

@@ -970,3 +970,47 @@ iris.route.get("/admin/entitylist/:type", function (req, res) {
   });
 
 })
+
+/**
+ * @member hook_frontend_entity_links
+ * @memberof entityUI
+ *
+ * @desc uses thisHook.context.entity to add to linkList, an array of the form [{title:...,link:...}] used for an entity's administrative links
+ *
+ */
+
+iris.modules.entityUI.registerHook("hook_entity_links", 0, function (thisHook, linkList) {
+
+  thisHook.pass(linkList);
+
+});
+
+/**
+ * @member hook_entity_view
+ * @memberof entityUI
+ *
+ * @desc Runs entity view through hook_entity_links to add any administrative links for the entity
+ *
+ */
+
+iris.modules.entityUI.registerHook("hook_entity_view", 0, function (thisHook, entity) {
+
+  if (entity) {
+
+    iris.invokeHook("hook_entity_links", thisHook.authPass, {
+      entity: entity
+    }, []).then(function (linkList) {
+
+      entity.adminLinks = linkList;
+
+      thisHook.pass(entity);
+
+    })
+
+  } else {
+
+    thisHook.pass(entity);
+
+  }
+
+})
