@@ -29,14 +29,6 @@ var routes = {
     title: "One-time login",
     description: "Reset your lost password"
   },
-  list: {
-    title: "User list",
-    "menu": [{
-      menuName: "admin_toolbar",
-      parent: "/admin/users",
-      title: "User list"
-    }]
-  },
   users: {
     title: "Users",
     "menu": [{
@@ -144,19 +136,6 @@ iris.route.get("/admin/users", routes.users, function (req, res) {
   });
 
 });
-
-iris.route.get("/admin/users/list", routes.list, function (req, res) {
-
-  if (iris.modules.entityUI) {
-
-    res.redirect("/admin/entitylist/user");
-
-  } else {
-    iris.modules.frontend.globals.displayErrorPage(404, req, res);
-  }
-
-});
-
 
 /**
  * Page callback: User page.
