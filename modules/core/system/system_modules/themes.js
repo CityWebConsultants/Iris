@@ -86,8 +86,8 @@ iris.modules.system.registerHook("hook_form_render__themes", 0, function (thisHo
       });
 
       data.form.push({
-        type: thisHook.authPass.t("Submit"),
-        title: "submit"
+        type: "submit",
+        title: thisHook.authPass.t("Submit"),
       });
 
       thisHook.pass(data);
