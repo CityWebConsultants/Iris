@@ -105,8 +105,15 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
 
 try {
 
-
   var themeFile = fs.readFileSync(iris.configPath + "/system/active_theme.json", "utf8");
+
+} catch (e) {
+
+  // Use base theme if none elected.
+  var themeFile = '{"name": "base"}';
+  iris.log("info", "No theme enabled");
+
+}
 
   try {
 
@@ -127,8 +134,4 @@ try {
 
   }
 
-} catch (e) {
 
-  iris.log("info", "No theme enabled");
-
-}
