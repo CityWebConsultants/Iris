@@ -1,5 +1,6 @@
 {
   "name": "lists",
+  "description": "Provides a block to display fields from entities - currently experimental / unsuable",
   "dependencies": {
     "blocks": "1"
   },
