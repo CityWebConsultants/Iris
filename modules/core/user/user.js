@@ -598,6 +598,8 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
             iris.saveConfigSync(enabled, "system", "enabled_modules", true);
 
           }
+
+
           iris.message(uid, ap.t("Welcome to your new Iris site!"), "info");
           thisHook.pass(function (res) {
             res.json("/admin");
