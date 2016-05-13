@@ -101,11 +101,19 @@ iris.modules.roles_ui.registerHook("hook_form_submit__manageRoles", 0, function 
   var roles = iris.modules.auth.globals.roles;
   var formatRoles = {};
   var query = [];
-  for (i = 0; i < thisHook.context.params.roles.length; i++) {
-    formatRoles[thisHook.context.params.roles[i].roleName] = {
-      "name": thisHook.context.params.roles[i].roleName
-    }
+
+  if (thisHook.context.params.roles) {
+
+    thisHook.context.params.roles.forEach(function (item) {
+
+      formatRoles[item.roleName] = {
+        "name": item.roleName
+      }
+
+    });
+
   }
+
   iris.modules.auth.globals.roles = formatRoles;
 
   // Add defaults
@@ -118,9 +126,7 @@ iris.modules.roles_ui.registerHook("hook_form_submit__manageRoles", 0, function 
 
   iris.saveConfig(formatRoles, 'auth', 'auth_roles');
   iris.message(thisHook.authPass.userid, "Saved", "info");
-  thisHook.pass(function (res) {
-    res.send("/admin/users/roles");
 
-  })
-
+  data.callback = "/admin/users/roles";
+  thisHook.pass(data);
 });
