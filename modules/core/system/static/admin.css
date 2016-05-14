@@ -39,10 +39,15 @@ tr:nth-child(even) {
 form[data-formid=set_first_user] {
     width: 522px;
     margin: auto;
-    border: 1px solid #eee;
+    border :1px solid #e7e7e7;
     padding: 20px;
     border-radius: 10px;
     margin-top: 20px;
+    background: #f8f8f8;
+}
+
+form[data-formid=set_first_user] div.form-group.jsonform-node {
+  background: transparent;
 }
 #main {
   max-width: 1120px;

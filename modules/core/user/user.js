@@ -524,8 +524,6 @@ iris.modules.user.registerHook("hook_form_validate__set_first_user", 0, function
 
   }
 
-  data.restart = true;
-
   thisHook.pass(data);
 });
 
@@ -537,7 +535,7 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
   var ap = thisHook.authPass;
 
   iris.dbCollections["user"].count({}, function (err, count) {
-    if (count === 0) {
+    if (!count || count === 0) {
 
       var newUser = {
 
@@ -599,21 +597,23 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
 
           }
 
+          if (enabled) {
+
+            console.log('restarting');
+            iris.restart(thisHook.authPass, {});
+
+          }
 
           iris.message(uid, ap.t("Welcome to your new Iris site!"), "info");
-          thisHook.pass(function (res) {
-            res.json("/admin");
-            if (enabled) {
-              console.log('restarting');
-              iris.message(uid, ap.t("Don't worry, that short glitch was the server restarting to install the Standard profile."), "info");
-              iris.restart(thisHook.authPass, {});
-            }
-          });
+          data.callback = '/admin';
+          data.restart = true;
+
+          thisHook.pass(data);
         });
 
       }, function (fail) {
 
-        iris.log(fail);
+        iris.log("error", fail);
         thisHook.fail(data);
 
       });

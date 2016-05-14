@@ -65,6 +65,15 @@ iris.forms.onSubmit = function(errors, values) {
     url: window.location,
     data: JSON.stringify(values),
     dataType: "json",
+    error: function(jqXHR, textStatus, errorThrown) {
+
+      $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
+      $("body").animate({
+        scrollTop: $("[data-formid='" + values.formid + "'").offset().top
+      }, "fast");
+      $('.form-errors', $("[data-formid='" + values.formid + "'")).html("<div class='alert alert-danger'>Error processing form.</div>");
+
+    },
     success: function (data) {
 
       if (data.errors && data.errors.length > 0) {
