@@ -445,3 +445,18 @@ form[data-formid="restart"] #submit {
 form[data-formid="restart"] .help-block {
   color: #444;
 }
+
+/* 404-403 */
+.narrow-container {
+  margin: 0 auto;
+  width: 800px;
+  background: #f8f8f8;
+  border-radius: 5px;
+  border :1px solid #e7e7e7;
+  padding: 20px;
+  margin-top: 50px;
+}
+
+.narrow-container div.form-group.jsonform-node {
+  background: transparent;
+}

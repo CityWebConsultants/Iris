@@ -225,7 +225,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
 
           }, function (fail) {
 
-            thisHook.pass(data);
+            thisHook.pass('');
 
             iris.log("error", fail);
 
@@ -233,20 +233,20 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
 
         }, function (fail) {
 
-          thisHook.pass(data);
+          thisHook.pass('');
 
         });
 
       } else {
 
-        thisHook.pass(data);
+        thisHook.pass('');
 
       }
 
     },
     function (fail) {
 
-      thisHook.pass(data);
+      thisHook.pass('');
 
     });
 

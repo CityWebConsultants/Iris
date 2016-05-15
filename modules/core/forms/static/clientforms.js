@@ -1,6 +1,65 @@
 iris.forms = {};
 
+iris.lazyLoad = function(filename, filetype){
+  if (filetype=="js"){ //if filename is a external JavaScript file
+    var fileref=document.createElement('script')
+    fileref.setAttribute("type","text/javascript")
+    fileref.setAttribute("src", filename)
+  }
+  else if (filetype=="css"){ //if filename is an external CSS file
+    var fileref=document.createElement("link")
+    fileref.setAttribute("rel", "stylesheet")
+    fileref.setAttribute("type", "text/css")
+    fileref.setAttribute("href", filename)
+  }
+  if (typeof fileref!="undefined")
+    document.getElementsByTagName("head")[0].appendChild(fileref)
+}
+
 JSONForm.elementTypes['submit'].template = ' <button type="submit" <% if (id) { %> id="<%= id %>" <% } %> class="btn btn-primary has-spinner <%= cls.buttonClass %> <%= elt.htmlClass?elt.htmlClass:"" %>"><%= value || node.title %><span class="spinner"><i class="glyphicon-refresh-animate glyphicon glyphicon-refresh"></i></span></button> ';
+
+JSONForm.elementTypes['password-confirm'] = JSON.parse(JSON.stringify(JSONForm.elementTypes['password']));
+
+JSONForm.elementTypes['password-confirm'].template
+  = '<input type="password" class="password <%= fieldHtmlClass || cls.textualInputClass %>" name="<%= node.name %>" value="<%= escape(value) %>" id="<%= id %>" <%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %> required=\'required\' /><div id="<%= id %>-text" class="password-strength"><span>Password strength:</span> <span class="text"></span></div>' +
+    '<input type="password" class="password-confirm <%= fieldHtmlClass || cls.textualInputClass %>" placeholder="Confirm password" name="<%= node.name %>-confirm" value="<%= escape(value) %>" id="<%= id %>-confirm" <%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %> required=\'required\' /><div id="<%= id %>-match" class="password-strength"></div>';
+
+JSONForm.elementTypes['password-confirm'].onInsert = function (evt, node) {
+
+  iris.lazyLoad("/modules/forms/bootstrap-strength-meter.js", "js");
+  iris.lazyLoad("/modules/forms/password-score/dist/js/password-score.js", "js");
+  iris.lazyLoad("/modules/forms/password-score/dist/js/password-score-options.js", "js");
+
+  setTimeout(function() {
+    $('#' + $(evt.target).find('.password').attr('id')).strengthMeter('text', {
+      container: $('#' + $(evt.target).find('.password').attr('id') + '-text .text'),
+    });
+  },500);
+
+  $('.password-confirm', $(evt.target)).keyup(function(item) {
+
+    if ($(this).val() != $(this).parent().find('.password').val()) {
+
+      $(this).next().text('Passwords do not match').removeClass('text-success').addClass('text-danger');
+
+    }
+    else {
+      $(this).next().text('Match!').removeClass('text-danger').addClass('text-success');
+    }
+
+  });
+
+  /*iris.forms[$(evt.target).parents('form').attr('id')].validate = {
+    "validate" : function(errors, values) {
+
+      return {'errors' : [{ 'message' : 'error'}]};
+
+    },
+    'test' : true
+  };*/
+
+
+};
 
 $(window).load( function () {
   iris.forms.cache = [];
@@ -9,7 +68,7 @@ $(window).load( function () {
   iris.forms.renderForm = function(formId){
     if(iris.forms.cache.indexOf(formId) > -1 || !iris.forms[formId].form) return;
     $form = $("#"+formId);
-    $form.jsonForm(iris.forms[formId].form);
+    iris.myform = $form.jsonForm(iris.forms[formId].form);
 
     $.each($(".form-group[data-jsonform-type=array]", $form), function(index, value) {
 
@@ -43,6 +102,10 @@ $(window).load( function () {
 
     if (iris.forms[form].form && typeof iris.forms[form].form.onSubmit != 'function') {
       iris.forms[form].form.onSubmit = iris.forms.onSubmit;
+      iris.forms[form].validate = {'validate': function(errors, values) {
+        var p = 3;
+      }};
+      iris.forms[form].form.validate = iris.forms[form].validate;
     }
     iris.forms.renderForm(form);
   });
@@ -54,6 +117,50 @@ $(window).load( function () {
 });
 
 iris.forms.onSubmit = function(errors, values) {
+
+  function processErrors(errors) {
+
+    $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
+    $("body").animate({
+      scrollTop: $("[data-formid='" + values.formid + "'").offset().top
+    }, "fast");
+
+    var errorMessages = '';
+
+    // As this may be a second submission attempt, clear all field errors.
+    $('.form-control', $("[data-formid='" + values.formid + "'")).removeClass('error');
+
+    for (var i = 0; i < errors.length; i++) {
+
+      errorMessages += "<div class='alert alert-danger'>" + errors[i].message + "</div>";
+
+      if (errors[i].field) {
+
+        $("input[name=" + errors[i].field + ']').addClass('error');
+
+      }
+
+    }
+
+    // If the form-errors div already exists, replace it, otherwise add to top of form.
+    if ($('.form-errors', $("[data-formid='" + values.formid + "'")).length > 0) {
+
+      $('.form-errors', $("[data-formid='" + values.formid + "'")).html(errorMessages);
+
+    } else {
+
+      $("[data-formid='" + values.formid + "'").prepend('<div class="form-errors">' + errorMessages + '</div>');
+
+    }
+
+  };
+
+  if (errors) {
+
+    processErrors(errors);
+    return false;
+
+  }
 
   setTimeout(function() {
     $('#' + values.formid + values.formToken).find('button[type=submit]').addClass('active');
@@ -67,49 +174,14 @@ iris.forms.onSubmit = function(errors, values) {
     dataType: "json",
     error: function(jqXHR, textStatus, errorThrown) {
 
-      $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
-      $("body").animate({
-        scrollTop: $("[data-formid='" + values.formid + "'").offset().top
-      }, "fast");
-      $('.form-errors', $("[data-formid='" + values.formid + "'")).html("<div class='alert alert-danger'>Error processing form.</div>");
+      processErrors([{'message' : "Error processing form"}]);
 
     },
     success: function (data) {
 
       if (data.errors && data.errors.length > 0) {
 
-        $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
-        $("body").animate({
-          scrollTop: $("[data-formid='" + values.formid + "'").offset().top
-        }, "fast");
-
-        var errorMessages = '';
-
-        // As this may be a second submission attempt, clear all field errors.
-        $('.form-control', $("[data-formid='" + values.formid + "'")).removeClass('error');
-
-        for (var i = 0; i < data.errors.length; i++) {
-
-          errorMessages += "<div class='alert alert-danger'>" + data.errors[i].message + "</div>";
-
-          if (data.errors[i].field) {
-
-            $("input[name=" + data.errors[i].field + ']').addClass('error');
-
-          }
-
-        }
-
-        // If the form-errors div already exists, replace it, otherwise add to top of form.
-        if ($('.form-errors', $("[data-formid='" + values.formid + "'")).length > 0) {
-
-          $('.form-errors', $("[data-formid='" + values.formid + "'")).html(errorMessages);
-
-        } else {
-
-          $("[data-formid='" + values.formid + "'").prepend('<div class="form-errors">' + errorMessages + '</div>');
-
-        }
+        processErrors(data.errors);
 
       } else if (data.messages && data.messages.length > 0) {
 

@@ -469,11 +469,6 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
         "type": "password",
         "title": ap.t("Password")
       };
-      data.schema.confirm = {
-        "type": "password",
-        "title": ap.t("Confirm your password"),
-        "description": ap.t("Make it strong")
-      };
 
       data.form = [
         {
@@ -491,8 +486,10 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
           "type": "email",
           "description": ap.t("Use this to login with in future")
         },
-        "password",
-        "confirm",
+        {
+          "key" : 'password',
+          "type" : 'password-confirm'
+        },
         {
           "type": "submit",
           "title": ap.t("Install")
@@ -510,22 +507,6 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
 
 });
 
-/**
- * Validation handler for set_first_user.
- */
-iris.modules.user.registerHook("hook_form_validate__set_first_user", 0, function (thisHook, data) {
-
-  if (thisHook.context.params.password != thisHook.context.params.confirm) {
-
-    data.errors.push({
-      'field' : 'password',
-      'message' : thisHook.authPass.t('Your passwords do not match')
-    });
-
-  }
-
-  thisHook.pass(data);
-});
 
 /**
  * Submit handler for set_first_user.
@@ -879,6 +860,12 @@ iris.modules.user.registerHook("hook_form_render__entity", 1, function (thisHook
 
   }
 
+  var password = data.form.indexOf('password');
+  data.form[password] = {
+    "key" : "password",
+    "type" : "password-confirm"
+  };
+
   thisHook.pass(data);
 
 });
@@ -967,3 +954,19 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 iris.modules.user.globals.userPassRehash = function(password, timestamp, lastlogin, eid) {
 
 }
+
+iris.modules.user.registerHook("hook_form_render", 0, function (thisHook, data) {
+
+  data.form.forEach(function(item) {
+
+    if (item.type && item.type == 'password-confirm') {
+
+      var p = 3;
+
+    }
+
+  });
+
+  thisHook.pass(data);
+
+});
