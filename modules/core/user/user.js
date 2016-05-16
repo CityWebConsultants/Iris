@@ -879,10 +879,15 @@ iris.modules.user.registerHook("hook_form_render__entity", 1, function (thisHook
 
   }
 
+  var password = data.form.indexOf('password');
+  data.form[password] = {
+    "key" : "password",
+    "type" : "password-confirm"
+  };
+
   thisHook.pass(data);
 
 });
-
 iris.modules.user.registerHook("hook_form_render__createEntity", 1, function (thisHook, data) {
 
   if (thisHook.context.params[1] === "user") {
