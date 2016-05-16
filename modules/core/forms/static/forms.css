@@ -38,8 +38,3 @@
   from { transform: scale(1) rotate(0deg);}
   to { transform: scale(1) rotate(360deg);}
 }
-
-.password-strength {
-  padding:7px 0;
-  height:36px;
-}
