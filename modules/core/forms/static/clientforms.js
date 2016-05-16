@@ -25,7 +25,7 @@ $(window).load( function () {
   iris.forms.renderForm = function(formId){
     if(iris.forms.cache.indexOf(formId) > -1 || !iris.forms[formId].form) return;
     $form = $("#"+formId);
-    iris.myform = $form.jsonForm(iris.forms[formId].form);
+    $form.jsonForm(iris.forms[formId].form);
 
     $.each($(".form-group[data-jsonform-type=array]", $form), function(index, value) {
 
@@ -59,10 +59,6 @@ $(window).load( function () {
 
     if (iris.forms[form].form && typeof iris.forms[form].form.onSubmit != 'function') {
       iris.forms[form].form.onSubmit = iris.forms.onSubmit;
-      iris.forms[form].validate = {'validate': function(errors, values) {
-        var p = 3;
-      }};
-      iris.forms[form].form.validate = iris.forms[form].validate;
     }
     iris.forms.renderForm(form);
   });
