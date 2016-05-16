@@ -616,7 +616,7 @@ var parseEmbeds = function (html, variables, authPass) {
               embedOptions = JSON.parse(arguments.join(","));
 
             } catch (e) {
-              
+
               // Try comma seperated parameter approach
 
               embedOptions = [];
@@ -626,7 +626,7 @@ var parseEmbeds = function (html, variables, authPass) {
                 embedOptions.push(current.trim())
 
               })
-          
+
             }
 
           }
@@ -935,7 +935,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
     } catch (e) {
 
-      thisHook.pass(e);
+      thisHook.fail(e);
 
     }
 
