@@ -363,7 +363,8 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         }
 
-      } else {
+      }
+      else {
 
         form.form.push({
           key: "formToken"
@@ -388,7 +389,8 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         }
 
-      } else {
+      }
+      else {
 
         form.value.formid = formName;
         form.value.formToken = token;
@@ -399,8 +401,9 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       var uniqueId = formName + token;
       output += "<form data-params='" + formParams + "' method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
-      output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}" +
-        "\n if(typeof iris.forms.renderForm == \"function\") iris.forms.renderForm('" + uniqueId + "');</script>";
+      output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}\n" +
+        "if (iris.forms['" + uniqueId + "'].form && typeof iris.forms['" + uniqueId + "'].form.onSubmit != 'function') {iris.forms['" + uniqueId + "'].form.onSubmit = iris.forms.onSubmit;}\n" +
+        "if(typeof iris.forms.renderForm == \"function\") iris.forms.renderForm('" + uniqueId + "');</script>";
 
       callback(output);
 
