@@ -25,6 +25,7 @@
     "nodemailer": "^1.11.0",
     "path-to-regexp": "^1.2.1",
     "prettydiff": "^1.16.6",
+    "prompt": "^1.0.0",
     "sanitize-html": "^1.10.0",
     "socket.io": "^1.2.1",
     "tosource": "^1.0.0"
@@ -44,7 +45,9 @@
     "jshint": "^2.9.1"
   },
   "scripts": {
-    "test": "grunt default",
-    "postinstall": "cp example.js ../../example.js"
+    "test": "grunt default"
+  },
+  "bin": {
+    "irisjs": "iriscli.js"
   }
 }
