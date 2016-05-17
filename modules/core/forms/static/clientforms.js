@@ -1,7 +1,5 @@
 iris.forms = {};
 
-JSONForm.elementTypes['submit'].template = ' <button type="submit" <% if (id) { %> id="<%= id %>" <% } %> class="btn btn-primary has-spinner <%= cls.buttonClass %> <%= elt.htmlClass?elt.htmlClass:"" %>"><%= value || node.title %><span class="spinner"><i class="glyphicon-refresh-animate glyphicon glyphicon-refresh"></i></span></button> ';
-
 $(window).load( function () {
   iris.forms.cache = [];
   var $form;
