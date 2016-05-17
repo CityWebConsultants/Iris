@@ -4,10 +4,7 @@
  */
 
 iris.modules.tags.registerHook("hook_form_render__field_settings__tags", 0, function (thisHook, data) {
-
-  data = {};
-
-  // Set a maximum character length.
+  
   data.schema.settings = {
     "type": "object",
     "title": "Field settings",
