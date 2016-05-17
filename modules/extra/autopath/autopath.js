@@ -126,11 +126,13 @@ iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (th
 
 iris.modules.autopath.registerHook("hook_form_submit__autopath", 0, function (thisHook, data) {
 
-  if (thisHook.context.params.pattern[0] !== "/") {
+  if (thisHook.context.params.pattern.length > 1 && thisHook.context.params.pattern[0] !== "/") {
 
     thisHook.context.params.pattern = "/" + thisHook.context.params.pattern;
 
   }
+
+  iris.message(thisHook.authPass.userid, thisHook.authPass.t("Autopath configuration saved"), "success");
 
   iris.saveConfig(thisHook.context.params.pattern, "autopath", thisHook.context.params.entityType, function () {
 
