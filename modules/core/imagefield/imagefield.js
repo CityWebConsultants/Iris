@@ -78,3 +78,67 @@ iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__image", 0
   });
 
 });
+
+iris.modules.imagefield.registerHook("hook_entity_field_fieldType_form__multiple_image", 0, function (thisHook, data) {
+
+  var value = thisHook.context.value;
+  
+  var fieldSettings = thisHook.context.fieldSettings;
+  
+  data = {
+    "type": "array",
+    "title": fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": value,
+    "items": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "file",
+          "title": thisHook.authPass.t("Image upload")
+        },
+        "title": {
+          "type": "text",
+          "title": thisHook.authPass.t("Image title")
+        },
+        "alt": {
+          "type": "text",
+          "title": thisHook.authPass.t("Image alternative text")
+        }
+      }
+    }
+  };
+  
+  thisHook.pass(data);
+  
+});
+
+iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__multiple_image", 0, function (thisHook, data) {
+
+  var fs = require("fs");
+
+  var value = thisHook.context.value;
+
+  value.forEach(function (item) {
+
+    var path = item.path.split(" ").join("_");
+
+    fs.readFile(iris.sitePath + '/temp/' + path, function (err, data) {
+
+      if (!err) {
+
+        fs.rename(iris.sitePath + '/temp/' + path, iris.sitePath + '/files/' + path, function () {
+
+          item.path = '/files/' + path;
+
+        });
+
+      }
+
+    });
+
+  });
+
+  thisHook.pass(value);
+
+});
