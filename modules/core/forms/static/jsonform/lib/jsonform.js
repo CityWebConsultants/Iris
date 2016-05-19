@@ -1302,7 +1302,7 @@ jsonform.elementTypes = {
 
       $('> span > a._jsonform-array-addmore', $nodeid).click(function (evt) {
         evt.preventDefault();
-        evt.stopPropagation();
+        //evt.stopPropagation();
         var idx = node.children.length;
         addItem(idx);
       });

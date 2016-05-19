@@ -469,11 +469,6 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
         "type": "password",
         "title": ap.t("Password")
       };
-      data.schema.confirm = {
-        "type": "password",
-        "title": ap.t("Confirm your password"),
-        "description": ap.t("Make it strong")
-      };
 
       data.form = [
         {
@@ -491,8 +486,7 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
           "type": "email",
           "description": ap.t("Use this to login with in future")
         },
-        "password",
-        "confirm",
+        'password',
         {
           "type": "submit",
           "title": ap.t("Install")
@@ -510,22 +504,6 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
 
 });
 
-/**
- * Validation handler for set_first_user.
- */
-iris.modules.user.registerHook("hook_form_validate__set_first_user", 0, function (thisHook, data) {
-
-  if (thisHook.context.params.password != thisHook.context.params.confirm) {
-
-    data.errors.push({
-      'field' : 'password',
-      'message' : thisHook.authPass.t('Your passwords do not match')
-    });
-
-  }
-
-  thisHook.pass(data);
-});
 
 /**
  * Submit handler for set_first_user.
