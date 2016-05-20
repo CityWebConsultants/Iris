@@ -29,9 +29,9 @@ iris.route.get("/admin/structure/autopath", routes.adminStructure, function (req
 
   var entityTypes = [];
 
-  Object.keys(iris.dbSchemaConfig).forEach(function (entityType) {
+  Object.keys(iris.entityTypes).forEach(function (entityType) {
 
-    if (iris.dbSchemaConfig[entityType].fields && iris.dbSchemaConfig[entityType].fields.path) {
+    if (iris.entityTypes[entityType].fields && iris.entityTypes[entityType].fields.path) {
 
       entityTypes.push(entityType);
 
@@ -66,7 +66,7 @@ iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (th
 
   var tokens = [];
 
-  Object.keys(iris.dbSchemaConfig[entityType].fields).forEach(function (fieldName) {
+  Object.keys(iris.entityTypes[entityType].fields).forEach(function (fieldName) {
 
     var type = iris.dbSchema[entityType][fieldName].type;
 
@@ -179,7 +179,7 @@ iris.modules.autopath.registerHook("hook_form_render__entity", 2, function (this
 
 iris.modules.autopath.registerHook("hook_entity_presave", 2, function (thisHook, data) {
 
-  if ((!data.path || !data.path.length) && iris.dbSchemaConfig[data.entityType].fields.path) {
+  if ((!data.path || !data.path.length) && iris.entityTypes[data.entityType].fields.path) {
 
     iris.readConfig("autopath", data.entityType).then(function (savedPattern) {
 

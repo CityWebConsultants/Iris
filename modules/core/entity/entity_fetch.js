@@ -535,7 +535,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     var entityType = entity.entityType;
 
-    var schema = iris.dbSchemaConfig[entityType];
+    var schema = iris.entityTypes[entityType];
 
     // Loop over all the fields on the entity
 
@@ -580,7 +580,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       iris.invokeHook("hook_entity_view_field__" + field.type, thisHook.authPass, {
         entityType: entity.entityType,
-        field: iris.dbSchemaConfig[entity.entityType].fields[field.field]
+        field: iris.entityTypes[entity.entityType].fields[field.field]
       }, entity[field.field]).then(function (newValue) {
 
         entity[field.field] = newValue;

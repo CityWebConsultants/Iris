@@ -61,8 +61,6 @@ iris.dbCollections = {};
 
 iris.entityTypes = {};
 
-iris.dbSchemaConfig = {};
-
 iris.dbSchema = {};
 
 var dbReady = false;
@@ -120,7 +118,6 @@ iris.dbPopulate = function() {
 
     delete iris.entityTypes[oldSchema];
     delete iris.dbSchema[oldSchema];
-    delete iris.dbSchemaConfig[oldSchema];
     delete iris.dbCollections[oldSchema];
   });
 
@@ -275,7 +272,6 @@ iris.dbPopulate = function() {
 
     var schemaConfig = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
 
-    iris.dbSchemaConfig[schema] = iris.dbSchema[schema];
     iris.entityTypes[schema] = iris.dbSchema[schema];
 
     // Loop over all fields and set their type.

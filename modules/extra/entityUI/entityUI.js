@@ -150,7 +150,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
   // Check if entity type exists in the system
 
   var entityType = thisHook.context.params[1],
-    schema = iris.dbSchemaConfig[entityType];
+    schema = iris.entityTypes[entityType];
 
   if (!schema) {
 
@@ -730,7 +730,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
   // Fetch entity type schema
 
-  var schema = iris.dbSchemaConfig[entityType];
+  var schema = iris.entityTypes[entityType];
 
   // Object for final values to be stored in
 
