@@ -1,4 +1,5 @@
 {
   "name": "Number",
-  "type": "Number"
+  "type": "Number",
+  "hidden": true
 }

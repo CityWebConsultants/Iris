@@ -678,8 +678,18 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
     });
     tableHtml += '</tbody></table>';
 
-
-
+    var displayFieldTypes = function(){
+      var allowedFieldTypes = {};
+      for(var key in iris.fieldTypes){
+        if(!iris.fieldTypes[key].hidden){
+          allowedFieldTypes[key] = iris.fieldTypes[key];
+        }
+      }
+       
+      return Object.keys(allowedFieldTypes).concat(["Fieldset"]);
+    };
+    
+    
     var weightFields = {
       "type": "array",
       "title": ap.t("weights"),
@@ -713,7 +723,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
       "fieldType": {
         "type": "text",
         "title": ap.t("Field type"),
-        "enum": Object.keys(iris.fieldTypes).concat(["Fieldset"])
+        "enum": displayFieldTypes()
       },
       "entityType": {
         "type": "hidden",
