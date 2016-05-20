@@ -59,6 +59,8 @@ iris.fieldTypes = {};
 
 iris.dbCollections = {};
 
+iris.entityTypes = {};
+
 iris.dbSchemaConfig = {};
 
 iris.dbSchema = {};
@@ -116,6 +118,7 @@ iris.dbPopulate = function() {
 
   Object.keys(iris.dbSchema).forEach(function(oldSchema) {
 
+    delete iris.entityTypes[oldSchema];
     delete iris.dbSchema[oldSchema];
     delete iris.dbSchemaConfig[oldSchema];
     delete iris.dbCollections[oldSchema];
@@ -273,6 +276,7 @@ iris.dbPopulate = function() {
     var schemaConfig = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
 
     iris.dbSchemaConfig[schema] = iris.dbSchema[schema];
+    iris.entityTypes[schema] = iris.dbSchema[schema];
 
     // Loop over all fields and set their type.
 
@@ -328,6 +332,8 @@ iris.dbPopulate = function() {
       }
 
     };
+    
+    
 
     Object.keys(schemaConfig.fields).forEach(function(fieldName) {
 
@@ -336,7 +342,7 @@ iris.dbPopulate = function() {
     });
 
     iris.dbSchema[schema] = finalSchema;
-
+    
     var util = require("util");
 
     //Push in universal type fields if not already in.
@@ -402,7 +408,7 @@ iris.dbPopulate = function() {
   });
 
   if (!dbReady) {
-
+    
     process.emit("dbReady", true);
     dbReady = true;
 
