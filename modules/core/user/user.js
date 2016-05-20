@@ -66,8 +66,7 @@ iris.route.get("/user/login", routes.login, function (req, res) {
       iris.log("error", fail);
 
     });
-  }
-  else {
+  } else {
     res.redirect('/user');
   }
 
@@ -160,19 +159,30 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
 
   // Time out, in seconds, until login URL expires. Defaults to 24 hours =
   // 86400 seconds.
-  var timeout =  86400000,
-      current = Date.now(),
-      timestamp = params[1],
-      eid = params[0],
-      hashed_pass = params[2],
-      action = '';
+  var timeout = 86400000,
+    current = Date.now(),
+    timestamp = params[1],
+    eid = params[0],
+    hashed_pass = params[2],
+    action = '';
   if (params[3]) {
     action = params[3];
   }
 
-  iris.dbCollections['user'].findOne({
-    "eid": eid
-  }, function (err, account) {
+  iris.invokeHook("hook_entity_fetch", req.authPass, null, {
+    "entities": ["user"],
+    "queries": [{
+      "field": "eid",
+      "operator": "is",
+      "value": eid
+      }]
+  }).then(function (entities) {
+
+    if (entities) {
+
+      var account = entities[0];
+
+    }
 
     var data = timestamp + account.lastlogin.toString() + account.eid;
     var rehash = iris.hmacBase64(data, account.password);
@@ -182,8 +192,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
       if (account.lastlogin && current - timestamp > timeout) {
         iris.message(req.authPass.userid, req.authPass.t('You have tried to use a one-time login link that has expired. Please request a new one using the form below.'), 'error');
         res.redirect('/user/password');
-      }
-      else if (account.eid && timestamp >= account.lastlogin && timestamp <= current && hashed_pass == rehash) {
+      } else if (account.eid && timestamp >= account.lastlogin && timestamp <= current && hashed_pass == rehash) {
         // First stage is a confirmation form, then login
         if (action == 'login') {
 
@@ -196,15 +205,14 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
             iris.modules.sessions.globals.writeCookies(eid, token.id, res, 8.64e7, {});
 
             // Add last login timestamp to user entity.
-            iris.dbCollections['user'].update(
-              {
+            iris.dbCollections['user'].update({
                 "username": account.username
-              },
-              {
-                $set : {"lastlogin" : Date.now()}
-              },
-              {},
-              function(err, doc) {}
+              }, {
+                $set: {
+                  "lastlogin": Date.now()
+                }
+              }, {},
+              function (err, doc) {}
             );
 
             iris.log('notice', 'User %name used one-time login link at time %timestamp.');
@@ -219,8 +227,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
 
           });
 
-        }
-        else {
+        } else {
 
           var future = parseInt(timestamp) + parseInt(timeout);
           var expireDate = new Date(parseInt(future));
@@ -229,7 +236,10 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
 
           iris.modules.frontend.globals.parseTemplateFile(["passwordResetPrompt"], ['html'], {
             link: '/user/reset/' + eid + '/' + timestamp + '/' + hashed_pass + '/login',
-            text: req.authPass.t("<p>This is a one-time login for {{username}} and will expire on {{expiration_date}}.</p><p>Click on this button to log in to the site and change your password.</p>", {username: account.username, expiration_date: expireDate})
+            text: req.authPass.t("<p>This is a one-time login for {{username}} and will expire on {{expiration_date}}.</p><p>Click on this button to log in to the site and change your password.</p>", {
+              username: account.username,
+              expiration_date: expireDate
+            })
           }, req.authPass, req).then(function (success) {
 
             res.send(success);
@@ -245,8 +255,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
 
 
         }
-      }
-      else {
+      } else {
 
         res.redirect('/user/password');
 
@@ -254,7 +263,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
 
     }
 
-   /* iris.modules.frontend.globals.parseTemplateFile(["baselinks"], ['admin_wrapper'], {
+    /* iris.modules.frontend.globals.parseTemplateFile(["baselinks"], ['admin_wrapper'], {
       menu: menu,
     }, req.authPass, req).then(function (success) {
 
@@ -302,28 +311,28 @@ iris.route.post("/api/user/first", function (req, res) {
 
   iris.dbCollections["user"].count({}, function (err, count) {
 
-      if (count === 0) {
+    if (count === 0) {
 
-        iris.invokeHook("hook_form_submit__set_first_user", "root", {
-          params: {
-            password: req.body.password,
-            username: req.body.username
-          }
-        }, null).then(function (success) {
+      iris.invokeHook("hook_form_submit__set_first_user", "root", {
+        params: {
+          password: req.body.password,
+          username: req.body.username
+        }
+      }, null).then(function (success) {
 
-          res.status(200).json(req.authPass.t("First user created"));
+        res.status(200).json(req.authPass.t("First user created"));
 
-        }, function (fail) {
+      }, function (fail) {
 
-          res.status(400).json(fail);
+        res.status(400).json(fail);
 
-        });
+      });
 
-      } else {
+    } else {
 
-        res.status(403).json("Admin user already set up");
+      res.status(403).json("Admin user already set up");
 
-      }
+    }
 
   });
 
@@ -380,11 +389,20 @@ iris.modules.user.registerHook("hook_form_render__passwordReset", 0, function (t
  */
 iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function (thisHook, data) {
 
-  iris.dbCollections['user'].findOne({
-    "username": thisHook.context.params.username
-  }, function (err, doc) {
+  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+    "entities": ["user"],
+    "queries": [{
+      "field": "username",
+      "operator": "is",
+      "value": thisHook.context.params.username
+      }]
+  }).then(function (entities) {
 
-    if (err != null || doc === null) {
+    if (entities) {
+
+      var doc = entities[0];
+
+    } else {
 
       data.errors.push({
         field: 'username',
@@ -392,19 +410,30 @@ iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function 
       });
 
     }
-    thisHook.pass(data);
-  });
 
-});
+    thisHook.pass(data);
+  })
+})
 
 /**
  * Submit handler for passwordReset.
  */
 iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (thisHook, data) {
 
-  iris.dbCollections['user'].findOne({
-    "username": thisHook.context.params.username
-  }, function (err, doc) {
+  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+    "entities": ["user"],
+    "queries": [{
+      "field": "username",
+      "operator": "is",
+      "value": thisHook.context.params.username
+      }]
+  }).then(function (entities) {
+
+    if (entities) {
+
+      var doc = entities[0];
+
+    }
 
     var date = Date.now().toString();
     var eid = doc.eid;
@@ -415,12 +444,17 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
     var link = 'http://' + thisHook.req.headers.host + "/user/reset/" + eid + "/" + date + "/" + iris.hmacBase64(hash, key);
 
     iris.modules.frontend.globals.parseTemplateFile(["emailPasswordReset"], null, {
-      "one-time-login-url" : link,
-      "name" : doc.username,
-      "sitename" : thisHook.req.headers.host
+      "one-time-login-url": link,
+      "name": doc.username,
+      "sitename": thisHook.req.headers.host
     }, thisHook.req.authPass, thisHook.req).then(function (body) {
 
-      var args = {from: 'adam@therabbitden.com', to: thisHook.context.params.username, subject: 'Password reset', body: body};
+      var args = {
+        from: 'adam@therabbitden.com',
+        to: thisHook.context.params.username,
+        subject: 'Password reset',
+        body: body
+      };
       iris.modules.email.globals.sendEmail(args, thisHook.authPass);
 
       thisHook.pass(data);
@@ -430,8 +464,8 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
       iris.log("error", fail);
 
       data.errors.push({
-        'field' : 'username',
-        'message' : fail
+        'field': 'username',
+        'message': fail
       });
       thisHook.pass(data);
 
@@ -570,7 +604,7 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
                 name: 'lists'
               }
             ];
-            
+
             iris.saveConfigSync(enabled, "system", "enabled_modules", true);
 
           }
@@ -619,11 +653,18 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
  */
 iris.modules.user.globals.login = function (auth, res, callback) {
 
-  iris.dbCollections['user'].findOne({
-    "username": auth.username
-  }, function (err, doc) {
+  iris.invokeHook("hook_entity_fetch", "root", null, {
+    "entities": ["user"],
+    "queries": [{
+      "field": "username",
+      "operator": "is",
+      "value": auth.username
+      }]
+  }).then(function (entities) {
 
-    if (doc) {
+    if (entities) {
+
+      var doc = entities[0];
 
       var userid = doc.eid.toString();
 
@@ -640,15 +681,14 @@ iris.modules.user.globals.login = function (auth, res, callback) {
               iris.modules.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
 
               // Add last login timestamp to user entity.
-              iris.dbCollections['user'].update(
-                {
+              iris.dbCollections['user'].update({
                   "username": auth.username
-                },
-                {
-                  $set : {"lastlogin" : Date.now()}
-                },
-                {},
-                function(err, doc) {}
+                }, {
+                  $set: {
+                    "lastlogin": Date.now()
+                  }
+                }, {},
+                function (err, doc) {}
               );
 
               callback(userid);
@@ -740,11 +780,22 @@ iris.modules.user.globals.getRole = function (userid, callback) {
 
   } else {
 
-    iris.dbCollections['user'].findOne({
-      eid: parseInt(userid)
-    }, function (err, doc) {
+    iris.invokeHook("hook_entity_fetch", "root", null, {
+      "entities": ["user"],
+      "queries": [{
+        "field": "eid",
+        "operator": "is",
+        "value": parseInt(userid)
+      }]
+    }).then(function (entities) {
 
-      if (!err && doc && doc.roles) {
+      if (entities) {
+
+        var doc = entities[0];
+
+      }
+
+      if (doc) {
 
         iris.modules.user.globals.userRoles[userid] = doc.roles;
 
@@ -942,6 +993,6 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
 });
 
-iris.modules.user.globals.userPassRehash = function(password, timestamp, lastlogin, eid) {
+iris.modules.user.globals.userPassRehash = function (password, timestamp, lastlogin, eid) {
 
 }
