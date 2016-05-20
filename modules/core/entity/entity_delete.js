@@ -28,7 +28,7 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
   }
 
-  if (!data.entityType || !iris.dbCollections[data.entityType]) {
+  if (!data.entityType || !iris.entityTypes[data.entityType]) {
 
     thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
     return false;
