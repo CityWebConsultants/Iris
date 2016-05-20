@@ -355,7 +355,7 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
     } else {
 
-      if (Object.keys(iris.dbCollections).indexOf(paths[0]) !== -1) {
+      if (Object.keys(iris.entityTypes).indexOf(paths[0]) !== -1) {
 
         iris.modules.frontend.globals.findTemplate(["entity"], "html").then(function (html) {
 
@@ -758,7 +758,7 @@ iris.app.use(function (req, res, next) {
 
   var splitUrl = req.url.split('/');
 
-  if (splitUrl && splitUrl.length === 3 && Object.keys(iris.dbCollections).indexOf(splitUrl[1]) !== -1) {
+  if (splitUrl && splitUrl.length === 3 && Object.keys(iris.entityTypes).indexOf(splitUrl[1]) !== -1) {
 
     for (var path in iris.modules.paths.globals.entityPaths) {
 
