@@ -68,9 +68,9 @@ iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (th
 
   Object.keys(iris.entityTypes[entityType].fields).forEach(function (fieldName) {
 
-    var type = iris.dbSchema[entityType][fieldName].type;
+    var type = iris.entityTypes[entityType].fields[fieldName].fieldTypeType;
 
-    if (type === String) {
+    if (type === "String") {
 
       tokens.push("[" + fieldName + "]");
 
