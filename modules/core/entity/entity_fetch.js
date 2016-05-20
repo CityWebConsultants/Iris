@@ -22,11 +22,11 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   if (Array.isArray(fetchRequest.entities)) {
 
-    fetchRequest.entities.forEach(function (entity) {
+    fetchRequest.entities.forEach(function (entityType) {
 
-      if (iris.dbCollections[entity]) {
+      if (iris.entityTypes[entityType]) {
 
-        entityTypes.push(entity);
+        entityTypes.push(entityType);
 
       }
 
@@ -189,10 +189,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
       dbActions.push(iris.promise(function (data, yes, no) {
 
-          var util = require("util");
-
           var fetch = function (query) {
-
             iris.dbCollections[type].find(query).lean().sort(fetchRequest.sort).skip(fetchRequest.skip).limit(fetchRequest.limit).exec(function (err, doc) {
 
               if (err) {
@@ -481,8 +478,8 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
   var viewAny = iris.modules.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass);
   if (!viewAny && !(isOwn && viewOwn)) {
 
-      //Can't view any of this type, delete it
-      entity = undefined;
+    //Can't view any of this type, delete it
+    entity = undefined;
 
   }
 
@@ -497,7 +494,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
 
-        var schemaField = iris.dbCollections[type].schema.tree[field];
+        var schemaField = iris.entityTypes[type].fields[field];
 
         if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 
@@ -572,7 +569,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     // Run hook for each field
 
-    if(fieldHooks.length === 0) {
+    if (fieldHooks.length === 0) {
       thisHook.pass(entity);
     }
 
@@ -599,7 +596,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
   } else {
 
     thisHook.pass(entity);
-    
+
   }
 
 });
