@@ -11,6 +11,18 @@ var express = require('express'),
 
 iris.app = express();
 
+// Redirect trailing slashes in urls (unless root url)
+
+iris.app.use(function (req, res, next) {
+  if (req.url.slice(-1) === '/' && req.url !== '/') {
+    res.redirect(req.url.slice(0, -1));
+  } else {
+
+    next();
+
+  }
+});
+
 //Set up bodyParser
 
 iris.app.use(bodyParser.json());
@@ -22,7 +34,7 @@ iris.app.use(bodyParser.urlencoded({
 }));
 
 // I18n.
-if (!fs.existsSync(iris.configPath + '/locales')){
+if (!fs.existsSync(iris.configPath + '/locales')) {
   fs.mkdirSync(iris.configPath + '/locales');
 }
 i18n.configure({
@@ -30,8 +42,8 @@ i18n.configure({
   autoReload: true,
   directory: iris.configPath + '/locales',
   api: {
-    '__' : 't',
-    '__n' : 'tn'
+    '__': 't',
+    '__n': 'tn'
   }
 });
 

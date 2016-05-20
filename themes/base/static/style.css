@@ -3,14 +3,14 @@ body {
     background-color:#555;
 }
 a {
-    color: #6258A4
+    color: #586180
 }
 #logo {
     float:left;
-    color: #6258a4;
+    color: #586180;
 }
 h1, h2, h3, h4 {
-  color: #6258a4;
+  color: #586180;
 }
 #login-form {
     max-width: 400px;
@@ -24,7 +24,7 @@ h1, h2, h3, h4 {
 }
 .caption {
     font-size:12px;
-    color: #6258A4;
+    color: #586180;
 }
 
 #content {

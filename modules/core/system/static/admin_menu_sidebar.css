@@ -23,6 +23,7 @@
 #admin_sidebar ul a{
     color: white;
     font-size: 15px;
+    transition: all 0.2s ease;
 }
 
 #admin_sidebar > .menu ul.menu > li > a {
@@ -70,4 +71,12 @@
 
 #admin_sidebar .sub-menu li a .glyphicon-triangle-bottom {
     top:13px;
+}
+
+.has-children > a > .glyphicon {
+    transition: all 0.1s ease;
+}
+
+.has-children > a.open > .glyphicon{
+    transform: rotate(180deg);
 }

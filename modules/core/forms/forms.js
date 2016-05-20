@@ -503,5 +503,13 @@ iris.modules.forms.globals.registerWidget(function () {
   JSONForm.elementTypes['markup'].fieldTemplate = true;
   JSONForm.elementTypes['markup'].inputfield = true;
 
-
 }, "markup");
+
+/**
+ * Replace standard input submit with button that includes a loading gif.
+ */
+iris.modules.forms.globals.registerWidget(function () {
+
+  JSONForm.elementTypes['submit'].template = ' <button type="submit" <% if (id) { %> id="<%= id %>" <% } %> class="btn btn-primary has-spinner <%= cls.buttonClass %> <%= elt.htmlClass?elt.htmlClass:"" %>"><%= value || node.title %><span class="spinner"><i class="glyphicon-refresh-animate glyphicon glyphicon-refresh"></i></span></button> ';
+
+}, "submit");
