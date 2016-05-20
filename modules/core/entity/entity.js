@@ -34,6 +34,7 @@ require('./entity_edit');
 require('./entity_fetch');
 
 // API hooks for getting schema information
+// TODO: Need to put in information about the fieldTypes into iris.entityTypes
 
 // Get list of entity types
 
