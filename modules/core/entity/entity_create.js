@@ -33,7 +33,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
   //Set author and entity type
 
-  if (!data.entityType || !iris.dbCollections[data.entityType]) {
+  if (!data.entityType || !iris.entityTypes[data.entityType]) {
 
     thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
     return false;
@@ -159,31 +159,27 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
     var saveEntity = function () {
 
-      iris.dbCollections[preparedEntity.entityType].count({}, function (err, result) {
+      var entity = new iris.dbCollections[preparedEntity.entityType](preparedEntity);
 
-        var entity = new iris.dbCollections[preparedEntity.entityType](preparedEntity);
+      entity.save(function (err, doc) {
 
-        entity.save(function (err, doc) {
+        if (err) {
 
-          if (err) {
+          thisHook.fail(err);
 
-            thisHook.fail(err);
+        } else if (doc) {
 
-          } else if (doc) {
+          doc = doc.toObject();
 
-            doc = doc.toObject();
+          thisHook.pass(doc);
 
-            thisHook.pass(doc);
+          iris.invokeHook("hook_entity_created", thisHook.authPass, null, doc);
 
-            iris.invokeHook("hook_entity_created", thisHook.authPass, null, doc);
+          iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
 
-            iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
+          iris.log("info", data.entityType + " created by " + doc.entityAuthor);
 
-            iris.log("info", data.entityType + " created by " + doc.entityAuthor);
-
-          }
-
-        });
+        }
 
       });
 
