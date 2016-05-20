@@ -173,7 +173,7 @@ iris.app.use(function (req, res, next) {
 
   if (iris.modules.paths.globals.entityPaths[currentPath]) {
 
-    iris.invokeHook("hook_entity_fetch", req.authPass, null, {
+    iris.invokeHook("hook_entity_fetch", "root", null, {
       "entities": [iris.modules.paths.globals.entityPaths[currentPath].entityType],
       "queries": [{
         "field": "eid",
