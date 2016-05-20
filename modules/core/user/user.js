@@ -309,9 +309,11 @@ iris.route.post("/api/user/first", function (req, res) {
 
   }
 
-  iris.dbCollections["user"].count({}, function (err, count) {
+  iris.invokeHook("hook_entity_fetch", "root", null, {
+    "entities": ["user"]
+  }).then(function (entities) {
 
-    if (count === 0) {
+    if (!entities || entities.length === 0) {
 
       iris.invokeHook("hook_form_submit__set_first_user", "root", {
         params: {
@@ -343,8 +345,11 @@ iris.route.post("/api/user/first", function (req, res) {
  */
 iris.route.get("/", function (req, res, next) {
 
-  iris.dbCollections["user"].count({}, function (err, count) {
-    if (count === 0) {
+  iris.invokeHook("hook_entity_fetch", "root", null, {
+    "entities": ["user"]
+  }).then(function (entities) {
+
+    if (!entities || entities.length === 0) {
 
       iris.modules.frontend.globals.parseTemplateFile(["first_user"], null, {}, req.authPass, req).then(function (success) {
 
@@ -484,9 +489,11 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
 
   var ap = thisHook.authPass;
 
-  iris.dbCollections["user"].count({}, function (err, count) {
+  iris.invokeHook("hook_entity_fetch", "root", null, {
+    "entities": ["user"]
+  }).then(function (entities) {
 
-    if (count === 0) {
+    if (!entities || entities.length === 0) {
 
       data.schema.profile = {
         "type": "string",
@@ -546,8 +553,11 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
 
   var ap = thisHook.authPass;
 
-  iris.dbCollections["user"].count({}, function (err, count) {
-    if (!count || count === 0) {
+  iris.invokeHook("hook_entity_fetch", "root", null, {
+    "entities": ["user"]
+  }).then(function (entities) {
+
+    if (!entities || entities.length === 0) {
 
       var newUser = {
 
