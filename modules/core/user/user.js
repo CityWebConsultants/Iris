@@ -205,15 +205,14 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
             iris.modules.sessions.globals.writeCookies(eid, token.id, res, 8.64e7, {});
 
             // Add last login timestamp to user entity.
-            iris.dbCollections['user'].update({
-                "username": account.username
-              }, {
-                $set: {
-                  "lastlogin": Date.now()
-                }
-              }, {},
-              function (err, doc) {}
-            );
+
+            var userEntity = {
+              entityType: "user",
+              eid: eid,
+              lastlogin: Date.now()
+            }
+
+            iris.invokeHook("hook_entity_edit", "root", null, userEntity);
 
             iris.log('notice', 'User %name used one-time login link at time %timestamp.');
             iris.message(req.authPass.userid, req.authPass.t('You have just used your one-time login link. It is no longer necessary to use this link to log in. Please change your password.'));
@@ -691,15 +690,14 @@ iris.modules.user.globals.login = function (auth, res, callback) {
               iris.modules.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
 
               // Add last login timestamp to user entity.
-              iris.dbCollections['user'].update({
-                  "username": auth.username
-                }, {
-                  $set: {
-                    "lastlogin": Date.now()
-                  }
-                }, {},
-                function (err, doc) {}
-              );
+
+              var userEntity = {
+                entityType: "user",
+                eid: userid,
+                lastlogin: Date.now()
+              }
+
+              iris.invokeHook("hook_entity_edit", "root", null, userEntity);
 
               callback(userid);
 
@@ -947,20 +945,22 @@ iris.modules.user.registerHook("hook_form_render__createEntity", 1, function (th
 });
 
 // When creating user, change the author to the entity ID
+// TODO: Check if this is wise.
 
 iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook, data) {
 
-  var conditions = {
-    eid: data.eid
-  };
-
   var update = {
+    eid: data.eid,
     entityAuthor: data.eid
   };
 
-  iris.dbCollections["user"].update(conditions, update, function (err, doc) {
+  iris.invokeHook("hook_entity_edit", "root", null, update).then(function () {
 
-    thisHook.pass(doc);
+    thisHook.pass(data);
+
+  }, function (fail) {
+
+    thisHook.fail(data);
 
   });
 
