@@ -21,7 +21,7 @@ var routes = {
       menuName: "admin_toolbar",
       parent: null,
       title: "Content",
-      weight:0
+      weight: 0
     }]
   },
   userlist: {
@@ -100,11 +100,16 @@ iris.route.get("/:type/:id/delete", routes.delete, function (req, res) {
     id: req.params.id
   });
 
-  iris.dbCollections[req.params.type].findOne({
-    "eid": req.params.id
-  }, function (err, entity) {
+  iris.invokeHook("hook_entity_fetch", req.authPass, null, {
+    "entities": [req.params.type],
+    "queries": [{
+      "field": "eid",
+      "operator": "is",
+      "value": req.params.id
+      }]
+  }).then(function (entity) {
 
-    if (err != null || entity === null) {
+    if (!entity) {
 
       iris.modules.frontend.globals.displayErrorPage(404, req, res);
 
@@ -696,13 +701,19 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
   var eid = thisHook.context.params[2];
 
   if (eid) {
-    iris.dbCollections[entityType].findOne({
-      eid: eid
-    }, function (err, doc) {
+
+    iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+      "entities": [entityType],
+      "queries": [{
+        "field": "eid",
+        "operator": "is",
+        "value": eid
+      }]
+    }).then(function (doc) {
 
       if (doc) {
 
-        renderFields(doc)
+        renderFields(doc[0]);
 
       }
 
