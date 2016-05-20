@@ -32,7 +32,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   //Set entity type
 
-  if (!data.entityType || !iris.dbCollections[data.entityType]) {
+  if (!data.entityType || !iris.entityTypes[data.entityType]) {
 
     thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
     return false;
@@ -71,10 +71,12 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
       var type = data.entityType;
       Object.keys(data).forEach(function (field) {
+        
+        // TODO: Does this check fieldsets?
 
         if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
 
-          var schemaField = iris.dbCollections[type].schema.tree[field];
+          var schemaField = iris.entityTypes[type].fields[field];
 
           if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 
