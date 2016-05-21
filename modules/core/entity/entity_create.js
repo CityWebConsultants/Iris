@@ -319,40 +319,58 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
   } else {
 
-    iris.dbCollections[data.entityType].findOne({
-      $or: uniqueFields
-    }, function (err, doc) {
+    // TODO Replace this once an OR entity_fetch is put in
 
-      if (doc && (!data.eid || data.eid.toString() !== doc.eid.toString())) {
+    var errors = [];
+    var checkedCounter = 0;
+    var checked = function () {
 
-        // Check which field needs to be unique to return a helpful error
+      checkedCounter += 1;
 
-        var errors = [];
+      if (checkedCounter === uniqueFields.length) {
 
-        uniqueFields.forEach(function (field) {
 
-          Object.keys(field).forEach(function (fieldName) {
+        if (errors.length) {
 
-            if (field[fieldName] === doc[fieldName]) {
+          thisHook.fail(errors.join(" ") + " should be unique");
 
-              errors.push(fieldName);
+        } else {
 
-            }
+          thisHook.pass(data);
 
-          });
-
-        });
-
-        thisHook.fail(errors.join(" ") + " should be unique");
-
-      } else {
-
-        thisHook.pass(data);
+        }
 
       }
 
-    });
+    }
 
+    uniqueFields.forEach(function (field) {
+
+      var fieldName = Object.keys(field)[0];
+
+      var fetch = {
+        entities: [data.entityType],
+        queries: [{
+          "field": fieldName,
+          "operator": "is",
+          "value": field[fieldName]
+        }]
+
+      }
+
+      iris.invokeHook("hook_entity_fetch", "root", null, fetch).then(function (clash) {
+
+        if (clash && clash.length) {
+
+          errors.push(fieldName);
+
+        }
+
+        checked();
+
+      });
+
+    })
 
   }
 

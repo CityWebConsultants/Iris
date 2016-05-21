@@ -41,15 +41,18 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   //Check entity actually exists
 
-  iris.dbCollections[data.entityType].findOne({
-    eid: data.eid
-  }, function (err, doc) {
+  iris.invokeHook("hook_entity_fetch", req.authPass, null, {
+    entities: [data.entityType],
+    queries: [{
+      field: 'eid',
+      operator: 'IS',
+      value: data.eid
+        }]
+  }).then(function (result) {
 
-    if (err) {
+    if (result && result[0]) {
 
-      thisHook.fail(iris.error(500, "Database error"));
-      iris.log("error", err);
-      return false;
+      var doc = result;
 
     }
 
@@ -71,7 +74,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
       var type = data.entityType;
       Object.keys(data).forEach(function (field) {
-        
+
         // TODO: Does this check fieldsets?
 
         if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
