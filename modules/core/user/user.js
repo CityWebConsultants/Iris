@@ -9,7 +9,7 @@
  * @namespace user
  */
 
-iris.registerModule("user");
+iris.registerModule("user",__dirname);
 var bcrypt = require("bcrypt-nodejs");
 require('./login_form.js');
 

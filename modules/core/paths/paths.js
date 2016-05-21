@@ -1,7 +1,7 @@
 /*jshint nomen: true, node:true, sub:true */
 /* globals iris,mongoose,Promise */
 
-iris.registerModule("paths");
+iris.registerModule("paths",__dirname);
 
 iris.modules.paths.globals.entityPaths = {};
 

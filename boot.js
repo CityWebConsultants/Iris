@@ -14,6 +14,14 @@ module.exports = function (config) {
 
   global.iris = {};
 
+  // Set iris launch status
+
+  iris.status = {
+
+    ready: false
+
+  };
+
   //Load in helper utilities
 
   require('./utils');
@@ -38,7 +46,7 @@ module.exports = function (config) {
       iris.log("info", "Server restarted by " + authPass.userid);
 
       iris.invokeHook("hook_restart_send", authPass, null, data).then(function (data) {
-        
+
         process.send({
           restart: data
         });
@@ -146,229 +154,223 @@ module.exports = function (config) {
 
   require('./modules');
 
-  //Set up database
-
-  require('./db');
-
-  iris.status = {
-
-    ready: false
-
-  };
-
   // Create iris modules object
 
   iris.modules = {};
 
-  mongoose.connection.once("open", function () {
+  //Set up database
 
-    //Core modules
+  iris.setupDatabase = function () {
 
-    require('./modules/core/auth/auth.js');
+    require('./db');
 
-    require('./modules/core/sessions/sessions.js');
+    mongoose.connection.once("open", function () {
 
-    require('./modules/core/entity/entity.js');
+      iris.dbPopulate();
 
-    require('./modules/core/frontend/frontend.js');
+      iris.status.ready = true;
 
-    require('./modules/core/forms/forms.js');
+      // Free iris object, no longer extensible
 
-    require('./modules/core/filefield/filefield.js');
-    
-    require('./modules/core/imagefield/imagefield.js');
+      Object.freeze(iris);
 
-    require('./modules/core/menu/menu.js');
+      console.log("Ready on port " + iris.config.port + ".");
 
-    require('./modules/core/system/system.js');
+      iris.log("info", "Server started");
 
-    require('./modules/core/user/user.js');
+    });
 
-    require('./modules/core/paths/paths.js');
+  }
 
-    require('./modules/core/email/email.js');
+  //Core modules
+
+  require('./modules/core/auth/auth.js');
+
+  // End database set up
+
+  require('./modules/core/sessions/sessions.js');
+
+  require('./modules/core/entity/entity.js');
+
+  require('./modules/core/frontend/frontend.js');
+
+  require('./modules/core/forms/forms.js');
+
+  require('./modules/core/filefield/filefield.js');
+
+  require('./modules/core/imagefield/imagefield.js');
+
+  require('./modules/core/menu/menu.js');
+
+  require('./modules/core/system/system.js');
+
+  require('./modules/core/user/user.js');
+
+  require('./modules/core/paths/paths.js');
+
+  require('./modules/core/email/email.js');
+
+  try {
+
+    var file = fs.readFileSync(iris.configPath + '/system/enabled_modules.json', "utf8");
+
+    iris.enabledModules = JSON.parse(file);
+
+  } catch (e) {
+
+    fs.writeFileSync(iris.configPath + '/system/enabled_modules.json', "[]");
+
+    iris.enabledModules = [];
+
+  }
+
+  var path = require('path');
+
+  var glob = require("glob");
+
+  // Check if cache of module paths exists
+
+  var modulePathCache;
+
+  try {
+
+    modulePathCache = JSON.parse(fs.readFileSync(iris.sitePath + "/local/modulePathCache.json", "utf8"));
+
+  } catch (e) {
+
+    modulePathCache = {};
+
+  }
+
+  // Cache object to save with found modules
+
+  var foundModules = {};
+
+  iris.enabledModules.forEach(function (enabledModule, index) {
+
+    // Check if path in cache
+
+    var lookup;
+
+    try {
+      fs.readFileSync(modulePathCache[enabledModule.name]);
+      var lookup = [modulePathCache[enabledModule.name]];
+    } catch (e) {
+
+      // Check if module path is a site path
+      var rootParent = iris.rootPath.substring(0, iris.rootPath.length - 7);
+      var lookup = glob.sync("{" + rootParent + "/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "}");
+
+      lookup.reverse();
+
+      if (!lookup.length) {
+
+        iris.log("error", "error loading module " + enabledModule.name);
+        return false;
+
+      }
+    }
+
+    var moduleInfoPath = lookup[lookup.length - 1];
+
+    var modulePath = lookup[lookup.length - 1].replace(".iris.module", ".js");
+    var moduleInfo;
+
+    // Add to cache
+
+    foundModules[enabledModule.name] = moduleInfoPath;
 
     try {
 
-      var file = fs.readFileSync(iris.configPath + '/system/enabled_modules.json', "utf8");
-
-      iris.enabledModules = JSON.parse(file);
+      moduleInfo = JSON.parse(fs.readFileSync(moduleInfoPath));
 
     } catch (e) {
 
-      fs.writeFileSync(iris.configPath + '/system/enabled_modules.json', "[]");
+      // Read config file to check if dependencies satisfied
 
-      iris.enabledModules = [];
-
-    }
-
-    var path = require('path');
-
-    var glob = require("glob");
-
-    // Check if cache of module paths exists
-
-    var modulePathCache;
-
-    try {
-
-      modulePathCache = JSON.parse(fs.readFileSync(iris.sitePath + "/local/modulePathCache.json", "utf8"));
-
-    } catch (e) {
-
-      modulePathCache = {};
+      console.error("error loading module " + enabledModule.name, e);
+      return false;
 
     }
 
-    // Cache object to save with found modules
+    if (moduleInfo.dependencies) {
 
-    var foundModules = {};
+      var unmet = [];
 
-    iris.enabledModules.forEach(function (enabledModule, index) {
+      Object.keys(moduleInfo.dependencies).forEach(function (dep) {
 
-      // Check if path in cache
+        if (!iris.modules[dep]) {
 
-      var lookup;
-
-      try {
-        fs.readFileSync(modulePathCache[enabledModule.name]);
-        var lookup = [modulePathCache[enabledModule.name]];
-      } catch (e) {
-
-        // Check if module path is a site path
-        var rootParent = iris.rootPath.substring(0, iris.rootPath.length - 7);
-        var lookup = glob.sync("{" + rootParent + "/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "}");
-
-        lookup.reverse();
-
-        if (!lookup.length) {
-
-          iris.log("error", "error loading module " + enabledModule.name);
-          return false;
+          unmet.push(dep);
 
         }
-      }
 
-      var moduleInfoPath = lookup[lookup.length - 1];
+      });
 
-      var modulePath = lookup[lookup.length - 1].replace(".iris.module", ".js");
-      var moduleInfo;
+      if (unmet.length) {
 
-      // Add to cache
-
-      foundModules[enabledModule.name] = moduleInfoPath;
-
-      try {
-
-        moduleInfo = JSON.parse(fs.readFileSync(moduleInfoPath));
-
-      } catch (e) {
-
-        // Read config file to check if dependencies satisfied
-
-        console.error("error loading module " + enabledModule.name, e);
+        iris.log("error", "Module " + enabledModule.name + " requires the following modules: " + JSON.stringify(unmet));
         return false;
 
       }
 
-      if (moduleInfo.dependencies) {
+    }
 
-        var unmet = [];
+    iris.registerModule(enabledModule.name, path.parse(modulePath).dir);
 
-        Object.keys(moduleInfo.dependencies).forEach(function (dep) {
+    try {
 
-          if (!iris.modules[dep]) {
+      require(modulePath);
 
-            unmet.push(dep);
+    } catch (e) {
 
-          }
+      // Check if module returning other error than file not found
 
-        });
+      if (e.code !== "MODULE_NOT_FOUND") {
 
-        if (unmet.length) {
-
-          iris.log("error", "Module " + enabledModule.name + " requires the following modules: " + JSON.stringify(unmet));
-          return false;
-
-        }
+        iris.log("error", e);
 
       }
 
-      iris.registerModule(enabledModule.name, path.parse(modulePath).dir);
+    }
 
-      try {
+  });
 
-        require(modulePath);
+  iris.mkdirSync(iris.sitePath + "/" + "local");
 
-      } catch (e) {
+  fs.writeFileSync(iris.sitePath + "/local/modulePathCache.json", JSON.stringify(foundModules));
 
-        // Check if module returning other error than file not found
+  // Populate routes stored using iris.route
 
-        if (e.code !== "MODULE_NOT_FOUND") {
+  iris.populateRoutes();
+  
+  // Set up database
+  
+  iris.setupDatabase();
 
-          iris.log("error", e);
+  /**
+   * Catch all callback which is run last. If this is called then the GET request has not been defined 
+   * anywhere in the system and will therefore return 404 error. 
+   * This is also required for form submissions, POST requests are caught in hook_catch_request for example
+   * where they are then forwarded to the required submit handler function.
+   */
 
-        }
+  iris.app.use(function (req, res) {
 
-      }
+    if (!res.headersSent) {
 
-    });
+      iris.invokeHook("hook_catch_request", req.authPass, {
+        req: req,
+        res: res
+      }, null).then(function (success) {
 
-    iris.mkdirSync(iris.sitePath + "/" + "local");
+          if (typeof success === "function") {
 
-    fs.writeFileSync(iris.sitePath + "/local/modulePathCache.json", JSON.stringify(foundModules));
+            var output = success(res, req);
 
-    iris.status.ready = true;
+            if (output && output.then) {
 
-    // Free iris object, no longer extensible
-
-    Object.freeze(iris);
-
-    console.log("Ready on port " + iris.config.port + ".");
-
-    iris.log("info", "Server started");
-
-    // Populate routes stored using iris.route
-
-    iris.populateRoutes();
-
-    /**
-     * Catch all callback which is run last. If this is called then the GET request has not been defined 
-     * anywhere in the system and will therefore return 404 error. 
-     * This is also required for form submissions, POST requests are caught in hook_catch_request for example
-     * where they are then forwarded to the required submit handler function.
-     */
-
-    iris.app.use(function (req, res) {
-
-      if (!res.headersSent) {
-
-        iris.invokeHook("hook_catch_request", req.authPass, {
-          req: req,
-          res: res
-        }, null).then(function (success) {
-
-            if (typeof success === "function") {
-
-              var output = success(res, req);
-
-              if (output && output.then) {
-
-                output.then(function () {
-
-                  if (!res.headersSent) {
-
-                    res.redirect(req.url);
-
-                  }
-
-                }, function (fail) {
-
-                  res.send(fail);
-
-                });
-
-              } else {
+              output.then(function () {
 
                 if (!res.headersSent) {
 
@@ -376,103 +378,113 @@ module.exports = function (config) {
 
                 }
 
-              }
-
-            } else {
-
-              iris.invokeHook("hook_display_error_page", req.authPass, {
-                error: 404,
-                req: req,
-                res: res
-              }).then(function (success) {
-
-                if (!res.headersSent) {
-
-                  res.status(404).send(success);
-
-                }
-
-
               }, function (fail) {
 
-                if (!res.headersSent) {
-
-                  res.status(404).send("404");
-
-                }
+                res.send(fail);
 
               });
 
+            } else {
+
+              if (!res.headersSent) {
+
+                res.redirect(req.url);
+
+              }
+
             }
 
-          },
-          function (fail) {
-
-            iris.log("error", "Error on request to " + req.url);
-            iris.log("error", fail);
+          } else {
 
             iris.invokeHook("hook_display_error_page", req.authPass, {
-              error: 500,
+              error: 404,
               req: req,
               res: res
             }).then(function (success) {
 
-              res.status(500).send(success);
+              if (!res.headersSent) {
+
+                res.status(404).send(success);
+
+              }
+
 
             }, function (fail) {
 
-              res.status(500).send("500");
+              if (!res.headersSent) {
+
+                res.status(404).send("404");
+
+              }
 
             });
 
+          }
+
+        },
+        function (fail) {
+
+          iris.log("error", "Error on request to " + req.url);
+          iris.log("error", fail);
+
+          iris.invokeHook("hook_display_error_page", req.authPass, {
+            error: 500,
+            req: req,
+            res: res
+          }).then(function (success) {
+
+            res.status(500).send(success);
+
+          }, function (fail) {
+
+            res.status(500).send("500");
+
           });
-
-      }
-
-    });
-
-    /**
-     * Used for catching express.js errors such as errors in handlebars etc. It logs the error in the system
-     * then returns a 500 error to the client.
-     */
-
-    iris.app.use(function (err, req, res, next) {
-
-      if (err) {
-
-        iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
-
-        iris.invokeHook("hook_display_error_page", req.authPass, {
-          error: 500,
-          req: req,
-          res: res
-        }).then(function (success) {
-
-          res.status(500).send(success);
-
-        }, function (fail) {
-
-          // Used if you don't have a 500 error template file.
-          res.status(500).send('Something went wrong');
 
         });
 
-      }
-
-    });
-
-    iris.dbPopulate();
-
-    // Send server ready message and get sessions
-
-    // There are 2 processes, a master process which allows for persistant sessions and user messages even if
-    // the server is restarted via the admin form or there is a fatal error. The child process is the whole 
-    // system including templates and hooks etc. Changing a module file for instance would require a restart 
-    // to be used by the system. Restarting the child process flushes all files while the parent process
-    // maintains sessions so that everyone isn't logged out.
-
-    process.send("started");
+    }
 
   });
+
+  /**
+   * Used for catching express.js errors such as errors in handlebars etc. It logs the error in the system
+   * then returns a 500 error to the client.
+   */
+
+  iris.app.use(function (err, req, res, next) {
+
+    if (err) {
+
+      iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
+
+      iris.invokeHook("hook_display_error_page", req.authPass, {
+        error: 500,
+        req: req,
+        res: res
+      }).then(function (success) {
+
+        res.status(500).send(success);
+
+      }, function (fail) {
+
+        // Used if you don't have a 500 error template file.
+        res.status(500).send('Something went wrong');
+
+      });
+
+    }
+
+  });
+
+  // Send server ready message and get sessions
+
+  // There are 2 processes, a master process which allows for persistant sessions and user messages even if
+  // the server is restarted via the admin form or there is a fatal error. The child process is the whole 
+  // system including templates and hooks etc. Changing a module file for instance would require a restart 
+  // to be used by the system. Restarting the child process flushes all files while the parent process
+  // maintains sessions so that everyone isn't logged out.
+
+  process.send("started");
 
 };

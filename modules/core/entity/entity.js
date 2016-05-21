@@ -23,7 +23,7 @@ mkdirSync(iris.configPath + "/" + "entity");
  * @namespace entity
  */
 
-iris.registerModule("entity");
+iris.registerModule("entity",__dirname);
 
 require('./entity_create');
 

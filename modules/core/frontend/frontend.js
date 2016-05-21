@@ -10,7 +10,7 @@
  * @namespace frontend
  */
 
-iris.registerModule("frontend");
+iris.registerModule("frontend",__dirname);
 
 var fs = require('fs');
 var express = require('express');

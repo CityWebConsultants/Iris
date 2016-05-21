@@ -1,4 +1,4 @@
-iris.registerModule("imagefield");
+iris.registerModule("imagefield",__dirname);
 
 iris.modules.imagefield.registerHook("hook_entity_field_fieldType_form__image", 0, function (thisHook, data) {
 

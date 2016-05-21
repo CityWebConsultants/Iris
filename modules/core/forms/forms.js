@@ -9,7 +9,7 @@
  * @namespace forms
  */
 
-iris.registerModule("forms");
+iris.registerModule("forms",__dirname);
 
 // Store of rendered form keys to check if form has already been submitted and stop cross site scripting problems with re-rendered forms
 

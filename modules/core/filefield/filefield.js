@@ -9,7 +9,7 @@
  * @namespace filefield
  */
 
-iris.registerModule("filefield");
+iris.registerModule("filefield",__dirname);
 
 var busboy = require('connect-busboy');
 
