@@ -365,7 +365,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
           // Otherwise run a general hook for that field type
 
           iris.invokeHook("hook_entity_field_fieldType_form__" + iris.sanitizeName(fieldType), thisHook.authPass, {
-            value: currentValue ? currentValue : null,
+            value: currentValue ? JSON.parse(JSON.stringify(currentValue)) : null,
             fieldSettings: field
           }).then(function (form) {
 
@@ -683,6 +683,18 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
           form.required = true;
 
+        }
+        
+        if(field.minItems){
+          
+           form.minItems = field.minItems;
+           
+        }
+        
+        if(field.maxItems){
+          
+          form.maxItems = field.maxItems;
+          
         }
 
         data.schema[fieldName] = form;

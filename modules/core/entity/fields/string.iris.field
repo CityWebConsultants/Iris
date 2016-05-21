@@ -1,4 +1,5 @@
 {
   "name": "Textfield",
-  "type": "String"
+  "type": "String",
+  "hidden": true
 }
