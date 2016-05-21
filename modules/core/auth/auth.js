@@ -28,7 +28,7 @@ mkdirSync(iris.configPath + "/" + "auth");
 
 var crypto = require('crypto');
 
-iris.registerModule("auth");
+iris.registerModule("auth",__dirname);
 
 iris.modules.auth.globals = {
 
