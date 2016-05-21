@@ -55,17 +55,15 @@ mongoose.connection.on('error', function (error) {
 
 });
 
-iris.fieldTypes = {};
-
-iris.dbCollections = {};
-
-iris.entityTypes = {};
-
-iris.dbSchema = {};
-
-var dbReady = false;
-
 iris.dbPopulate = function () {
+  
+  iris.fieldTypes = {};
+
+  iris.dbCollections = {};
+
+  iris.entityTypes = {};
+
+  iris.dbSchema = {};
 
   var glob = require("glob");
 
@@ -110,15 +108,6 @@ iris.dbPopulate = function () {
     });
 
 
-  });
-
-  // Delete any existing schema so they can be re-written
-
-  Object.keys(iris.dbSchema).forEach(function (oldSchema) {
-
-    delete iris.entityTypes[oldSchema];
-    delete iris.dbSchema[oldSchema];
-    delete iris.dbCollections[oldSchema];
   });
 
   // Loop over all enabled modules and check for schema files
@@ -430,13 +419,8 @@ iris.dbPopulate = function () {
     iris.modules.auth.globals.registerPermission("can fetch " + schema, "entity", "Can use the API to <b>fetch</b> entities.");
     iris.modules.auth.globals.registerPermission("can delete schema " + schema, "entity", "Delete the entire schema. <strong>This includes the data</strong>.");
   });
-
-  if (!dbReady) {
-
-    process.emit("dbReady", true);
-    dbReady = true;
-
-  }
+  
+  process.emit("dbReady", true);
 
 };
 
