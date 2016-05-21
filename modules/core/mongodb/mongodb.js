@@ -1,8 +1,7 @@
 iris.registerModule("mongodb", __dirname);
+global.mongoose = require('mongoose');
 
-iris.modules.system.registerHook("hook_db_connect", 0, function (thisHook, data) {
-
-  global.mongoose = require('mongoose');
+iris.modules.mongodb.registerHook("hook_db_connect", 0, function (thisHook, data) {
 
   var fs = require('fs');
 
@@ -54,7 +53,7 @@ iris.modules.system.registerHook("hook_db_connect", 0, function (thisHook, data)
 
 // Initialise schema
 
-iris.modules.system.registerHook("hook_db_schema", 0, function (thisHook, data) {
+iris.modules.mongodb.registerHook("hook_db_schema", 0, function (thisHook, data) {
 
   var schema = thisHook.context.schema;
   var schemaConfig = thisHook.context.schemaConfig;
@@ -251,3 +250,22 @@ iris.modules.system.registerHook("hook_db_schema", 0, function (thisHook, data) 
   thisHook.pass(data);
 
 })
+
+iris.modules.mongodb.registerHook("hook_db_fetch", 0, function (thisHook, data) {
+  iris.dbCollections[thisHook.context.entityType].find(thisHook.context.query).lean().sort(thisHook.context.sort).skip(thisHook.context.skip).limit(thisHook.context.limit).exec(function (err, doc) {
+    
+    data = doc;
+
+    if (err) {
+
+      return thisHook.fail(data);
+
+    } else {
+
+      thisHook.pass(data);
+
+    }
+
+  });
+
+});
