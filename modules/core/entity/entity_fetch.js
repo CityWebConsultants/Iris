@@ -464,13 +464,12 @@ iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHoo
  */
 iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
 
-  // Add timestamp
-
   var entity = JSON.parse(JSON.stringify(entity));
 
-  var mongoid = mongoose.Types.ObjectId(entity._id);
+  // Add timestamp TODO need a general way of doing this now database is not MongoDB only.
 
-  entity.timestamp = Date.parse(mongoid.getTimestamp());
+  //  var mongoid = mongoose.Types.ObjectId(entity._id);
+  //  entity.timestamp = Date.parse(mongoid.getTimestamp());
 
   // Check if user can see entity type
 
@@ -483,7 +482,6 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
     entity = undefined;
 
   }
-
 
   // Strip out any fields on the entity that a user shouldn't be able to see according to field permissions
 
