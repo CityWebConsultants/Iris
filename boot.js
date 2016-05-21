@@ -158,30 +158,6 @@ module.exports = function (config) {
 
   iris.modules = {};
 
-  //Set up database
-
-  iris.setupDatabase = function () {
-
-    require('./db');
-
-    mongoose.connection.once("open", function () {
-
-      iris.dbPopulate();
-
-      iris.status.ready = true;
-
-      // Free iris object, no longer extensible
-
-      Object.freeze(iris);
-
-      console.log("Ready on port " + iris.config.port + ".");
-
-      iris.log("info", "Server started");
-
-    });
-
-  }
-
   //Core modules
 
   require('./modules/core/auth/auth.js');
@@ -343,10 +319,18 @@ module.exports = function (config) {
   // Populate routes stored using iris.route
 
   iris.populateRoutes();
-  
-  // Set up database
-  
-  iris.setupDatabase();
+
+  //Set up database
+
+  require('./db');
+
+  process.on("dbReady", function () {
+
+    // Free iris object, no longer extensible
+
+    Object.freeze(iris);
+
+  })
 
   /**
    * Catch all callback which is run last. If this is called then the GET request has not been defined 

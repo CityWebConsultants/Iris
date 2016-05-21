@@ -9,54 +9,76 @@
 
 var fs = require('fs');
 
-//Connect to database
+var db = "mongodb";
 
-global.mongoose = require('mongoose');
+iris.modules.system.registerHook("hook_db_connect", 0, function (thisHook, data) {
 
-var autoIncrement = require('mongoose-auto-increment');
+  global.mongoose = require('mongoose');
 
-var fs = require('fs');
+  var fs = require('fs');
 
-var connectionUri = 'mongodb://' + iris.config.db_server;
+  var connectionUri = 'mongodb://' + iris.config.db_server;
 
-if (iris.config.db_Port) {
+  if (iris.config.db_Port) {
 
-  connectionUri += +':' + iris.config.db_port;
+    connectionUri += +':' + iris.config.db_port;
 
-}
+  }
 
-if (iris.config.db_name) {
+  if (iris.config.db_name) {
 
-  connectionUri += '/' + iris.config.db_name;
+    connectionUri += '/' + iris.config.db_name;
 
-}
+  }
 
-if (iris.config.db_username && iris.config.db_password) {
+  if (iris.config.db_username && iris.config.db_password) {
 
-  mongoose.connect(connectionUri, {
-    user: iris.config.db_username,
-    pass: iris.config.db_password
+    mongoose.connect(connectionUri, {
+      user: iris.config.db_username,
+      pass: iris.config.db_password
+    });
+
+  } else {
+
+    mongoose.connect(connectionUri);
+
+  }
+
+  //Wait until database is open and fail on error
+
+  mongoose.connection.on('error', function (error) {
+
+    process.send("restart");
+
+    thisHook.fail(error);
+
   });
 
-} else {
+  mongoose.connection.once("open", function () {
 
-  mongoose.connect(connectionUri);
+    thisHook.pass(data);
 
-}
+  });
 
-autoIncrement.initialize(mongoose.connection);
 
-//Wait until database is open and fail on error
+})
 
-mongoose.connection.on('error', function (error) {
+//Connect to database
 
-  console.log(error);
-  process.send("restart");
+iris.invokeHook("hook_db_connect", "root", iris.config, null).then(function () {
+
+  iris.dbPopulate();
+
+  iris.status.ready = true;
+
+  console.log("Ready on port " + iris.config.port + ".");
+
+  iris.log("info", "Server started");
 
 });
 
 iris.dbPopulate = function () {
-  
+
   iris.fieldTypes = {};
 
   iris.dbCollections = {};
@@ -64,6 +86,10 @@ iris.dbPopulate = function () {
   iris.entityTypes = {};
 
   iris.dbSchema = {};
+
+  var autoIncrement = require('mongoose-auto-increment');
+
+  autoIncrement.initialize(mongoose.connection)
 
   var glob = require("glob");
 
@@ -419,7 +445,7 @@ iris.dbPopulate = function () {
     iris.modules.auth.globals.registerPermission("can fetch " + schema, "entity", "Can use the API to <b>fetch</b> entities.");
     iris.modules.auth.globals.registerPermission("can delete schema " + schema, "entity", "Delete the entire schema. <strong>This includes the data</strong>.");
   });
-  
+
   process.emit("dbReady", true);
 
 };
