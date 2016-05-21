@@ -31,7 +31,7 @@ iris.dbPopulate = function () {
 
   iris.entityTypes = {};
 
-  iris.dbSchema = {};
+  var dbSchema = {};
 
   var glob = require("glob");
 
@@ -89,15 +89,15 @@ iris.dbPopulate = function () {
 
         //Check if schema already exists for entity type, if not, add it
 
-        if (!iris.dbSchema[schemafile]) {
+        if (!dbSchema[schemafile]) {
 
-          iris.dbSchema[schemafile] = {};
+          dbSchema[schemafile] = {};
 
         }
 
         var file = JSON.parse(fs.readFileSync(iris.modules[moduleName].path + "/schema/" + schemafile + ".json"));
 
-        iris.dbSchema[schemafile] = merge.recursive(true, file, iris.dbSchema[schemafile]);
+        dbSchema[schemafile] = merge.recursive(true, file, dbSchema[schemafile]);
 
       });
 
@@ -135,39 +135,39 @@ iris.dbPopulate = function () {
 
     }
 
-    if (!iris.dbSchema[schemaName]) {
+    if (!dbSchema[schemaName]) {
 
-      iris.dbSchema[schemaName] = {};
+      dbSchema[schemaName] = {};
 
     }
 
     Object.keys(file).forEach(function (field) {
 
-      iris.dbSchema[schemaName][field] = file[field];
+      dbSchema[schemaName][field] = file[field];
 
     });
 
   });
 
-  Object.keys(iris.dbSchema).forEach(function (schema) {
+  Object.keys(dbSchema).forEach(function (schema) {
 
     //Push in universal type fields if not already in.
 
-    iris.dbSchema[schema].entityType = {
+    dbSchema[schema].entityType = {
       type: String,
       description: "The type of entity this is",
       title: "Entity type",
       required: true
     };
 
-    iris.dbSchema[schema].entityAuthor = {
+    dbSchema[schema].entityAuthor = {
       type: String,
       description: "The name of the author",
       title: "Author",
       required: true
     };
 
-    iris.dbSchema[schema].eid = {
+    dbSchema[schema].eid = {
       type: Number,
       description: "Entity ID",
       title: "Unique ID",
@@ -176,7 +176,7 @@ iris.dbPopulate = function () {
 
     // Make JSON copy of complete schema and save to non mongoosed object for reference
 
-    iris.entityTypes[schema] = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
+    iris.entityTypes[schema] = JSON.parse(JSON.stringify(dbSchema[schema]));
 
     // Sneaky shortcut way of saving of fieldtypes into the entityType list
 
@@ -223,7 +223,7 @@ iris.dbPopulate = function () {
 
     iris.invokeHook("hook_db_schema", "root", {
       schema: entityType,
-      schemaConfig: iris.entityTypes[entityType]
+      schemaConfig: JSON.parse(JSON.stringify(iris.entityTypes[entityType]))
     }).then(function () {
 
       //Create permissions for this entity type

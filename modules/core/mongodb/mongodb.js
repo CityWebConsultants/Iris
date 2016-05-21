@@ -66,12 +66,12 @@ iris.modules.system.registerHook("hook_db_schema", 0, function (thisHook, data) 
   var syncSchemaIndex = function (schema) {
 
     // set index through the schema
-    for (var i in iris.dbSchema[schema]) {
-      if (iris.dbSchema[schema][i].required == true) {
-        iris.dbSchema[schema][i].index = true;
+    for (var i in schemaConfig) {
+      if (schemaConfig[i].required == true) {
+        schemaConfig[i].index = true;
       }
-      if (iris.dbSchema[schema][i].unique) {
-        iris.dbSchema[schema][i].index = {
+      if (schemaConfig[i].unique) {
+        schemaConfig[i].index = {
           unique: true
         };
       }
@@ -220,12 +220,12 @@ iris.modules.system.registerHook("hook_db_schema", 0, function (thisHook, data) 
 
   });
 
-  iris.dbSchema[schema] = finalSchema;
+  schemaConfig = finalSchema;
 
   try {
 
     syncSchemaIndex(schema);
-    var readySchema = mongoose.Schema(iris.dbSchema[schema]);
+    var readySchema = mongoose.Schema(schemaConfig);
     readySchema.set('autoIndex', false);
 
     if (mongoose.models[schema]) {
