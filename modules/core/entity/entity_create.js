@@ -301,7 +301,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
   Object.keys(data).forEach(function (field) {
 
-    if (iris.dbSchema[data.entityType][field] && iris.dbSchema[data.entityType][field].unique) {
+    if (iris.entityTypes[data.entityType].fields[field] && iris.entityTypes[data.entityType].fields[field].unique) {
 
       var condition = {};
 
