@@ -41,7 +41,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   //Check entity actually exists
 
-  iris.invokeHook("hook_entity_fetch", req.authPass, null, {
+  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
     entities: [data.entityType],
     queries: [{
       field: 'eid',
@@ -52,7 +52,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     if (result && result[0]) {
 
-      var doc = result;
+      var doc = result[0];
 
     }
 
@@ -66,8 +66,6 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     if (doc) {
 
       previous = doc;
-
-      previous = previous.toObject();
 
       delete previous["__v"];
       delete previous["_id"];
