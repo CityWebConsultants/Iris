@@ -322,6 +322,8 @@ module.exports = function (config) {
 
   //Set up database
 
+  require('./modules/core/mongodb/mongodb.js');
+
   require('./db');
 
   process.on("dbReady", function () {
