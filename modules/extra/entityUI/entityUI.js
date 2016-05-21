@@ -959,7 +959,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 iris.route.get("/admin/entitylist", routes.entitylist, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_entitytypelist"], ['admin_wrapper'], {
-    entityTypes: Object.keys(iris.dbCollections)
+    entityTypes: Object.keys(iris.entityTypes)
   }, req.authPass, req).then(function (success) {
 
     res.send(success)
