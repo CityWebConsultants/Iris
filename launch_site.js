@@ -24,9 +24,9 @@ process.on("message", function (m) {
   }
 
   if (m.persist) {
-        
+
     iris.invokeHook("hook_restart_receive", "root", m.persist, m.persist);
-    
+
   }
 
 })
@@ -36,7 +36,7 @@ process.on("message", function (m) {
  */
 process.on("unhandledRejection", function (e) {
 
-  if (e.stack) {
+  if (e.stack && Array.isArray(e.stack)) {
 
     e.stack.forEach(function (error, index) {
 
@@ -52,6 +52,10 @@ process.on("unhandledRejection", function (e) {
 
     });
 
+
+  } else {
+
+    console.log(e.stack);
 
   }
 
