@@ -163,14 +163,14 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
         entityType: preparedEntity.entityType,
         fields: preparedEntity
       }).then(function (doc) {
-
-        thisHook.pass(doc);
-
+        
         iris.invokeHook("hook_entity_created", thisHook.authPass, null, doc);
 
         iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
 
         iris.log("info", data.entityType + " created by " + doc.entityAuthor);
+        
+        thisHook.pass(doc);
 
       }, function (fail) {
 
