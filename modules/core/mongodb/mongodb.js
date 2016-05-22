@@ -1,5 +1,6 @@
 iris.registerModule("mongodb", __dirname);
-global.mongoose = require('mongoose');
+
+var mongoose = require('mongoose');
 
 var dbCollections = {};
 
