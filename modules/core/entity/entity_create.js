@@ -159,7 +159,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
     var saveEntity = function () {
 
-      iris.invokeHook("hook_db_createEntity", thisHook.authPass, {
+      iris.invokeHook("hook_db_createEntity__" + iris.config.dbEngine, thisHook.authPass, {
         entityType: preparedEntity.entityType,
         fields: preparedEntity
       }).then(function (doc) {

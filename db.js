@@ -4,14 +4,22 @@
 /**
  * @file Manages the database connection and schemas for entity types.
  *
- * Uses Mongoose.
  */
+
+
+// See if a database is set in config if not, for now set it to MongoDB.
+
+if (!iris.config.dbEngine) {
+
+  iris.config.dbEngine = "mongodb";
+
+}
 
 var fs = require('fs');
 
 //Connect to database
 
-iris.invokeHook("hook_db_connect", "root", iris.config, null).then(function () {
+iris.invokeHook("hook_db_connect__" + iris.config.dbEngine, "root", iris.config, null).then(function () {
 
   iris.dbPopulate();
 
@@ -206,7 +214,7 @@ iris.dbPopulate = function () {
 
   Object.keys(iris.entityTypes).forEach(function (entityType) {
 
-    iris.invokeHook("hook_db_schema", "root", {
+    iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
       schema: entityType,
       schemaConfig: JSON.parse(JSON.stringify(iris.entityTypes[entityType]))
     }).then(function () {

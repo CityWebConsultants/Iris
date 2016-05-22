@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 
 var dbCollections = {};
 
-iris.modules.mongodb.registerHook("hook_db_connect", 0, function (thisHook, data) {
+iris.modules.mongodb.registerHook("hook_db_connect__mongodb", 0, function (thisHook, data) {
 
   var fs = require('fs');
 
@@ -56,7 +56,7 @@ iris.modules.mongodb.registerHook("hook_db_connect", 0, function (thisHook, data
 
 // Initialise schema
 
-iris.modules.mongodb.registerHook("hook_db_schema", 0, function (thisHook, data) {
+iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHook, data) {
 
   var schema = thisHook.context.schema;
   var schemaConfig = thisHook.context.schemaConfig;
@@ -278,7 +278,7 @@ iris.modules.mongodb.registerHook("hook_db_schema", 0, function (thisHook, data)
 
 })
 
-iris.modules.mongodb.registerHook("hook_db_fetch", 0, function (thisHook, data) {
+iris.modules.mongodb.registerHook("hook_db_fetch__mongodb", 0, function (thisHook, data) {
   dbCollections[thisHook.context.entityType].find(thisHook.context.query).lean().sort(thisHook.context.sort).skip(thisHook.context.skip).limit(thisHook.context.limit).exec(function (err, doc) {
 
     data = doc;
@@ -299,7 +299,7 @@ iris.modules.mongodb.registerHook("hook_db_fetch", 0, function (thisHook, data) 
 
 // Delete
 
-iris.modules.mongodb.registerHook("hook_db_deleteEntity", 0, function (thisHook, data) {
+iris.modules.mongodb.registerHook("hook_db_deleteEntity__mongodb", 0, function (thisHook, data) {
 
   dbCollections[thisHook.context.entityType].findOneAndRemove({
     eid: thisHook.context.eid
@@ -321,7 +321,7 @@ iris.modules.mongodb.registerHook("hook_db_deleteEntity", 0, function (thisHook,
 
 // Create
 
-iris.modules.mongodb.registerHook("hook_db_createEntity", 0, function (thisHook, data) {
+iris.modules.mongodb.registerHook("hook_db_createEntity__mongodb", 0, function (thisHook, data) {
 
   var entity = new dbCollections[thisHook.context.entityType](thisHook.context.fields);
 
@@ -345,7 +345,7 @@ iris.modules.mongodb.registerHook("hook_db_createEntity", 0, function (thisHook,
 
 // Update
 
-iris.modules.mongodb.registerHook("hook_db_updateEntity", 0, function (thisHook, data) {
+iris.modules.mongodb.registerHook("hook_db_updateEntity__mongodb", 0, function (thisHook, data) {
 
   dbCollections[thisHook.context.entityType].update({
     eid: thisHook.context.eid
@@ -369,7 +369,7 @@ iris.modules.mongodb.registerHook("hook_db_updateEntity", 0, function (thisHook,
 
 // Mongoose stuff here
 
-iris.modules.mongodb.registerHook("hook_db_deleteSchema", 0, function (thisHook, data) {
+iris.modules.mongodb.registerHook("hook_db_deleteSchema__mongodb", 0, function (thisHook, data) {
 
   var tableName = thisHook.context.schema;
   if (thisHook.context.schema.substr(tableName.length - 1) != "s") {

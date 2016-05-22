@@ -114,7 +114,7 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
     update.entityType = data.entityType;
 
-    iris.invokeHook("hook_db_deleteEntity", thisHook.authPass, {
+    iris.invokeHook("hook_db_deleteEntity__" + iris.config.dbEngine, thisHook.authPass, {
       eid: conditions.eid,
       entityType: data.entityType
     }).then(function () {
@@ -167,13 +167,13 @@ iris.modules.entity.registerHook("hook_schema_delete", 0, function (thisHook, da
 
     }
 
-    iris.invokeHook("hook_db_deleteSchema", thisHook.authPass, {
+    iris.invokeHook("hook_db_deleteSchema__" + iris.config.dbEngine, thisHook.authPass, {
       schema: data.schema
     }).then(function () {
 
       var filePath = iris.sitePath + "/configurations/entity/" + data.schema.replace("../", "") + ".json";
       fs.exists(filePath, function (exists) {
-        
+
         if (exists) {
 
           fs.unlinkSync(filePath);

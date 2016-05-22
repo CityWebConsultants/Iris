@@ -238,7 +238,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     update.entityType = data.entityType;
 
-    iris.invokeHook("hook_db_updateEntity", thisHook.authPass, {
+    iris.invokeHook("hook_db_updateEntity__" + iris.config.dbEngine, thisHook.authPass, {
       eid: conditions.eid,
       entityType: validatedEntity.entityType,
       update: update

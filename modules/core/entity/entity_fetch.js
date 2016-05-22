@@ -195,7 +195,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         var fetch = function (query) {
 
-          iris.invokeHook("hook_db_fetch", thisHook.authPass, {
+          iris.invokeHook("hook_db_fetch__" + iris.config.dbEngine, thisHook.authPass, {
             query: query,
             entityType: type,
             limit: fetchRequest.limit,
