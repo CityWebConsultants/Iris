@@ -114,9 +114,10 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
     update.entityType = data.entityType;
 
-    iris.dbCollections[data.entityType].findOneAndRemove(conditions, update, callback);
-
-    function callback(err, numAffected) {
+    iris.invokeHook("hook_db_deleteEntity", thisHook.authPass, {
+      eid: conditions.eid,
+      entityType: data.entityType
+    }).then(function () {
 
       thisHook.pass("Deleted");
 
@@ -126,7 +127,11 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
       iris.log("info", data.entityType + " " + conditions.eid + " deleted by " + thisHook.authPass.userid);
 
-    }
+    }, function (fail) {
+
+      thisHook.fail(fail);
+
+    })
 
   };
 
@@ -158,14 +163,14 @@ iris.modules.entity.registerHook("hook_schema_delete", 0, function (thisHook, da
 
     if (!iris.entityTypes[data.schema]) return thisHook.fail(iris.error(400, "Invalid schema"));
 
-    
+
     // Mongoose stuff here
 
     var tableName = data.schema;
     if (data.schema.substr(tableName.length - 1) != "s") {
       tableName = data.schema + "s";
     }
-    
+
     mongoose.connection.db.dropCollection(tableName, function (err) {
 
       if (err && (err.code != 26)) return thisHook.fail("Error deleting collection");
@@ -178,7 +183,7 @@ iris.modules.entity.registerHook("hook_schema_delete", 0, function (thisHook, da
 
 
       // General stuff here
-      
+
       var filePath = iris.sitePath + "/configurations/entity/" + data.schema.replace("../", "") + ".json";
       fs.exists(filePath, function (exists) {
 
