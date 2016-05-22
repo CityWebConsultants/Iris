@@ -159,29 +159,24 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
     var saveEntity = function () {
 
-      var entity = new iris.dbCollections[preparedEntity.entityType](preparedEntity);
+      iris.invokeHook("hook_db_createEntity", thisHook.authPass, {
+        entityType: preparedEntity.entityType,
+        fields: preparedEntity
+      }).then(function (doc) {
 
-      entity.save(function (err, doc) {
+        thisHook.pass(doc);
 
-        if (err) {
+        iris.invokeHook("hook_entity_created", thisHook.authPass, null, doc);
 
-          thisHook.fail(err);
+        iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
 
-        } else if (doc) {
+        iris.log("info", data.entityType + " created by " + doc.entityAuthor);
 
-          doc = doc.toObject();
+      }, function (fail) {
 
-          thisHook.pass(doc);
+        thisHook.fail(err);
 
-          iris.invokeHook("hook_entity_created", thisHook.authPass, null, doc);
-
-          iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
-
-          iris.log("info", data.entityType + " created by " + doc.entityAuthor);
-
-        }
-
-      });
+      })
 
     };
 

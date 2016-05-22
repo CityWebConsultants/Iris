@@ -294,8 +294,10 @@ iris.modules.mongodb.registerHook("hook_db_fetch", 0, function (thisHook, data) 
 
 });
 
+// Delete
+
 iris.modules.mongodb.registerHook("hook_db_deleteEntity", 0, function (thisHook, data) {
-  
+
   iris.dbCollections[thisHook.context.entityType].findOneAndRemove({
     eid: thisHook.context.eid
   }, function (err, pass) {
@@ -311,5 +313,29 @@ iris.modules.mongodb.registerHook("hook_db_deleteEntity", 0, function (thisHook,
     }
 
   })
+
+})
+
+// Create
+
+iris.modules.mongodb.registerHook("hook_db_createEntity", 0, function (thisHook, data) {
+
+  var entity = new iris.dbCollections[thisHook.context.entityType](thisHook.context.fields);
+
+  entity.save(function (err, doc) {
+
+    if (err) {
+
+      thisHook.fail(err);
+
+    } else if (doc) {
+
+      doc = doc.toObject();
+
+      thisHook.pass(doc);
+
+    }
+
+  });
 
 })
