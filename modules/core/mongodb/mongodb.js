@@ -339,3 +339,25 @@ iris.modules.mongodb.registerHook("hook_db_createEntity", 0, function (thisHook,
   });
 
 })
+
+// Update
+
+iris.modules.mongodb.registerHook("hook_db_updateEntity", 0, function (thisHook, data) {
+
+  iris.dbCollections[thisHook.context.entityType].update({
+    eid: thisHook.context.eid
+  }, thisHook.context.update, function (err, updated) {
+
+    if (err) {
+
+      thisHook.fail(err);
+
+    } else {
+
+      thisHook.pass(updated);
+
+    }
+
+  });
+
+})

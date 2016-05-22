@@ -227,7 +227,6 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   var update = function (validatedEntity) {
 
-
     var conditions = {
       eid: validatedEntity.eid
     };
@@ -238,16 +237,12 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     var update = validatedEntity;
 
     update.entityType = data.entityType;
-    iris.dbCollections[data.entityType].update(conditions, update, callback);
 
-    function callback(err, numAffected) {
-
-      if (err) {
-
-        thisHook.fail(err);
-        return false;
-
-      }
+    iris.invokeHook("hook_db_updateEntity", thisHook.authPass, {
+      eid: conditions.eid,
+      entityType: validatedEntity.entityType,
+      update: update
+    }).then(function (result) {
 
       thisHook.pass("Updated");
 
@@ -260,7 +255,12 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
       iris.log("info", data.entityType + " " + conditions.eid + " edited by " + thisHook.authPass.userid);
 
-    }
+    }, function (fail) {
+
+      console.log(fail);
+      thisHook.fail(fail);
+
+    })
 
   };
 
