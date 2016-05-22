@@ -9,7 +9,7 @@
  * @namespace user
  */
 
-iris.registerModule("user",__dirname);
+iris.registerModule("user", __dirname);
 var bcrypt = require("bcrypt-nodejs");
 require('./login_form.js');
 
@@ -671,7 +671,7 @@ iris.modules.user.globals.login = function (auth, res, callback) {
       }]
   }).then(function (entities) {
 
-    if (entities) {
+    if (entities && entities[0]) {
 
       var doc = entities[0];
 
@@ -726,6 +726,10 @@ iris.modules.user.globals.login = function (auth, res, callback) {
       callback(false);
 
     }
+
+  }, function (fail) {
+
+    iris.log("error", fail);
 
   });
 
