@@ -27,8 +27,6 @@ iris.dbPopulate = function () {
 
   iris.fieldTypes = {};
 
-  iris.dbCollections = {};
-
   iris.entityTypes = {};
 
   if (iris.entityTypes) {
