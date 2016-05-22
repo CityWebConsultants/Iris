@@ -361,3 +361,34 @@ iris.modules.mongodb.registerHook("hook_db_updateEntity", 0, function (thisHook,
   });
 
 })
+
+// Delete schema/collection
+
+// Mongoose stuff here
+
+iris.modules.mongodb.registerHook("hook_db_deleteSchema", 0, function (thisHook, data) {
+
+  var tableName = thisHook.context.schema;
+  if (thisHook.context.schema.substr(tableName.length - 1) != "s") {
+    tableName = thisHook.context.schema + "s";
+  }
+
+  mongoose.connection.db.dropCollection(tableName, function (err) {
+
+    if (err && (err.code != 26) && err.message != "ns not found") {
+  
+      return thisHook.fail("Error deleting collection");
+
+    }
+
+    mongoose.connection.db.collection("identitycounters").remove({
+      "model": thisHook.context.schema
+    });
+
+    delete iris.dbCollections[thisHook.context.schema];
+
+    thisHook.pass(data);
+
+  });
+
+})

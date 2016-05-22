@@ -31,6 +31,16 @@ iris.dbPopulate = function () {
 
   iris.entityTypes = {};
 
+  if (iris.entityTypes) {
+
+    Object.keys(iris.entityTypes).forEach(function (entityType) {
+
+      delete iris.entityTypes[entityType];
+
+    })
+
+  }
+
   var dbSchema = {};
 
   var glob = require("glob");

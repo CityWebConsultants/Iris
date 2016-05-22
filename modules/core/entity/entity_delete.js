@@ -161,41 +161,37 @@ iris.app.post("/entity/delete/:type/:eid", function (req, res) {
 iris.modules.entity.registerHook("hook_schema_delete", 0, function (thisHook, data) {
   if (iris.modules.auth.globals.checkPermissions(["can delete schema " + data.schema], thisHook.authPass)) {
 
-    if (!iris.entityTypes[data.schema]) return thisHook.fail(iris.error(400, "Invalid schema"));
+    if (!iris.entityTypes[data.schema]) {
 
+      return thisHook.fail(iris.error(400, "Invalid schema"));
 
-    // Mongoose stuff here
-
-    var tableName = data.schema;
-    if (data.schema.substr(tableName.length - 1) != "s") {
-      tableName = data.schema + "s";
     }
 
-    mongoose.connection.db.dropCollection(tableName, function (err) {
-
-      if (err && (err.code != 26)) return thisHook.fail("Error deleting collection");
-
-      mongoose.connection.db.collection("identitycounters").remove({
-        "model": data.schema
-      });
-
-      delete iris.dbCollections[data.schema];
-
-
-      // General stuff here
+    iris.invokeHook("hook_db_deleteSchema", thisHook.authPass, {
+      schema: data.schema
+    }).then(function () {
 
       var filePath = iris.sitePath + "/configurations/entity/" + data.schema.replace("../", "") + ".json";
       fs.exists(filePath, function (exists) {
+        
+        if (exists) {
 
-        if (exists)
           fs.unlinkSync(filePath);
 
+        }
+
         iris.dbPopulate();
+
       });
 
       return thisHook.pass(data);
 
-    });
+
+    }, function (fail) {
+
+      thisHook.fail(fail);
+
+    })
 
   } else {
     thisHook.fail(400);
