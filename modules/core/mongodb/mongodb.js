@@ -219,6 +219,30 @@ iris.modules.mongodb.registerHook("hook_db_schema", 0, function (thisHook, data)
 
   });
 
+  // Add universal fields
+  // TODO: Need to move this to a hook or some other non-db specific system
+
+  finalSchema.entityType = {
+    type: "String",
+    description: "The type of entity this is",
+    title: "Entity type",
+    required: true
+  };
+
+  finalSchema.entityAuthor = {
+    type: "String",
+    description: "The name of the author",
+    title: "Author",
+    required: true
+  };
+
+  finalSchema.eid = {
+    type: "Number",
+    description: "Entity ID",
+    title: "Unique ID",
+    required: false
+  };
+
   schemaConfig = finalSchema;
 
   try {
@@ -253,7 +277,7 @@ iris.modules.mongodb.registerHook("hook_db_schema", 0, function (thisHook, data)
 
 iris.modules.mongodb.registerHook("hook_db_fetch", 0, function (thisHook, data) {
   iris.dbCollections[thisHook.context.entityType].find(thisHook.context.query).lean().sort(thisHook.context.sort).skip(thisHook.context.skip).limit(thisHook.context.limit).exec(function (err, doc) {
-    
+
     data = doc;
 
     if (err) {
@@ -269,3 +293,23 @@ iris.modules.mongodb.registerHook("hook_db_fetch", 0, function (thisHook, data) 
   });
 
 });
+
+iris.modules.mongodb.registerHook("hook_db_deleteEntity", 0, function (thisHook, data) {
+  
+  iris.dbCollections[thisHook.context.entityType].findOneAndRemove({
+    eid: thisHook.context.eid
+  }, function (err, pass) {
+
+    if (err) {
+
+      thisHook.fail(err);
+
+    } else {
+
+      thisHook.pass(pass);
+
+    }
+
+  })
+
+})

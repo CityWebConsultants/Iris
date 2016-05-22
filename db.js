@@ -151,29 +151,6 @@ iris.dbPopulate = function () {
 
   Object.keys(dbSchema).forEach(function (schema) {
 
-    //Push in universal type fields if not already in.
-
-    dbSchema[schema].entityType = {
-      type: String,
-      description: "The type of entity this is",
-      title: "Entity type",
-      required: true
-    };
-
-    dbSchema[schema].entityAuthor = {
-      type: String,
-      description: "The name of the author",
-      title: "Author",
-      required: true
-    };
-
-    dbSchema[schema].eid = {
-      type: Number,
-      description: "Entity ID",
-      title: "Unique ID",
-      required: false
-    };
-
     // Make JSON copy of complete schema and save to non mongoosed object for reference
 
     iris.entityTypes[schema] = JSON.parse(JSON.stringify(dbSchema[schema]));
