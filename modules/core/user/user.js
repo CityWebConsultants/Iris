@@ -955,7 +955,8 @@ iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook
 
   var update = {
     eid: data.eid,
-    entityAuthor: data.eid
+    entityAuthor: data.eid,
+    entityType: "user"
   };
 
   iris.invokeHook("hook_entity_edit", "root", null, update).then(function () {
@@ -964,7 +965,7 @@ iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook
 
   }, function (fail) {
 
-    thisHook.fail(data);
+    thisHook.fail(fail);
 
   });
 
