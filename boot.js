@@ -323,6 +323,7 @@ module.exports = function (config) {
   //Set up database
 
   require('./modules/core/mongodb/mongodb.js');
+  require('./modules/core/nedb/nedb.js');
 
   require('./db');
 
