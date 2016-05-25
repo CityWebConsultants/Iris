@@ -1,3 +1,11 @@
+/* 
+* Upload progress on file field
+* Feel free to improve but better than nothing 
+*/
+
+.uploading:after {
+  content: "Uploading..."
+}
 
 /* submit spinner */
 .spinner {
