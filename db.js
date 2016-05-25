@@ -215,9 +215,30 @@ iris.dbPopulate = function() {
         return [Date];
     }
     
+     // May be an array of more complex field
+
+    if (Array.isArray(type) && (typeof type[0] === "object")) {
+
+      var typeObject = {};
+
+      Object.keys(type[0]).forEach(function (key) {
+
+        var processedtype = typeConverter(type[0][key]);
+
+        if (processedtype) {
+
+          typeObject[key] = processedtype;
+
+        }
+
+      })
+
+      return [mongoose.Schema(typeObject,{"_id":false})];
+
+    }
      // May be a more complex field
 
-    if (typeof type === "object") {
+    else if (typeof type === "object") {
 
       var typeObject = {};
 
@@ -311,6 +332,27 @@ iris.dbPopulate = function() {
     Object.keys(schemaConfig.fields).forEach(function(fieldName) {
 
       finalSchema[fieldName] = fieldConverter(schemaConfig.fields[fieldName]);
+      
+      if(finalSchema[fieldName].maxItems){
+        
+        var arrayLimit = function(val){
+          
+          if(Array.isArray(val)){
+            
+            return val.length <= finalSchema[fieldName].maxItems;
+             
+          }
+          else{
+            
+            return true;
+            
+          }
+          
+        };
+    
+        finalSchema[fieldName].validate = [arrayLimit, '{PATH} exceeds the limit of '+ finalSchema[fieldName].maxItems]
+        
+      }
 
     });
 

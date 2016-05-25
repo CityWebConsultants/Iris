@@ -3,7 +3,7 @@
 $(document).ready(function(){
     $('ul.menu .has-children span').click(function(e){
       e.preventDefault();
-      $(this).parent().parent().find('.sub-menu').first().toggleClass('open');
+      $(this).parent().toggleClass('open').parent().find('.sub-menu').first().toggleClass('open');
     });
 });
 

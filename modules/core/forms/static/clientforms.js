@@ -1,7 +1,5 @@
 iris.forms = {};
 
-JSONForm.elementTypes['submit'].template = ' <button type="submit" <% if (id) { %> id="<%= id %>" <% } %> class="btn btn-primary has-spinner <%= cls.buttonClass %> <%= elt.htmlClass?elt.htmlClass:"" %>"><%= value || node.title %><span class="spinner"><i class="glyphicon-refresh-animate glyphicon glyphicon-refresh"></i></span></button> ';
-
 $(window).load( function () {
   iris.forms.cache = [];
   var $form;
@@ -55,6 +53,50 @@ $(window).load( function () {
 
 iris.forms.onSubmit = function(errors, values) {
 
+  function processErrors(errors) {
+
+    $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
+    $("body").animate({
+      scrollTop: $("[data-formid='" + values.formid + "'").offset().top
+    }, "fast");
+
+    var errorMessages = '';
+
+    // As this may be a second submission attempt, clear all field errors.
+    $('.form-control', $("[data-formid='" + values.formid + "'")).removeClass('error');
+
+    for (var i = 0; i < errors.length; i++) {
+
+      errorMessages += "<div class='alert alert-danger'>" + errors[i].message + "</div>";
+
+      if (errors[i].field) {
+
+        $("input[name=" + errors[i].field + ']').addClass('error');
+
+      }
+
+    }
+
+    // If the form-errors div already exists, replace it, otherwise add to top of form.
+    if ($('.form-errors', $("[data-formid='" + values.formid + "'")).length > 0) {
+
+      $('.form-errors', $("[data-formid='" + values.formid + "'")).html(errorMessages);
+
+    } else {
+
+      $("[data-formid='" + values.formid + "'").prepend('<div class="form-errors">' + errorMessages + '</div>');
+
+    }
+
+  };
+
+  if (errors) {
+
+    processErrors(errors);
+    return false;
+
+  }
+
   setTimeout(function() {
     $('#' + values.formid + values.formToken).find('button[type=submit]').addClass('active');
   }, 300);
@@ -67,49 +109,14 @@ iris.forms.onSubmit = function(errors, values) {
     dataType: "json",
     error: function(jqXHR, textStatus, errorThrown) {
 
-      $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
-      $("body").animate({
-        scrollTop: $("[data-formid='" + values.formid + "'").offset().top
-      }, "fast");
-      $('.form-errors', $("[data-formid='" + values.formid + "'")).html("<div class='alert alert-danger'>Error processing form.</div>");
+      processErrors([{'message' : "Error processing form"}]);
 
     },
     success: function (data) {
 
       if (data.errors && data.errors.length > 0) {
 
-        $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
-        $("body").animate({
-          scrollTop: $("[data-formid='" + values.formid + "'").offset().top
-        }, "fast");
-
-        var errorMessages = '';
-
-        // As this may be a second submission attempt, clear all field errors.
-        $('.form-control', $("[data-formid='" + values.formid + "'")).removeClass('error');
-
-        for (var i = 0; i < data.errors.length; i++) {
-
-          errorMessages += "<div class='alert alert-danger'>" + data.errors[i].message + "</div>";
-
-          if (data.errors[i].field) {
-
-            $("input[name=" + data.errors[i].field + ']').addClass('error');
-
-          }
-
-        }
-
-        // If the form-errors div already exists, replace it, otherwise add to top of form.
-        if ($('.form-errors', $("[data-formid='" + values.formid + "'")).length > 0) {
-
-          $('.form-errors', $("[data-formid='" + values.formid + "'")).html(errorMessages);
-
-        } else {
-
-          $("[data-formid='" + values.formid + "'").prepend('<div class="form-errors">' + errorMessages + '</div>');
-
-        }
+        processErrors(data.errors);
 
       } else if (data.messages && data.messages.length > 0) {
 
