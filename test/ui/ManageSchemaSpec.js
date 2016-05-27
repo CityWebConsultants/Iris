@@ -70,7 +70,7 @@ casper.test.begin('Test Schema Management', 6, function (test) {
       data: {
         'input[name = "label"]': "Sample",
         'input[name = "machineName"]': "sample",
-        'select[name = "fieldType"]': "Multiple boolean"
+        'select[name = "fieldType"]': "Boolean"
       }
     };
     util.test.openTransaction(options, function (err, result) {
