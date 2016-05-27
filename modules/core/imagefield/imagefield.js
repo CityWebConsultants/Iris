@@ -79,7 +79,7 @@ iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__image", 0
 
 });
 
-iris.modules.imagefield.registerHook("hook_entity_field_fieldType_form__multiple_image", 0, function (thisHook, data) {
+iris.modules.imagefield.registerHook("hook_entity_field_fieldType_form__images", 0, function (thisHook, data) {
 
   var value = thisHook.context.value;
   
@@ -113,7 +113,7 @@ iris.modules.imagefield.registerHook("hook_entity_field_fieldType_form__multiple
   
 });
 
-iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__multiple_image", 0, function (thisHook, data) {
+iris.modules.filefield.registerHook("hook_entity_field_fieldType_save__images", 0, function (thisHook, data) {
 
   var fs = require("fs");
 
