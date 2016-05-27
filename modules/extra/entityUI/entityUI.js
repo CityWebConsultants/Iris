@@ -680,6 +680,18 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
         }
 
+        if(field.minItems){
+
+          form.minItems = field.minItems;
+
+        }
+
+        if(field.maxItems){
+
+          form.maxItems = field.maxItems;
+
+        }
+
         data.schema[fieldName] = form;
         fieldLoaded();
 

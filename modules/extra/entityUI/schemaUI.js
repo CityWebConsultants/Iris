@@ -973,6 +973,24 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
     }
   }
 
+  var readableTypeList = ["[String]", "[Number]", "[Boolean]", "[Date]"];
+
+  if ((Array.isArray(fieldType) && (typeof fieldType[0] === "object")) || (readableTypeList.indexOf(field.readableType) != -1)) {
+
+    data.schema.fields.properties.minItems = {
+      "type": "number",
+      "title": "Minimum entry",
+      "description": "at a minimum, how many record will be accepted for this field?"
+    };
+
+    data.schema.fields.properties.maxItems = {
+      "type": "number",
+      "title": "Maximum entry",
+      "description": "at a maximum, how many record will be accepted for this field?"
+    };
+
+  }
+
   thisHook.pass(data);
 
 });
