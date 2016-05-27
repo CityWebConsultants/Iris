@@ -698,18 +698,8 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
     });
     tableHtml += '</tbody></table>';
 
-    var displayFieldTypes = function(){
-      var allowedFieldTypes = {};
-      for(var key in iris.fieldTypes){
-        if(!iris.fieldTypes[key].hidden){
-          allowedFieldTypes[key] = iris.fieldTypes[key];
-        }
-      }
-       
-      return Object.keys(allowedFieldTypes).concat(["Fieldset"]);
-    };
-    
-    
+
+
     var weightFields = {
       "type": "array",
       "title": ap.t("weights"),
@@ -743,7 +733,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
       "fieldType": {
         "type": "text",
         "title": ap.t("Field type"),
-        "enum": displayFieldTypes()
+        "enum": Object.keys(iris.fieldTypes).concat(["Fieldset"])
       },
       "entityType": {
         "type": "hidden",
@@ -927,7 +917,7 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
   data.value.fields = [];
 
   var field = thisHook.context.field;
-  var fieldType = field.type;
+
   delete field.type;
 
   field.about = "<b>Machine name:</b> " + thisHook.context.fieldName + "<br />";
@@ -1001,23 +991,6 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
       }
 
     }
-  };
-  
-  var readableTypeList = ["[String]", "[Number]", "[Boolean]", "[Date]"];
-
-  if ((Array.isArray(fieldType) && (typeof fieldType[0] === "object")) || (readableTypeList.indexOf(field.readableType) != -1)) {
-
-    data.schema.fields.properties.minItems = {
-      "type": "number",
-      "title": "Minimum entry",
-      "description": "at a minimum, how many record will be accepted for this field?"
-    };
-
-    data.schema.fields.properties.maxItems = {
-      "type": "number",
-      "title": "Maximum entry",
-      "description": "at a maximum, how many record will be accepted for this field?"
-    };
   }
 
   thisHook.pass(data);

@@ -1,5 +1,4 @@
 {
   "name": "Date",
-  "type": "Date",
-  "hidden": true
+  "type": "Date"
 }
