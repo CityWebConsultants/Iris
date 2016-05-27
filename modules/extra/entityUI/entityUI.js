@@ -308,7 +308,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
         if (field.widget) {
 
           iris.invokeHook("hook_entity_field_widget_form__" + iris.sanitizeName(field.widget.name), thisHook.authPass, {
-            value: currentValue ? currentValue : null,
+            value: currentValue ? JSON.parse(JSON.stringify(currentValue)) : null,
             fieldSettings: field,
             widgetSettings: field.widget.settings
           }).then(function (form) {

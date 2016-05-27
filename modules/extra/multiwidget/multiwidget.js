@@ -6,7 +6,7 @@ iris.modules.entityUI.globals.registerFieldWidget("Longtexts", "editorwidget fie
 iris.modules.multiwidget.registerHook("hook_entity_field_fieldType_form__longtexts", 0, function (thisHook, data) {
 
   var value = thisHook.context.value;
-
+  
   var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
@@ -39,7 +39,7 @@ iris.modules.multiwidget.registerHook("hook_entity_field_fieldType_form__longtex
 iris.modules.multiwidget.registerHook("hook_entity_field_widget_form__editorwidget_field", 2, function (thisHook, data) {
 
   var value = thisHook.context.value;
-  console.log();
+  
   var fieldSettings = thisHook.context.fieldSettings;
 
   data = {
@@ -99,34 +99,55 @@ iris.modules.forms.globals.registerWidget(function () {
   JSONForm.elementTypes['editorwidget'].onInsert = function (evt, node) {
 
     var ckeditor, aceeditor, widgetFunction;
-    document.addEventListener('formsLoaded', function (e) {
-
-      $.getScript("//cdn.ckeditor.com/4.5.3/standard/ckeditor.js", function () {
-        ckeditor = CKEDITOR;
-      });
-
-      $.getScript("//cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js", function () {
-        aceeditor = ace;
-
-      });
-      var convertToCKEditor = function (elem, textarea) {
-
-        if (ckeditor && !ckeditor.instances[$(elem).attr("id")]) {
-          $(elem).each(function () {
-            ckeditor.replace(this, {
-
-              customConfig: '/modules/ckeditor/config.js'
-
-            });
-            ckeditor.instances[$(elem).attr("id")].on('change', function (e) {
-
-              var data = e.editor.getData();
-
-              textarea.val(data);
-
-            });
+    
+      var getCKEditor = function(cb){
+        if(!ckeditor){
+          $.getScript("//cdn.ckeditor.com/4.5.3/standard/ckeditor.js", function () {
+            ckeditor = CKEDITOR;
+            cb(null,ckeditor);
           });
         }
+        else{
+          cb(null,aceeditor);
+        }
+      };
+      
+      var getAceEditor = function(cb){
+        
+        if(!aceeditor){
+          $.getScript("//cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js", function () {
+            aceeditor = ace;
+            cb(null,aceeditor);
+          });
+        }
+        else{
+          cb(null,aceeditor);
+        }
+
+      };
+      
+    document.addEventListener('formsLoaded', function (e) {
+      
+      var convertToCKEditor = function (elem, textarea) {
+        getCKEditor(function(err,ckeditor){
+          if (ckeditor && !ckeditor.instances[$(elem).attr("id")]) {
+            $(elem).each(function () {
+              ckeditor.replace(this, {
+  
+                customConfig: '/modules/ckeditor/config.js'
+  
+              });
+              ckeditor.instances[$(elem).attr("id")].on('change', function (e) {
+  
+                var data = e.editor.getData();
+  
+                textarea.val(data);
+  
+              });
+            });
+          }
+        });
+        
 
       }
 
@@ -137,16 +158,18 @@ iris.modules.forms.globals.registerWidget(function () {
       };
 
       var convertToAceEditor = function (elem, textarea) {
-
-        var editor = aceeditor.edit(elem.attr("id"));
-        editor.setTheme("ace/theme/monokai");
-        editor.resize();
-        editor.getSession().setMode("ace/mode/javascript");
-        editor.getSession().setValue(textarea.val());
-        editor.getSession().on('change', function () {
-          textarea.val(editor.getSession().getValue());
+        getAceEditor(function(err,aceeditor){
+          var editor = aceeditor.edit(elem.attr("id"));
+          editor.setTheme("ace/theme/monokai");
+          editor.resize();
+          editor.getSession().setMode("ace/mode/javascript");
+          editor.getSession().setValue(textarea.val());
+          editor.getSession().on('change', function () {
+            textarea.val(editor.getSession().getValue());
+          });
+          return editor;
         });
-        return editor;
+        
 
       };
 
@@ -197,6 +220,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
 
       };
+      
       $('select[name$=".widget"]').change(widgetFunction);
       $('select[name$=".widget"]').change();
 
