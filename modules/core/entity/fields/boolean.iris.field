@@ -1,5 +1,4 @@
 {
   "name": "Boolean",
-  "type": "Boolean",
-  "hidden": true
+  "type": "Boolean"
 }

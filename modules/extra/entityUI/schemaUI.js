@@ -907,7 +907,7 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
   data.value.fields = [];
 
   var field = thisHook.context.field;
-  var fieldType = field.type;
+
   delete field.type;
 
   field.about = "<b>Machine name:</b> " + thisHook.context.fieldName + "<br />";
@@ -981,8 +981,8 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
       }
 
     }
-  };
-  
+  }
+
   var readableTypeList = ["[String]", "[Number]", "[Boolean]", "[Date]"];
 
   if ((Array.isArray(fieldType) && (typeof fieldType[0] === "object")) || (readableTypeList.indexOf(field.readableType) != -1)) {
@@ -998,6 +998,7 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
       "title": "Maximum entry",
       "description": "at a maximum, how many record will be accepted for this field?"
     };
+
   }
 
   thisHook.pass(data);

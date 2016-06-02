@@ -332,26 +332,26 @@ iris.dbPopulate = function() {
     Object.keys(schemaConfig.fields).forEach(function(fieldName) {
 
       finalSchema[fieldName] = fieldConverter(schemaConfig.fields[fieldName]);
-      
+
       if(finalSchema[fieldName].maxItems){
-        
+
         var arrayLimit = function(val){
-          
+
           if(Array.isArray(val)){
-            
+
             return val.length <= finalSchema[fieldName].maxItems;
-             
+
           }
           else{
-            
+
             return true;
-            
+
           }
-          
+
         };
-    
-        finalSchema[fieldName].validate = [arrayLimit, '{PATH} exceeds the limit of '+ finalSchema[fieldName].maxItems]
-        
+
+        finalSchema[fieldName].validate = [arrayLimit, '{PATH} exceeds the limit of '+ finalSchema[fieldName].maxItems];
+
       }
 
     });
