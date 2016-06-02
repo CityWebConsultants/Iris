@@ -202,7 +202,7 @@ iris.modules.forms.globals.registerWidget(function () {
         var widgetOption = $(this);
         var textarea = $('textarea[name="' + $(this).attr("name").replace(".widget", ".content") + '"]');
         var diveditor = $('div[id="div-' + textarea.attr("id") + '"]');
-        console.log(diveditor.length);
+
         if (!diveditor.length) {
           diveditor = $(document.createElement('div'));
           diveditor.attr("id", "div-" + textarea.attr("id"));
@@ -255,13 +255,13 @@ iris.modules.forms.globals.registerWidget(function () {
 
 
 iris.modules.multiwidget.registerHook("hook_entity_view_field__longtexts", 0, function (thisHook, data) {
-  
+
   if(data && data.length){
 
       data.forEach(function(item){
     
         filterConfig = iris.readConfigSync("textfilters", item.filter);
-        
+
         var sanitizeHtml = require('sanitize-html');
     
         item.content = sanitizeHtml(item.content, {
@@ -271,7 +271,7 @@ iris.modules.multiwidget.registerHook("hook_entity_view_field__longtexts", 0, fu
           }
     
         });
-    
+
       });
 
       thisHook.pass(data);
@@ -283,35 +283,5 @@ iris.modules.multiwidget.registerHook("hook_entity_view_field__longtexts", 0, fu
     
   }
 
-
-  if (data.filter) {
-
-    var filter = item.filter;
-   
-    iris.readConfig("textfilters", filter).then(function (filterConfig) {
-
-      var sanitizeHtml = require('sanitize-html');
-
-      data.content = sanitizeHtml(data.content, {
-        allowedTags: filterConfig.elements.split(" ").join("").split(","),
-        allowedAttributes: {
-          "*": filterConfig.attributes.split(" ").join("").split(",")
-        }
-
-      });
-      console.log(data);
-      thisHook.pass(data);
-
-    }, function (fail) {
-
-      thisHook.fail(fail);
-
-    })
-
-  } else {
-
-    thisHook.pass(data);
-
-  }
 
 })
