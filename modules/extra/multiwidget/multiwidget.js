@@ -9,39 +9,17 @@ iris.modules.multiwidget.registerHook("hook_entity_field_fieldType_form__longtex
   
   var fieldSettings = thisHook.context.fieldSettings;
 
-  data = {
-    "type": "array",
-    "title": fieldSettings.label,
-    "description": fieldSettings.description,
-    "default": value,
-    "items": {
-      "type": "object",
-      "properties": {
-        "content": {
-          "type": "textarea",
-          "title": thisHook.authPass.t("Content")
-        },
-        "widget": {
-          "type": "select",
-          "title": thisHook.authPass.t("Widget Option")
-        },
-        "filter": {
-          "type": "select",
-          "title": thisHook.authPass.t("Filter Option")
-        }
-      }
-    }
-  };
+  var fs = require("fs");
 
-  thisHook.pass(data);
-});
-
-iris.modules.multiwidget.registerHook("hook_entity_field_widget_form__editorwidget_field", 2, function (thisHook, data) {
-
-  var value = thisHook.context.value;
+  var filters = [];
+  var savedFilters = fs.readdirSync(iris.configPath + "/textfilters");
   
-  var fieldSettings = thisHook.context.fieldSettings;
+  savedFilters.map(function (filter) {
 
+    filters.push(filter.replace(".json", ""));
+
+  });
+  
   data = {
     "type": "editorwidget",
     title: fieldSettings.label,
@@ -58,14 +36,66 @@ iris.modules.multiwidget.registerHook("hook_entity_field_widget_form__editorwidg
           "type": "select",
           "title": thisHook.authPass.t("Widget Option"),
           "enum": ["--", "ace", "ckeditor"]
-        },
-        "filter": {
-          "type": "select",
-          "title": thisHook.authPass.t("Filter Option"),
-          "enum": ["--", "Partial HTML", "Full HTML"]
         }
       }
     }
+  };
+  
+  if(filters.length){
+    data.items.properties.filter = {
+          "type": "select",
+          "title": thisHook.authPass.t("Filter Option"),
+           "enum": ["none"].concat(filters)
+        };
+  }
+
+  thisHook.pass(data);
+});
+
+iris.modules.multiwidget.registerHook("hook_entity_field_widget_form__editorwidget_field", 2, function (thisHook, data) {
+
+  var value = thisHook.context.value;
+  
+  var fieldSettings = thisHook.context.fieldSettings;
+  
+  var fs = require("fs");
+
+  var filters = [];
+  var savedFilters = fs.readdirSync(iris.configPath + "/textfilters");
+  
+  savedFilters.map(function (filter) {
+
+    filters.push(filter.replace(".json", ""));
+
+  });
+  
+  data = {
+    "type": "editorwidget",
+    title: fieldSettings.label,
+    "description": fieldSettings.description,
+    "default": value,
+    "items": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "textarea",
+          "title": thisHook.authPass.t("Content")
+        },
+        "widget": {
+          "type": "select",
+          "title": thisHook.authPass.t("Widget Option"),
+          "enum": ["--", "ace", "ckeditor"]
+        }
+      }
+    }
+  };
+  
+  if(filters.length){
+    data.items.properties.filter = {
+          "type": "select",
+          "title": thisHook.authPass.t("Filter Option"),
+           "enum": ["none"].concat(filters)
+        };
   }
 
   thisHook.pass(data);
@@ -222,3 +252,66 @@ iris.modules.forms.globals.registerWidget(function () {
 
   };
 });
+
+
+iris.modules.multiwidget.registerHook("hook_entity_view_field__longtexts", 0, function (thisHook, data) {
+  
+  if(data && data.length){
+
+      data.forEach(function(item){
+    
+        filterConfig = iris.readConfigSync("textfilters", item.filter);
+        
+        var sanitizeHtml = require('sanitize-html');
+    
+        item.content = sanitizeHtml(item.content, {
+          allowedTags: filterConfig.elements.split(" ").join("").split(","),
+          allowedAttributes: {
+            "*": filterConfig.attributes.split(" ").join("").split(",")
+          }
+    
+        });
+    
+      });
+
+      thisHook.pass(data);
+  }
+  
+  else{
+    
+    thisHook.pass(data);
+    
+  }
+
+
+  if (data.filter) {
+
+    var filter = item.filter;
+   
+    iris.readConfig("textfilters", filter).then(function (filterConfig) {
+
+      var sanitizeHtml = require('sanitize-html');
+
+      data.content = sanitizeHtml(data.content, {
+        allowedTags: filterConfig.elements.split(" ").join("").split(","),
+        allowedAttributes: {
+          "*": filterConfig.attributes.split(" ").join("").split(",")
+        }
+
+      });
+      console.log(data);
+      thisHook.pass(data);
+
+    }, function (fail) {
+
+      thisHook.fail(fail);
+
+    })
+
+  } else {
+
+    thisHook.pass(data);
+
+  }
+
+})
