@@ -144,7 +144,7 @@ iris.modules.forms.globals.registerWidget(function () {
       
       var convertToCKEditor = function (elem, textarea) {
         getCKEditor(function(err,ckeditor){
-          if (ckeditor && !ckeditor.instances[$(elem).attr("id")]) {
+          if (ckeditor && ckeditor.instances && !ckeditor.instances[$(elem).attr("id")]) {
             $(elem).each(function () {
               ckeditor.replace(this, {
   
@@ -166,7 +166,7 @@ iris.modules.forms.globals.registerWidget(function () {
       }
 
       var removeCKEditor = function (elem) {
-        if (ckeditor && ckeditor.instances[$(elem).attr("id")]) {
+        if (ckeditor && ckeditor.instances && ckeditor.instances[$(elem).attr("id")]) {
           ckeditor.instances[$(elem).attr("id")].destroy(true);
         }
       };
