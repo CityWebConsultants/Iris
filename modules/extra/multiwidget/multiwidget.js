@@ -73,22 +73,6 @@ iris.modules.multiwidget.registerHook("hook_entity_field_widget_form__editorwidg
 });
 
 
-iris.modules.multiwidget.registerHook("hook_entity_field_widget_form__multiwidget_field", 2, function (thisHook, data) {
-
-  var value = thisHook.context.value;
-  var fieldSettings = thisHook.context.fieldSettings;
-
-  data = {
-    "type": "multiwidget",
-    title: fieldSettings.label,
-    "description": fieldSettings.description,
-    "default": value
-  }
-
-  thisHook.pass(data);
-
-});
-
 iris.modules.forms.globals.registerWidget(function () {
 
 
