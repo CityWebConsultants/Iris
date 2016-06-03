@@ -220,6 +220,26 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
     finalSchema[fieldName] = fieldConverter(schemaConfig.fields[fieldName]);
 
+    if (finalSchema[fieldName].maxItems) {
+
+      var arrayLimit = function (val) {
+
+        if (Array.isArray(val)) {
+
+          return val.length <= finalSchema[fieldName].maxItems;
+
+        } else {
+
+          return true;
+
+        }
+
+      };
+
+      finalSchema[fieldName].validate = [arrayLimit, '{PATH} exceeds the limit of ' + finalSchema[fieldName].maxItems];
+
+    }
+
   });
 
   // Add universal fields
@@ -379,7 +399,7 @@ iris.modules.mongodb.registerHook("hook_db_deleteSchema__mongodb", 0, function (
   mongoose.connection.db.dropCollection(tableName, function (err) {
 
     if (err && (err.code != 26) && err.message != "ns not found") {
-  
+
       return thisHook.fail("Error deleting collection");
 
     }
