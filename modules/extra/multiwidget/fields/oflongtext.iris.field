@@ -1,0 +1,8 @@
+{
+  "name": "Longtexts",
+  "type": [{
+    "content": "String",
+    "widget": "String",
+    "filter": "String"
+  }]
+}

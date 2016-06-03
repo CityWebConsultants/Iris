@@ -1,0 +1,7 @@
+{
+  "name": "multiwidget",
+  "weight": 4,
+  "dependencies":{
+    "entityUI": "1"
+  }
+}
