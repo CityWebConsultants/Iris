@@ -1,3 +1,9 @@
-
-  <div class="admin-header admin-header-padding">Edit {{type}} {{#if eid}}{{eid}}{{/if}}</div>
+{{#if eid}}
+  
   [[[form entity,{{type}},{{eid}}]]]
+  
+{{else}}
+  
+  [[[form entity,{{type}}]]]
+  
+{{/if}}

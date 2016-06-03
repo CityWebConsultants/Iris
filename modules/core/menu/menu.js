@@ -9,7 +9,7 @@
  * @namespace menu
  */
 
-iris.registerModule("menu");
+iris.registerModule("menu",__dirname);
 
 /**
  * Embed function for [[[menu __]]] embeds.

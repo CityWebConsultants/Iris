@@ -4,68 +4,50 @@
 /**
  * @file Manages the database connection and schemas for entity types.
  *
- * Uses Mongoose.
  */
+
+
+// See if a database is set in config if not, for now set it to MongoDB.
+
+if (!iris.config.dbEngine) {
+
+  iris.config.dbEngine = "mongodb";
+
+}
 
 var fs = require('fs');
 
 //Connect to database
 
-global.mongoose = require('mongoose');
+iris.invokeHook("hook_db_connect__" + iris.config.dbEngine, "root", iris.config, null).then(function () {
 
-var autoIncrement = require('mongoose-auto-increment');
+  iris.dbPopulate();
 
-var fs = require('fs');
+  iris.status.ready = true;
 
-var connectionUri = 'mongodb://' + iris.config.db_server;
+  console.log("Ready on port " + iris.config.port + ".");
 
-if (iris.config.db_Port) {
-
-  connectionUri += +':' + iris.config.db_port;
-
-}
-
-if (iris.config.db_name) {
-
-  connectionUri += '/' + iris.config.db_name;
-
-}
-
-if (iris.config.db_username && iris.config.db_password) {
-
-  mongoose.connect(connectionUri, {
-    user: iris.config.db_username,
-    pass: iris.config.db_password
-  });
-
-} else {
-
-  mongoose.connect(connectionUri);
-
-}
-
-autoIncrement.initialize(mongoose.connection);
-
-//Wait until database is open and fail on error
-
-mongoose.connection.on('error', function(error) {
-
-  console.log(error);
-  process.send("restart");
+  iris.log("info", "Server started");
 
 });
 
-iris.fieldTypes = {};
+iris.dbPopulate = function () {
 
-iris.dbCollections = {};
+  iris.fieldTypes = {};
 
-iris.dbSchemaConfig = {};
+  iris.entityTypes = {};
 
-iris.dbSchema = {};
+  if (iris.entityTypes) {
 
-var dbReady = false;
+    Object.keys(iris.entityTypes).forEach(function (entityType) {
 
-iris.dbPopulate = function() {
+      delete iris.entityTypes[entityType];
+
+    })
+
+  }
+
+  var dbSchema = {};
 
   var glob = require("glob");
 
@@ -73,13 +55,13 @@ iris.dbPopulate = function() {
 
   // Get field types
 
-  Object.keys(iris.modules).forEach(function(moduleName) {
+  Object.keys(iris.modules).forEach(function (moduleName) {
 
     var modulePath = iris.modules[moduleName].path;
 
     var fields = glob.sync(modulePath + "/**/*.iris.field");
 
-    fields.forEach(function(fieldPath) {
+    fields.forEach(function (fieldPath) {
 
       try {
 
@@ -112,35 +94,26 @@ iris.dbPopulate = function() {
 
   });
 
-  // Delete any existing schema so they can be re-written
-
-  Object.keys(iris.dbSchema).forEach(function(oldSchema) {
-
-    delete iris.dbSchema[oldSchema];
-    delete iris.dbSchemaConfig[oldSchema];
-    delete iris.dbCollections[oldSchema];
-  });
-
   // Loop over all enabled modules and check for schema files
 
-  Object.keys(iris.modules).forEach(function(moduleName) {
+  Object.keys(iris.modules).forEach(function (moduleName) {
 
     try {
-      fs.readdirSync(iris.modules[moduleName].path + "/schema").forEach(function(schemafile) {
+      fs.readdirSync(iris.modules[moduleName].path + "/schema").forEach(function (schemafile) {
 
         schemafile = schemafile.toLowerCase().replace(".json", "");
 
         //Check if schema already exists for entity type, if not, add it
 
-        if (!iris.dbSchema[schemafile]) {
+        if (!dbSchema[schemafile]) {
 
-          iris.dbSchema[schemafile] = {};
+          dbSchema[schemafile] = {};
 
         }
 
         var file = JSON.parse(fs.readFileSync(iris.modules[moduleName].path + "/schema/" + schemafile + ".json"));
 
-        iris.dbSchema[schemafile] = merge.recursive(true, file, iris.dbSchema[schemafile]);
+        dbSchema[schemafile] = merge.recursive(true, file, dbSchema[schemafile]);
 
       });
 
@@ -162,7 +135,7 @@ iris.dbPopulate = function() {
 
   // See if site config has added any schema or schemafields
 
-  fs.readdirSync(iris.sitePath + "/configurations/entity").forEach(function(schemafile) {
+  fs.readdirSync(iris.sitePath + "/configurations/entity").forEach(function (schemafile) {
 
     var schemaName = schemafile.toLowerCase().replace(".json", "");
 
@@ -178,273 +151,90 @@ iris.dbPopulate = function() {
 
     }
 
-    if (!iris.dbSchema[schemaName]) {
+    if (!dbSchema[schemaName]) {
 
-      iris.dbSchema[schemaName] = {};
+      dbSchema[schemaName] = {};
 
     }
 
-    Object.keys(file).forEach(function(field) {
+    Object.keys(file).forEach(function (field) {
 
-      iris.dbSchema[schemaName][field] = file[field];
+      dbSchema[schemaName][field] = file[field];
 
     });
 
   });
 
-  // Schema ready, now unstringify it and save it as a database model
-
-  var typeConverter = function(type) {
-
-    switch (type) {
-      case "[String]":
-        return [String];
-      case "String":
-        return String;
-      case "[Number]":
-        return [Number];
-      case "Number":
-        return Number;
-      case "[Boolean]":
-        return [Boolean];
-      case "Boolean":
-        return Boolean;
-      case "Date":
-        return Date;
-      case "[Date]":
-        return [Date];
-    }
-    
-     // May be an array of more complex field
-
-    if (Array.isArray(type) && (typeof type[0] === "object")) {
-
-      var typeObject = {};
-
-      Object.keys(type[0]).forEach(function (key) {
-
-        var processedtype = typeConverter(type[0][key]);
-
-        if (processedtype) {
-
-          typeObject[key] = processedtype;
-
-        }
-
-      })
-
-      return [mongoose.Schema(typeObject,{"_id":false})];
-
-    }
-     // May be a more complex field
-
-    else if (typeof type === "object") {
-
-      var typeObject = {};
-
-      Object.keys(type).forEach(function (key) {
-
-        var processedtype = typeConverter(type[key]);
-
-        if (processedtype) {
-
-          typeObject[key] = processedtype;
-
-        }
-
-      })
-      
-      return mongoose.Schema(typeObject);
-      
-    } else {
-
-      return false;
-
-    }
-
-    return false;
-
-  };
-
-  Object.keys(iris.dbSchema).forEach(function(schema) {
+  Object.keys(dbSchema).forEach(function (schema) {
 
     // Make JSON copy of complete schema and save to non mongoosed object for reference
 
-    var schemaConfig = JSON.parse(JSON.stringify(iris.dbSchema[schema]));
+    iris.entityTypes[schema] = JSON.parse(JSON.stringify(dbSchema[schema]));
 
-    iris.dbSchemaConfig[schema] = iris.dbSchema[schema];
+    // Sneaky shortcut way of saving of fieldtypes into the entityType list
 
-    // Loop over all fields and set their type.
+    var stringySchema = JSON.stringify(iris.entityTypes[schema]);
 
-    var finalSchema = {};
+    Object.keys(iris.fieldTypes).forEach(function (fieldType) {
 
-    if (!schemaConfig.fields) {
+      try {
 
-      return false;
+        var fieldType = iris.fieldTypes[fieldType];
+        var name = fieldType.name;
+        var type = fieldType.type;
 
-    }
+        var search = `"fieldType":"${name}",`;
+        var replace = search + `"fieldTypeType":"${type}",`;
 
-    var fieldConverter = function(field) {
+        stringySchema = stringySchema.split(search).join(replace);
 
-      var fieldType = field.fieldType;
+      } catch (e) {
 
-      if (iris.fieldTypes[fieldType]) {
-
-        field.type = typeConverter(iris.fieldTypes[fieldType].type);
-        field.readableType = iris.fieldTypes[fieldType].type;
-
-        return field;
-
-      } else if (fieldType === "Fieldset") {
-
-        // Run parent function recursively on fieldsets
-
-        var fieldsetFields = {};
-
-        if (field.subfields) {
-
-          Object.keys(field.subfields).forEach(function(fieldSetField, index) {
-
-            fieldsetFields[fieldSetField] = fieldConverter(field.subfields[fieldSetField]);
-
-          });
-
-
-          delete field.subfields;
-
-        }
-
-        field.readableType = "Fieldset";
-
-        fieldsetFields._id = false;
-        fieldsetFields.id = false;
-
-        var fieldsetSchema = mongoose.Schema(fieldsetFields);
-
-        field.type = [fieldsetSchema];
-
-        return field;
+        iris.log("error", e);
 
       }
 
-    };
+    })
 
-    Object.keys(schemaConfig.fields).forEach(function(fieldName) {
+    iris.entityTypes[schema] = JSON.parse(stringySchema);
 
-      finalSchema[fieldName] = fieldConverter(schemaConfig.fields[fieldName]);
-
-      if(finalSchema[fieldName].maxItems){
-
-        var arrayLimit = function(val){
-
-          if(Array.isArray(val)){
-
-            return val.length <= finalSchema[fieldName].maxItems;
-
-          }
-          else{
-
-            return true;
-
-          }
-
-        };
-
-        finalSchema[fieldName].validate = [arrayLimit, '{PATH} exceeds the limit of '+ finalSchema[fieldName].maxItems];
-
-      }
-
-    });
-
-    iris.dbSchema[schema] = finalSchema;
-
-    var util = require("util");
-
-    //Push in universal type fields if not already in.
-
-    iris.dbSchema[schema].entityType = {
-      type: String,
-      description: "The type of entity this is",
-      title: "Entity type",
-      required: true
-    };
-
-    iris.dbSchema[schema].entityAuthor = {
-      type: String,
-      description: "The name of the author",
-      title: "Author",
-      required: true
-    };
-
-    iris.dbSchema[schema].eid = {
-      type: Number,
-      description: "Entity ID",
-      title: "Unique ID",
-      required: false
-    };
-
-    try {
-
-      iris.syncSchemaIndex(schema);
-      var readySchema = mongoose.Schema(iris.dbSchema[schema]);
-      readySchema.set('autoIndex', false);
-
-      if (mongoose.models[schema]) {
-
-        delete mongoose.models[schema];
-
-      }
-
-      readySchema.plugin(autoIncrement.plugin, {
-        model: schema,
-        field: 'eid',
-        startAt: 1,
-      });
-
-      iris.dbCollections[schema] = mongoose.model(schema, readySchema);
-
-    } catch (e) {
-
-      iris.log("error", e);
-
-    }
-
-    //Create permissions for this entity type
-
-    iris.modules.auth.globals.registerPermission("can create " + schema, "entity");
-    iris.modules.auth.globals.registerPermission("can edit any " + schema, "entity");
-    iris.modules.auth.globals.registerPermission("can edit own " + schema, "entity");
-    iris.modules.auth.globals.registerPermission("can view any " + schema, "entity");
-    iris.modules.auth.globals.registerPermission("can view own " + schema, "entity");
-    iris.modules.auth.globals.registerPermission("can delete any " + schema, "entity");
-    iris.modules.auth.globals.registerPermission("can delete own " + schema, "entity");
-    iris.modules.auth.globals.registerPermission("can fetch " + schema, "entity", "Can use the API to <b>fetch</b> entities.");
-    iris.modules.auth.globals.registerPermission("can delete schema " + schema, "entity", "Delete the entire schema. <strong>This includes the data</strong>.");
   });
 
-  if (!dbReady) {
+  var schemaCounter = 0;
+  var schemaLoaded = function () {
 
-    process.emit("dbReady", true);
-    dbReady = true;
+    schemaCounter += 1;
+    if (schemaCounter === Object.keys(iris.entityTypes).length) {
+
+      process.emit("dbReady", true);
+
+    }
 
   }
+
+  Object.keys(iris.entityTypes).forEach(function (entityType) {
+
+    iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
+      schema: entityType,
+      schemaConfig: JSON.parse(JSON.stringify(iris.entityTypes[entityType]))
+    }).then(function () {
+
+      //Create permissions for this entity type
+
+      iris.modules.auth.globals.registerPermission("can create " + entityType, "entity");
+      iris.modules.auth.globals.registerPermission("can edit any " + entityType, "entity");
+      iris.modules.auth.globals.registerPermission("can edit own " + entityType, "entity");
+      iris.modules.auth.globals.registerPermission("can view any " + entityType, "entity");
+      iris.modules.auth.globals.registerPermission("can view own " + entityType, "entity");
+      iris.modules.auth.globals.registerPermission("can delete any " + entityType, "entity");
+      iris.modules.auth.globals.registerPermission("can delete own " + entityType, "entity");
+      iris.modules.auth.globals.registerPermission("can fetch " + entityType, "entity", "Can use the API to <b>fetch</b> entities.");
+      iris.modules.auth.globals.registerPermission("can delete schema " + entityType, "entity", "Delete the entire schema. <strong>This includes the data</strong>.");
+
+      schemaLoaded();
+
+    })
+
+  })
 
 };
-
-/**
- * Define index for each schema including unique
- * 
- **/
-iris.syncSchemaIndex = function(schema) {
-
-  // set index through the schema
-  for (var i in iris.dbSchema[schema]) {
-    if (iris.dbSchema[schema][i].required == true) {
-      iris.dbSchema[schema][i].index = true;
-    }
-    if (iris.dbSchema[schema][i].unique) {
-      iris.dbSchema[schema][i].index = { unique: true };
-    }
-  }
-
-}
