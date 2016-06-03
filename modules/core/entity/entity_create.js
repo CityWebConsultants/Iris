@@ -163,13 +163,13 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
         entityType: preparedEntity.entityType,
         fields: preparedEntity
       }).then(function (doc) {
-        
+
         iris.invokeHook("hook_entity_created", thisHook.authPass, null, doc);
 
         iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
 
         iris.log("info", data.entityType + " created by " + doc.entityAuthor);
-        
+
         thisHook.pass(doc);
 
       }, function (fail) {
@@ -355,7 +355,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
       iris.invokeHook("hook_entity_fetch", "root", null, fetch).then(function (clash) {
 
-        if (clash && clash.length) {
+        if (clash && clash.length && clash[0].eid !== data.eid) {
 
           errors.push(fieldName);
 
