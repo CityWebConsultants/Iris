@@ -21,7 +21,7 @@ var routes = {
       menuName: "admin_toolbar",
       parent: null,
       title: "Content",
-      weight:0
+      weight: 0
     }]
   },
   userlist: {
@@ -100,11 +100,16 @@ iris.route.get("/:type/:id/delete", routes.delete, function (req, res) {
     id: req.params.id
   });
 
-  iris.dbCollections[req.params.type].findOne({
-    "eid": req.params.id
-  }, function (err, entity) {
+  iris.invokeHook("hook_entity_fetch", req.authPass, null, {
+    "entities": [req.params.type],
+    "queries": [{
+      "field": "eid",
+      "operator": "is",
+      "value": req.params.id
+      }]
+  }).then(function (entity) {
 
-    if (err != null || entity === null) {
+    if (!entity) {
 
       iris.modules.frontend.globals.displayErrorPage(404, req, res);
 
@@ -150,7 +155,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
   // Check if entity type exists in the system
 
   var entityType = thisHook.context.params[1],
-    schema = iris.dbSchemaConfig[entityType];
+    schema = iris.entityTypes[entityType];
 
   if (!schema) {
 
@@ -360,7 +365,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
           // Otherwise run a general hook for that field type
 
           iris.invokeHook("hook_entity_field_fieldType_form__" + iris.sanitizeName(fieldType), thisHook.authPass, {
-            value: currentValue ? currentValue : null,
+            value: currentValue ? JSON.parse(JSON.stringify(currentValue)) : null,
             fieldSettings: field
           }).then(function (form) {
 
@@ -680,6 +685,18 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
         }
 
+        if(field.minItems){
+
+          form.minItems = field.minItems;
+
+        }
+
+        if(field.maxItems){
+
+          form.maxItems = field.maxItems;
+
+        }
+
         data.schema[fieldName] = form;
         fieldLoaded();
 
@@ -696,13 +713,19 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
   var eid = thisHook.context.params[2];
 
   if (eid) {
-    iris.dbCollections[entityType].findOne({
-      eid: eid
-    }, function (err, doc) {
+
+    iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+      "entities": [entityType],
+      "queries": [{
+        "field": "eid",
+        "operator": "is",
+        "value": eid
+      }]
+    }).then(function (doc) {
 
       if (doc) {
 
-        renderFields(doc)
+        renderFields(doc[0]);
 
       }
 
@@ -730,7 +753,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
   // Fetch entity type schema
 
-  var schema = iris.dbSchemaConfig[entityType];
+  var schema = iris.entityTypes[entityType];
 
   // Object for final values to be stored in
 
@@ -936,7 +959,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 iris.route.get("/admin/entitylist", routes.entitylist, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_entitytypelist"], ['admin_wrapper'], {
-    entityTypes: Object.keys(iris.dbCollections)
+    entityTypes: Object.keys(iris.entityTypes)
   }, req.authPass, req).then(function (success) {
 
     res.send(success)

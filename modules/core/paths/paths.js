@@ -1,34 +1,36 @@
 /*jshint nomen: true, node:true, sub:true */
 /* globals iris,mongoose,Promise */
 
-iris.registerModule("paths");
+iris.registerModule("paths",__dirname);
 
 iris.modules.paths.globals.entityPaths = {};
 
 process.on("dbReady", function () {
 
-  for (var collection in iris.dbCollections) {
+  for (var collection in iris.entityTypes) {
 
-    iris.dbCollections[collection].find({
-      path: {
-        $exists: true
-      }
-    }, function (err, doc) {
+    if (iris.entityTypes[collection].fields && iris.entityTypes[collection].fields.path) {
 
-      if (!err && doc) {
+      iris.invokeHook("hook_entity_fetch", "root", null, {
+        entities: [collection]
+      }).then(function (entities) {
 
-        doc.forEach(function (element) {
+        if (entities) {
 
-          iris.modules.paths.globals.entityPaths[element.path] = {
-            eid: element.eid,
-            entityType: element.entityType
-          };
+          entities.forEach(function (entity) {
 
-        });
+            iris.modules.paths.globals.entityPaths[entity.path] = {
+              eid: entity.eid,
+              entityType: entity.entityType
+            };
 
-      }
+          })
 
-    });
+        }
+
+      })
+
+    }
 
   }
 
@@ -171,11 +173,18 @@ iris.app.use(function (req, res, next) {
 
   if (iris.modules.paths.globals.entityPaths[currentPath]) {
 
-    iris.dbCollections[iris.modules.paths.globals.entityPaths[currentPath].entityType].findOne({
-      eid: iris.modules.paths.globals.entityPaths[currentPath].eid
-    }, function (err, doc) {
+    iris.invokeHook("hook_entity_fetch", "root", null, {
+      "entities": [iris.modules.paths.globals.entityPaths[currentPath].entityType],
+      "queries": [{
+        "field": "eid",
+        "operator": "is",
+        "value": iris.modules.paths.globals.entityPaths[currentPath].eid
+      }]
+    }).then(function (entities) {
 
-      if (!err && doc) {
+      if (entities) {
+
+        var doc = entities[0];
 
         iris.modules.frontend.globals.getTemplate(doc, req.authPass, {
           req: req

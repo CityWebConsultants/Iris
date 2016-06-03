@@ -10,7 +10,7 @@
  * @namespace frontend
  */
 
-iris.registerModule("frontend");
+iris.registerModule("frontend",__dirname);
 
 var fs = require('fs');
 var express = require('express');
@@ -96,7 +96,15 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
     // Check if the current person can access the entity itself
 
-    iris.invokeHook("hook_entity_view", req.authPass, null, entity).then(function (viewChecked) {
+    var context = {};
+
+    context.tags = {
+      headTags: {},
+      bodyTags: {},
+    };
+
+
+    iris.invokeHook("hook_entity_view", req.authPass, context, entity).then(function (viewChecked) {
 
       if (!viewChecked) {
 
@@ -121,7 +129,7 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
       }
 
-      iris.invokeHook("hook_entity_view_" + entity.entityType, req.authPass, null, entity).then(function (validated) {
+      iris.invokeHook("hook_entity_view_" + entity.entityType, req.authPass, context, entity).then(function (validated) {
 
         if (validated) {
 
@@ -347,7 +355,7 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
     } else {
 
-      if (Object.keys(iris.dbCollections).indexOf(paths[0]) !== -1) {
+      if (Object.keys(iris.entityTypes).indexOf(paths[0]) !== -1) {
 
         iris.modules.frontend.globals.findTemplate(["entity"], "html").then(function (html) {
 
@@ -616,7 +624,7 @@ var parseEmbeds = function (html, variables, authPass) {
               embedOptions = JSON.parse(arguments.join(","));
 
             } catch (e) {
-              
+
               // Try comma seperated parameter approach
 
               embedOptions = [];
@@ -626,7 +634,7 @@ var parseEmbeds = function (html, variables, authPass) {
                 embedOptions.push(current.trim())
 
               })
-          
+
             }
 
           }
@@ -750,7 +758,7 @@ iris.app.use(function (req, res, next) {
 
   var splitUrl = req.url.split('/');
 
-  if (splitUrl && splitUrl.length === 3 && Object.keys(iris.dbCollections).indexOf(splitUrl[1]) !== -1) {
+  if (splitUrl && splitUrl.length === 3 && Object.keys(iris.entityTypes).indexOf(splitUrl[1]) !== -1) {
 
     for (var path in iris.modules.paths.globals.entityPaths) {
 
@@ -935,7 +943,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
     } catch (e) {
 
-      thisHook.pass(e);
+      thisHook.fail(e);
 
     }
 

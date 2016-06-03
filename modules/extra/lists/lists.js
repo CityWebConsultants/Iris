@@ -4,15 +4,15 @@ process.on("dbReady", function () {
 
   // Create a view block type for each entity
 
-  Object.keys(iris.dbCollections).forEach(function (entityType) {
+  Object.keys(iris.entityTypes).forEach(function (entityType) {
 
     var fields = ["Pick a field"];
 
-    Object.keys(iris.dbCollections[entityType].schema.tree).forEach(function (fieldName) {
+    Object.keys(iris.entityTypes[entityType].fields).forEach(function (fieldName) {
 
       // Only push in string and number fields
 
-      var field = iris.dbCollections[entityType].schema.tree[fieldName];
+      var field = iris.entityTypes[entityType].fields[fieldName];
 
       if (field.type === String || field.type === Number) {
 

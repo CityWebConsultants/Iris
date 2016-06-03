@@ -163,8 +163,12 @@ var hook = function (hookname, authPass, staticVariables, variables) {
           try {
             hookcall.event(thisHook, vars);
           } catch (e) {
-            if (e.stack) {
+            if (e.stack && Array.isArray(e.stack)) {
               iris.log("error", "Error when calling hook " + thisHook.name + " from " + thisHook.path + " on line " + e.stack[0].getLineNumber() + " of " + e.stack[0].getFileName() + " " + e.message);
+            } else {
+
+              iris.log("error", e.stack);
+
             }
             no("Hook error");
           }

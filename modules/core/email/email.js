@@ -1,5 +1,5 @@
 var nodemailer = require('nodemailer');
-iris.registerModule("email");
+iris.registerModule("email",__dirname);
 
 /**
  * Define callback routes.

@@ -1,7 +1,7 @@
 /*jshint nomen: true, node:true, sub:true */
 /* globals iris,mongoose,Promise */
 
-iris.registerModule("sessions");
+iris.registerModule("sessions",__dirname);
 
 iris.app.get("/checkauth", function (req, res) {
 

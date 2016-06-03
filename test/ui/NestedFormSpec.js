@@ -70,7 +70,7 @@ casper.test.begin('Test Nested Form fieldset', 8, function (test) {
       data: {
         'input[name = "label"]': schema + " textfield one",
         'input[name = "machineName"]': schema + "_textfield_one",
-        'select[name = "fieldType"]': "Textfield"
+        'select[name = "fieldType"]': "Multi text field"
       }
     };
     util.test.openTransaction(options, function (err, result) {
@@ -126,7 +126,7 @@ casper.test.begin('Test Nested Form fieldset', 8, function (test) {
       data: {
         'input[name = "label"]': schema + " textfield two",
         'input[name = "machineName"]': schema + "_textfield_two",
-        'select[name = "fieldType"]': "Textfield"
+        'select[name = "fieldType"]': "Multi text field"
       }
     };
     util.test.openTransaction(options, function (err, result) {
@@ -182,7 +182,7 @@ casper.test.begin('Test Nested Form fieldset', 8, function (test) {
       data: {
         'input[name = "label"]': schema + " textfield three",
         'input[name = "machineName"]': schema + "_textfield_three",
-        'select[name = "fieldType"]': "Textfield"
+        'select[name = "fieldType"]': "Multi text field"
       }
     };
     util.test.openTransaction(options, function (err, result) {
