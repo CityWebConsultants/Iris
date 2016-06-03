@@ -927,7 +927,7 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
   data.value.fields = [];
 
   var field = thisHook.context.field;
-
+  var fieldType = field.type;
   delete field.type;
 
   field.about = "<b>Machine name:</b> " + thisHook.context.fieldName + "<br />";
