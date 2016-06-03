@@ -4,5 +4,6 @@
     "path": "String",
     "title": "String",
     "alt": "String"
-  }
+  },
+  "hidden": true
 }
