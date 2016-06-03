@@ -1173,8 +1173,12 @@ jsonform.elementTypes = {
       if (!node || !node.schemaElement || !node.schemaElement.items) return;
       choices = node.formElement.options;
       if (!choices) return;
-      if (!node.value)
+      if (!node.value) {
         node.value = [];
+      }
+      else if (!Array.isArray(node.value)) {
+        node.value = [node.value];
+      }
       choiceshtml = '';
       _.each(choices, function (choice, idx) {
         choiceshtml += _template(template, {
