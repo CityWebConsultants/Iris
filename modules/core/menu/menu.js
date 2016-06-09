@@ -326,8 +326,9 @@ iris.modules.menu.registerHook("hook_frontend_handlebars_extend", 1, function (t
   iris.modules.frontend.globals.findTemplate(["submenu"]).then(function (template) {
 
     Handlebars.registerPartial('submenu', template);
+    thisHook.pass(Handlebars);
   });
 
-  thisHook.pass(Handlebars);
+  
 
 });
