@@ -288,12 +288,12 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 
 });
 
-iris.modules.auth.globals.AttachAuthPass = function (session, userid) {
-
+iris.modules.auth.globals.AttachAuthPass = function (session, uid) {
+  
   session.getAuthPass = function () {
-
+   
     var token = Object.keys(session.tokens)[0];
-    var userid = userid;
+    var userid = uid;
 
     return new Promise(function (pass, fail) {
 
@@ -369,7 +369,7 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
         thisHook.fail(fail);
 
       });
-
+      
       iris.modules.auth.globals.AttachAuthPass(iris.modules.auth.globals.userList[data.userid],data.userid);
 
       iris.modules.auth.globals.userList[data.userid].lastActivity = Date.now();

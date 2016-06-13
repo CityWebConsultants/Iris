@@ -53,8 +53,8 @@ iris.sendSocketMessage = function (userids, message, data) {
     if (user && user.sockets) {
 
       Object.keys(user.sockets).forEach(function (socket) {
-
-        iris.socketServer.clients().connected[socket.id].socket.emit(message, data);
+        
+        iris.socketServer.clients().connected[socket].emit(message, data);
 
       });
 
