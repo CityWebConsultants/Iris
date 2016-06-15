@@ -23,7 +23,7 @@ mkdirSync(iris.configPath + "/" + "entity");
  * @namespace entity
  */
 
-iris.registerModule("entity");
+iris.registerModule("entity",__dirname);
 
 require('./entity_create');
 
@@ -52,9 +52,9 @@ iris.app.get("/api/entitySchema", function (req, res) {
 
   var output = {};
 
-  Object.keys(iris.dbCollections).forEach(function (entityType) {
+  Object.keys(iris.entityTypes).forEach(function (entityType) {
 
-    output[entityType] = iris.dbCollections[entityType].schema.tree;
+    output[entityType] = iris.entityTypes[entityType];
 
   });
 
@@ -75,6 +75,6 @@ iris.app.get("/api/entitySchema/:type", function (req, res) {
 
   }
 
-  res.send(iris.dbCollections[req.params.type].schema.tree);
+  res.send(iris.entityTypes[req.params.type]);
 
 });

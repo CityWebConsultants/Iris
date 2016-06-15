@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=5.0.0"
   },
-  "version": "2.0.9",
+  "version": "2.1.0",
   "description": "Modular content management and web application framework built with Node.js and MongoDB",
   "main": "iris.js",
   "dependencies": {
@@ -22,6 +22,7 @@
     "mongoose": "^4.1.0",
     "mongoose-auto-increment": "^5.0.1",
     "ncp": "^2.0.0",
+    "nedb": "^1.8.0",
     "nodemailer": "^1.11.0",
     "path-to-regexp": "^1.2.1",
     "prettydiff": "^1.16.6",

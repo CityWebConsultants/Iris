@@ -33,7 +33,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
   //Set author and entity type
 
-  if (!data.entityType || !iris.dbCollections[data.entityType]) {
+  if (!data.entityType || !iris.entityTypes[data.entityType]) {
 
     thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
     return false;
@@ -159,33 +159,24 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
     var saveEntity = function () {
 
-      iris.dbCollections[preparedEntity.entityType].count({}, function (err, result) {
+      iris.invokeHook("hook_db_createEntity__" + iris.config.dbEngine, thisHook.authPass, {
+        entityType: preparedEntity.entityType,
+        fields: preparedEntity
+      }).then(function (doc) {
 
-        var entity = new iris.dbCollections[preparedEntity.entityType](preparedEntity);
+        iris.invokeHook("hook_entity_created", thisHook.authPass, null, doc);
 
-        entity.save(function (err, doc) {
+        iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
 
-          if (err) {
+        iris.log("info", data.entityType + " created by " + doc.entityAuthor);
 
-            thisHook.fail(err);
+        thisHook.pass(doc);
 
-          } else if (doc) {
+      }, function (fail) {
 
-            doc = doc.toObject();
+        thisHook.fail(err);
 
-            thisHook.pass(doc);
-
-            iris.invokeHook("hook_entity_created", thisHook.authPass, null, doc);
-
-            iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
-
-            iris.log("info", data.entityType + " created by " + doc.entityAuthor);
-
-          }
-
-        });
-
-      });
+      })
 
     };
 
@@ -305,7 +296,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
   Object.keys(data).forEach(function (field) {
 
-    if (iris.dbSchema[data.entityType][field] && iris.dbSchema[data.entityType][field].unique) {
+    if (iris.entityTypes[data.entityType].fields[field] && iris.entityTypes[data.entityType].fields[field].unique) {
 
       var condition = {};
 
@@ -323,40 +314,58 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
   } else {
 
-    iris.dbCollections[data.entityType].findOne({
-      $or: uniqueFields
-    }, function (err, doc) {
+    // TODO Replace this once an OR entity_fetch is put in
 
-      if (doc && (!data.eid || data.eid.toString() !== doc.eid.toString())) {
+    var errors = [];
+    var checkedCounter = 0;
+    var checked = function () {
 
-        // Check which field needs to be unique to return a helpful error
+      checkedCounter += 1;
 
-        var errors = [];
+      if (checkedCounter === uniqueFields.length) {
 
-        uniqueFields.forEach(function (field) {
 
-          Object.keys(field).forEach(function (fieldName) {
+        if (errors.length) {
 
-            if (field[fieldName] === doc[fieldName]) {
+          thisHook.fail(errors.join(" ") + " should be unique");
 
-              errors.push(fieldName);
+        } else {
 
-            }
+          thisHook.pass(data);
 
-          });
-
-        });
-
-        thisHook.fail(errors.join(" ") + " should be unique");
-
-      } else {
-
-        thisHook.pass(data);
+        }
 
       }
 
-    });
+    }
 
+    uniqueFields.forEach(function (field) {
+
+      var fieldName = Object.keys(field)[0];
+
+      var fetch = {
+        entities: [data.entityType],
+        queries: [{
+          "field": fieldName,
+          "operator": "is",
+          "value": field[fieldName]
+        }]
+
+      }
+
+      iris.invokeHook("hook_entity_fetch", "root", null, fetch).then(function (clash) {
+
+        if (clash && clash.length && clash[0].eid !== data.eid) {
+
+          errors.push(fieldName);
+
+        }
+
+        checked();
+
+      });
+
+    })
 
   }
 

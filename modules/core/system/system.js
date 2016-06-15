@@ -5,7 +5,7 @@
  * @file General hooks and functions for the admin system.
  */
 
-iris.registerModule("system");
+iris.registerModule("system",__dirname);
 
 require('./system_routing.js');
 

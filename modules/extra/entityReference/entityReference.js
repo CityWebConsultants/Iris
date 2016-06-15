@@ -35,7 +35,7 @@ iris.route.get("/entity-reference/:type/:field", {}, function (req, res) {
  */
 iris.modules.entityReference.registerHook("hook_form_render__field_settings__entity_reference", 0, function (thisHook, data) {
 
-  var collections = iris.dbSchemaConfig;
+  var collections = iris.entityTypes;
   var settings = {
     entityType: {
       "type": "text",
