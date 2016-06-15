@@ -170,6 +170,12 @@ var dateToForm = function (value) {
     return s;
   };
 
+  if (typeof value == 'string') {
+
+    value = new Date(value);
+
+  }
+
   if (value) {
 
     var year = value.getFullYear();
