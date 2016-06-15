@@ -280,16 +280,27 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
  */
 iris.route.get("/user/logout", routes.logout, function (req, res) {
 
-  // Delete session
+  var logout = function() {
 
-  delete iris.modules.auth.globals.userList[req.authPass.userid];
+    delete iris.modules.auth.globals.userList[req.authPass.userid];
 
-  res.clearCookie('userid');
-  res.clearCookie('token');
+    res.clearCookie('userid');
+    res.clearCookie('token');
+    res.clearCookie('admin_auth');
 
-  res.clearCookie('admin_auth');
+    res.redirect("/");
 
-  res.redirect("/");
+  }
+  iris.invokeHook("hook_user_logout", req.authPass, null, res).then(function (success) {
+
+    res = success;
+    logout();
+
+  }, function (fail) {
+
+    logout();
+
+  });
 
 });
 

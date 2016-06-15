@@ -219,7 +219,7 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
   Object.keys(schemaConfig.fields).forEach(function (fieldName) {
 
     finalSchema[fieldName] = fieldConverter(schemaConfig.fields[fieldName]);
-
+    
     if (finalSchema[fieldName].maxItems) {
 
       var arrayLimit = function (val) {
