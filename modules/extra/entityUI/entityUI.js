@@ -144,6 +144,12 @@ iris.route.get("/:type/:id/delete", routes.delete, function (req, res) {
 
     });
 
+  }, function(fail){
+    
+     iris.modules.frontend.globals.displayErrorPage(404, req, res);
+
+      return false;
+    
   });
 
 });
@@ -685,13 +691,13 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
         }
 
-        if(field.minItems){
+        if (field.minItems) {
 
           form.minItems = field.minItems;
 
         }
 
-        if(field.maxItems){
+        if (field.maxItems) {
 
           form.maxItems = field.maxItems;
 
@@ -1052,5 +1058,42 @@ iris.modules.entityUI.registerHook("hook_entity_view", 0, function (thisHook, en
     thisHook.pass(entity);
 
   }
+
+})
+
+// Entity delete form
+
+iris.modules.entityUI.registerHook("hook_form_render__entity_delete", 0, function (thisHook, data) {
+
+  data.schema = {
+
+    "eid": {
+      type: "hidden",
+      "default": thisHook.context.params[1]
+    },
+    "entityType": {
+      "type": "hidden",
+      default: thisHook.context.params[2]
+    }
+
+  }
+
+  thisHook.pass(data);
+
+})
+
+iris.modules.entityUI.registerHook("hook_form_submit__entity_delete", 0, function (thisHook, data) {
+
+  iris.invokeHook("hook_entity_delete", thisHook.authPass, null, thisHook.context.params).then(function (pass) {
+
+    thisHook.pass({
+      redirect: "/admin/entitylist/" + thisHook.context.params.entityType
+    });
+
+  }, function (fail) {
+
+    thisHook.fail(fail);
+
+  })
 
 })
