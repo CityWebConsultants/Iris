@@ -454,6 +454,41 @@ iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHoo
 
 });
 
+iris.modules.entity.globals.checkPermissionFn = function(authPass, entity, action, callback) {
+
+  var isOwn = authPass.userid == entity.entityAuthor;
+  var viewOwn = iris.modules.auth.globals.checkPermissions(["can " + action + " own " + entity.entityType], authPass);
+  var viewAny = iris.modules.auth.globals.checkPermissions(["can " + action + " any " + entity.entityType], authPass);
+
+  if (!viewAny && !(isOwn && viewOwn)) {
+
+    iris.invokeHook("hook_entity_permission_check", authPass, {
+      entity: entity,
+      action: action
+    }, {result: false}).then(function (success) {
+
+      if (success.result === true) {
+        callback(true);
+      }
+      else {
+        callback(false);
+      }
+
+    }, function(fail) {
+
+      callback(false);
+
+    });
+
+  }
+  else {
+
+    callback(true);
+
+  }
+
+}
+
 /**
  * @member hook_entity_view
  * @memberof entity
@@ -471,53 +506,45 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
   //  var mongoid = mongoose.Types.ObjectId(entity._id);
   //  entity.timestamp = Date.parse(mongoid.getTimestamp());
 
-  // Check if user can see entity type
+  var processEntity = function(granted) {
 
-  var isOwn = thisHook.authPass.userid == entity.entityAuthor;
-  var viewOwn = iris.modules.auth.globals.checkPermissions(["can view own " + entity.entityType], thisHook.authPass);
-  var viewAny = iris.modules.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass);
-  if (!viewAny && !(isOwn && viewOwn)) {
+    // Strip out any fields on the entity that a user shouldn't be able to see according to field permissions
 
-    //Can't view any of this type, delete it
-    entity = undefined;
+    if (granted) {
 
-  }
+      var type = entity.entityType;
 
-  // Strip out any fields on the entity that a user shouldn't be able to see according to field permissions
+      Object.keys(entity).forEach(function (field) {
 
-  if (entity) {
+        if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
 
-    var type = entity.entityType;
+          var schemaField = iris.entityTypes[type].fields[field];
 
-    Object.keys(entity).forEach(function (field) {
+          if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 
-      if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
-
-        var schemaField = iris.entityTypes[type].fields[field];
-
-        if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
-
-          if (!schemaField.permissions) {
-
-            delete entity[field];
-
-          } else {
-
-            var canView = false;
-
-            thisHook.authPass.roles.forEach(function (role) {
-
-              if (schemaField.permissions.indexOf(role) !== -1) {
-
-                canView = true;
-
-              }
-
-            });
-
-            if (!canView) {
+            if (!schemaField.permissions) {
 
               delete entity[field];
+
+            } else {
+
+              var canView = false;
+
+              thisHook.authPass.roles.forEach(function (role) {
+
+                if (schemaField.permissions.indexOf(role) !== -1) {
+
+                  canView = true;
+
+                }
+
+              });
+
+              if (!canView) {
+
+                delete entity[field];
+
+              }
 
             }
 
@@ -525,78 +552,82 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
         }
 
-      }
+      });
 
-    });
+      var entityType = entity.entityType;
 
-    var entityType = entity.entityType;
+      var schema = iris.entityTypes[entityType];
 
-    var schema = iris.entityTypes[entityType];
+      // Loop over all the fields on the entity
 
-    // Loop over all the fields on the entity
+      var fieldHooks = [];
 
-    var fieldHooks = [];
+      Object.keys(entity).forEach(function (field) {
 
-    Object.keys(entity).forEach(function (field) {
+        if (schema.fields[field] && schema.fields[field].fieldType) {
 
-      if (schema.fields[field] && schema.fields[field].fieldType) {
+          var fieldType = iris.sanitizeName(schema.fields[field].fieldType);
 
-        var fieldType = iris.sanitizeName(schema.fields[field].fieldType);
+          fieldHooks.push({
+            type: fieldType,
+            field: field
+          });
 
-        fieldHooks.push({
-          type: fieldType,
-          field: field
-        });
+        }
 
-      }
+      })
 
-    })
+      var fieldCheckedCounter = 0;
 
-    var fieldCheckedCounter = 0;
+      var fieldChecked = function () {
 
-    var fieldChecked = function () {
+        fieldCheckedCounter += 1;
 
-      fieldCheckedCounter += 1;
+        if (fieldCheckedCounter === fieldHooks.length) {
 
-      if (fieldCheckedCounter === fieldHooks.length) {
+          thisHook.pass(entity);
 
+        }
+
+      };
+
+      // Run hook for each field
+
+      if (fieldHooks.length === 0) {
         thisHook.pass(entity);
-
       }
 
-    };
+      fieldHooks.forEach(function (field) {
 
-    // Run hook for each field
+        iris.invokeHook("hook_entity_view_field__" + field.type, thisHook.authPass, {
+          entityType: entity.entityType,
+          field: iris.entityTypes[entity.entityType].fields[field.field]
+        }, entity[field.field]).then(function (newValue) {
 
-    if (fieldHooks.length === 0) {
-      thisHook.pass(entity);
-    }
+          entity[field.field] = newValue;
+          fieldChecked();
 
-    fieldHooks.forEach(function (field) {
+        }, function (fail) {
 
-      iris.invokeHook("hook_entity_view_field__" + field.type, thisHook.authPass, {
-        entityType: entity.entityType,
-        field: iris.entityTypes[entity.entityType].fields[field.field]
-      }, entity[field.field]).then(function (newValue) {
+          fieldChecked();
 
-        entity[field.field] = newValue;
-        fieldChecked();
-
-      }, function (fail) {
-
-        fieldChecked();
+        });
 
       });
 
-    });
+      thisHook.pass(entity);
 
-    thisHook.pass(entity);
+    } else {
 
-  } else {
+      thisHook.fail('Permission denied');
 
-    thisHook.pass(entity);
+    }
 
   }
+  // Check if user can see entity type
+
+  iris.modules.entity.globals.checkPermissionFn(thisHook.authPass, entity, 'view', processEntity);
+
 
 });
 
