@@ -537,7 +537,10 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
           "type": "email",
           "description": ap.t("Use this to login with in future")
         },
-        'password',
+        {
+          "key" : "password",
+          "type" : "password-confirm"
+        },
         {
           "type": "submit",
           "title": ap.t("Install")
@@ -931,10 +934,15 @@ iris.modules.user.registerHook("hook_form_render__entity", 1, function (thisHook
 
   }
 
+  var password = data.form.indexOf('password');
+  data.form[password] = {
+    "key" : "password",
+    "type" : "password-confirm"
+  };
+
   thisHook.pass(data);
 
 });
-
 iris.modules.user.registerHook("hook_form_render__createEntity", 1, function (thisHook, data) {
 
   if (thisHook.context.params[1] === "user") {
@@ -1022,3 +1030,47 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 iris.modules.user.globals.userPassRehash = function (password, timestamp, lastlogin, eid) {
 
 }
+
+iris.modules.forms.globals.registerWidget(function () {
+
+  JSONForm.elementTypes['password-confirm'] = JSON.parse(JSON.stringify(JSONForm.elementTypes['password']));
+
+  JSONForm.elementTypes['password-confirm'].template
+    = '<input type="password" class="password <%= fieldHtmlClass || cls.textualInputClass %>" name="<%= node.name %>" value="<%= escape(value) %>" id="<%= id %>" <%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %> required=\'required\' /><div id="<%= id %>-text" class="password-strength"><span>Password strength:</span> <span class="text"></span></div>' +
+    '<input type="password" class="password-confirm <%= fieldHtmlClass || cls.textualInputClass %>" placeholder="Confirm password" name="<%= node.name %>-confirm" value="<%= escape(value) %>" id="<%= id %>-confirm" <%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %> required=\'required\' /><div id="<%= id %>-match" class="password-strength"></div>';
+
+  JSONForm.elementTypes['password-confirm'].onInsert = function (evt, node) {
+
+    iris.lazyLoad("/modules/forms/bootstrap-strength-meter.js", "js");
+    iris.lazyLoad("/modules/forms/password-score/dist/js/password-score.js", "js");
+    iris.lazyLoad("/modules/forms/password-score/dist/js/password-score-options.js", "js");
+
+    setTimeout(function () {
+      $('#' + $(evt.target).find('.password').attr('id')).strengthMeter('text', {
+        container: $('#' + $(evt.target).find('.password').attr('id') + '-text .text'),
+        hierarchy: {
+          '0': ['text-danger', 'very weak'],
+          '20': ['text-warning', 'weak'],
+          '30': ['text-warning', 'good'],
+          '40': ['text-success', 'strong'],
+          '50': ['text-success', 'very strong']
+        }
+      });
+    }, 500);
+
+    $('.password-confirm', $(evt.target)).keyup(function (item) {
+
+      if ($(this).val() != $(this).parent().find('.password').val()) {
+
+        $(this).next().text('Passwords do not match').removeClass('text-success').addClass('text-danger');
+
+      }
+      else {
+        $(this).next().text('Match!').removeClass('text-danger').addClass('text-success');
+      }
+
+    });
+
+  };
+
+}, 'password-confirm');
