@@ -30,7 +30,14 @@ irisReady(function () {
 
     iris.socketreceiver.on('entityCreate', function (data) {
 
-      if (data) {
+      if (data && data.data) {
+        if (iris.fetched[data.template]) {
+          var loader = iris.fetched[data.template], inserted = [], updated = [];
+          iris.updateContent(data.data, loader, inserted, updated);
+          iris.finaliseUpdate(data.data, false, inserted, updated, data.template);
+        }
+      }
+      else if (data) {
 
         iris.checkQuery(data);
 
@@ -40,6 +47,14 @@ irisReady(function () {
 
     iris.socketreceiver.on('entityUpdate', function (data) {
 
+      if (data && data.data) {
+        if (iris.fetched[data.template]) {
+          var loader = iris.fetched[data.template], inserted = [], updated = [];
+          iris.updateContent(data.data, loader, inserted, updated);
+          iris.finaliseUpdate(data.data, true, inserted, updated,data.template);
+        }
+      }
+      else
       if (data) {
 
         iris.checkQuery(data, true);
@@ -53,6 +68,151 @@ irisReady(function () {
       iris.deleteEntity(data);
 
     });
+
+  }
+
+  iris.updateContent = function(entity, loader, inserted, updated) {
+
+      // Check if entity already exists in entity list. If so it must be an update
+
+      if (iris.fetchedEntities[entity.entityType] && iris.fetchedEntities[entity.entityType][entity.eid]) {
+
+        // Loop over already loaded entities properties and update (can't do a straight = update as that would wipe any references)
+
+        Object.keys(entity).forEach(function (property) {
+
+          iris.fetchedEntities[entity.entityType][entity.eid][property] = entity[property];
+
+        });
+
+        // Loop over entities in loader and check it's not already there as this can happen with more than one similar loader on the page
+
+        var present;
+
+        loader.entities.forEach(function (currentEntity) {
+
+          if (currentEntity.eid === entity.eid) {
+
+            present = true;
+
+          }
+
+        });
+
+        if (!present) {
+
+          loader.entities.push(iris.fetchedEntities[entity.entityType][entity.eid]);
+        }
+
+        updated.push(entity);
+
+      } else {
+
+        if (!iris.fetchedEntities[entity.entityType]) {
+
+          iris.fetchedEntities[entity.entityType] = {};
+
+        }
+
+        iris.fetchedEntities[entity.entityType][entity.eid] = entity;
+        loader.entities.push(iris.fetchedEntities[entity.entityType][entity.eid]);
+
+        inserted.push(entity);
+
+      }
+
+      // Check if sort is present and run it if so
+
+      var sort = function (property, direction) {
+
+        if (direction === "asc") {
+
+          loader.entities.sort(function asc(a, b) {
+
+            if (a[property] < b[property]) {
+
+              return -1;
+            }
+
+            if (a[property] > b[property]) {
+
+              return 1;
+
+            }
+            return 0;
+          });
+
+        } else if (direction === "desc") {
+
+          loader.entities.sort(function asc(a, b) {
+
+            if (a[property] > b[property]) {
+
+              return -1;
+
+            }
+
+            if (a[property] < b[property]) {
+
+              return 1;
+
+            }
+
+            return 0;
+
+          });
+
+        }
+
+      };
+
+      if (loader.query && loader.query.sort) {
+
+        Object.keys(loader.query.sort).forEach(function (sorter) {
+
+          sort(sorter, loader.query.sort[sorter]);
+
+        });
+
+      }
+
+      if (loader.query && loader.query.limit) {
+
+        if (loader.entities.length > parseInt(loader.query.limit)) {
+
+          loader.entities.length = parseInt(loader.query.limit);
+
+        }
+
+      }
+
+  }
+
+  iris.finaliseUpdate = function(entity, updating, inserted, updated, template) {
+
+    if (updating && (!updated.length && !inserted.length)) {
+
+      // Nothing was updated, means this entity doesn't belong anymore. So delete it.
+
+      iris.deleteEntity(entity);
+
+    }
+
+    // Send event
+
+    var detail = {
+      entities: {}
+    };
+
+    detail.entities[entity.entityType] = [entity];
+
+    detail.event = 'update';
+
+    detail.template = template;
+
+    iris.entityListUpdate.detail = detail;
+
+    document.dispatchEvent(iris.entityListUpdate);
 
   }
 
@@ -127,147 +287,14 @@ irisReady(function () {
           // Check outcome and add/update entity where appropriate
 
           if (outcome) {
-
-            // Check if entity already exists in entity list. If so it must be an update
-
-            if (iris.fetchedEntities[entity.entityType] && iris.fetchedEntities[entity.entityType][entity.eid]) {
-
-              // Loop over already loaded entities properties and update (can't do a straight = update as that would wipe any references)
-
-              Object.keys(entity).forEach(function (property) {
-
-                iris.fetchedEntities[entity.entityType][entity.eid][property] = entity[property];
-
-              });
-
-              // Loop over entities in loader and check it's not already there as this can happen with more than one similar loader on the page
-
-              var present;
-
-              loader.entities.forEach(function (currentEntity) {
-
-                if (currentEntity.eid === entity.eid) {
-
-                  present = true;
-
-                }
-
-              });
-
-              if (!present) {
-
-                loader.entities.push(iris.fetchedEntities[entity.entityType][entity.eid]);
-              }
-
-              updated.push(entity);
-
-            } else {
-
-              if (!iris.fetchedEntities[entity.entityType]) {
-
-                iris.fetchedEntities[entity.entityType] = {};
-
-              }
-
-              iris.fetchedEntities[entity.entityType][entity.eid] = entity;
-              loader.entities.push(iris.fetchedEntities[entity.entityType][entity.eid]);
-
-              inserted.push(entity);
-
-            }
-
-            // Check if sort is present and run it if so
-
-            var sort = function (property, direction) {
-
-              if (direction === "asc") {
-
-                loader.entities.sort(function asc(a, b) {
-
-                  if (a[property] < b[property]) {
-
-                    return -1;
-                  }
-
-                  if (a[property] > b[property]) {
-
-                    return 1;
-
-                  }
-                  return 0;
-                });
-
-              } else if (direction === "desc") {
-
-                loader.entities.sort(function asc(a, b) {
-
-                  if (a[property] > b[property]) {
-
-                    return -1;
-
-                  }
-
-                  if (a[property] < b[property]) {
-
-                    return 1;
-
-                  }
-
-                  return 0;
-
-                });
-
-              }
-
-            };
-
-            if (loader.query && loader.query.sort) {
-
-              Object.keys(loader.query.sort).forEach(function (sorter) {
-
-                sort(sorter, loader.query.sort[sorter]);
-
-              });
-
-            }
-
-            if (loader.query && loader.query.limit) {
-
-              if (loader.entities.length > parseInt(loader.query.limit)) {
-
-                loader.entities.length = parseInt(loader.query.limit);
-
-              }
-
-            }
-
+            iris.updateContent(entity, loader, inserted, updated);
           }
 
         }
 
       });
 
-      if (updating && (!updated.length && !inserted.length)) {
-
-        // Nothing was updated, means this entity doesn't belong anymore. So delete it.
-
-        iris.deleteEntity(entity);
-
-      }
-
-      // Send event
-
-      var detail = {
-        entities: {}
-      };
-
-      detail.entities[entity.entityType] = [entity];
-
-      detail.event = 'update';
-
-      iris.entityListUpdate.detail = detail;
-
-      document.dispatchEvent(iris.entityListUpdate);
+      iris.finaliseUpdate(entity, updating, inserted, updated);
 
     }
 
@@ -387,6 +414,8 @@ iris.fetchEntities = function (variableName, query) {
 
   sendQuery.credentials = JSON.stringify(iris.credentials);
 
+  sendQuery.template = variableName;
+
   var querystring = formatParams(sendQuery);
 
   var request = new XMLHttpRequest();
@@ -462,7 +491,8 @@ iris.fetchEntities = function (variableName, query) {
 
         iris.entityListUpdate.detail = {
           entities: grouped,
-          event: 'fetch'
+          event: 'fetch',
+          template: variableName
         };
 
         document.dispatchEvent(iris.entityListUpdate);

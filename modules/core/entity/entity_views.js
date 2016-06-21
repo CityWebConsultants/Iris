@@ -63,7 +63,7 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
  */
 iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, entity) {
 
-  for (var authUser in iris.modules.auth.globals.userList) {
+  /*for (var authUser in iris.modules.auth.globals.userList) {
 
     iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
 
@@ -87,11 +87,89 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 
     iris.sendSocketMessage(["anon"], "entityCreate", data);
 
-  });
+  });*/
+
+  iris.modules.entity.globals.checkAllTemplates(entity);
 
   thisHook.pass(entity);
 
 });
+
+iris.modules.entity.globals.checkAllTemplates = function(entity) {
+
+  var checkTemplate = function(entity, template) {
+
+    var queries = template.queries, outcome = true;
+
+    queries.forEach(function (query) {
+
+      //Process query based on operator
+
+      switch (query.operator) {
+
+        case "IS":
+
+          if (entity[query.field] !== query.operator) {
+
+            outcome = false;
+
+          }
+          break;
+        case "INCLUDES":
+
+          if (entity[query.field].indexOf(query.operator) === -1) {
+
+            outcome = false;
+
+          }
+          break;
+
+        case "CONTAINS":
+
+          if (entity[query.field].toString().toLowerCase().indexOf(query.operator.toString().toLowerCase()) === -1) {
+
+            outcome = false;
+
+          }
+          break;
+      }
+
+    });
+
+    return outcome;
+
+  }
+
+  Object.keys(iris.modules.auth.globals.templates).forEach(function(template) {
+
+    if (iris.modules.auth.globals.templates[template].entities.indexOf(entity.entityType) > -1) {
+
+      var hit = checkTemplate(entity, iris.modules.auth.globals.templates[template]);
+
+      if (hit) {
+
+        iris.modules.auth.globals.templates[template].users.forEach(function (user) {
+
+          iris.modules.auth.globals.userList[user].getAuthPass().then(function (authPass) {
+
+            iris.invokeHook("hook_entity_view", authPass, null, entity).then(function (data) {
+
+              iris.sendSocketMessage([authPass.userid], "entityCreate", {data: data, template: template});
+
+            });
+
+          });
+
+        });
+
+      }
+
+    }
+
+  });
+
+}
+
 
 /**
  * @member hook_entity_updated
@@ -103,7 +181,7 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
  */
 iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
 
-  for (var authUser in iris.modules.auth.globals.userList) {
+  /*for (var authUser in iris.modules.auth.globals.userList) {
 
     iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
 
@@ -127,7 +205,9 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 
     iris.sendSocketMessage(["anon"], "entityUpdate", data);
 
-  });
+  });*/
+
+  iris.modules.entity.globals.checkAllTemplates(entity);
 
   thisHook.pass(entity);
 

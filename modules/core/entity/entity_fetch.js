@@ -263,7 +263,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         iris.invokeHook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
 
-          if (viewChecked === undefined) {
+          if (viewChecked.validated === false) {
             no("permission denied");
             return false;
           }
@@ -430,6 +430,14 @@ iris.app.get("/fetch", function (req, res) {
 
   iris.invokeHook("hook_entity_fetch", req.authPass, null, req.query).then(function (success) {
 
+    if (!iris.modules.auth.globals.templates) {
+      iris.modules.auth.globals.templates = {};
+    }
+    if (!iris.modules.auth.globals.templates[req.query.template]) {
+      iris.modules.auth.globals.templates[req.query.template] = req.query;
+      iris.modules.auth.globals.templates[req.query.template].users = [];
+    }
+    iris.modules.auth.globals.templates[req.query.template].users.push(req.authPass.userid);
     res.respond(200, success);
 
   }, function (fail) {
@@ -479,7 +487,12 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
   if (!viewAny && !(isOwn && viewOwn)) {
 
     //Can't view any of this type, delete it
-    entity = undefined;
+    entity.validated = false;
+
+  }
+  else {
+
+    entity.validated = true;
 
   }
 
