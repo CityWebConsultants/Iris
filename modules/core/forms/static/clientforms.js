@@ -45,7 +45,7 @@ $(window).load( function () {
     }
     iris.forms.renderForm(form);
 
-    if(index == totalForms - 1){
+    if(index == totalForms - 1 && typeof window.formComplete_all == "function"){
        formComplete_all();
     }
 
