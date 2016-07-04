@@ -121,7 +121,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       var output = "<div class='iris-live-load'>";
       output += "{{{{iris_handlebars_ignore}}}}";
-      output += '<div class="iris-live-load-source" data-iris-live-load-template="' + options.fn().trim().replace(/(\r\n|\n|\r)/gm, "") + '">';
+      output += '<div class="iris-live-load-source" data-iris-live-load-template="' + options.fn().trim().replace(/(\r\n|\n|\r)/gm, "").split("\"").join("&#34;") + '">';
       output += "</div>";
       output += "{{{{/iris_handlebars_ignore}}}}";
       output += "\n";

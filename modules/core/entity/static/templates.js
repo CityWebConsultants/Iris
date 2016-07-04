@@ -535,8 +535,10 @@ iris.liveLoadUpdate = function () {
   for (i = 0; i < liveLoaders.length; i += 1) {
 
     var parent = liveLoaders[i];
+    
+    var templateCode = parent.querySelector(".iris-live-load-source").getAttribute("data-iris-live-load-template").split("&#34;").join('"');
 
-    var template = Handlebars.compile(parent.querySelector(".iris-live-load-source").getAttribute("data-iris-live-load-template"));
+    var template = Handlebars.compile(templateCode);
     var child = parent.querySelector(".iris-live-load-output");
 
     child.innerHTML = template(entityContainers);
