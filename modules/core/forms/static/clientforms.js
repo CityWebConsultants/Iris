@@ -40,12 +40,18 @@ $(window).load(function () {
     iris.forms.cache.push(formId);
   };
 
-  Object.keys(iris.forms).forEach(function (form) {
+  var totalForms = Object.keys(iris.forms).length;
+  Object.keys(iris.forms).forEach(function (form, index) {
 
     if (iris.forms[form].form && typeof iris.forms[form].form.onSubmit != 'function') {
       iris.forms[form].form.onSubmit = iris.forms.onSubmit;
     }
     iris.forms.renderForm(form);
+
+    if(index == totalForms - 1 && typeof window.formComplete_all == "function"){
+       formComplete_all();
+    }
+
   });
 
   // Fire event after all forms have loaded.

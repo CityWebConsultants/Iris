@@ -443,7 +443,15 @@ module.exports = function (config) {
 
     if (err) {
 
-      iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
+      if (err.stack && err.stack[0]) {
+
+        iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
+
+      } else {
+        
+        iris.log("error", err);
+        
+      }
 
       iris.invokeHook("hook_display_error_page", req.authPass, {
         error: 500,
