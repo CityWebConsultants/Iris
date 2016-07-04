@@ -141,6 +141,20 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
     if (thisHook.context.req.query && thisHook.context.req.query.nojs) {
 
       nojs = true;
+      var nativeJSON = thisHook.context.res.json;
+      thisHook.context.res.json = function (body) {
+
+        if (body.redirect || body.callback) {
+
+          thisHook.context.res.redirect(body.redirect);
+
+        } else {
+
+          thisHook.context.res.redirect(thisHook.context.req.url);
+
+        }
+
+      };
 
     }
 
