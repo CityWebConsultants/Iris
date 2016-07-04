@@ -92,7 +92,84 @@ iris.app.use(function (req, res, next) {
 
 });
 
-//Set up response sending
+/**
+ * @member hook_response_intercept
+ * Response intercept hook
+ *
+ * Allow responses to be intercepted before being sent to the client
+ */
+
+iris.app.use(function (req, res, next) {
+
+  var newSend = res.send;
+
+  res.send = function (body) {
+
+    var that = this;
+
+    // Check if hook system exists
+
+    if (iris.invokeHook) {
+
+      iris.invokeHook("hook_response_intercept", req.authPass, {
+        req: req,
+        res: res,
+        body: body
+      }, null).then(function (intercepted) {
+
+        if (intercepted) {
+
+          if (typeof intercepted === "function") {
+
+            intercepted(res, req);
+
+          } else {
+
+            newSend.call(that, intercepted)
+
+          }
+
+        } else {
+
+          newSend.call(that, body);
+
+        }
+
+      }, function (fail) {
+
+        iris.log("error", fail);
+        
+        iris.invokeHook("hook_display_error_page", req.authPass, {
+          error: 500,
+          req: req,
+          res: res
+        }).then(function (success) {
+
+          res.status(500);
+          newSend.call(that, success);
+
+        }, function (fail) {
+
+           res.status(500);
+          newSend.call(that, "Something went wrong");
+
+        });
+
+      })
+
+    } else {
+
+      newSend.call(this, body)
+
+    }
+
+  }
+
+  next();
+
+})
+
+//Set up response sending TODO: Remove res.respond and use native res.send functions
 
 iris.app.use(function (req, res, next) {
 
