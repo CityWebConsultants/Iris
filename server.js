@@ -283,7 +283,11 @@ methods.forEach(function (method) {
 
     }
 
-    iris.routes[route] = {};
+    if(!iris.routes[route]){
+      
+      iris.routes[route] = {};
+      
+    }
 
     iris.routes[route][method] = {
 
