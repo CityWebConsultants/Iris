@@ -96,12 +96,6 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
     // Check if the current person can access the entity itself
 
-    if (!context) {
-
-      var context = {};
-
-    }
-
     context.tags = {
       headTags: {},
       bodyTags: {},
