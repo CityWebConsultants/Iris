@@ -443,7 +443,7 @@ module.exports = function (config) {
 
     if (err) {
 
-      if (err.stack && err.stack[0]) {
+      if (err.stack && err.stack[0] && err.stack[0].getLineNumber) {
 
         iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
 
