@@ -238,3 +238,47 @@ iris.dbPopulate = function () {
   })
 
 };
+
+/**
+ * Function for registering a DB schema directly in code
+ * isContent boolean variable determines whether the entity type appears on a content page 
+ */
+
+iris.dbSchemaRegister = function (name, fields, isContent) {
+
+  if (!isContent) {
+
+    var isContent = false;
+
+  }
+
+  return new Promise(function (resolve, reject) {
+
+    var schema = {
+      entityTypeName: name,
+      fields: fields
+    }
+
+    Object.defineProperty(iris.entityTypes, name, {
+      enumerable: isContent,
+      writable: true,
+      configurable: true,
+      value: schema
+    });
+
+    iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
+      schema: name,
+      schemaConfig: JSON.parse(JSON.stringify(schema))
+    }).then(function () {
+
+      resolve();
+
+    }, function (fail) {
+
+      reject(fail);
+
+    });
+
+  })
+
+};
