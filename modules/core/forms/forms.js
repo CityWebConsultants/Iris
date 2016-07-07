@@ -29,7 +29,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
   // Call submit handlers that specify the form name
   var specificFormSubmit = function (data) {
-      
+
     if (typeof data !== "function") {
 
       thisHook.pass(function (res) {
@@ -438,9 +438,9 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
       }
 
-      if (thisHook.context.vars.req) {
+      var jsdom = require("jsdom");
 
-        var jsdom = require("jsdom");
+      if (thisHook.context.vars.req) {
 
         var url = require("url");
         var querystring = require("querystring");
