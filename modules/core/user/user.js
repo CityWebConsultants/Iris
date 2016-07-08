@@ -168,8 +168,8 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
   if (params[3]) {
     action = params[3];
   }
-
-  iris.invokeHook("hook_entity_fetch", req.authPass, null, {
+  
+  iris.invokeHook("hook_entity_fetch", "root", null, {
     "entities": ["user"],
     "queries": [{
       "field": "eid",
@@ -403,8 +403,8 @@ iris.modules.user.registerHook("hook_form_render__passwordReset", 0, function (t
  * Submit handler for passwordReset.
  */
 iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function (thisHook, data) {
-
-  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+    
+  iris.invokeHook("hook_entity_fetch", "root", null, {
     "entities": ["user"],
     "queries": [{
       "field": "username",
@@ -412,7 +412,7 @@ iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function 
       "value": thisHook.context.params.username
       }]
   }).then(function (entities) {
-
+    
     if (entities) {
 
       var doc = entities[0];
@@ -435,7 +435,7 @@ iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function 
  */
 iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (thisHook, data) {
 
-  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+  iris.invokeHook("hook_entity_fetch", "root", null, {
     "entities": ["user"],
     "queries": [{
       "field": "username",
@@ -463,13 +463,26 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
       "name": doc.username,
       "sitename": thisHook.req.headers.host
     }, thisHook.req.authPass, thisHook.req).then(function (body) {
+      
+      var email;
+      
+      if(!iris.config.siteEmail){
+        
+        email = "irisjs@irisjs.org"
+        
+      } else {
+        
+        email = iris.config.siteEmail
+        
+      }
 
       var args = {
-        from: 'adam@therabbitden.com',
+        from: email,
         to: thisHook.context.params.username,
         subject: 'Password reset',
         body: body
       };
+            
       iris.modules.email.globals.sendEmail(args, thisHook.authPass);
 
       thisHook.pass(data);
