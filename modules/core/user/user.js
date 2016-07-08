@@ -280,7 +280,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
  */
 iris.route.get("/user/logout", routes.logout, function (req, res) {
 
-  var logout = function() {
+  var logout = function () {
 
     delete iris.modules.auth.globals.userList[req.authPass.userid];
 
@@ -604,37 +604,37 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
 
             var enabled = [
               {
-                name: 'blocks'
-              },
-              {
-                name: 'roles_ui'
-              },
-              {
-                name: 'configUI'
-              },
-              {
-                name: 'custom_blocks'
-              },
-              {
-                name: 'entityUI'
-              },
-              {
-                name: 'ckeditor'
-              },
-              {
-                name: 'permissionsUI'
-              },
-              {
-                name: 'page'
-              },
-              {
-                name: 'menu_block'
-              },
-              {
-                name: 'regions'
-              },
-              {
-                name: 'lists'
+                "name": "menu_ui"
+              }, {
+                "name": "autopath"
+              }, {
+                "name": "entityReference"
+              }, {
+                "name": "page"
+              }, {
+                "name": "configUI"
+              }, {
+                "name": "roles_ui"
+              }, {
+                "name": "entityUI"
+              }, {
+                "name": "permissionsUI"
+              }, {
+                "name": "blocks"
+              }, {
+                "name": "triggers"
+              }, {
+                "name": "menu_block"
+              }, {
+                "name": "regions"
+              }, {
+                "name": "custom_blocks"
+              }, {
+                "name": "textfilters"
+              }, {
+                "name": "ckeditor"
+              }, {
+                "name": "tags"
               }
             ];
 
