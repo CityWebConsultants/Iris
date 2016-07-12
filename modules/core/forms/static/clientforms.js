@@ -1,21 +1,24 @@
 iris.forms = {};
 
-$(window).load( function () {
+$(window).load(function () {
   iris.forms.cache = [];
   var $form;
 
-  iris.forms.renderForm = function(formId){
-    if(iris.forms.cache.indexOf(formId) > -1 || !iris.forms[formId].form) return;
-    $form = $("#"+formId);
+  // Remove static forms.
+  $("[data-static-form]").remove();
+
+  iris.forms.renderForm = function (formId) {
+    if (iris.forms.cache.indexOf(formId) > -1 || !iris.forms[formId].form) return;
+    $form = $("#" + formId);
     $form.jsonForm(iris.forms[formId].form);
 
-    $.each($(".form-group[data-jsonform-type=array]", $form), function(index, value) {
+    $.each($(".form-group[data-jsonform-type=array]", $form), function (index, value) {
 
       if ($(value).prev().hasClass('control-label')) {
 
         $(value).find('.controls').first().hide();
 
-        $(value).find('label').first().click(function(e) {
+        $(value).find('label').first().click(function (e) {
 
           $(this).next().slideToggle();
 
@@ -26,7 +29,7 @@ $(window).load( function () {
     });
 
 
-    $form.on( "click", ".form-group[data-jsonform-type=array] > label", function(e) {
+    $form.on("click", ".form-group[data-jsonform-type=array] > label", function (e) {
       $(this).next().slideToggle();
     });
 
@@ -57,7 +60,7 @@ $(window).load( function () {
 
 });
 
-iris.forms.onSubmit = function(errors, values) {
+iris.forms.onSubmit = function (errors, values) {
 
   function processErrors(errors) {
 
@@ -103,7 +106,7 @@ iris.forms.onSubmit = function(errors, values) {
 
   }
 
-  setTimeout(function() {
+  setTimeout(function () {
     $('#' + values.formid + values.formToken).find('button[type=submit]').addClass('active');
   }, 300);
 
@@ -113,9 +116,11 @@ iris.forms.onSubmit = function(errors, values) {
     url: window.location,
     data: JSON.stringify(values),
     dataType: "json",
-    error: function(jqXHR, textStatus, errorThrown) {
+    error: function (jqXHR, textStatus, errorThrown) {
 
-      processErrors([{'message' : "Error processing form"}]);
+      processErrors([{
+        'message': "Error processing form"
+      }]);
 
     },
     success: function (data) {
@@ -150,20 +155,20 @@ iris.forms.onSubmit = function(errors, values) {
 
         }
 
-      } else  {
+      } else {
 
         function waitForRestart() {
 
           $.ajax({
             url: data.redirect ? data.redirect : window.location.href,
-            success: function(result){
+            success: function (result) {
 
               JSONForm = null;
               var newDoc = document.open("text/html", "replace");
               newDoc.write(result);
               newDoc.close();
             },
-            error: function(result){
+            error: function (result) {
               setTimeout(waitForRestart, 2000);
             }
           });
@@ -180,8 +185,7 @@ iris.forms.onSubmit = function(errors, values) {
 
           setTimeout(waitForRestart, 2000);
 
-        }
-        else {
+        } else {
 
           window.location.href = data.redirect ? data.redirect : window.location.href;
 
