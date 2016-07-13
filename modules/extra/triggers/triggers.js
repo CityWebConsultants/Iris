@@ -308,14 +308,14 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
             const sandbox = {
               args: params,
-              valid: fires
+              valid: undefined
             };
 
             vm.createContext(sandbox);
 
             try {
 
-              var output = vm.runInContext(rule.events.advancedCondition, sandbox, {
+              var output = vm.runInNewContext(rule.events.advancedCondition, sandbox, {
                 timeout: 30000
               });
 
