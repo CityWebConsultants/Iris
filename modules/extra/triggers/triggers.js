@@ -119,7 +119,7 @@ iris.route.get("/admin/config/triggers", routes.triggers, function (req, res) {
  * Admin page callback: Delete trigger.
  */
 iris.route.get("/admin/config/triggers/delete/:name", routes.delete, function (req, res) {
-  
+
   iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_delete"], ['admin_wrapper'], {
     action: req.params.name
   }, req.authPass, req).then(function (success) {
@@ -300,6 +300,43 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
           }
 
+          // Check advanced conditions
+
+          if (fires && rule.events.advancedCondition) {
+
+            var vm = require("vm");
+
+            const sandbox = {
+              args: params,
+              returnValue: null
+            };
+
+            vm.createContext(sandbox);
+
+            var sandboxedCode = "returnValue = function(){" + rule.events.advancedCondition + "}();";
+
+            try {
+
+              var output = vm.runInContext(sandboxedCode, sandbox);
+
+            } catch (e) {
+
+              if (e.message) {
+
+                iris.log("error", e.message);
+
+              }
+
+            }
+
+            if (sandbox.returnValue !== true) {
+
+              fires = false;
+
+            }
+
+          }
+
           if (fires) {
 
             // Loop over all the actions and fire them!
@@ -439,6 +476,15 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
               }
             }
           }
+        },
+        "advancedCondition": {
+          "type": "ace",
+          "title": "Evaluate custom JavaScript condition",
+          "description": "Run sandboxed JavaScript code to determine whether this should run. This code runs after any other properties are checked in the conditions (above). The sandboxed environment is wrapped in a function that has access to only the <b>args</b> variable. It should return the boolean value of either true or false. Any errors returned are logged to the Iris log system.",
+          renderSettings: {
+            aceMode: "javascript",
+            prepend: "hola"
+          }
         }
       }
     }
@@ -523,7 +569,8 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
     // Swap values back into format schema understands. This is madness.
 
     data.value.events[data.value.events.event] = {
-      conditions: data.value.events.conditions
+      conditions: data.value.events.conditions,
+      advanced: data.value.events.advancedCondition
     };
 
     data.value.actions.forEach(function (action, index) {
@@ -556,6 +603,12 @@ iris.modules.triggers.registerHook("hook_form_submit__actions", 0, function (thi
     if (field.event) {
 
       field.conditions = field[field.event].conditions;
+
+      if (field[field.event].advancedCondition) {
+
+        field.advancedCondition = field[field.event].advancedCondition;
+
+      }
 
       delete field[field.event];
 
@@ -609,9 +662,9 @@ iris.modules.triggers.registerHook("hook_form_render__action_delete", 0, functio
 });
 
 iris.modules.triggers.registerHook("hook_form_submit__action_delete", 0, function (thisHook, data) {
-  
+
   var action = iris.sanitizeName(thisHook.context.params.action);
-  
+
   iris.deleteConfig("triggers", action, function (err) {
 
     if (err) {
