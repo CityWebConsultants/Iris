@@ -4,6 +4,43 @@ $(window).load(function () {
   iris.forms.cache = [];
   var $form;
 
+  // Allow JSONForm field schema object to set form render object settings directly
+
+  Object.keys(JSONForm.elementTypes).forEach(function (type) {
+
+    var elementType = JSONForm.elementTypes[type];
+
+    if (!elementType.onBeforeRender) {
+
+      elementType.onBeforeRender = function () {
+
+
+      };
+
+    }
+
+    var old = elementType.onBeforeRender;
+    elementType.onBeforeRender = function () {
+
+      if (arguments[1].schemaElement && arguments[1].schemaElement.renderSettings) {
+
+
+        if (!arguments[1].formElement) {
+
+          arguments[1].formElement = {};
+
+        }
+
+        Object.assign(arguments[1].formElement, arguments[1].schemaElement.renderSettings);
+        Object.assign(arguments[1], arguments[1].schemaElement.renderSettings);
+
+      }
+
+      old.apply(this, arguments);
+    };
+
+  })
+
   // Remove static forms.
   $("[data-static-form]").remove();
 
@@ -48,8 +85,8 @@ $(window).load(function () {
     }
     iris.forms.renderForm(form);
 
-    if(index == totalForms - 1 && typeof window.formComplete_all == "function"){
-       formComplete_all();
+    if (index == totalForms - 1 && typeof window.formComplete_all == "function") {
+      formComplete_all();
     }
 
   });
