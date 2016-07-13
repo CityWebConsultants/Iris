@@ -11,7 +11,7 @@ install:
   - mongo mysite --eval "db.users.drop()"
   - mongoimport --db mysite --collection users --file fixtures/users.json
   - mongoimport --db mysite --collection pages --file fixtures/pages.json
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then REPO_SLUG="$TRAVIS_REPO_SLUG" && REPO_BRANCH="$TRAVIS_BRANCH" else REPO_SLUG=$(curl -s "https://api.github.com/repos/CityWebConsultants/Iris/pulls/315" | jq .head.repo.full_name) && REPO_BRANCH=$(curl -s "https://api.github.com/repos/CityWebConsultants/Iris/pulls/315" | jq .head.ref) fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then REPO_SLUG="$TRAVIS_REPO_SLUG" && REPO_BRANCH="$TRAVIS_BRANCH" else REPO_SLUG=$(curl -s "https://api.github.com/repos/CityWebConsultants/Iris/pulls/$TRAVIS_PULL_REQUEST" | jq .head.repo.full_name) && REPO_BRANCH=$(curl -s "https://api.github.com/repos/CityWebConsultants/Iris/pulls/$TRAVIS_PULL_REQUEST" | jq .head.ref) fi'
   - echo $REPO_SLUG
   - echo $REPO_BRANCH
   - npm install  --save git+https://github.com/$TRAVIS_REPO_SLUG.git#$TRAVIS_BRANCH
