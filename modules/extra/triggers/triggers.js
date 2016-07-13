@@ -315,7 +315,9 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
             try {
 
-              var output = vm.runInContext(rule.events.advancedCondition, sandbox);
+              var output = vm.runInContext(rule.events.advancedCondition, sandbox, {
+                timeout: 30000
+              });
 
             } catch (e) {
 
@@ -882,13 +884,13 @@ iris.modules.triggers.registerHook("hook_entity_created", 0, function (thisHook,
 });
 
 iris.modules.triggers.registerHook("hook_entity_updated", 0, function (thisHook, data) {
-    
+
   var newFields = fieldsToArgs(thisHook.context.new);
   var oldFields = fieldsToArgs(thisHook.context.previous);
 
   var fields = {};
-  
-  
+
+
   Object.keys(newFields).forEach(function (fieldName) {
 
     fields["new." + fieldName] = newFields[fieldName];
@@ -900,7 +902,7 @@ iris.modules.triggers.registerHook("hook_entity_updated", 0, function (thisHook,
     fields["old." + fieldName] = oldFields[fieldName];
 
   })
-      
+
   iris.modules.triggers.globals.triggerEvent(data.entityType + "_updated", thisHook.authPass, fields);
 
   thisHook.pass(data);
@@ -940,18 +942,18 @@ process.on("dbReady", function () {
       })
 
     }
-    
+
     iris.modules.triggers.globals.registerEvent(entityType + "_created", fields);
 
     var editArgs = [];
-    
+
     fields.forEach(function (fieldName) {
 
       editArgs.push("old." + fieldName);
       editArgs.push("new." + fieldName);
 
     })
-    
+
     iris.modules.triggers.globals.registerEvent(entityType + "_updated", editArgs);
 
   })
