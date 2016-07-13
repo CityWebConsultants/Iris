@@ -849,8 +849,28 @@ iris.modules.triggers.registerHook("hook_triggers_log", 0, function (thisHook, d
 
 iris.modules.triggers.registerHook("hook_entity_created", 0, function (thisHook, data) {
 
-  iris.modules.triggers.globals.triggerEvent(data.entityType + "_created", thisHook.authPass, data);
-  
+  var fields = {};
+
+  Object.keys(data).forEach(function (fieldName) {
+
+    if (typeof data[fieldName] == "object" && !Array.isArray(data[fieldName])) {
+
+      Object.keys(data[fieldName]).forEach(function (subfield) {
+
+        fields[fieldName + "." + subfield] = data[fieldName][subfield];
+
+      })
+
+    } else {
+
+      fields[fieldName] = data[fieldName];
+
+    }
+
+  })
+
+  iris.modules.triggers.globals.triggerEvent(data.entityType + "_created", thisHook.authPass, fields);
+
   thisHook.pass(data);
 
 });
@@ -867,9 +887,21 @@ process.on("dbReady", function () {
 
         var field = iris.entityTypes[entityType].fields[fieldName];
 
-        if (field.fieldType !== "Password") {
+        var fieldType = iris.fieldTypes[field.fieldType];
 
-          fields.push(fieldName);
+        if (typeof fieldType.type === "string") {
+
+          fields.push(fieldName)
+
+        } else {
+
+          // Object field, push in paramaters for every subfield
+
+          Object.keys(fieldType.type).forEach(function (subfield) {
+
+            fields.push(fieldName + "." + subfield);
+
+          })
 
         }
 
