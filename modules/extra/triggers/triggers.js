@@ -308,16 +308,14 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
             const sandbox = {
               args: params,
-              returnValue: null
+              valid: fires
             };
 
             vm.createContext(sandbox);
 
-            var sandboxedCode = "returnValue = function(){" + rule.events.advancedCondition + "}();";
-
             try {
 
-              var output = vm.runInContext(sandboxedCode, sandbox);
+              var output = vm.runInContext(rule.events.advancedCondition, sandbox);
 
             } catch (e) {
 
@@ -329,7 +327,7 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
             }
 
-            if (sandbox.returnValue !== true) {
+            if (sandbox.valid !== true) {
 
               fires = false;
 
@@ -480,10 +478,9 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
         "advancedCondition": {
           "type": "ace",
           "title": "Evaluate custom JavaScript condition",
-          "description": "Run sandboxed JavaScript code to determine whether this should run. This code runs after any other properties are checked in the conditions (above). The sandboxed environment is wrapped in a function that has access to only the <b>args</b> variable. It should return the boolean value of either true or false. Any errors returned are logged to the Iris log system.",
+          "description": "Run sandboxed JavaScript code to determine whether this should run. This code runs after any other properties are checked in the conditions (above). The sandboxed environment has access to an <b>args</b> object containing all the event variables and a <b>valid</b> variable. To pass or fail the condition, change <b>valid</b> to the boolean <b>true</b> or <b>false</b>",
           renderSettings: {
             aceMode: "javascript",
-            prepend: "hola"
           }
         }
       }
@@ -570,7 +567,7 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
 
     data.value.events[data.value.events.event] = {
       conditions: data.value.events.conditions,
-      advanced: data.value.events.advancedCondition
+      advancedCondition: data.value.events.advancedCondition
     };
 
     data.value.actions.forEach(function (action, index) {
