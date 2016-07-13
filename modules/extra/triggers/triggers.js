@@ -274,26 +274,55 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
               })
 
               //Process query based on operator
+              
+              console.log(condition.negate);
 
-              switch (condition.operator) {
+              if (!condition.negate) {
 
-                case "is":
+                switch (condition.operator) {
 
-                  if (condition.thing.toString() !== condition.value.toString()) {
+                  case "is":
 
-                    fires = false;
+                    if (condition.thing.toString() !== condition.value.toString()) {
 
-                  }
-                  break;
+                      fires = false;
 
-                case "contains":
+                    }
+                    break;
 
-                  if (condition.thing.toLowerCase().indexOf(condition.value.toString().toLowerCase()) === -1) {
+                  case "contains":
 
-                    fires = false;
+                    if (condition.thing.toLowerCase().indexOf(condition.value.toString().toLowerCase()) === -1) {
 
-                  }
-                  break;
+                      fires = false;
+
+                    }
+                    break;
+                }
+
+              } else {
+
+                switch (condition.operator) {
+
+                  case "is":
+
+                    if (condition.thing.toString() === condition.value.toString()) {
+
+                      fires = false;
+
+                    }
+                    break;
+
+                  case "contains":
+
+                    if (condition.thing.toLowerCase().indexOf(condition.value.toString().toLowerCase()) !== -1) {
+
+                      fires = false;
+
+                    }
+                    break;
+                }
+
               }
 
             });
@@ -471,14 +500,18 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
               "value": {
                 "type": "text",
                 "title": ap.t("value")
+              },
+              "negate": {
+                "type": "boolean",
+                "title": ap.t("negate")
               }
             }
           }
         },
         "advancedCondition": {
           "type": "ace",
-          "title": "Evaluate custom JavaScript condition",
-          "description": "Run sandboxed JavaScript code to determine whether this should run. This code runs after any other properties are checked in the conditions (above). The sandboxed environment has access to an <b>args</b> object containing all the event variables and a <b>valid</b> variable. To pass or fail the condition, change <b>valid</b> to the boolean <b>true</b> or <b>false</b>",
+          "title": ap.t("Advanced - Evaluate custom JavaScript condition"),
+          "description": ap.t("Run sandboxed JavaScript code to determine whether this should run. This code runs after any other properties are checked in the conditions (above). The sandboxed environment has access to an <b>args</b> object containing all the event variables and a <b>valid</b> variable. To pass or fail the condition, change <b>valid</b> to the boolean <b>true</b> or <b>false</b>."),
           renderSettings: {
             aceMode: "javascript",
           }
