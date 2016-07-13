@@ -883,6 +883,14 @@ iris.modules.triggers.registerHook("hook_entity_created", 0, function (thisHook,
 
 });
 
+iris.modules.triggers.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
+
+  iris.modules.triggers.globals.triggerEvent(data.entityType + "_deleted", thisHook.authPass, data);
+
+  thisHook.pass(data);
+
+});
+
 iris.modules.triggers.registerHook("hook_entity_updated", 0, function (thisHook, data) {
 
   var newFields = fieldsToArgs(thisHook.context.new);
@@ -902,6 +910,8 @@ iris.modules.triggers.registerHook("hook_entity_updated", 0, function (thisHook,
     fields["old." + fieldName] = oldFields[fieldName];
 
   })
+
+  fields.eid = thisHook.context.new.eid;
 
   iris.modules.triggers.globals.triggerEvent(data.entityType + "_updated", thisHook.authPass, fields);
 
@@ -943,7 +953,7 @@ process.on("dbReady", function () {
 
     }
 
-    iris.modules.triggers.globals.registerEvent(entityType + "_created", fields);
+    iris.modules.triggers.globals.registerEvent(entityType + "_created", fields.concat(["eid"]));
 
     var editArgs = [];
 
@@ -954,7 +964,9 @@ process.on("dbReady", function () {
 
     })
 
-    iris.modules.triggers.globals.registerEvent(entityType + "_updated", editArgs);
+    iris.modules.triggers.globals.registerEvent(entityType + "_updated", editArgs.concat(["eid"]));
+
+    iris.modules.triggers.globals.registerEvent(entityType + "_deleted", ["eid"]);
 
   })
 
