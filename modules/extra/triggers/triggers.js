@@ -846,3 +846,41 @@ iris.modules.triggers.registerHook("hook_triggers_log", 0, function (thisHook, d
   thisHook.pass(data);
 
 })
+
+// Triggers for entity system
+
+iris.modules.triggers.registerHook("hook_entity_created", 0, function (thisHook, data) {
+
+  iris.modules.triggers.globals.triggerEvent(data.entityType + "_created", thisHook.authPass, data);
+  
+  thisHook.pass(data);
+
+});
+
+process.on("dbReady", function () {
+
+  Object.keys(iris.entityTypes).forEach(function (entityType) {
+
+    var fields = [];
+
+    if (iris.entityTypes[entityType].fields) {
+
+      Object.keys(iris.entityTypes[entityType].fields).forEach(function (fieldName) {
+
+        var field = iris.entityTypes[entityType].fields[fieldName];
+
+        if (field.fieldType !== "Password") {
+
+          fields.push(fieldName);
+
+        }
+
+      })
+
+    }
+
+    iris.modules.triggers.globals.registerEvent(entityType + "_created", fields);
+
+  })
+
+})
