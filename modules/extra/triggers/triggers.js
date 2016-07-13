@@ -371,8 +371,6 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
                   params: rule.actions[index].parameters
                 }).then(function (success) {
 
-                  iris.log("info", actionName + " fired successfully.");
-
                   if (success) {
 
                     iris.log("info", actionName + " returned message " + JSON.stringify(success));
