@@ -275,8 +275,6 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
               //Process query based on operator
               
-              console.log(condition.negate);
-
               if (!condition.negate) {
 
                 switch (condition.operator) {
