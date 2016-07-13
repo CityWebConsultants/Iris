@@ -168,8 +168,6 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
         iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
 
-        iris.log("info", data.entityType + " created by " + doc.entityAuthor);
-
         thisHook.pass(doc);
 
       }, function (fail) {
