@@ -4,6 +4,7 @@ before_install:
   - npm install -g grunt-cli jasmine-node pm2
 before_script:
 install: 
+  - sudo apt-get install jq
   - npm install
   - git clone https://github.com/CityWebConsultants/iris-project-template.git
   - cd iris-project-template
@@ -14,6 +15,8 @@ install:
   - echo $TRAVIS_COMMIT
   - echo $TRAVIS_PULL_REQUEST
   - echo $TRAVIS_REPO_SLUG
+  - 'CHITOUSER=$(curl -s "https://api.github.com/repos/CityWebConsultants/Iris/pulls/315" | jq .url)'
+  - echo $CHITOUSER
   - npm install --only=dev
   - pm2 start index.js
   - sleep 60
