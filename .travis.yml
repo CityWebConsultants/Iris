@@ -1,11 +1,11 @@
 language: node_js
 node_js: "5.5"
 before_install: 
-  - npm install -g grunt-cli jasmine-node pm2
-before_script:
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then REPO_SLUG=$(curl -s "https://api.github.com/repos/CityWebConsultants/Iris/pulls/$TRAVIS_PULL_REQUEST" | jq .head.repo.full_name) fi'
-install: 
   - sudo apt-get install jq
+  - npm install -g grunt-cli jasmine-node pm2
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then REPO_SLUG=$(curl -s "https://api.github.com/repos/CityWebConsultants/Iris/pulls/$TRAVIS_PULL_REQUEST" | jq .head.repo.full_name) fi'
+before_script:
+install: 
   - npm install
   - git clone https://github.com/CityWebConsultants/iris-project-template.git
   - cd iris-project-template
