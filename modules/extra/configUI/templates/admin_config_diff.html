@@ -1,0 +1,41 @@
+<script type="text/javascript" src="/jsondiffpatch/public/build/jsondiffpatch.min.js"></script>
+<script type="text/javascript" src="/jsondiffpatch/public/build/jsondiffpatch-formatters.min.js"></script>
+<link rel="stylesheet" href="/jsondiffpatch/public/formatters-styles/html.css" type="text/css" />
+<link rel="stylesheet" href="/jsondiffpatch/public/formatters-styles/annotated.css" type="text/css" />
+
+<div style="display:none" id="current">{{current}}</div>
+<div style="display:none" id="staging">{{staging}}</div>
+
+<h2>{{file}}</h2>
+
+<div id="diff"></div>
+
+<script>
+
+  var current = document.getElementById("current").innerHTML;
+  var staging = document.getElementById("staging").innerHTML;
+  
+  try {
+    
+  current = JSON.parse(current);
+    
+  } catch(e){
+    
+    
+  }
+  
+  try {
+    
+  staging = JSON.parse(staging);
+    
+  } catch(e){
+    
+    
+  }
+  
+  
+  var diff = jsondiffpatch.diff(staging,current);
+
+  document.getElementById("diff").innerHTML = jsondiffpatch.formatters.html.format(diff);
+
+</script>
