@@ -246,7 +246,7 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
         var fires = true;
 
         if (iris.configStore.triggers[rule].events.event === name) {
-          
+
           var ruleName = rule;
 
           var rule = JSON.parse(JSON.stringify(iris.configStore.triggers[rule]));
@@ -276,7 +276,7 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
               })
 
               //Process query based on operator
-              
+
               if (!condition.negate) {
 
                 switch (condition.operator) {
@@ -351,15 +351,15 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
             } catch (e) {
 
               if (e.message) {
-                
-                if(e.message === "Script execution timed out."){
-                  
+
+                if (e.message === "Script execution timed out.") {
+
                   // Unset rule
-                  
+
                   delete iris.configStore.triggers[ruleName];
-                  
+
                   iris.log("error", "Trigger " + ruleName + " disabled due to script timeout");
-                  
+
                 }
 
                 iris.log("error", e.message);
@@ -385,26 +385,67 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
               rule.actions.forEach(function (currentAction, index) {
 
                 var actionName = currentAction.action;
-
+                
                 // Swap out any tokens in the properties
-
                 Object.keys(currentAction.parameters).forEach(function (parameterName) {
 
                   var parameter = currentAction.parameters[parameterName];
 
                   // Slot in values if present
 
-                  Object.keys(params).forEach(function (variable) {
+                  if (typeof parameter === "string") {
 
-                    if (parameter.indexOf("[" + variable + "]") !== -1) {
+                    Object.keys(params).forEach(function (variable) {
 
-                      parameter = parameter.split("[" + variable + "]").join(params[variable]);
+                      if (parameter.indexOf("[" + variable + "]") !== -1) {
 
-                      rule.actions[index].parameters[parameterName] = parameter
+                        parameter = parameter.split("[" + variable + "]").join(params[variable]);
 
-                    }
+                        rule.actions[index].parameters[parameterName] = parameter
 
-                  })
+                      }
+
+                    })
+
+                  } else if (Array.isArray(parameter)) {
+
+                    parameter.forEach(function (value, index) {
+
+                      Object.keys(params).forEach(function (variable) {
+
+                        if (typeof value === "string") {
+
+                          if (value.indexOf("[" + variable + "]") !== -1) {
+
+                            parameter[index] = value.split("[" + variable + "]").join(params[variable]);
+
+
+                          }
+
+                        } else if (!Array.isArray(value) && typeof value === "object") {
+
+                          // Array of objects, loop over properties to swap parameters
+
+                          Object.keys(value).forEach(function (subfield, subIndex) {
+
+                            if (typeof value[subfield] === "string" && value[subfield].indexOf("[" + variable + "]") !== -1) {
+
+                              parameter[index][subfield] = value[subfield].split("[" + variable + "]").join(params[variable]);
+
+                            }
+
+                          })
+
+                        }
+
+                      })
+
+
+                    })
+
+                    rule.actions[index].parameters[parameterName] = parameter;
+
+                  }
 
                 })
 
@@ -890,127 +931,5 @@ iris.modules.triggers.registerHook("hook_triggers_log", 0, function (thisHook, d
 
 })
 
-// Triggers for entity system
-
-var fieldsToArgs = function (fields) {
-
-  var output = {};
-
-  Object.keys(fields).forEach(function (fieldName) {
-
-    if (typeof fields[fieldName] == "object" && !Array.isArray(fields[fieldName])) {
-
-      Object.keys(fields[fieldName]).forEach(function (subfield) {
-
-        output[fieldName + "." + subfield] = fields[fieldName][subfield];
-
-      })
-
-    } else {
-
-      output[fieldName] = fields[fieldName];
-
-    }
-
-  })
-
-  return output;
-
-}
-
-iris.modules.triggers.registerHook("hook_entity_created", 0, function (thisHook, data) {
-
-  iris.modules.triggers.globals.triggerEvent(data.entityType + "_created", thisHook.authPass, fieldsToArgs(data));
-
-  thisHook.pass(data);
-
-});
-
-iris.modules.triggers.registerHook("hook_entity_deleted", 0, function (thisHook, data) {
-
-  iris.modules.triggers.globals.triggerEvent(data.entityType + "_deleted", thisHook.authPass, data);
-
-  thisHook.pass(data);
-
-});
-
-iris.modules.triggers.registerHook("hook_entity_updated", 0, function (thisHook, data) {
-
-  var newFields = fieldsToArgs(thisHook.context.new);
-  var oldFields = fieldsToArgs(thisHook.context.previous);
-
-  var fields = {};
-
-
-  Object.keys(newFields).forEach(function (fieldName) {
-
-    fields["new." + fieldName] = newFields[fieldName];
-
-  })
-
-  Object.keys(oldFields).forEach(function (fieldName) {
-
-    fields["old." + fieldName] = oldFields[fieldName];
-
-  })
-
-  fields.eid = thisHook.context.new.eid;
-
-  iris.modules.triggers.globals.triggerEvent(data.entityType + "_updated", thisHook.authPass, fields);
-
-  thisHook.pass(data);
-
-})
-
-process.on("dbReady", function () {
-
-  Object.keys(iris.entityTypes).forEach(function (entityType) {
-
-    var fields = [];
-
-    if (iris.entityTypes[entityType].fields) {
-
-      Object.keys(iris.entityTypes[entityType].fields).forEach(function (fieldName) {
-
-        var field = iris.entityTypes[entityType].fields[fieldName];
-
-        var fieldType = iris.fieldTypes[field.fieldType];
-
-        if (typeof fieldType.type === "string") {
-
-          fields.push(fieldName)
-
-        } else {
-
-          // Object field, push in paramaters for every subfield
-
-          Object.keys(fieldType.type).forEach(function (subfield) {
-
-            fields.push(fieldName + "." + subfield);
-
-          })
-
-        }
-
-      })
-
-    }
-
-    iris.modules.triggers.globals.registerEvent(entityType + "_created", fields.concat(["eid"]));
-
-    var editArgs = [];
-
-    fields.forEach(function (fieldName) {
-
-      editArgs.push("old." + fieldName);
-      editArgs.push("new." + fieldName);
-
-    })
-
-    iris.modules.triggers.globals.registerEvent(entityType + "_updated", editArgs.concat(["eid"]));
-
-    iris.modules.triggers.globals.registerEvent(entityType + "_deleted", ["eid"]);
-
-  })
-
-})
+require(__dirname + "/entityTriggers.js");
+require(__dirname + "/httpTriggers.js");
