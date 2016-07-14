@@ -1,16 +1,18 @@
 language: node_js
 node_js: "5.5"
 before_install: 
+  - sudo apt-get install jq
   - npm install -g grunt-cli jasmine-node pm2
 before_script:
 install: 
-  - npm install
   - git clone https://github.com/CityWebConsultants/iris-project-template.git
   - cd iris-project-template
   - mongo mysite --eval "db.users.drop()"
   - mongoimport --db mysite --collection users --file fixtures/users.json
   - mongoimport --db mysite --collection pages --file fixtures/pages.json
-  - npm install  --save git+https://github.com/$TRAVIS_REPO_SLUG.git#$TRAVIS_BRANCH
+  - 'REPO_SLUG=$(curl -s "https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST" | jq -r .head.repo.full_name)'
+  - 'REPO_BRANCH=$(curl -s "https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST" | jq -r .head.ref)'
+  - if [ "$REPO_BRANCH" = "null" ]; then echo "this is not a pull request" && npm install  --save git+https://github.com/$TRAVIS_REPO_SLUG.git#$TRAVIS_BRANCH; else echo "this is a pull request" && npm install --save git+https://github.com/$REPO_SLUG.git#$REPO_BRANCH; fi
   - npm install --only=dev
   - pm2 start index.js
   - sleep 60
