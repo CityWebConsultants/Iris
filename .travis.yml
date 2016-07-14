@@ -10,8 +10,8 @@ install:
   - mongo mysite --eval "db.users.drop()"
   - mongoimport --db mysite --collection users --file fixtures/users.json
   - mongoimport --db mysite --collection pages --file fixtures/pages.json
-  - 'REPO_SLUG=$(curl -s "https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST" | jq .head.repo.full_name)'
-  - 'REPO_BRANCH=$(curl -s "https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST" | jq .head.ref)'
+  - 'REPO_SLUG=$(curl -s "https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST" | jq -r .head.repo.full_name)'
+  - 'REPO_BRANCH=$(curl -s "https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST" | jq -r .head.ref)'
   - echo $REPO_BRANCH
   - echo $REPO_SLUG
   - echo $TRAVIS_REPO_SLUG
