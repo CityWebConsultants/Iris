@@ -246,6 +246,8 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
         var fires = true;
 
         if (iris.configStore.triggers[rule].events.event === name) {
+          
+          var ruleName = rule;
 
           var rule = JSON.parse(JSON.stringify(iris.configStore.triggers[rule]));
 
@@ -349,6 +351,16 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
             } catch (e) {
 
               if (e.message) {
+                
+                if(e.message === "Script execution timed out."){
+                  
+                  // Unset rule
+                  
+                  delete iris.configStore.triggers[ruleName];
+                  
+                  iris.log("error", "Trigger " + ruleName + " disabled due to script timeout");
+                  
+                }
 
                 iris.log("error", e.message);
 
