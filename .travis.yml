@@ -12,7 +12,7 @@ install:
   - mongoimport --db mysite --collection pages --file fixtures/pages.json
   - 'REPO_SLUG=$(curl -s "https://api.github.com/repos/CityWebConsultants/Iris/pulls/$TRAVIS_PULL_REQUEST" | jq .head.repo.full_name)'
   - 'REPO_BRANCH==$(curl -s "https://api.github.com/repos/CityWebConsultants/Iris/pulls/$TRAVIS_PULL_REQUEST" | jq .head.ref)'
-  - if [ "$REPO_BRANCH" -eq "null"]; then echo "chito"; fi
+  - if [ "$REPO_BRANCH" -eq "null" ]; then echo "chito"; fi
   - npm install  --save git+https://github.com/$TRAVIS_REPO_SLUG.git#$TRAVIS_BRANCH
   - npm install --only=dev
   - pm2 start index.js
