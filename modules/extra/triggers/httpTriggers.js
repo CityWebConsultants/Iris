@@ -130,19 +130,3 @@ iris.modules.triggers.registerHook("hook_triggers_http_request", 0, function (th
   thisHook.pass(data);
 
 })
-
-iris.route.get("/test", function(req,res){
-  
-  console.log("query", req.query);
-  
-  res.status(200).send("Done");
-  
-})
-
-iris.route.post("/test", function(req,res){
-  
-  console.log("body", req.body);
-  
-  res.status(200).send("Done");
-  
-})
