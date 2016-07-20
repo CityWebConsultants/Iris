@@ -221,6 +221,7 @@ module.exports = function (config) {
   // Cache object to save with found modules
 
   var foundModules = {};
+  var toEnable = [];
 
   iris.enabledModules.forEach(function (enabledModule, index) {
 
@@ -269,6 +270,39 @@ module.exports = function (config) {
 
     }
 
+    toEnable.push({
+      "info": moduleInfo,
+      "path": modulePath,
+      "name": enabledModule.name,
+      "weight": moduleInfo.weight
+    })
+
+  });
+
+  toEnable.sort(function (a, b) {
+
+    if (a.weight > b.weight) {
+
+      return 1;
+
+    } else if (a.weight < b.weight) {
+
+      return -1;
+
+    } else {
+
+      return 0;
+
+    }
+
+  })
+  
+  toEnable.forEach(function (currentModule) {
+
+    var moduleInfo = currentModule.info,
+      modulePath = currentModule.path,
+      name = currentModule.name
+
     if (moduleInfo.dependencies) {
 
       var unmet = [];
@@ -285,14 +319,14 @@ module.exports = function (config) {
 
       if (unmet.length) {
 
-        iris.log("error", "Module " + enabledModule.name + " requires the following modules: " + JSON.stringify(unmet));
+        iris.log("error", "Module " + name + " requires the following modules: " + JSON.stringify(unmet));
         return false;
 
       }
 
     }
 
-    iris.registerModule(enabledModule.name, path.parse(modulePath).dir);
+    iris.registerModule(name, path.parse(modulePath).dir);
 
     try {
 
@@ -310,7 +344,7 @@ module.exports = function (config) {
 
     }
 
-  });
+  })
 
   iris.mkdirSync(iris.sitePath + "/" + "local");
 
@@ -448,9 +482,9 @@ module.exports = function (config) {
         iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
 
       } else {
-        
+
         iris.log("error", err);
-        
+
       }
 
       iris.invokeHook("hook_display_error_page", req.authPass, {
