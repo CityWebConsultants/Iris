@@ -141,8 +141,6 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
         iris.invokeHook("hook_entity_deleted", thisHook.authPass, null, data);
 
-        iris.log("info", data.entityType + " " + conditions.eid + " deleted by " + thisHook.authPass.userid);
-
       }, function (fail) {
 
         thisHook.fail(fail);

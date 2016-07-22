@@ -253,8 +253,6 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
         new: data
       }, data);
 
-      iris.log("info", data.entityType + " " + conditions.eid + " edited by " + thisHook.authPass.userid);
-
     }, function (fail) {
 
       console.log(fail);
