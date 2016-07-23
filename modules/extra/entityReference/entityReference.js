@@ -33,7 +33,8 @@ iris.route.get("/entity-reference/:type/:field", {}, function (req, res) {
 /**
  * Defines hook_form_render__field_settings__[fieldname]
  */
-iris.modules.entityReference.registerHook("hook_form_render__field_settings__entity_reference", 0, function (thisHook, data) {
+
+var referenceField = function (thisHook, data) {
 
   var collections = iris.entityTypes;
   var settings = {
@@ -111,6 +112,22 @@ iris.modules.entityReference.registerHook("hook_form_render__field_settings__ent
 
   thisHook.pass(data);
 
+};
+
+iris.modules.entityReference.registerHook("hook_form_render__field_settings__entity_reference", 0, function (thisHook, data) {
+
+
+  referenceField(thisHook, data);
+
+
+});
+
+iris.modules.entityReference.registerHook("hook_form_render__field_settings__entity_references", 0, function (thisHook, data) {
+
+
+  referenceField(thisHook, data);
+
+
 });
 
 /**
@@ -174,6 +191,91 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 
 });
 
+
+/**
+ * Defines hook_entity_field_fieldType_form__[entityname] for entity reference fields.
+ */
+iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__entity_references", 0, function (thisHook, data) {
+
+  data = {};
+
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
+  var newValue = [];
+
+  if (!value) {
+
+    value = [];
+
+  }
+
+  var fetched = 0;
+
+  var done = function () {
+
+    fetched++;
+
+    if (fetched >= value.length) {
+
+      data.schema = {
+        "type": "array",
+        "default": newValue,
+        "title": fieldSettings.label,
+        "description": fieldSettings.description,
+        "items": {
+          "type": "text",
+          renderSettings: {
+            "autocomplete": {
+              "source": '/entity-reference/' + fieldSettings.settings.entityType + '/' + fieldSettings.settings[fieldSettings.settings.entityType]
+            }
+          }
+        }
+      }
+
+      thisHook.pass(data);
+
+    }
+
+  }
+
+  if (!value.length) {
+
+    done();
+
+  }
+
+
+  value.forEach(function (current) {
+
+    iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+      "entities": [current.entityType],
+      queries: [{
+        "operator": "is",
+        "field": "eid",
+        "value": parseInt(current.eid)
+    }]
+    }).then(function (entity) {
+
+      if (entity && entity.length) {
+
+        var entity = entity[0];
+
+        newValue.push(entity[fieldSettings.settings[current.entityType]] + "[" + current.eid + "]");
+
+      } else {
+
+        newValue.push(null);
+
+      }
+
+      done();
+
+    });
+
+  })
+
+});
+
 iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__entity_reference", 0, function (thisHook, data) {
 
   var settings = thisHook.context.field.settings;
@@ -197,6 +299,41 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__ent
       entityType: entityType,
       eid: eid
     }
+
+  }
+
+  thisHook.pass(data);
+
+});
+
+iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__entity_references", 0, function (thisHook, data) {
+
+  var settings = thisHook.context.field.settings;
+
+  var entityType = settings.entityType;
+
+  if (!thisHook.context.value) {
+
+    data = [{
+      entityType: null,
+      eid: null
+    }]
+
+
+  } else {
+
+    data = [];
+
+    thisHook.context.value.forEach(function (reference) {
+
+      var eid = reference.match(/[^[\]]+(?=])/g)[0];
+
+      data.push({
+        entityType: entityType,
+        eid: eid
+      })
+
+    })
 
   }
 
