@@ -104,30 +104,52 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
   var deleteEntity = function (validatedEntity) {
 
-    var conditions = {
-      eid: validatedEntity.eid
-    };
+    /**
+     * @member hook_entity_predelete
+     * @memberof entity
+     *
+     * @desc Entity pre-deletion hook
+     *
+     * Runs before an entity has been removed from the database
+     *
+     * Hook context must include an eid and entityType.
+     */
 
-    delete validatedEntity.eid;
-
-    var update = validatedEntity;
-
-    update.entityType = data.entityType;
-
-    iris.invokeHook("hook_db_deleteEntity__" + iris.config.dbEngine, thisHook.authPass, {
-      eid: conditions.eid,
+    iris.invokeHook("hook_entity_predelete", thisHook.authPass, {
+      eid: validatedEntity.eid,
       entityType: data.entityType
     }).then(function () {
 
-      thisHook.pass("Deleted");
+      var conditions = {
+        eid: validatedEntity.eid
+      };
 
-      data.eid = conditions.eid;
+      delete validatedEntity.eid;
 
-      iris.invokeHook("hook_entity_deleted", thisHook.authPass, null, data);
+      var update = validatedEntity;
 
-      iris.log("info", data.entityType + " " + conditions.eid + " deleted by " + thisHook.authPass.userid);
+      update.entityType = data.entityType;
+
+      iris.invokeHook("hook_db_deleteEntity__" + iris.config.dbEngine, thisHook.authPass, {
+        eid: conditions.eid,
+        entityType: data.entityType
+      }).then(function () {
+
+        thisHook.pass("Deleted");
+
+        data.eid = conditions.eid;
+
+        iris.invokeHook("hook_entity_deleted", thisHook.authPass, null, data);
+
+      }, function (fail) {
+
+        thisHook.fail(fail);
+
+      })
 
     }, function (fail) {
+
+      return false
 
       thisHook.fail(fail);
 

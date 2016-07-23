@@ -1,0 +1,5 @@
+{
+  "name": "IP blocking list",
+  "weight": 0,
+  "description": "Provides a list of whitelisted or blacklisted IP addresses to prevent from accessing specific paths on the system through a user interface form"
+}

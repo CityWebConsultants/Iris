@@ -119,7 +119,7 @@ iris.route.get("/admin/config/triggers", routes.triggers, function (req, res) {
  * Admin page callback: Delete trigger.
  */
 iris.route.get("/admin/config/triggers/delete/:name", routes.delete, function (req, res) {
-  
+
   iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_delete"], ['admin_wrapper'], {
     action: req.params.name
   }, req.authPass, req).then(function (success) {
@@ -247,11 +247,13 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
         if (iris.configStore.triggers[rule].events.event === name) {
 
+          var ruleName = rule;
+
           var rule = JSON.parse(JSON.stringify(iris.configStore.triggers[rule]));
 
           // Check if any conditions
 
-          if (rule.events.conditions) {
+          if (rule.events.conditions && rule.events.conditions[0].value) {
 
             rule.events.conditions.forEach(function (condition) {
 
@@ -275,28 +277,102 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
               //Process query based on operator
 
-              switch (condition.operator) {
+              if (!condition.negate) {
 
-                case "is":
+                switch (condition.operator) {
 
-                  if (condition.thing.toString() !== condition.value.toString()) {
+                  case "is":
 
-                    fires = false;
+                    if (condition.thing.toString() !== condition.value.toString()) {
 
-                  }
-                  break;
+                      fires = false;
 
-                case "contains":
+                    }
+                    break;
 
-                  if (condition.thing.toLowerCase().indexOf(condition.value.toString().toLowerCase()) === -1) {
+                  case "contains":
 
-                    fires = false;
+                    if (condition.thing.toLowerCase().indexOf(condition.value.toString().toLowerCase()) === -1) {
 
-                  }
-                  break;
+                      fires = false;
+
+                    }
+                    break;
+                }
+
+              } else {
+
+                switch (condition.operator) {
+
+                  case "is":
+
+                    if (condition.thing.toString() === condition.value.toString()) {
+
+                      fires = false;
+
+                    }
+                    break;
+
+                  case "contains":
+
+                    if (condition.thing.toLowerCase().indexOf(condition.value.toString().toLowerCase()) !== -1) {
+
+                      fires = false;
+
+                    }
+                    break;
+                }
+
               }
 
             });
+
+          }
+
+          // Check advanced conditions
+
+          if (fires && rule.events.advancedCondition) {
+
+            var vm = require("vm");
+
+            const sandbox = {
+              args: params,
+              valid: undefined
+            };
+
+            vm.createContext(sandbox);
+
+            try {
+
+              var output = vm.runInNewContext(rule.events.advancedCondition, sandbox, {
+                timeout: 30000
+              });
+
+            } catch (e) {
+
+              if (e.message) {
+
+                if (e.message === "Script execution timed out.") {
+
+                  // Unset rule
+
+                  delete iris.configStore.triggers[ruleName];
+
+                  iris.log("error", "Trigger " + ruleName + " disabled due to script timeout");
+
+                }
+
+                iris.log("error", e.message);
+
+              }
+
+            }
+
+            if (sandbox.valid !== true) {
+
+              fires = false;
+
+            }
 
           }
 
@@ -309,34 +385,73 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
               rule.actions.forEach(function (currentAction, index) {
 
                 var actionName = currentAction.action;
-
+                
                 // Swap out any tokens in the properties
-
                 Object.keys(currentAction.parameters).forEach(function (parameterName) {
 
                   var parameter = currentAction.parameters[parameterName];
 
                   // Slot in values if present
 
-                  Object.keys(params).forEach(function (variable) {
+                  if (typeof parameter === "string") {
 
-                    if (parameter.indexOf("[" + variable + "]") !== -1) {
+                    Object.keys(params).forEach(function (variable) {
 
-                      parameter = parameter.split("[" + variable + "]").join(params[variable]);
+                      if (parameter.indexOf("[" + variable + "]") !== -1) {
 
-                      rule.actions[index].parameters[parameterName] = parameter
+                        parameter = parameter.split("[" + variable + "]").join(params[variable]);
 
-                    }
+                        rule.actions[index].parameters[parameterName] = parameter
 
-                  })
+                      }
+
+                    })
+
+                  } else if (Array.isArray(parameter)) {
+
+                    parameter.forEach(function (value, index) {
+
+                      Object.keys(params).forEach(function (variable) {
+
+                        if (typeof value === "string") {
+
+                          if (value.indexOf("[" + variable + "]") !== -1) {
+
+                            parameter[index] = value.split("[" + variable + "]").join(params[variable]);
+
+
+                          }
+
+                        } else if (!Array.isArray(value) && typeof value === "object") {
+
+                          // Array of objects, loop over properties to swap parameters
+
+                          Object.keys(value).forEach(function (subfield, subIndex) {
+
+                            if (typeof value[subfield] === "string" && value[subfield].indexOf("[" + variable + "]") !== -1) {
+
+                              parameter[index][subfield] = value[subfield].split("[" + variable + "]").join(params[variable]);
+
+                            }
+
+                          })
+
+                        }
+
+                      })
+
+
+                    })
+
+                    rule.actions[index].parameters[parameterName] = parameter;
+
+                  }
 
                 })
 
                 iris.invokeHook("hook_triggers_" + actionName, authPass, {
                   params: rule.actions[index].parameters
                 }).then(function (success) {
-
-                  iris.log("info", actionName + " fired successfully.");
 
                   if (success) {
 
@@ -436,8 +551,20 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
               "value": {
                 "type": "text",
                 "title": ap.t("value")
+              },
+              "negate": {
+                "type": "boolean",
+                "title": ap.t("negate")
               }
             }
+          }
+        },
+        "advancedCondition": {
+          "type": "ace",
+          "title": ap.t("Advanced - Evaluate custom JavaScript condition"),
+          "description": ap.t("Run sandboxed JavaScript code to determine whether this should run. This code runs after any other properties are checked in the conditions (above). The sandboxed environment has access to an <b>args</b> object containing all the event variables and a <b>valid</b> variable. To pass or fail the condition, change <b>valid</b> to the boolean <b>true</b> or <b>false</b>."),
+          renderSettings: {
+            aceMode: "javascript",
           }
         }
       }
@@ -523,7 +650,8 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
     // Swap values back into format schema understands. This is madness.
 
     data.value.events[data.value.events.event] = {
-      conditions: data.value.events.conditions
+      conditions: data.value.events.conditions,
+      advancedCondition: data.value.events.advancedCondition
     };
 
     data.value.actions.forEach(function (action, index) {
@@ -556,6 +684,12 @@ iris.modules.triggers.registerHook("hook_form_submit__actions", 0, function (thi
     if (field.event) {
 
       field.conditions = field[field.event].conditions;
+
+      if (field[field.event].advancedCondition) {
+
+        field.advancedCondition = field[field.event].advancedCondition;
+
+      }
 
       delete field[field.event];
 
@@ -609,9 +743,9 @@ iris.modules.triggers.registerHook("hook_form_render__action_delete", 0, functio
 });
 
 iris.modules.triggers.registerHook("hook_form_submit__action_delete", 0, function (thisHook, data) {
-  
+
   var action = iris.sanitizeName(thisHook.context.params.action);
-  
+
   iris.deleteConfig("triggers", action, function (err) {
 
     if (err) {
@@ -796,3 +930,6 @@ iris.modules.triggers.registerHook("hook_triggers_log", 0, function (thisHook, d
   thisHook.pass(data);
 
 })
+
+require(__dirname + "/entityTriggers.js");
+require(__dirname + "/httpTriggers.js");
