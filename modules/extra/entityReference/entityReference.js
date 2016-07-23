@@ -326,12 +326,18 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__ent
 
     thisHook.context.value.forEach(function (reference) {
 
-      var eid = reference.match(/[^[\]]+(?=])/g)[0];
+      try {
+        var eid = reference.match(/[^[\]]+(?=])/g)[0];
 
-      data.push({
-        entityType: entityType,
-        eid: parseInt(eid)
-      })
+        data.push({
+          entityType: entityType,
+          eid: parseInt(eid)
+        })
+
+      } catch (e) {
+
+
+      }
 
     })
 
