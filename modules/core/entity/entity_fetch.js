@@ -16,6 +16,12 @@
  */
 iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fetchRequest) {
 
+  if (thisHook.context) {
+
+    fetchRequest = thisHook.context;
+
+  }
+  
   var entityTypes = [];
 
   // Populate list of targetted DB entities
