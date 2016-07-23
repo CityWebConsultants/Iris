@@ -1,0 +1,7 @@
+{
+  "name": "Entity References",
+  "type": [{
+    "eid": "Number",
+    "entityType": "String"
+  }]
+}
