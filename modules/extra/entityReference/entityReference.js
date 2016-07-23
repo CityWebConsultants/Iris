@@ -297,7 +297,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__ent
 
     data = {
       entityType: entityType,
-      eid: eid
+      eid: parseInt(eid)
     }
 
   }
@@ -330,7 +330,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__ent
 
       data.push({
         entityType: entityType,
-        eid: eid
+        eid: parseInt(eid)
       })
 
     })
