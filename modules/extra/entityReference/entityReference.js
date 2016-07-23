@@ -208,22 +208,22 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
     value = [];
 
   }
-  
+
   var fetched = 0;
 
   var done = function () {
-    
+
     fetched++;
 
     if (fetched >= value.length) {
-      
+
       data.schema = {
         "type": "array",
         "default": newValue,
+        "title": fieldSettings.label,
+        "description": fieldSettings.description,
         "items": {
           "type": "text",
-          "title": fieldSettings.label,
-          "description": fieldSettings.description,
           renderSettings: {
             "autocomplete": {
               "source": '/entity-reference/' + fieldSettings.settings.entityType + '/' + fieldSettings.settings[fieldSettings.settings.entityType]
@@ -246,7 +246,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 
 
   value.forEach(function (current) {
-    
+
     iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
       "entities": [current.entityType],
       queries: [{
