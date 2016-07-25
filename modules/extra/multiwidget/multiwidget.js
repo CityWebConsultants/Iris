@@ -149,6 +149,7 @@ iris.modules.forms.globals.registerWidget(function () {
                 customConfig: '/modules/ckeditor/config.js'
   
               });
+              ckeditor.instances[$(elem).attr("id")].setData(textarea.val());
               ckeditor.instances[$(elem).attr("id")].on('change', function (e) {
   
                 var data = e.editor.getData();
