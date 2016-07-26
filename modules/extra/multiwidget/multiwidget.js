@@ -1,4 +1,4 @@
-iris.modules.entityUI.globals.registerFieldWidget("Longtext", "editorwidget field");
+
 iris.modules.entityUI.globals.registerFieldWidget("Longtexts", "editorwidget field");
 
 iris.modules.multiwidget.registerHook("hook_entity_field_fieldType_form__longtexts", 0, function (thisHook, data) {
@@ -149,6 +149,7 @@ iris.modules.forms.globals.registerWidget(function () {
                 customConfig: '/modules/ckeditor/config.js'
   
               });
+              ckeditor.instances[$(elem).attr("id")].setData(textarea.val());
               ckeditor.instances[$(elem).attr("id")].on('change', function (e) {
   
                 var data = e.editor.getData();
