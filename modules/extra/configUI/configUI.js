@@ -11,7 +11,7 @@ var path = require("path");
  * Define callback routes.
  */
 var routes = {
-  export : {
+  export: {
     title: "Config export",
     description: "Export system configurations.",
     permissions: ["can access admin pages"],
@@ -21,7 +21,7 @@ var routes = {
       title: "Export"
     }]
   },
-  import : {
+  import: {
     title: "Config import",
     description: "Import system configurations.",
     permissions: ["can access admin pages"],
@@ -31,7 +31,7 @@ var routes = {
       title: "Import"
     }]
   },
-  config : {
+  config: {
     title: "Configuration management",
     description: "System configurations.",
     permissions: ["can access admin pages"],
@@ -41,15 +41,10 @@ var routes = {
       title: "Config management"
     }]
   },
-  diff : {
+  diff: {
     title: "Diff",
     description: "Show the difference between current and staging configurations.",
-    permissions: ["can access admin pages"],
-    menu: [{
-      menuName: "admin_toolbar",
-      parent: "/admin/config/manage",
-      title: "Diff"
-    }]
+    permissions: ["can access admin pages"]
   }
 }
 
@@ -122,14 +117,26 @@ iris.route.get("/admin/config/import", routes.import, function (req, res) {
 /**
  * Admin page callback: Diff of config.
  */
+
+var jsondiffpatch = require('jsondiffpatch').create();
+
+// Make JSONDiffPatch available on the client side
+
+var path = require("path");
+
+var filesPath = path.resolve(require.resolve("jsondiffpatch"), "../", "../");
+
+var express = require("express");
+
+iris.app.use("/jsondiffpatch", express.static(filesPath));
+
 iris.route.get("/admin/config/diff", routes.diff, function (req, res) {
 
-  var current = "Empty";
-  var staging = "Empty";
+  var current, staging;
 
   try {
 
-    current = fs.readFileSync(iris.configPath + req.query.path, "utf8")
+    current = fs.readFileSync(iris.sitePath + "/configurations/" + req.query.path, "utf8")
 
   } catch (e) {
 
@@ -138,21 +145,28 @@ iris.route.get("/admin/config/diff", routes.diff, function (req, res) {
 
   try {
 
-    staging = fs.readFileSync(iris.sitePath + "/staging" + req.query.path, "utf8")
+    staging = fs.readFileSync(iris.sitePath + "/staging/" + req.query.path, "utf8")
 
   } catch (e) {
 
   }
 
-  var prettydiff = require("prettydiff"),
-    args = {
-      source: current,
-      diff: staging,
-      lang: "json"
-    },
-    output = prettydiff.api(args);
+  iris.modules.frontend.globals.parseTemplateFile(["admin_config_diff"], ['admin_wrapper'], {
+    file: req.query.path,
+    current: current,
+    staging: staging
+  }, req.authPass, req).then(function (success) {
 
-  res.send(output[0]);
+    res.send(success);
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
 
 });
 
@@ -201,18 +215,16 @@ iris.route.get("/admin/config/manage", routes.config, function (req, res) {
 // Get diffs of config
 var showConfigDiff = function (callback) {
 
-  var output = [];
+  var output = {};
 
   var liveFiles = glob.sync(iris.configPath + "/**/*.json");
   var stagingFiles = glob.sync(iris.sitePath + "/staging" + "/**/*.json");
 
   liveFiles.forEach(function (file) {
 
-    var tailPath = path.normalize(file).replace(path.normalize(iris.configPath), "");
+    var stagingLocation = file.replace("configurations", "staging");
 
     var liveConfig = fs.readFileSync(file, "utf8");
-
-    var stagingLocation = path.normalize(iris.sitePath + "/staging" + tailPath);
 
     var stagingConfig = "";
 
@@ -224,11 +236,13 @@ var showConfigDiff = function (callback) {
 
     }
 
-    if (stagingConfig !== liveConfig) {
+    var diff = jsondiffpatch.diff(stagingConfig, liveConfig);
 
-      output.push({
-        file: tailPath
-      });
+    if (diff) {
+
+      file = file.replace(iris.sitePath + "/configurations/", "");
+
+      output[file] = diff;
 
     }
 
@@ -236,11 +250,9 @@ var showConfigDiff = function (callback) {
 
   stagingFiles.forEach(function (file) {
 
-    var tailPath = path.normalize(file).replace(path.normalize(iris.sitePath + "/staging/"), "");
-
     var stagingConfig = fs.readFileSync(file, "utf8");
 
-    var liveLocation = path.normalize(iris.configPath + "/" + tailPath);
+    var liveLocation = file.replace("staging", "configurations");
 
     var liveConfig = "";
 
@@ -252,16 +264,29 @@ var showConfigDiff = function (callback) {
 
     }
 
-    if (stagingConfig !== liveConfig) {
+    var diff = jsondiffpatch.diff(stagingConfig, liveConfig);
 
-      output.push({
-        file: tailPath
-      });
+    if (diff) {
+
+      file = file.replace(iris.sitePath + "/staging/", "");
+
+      output[file] = diff;
 
     }
 
   })
 
-  callback(output);
+  var clashes = [];
+
+  Object.keys(output).forEach(function (file) {
+
+    clashes.push({
+      file: file,
+      diff: JSON.stringify(output[file])
+    })
+
+  })
+
+  callback(clashes);
 
 }

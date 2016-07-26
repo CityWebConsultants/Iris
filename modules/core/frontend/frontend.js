@@ -642,6 +642,13 @@ var parseEmbeds = function (html, variables, authPass) {
             embedID: embedID,
             embedOptions: embedOptions
           }).then(function (parsedEmbed) {
+            
+            if(!parsedEmbed){
+              
+              finished();
+              return false;
+              
+            }
 
             var filler = '';
             if (embed && embed != '' || category == 'MAINCONTENT') {

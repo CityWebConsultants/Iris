@@ -305,7 +305,7 @@ iris.modules.mongodb.registerHook("hook_db_fetch__mongodb", 0, function (thisHoo
 
     if (err) {
 
-      return thisHook.fail(data);
+      return thisHook.fail(err);
 
     } else {
 

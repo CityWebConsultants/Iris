@@ -430,7 +430,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
       if (form.dynamicForm) {
 
-        output += "<noscript>" + thisHook.authPass.t("<noscript>You need JavaScript enabled to display this form") + "</noscript>";
+        output += "<noscript>" + thisHook.authPass.t("You need JavaScript enabled to display this form") + "</noscript>";
 
         callback(output);
 
@@ -488,12 +488,14 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
       }
 
+      var staticFormSetupCode = `window.form = ${toSource(form)}`;
+
       jsdom.env({
-        html: static,
-        src: [core, jquery, underscore, jsonform, extrafields],
+        html: staticFormSetupCode + static,
+        src: [core, jquery, underscore, jsonform, extrafields, staticFormSetupCode],
         onload: function (window) {
 
-          window.$('#' + uniqueId).jsonForm(form);
+          window.$('#' + uniqueId).jsonForm(window.form);
 
           var formOutput = window.$("[data-static-form]")[0].outerHTML;
 
