@@ -14,17 +14,29 @@ process.on("dbReady", function () {
 
       var field = iris.entityTypes[entityType].fields[fieldName];
 
-      if (field.type === String || field.type === Number) {
-
-        fields.push(fieldName);
-
-      }
+      fields.push(fieldName);
 
     });
 
     iris.modules.blocks.globals.registerBlockType('List-of-' + entityType);
 
     iris.modules.lists.registerHook("hook_form_render__blockForm_List-of-" + entityType, 0, function (thisHook, data) {
+
+      thisHook.context.context.tags.headTags.ace = {
+        type: "script",
+        attributes: {
+          "src": "/modules/forms/jsonform/deps/opt/ace/ace.js"
+        },
+        rank: 7
+      };
+
+      thisHook.context.context.tags.headTags.aceHTML = {
+        type: "script",
+        attributes: {
+          "src": "/modules/forms/jsonform/deps/opt/ace/mode-html.js"
+        },
+        rank: 7
+      };
 
       if (thisHook.context.params[1] && iris.modules.blocks.globals.blocks["List-of-" + entityType] && iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params[1]]) {
 
@@ -37,11 +49,6 @@ process.on("dbReady", function () {
       // Add in fields
 
       var form = {
-        "limit": {
-          "type": "number",
-          "title": "Limit",
-          "default": 0
-        },
         "conditions": {
           "type": "array",
           "items": {
@@ -60,47 +67,41 @@ process.on("dbReady", function () {
               },
               "value": {
                 "type": "string",
-                "title": "Value to check for",
-                "description": "This value can be altered dynamically later on"
+                "title": "Value to check for"
               },
             }
           }
         },
-        "fields": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "title": "Field",
-            "properties": {
-              "field": {
-                "type": "string",
-                "title": "Entity field",
-                "enum": fields
-              },
-              "wrapper": {
-                "type": "string",
-                "title": "HTML wrapper element",
-                "enum": ["div", "span", "h1", "h2", "h3"]
-              },
-              "allowhtml": {
-                "type": "boolean",
-                "title": "Allow HTML?"
-              },
-              "class": {
-                "type": "string",
-                "title": "Classes",
-                "description": "Space-separated"
-              }
+        "output": {
+          "type": "ace",
+          "title": thisHook.authPass.t("Template output"),
+          "description": thisHook.authPass.t("The HTML output for this list. Entities are stored in the 'list' handlebars variable."),
+          renderSettings: {
+            aceMode: "html",
+          }
+        },
+        "limit": {
+          "type": "number",
+          "title": "Limit",
+          "default": 0
+        },
+        "sort": {
+          "title": "sort",
+          "type": "object",
+          "properties": {
+            "field": {
+              type: "text",
+              enum: fields
+            },
+            "order": {
+              "type": "text",
+              "enum": ["asc", "desc"]
             }
           }
         }
       }
 
-      Object.keys(form).forEach(function (formField) {
-
-        data.schema[formField] = form[formField];
-
-      })
+      Object.assign(data.schema, form);
 
       thisHook.pass(data);
 
@@ -132,108 +133,28 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
 
     }
 
-    var fetch = {
-      entities: [thisHook.context.type.replace("List-of-", "")],
-      queries: config.conditions,
-      limit: config.limit
+
+    var entityType = thisHook.context.type.replace("List-of-", "");
+
+    var query = {
+      entities: [entityType]
+    };
+
+    if (config.conditions) {
+
+      query.queries = config.conditions;
+
     }
 
-    iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, fetch).then(function (result) {
+    var query = "[[[entity list," + JSON.stringify(query) + "]]]" + config.output;
 
-        var output = [];
-
-        if (!result || !result.length) {
-
-          thisHook.pass("<!-- No results for " + thisHook.context.type + " " + thisHook.context.id + "-->");
-          return false;
-
-        }
-
-        result.forEach(function (fetched) {
-
-          // Loop over all fields and add variable
-
-          var viewOutput = {};
-
-          config.fields.forEach(function (field, index) {
-
-            viewOutput[field.field] = {};
-
-            // Add all settings provided in the view
-
-            Object.keys(config.fields[index]).forEach(function (fieldSetting) {
-
-              viewOutput[field.field][fieldSetting] = config.fields[index][fieldSetting];
-
-            })
-
-            if (fetched[field.field]) {
-
-              viewOutput[field.field].value = fetched[field.field];
-
-            }
-
-          })
-
-          output.push(viewOutput);
-
-        });
-
-        iris.modules.frontend.globals.parseTemplateFile(["lists", thisHook.context.type], null, {
-          list: output,
-          listName: thisHook.context.id
-        }, thisHook.authPass).then(function (success) {
-
-          // Add in entity embed template
-
-
-          // Generate entity fetch template
-
-          var embed = "[[[entity ";
-
-          embed += fetch.entities.join("+");
-
-          embed += ",";
-
-          embed += "list_" + thisHook.context.id;
-
-          embed += ",";
-
-          // Add in queries
-
-          fetch.queries.forEach(function (query) {
-
-            embed += query.field + "|" + query.operator + "|" + JSON.stringify(query.value) + "+";
-
-          })
-
-          // Remove final +
-
-          embed = embed.substring(0, embed.length - 1);
-
-          embed += ",";
-
-          embed += "]]]"
-
-          thisHook.pass(embed + "\n" + success);
-
-        }, function (fail) {
-
-          thisHook.pass(fail);
-
-        })
-
-      },
-      function (fail) {
-
-        thisHook.pass(fail);
-
-      });
+    thisHook.pass(query);
 
   } else {
 
-    thisHook.pass(data);
+    thisHook.fail(data);
 
   }
+
 
 });
