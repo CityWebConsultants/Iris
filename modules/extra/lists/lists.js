@@ -145,7 +145,21 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
       query.queries = config.conditions;
 
     }
-
+    
+    if(config.limit){
+      
+      query.limit = config.limit;
+      
+    }
+    
+    if(config.sort){
+            
+      query.sort = {};
+      
+      query.sort[config.field] = config.value;
+      
+    }
+    
     var query = "[[[entity list," + JSON.stringify(query) + "]]]" + config.output;
 
     thisHook.pass(query);
