@@ -155,15 +155,17 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
     }
 
     if (config.sort) {
-      
+
       query.sort = {};
 
       query.sort[config.sort.field] = config.sort.order;
 
     }
+    
+    var template = config.output.split("list").join("list_" + config.blockTitle);
         
-    var query = "[[[entity list_" + config.blockTitle + "," + JSON.stringify(query) + "]]]" + config.output.split("list").join("list_" + config.blockTitle);
-
+    var query = "[[[entity list_" + config.blockTitle + "," + JSON.stringify(query) + "]]]" + template;
+    
     thisHook.pass(query);
 
   } else {
