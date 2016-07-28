@@ -155,13 +155,13 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
     }
 
     if (config.sort) {
-
+      
       query.sort = {};
 
-      query.sort[config.field] = config.value;
+      query.sort[config.sort.field] = config.sort.order;
 
     }
-
+        
     var query = "[[[entity list_" + config.blockTitle + "," + JSON.stringify(query) + "]]]" + config.output.split("list").join("list_" + config.blockTitle);
 
     thisHook.pass(query);
