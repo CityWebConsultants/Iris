@@ -38,9 +38,11 @@ process.on("dbReady", function () {
         rank: 7
       };
 
-      if (thisHook.context.params[1] && iris.modules.blocks.globals.blocks["List-of-" + entityType] && iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params[1]]) {
+      if (thisHook.context.params && iris.modules.blocks.globals.blocks["List-of-" + entityType] && iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params]) {
 
-        var existingView = iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params[1]];
+        var existingView = iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params];
+
+        existingView.output = "{{{{iris_handlebars_ignore}}}}" + existingView.output + "{{{{/iris_handlebars_ignore}}}}";
 
         data.value = existingView;
 
@@ -145,22 +147,22 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
       query.queries = config.conditions;
 
     }
-    
-    if(config.limit){
-      
+
+    if (config.limit) {
+
       query.limit = config.limit;
-      
+
     }
-    
-    if(config.sort){
-            
+
+    if (config.sort) {
+
       query.sort = {};
-      
+
       query.sort[config.field] = config.value;
-      
+
     }
-    
-    var query = "[[[entity list," + JSON.stringify(query) + "]]]" + config.output;
+
+    var query = "[[[entity list_" + config.blockTitle + "," + JSON.stringify(query) + "]]]" + config.output.split("list").join("list_" + config.blockTitle);
 
     thisHook.pass(query);
 
