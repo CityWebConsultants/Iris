@@ -1,6 +1,3 @@
-
-
-
 /**
  * @file User management module
  */
@@ -40,7 +37,6 @@ var routes = {
   },
   logout: {
     "menu": [{
-      weight: 5,
       menuName: "admin_toolbar",
       parent: null,
       title: "Logout",
@@ -210,7 +206,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
               entityType: "user",
               eid: eid,
               lastlogin: Date.now()
-            }
+            };
 
             iris.invokeHook("hook_entity_edit", "root", null, userEntity);
 
@@ -290,7 +286,7 @@ iris.route.get("/user/logout", routes.logout, function (req, res) {
 
     res.redirect("/");
 
-  }
+  };
   iris.invokeHook("hook_user_logout", req.authPass, null, res).then(function (success) {
 
     res = success;
@@ -427,8 +423,8 @@ iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function 
     }
 
     thisHook.pass(data);
-  })
-})
+  });
+});
 
 /**
  * Submit handler for passwordReset.
@@ -468,11 +464,11 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
       
       if(!iris.config.siteEmail){
         
-        email = "irisjs@irisjs.org"
+        email = "irisjs@irisjs.org";
         
       } else {
         
-        email = iris.config.siteEmail
+        email = iris.config.siteEmail;
         
       }
 
@@ -502,7 +498,7 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
 
   });
 
-})
+});
 
 /**
  * Defines form set_first_user.
@@ -890,7 +886,7 @@ iris.modules.user.registerHook("hook_entity_updated", 1, function (thisHook, ent
  */
 iris.modules.user.registerHook("hook_entity_presave_user", 1, function (thisHook, data) {
 
-  if (data.lastlogin == null) {
+  if (data.lastlogin === null) {
 
     delete data.lastlogin;
 
@@ -1010,7 +1006,6 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
     return cookies;
   }
 
-
   var cookies = parse_cookies(thisHook.context.socket.handshake.headers.cookie);
 
   if (cookies && cookies.userid && cookies.token) {
@@ -1034,4 +1029,4 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
 iris.modules.user.globals.userPassRehash = function (password, timestamp, lastlogin, eid) {
 
-}
+};

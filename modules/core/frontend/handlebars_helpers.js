@@ -125,16 +125,16 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       output += "</div>";
       output += "{{{{/iris_handlebars_ignore}}}}";
       output += "\n";
-      output += "<div class='iris-live-load-output'>"
+      output += "<div class='iris-live-load-output'>";
       output += options.fn();
       output += "</div>";
-      output += "</div>"
+      output += "</div>";
 
       return output;
       
     }
 
-  })
+  });
 
   Handlebars.registerHelper('iris_handlebars_ignore', function (options) {
 

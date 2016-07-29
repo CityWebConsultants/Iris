@@ -483,7 +483,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         callback(staticForm + output);
 
-      }
+      };
 
       var staticFormSetupCode = `window.form = ${toSource(form)}`;
 

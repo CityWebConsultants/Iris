@@ -255,7 +255,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
       console.log(fail);
       thisHook.fail(fail);
 
-    })
+    });
 
   };
 

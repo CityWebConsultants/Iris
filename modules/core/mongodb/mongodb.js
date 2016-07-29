@@ -52,7 +52,7 @@ iris.modules.mongodb.registerHook("hook_db_connect__mongodb", 0, function (thisH
   });
 
 
-})
+});
 
 // Initialise schema
 
@@ -69,7 +69,7 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
     // set index through the schema
     for (var i in schemaConfig) {
-      if (schemaConfig[i].required == true) {
+      if (schemaConfig[i].required === true) {
         schemaConfig[i].index = true;
       }
       if (schemaConfig[i].unique) {
@@ -79,7 +79,7 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
       }
     }
 
-  }
+  };
 
   var autoIncrement = require('mongoose-auto-increment');
 
@@ -124,7 +124,7 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
         }
 
-      })
+      });
 
       return [mongoose.Schema(typeObject, {
         "_id": false
@@ -146,7 +146,7 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
         }
 
-      })
+      });
 
       return mongoose.Schema(typeObject);
 
@@ -296,7 +296,7 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
   thisHook.pass(data);
 
-})
+});
 
 iris.modules.mongodb.registerHook("hook_db_fetch__mongodb", 0, function (thisHook, data) {
   dbCollections[thisHook.context.entityType].find(thisHook.context.query).lean().sort(thisHook.context.sort).skip(thisHook.context.skip).limit(thisHook.context.limit).exec(function (err, doc) {
@@ -335,9 +335,9 @@ iris.modules.mongodb.registerHook("hook_db_deleteEntity__mongodb", 0, function (
 
     }
 
-  })
+  });
 
-})
+});
 
 // Create
 
@@ -361,7 +361,7 @@ iris.modules.mongodb.registerHook("hook_db_createEntity__mongodb", 0, function (
 
   });
 
-})
+});
 
 // Update
 
@@ -383,7 +383,7 @@ iris.modules.mongodb.registerHook("hook_db_updateEntity__mongodb", 0, function (
 
   });
 
-})
+});
 
 // Delete schema/collection
 
@@ -414,4 +414,4 @@ iris.modules.mongodb.registerHook("hook_db_deleteSchema__mongodb", 0, function (
 
   });
 
-})
+});

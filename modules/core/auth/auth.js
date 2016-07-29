@@ -513,7 +513,7 @@ iris.modules.auth.registerHook("hook_restart_send", 0, function (thisHook, data)
 
   thisHook.pass(data);
 
-})
+});
 
 iris.app.post("/logout", function (req, res) {
 

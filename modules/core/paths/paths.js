@@ -24,11 +24,11 @@ process.on("dbReady", function () {
               entityType: entity.entityType
             };
 
-          })
+          });
 
         }
 
-      })
+      });
 
     }
 

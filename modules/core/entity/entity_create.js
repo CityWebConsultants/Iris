@@ -169,9 +169,9 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
       }, function (fail) {
 
-        thisHook.fail(err);
+        thisHook.fail(fail);
 
-      })
+      });
 
     };
 
@@ -332,7 +332,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
       }
 
-    }
+    };
 
     uniqueFields.forEach(function (field) {
 
@@ -346,7 +346,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
           "value": field[fieldName]
         }]
 
-      }
+      };
 
       iris.invokeHook("hook_entity_fetch", "root", null, fetch).then(function (clash) {
 
@@ -360,7 +360,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
       });
 
-    })
+    });
 
   }
 

@@ -1,6 +1,3 @@
-
-
-
 iris.registerModule("sessions",__dirname);
 
 iris.app.get("/checkauth", function (req, res) {

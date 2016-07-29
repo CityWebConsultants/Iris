@@ -115,7 +115,7 @@ iris.modules.system.registerHook("hook_form_render__modules", 0, function (thisH
         "inlinetitle": thisHook.authPass.t("Enable the <b>{{name}}</b> module", {
           name: currentModule.name
         })
-      })
+      });
 
     });
 

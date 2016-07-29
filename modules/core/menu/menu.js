@@ -1,6 +1,3 @@
-
-
-
 /**
  * @file Methods and hooks to implement menus for navigation and categorisation
  */
@@ -92,7 +89,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
   // Top level items first
 
   var fillMenu = function () {
-    var MenuTree = new Array();
+    var MenuTree = [];
 
     var isItemExist = function (arr, item) {
       var found = false;
@@ -142,7 +139,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     });
 
     return MenuTree;
-  }
+  };
 
   var MenuTreeArray = fillMenu();
 
@@ -177,7 +174,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
     });
 
-  }
+  };
 
   MenuTreeArray.sort(sort);
 
@@ -188,7 +185,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     // Menu ready, check access
     var parseTemplate = ["menu", menuName];
 
-    if (embedOptions && embedOptions.template != undefined) {
+    if (embedOptions && embedOptions.template !== undefined) {
       parseTemplate.push(embedOptions.template);
     }
 

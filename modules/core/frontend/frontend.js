@@ -629,9 +629,9 @@ var parseEmbeds = function (html, variables, authPass) {
 
               embed.split(",").map(function (current) {
 
-                embedOptions.push(current.trim())
+                embedOptions.push(current.trim());
 
-              })
+              });
 
             }
 
@@ -651,7 +651,7 @@ var parseEmbeds = function (html, variables, authPass) {
             }
 
             var filler = '';
-            if (embed && embed != '' || category == 'MAINCONTENT') {
+            if (embed && embed !== '' || category == 'MAINCONTENT') {
               filler = ' ' + embed;
             }
             html = html.split("[[[" + category + filler + "]]]").join(parsedEmbed);
