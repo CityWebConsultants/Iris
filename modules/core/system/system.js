@@ -1,6 +1,3 @@
-
-/* globals iris,mongoose,Promise,$,window */
-
 /**
  * @file General hooks and functions for the admin system.
  */

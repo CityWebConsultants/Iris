@@ -1,6 +1,3 @@
-
-/* globals iris,mongoose,Promise,$,window */
-
 /**
  * @file Provides hooks and functions to create forms for use on the frontend
  */

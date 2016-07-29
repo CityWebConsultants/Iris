@@ -1,6 +1,3 @@
-
-/* globals iris,mongoose,Promise*/
-
 /**
  * @file Functions and hooks for editing entities
  */
