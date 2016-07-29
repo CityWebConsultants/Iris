@@ -1,6 +1,6 @@
 {
   "name": "Tags",
-  "description": "Provides automcomplete tagging field",
+  "description": "Provides an automcomplete tagging field",
   "weight": 4,
   "dependencies": {
     "entityUI": "1"

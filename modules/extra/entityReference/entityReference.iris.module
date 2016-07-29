@@ -1,4 +1,5 @@
 {
   "name": "Entity reference",
-  "rank": 0
+  "rank": 0,
+  "description": "Allows entities to register other entities of the same or different entity type. Useful for tagging, categorisation and other content relationships."
 }

@@ -1,4 +1,5 @@
 {
   "name": "blocks",
-  "weight": 0
+  "weight": 0,
+  "description": "Allows modules to define blocks of content. These can be added to a region in a theme if the regions module is enabled."
 }
