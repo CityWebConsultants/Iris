@@ -7,6 +7,7 @@
   "sub" : true,
   "loopfunc": true,
   "maxdepth": 4,
-  "maxerr": 2000
+  "maxerr": 2000,
+  "esversion":6
 }
 
