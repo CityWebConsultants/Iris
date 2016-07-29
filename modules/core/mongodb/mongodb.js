@@ -69,7 +69,7 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
     // set index through the schema
     for (var i in schemaConfig) {
-      if (schemaConfig[i].required == true) {
+      if (schemaConfig[i].required === true) {
         schemaConfig[i].index = true;
       }
       if (schemaConfig[i].unique) {
