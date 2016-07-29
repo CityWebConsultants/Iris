@@ -31,13 +31,7 @@ module.exports = function (config) {
 
   // Restart function
 
-  iris.restart = function (authPass, data) {
-
-    if (!data) {
-
-      var data = {};
-
-    }
+  iris.restart = function (authPass, data = {}) {
 
     process.nextTick(function () {
 
@@ -229,12 +223,12 @@ module.exports = function (config) {
 
     try {
       fs.readFileSync(modulePathCache[enabledModule.name]);
-      var lookup = [modulePathCache[enabledModule.name]];
+      lookup = [modulePathCache[enabledModule.name]];
     } catch (e) {
 
       // Check if module path is a site path
       var rootParent = iris.rootPath.substring(0, iris.rootPath.length - 7);
-      var lookup = glob.sync("{" + rootParent + "/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "}");
+      lookup = glob.sync("{" + rootParent + "/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "}");
 
       lookup.reverse();
 

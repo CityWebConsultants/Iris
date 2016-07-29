@@ -244,13 +244,7 @@ iris.dbPopulate = function () {
  * isContent boolean variable determines whether the entity type appears on a content page 
  */
 
-iris.dbSchemaRegister = function (name, fields, isContent) {
-
-  if (!isContent) {
-
-    var isContent = false;
-
-  }
+iris.dbSchemaRegister = function (name, fields, isContent = false) {
 
   return new Promise(function (resolve, reject) {
 
