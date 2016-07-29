@@ -51,7 +51,7 @@ module.exports = function (config) {
           restart: data
         });
 
-      })
+      });
 
     });
 
@@ -200,8 +200,6 @@ module.exports = function (config) {
 
   }
 
-  var path = require('path');
-
   var glob = require("glob");
 
   // Check if cache of module paths exists
@@ -275,7 +273,7 @@ module.exports = function (config) {
       "path": modulePath,
       "name": enabledModule.name,
       "weight": moduleInfo.weight
-    })
+    });
 
   });
 
@@ -295,13 +293,13 @@ module.exports = function (config) {
 
     }
 
-  })
+  });
   
   toEnable.forEach(function (currentModule) {
 
     var moduleInfo = currentModule.info,
       modulePath = currentModule.path,
-      name = currentModule.name
+      name = currentModule.name;
 
     if (moduleInfo.dependencies) {
 
@@ -344,7 +342,7 @@ module.exports = function (config) {
 
     }
 
-  })
+  });
 
   iris.mkdirSync(iris.sitePath + "/" + "local");
 
@@ -367,7 +365,7 @@ module.exports = function (config) {
 
     Object.freeze(iris);
 
-  })
+  });
 
   /**
    * Catch all callback which is run last. If this is called then the GET request has not been defined 

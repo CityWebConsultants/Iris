@@ -29,7 +29,7 @@ process.on("message", function (m) {
 
   }
 
-})
+});
 
 /**
  * Handle unhandledRejection.

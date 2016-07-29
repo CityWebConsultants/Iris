@@ -43,7 +43,7 @@ iris.dbPopulate = function () {
 
       delete iris.entityTypes[entityType];
 
-    })
+    });
 
   }
 
@@ -179,7 +179,7 @@ iris.dbPopulate = function () {
 
       try {
 
-        var fieldType = iris.fieldTypes[fieldType];
+        fieldType = iris.fieldTypes[fieldType];
         var name = fieldType.name;
         var type = fieldType.type;
 
@@ -194,7 +194,7 @@ iris.dbPopulate = function () {
 
       }
 
-    })
+    });
 
     iris.entityTypes[schema] = JSON.parse(stringySchema);
 
@@ -210,7 +210,7 @@ iris.dbPopulate = function () {
 
     }
 
-  }
+  };
 
   Object.keys(iris.entityTypes).forEach(function (entityType) {
 
@@ -233,9 +233,9 @@ iris.dbPopulate = function () {
 
       schemaLoaded();
 
-    })
+    });
 
-  })
+  });
 
 };
 
@@ -257,7 +257,7 @@ iris.dbSchemaRegister = function (name, fields, isContent) {
     var schema = {
       entityTypeName: name,
       fields: fields
-    }
+    };
 
     Object.defineProperty(iris.entityTypes, name, {
       enumerable: isContent,
@@ -279,6 +279,6 @@ iris.dbSchemaRegister = function (name, fields, isContent) {
 
     });
 
-  })
+  });
 
 };
