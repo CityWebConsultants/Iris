@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @file Manages the database connection and schemas for entity types.

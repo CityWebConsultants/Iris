@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @member hook_frontend_embed__tags

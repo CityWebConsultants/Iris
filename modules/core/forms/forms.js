@@ -1,4 +1,4 @@
-/*jshint nomen: true, node:true, sub:true */
+
 /* globals iris,mongoose,Promise,$,window */
 
 /**

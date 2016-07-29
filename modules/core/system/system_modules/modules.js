@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
+
+
 
 var glob = require("glob");
 var fs = require("fs");

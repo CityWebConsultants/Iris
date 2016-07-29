@@ -1,4 +1,4 @@
-/*jshint nomen: true, node:true */
+
 /* globals iris,mongoose,Promise*/
 
 "use strict";

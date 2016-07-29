@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @file Hooks and functions for the templating and routing systems that make up the 
