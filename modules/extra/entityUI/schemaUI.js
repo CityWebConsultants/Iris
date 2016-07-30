@@ -1169,10 +1169,10 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function (thisHook, data) {
 
   data.form = [];
-  var entityType = thisHook.context.params[1];
-  var fieldName = thisHook.context.params[2];
-  var parent = thisHook.context.params[3];
-
+  var entityType = thisHook.context.params.entityType;
+  var fieldName = thisHook.context.params.field;
+  var parent = thisHook.context.params.parent;
+  
   var field = {};
 
   // If this field is nested (within fieldset), perform recursion to find the element in the schema tree.
@@ -1538,9 +1538,9 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
 
   // Fetch current schema
 
-  var entityType = thisHook.context.params[1];
-  var fieldName = thisHook.context.params[2];
-  var parent = thisHook.context.params[3];
+  var entityType = thisHook.context.params.entityType;
+  var fieldName = thisHook.context.params.field;
+  var parent = thisHook.context.params.parent;
   var schema = JSON.parse(JSON.stringify(iris.entityTypes[entityType]));
 
   var field = {};

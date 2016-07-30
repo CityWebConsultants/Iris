@@ -13,8 +13,9 @@
 `entity_delete`- works
 `schema`
 `schemaDelete`
+`schemafield` - works
 `schemafieldDelete`
-`schemafieldwidgets`
+`schemafieldwidgets` - works
 `schemaFieldListing` - works
 `ip_access`
 `menu`

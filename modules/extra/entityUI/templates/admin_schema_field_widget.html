@@ -1,1 +1,9 @@
-  {{{iris 'form' '{"formID":"schemafieldwidgets","entityType":"$entityType","field":"$field","parent":"$parent"}'}}}
+{{#if parent}}
+
+{{{iris 'form' '{"formID":"schemafieldwidgets","entityType":"$entityType","field":"$field","parent":"$parent"}'}}}
+
+{{else}}
+
+{{{iris 'form' '{"formID":"schemafieldwidgets","entityType":"$entityType","field":"$field"}'}}}
+
+{{/if}}
