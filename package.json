@@ -27,6 +27,7 @@
     "nedb": "^1.8.0",
     "nodemailer": "^1.11.0",
     "path-to-regexp": "^1.2.1",
+    "promised-handlebars": "^2.0.0",
     "sanitize-html": "^1.10.0",
     "socket.io": "^1.2.1",
     "tosource": "^1.0.0"

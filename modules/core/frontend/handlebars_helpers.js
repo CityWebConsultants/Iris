@@ -111,6 +111,72 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   });
 
+  Handlebars.registerHelper("iris", function () {
+
+    var title = arguments[0];
+    var embedOptions = arguments[1];
+    var options = arguments[2];
+
+    if (options.fn) {
+
+      return options.fn(this, {
+        data: options.data,
+        blockParams: {
+          "hello": "world"
+        }
+      });
+
+    } else {
+
+      return new Promise(function (pass, fail) {
+
+        var JSONembedOptions;
+
+        try {
+
+          JSONembedOptions = JSON.parse(embedOptions);
+
+        } catch (e) {
+
+          fail();
+
+        }
+
+        var vars = {};
+
+        if (options.data && options.data.root) {
+
+          vars = options.data.root;
+
+        }
+                
+        iris.invokeHook("hook_frontend_embed__" + title, thisHook.authPass, {
+          embedOptions: JSONembedOptions,
+          vars: vars
+        }).then(function (output) {
+
+          pass(output);
+
+        }, function (reason) {
+
+          if (reason === "wait") {
+
+            pass("{{{iris '" + title + "' '" + embedOptions + "'}}}")
+
+          } else {
+
+            fail(reason);
+
+          }
+
+        })
+
+      })
+
+    }
+
+  })
+
   Handlebars.registerHelper("iris_liveupdate", function (options) {
 
     if (options.data.root.finalParse) {
@@ -131,7 +197,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       output += "</div>"
 
       return output;
-      
+
     }
 
   })

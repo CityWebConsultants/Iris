@@ -10,7 +10,7 @@
  * @namespace frontend
  */
 
-iris.registerModule("frontend",__dirname);
+iris.registerModule("frontend", __dirname);
 
 var fs = require('fs');
 var express = require('express');
@@ -381,6 +381,8 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
 var findEmbeds = function (text, leaveCurlies) {
 
+  return false;
+
   function getIndicesOf(searchStr, str, caseSensitive) {
     var startIndex = 0,
       searchStrLen = searchStr.length;
@@ -642,12 +644,12 @@ var parseEmbeds = function (html, variables, authPass) {
             embedID: embedID,
             embedOptions: embedOptions
           }).then(function (parsedEmbed) {
-            
-            if(!parsedEmbed){
-              
+
+            if (!parsedEmbed) {
+
               finished();
               return false;
-              
+
             }
 
             var filler = '';
@@ -879,6 +881,11 @@ require("./handlebars_helpers");
  *
  * @returns as data.html the parsed HTML template with template variables converted.
  */
+
+var Handlebars = require('handlebars');
+var promisedHandlebars = require('promised-handlebars');
+var Handlebars = promisedHandlebars(require('handlebars'));
+
 iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
 
   if (!data.vars) {
@@ -887,70 +894,87 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
   }
 
-  var Handlebars = require('handlebars');
-
   iris.invokeHook("hook_frontend_handlebars_extend", thisHook.authPass, {
     variables: data.vars
   }, Handlebars).then(function () {
 
-    try {
+    Handlebars.compile(data.html)(data.vars).then(function (html) {
+      try {
 
-      data.html = Handlebars.compile(data.html)(data.vars);
+        data.html = html;
 
-      // Run through parse template again to see if any new templates can be loaded.
+        // Run through parse template again to see if any new templates can be loaded.
 
-      if (data.html.indexOf("[[[") !== -1) {
+        if (data.html.indexOf("[[[") !== -1) {
 
-        var embeds = findEmbeds(data.html, true);
+          var embeds = findEmbeds(data.html, true);
 
-        // Loop over all embeds and compile out missing curlies
+          // Loop over all embeds and compile out missing curlies
 
-        if (embeds) {
+          if (embeds) {
 
-          Object.keys(embeds).forEach(function (category) {
+            Object.keys(embeds).forEach(function (category) {
 
-            embeds[category].forEach(function (embed) {
+              embeds[category].forEach(function (embed) {
 
-              if (embed.indexOf("{{") !== -1) {
+                if (embed.indexOf("{{") !== -1) {
 
-                embed = "[[[" + category + " " + embed + "]]]";
+                  embed = "[[[" + category + " " + embed + "]]]";
 
-                var compiled = Handlebars.compile(embed)({
-                  stripCurlies: true
-                });
+                  var compiled = Handlebars.compile(embed)({
+                    stripCurlies: true
+                  });
 
-                data.html = data.html.split(embed).join(compiled);
+                  data.html = data.html.split(embed).join(compiled);
 
 
-              }
+                }
+
+              });
+
+            });
+
+          }
+
+          parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
+
+            success.variables.finalParse = true;
+
+            var Handlebars = promisedHandlebars(require('handlebars'));
+
+            iris.invokeHook("hook_frontend_handlebars_extend", thisHook.authPass, {
+              variables: success.variables
+            }, Handlebars).then(function () {
+              
+              Handlebars.compile(success.html)(success.variables).then(function (html) {
+
+                success.html = html;
+
+                thisHook.pass(success);
+
+              });
 
             });
 
           });
 
+        } else {
+
+          thisHook.pass(data);
+
         }
 
-        parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
+      } catch (e) {
 
-          success.variables.finalParse = true;
-
-          success.html = Handlebars.compile(success.html)(success.variables);
-
-          thisHook.pass(success);
-
-        });
-
-      } else {
-
-        thisHook.pass(data);
+        thisHook.fail(e);
 
       }
 
-    } catch (e) {
+    }, function (fail) {
 
-      thisHook.fail(e);
+      thisHook.fail(fail);
 
-    }
+    });
 
   }, function (fail) {
 

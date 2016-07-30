@@ -507,7 +507,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
   };
 
-  var formName = thisHook.context.embedID;
+  var formName = thisHook.context.embedID = thisHook.context.embedOptions.formID;
 
   var formTemplate = {
     schema: {},

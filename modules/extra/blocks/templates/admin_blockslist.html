@@ -18,9 +18,10 @@
     </tbody>
   </table>
   <div class="admin-header admin-header-padding">Create a new block</div>
+
   {{#if blockTypes}}
 
-  [[[form newBlockForm]]]
+    {{{iris 'form' '{"formID":"newBlockForm"}'}}}
 
   {{else}}
 

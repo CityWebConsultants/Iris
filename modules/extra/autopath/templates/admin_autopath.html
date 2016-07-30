@@ -1,8 +1,7 @@
-
 {{#each entityTypes}} 
 
 <h2>{{this}}</h2>
 
-  [[[form autopath,{{this}}]]] 
+{{{iris 'form' '{"formID":"autopath","entityType":"$this"}'}}}
 
 {{/each}}
