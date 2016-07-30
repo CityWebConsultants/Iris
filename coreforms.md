@@ -1,11 +1,11 @@
-`mailSettings`
-`login`
-`modules`
-`restart`
-`themes`
+`mailSettings` - broken
+`login` - works
+`modules` - works
+`restart` - works
+`themes` - works
 `set_first_user`
 `passwordReset`
-`autoPath`
+`autoPath` - works
 `blockDeleteForm`
 `blockForm`
 `newBlockForm`

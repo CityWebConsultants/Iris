@@ -61,8 +61,8 @@ iris.route.get("/admin/structure/autopath", routes.adminStructure, function (req
  */
 
 iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (thisHook, data) {
-
-  var entityType = thisHook.context.params[1];
+  
+  var entityType = thisHook.context.params.entityType;
 
   var tokens = [];
 

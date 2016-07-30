@@ -120,12 +120,16 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
     if (typeof arguments[1] === "string") {
             
       embedOptions = arguments[1];
-      
+            
       Object.keys(options.data.root).forEach(function (variable) {
-                
+                  
         embedOptions = embedOptions.split("$" + variable).join(options.data.root[variable]);
 
       })
+      
+      // TODO : Allow use of other scopes than the current one. There should be an automatic way of handling this/`this` for every situation.
+      
+      embedOptions = embedOptions.split("$this").join(this);
       
     } else {
 
