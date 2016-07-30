@@ -115,8 +115,8 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     var title = arguments[0];
     var embedOptions = arguments[1];
-    var options = arguments[2];
-
+    var options = arguments[arguments.length -1];
+    
     if (options.fn) {
 
       return options.fn(this, {
@@ -131,14 +131,13 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       return new Promise(function (pass, fail) {
 
         var JSONembedOptions;
-
+        
         try {
 
           JSONembedOptions = JSON.parse(embedOptions);
 
         } catch (e) {
 
-          fail();
 
         }
 
