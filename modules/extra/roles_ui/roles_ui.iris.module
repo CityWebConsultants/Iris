@@ -1,5 +1,5 @@
 {
   "name": "Roles UI",
-  "description": "Admin page to manage roles",
+  "description": "Admin page to manage and create custom user roles for permissions",
   "weight": 0
 }
