@@ -18,7 +18,7 @@ iris.registerModule("menu",__dirname);
 
 iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHook, data) {
 
-  var menuName = thisHook.context.embedID;
+  var menuName = thisHook.context.embedOptions.menuName;
 
   var menuItems = [];
 
