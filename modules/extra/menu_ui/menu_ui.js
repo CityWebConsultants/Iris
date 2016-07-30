@@ -18,7 +18,7 @@ var routes = {
 
 iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (thisHook, data) {
 
-  var menuName = thisHook.context.embedID;
+  var menuName = thisHook.context.embedOptions.menuName;
 
   iris.readConfig('menu', menuName).then(function (config) {
 
@@ -225,7 +225,7 @@ iris.modules.menu_ui.registerHook("hook_form_submit__menu", 0, function (thisHoo
  * Page callback for creating a new menu.
  */
 
-iris.app.get("/admin/structure/menu/create", function (req, res) {
+iris.route.get("/admin/structure/menu/create", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -255,7 +255,7 @@ iris.app.get("/admin/structure/menu/create", function (req, res) {
  * Page for editing an existing menu.
  */
 
-iris.app.get("/admin/structure/menu/edit/:menuName", function (req, res) {
+iris.route.get("/admin/structure/menu/edit/:menuName", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -287,7 +287,7 @@ iris.app.get("/admin/structure/menu/edit/:menuName", function (req, res) {
  * Page for deleting an existing menu.
  */
 
-iris.app.get("/admin/structure/menu/delete/:menuName", function (req, res) {
+iris.route.get("/admin/structure/menu/delete/:menuName", function (req, res) {
 
   // If not admin, present 403 page
 
