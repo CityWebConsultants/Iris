@@ -546,9 +546,9 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
   // Split embed code by double underscores
 
-  if (thisHook.context.embedID) {
+  if (thisHook.context.embedOptions.template) {
 
-    var searchArray = thisHook.context.embedID.split("__");
+    var searchArray = thisHook.context.embedOptions.template.split("__");
 
     // Get template
 
@@ -558,7 +558,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
     }, function (fail) {
 
-      iris.log("error", "Tried to embed template " + thisHook.context.embedID + " but no matching template file found.");
+      iris.log("error", "Tried to embed template " + thisHook.context.embedOptions.template + " but no matching template file found.");
 
       thisHook.pass("");
 
@@ -776,47 +776,10 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
   }, Handlebars).then(function () {
 
     Handlebars.compile(data.html)(data.vars).then(function (html) {
-      try {
 
-        data.html = html;
+      data.html = html;
 
-        // Run through parse template again to see if any new templates can be loaded.
-
-        if (!data.vars.finalParse) {
-
-          parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
-
-            success.variables.finalParse = true;
-
-            var Handlebars = promisedHandlebars(require('handlebars'));
-
-            iris.invokeHook("hook_frontend_handlebars_extend", thisHook.authPass, {
-              variables: success.variables
-            }, Handlebars).then(function () {
-
-              Handlebars.compile(success.html)(success.variables).then(function (html) {
-
-                success.html = html;
-
-                thisHook.pass(success);
-
-              });
-
-            });
-
-          });
-
-        } else {
-
-          thisHook.pass(data);
-
-        }
-
-      } catch (e) {
-
-        thisHook.fail(e);
-
-      }
+      thisHook.pass(data);
 
     }, function (fail) {
 
