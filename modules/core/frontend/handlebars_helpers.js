@@ -118,25 +118,37 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
     var embedOptions;
 
     if (typeof arguments[1] === "string") {
-            
+
       embedOptions = arguments[1];
-            
+
       Object.keys(options.data.root).forEach(function (variable) {
-                  
+
         embedOptions = embedOptions.split("$" + variable).join(options.data.root[variable]);
 
       })
-      
+
       // TODO : Allow use of other scopes than the current one. There should be an automatic way of handling this/`this` for every situation.
-      
+
       embedOptions = embedOptions.split("$this").join(this);
-      
+
     } else {
 
       embedOptions = "{}";
 
     }
     
+    // Delay rendering of tags embed as it needs to wait for any additional variables
+
+    if (title === "tags" && options.data) {
+
+      if (!options.data.root.finalParse) {
+
+        return ("{{{iris '" + title + "' '" + embedOptions + "'}}}")
+
+      }
+
+    }
+
     if (options.fn) {
 
       return options.fn(this, {
@@ -167,7 +179,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
           vars = options.data.root;
 
         }
-                
+
         iris.invokeHook("hook_frontend_embed__" + title, thisHook.authPass, {
           embedOptions: JSONembedOptions,
           vars: vars

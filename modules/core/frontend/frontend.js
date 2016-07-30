@@ -573,48 +573,6 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 });
 
 /**
- * @member hook_frontend_template_parse
- * @memberof frontend
- *
- * @desc Parse frontend template
- *
- * Hook into the template parsing process using this. Useful for adding to the context variables
- */
-iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (thisHook, data) {
-
-  // Add tags to context if doesn't exist. Tags in this section should be in the format of an object with 
-  // the properites: type (for the type of tag) and attributes (for a list of attributes) and a rank. 
-  // headTags should be placed in the <head>, bodyTags in the <body> in your theme using [[[tags headTags]]] 
-  // for example.
-
-  if (!data.variables.tags) {
-
-    data.variables.tags = {
-      headTags: {},
-      bodyTags: {},
-    };
-
-  }
-
-  // Default tags
-
-  data.variables.tags.headTags["iris_core"] = {
-    type: "script",
-    attributes: {
-      "src": "/modules/frontend/iris_core.js"
-    },
-    rank: 0
-  };
-
-  if (iris.modules.frontend.globals.activeTheme) {
-    data.variables["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
-  }
-
-  thisHook.pass(data);
-
-});
-
-/**
  * Catch all callback which will be triggered for all callbacks that are not specifically defined.
  *
  * It will check for entity paths for urls like /[entity_type]/[entity_id] and redirect to their
@@ -770,6 +728,20 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     };
 
   }
+  
+  // Default tags
+
+  data.vars.tags.headTags["iris_core"] = {
+    type: "script",
+    attributes: {
+      "src": "/modules/frontend/iris_core.js"
+    },
+    rank: 0
+  };
+
+  if (iris.modules.frontend.globals.activeTheme) {
+    data.vars["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
+  }
 
   iris.invokeHook("hook_frontend_handlebars_extend", thisHook.authPass, {
     variables: data.vars
@@ -779,7 +751,17 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
       data.html = html;
 
-      thisHook.pass(data);
+      // Final parse
+
+      data.vars.finalParse = true;
+      
+      Handlebars.compile(data.html)(data.vars).then(function (finalHTML) {
+
+        data.html = finalHTML
+
+        thisHook.pass(data);
+      
+      })
 
     }, function (fail) {
 

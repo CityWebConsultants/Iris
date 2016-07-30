@@ -16,13 +16,6 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
 
   var vars = thisHook.context.vars;
     
-  if (!vars.finalParse) {
-
-    thisHook.fail("wait");
-    return false;
-
-  }
-  
   var tags = [];
   if(vars.tags[tagName] != undefined){
 
