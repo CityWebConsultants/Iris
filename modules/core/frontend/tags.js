@@ -15,7 +15,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
   var tagExclude = thisHook.context.embedOptions.exclude;
 
   var vars = thisHook.context.vars;
-  
+    
   if (!vars.finalParse) {
 
     thisHook.fail("wait");

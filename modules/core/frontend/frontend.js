@@ -847,7 +847,7 @@ iris.app.use(function (req, res, next) {
  */
 iris.modules.frontend.registerHook("hook_display_error_page", 0, function (thisHook, data) {
 
-  var isFront = false;
+  var isFront;
 
   if (thisHook.context.req.url === '/' || thisHook.context.req.url === '/force_front_404') {
 
@@ -894,6 +894,15 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
   }
 
+  if (!data.vars.tags) {
+
+    data.vars.tags = {
+      headTags: {},
+      bodyTags: {},
+    };
+
+  }
+
   iris.invokeHook("hook_frontend_handlebars_extend", thisHook.authPass, {
     variables: data.vars
   }, Handlebars).then(function () {
@@ -904,38 +913,9 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
         data.html = html;
 
         // Run through parse template again to see if any new templates can be loaded.
-
-        if (data.html.indexOf("[[[") !== -1) {
-
-          var embeds = findEmbeds(data.html, true);
-
-          // Loop over all embeds and compile out missing curlies
-
-          if (embeds) {
-
-            Object.keys(embeds).forEach(function (category) {
-
-              embeds[category].forEach(function (embed) {
-
-                if (embed.indexOf("{{") !== -1) {
-
-                  embed = "[[[" + category + " " + embed + "]]]";
-
-                  var compiled = Handlebars.compile(embed)({
-                    stripCurlies: true
-                  });
-
-                  data.html = data.html.split(embed).join(compiled);
-
-
-                }
-
-              });
-
-            });
-
-          }
-
+        
+        if (!data.vars.finalParse) {
+          
           parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
 
             success.variables.finalParse = true;
@@ -945,7 +925,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
             iris.invokeHook("hook_frontend_handlebars_extend", thisHook.authPass, {
               variables: success.variables
             }, Handlebars).then(function () {
-              
+
               Handlebars.compile(success.html)(success.variables).then(function (html) {
 
                 success.html = html;
@@ -1155,21 +1135,10 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
 
       iris.modules.frontend.globals.findTemplate(currentTemplateName).then(function (template) {
 
-        parseTemplate(template, authPass || "root", parameters).then(function (success) {
-
-            // Add wrapper paramaters for filename
-
-            success.html = "<!-- " + currentTemplateName + "-->" + "\n" + success.html;
-
-            callback(success);
-
-          },
-          function (fail) {
-
-            no(fail);
-
-          });
-
+        callback({
+          html: template,
+          variables: parameters
+        });
 
       }, function (fail) {
 

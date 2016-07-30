@@ -551,8 +551,8 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
       }, function (fail) {
 
-        thisHook.context.res.status(403);
-        thisHook.context.res.end(403);
+        thisHook.context.res.status("403");
+        thisHook.context.res.end("403");
         thisHook.fail(data);
 
       });
