@@ -10,11 +10,19 @@ var fs = require("fs");
  */
 
 iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thisHook, data) {
-  
+
   iris.invokeHook("hook_entity_fetch", thisHook.authPass, thisHook.context.embedOptions, thisHook.context.embedOptions).then(function (result) {
 
-    thisHook.context.vars[thisHook.context.embedID] = result;
+    if (thisHook.context.embedOptions.variableName) {
 
+      thisHook.context.embedID = thisHook.context.embedOptions.variableName;
+
+    } else {
+
+      thisHook.context.embedID = JSON.stringify(thisHook.context.embedOptions);
+
+    }
+        
     thisHook.context.vars.tags.headTags["socket.io"] = {
       type: "script",
       attributes: {
