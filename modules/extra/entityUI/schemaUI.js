@@ -369,7 +369,7 @@ iris.route.get("/admin/schema/:type/fields/:field/delete", routes.fieldDelete, f
 });
 
 iris.modules.entityUI.registerHook("hook_form_render__schemaDelete", 0, function (thisHook, data) {
-  var entityType = thisHook.context.params[1];
+  var entityType = thisHook.context.params.entityType;
 
   data.schema = {
     "schema": {

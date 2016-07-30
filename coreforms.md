@@ -1,4 +1,6 @@
 `mailSettings` - broken
+
+`schema` - works
 `login` - works
 `modules` - works
 `restart` - works
@@ -17,14 +19,12 @@
 `newBlockForm` - works
 `blockForm` - works
 `blockDeleteForm` - works
-
-`set_first_user`
-`schema`
-`schemaDelete`
-`menu`
-`menu_delete`
-`manageRoles`
-`textfilter_delete`
-`textfilter`
-`action_delete`
-`actions`
+`menu` - works
+`menu_delete` - works
+`schemaDelete` - works
+`manageRoles` - works
+`textfilter_delete` - works
+`textfilter` - works
+`action_delete` - works
+`actions` - works
+`set_first_user` - works
