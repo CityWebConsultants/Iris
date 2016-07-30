@@ -136,7 +136,25 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       embedOptions = "{}";
 
     }
-    
+
+    var JSONembedOptions;
+
+    try {
+
+      JSONembedOptions = JSON.parse(embedOptions);
+
+    } catch (e) {
+
+    }
+
+    var vars = {};
+
+    if (options.data && options.data.root) {
+
+      vars = options.data.root;
+
+    }
+
     // Delay rendering of tags embed as it needs to wait for any additional variables
 
     if (title === "tags" && options.data) {
@@ -149,61 +167,39 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     }
 
-    if (options.fn) {
+    return new Promise(function (pass, fail) {
 
-      return options.fn(this, {
-        data: options.data,
-        blockParams: {
-          "hello": "world"
-        }
-      });
 
-    } else {
+      iris.invokeHook("hook_frontend_embed__" + title, thisHook.authPass, {
+        embedOptions: JSONembedOptions,
+        vars: vars
+      }).then(function (output) {
 
-      return new Promise(function (pass, fail) {
-
-        var JSONembedOptions;
-
-        try {
-
-          JSONembedOptions = JSON.parse(embedOptions);
-
-        } catch (e) {
-
-        }
-
-        var vars = {};
-
-        if (options.data && options.data.root) {
-
-          vars = options.data.root;
-
-        }
-
-        iris.invokeHook("hook_frontend_embed__" + title, thisHook.authPass, {
-          embedOptions: JSONembedOptions,
-          vars: vars
-        }).then(function (output) {
+        if (typeof output === "string") {
 
           pass(output);
 
-        }, function (reason) {
+        } else if (output.html) {
 
-          if (reason === "wait") {
+          if (options.fn) {
 
-            pass("{{{iris '" + title + "' '" + embedOptions + "'}}}")
+            pass(output.html);
 
           } else {
 
-            fail(reason);
+            pass(output.html);
 
           }
 
-        })
+        }
+
+      }, function (reason) {
+
+        fail(reason);
 
       })
 
-    }
+    })
 
   })
 

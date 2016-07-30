@@ -752,7 +752,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
       data.html = html;
 
       // Final parse
-
+      
       data.vars.finalParse = true;
       
       Handlebars.compile(data.html)(data.vars).then(function (finalHTML) {

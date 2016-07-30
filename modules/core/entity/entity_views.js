@@ -22,7 +22,7 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
       thisHook.context.embedID = JSON.stringify(thisHook.context.embedOptions);
 
     }
-        
+
     thisHook.context.vars.tags.headTags["socket.io"] = {
       type: "script",
       attributes: {
@@ -51,7 +51,12 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
 
     var loader = entityPackage;
 
-    thisHook.pass("<script>" + loader + "</script>");
+    thisHook.pass({
+      html: "<script>" + loader + "</script>",
+      variables: {
+        list: result
+      }
+    });
 
   }, function (error) {
 
