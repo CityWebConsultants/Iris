@@ -572,130 +572,6 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
 });
 
-var parseEmbeds = function (html, variables, authPass) {
-
-  return new Promise(function (pass, fail) {
-
-    // Check for any embeds present in the code
-
-    var embeds = findEmbeds(html);
-
-    // Counter for checking all of the embeds have been parsed
-
-    var embedCount = 0;
-    var doneCount = 0;
-
-    var finished = function () {
-
-
-      doneCount += 1;
-
-      if (doneCount === embedCount) {
-
-        pass({
-          html: html,
-          variables: variables
-        });
-
-      }
-
-    };
-
-    if (embeds) {
-
-      Object.keys(embeds).forEach(function (category) {
-
-        embedCount += embeds[category].length;
-
-        embeds[category].forEach(function (embed) {
-
-          // Split parameters by , to get arguments
-
-          var arguments = embed.split(","),
-            embedID = arguments[0],
-            embedOptions;
-
-          if (arguments[1]) {
-
-            try {
-
-              arguments.shift();
-
-              embedOptions = JSON.parse(arguments.join(","));
-
-            } catch (e) {
-
-              // Try comma seperated parameter approach
-
-              embedOptions = [];
-
-              embed.split(",").map(function (current) {
-
-                embedOptions.push(current.trim())
-
-              })
-
-            }
-
-          }
-
-          iris.invokeHook("hook_frontend_embed__" + category, authPass, {
-            vars: variables,
-            embedID: embedID,
-            embedOptions: embedOptions
-          }).then(function (parsedEmbed) {
-
-            if (!parsedEmbed) {
-
-              finished();
-              return false;
-
-            }
-
-            var filler = '';
-            if (embed && embed != '' || category == 'MAINCONTENT') {
-              filler = ' ' + embed;
-            }
-            html = html.split("[[[" + category + filler + "]]]").join(parsedEmbed);
-
-            finished();
-
-          }, function (fail) {
-
-            if (fail === "No such hook exists") {
-
-              finished();
-
-            } else {
-
-              finished();
-
-              if (fail) {
-                iris.log("error", fail);
-              }
-
-            }
-
-          });
-
-        });
-
-      });
-
-
-    } else {
-
-      pass({
-        html: html,
-        variables: variables
-      });
-
-    }
-
-  });
-
-};
-
 /**
  * @member hook_frontend_template_parse
  * @memberof frontend
@@ -734,15 +610,7 @@ iris.modules.frontend.registerHook("hook_frontend_template_parse", 0, function (
     data.variables["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
   }
 
-  parseEmbeds(data.html, data.variables, thisHook.authPass).then(function (success) {
-
-    thisHook.pass(success);
-
-  }, function (fail) {
-
-    thisHook.pass(fail);
-
-  });
+  thisHook.pass(data);
 
 });
 
@@ -913,9 +781,9 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
         data.html = html;
 
         // Run through parse template again to see if any new templates can be loaded.
-        
+
         if (!data.vars.finalParse) {
-          
+
           parseTemplate(data.html, thisHook.authPass, data.vars).then(function (success) {
 
             success.variables.finalParse = true;
@@ -1164,19 +1032,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
             vars: innerOutput.variables
           }).then(function (output) {
 
-            parseEmbeds(output.html, output.variables, authPass).then(function (success) {
-
-              output.html = unEscape(success.html);
-
-              output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
-
-              yes(output.html);
-
-            }, function (fail) {
-
-              no(fail);
-
-            });
+            yes(unEscape(output.html));
 
           }, function (fail) {
 
@@ -1200,19 +1056,7 @@ iris.modules.frontend.globals.parseTemplateFile = function (templateName, wrappe
           vars: output.variables
         }).then(function (output) {
 
-          parseEmbeds(output.html, output.variables, authPass).then(function (success) {
-
-            output.html = unEscape(success.html);
-
-            output.html = output.html.split("[[[").join("<!--[[[").split("]]]").join("]]]-->");
-
-            yes(output.html);
-
-          }, function (fail) {
-
-            no(fail);
-
-          });
+          yes(unEscape(output.html));
 
         }, function (fail) {
 
