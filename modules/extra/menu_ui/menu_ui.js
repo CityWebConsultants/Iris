@@ -62,7 +62,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
   // Check if menu name supplied and previous values available
   var ap = thisHook.authPass;
   
-  var menuId = thisHook.context.params;
+  var menuId = thisHook.context.params.menuName;
   
   iris.readConfig('menu', menuId).then(function (config) {
 
@@ -329,7 +329,7 @@ iris.modules.menu.registerHook("hook_form_render__menu_delete", 0, function (thi
 
   data.schema["menuName"] = {
     type: "hidden",
-    default: thisHook.context.params[1]
+    default: thisHook.context.params.menuName
   };
 
   thisHook.pass(data);
