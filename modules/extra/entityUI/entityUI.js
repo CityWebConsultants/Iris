@@ -157,12 +157,13 @@ iris.route.get("/:type/:id/delete", routes.delete, function (req, res) {
 // Render entity form
 
 iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (thisHook, data) {
-
+      
   // Check if entity type exists in the system
 
-  var entityType = thisHook.context.params[1],
-    schema = iris.entityTypes[entityType];
-
+  var entityType = thisHook.context.params.entityType;
+  
+  var schema = iris.entityTypes[entityType];
+    
   if (!schema) {
 
     thisHook.fail("No such schema");
@@ -716,7 +717,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
   // Check if an entity id was provided
 
-  var eid = thisHook.context.params[2];
+  var eid = thisHook.context.params.eid;
 
   if (eid) {
 

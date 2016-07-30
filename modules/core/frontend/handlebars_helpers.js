@@ -114,8 +114,24 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
   Handlebars.registerHelper("iris", function () {
 
     var title = arguments[0];
-    var embedOptions = arguments[1];
-    var options = arguments[arguments.length -1];
+    var options = arguments[arguments.length - 1];
+    var embedOptions;
+
+    if (typeof arguments[1] === "string") {
+            
+      embedOptions = arguments[1];
+      
+      Object.keys(options.data.root).forEach(function (variable) {
+                
+        embedOptions = embedOptions.split("$" + variable).join(options.data.root[variable]);
+
+      })
+      
+    } else {
+
+      embedOptions = "{}";
+
+    }
     
     if (options.fn) {
 
@@ -131,13 +147,12 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       return new Promise(function (pass, fail) {
 
         var JSONembedOptions;
-        
+
         try {
 
           JSONembedOptions = JSON.parse(embedOptions);
 
         } catch (e) {
-
 
         }
 
