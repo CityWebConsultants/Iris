@@ -1070,11 +1070,11 @@ iris.modules.entityUI.registerHook("hook_form_render__entity_delete", 0, functio
 
     "eid": {
       type: "hidden",
-      "default": thisHook.context.params[1]
+      "default": thisHook.context.params.eid
     },
     "entityType": {
       "type": "hidden",
-      default: thisHook.context.params[2]
+      default: thisHook.context.params.entityType
     }
 
   }

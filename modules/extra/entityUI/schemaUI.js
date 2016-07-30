@@ -574,10 +574,10 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
 
 
   var ap = thisHook.authPass;
-  if (thisHook.context.params[1]) {
+  if (thisHook.context.params.entityType) {
 
-    var entityType = thisHook.context.params[1];
-
+    var entityType = thisHook.context.params.entityType;
+    
     if (!iris.entityTypes[entityType]) {
 
       iris.message(thisHook.authPass.userid, ap.t("No such entity type"), "danger");
@@ -587,12 +587,11 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
       return false;
 
     }
-
-
+    
     var entityTypeSchema = iris.entityTypes[entityType];
     // Parent is required to know which fields to list.
-    var parent = thisHook.context.params[2];
-
+    var parent = thisHook.context.params.parent;
+    
     if (parent) {
 
       var recurseFields = function (object, elementParent) {
@@ -804,7 +803,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
  * Save the field weights if re-ordered and/or add a new field to this object in the schema.
  */
 iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, function (thisHook, data) {
-
+  
   // Fetch current schema
   var schema = JSON.parse(JSON.stringify(iris.entityTypes[thisHook.context.params.entityType]));
 

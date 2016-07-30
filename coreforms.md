@@ -9,13 +9,13 @@
 `blockDeleteForm`
 `blockForm`
 `newBlockForm`
-`entity`
-`entity_delete`
+`entity` - works
+`entity_delete`- works
 `schema`
 `schemaDelete`
 `schemafieldDelete`
 `schemafieldwidgets`
-`schemaFieldListing`
+`schemaFieldListing` - works
 `ip_access`
 `menu`
 `menu_delete`

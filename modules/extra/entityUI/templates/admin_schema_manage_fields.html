@@ -38,6 +38,14 @@
 </script>
 <div id="current-fields">
   
+  {{#if parent}}
+  
   {{{iris 'form' '{"formID":"schemaFieldListing","entityType":"$entityType","parent":"$parent"}'}}}
+  
+  {{else}}
+  
+    {{{iris 'form' '{"formID":"schemaFieldListing","entityType":"$entityType"}'}}}
+  
+  {{/if}}
 
 </div>
