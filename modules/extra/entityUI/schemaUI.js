@@ -425,12 +425,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaDelete", 0, function
 iris.modules.entityUI.registerHook("hook_form_render__schemafieldDelete", 0, function (thisHook, data) {
 
 
-  var entityType = thisHook.context.params[1];
+  var entityType = thisHook.context.params.entityType;
 
-  var fieldName = thisHook.context.params[2];
+  var fieldName = thisHook.context.params.field;
 
   var schema = iris.entityTypes[entityType];
-
 
   data.schema.message = {
     "type": "markup",

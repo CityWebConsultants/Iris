@@ -14,10 +14,10 @@
 `schema`
 `schemaDelete`
 `schemafield` - works
-`schemafieldDelete`
+`schemafieldDelete`- works
 `schemafieldwidgets` - works
 `schemaFieldListing` - works
-`ip_access`
+`ip_access` - works
 `menu`
 `menu_delete`
 `permissions`
