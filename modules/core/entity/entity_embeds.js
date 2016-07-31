@@ -7,48 +7,54 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
 
   iris.invokeHook("hook_entity_fetch", thisHook.authPass, thisHook.context.embedOptions, thisHook.context.embedOptions).then(function (result) {
 
-      if (thisHook.context.embedOptions.variableName) {
+      var clientSideEntityLoader;
 
-        thisHook.context.embedID = thisHook.context.embedOptions.variableName;
+      if (thisHook.context.embedOptions.loadscripts || !thisHook.context.blockEmbed) {
 
-      } else {
+        if (thisHook.context.embedOptions.variableName) {
 
-        thisHook.context.embedID = JSON.stringify(thisHook.context.embedOptions);
+          thisHook.context.embedID = thisHook.context.embedOptions.variableName;
+
+        } else {
+
+          thisHook.context.embedID = JSON.stringify(thisHook.context.embedOptions);
+
+        }
+
+        thisHook.context.vars.tags.headTags["socket.io"] = {
+          type: "script",
+          attributes: {
+            "src": "/socket.io/socket.io.js"
+          },
+          rank: -1
+        }
+
+        thisHook.context.vars.tags.headTags["handlebars"] = {
+          type: "script",
+          attributes: {
+            "src": "/modules/entity/handlebars.min.js"
+          },
+          rank: -1
+        }
+
+        thisHook.context.vars.tags.headTags["entity_fetch"] = {
+          type: "script",
+          attributes: {
+            "src": "/modules/entity/templates.js"
+          },
+          rank: 0
+        };
+
+        var entityPackage = "\n" + "iris.entityPreFetch(" + JSON.stringify(result) + ", '" + thisHook.context.embedID + "'" + ", " + JSON.stringify(thisHook.context.embedOptions) + ")";
+
+        clientSideEntityLoader = "<script>" + entityPackage + "</script>";
 
       }
-
-      thisHook.context.vars.tags.headTags["socket.io"] = {
-        type: "script",
-        attributes: {
-          "src": "/socket.io/socket.io.js"
-        },
-        rank: -1
-      }
-
-      thisHook.context.vars.tags.headTags["handlebars"] = {
-        type: "script",
-        attributes: {
-          "src": "/modules/entity/handlebars.min.js"
-        },
-        rank: -1
-      }
-
-      thisHook.context.vars.tags.headTags["entity_fetch"] = {
-        type: "script",
-        attributes: {
-          "src": "/modules/entity/templates.js"
-        },
-        rank: 0
-      };
-
-      var entityPackage = "\n" + "iris.entityPreFetch(" + JSON.stringify(result) + ", '" + thisHook.context.embedID + "'" + ", " + JSON.stringify(thisHook.context.embedOptions) + ")";
-
-      var loader = entityPackage;
-
+    
       thisHook.pass({
-        html: "<script>" + loader + "</script>",
+        content: clientSideEntityLoader,
         variables: [result],
-        blockHeader: "<script>" + loader + "</script>",
+        blockHeader: clientSideEntityLoader,
         blockFooter: ""
       });
 
