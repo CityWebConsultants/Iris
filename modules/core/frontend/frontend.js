@@ -728,8 +728,16 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     };
 
   }
-  
+
   // Default tags
+
+  thisHook.context.vars.tags.headTags["socket.io"] = {
+    type: "script",
+    attributes: {
+      "src": "/socket.io/socket.io.js"
+    },
+    rank: -1
+  }
 
   data.vars.tags.headTags["iris_core"] = {
     type: "script",
@@ -752,15 +760,15 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
       data.html = html;
 
       // Final parse
-      
+
       data.vars.finalParse = true;
-      
+
       Handlebars.compile(data.html)(data.vars).then(function (finalHTML) {
 
         data.html = finalHTML
 
         thisHook.pass(data);
-      
+
       })
 
     }, function (fail) {
