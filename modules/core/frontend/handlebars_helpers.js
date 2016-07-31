@@ -7,9 +7,9 @@ iris.modules.frontend.registerSocketListener("liveEmbedRegister", function (sock
 
   var embedType = data.split("_")[0];
   var embedID = data;
-    
+
   var embed = iris.modules.frontend.globals.liveEmbeds[embedType][embedID];
-  
+
   if (embed) {
 
     embed.socket = socket.id;
@@ -23,7 +23,7 @@ iris.modules.frontend.registerSocketListener("liveEmbedRegister", function (sock
     socket.irisEmbeds.push(embed);
 
   }
-  
+
 })
 
 // Delete embed if no longer in use by socket
@@ -31,11 +31,11 @@ iris.modules.frontend.registerSocketListener("liveEmbedRegister", function (sock
 iris.modules.frontend.registerHook("hook_socket_disconnected", 0, function (thisHook, data) {
 
   Object.keys(iris.modules.frontend.globals.liveEmbeds).forEach(function (category) {
-    
+
     Object.keys(iris.modules.frontend.globals.liveEmbeds[category]).forEach(function (embedID) {
 
       var embed = iris.modules.frontend.globals.liveEmbeds[category][embedID];
-      
+
       if (embed.socket === thisHook.context.socket.id) {
 
         delete iris.modules.frontend.globals.liveEmbeds[category][embedID];
@@ -71,17 +71,29 @@ iris.modules.frontend.globals.parseIrisEmbed = function (settings, authPass, liv
 
           pass(output);
 
-        } else if (output.html && settings.template) {
+        } else if (settings.template) {
 
           var blockTemplate = settings.template(this, {
             blockParams: output.variables
           }).then(function (result) {
 
+            if (!output.blockHeader) {
+
+              output.blockHeader = "";
+
+            }
+
+            if (!output.blockFooter) {
+
+              output.blockFooter = "";
+
+            }
+
             var processed = output.blockHeader + result + output.blockFooter;
 
             if (liveToken) {
 
-              processed = '<div data-liveupdate="' + liveToken + '">' + processed + '</div>';
+              processed = '<div class="iris-liveupdate" data-liveupdate="' + liveToken + '">' + processed + '</div>';
 
             }
 
@@ -89,9 +101,9 @@ iris.modules.frontend.globals.parseIrisEmbed = function (settings, authPass, liv
 
           });
 
-        } else if (output.html) {
+        } else if (output.content) {
 
-          pass(output.html);
+          pass(output.content);
 
         } else {
 
