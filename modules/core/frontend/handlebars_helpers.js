@@ -348,7 +348,13 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
           var token = title + "_" + buf.toString('hex');
 
-          settings.getResult = function (authPass = thisHook.authPass) {
+          settings.getResult = function (authPass) {
+            
+            if(!authPass){
+              
+              authPass = thisHook.authPass;
+              
+            }
 
             return new Promise(function (pass, fail) {
 
