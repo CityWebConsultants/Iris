@@ -210,41 +210,56 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     return new Promise(function (pass, fail) {
 
+      // Create unique ID for embed
 
-      iris.invokeHook("hook_frontend_embed__" + title, thisHook.authPass, {
-        embedOptions: JSONembedOptions,
-        vars: vars,
-        blockEmbed: block
-      }).then(function (output) {
+      var crypto = require('crypto');
 
-          if (typeof output === "string") {
+      crypto.randomBytes(16, function (ex, buf) {
 
-            pass(output);
+        // Liveupdate token for tracking embeds
 
-          } else if (output.html && options.fn) {
+        var token = title + "_" + buf.toString('hex');
 
-            pass(options.fn(this, {
-              blockParams: output.variables
-            }));
+        iris.invokeHook("hook_frontend_embed__" + title, thisHook.authPass, {
+          embedOptions: JSONembedOptions,
+          vars: vars,
+          blockEmbed: block
+        }).then(function (output) {
 
-          } else if (output.html) {
+            if (typeof output === "string") {
 
-            pass(output.html);
+              pass(output);
 
-          } else {
+            } else if (output.html && options.fn) {
 
-            pass();
+              var blockTemplate = options.fn(this, {
+                blockParams: output.variables
+              }).then(function (result) {
 
-          }
+                pass(output.blockHeader + result + output.blockFooter);
 
-        },
-        function (reason) {
+              });
 
-          fail(reason);
+            } else if (output.html) {
 
-        })
+              pass(output.html);
 
-    })
+            } else {
+
+              pass();
+
+            }
+
+          },
+          function (reason) {
+
+            fail(reason);
+
+          })
+
+      })
+
+    });
 
   })
 

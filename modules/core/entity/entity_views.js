@@ -53,7 +53,9 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
 
       thisHook.pass({
         html: "<script>" + loader + "</script>",
-        variables: [result]
+        variables: [result],
+        blockHeader: "<script>" + loader + "</script>",
+        blockFooter: "Done!"
       });
 
     },
