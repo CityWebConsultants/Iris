@@ -121,13 +121,26 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       embedOptions = arguments[1];
 
+      try {
+
+        var that = this;
+        
+        Object.keys(this).forEach(function (variable) {
+          
+          embedOptions = embedOptions.split("$this." + variable).join(that[variable]);
+
+        })
+        
+      } catch (e) {
+
+
+      }
+
       Object.keys(options.data.root).forEach(function (variable) {
 
         embedOptions = embedOptions.split("$" + variable).join(options.data.root[variable]);
 
       })
-
-      // TODO : Allow use of other scopes than the current one. There should be an automatic way of handling this/`this` for every situation.
 
       embedOptions = embedOptions.split("$this").join(this);
 
@@ -180,7 +193,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
             pass(output);
 
           } else if (output.html && options.fn) {
-                        
+
             pass(options.fn(this, {
               blockParams: output.variables
             }));
