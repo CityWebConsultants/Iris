@@ -2,6 +2,57 @@
 
 iris.modules.frontend.globals.liveEmbeds = {};
 iris.modules.frontend.globals.liveEmbedTimeout = 4000;
+iris.modules.frontend.globals.parseIrisEmbed = function (settings, authPass) {
+
+  return new Promise(function (pass, fail) {
+        
+    iris.invokeHook("hook_frontend_embed__" + settings.title, authPass, {
+      embedOptions: settings.embedOptions,
+      vars: settings.vars,
+      blockEmbed: settings.blockEmbed
+    }).then(function (output) {
+
+        if (!output) {
+
+          pass();
+          return false;
+
+        }
+
+        if (typeof output === "string") {
+
+          pass(output);
+
+        } else if (output.html && settings.template) {
+
+          var blockTemplate = settings.template(this, {
+            blockParams: output.variables
+          }).then(function (result) {
+
+            pass(output.blockHeader + result + output.blockFooter);
+
+          });
+
+        } else if (output.html) {
+
+          pass(output.html);
+
+        } else {
+
+          pass();
+
+        }
+
+      },
+      function (reason) {
+
+        fail(reason);
+
+      })
+
+  });
+
+}
 
 /**
  * @member hook_frontend_handlebars_extend
@@ -209,48 +260,15 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     return new Promise(function (pass, fail) {
 
-      var createEmbed = function () {
-
-        iris.invokeHook("hook_frontend_embed__" + title, thisHook.authPass, {
-          embedOptions: JSONembedOptions,
-          vars: vars,
-          blockEmbed: block
-        }).then(function (output) {
-
-            if (typeof output === "string") {
-
-              pass(output);
-
-            } else if (output.html && options.fn) {
-
-              var blockTemplate = options.fn(this, {
-                blockParams: output.variables
-              }).then(function (result) {
-
-                pass(output.blockHeader + result + output.blockFooter);
-
-              });
-
-            } else if (output.html) {
-
-              pass(output.html);
-
-            } else {
-
-              pass();
-
-            }
-
-          },
-          function (reason) {
-
-            fail(reason);
-
-          })
-
-      }
-
       // Create unique ID for embed if liveupdating
+
+      var settings = {
+        title: title,
+        embedOptions: JSONembedOptions,
+        vars: vars,
+        blockEmbed: block,
+        template: options.fn
+      }
 
       if (liveUpdate) {
 
@@ -261,15 +279,9 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
           // Liveupdate token for tracking embeds
 
           var token = title + "_" + buf.toString('hex');
+          settings.sockets = [];
 
-          var embedCache = {
-            embedOptions: JSONembedOptions,
-            vars: vars,
-            blockEmbed: block,
-            sockets: []
-          }
-
-          iris.modules.frontend.globals.liveEmbeds[token] = embedCache;
+          iris.modules.frontend.globals.liveEmbeds[token] = settings;
 
           setTimeout(function () {
 
@@ -281,13 +293,21 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
           }, iris.modules.frontend.globals.liveEmbedTimeout);
 
-          createEmbed();
+          iris.modules.frontend.globals.parseIrisEmbed(settings, thisHook.authPass).then(function (result) {
+
+            pass(result);
+
+          });
 
         });
 
       } else {
 
-        createEmbed();
+        iris.modules.frontend.globals.parseIrisEmbed(settings, thisHook.authPass).then(function (result) {
+
+          pass(result);
+
+        });
 
       }
 
