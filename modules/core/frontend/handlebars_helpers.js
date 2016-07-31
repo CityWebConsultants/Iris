@@ -22,10 +22,7 @@ iris.modules.frontend.registerSocketListener("liveEmbedRegister", function (sock
 
     setInterval(function () {
 
-      socket.emit("liveUpdate", {
-        id: data,
-        content: "hiiii"
-      });
+      embed.sendResult();
 
     }, 3000)
 
@@ -354,6 +351,25 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
               fail(fail);
 
             });
+
+          }
+
+          settings.sendResult = function (authPass) {
+
+            settings.getResult(authPass).then(function (result) {
+
+              var socket = iris.socketServer.clients().connected[settings.socket];
+
+              if (socket) {
+
+                socket.emit("liveUpdate", {
+                  id: token,
+                  content: result
+                });
+
+              }
+
+            })
 
           }
 
