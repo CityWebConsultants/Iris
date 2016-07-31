@@ -190,9 +190,11 @@ iris.socketServer.on("connection", function (socket) {
       authPass = "anon";
 
     }
-    
+
     // Run hook for disconnected socket.
-    iris.invokeHook("hook_socket_disconnected", authPass, socket.authPass, Date.now());
+    iris.invokeHook("hook_socket_disconnected", authPass, {
+      socket: socket
+    }, Date.now());
 
   });
 
