@@ -3,11 +3,13 @@
 iris.modules.frontend.globals.liveEmbeds = {};
 iris.modules.frontend.globals.liveEmbedTimeout = 4000;
 
-
 iris.modules.frontend.registerSocketListener("liveEmbedRegister", function (socket, data) {
 
-  var embed = iris.modules.frontend.globals.liveEmbeds[data];
-
+  var embedType = data.split("_")[0];
+  var embedID = data;
+    
+  var embed = iris.modules.frontend.globals.liveEmbeds[embedType][embedID];
+  
   if (embed) {
 
     embed.socket = socket.id;
@@ -20,29 +22,27 @@ iris.modules.frontend.registerSocketListener("liveEmbedRegister", function (sock
 
     socket.irisEmbeds.push(embed);
 
-    setInterval(function () {
-
-      embed.sendResult();
-
-    }, 3000)
-
   }
-
+  
 })
 
 // Delete embed if no longer in use by socket
 
 iris.modules.frontend.registerHook("hook_socket_disconnected", 0, function (thisHook, data) {
 
-  Object.keys(iris.modules.frontend.globals.liveEmbeds).forEach(function (embedID) {
+  Object.keys(iris.modules.frontend.globals.liveEmbeds).forEach(function (category) {
+    
+    Object.keys(iris.modules.frontend.globals.liveEmbeds[category]).forEach(function (embedID) {
 
-    var embed = iris.modules.frontend.globals.liveEmbeds[embedID];
+      var embed = iris.modules.frontend.globals.liveEmbeds[category][embedID];
+      
+      if (embed.socket === thisHook.context.socket.id) {
 
-    if (embed.socket === thisHook.context.socket.id) {
+        delete iris.modules.frontend.globals.liveEmbeds[category][embedID];
 
-      delete iris.modules.frontend.globals.liveEmbeds[embedID];
+      }
 
-    }
+    })
 
   })
 
@@ -373,15 +373,21 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
           }
 
-          iris.modules.frontend.globals.liveEmbeds[token] = settings;
+          if (!iris.modules.frontend.globals.liveEmbeds[title]) {
+
+            iris.modules.frontend.globals.liveEmbeds[title] = {};
+
+          }
+
+          iris.modules.frontend.globals.liveEmbeds[title][token] = settings;
 
           setTimeout(function () {
 
-            if (iris.modules.frontend.globals.liveEmbeds[token] && !iris.modules.frontend.globals.liveEmbeds[token].socket) {
+            if (iris.modules.frontend.globals.liveEmbeds[title][token] && !iris.modules.frontend.globals.liveEmbeds[title][token].socket) {
 
               // Check output
 
-              iris.modules.frontend.globals.parseIrisEmbed(iris.modules.frontend.globals.liveEmbeds[token], thisHook.authPass).then(function (embedOutput) {
+              iris.modules.frontend.globals.parseIrisEmbed(iris.modules.frontend.globals.liveEmbeds[title][token], thisHook.authPass).then(function (embedOutput) {
 
               })
 
