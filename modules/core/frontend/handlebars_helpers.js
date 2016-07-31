@@ -1,5 +1,7 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
+// Store live embeds temporarily. Timeout is for how long the embed is stored if it hasn't been paired to a websocket connection.
+
+iris.modules.frontend.globals.liveEmbeds = {};
+iris.modules.frontend.globals.liveEmbedTimeout = 4000;
 
 /**
  * @member hook_frontend_handlebars_extend
@@ -11,6 +13,7 @@
  *
  * @returns Handlebars object
  */
+
 
 iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
 
@@ -105,23 +108,19 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   });
 
-  Handlebars.registerHelper('iris_handlebars_delay', function (options) {
-
-    return options.fn();
-
-  });
-
   Handlebars.registerHelper("iris", function () {
 
     var options = arguments[arguments.length - 1],
       embedOptions,
       title,
-      block;
+      block,
+      liveUpdate;
 
     if (Object.keys(options.hash).length) {
 
       title = options.hash.embed;
       embedOptions = options.hash.config;
+      liveUpdate = options.hash.liveUpdate;
 
     } else {
 
@@ -210,15 +209,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     return new Promise(function (pass, fail) {
 
-      // Create unique ID for embed
-
-      var crypto = require('crypto');
-
-      crypto.randomBytes(16, function (ex, buf) {
-
-        // Liveupdate token for tracking embeds
-
-        var token = title + "_" + buf.toString('hex');
+      var createEmbed = function () {
 
         iris.invokeHook("hook_frontend_embed__" + title, thisHook.authPass, {
           embedOptions: JSONembedOptions,
@@ -257,34 +248,50 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
           })
 
-      })
+      }
+
+      // Create unique ID for embed if liveupdating
+
+      if (liveUpdate) {
+
+        var crypto = require('crypto');
+
+        crypto.randomBytes(16, function (ex, buf) {
+
+          // Liveupdate token for tracking embeds
+
+          var token = title + "_" + buf.toString('hex');
+
+          var embedCache = {
+            embedOptions: JSONembedOptions,
+            vars: vars,
+            blockEmbed: block,
+            sockets: []
+          }
+
+          iris.modules.frontend.globals.liveEmbeds[token] = embedCache;
+
+          setTimeout(function () {
+
+            if (!iris.modules.frontend.globals.liveEmbeds[token].sockets.length) {
+
+              delete iris.modules.frontend.globals.liveEmbeds[token];
+
+            }
+
+          }, iris.modules.frontend.globals.liveEmbedTimeout);
+
+          createEmbed();
+
+        });
+
+      } else {
+
+        createEmbed();
+
+      }
 
     });
-
-  })
-
-  Handlebars.registerHelper("iris_liveupdate", function (options) {
-
-    if (options.data.root.finalParse) {
-
-      return options.fn();
-
-    } else {
-
-      var output = "<div class='iris-live-load'>";
-      output += "{{{{iris_handlebars_ignore}}}}";
-      output += '<div class="iris-live-load-source" data-iris-live-load-template="' + options.fn().trim().replace(/(\r\n|\n|\r)/gm, "").split("\"").join("&#34;") + '">';
-      output += "</div>";
-      output += "{{{{/iris_handlebars_ignore}}}}";
-      output += "\n";
-      output += "<div class='iris-live-load-output'>"
-      output += options.fn();
-      output += "</div>";
-      output += "</div>"
-
-      return output;
-
-    }
 
   })
 

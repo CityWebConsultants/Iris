@@ -55,7 +55,7 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
         html: "<script>" + loader + "</script>",
         variables: [result],
         blockHeader: "<script>" + loader + "</script>",
-        blockFooter: "Done!"
+        blockFooter: ""
       });
 
     },
