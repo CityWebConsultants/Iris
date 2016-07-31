@@ -11,17 +11,47 @@ iris.modules.frontend.registerSocketListener("liveEmbedRegister", function (sock
   if (embed) {
 
     embed.socket = socket.id;
-    
-    //    iris.modules.frontend.globals.parseIrisEmbed(embed, socket.authPass).then(function (embedUpdate) {
-    //
-    //      console.log(embedUpdate);
-    //
-    //    })
+
+    if (!socket.irisEmbeds) {
+
+      socket.irisEmbeds = [];
+
+    }
+
+    socket.irisEmbeds.push(embed);
+
+    setInterval(function () {
+
+      socket.emit("liveUpdate", {
+        id: data,
+        content: "hiiii"
+      });
+
+    }, 3000)
 
   }
 
 })
 
+// Delete embed if no longer in use by socket
+
+iris.modules.frontend.registerHook("hook_socket_disconnected", 0, function (thisHook, data) {
+
+  Object.keys(iris.modules.frontend.globals.liveEmbeds).forEach(function (embedID) {
+
+    var embed = iris.modules.frontend.globals.liveEmbeds[embedID];
+
+    if (embed.socket === thisHook.context.socket.id) {
+
+      delete iris.modules.frontend.globals.liveEmbeds[embedID];
+
+    }
+
+  })
+
+  thisHook.pass(data);
+
+})
 
 iris.modules.frontend.globals.parseIrisEmbed = function (settings, authPass, liveToken) {
 
@@ -331,7 +361,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
           setTimeout(function () {
 
-            if (!iris.modules.frontend.globals.liveEmbeds[token].socket) {
+            if (iris.modules.frontend.globals.liveEmbeds[token] && !iris.modules.frontend.globals.liveEmbeds[token].socket) {
 
               // Check output
 

@@ -24,9 +24,7 @@ if (!window.iris) {
 
 irisReady(function () {
 
-  if (window.io && iris.server) {
-
-    iris.socketreceiver = io(iris.server);
+  if (iris.socketreceiver) {
 
     iris.socketreceiver.on('entityCreate', function (data) {
 
@@ -535,7 +533,7 @@ iris.liveLoadUpdate = function () {
   for (i = 0; i < liveLoaders.length; i += 1) {
 
     var parent = liveLoaders[i];
-    
+
     var templateCode = parent.querySelector(".iris-live-load-source").getAttribute("data-iris-live-load-template").split("&#34;").join('"');
 
     var template = Handlebars.compile(templateCode);
@@ -550,5 +548,5 @@ iris.liveLoadUpdate = function () {
 document.addEventListener('entityListUpdate', function (e) {
 
   iris.liveLoadUpdate();
-  
+
 }, false);
