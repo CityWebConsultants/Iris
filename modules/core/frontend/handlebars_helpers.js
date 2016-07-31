@@ -175,29 +175,32 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
         vars: vars
       }).then(function (output) {
 
-        if (typeof output === "string") {
+          if (typeof output === "string") {
 
-          pass(output);
+            pass(output);
 
-        } else if (output.html) {
+          } else if (output.html && options.fn) {
+                        
+            pass(options.fn(this, {
+              blockParams: output.variables
+            }));
 
-          if (options.fn) {
+          } else if (output.html) {
 
             pass(output.html);
 
           } else {
 
-            pass(output.html);
+            pass();
 
           }
 
-        }
+        },
+        function (reason) {
 
-      }, function (reason) {
+          fail(reason);
 
-        fail(reason);
-
-      })
+        })
 
     })
 
