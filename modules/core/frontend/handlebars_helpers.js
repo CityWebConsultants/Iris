@@ -115,7 +115,8 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     var options = arguments[arguments.length - 1],
       embedOptions,
-      title;
+      title,
+      block;
 
     if (Object.keys(options.hash).length) {
 
@@ -131,6 +132,18 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
         embedOptions = arguments[1];
 
       }
+
+    }
+
+    // Mark if this is being used as a block as some embeds will want to do things differently for that
+
+    if (options.fn) {
+
+      block = true;
+
+    } else {
+
+      block = false;
 
     }
 
@@ -200,7 +213,8 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       iris.invokeHook("hook_frontend_embed__" + title, thisHook.authPass, {
         embedOptions: JSONembedOptions,
-        vars: vars
+        vars: vars,
+        blockEmbed: block
       }).then(function (output) {
 
           if (typeof output === "string") {
