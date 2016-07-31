@@ -5,7 +5,7 @@ iris.modules.frontend.globals.liveEmbedTimeout = 4000;
 iris.modules.frontend.globals.parseIrisEmbed = function (settings, authPass) {
 
   return new Promise(function (pass, fail) {
-        
+
     iris.invokeHook("hook_frontend_embed__" + settings.title, authPass, {
       embedOptions: settings.embedOptions,
       vars: settings.vars,
@@ -171,7 +171,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       title = options.hash.embed;
       embedOptions = options.hash.config;
-      liveUpdate = options.hash.liveUpdate;
+      liveUpdate = options.hash.liveupdate;
 
     } else {
 
@@ -281,11 +281,35 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
           var token = title + "_" + buf.toString('hex');
           settings.sockets = [];
 
+          settings.getResult = function (authPass = thisHook.authPass) {
+
+            return new Promise(function (pass, fail) {
+
+              iris.modules.frontend.globals.parseIrisEmbed(settings, authPass).then(function (result) {
+
+                pass(result);
+
+              });
+
+            }, function (fail) {
+
+              fail(fail);
+
+            });
+
+          }
+
           iris.modules.frontend.globals.liveEmbeds[token] = settings;
 
           setTimeout(function () {
 
             if (!iris.modules.frontend.globals.liveEmbeds[token].sockets.length) {
+
+              // Check output
+
+              iris.modules.frontend.globals.parseIrisEmbed(iris.modules.frontend.globals.liveEmbeds[token], thisHook.authPass).then(function (embedOutput) {
+
+              })
 
               delete iris.modules.frontend.globals.liveEmbeds[token];
 
