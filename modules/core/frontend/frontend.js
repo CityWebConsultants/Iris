@@ -276,9 +276,11 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
     iris.modules.frontend.globals.templateRegistry.external.forEach(function (directory) {
 
+      var files;
+      
       try {
 
-        var files = glob.sync(directory + "/" + "**");
+        files = glob.sync(directory + "/" + "**");
 
       } catch (e) {
 
@@ -468,9 +470,11 @@ var parseTemplate = function (html, authPass, context) {
 
   return new Promise(function (pass, fail) {
 
+    var allVariables;
+    
     if (context) {
 
-      var allVariables = context;
+      allVariables = context;
 
     } else {
 
@@ -737,7 +741,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
       "src": "/socket.io/socket.io.js"
     },
     rank: -1
-  }
+  };
 
   data.vars.tags.headTags["iris_core"] = {
     type: "script",
@@ -765,11 +769,11 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
 
       Handlebars.compile(data.html)(data.vars).then(function (finalHTML) {
 
-        data.html = finalHTML
+        data.html = finalHTML;
 
         thisHook.pass(data);
 
-      })
+      });
 
     }, function (fail) {
 
