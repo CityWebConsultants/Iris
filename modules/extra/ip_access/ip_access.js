@@ -146,7 +146,7 @@ iris.modules.ip_access.registerHook("hook_request_intercept", 0, function (thisH
 
 });
 
-iris.route.get("/admin/structure/menu", {
+iris.route.get("/admin/structure/ip_access", {
   title: "IP access",
   description: "IP access",
   permissions: ["can access admin pages"],
