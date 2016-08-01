@@ -109,10 +109,12 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
     }
 
     // May be an array of more complex field
+    
+    var typeObject;
 
     if (Array.isArray(type) && (typeof type[0] === "object")) {
 
-      var typeObject = {};
+      typeObject = {};
 
       Object.keys(type[0]).forEach(function (key) {
 
@@ -134,7 +136,7 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
     // May be a more complex field
     else if (typeof type === "object") {
 
-      var typeObject = {};
+      typeObject = {};
 
       Object.keys(type).forEach(function (key) {
 
