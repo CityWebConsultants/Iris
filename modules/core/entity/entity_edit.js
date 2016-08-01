@@ -46,10 +46,12 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
       value: data.eid
         }]
   }).then(function (result) {
+    
+    var doc;
 
     if (result && result[0]) {
 
-      var doc = result[0];
+      doc = result[0];
 
     }
 

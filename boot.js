@@ -1,6 +1,3 @@
-
-/* globals iris,mongoose,Promise*/
-
 "use strict";
 
 /**

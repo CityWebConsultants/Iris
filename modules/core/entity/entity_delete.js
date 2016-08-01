@@ -42,10 +42,12 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
       value: data.eid
         }]
   }).then(function (result) {
+    
+    var doc;
 
     if (result && result[0]) {
 
-      var doc = result;
+      doc = result;
 
     }
 
