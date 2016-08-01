@@ -50,7 +50,7 @@ iris.app.get("/:type/:eid/edit", function (req, res) {
     type: req.params.type
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -60,7 +60,7 @@ iris.app.get("/:type/:eid/edit", function (req, res) {
 
   });
 
-})
+});
 
 iris.route.get("/:type/create", routes.create, function (req, res) {
 
@@ -74,7 +74,7 @@ iris.route.get("/:type/create", routes.create, function (req, res) {
       type: req.params.type
     }, req.authPass, req).then(function (success) {
 
-      res.send(success)
+      res.send(success);
 
     }, function (fail) {
 
@@ -134,7 +134,7 @@ iris.route.get("/:type/:id/delete", routes.delete, function (req, res) {
       id: req.params.id
     }, req.authPass, req).then(function (success) {
 
-      res.send(success)
+      res.send(success);
 
     }, function (fail) {
 
@@ -238,7 +238,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
         }
 
-      })
+      });
 
       // Reorder form elements
 
@@ -270,7 +270,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
         data.schema.entityType = {
           type: "hidden",
           "default": entityType
-        }
+        };
 
         if (editingEntity) {
 
@@ -279,7 +279,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
           data.schema.eid = {
             type: "hidden",
             "default": editingEntity.eid
-          }
+          };
 
         }
 
@@ -294,7 +294,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       }
 
-    }
+    };
 
     // Function for getting a form for a field
 
@@ -309,7 +309,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       } catch (e) {
 
-        fieldTypeType = field.type
+        fieldTypeType = field.type;
 
       }
 
@@ -352,7 +352,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                   iris.log("error", "Failed to load entity edit form. " + fail);
                   thisHook.fail(fail);
 
-                })
+                });
 
               }
 
@@ -365,7 +365,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
             });
 
 
-          })
+          });
 
         } else {
 
@@ -399,25 +399,25 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                       type: "object",
                       title: fieldName,
                       properties: {}
-                    }
+                    };
 
                     Object.keys(iris.fieldTypes[fieldType].type).forEach(function (nested) {
 
                       form.properties[nested] = {
                         title: nested,
                         default: currentValue ? currentValue[nested] : null
-                      }
+                      };
 
                       switch (iris.fieldTypes[fieldType].type[nested]) {
                         case "String":
-                          form.properties[nested].type = "text"
+                          form.properties[nested].type = "text";
                           break;
                         case "Number":
-                          form.properties[nested].type = "number"
+                          form.properties[nested].type = "number";
                           break;
                       }
 
-                    })
+                    });
 
                     callback(form);
 
@@ -430,7 +430,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                 iris.log("error", "Failed to load entity edit form. " + fail);
                 thisHook.fail(fail);
 
-              })
+              });
 
             }
 
@@ -439,7 +439,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
             iris.log("error", "Failed to load entity edit form. " + fail);
             thisHook.fail(fail);
 
-          })
+          });
 
         }
 
@@ -457,7 +457,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
             "type": "object",
             "properties": {}
           }
-        }
+        };
 
         if (!field.subfields || !Object.keys(field.subfields).length) {
 
@@ -480,7 +480,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
             }
 
-          }
+          };
 
           var length = 1;
 
@@ -510,7 +510,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
               }
 
-            }
+            };
 
             var key = [];
             var finished = false;
@@ -539,12 +539,12 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                   key.pop();
                 }
 
-              };
+              }
               if (!finished) {
                 key.pop();
               }
 
-            }
+            };
 
             Object.keys(fieldset.default).forEach(function (element, index) {
 
@@ -579,7 +579,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
                 getFieldPath(schema.fields, fieldName, subFieldName);
                 var keyPath = key.join('.');
-                keyPath = keyPath.substring(0, keyPath.length - 2);;
+                keyPath = keyPath.substring(0, keyPath.length - 2);
                 if (form.form) {
                   form.form.key = keyPath;
                 }
@@ -642,16 +642,16 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
               }, currentValue && currentValue[index] ? currentValue[index][subFieldName] : null, subFieldName);
 
-            })
+            });
 
-          })
+          });
 
 
         }
 
       }
 
-    }
+    };
 
     // Loop over all of a schema's fields and put in the form
 
@@ -709,11 +709,11 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       }, editingEntity ? editingEntity[fieldName] : null, fieldName);
 
-    })
+    });
 
 
 
-  }
+  };
 
   // Check if an entity id was provided
 
@@ -736,7 +736,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
       }
 
-    })
+    });
 
   } else {
 
@@ -798,11 +798,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
           }
 
-        })
+        });
 
       } else {
 
-        hook = "hook_entity_create"
+        hook = "hook_entity_create";
 
       }
 
@@ -835,7 +835,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
     }
 
-  }
+  };
 
   // Function for running through a field's save widgets. Takes the field object from the entity's schema and the value posted to the entity save form
 
@@ -864,7 +864,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
         thisHook.fail(fail);
 
-      })
+      });
 
     } else {
 
@@ -905,7 +905,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
                 }
 
-              })
+              });
 
               if (Object.keys(element).length === 0) {
 
@@ -914,14 +914,14 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
               }
 
 
-            })
+            });
 
 
             callback(fieldsetValue);
 
           }
 
-        }
+        };
 
         Object.keys(field.subfields).forEach(function (subfieldName) {
 
@@ -932,11 +932,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
               fieldsetValue[index][subfieldName] = subfieldValue;
               valueDone();
 
-            })
+            });
 
-          })
+          });
 
-        })
+        });
 
       } else {
 
@@ -946,7 +946,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
     }
 
-  }
+  };
 
   Object.keys(thisHook.context.params).forEach(function (field) {
 
@@ -957,7 +957,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
     });
 
-  })
+  });
 
 });
 
@@ -969,7 +969,7 @@ iris.route.get("/admin/entitylist", routes.entitylist, function (req, res) {
     entityTypes: Object.keys(iris.entityTypes)
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   });
 
@@ -999,7 +999,7 @@ iris.route.get("/admin/entitylist/:type", function (req, res) {
       entities: result
     }, req.authPass, req).then(function (success) {
 
-      res.send(success)
+      res.send(success);
 
     }, function (fail) {
 
@@ -1016,7 +1016,7 @@ iris.route.get("/admin/entitylist/:type", function (req, res) {
 
   });
 
-})
+});
 
 /**
  * @member hook_frontend_entity_links
@@ -1052,7 +1052,7 @@ iris.modules.entityUI.registerHook("hook_entity_view", 0, function (thisHook, en
 
       thisHook.pass(entity);
 
-    })
+    });
 
   } else {
 
@@ -1060,7 +1060,7 @@ iris.modules.entityUI.registerHook("hook_entity_view", 0, function (thisHook, en
 
   }
 
-})
+});
 
 // Entity delete form
 
@@ -1077,11 +1077,11 @@ iris.modules.entityUI.registerHook("hook_form_render__entity_delete", 0, functio
       default: thisHook.context.params.entityType
     }
 
-  }
+  };
 
   thisHook.pass(data);
 
-})
+});
 
 iris.modules.entityUI.registerHook("hook_form_submit__entity_delete", 0, function (thisHook, data) {
 
@@ -1095,6 +1095,6 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity_delete", 0, functio
 
     thisHook.fail(fail);
 
-  })
+  });
 
-})
+});

@@ -101,17 +101,17 @@ process.on("dbReady", function () {
             }
           }
         }
-      }
+      };
 
       Object.assign(data.schema, form);
 
       thisHook.pass(data);
 
-    })
+    });
 
   });
 
-})
+});
 
 // Render blocks
 
@@ -131,7 +131,7 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
 
         }
 
-      })
+      });
 
     }
 

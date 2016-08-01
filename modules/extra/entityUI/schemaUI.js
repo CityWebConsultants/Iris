@@ -89,7 +89,7 @@ iris.route.get("/admin/structure/entities", routes.entities, function (req, res)
     entityTypes: Object.keys(iris.entityTypes)
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -144,7 +144,7 @@ iris.route.get("/admin/schema/:type/edit", routes.editType, function (req, res) 
     entityType: req.params.type
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -164,7 +164,7 @@ iris.route.get("/admin/schema/:type/delete", routes.deleteType, function (req, r
     entityType: req.params.type
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -192,7 +192,7 @@ iris.route.get("/admin/schema/:type/fields", routes.fields, function (req, res) 
     bodyClass: 'schema-admin'
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -222,7 +222,7 @@ iris.route.get("/admin/schema/:type/fieldset/:fieldset", routes.fieldset, functi
     bodyClass: 'schema-admin'
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -273,7 +273,7 @@ iris.modules.entityUI.globals.fieldForm = function (type, field, parent, req, re
     bodyClass: 'schema-admin'
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -283,7 +283,7 @@ iris.modules.entityUI.globals.fieldForm = function (type, field, parent, req, re
 
   });
 
-}
+};
 
 /**
  * Page callback to edit specific root level field of an entity.
@@ -295,7 +295,7 @@ iris.route.get("/admin/schema/:type/fields/:field/widget", routes.widget, functi
     type: req.params.type
   });
 
-  iris.modules.entityUI.globals.widgetForm(req.params.type, req.params.field, '', req, res)
+  iris.modules.entityUI.globals.widgetForm(req.params.type, req.params.field, '', req, res);
 
 });
 
@@ -309,7 +309,7 @@ iris.route.get("/admin/schema/:type/fieldset/:fieldset/:field/widget", routes.fi
     type: req.params.type
   });
 
-  iris.modules.entityUI.globals.widgetForm(req.params.type, req.params.field, req.params.fieldset, req, res)
+  iris.modules.entityUI.globals.widgetForm(req.params.type, req.params.field, req.params.fieldset, req, res);
 
 });
 
@@ -322,7 +322,7 @@ iris.modules.entityUI.globals.widgetForm = function (type, field, parent, req, r
     bodyClass: 'schema-admin no-legend'
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -332,7 +332,7 @@ iris.modules.entityUI.globals.widgetForm = function (type, field, parent, req, r
 
   });
 
-}
+};
 
 /**
  * Page callback to delete field of an entity.
@@ -352,7 +352,7 @@ iris.route.get("/admin/schema/:type/fields/:field/delete", routes.fieldDelete, f
   }, req.authPass, req).then(function (success) {
 
 
-    res.send(success)
+    res.send(success);
 
 
   }, function (fail) {
@@ -511,7 +511,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
 
       });
 
-    }
+    };
 
     recurseFields(schema.fields, '');
 
@@ -610,8 +610,8 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
 
             }
 
-          };
-        }
+          }
+        };
         // Do recursion to find the desired fields to list as they may be nested.
       recurseFields(entityTypeSchema.fields, parent);
 
@@ -689,7 +689,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
       tableHtml += '<td><span class="glyphicon glyphicon-resize-vertical"></span></td>';
       for (tableCell in tableRow) {
         tableHtml += "<td class=\"" + tableCell + "\">" + tableRow[tableCell] + "</td>";
-      };
+      }
 
       tableHtml += '</tr>';
 
@@ -815,7 +815,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
   var newSchema = {
     entityTypeName: entityType,
     fields: iris.entityTypes[entityType].fields
-  }
+  };
 
   var recurseFields = function (object, elementParent) {
 
@@ -838,7 +838,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
       }
 
     });
-  }
+  };
 
   if (parent) {
     // Recursion required to find which field in the schema tree to update.
@@ -859,7 +859,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
         schemaRef["weight"] = thisHook.context.params.weightFields[i].weight;
       }
 
-    };
+    }
   }
 
   // Prepare new field.
@@ -1150,7 +1150,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 
       }
 
-    }
+    };
 
     thisHook.pass(data);
 

@@ -469,6 +469,8 @@ var merge = require("merge");
 var parseTemplate = function (html, authPass, context) {
 
   return new Promise(function (pass, fail) {
+    
+    var allVariables;
 
     var allVariables;
     

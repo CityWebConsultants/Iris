@@ -8,12 +8,12 @@ iris.modules.menu_block.registerHook("hook_form_render__blockForm_menu", 0, func
       type: "text",
       "title": thisHook.authPass.t("Menu"),
       enum: menuList
-    }
+    };
 
     thisHook.pass(data);
 
 
-  })
+  });
 
 });
 

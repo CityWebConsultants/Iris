@@ -56,7 +56,7 @@ var routes = {
       title: "Content authoring"
     }]
   }
-}
+};
 
 /**
  * Admin page callback: Text filters.
@@ -75,9 +75,9 @@ iris.route.get("/admin/config/content-authoring/textfilters", routes.filters, fu
 
       data.map(function (item) {
 
-        filters.push(item.replace(".json", ""))
+        filters.push(item.replace(".json", ""));
 
-      })
+      });
 
     }
 
@@ -85,7 +85,7 @@ iris.route.get("/admin/config/content-authoring/textfilters", routes.filters, fu
       textfilters: filters,
     }, req.authPass, req).then(function (success) {
 
-      res.send(success)
+      res.send(success);
 
     }, function (fail) {
 
@@ -95,9 +95,9 @@ iris.route.get("/admin/config/content-authoring/textfilters", routes.filters, fu
 
     });
 
-  })
+  });
 
-})
+});
 
 /**
  * Admin page callback: Create text filter.
@@ -106,7 +106,7 @@ iris.route.get("/admin/config/content-authoring/textfilters/create", routes.crea
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_textfilters_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -127,7 +127,7 @@ iris.route.get("/admin/config/content-authoring/textfilters/edit/:name", routes.
     formatname: req.params.name
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -148,7 +148,7 @@ iris.route.get("/admin/config/content-authoring/textfilters/delete/:name", route
     formatname: req.params.name
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -206,14 +206,14 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter", 0, functio
       "type": "text",
       "title": ap.t("Allowed HTML elements"),
       "description": ap.t("Divided by commas. List without brackets."),
-    }
+    };
 
     data.schema.attributes = {
 
       "type": "text",
       "title": ap.t("Allowed HTML attributes"),
       "description": ap.t("Divided by commas"),
-    }
+    };
 
     if (config) {
 
@@ -226,19 +226,19 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter", 0, functio
 
     thisHook.pass(data);
 
-  }
+  };
 
   if (thisHook.context.params.formatname) {
 
     iris.readConfig("textfilters", thisHook.context.params.formatname).then(function (config) {
 
-      renderForm(config)
+      renderForm(config);
 
     }, function (fail) {
 
       thisHook.fail();
 
-    })
+    });
 
 
   } else {
@@ -247,7 +247,7 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter", 0, functio
 
   }
 
-})
+});
 
 /**
  * Defines textfilters settings on longtext field forms.
@@ -267,7 +267,7 @@ iris.modules.textfilters.registerHook("hook_form_render__field_settings__longtex
 
         filters.push(filter.replace(".json", ""));
 
-      })
+      });
 
     }
 
@@ -281,7 +281,7 @@ iris.modules.textfilters.registerHook("hook_form_render__field_settings__longtex
         }
 
       }
-    }
+    };
 
     thisHook.pass(data);
 
@@ -301,15 +301,15 @@ iris.modules.textfilters.registerHook("hook_form_submit__textfilter", 0, functio
 
       res.json({
         redirect: "/admin/config/content-authoring/textfilters/"
-      })
+      });
 
-    }
+    };
 
     thisHook.pass(data);
 
   });
 
-})
+});
 
 
 /**
@@ -381,7 +381,7 @@ iris.modules.textfilters.registerHook("hook_entity_view_field__longtext", 0, fun
 
       thisHook.fail(fail);
 
-    })
+    });
 
   } else {
 
@@ -389,4 +389,4 @@ iris.modules.textfilters.registerHook("hook_entity_view_field__longtext", 0, fun
 
   }
 
-})
+});
