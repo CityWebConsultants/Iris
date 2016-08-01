@@ -38,7 +38,7 @@ describe('Admin', function () {
                     credentials: admin
                 });
             } else {
-                    console.log("admin connected with Iris")
+                    console.log("admin connected with Iris");
             }
         });
                 

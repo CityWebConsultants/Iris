@@ -221,7 +221,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
             no(fail);
 
-          })
+          });
 
         };
 
@@ -309,7 +309,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
       var output = [];
 
-      for (entity in entities) {
+      for (var entity in entities) {
 
         output.push(entities[entity]);
 
@@ -442,7 +442,7 @@ iris.app.get("/fetch", function (req, res) {
 
     res.respond(400, fail);
 
-  })
+  });
 
 });
 
@@ -556,7 +556,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       }
 
-    })
+    });
 
     var fieldCheckedCounter = 0;
 

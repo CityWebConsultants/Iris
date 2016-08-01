@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise*/
-
 var fs = require('fs');
 
 /**
@@ -145,15 +142,15 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
         thisHook.fail(fail);
 
-      })
+      });
 
     }, function (fail) {
 
-      return false
-
       thisHook.fail(fail);
+      return false;
 
-    })
+
+    });
 
   };
 
@@ -213,7 +210,7 @@ iris.modules.entity.registerHook("hook_schema_delete", 0, function (thisHook, da
 
       thisHook.fail(fail);
 
-    })
+    });
 
   } else {
     thisHook.fail(400);

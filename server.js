@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @file Express HTTP server setup and management functions.

@@ -1,6 +1,6 @@
 if (!window.iris) {
 
-  iris = {};
+  window.iris = {};
 
 }
 

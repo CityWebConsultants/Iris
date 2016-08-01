@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @file Implements the iris logging system.

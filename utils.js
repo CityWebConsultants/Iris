@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
-
 /**
  * @file General utility functions used throughout
  */
@@ -281,7 +278,6 @@ iris.hmacBase64 = function(data, key) {
   // base64 encode: timestamp, login, uid | salt + password
   var crypto    = require('crypto');
   var text      = data;
-  var key       = key;
   var algorithm = 'sha256';
   var hash, hmac;
 
@@ -294,4 +290,4 @@ iris.hmacBase64 = function(data, key) {
   // Modify the hmac so it's safe to use in URLs.
   return hash.replace('+', '-').replace('/', '_').replace('=', '');
 
-}
+};
