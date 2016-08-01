@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise,$,window */
-
 /**
  * @file Provides hooks and functions to create forms for use on the frontend
  */
@@ -486,7 +483,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         callback(staticForm + output);
 
-      }
+      };
 
       var staticFormSetupCode = `window.form = ${toSource(form)}`;
 

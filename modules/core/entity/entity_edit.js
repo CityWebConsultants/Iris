@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise*/
-
 /**
  * @file Functions and hooks for editing entities
  */
@@ -258,7 +255,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
       console.log(fail);
       thisHook.fail(fail);
 
-    })
+    });
 
   };
 

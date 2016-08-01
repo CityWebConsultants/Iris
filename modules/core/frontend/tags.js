@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
-
 /**
  * @member hook_frontend_embed__tags
  * @memberof frontend
@@ -27,7 +24,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
 
 
   var tags = [];
-  if(vars.tags[tagName] != undefined){
+  if(vars.tags[tagName] !== undefined){
 
     Object.keys(vars.tags[tagName]).forEach(function(item, index){
       tags.push({item: item, rank: vars.tags[tagName][item].rank, data: JSON.stringify(vars.tags[tagName][item])});
@@ -35,14 +32,14 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
 
     tags.sort(function(a, b){
       return  a.rank - b.rank;
-    })
+    });
 
     vars.tags[tagName] = {};
     tags.forEach(function(item, index){
       vars.tags[tagName][item.item] = JSON.parse(item.data);
     });
 
-  };
+  }
 
 
   if (vars.tags && vars.tags[tagName]) {

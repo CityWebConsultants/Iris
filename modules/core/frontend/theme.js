@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
-
 var path = require("path");
 var fs = require("fs");
 var express = require("express");

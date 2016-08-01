@@ -1,4 +1,4 @@
-/*jshint nomen: true, node:true */
+
 /* globals iris,mongoose,Promise*/
 
 "use strict";
@@ -31,13 +31,7 @@ module.exports = function (config) {
 
   // Restart function
 
-  iris.restart = function (authPass, data) {
-
-    if (!data) {
-
-      var data = {};
-
-    }
+  iris.restart = function (authPass, data = {}) {
 
     process.nextTick(function () {
 
@@ -51,7 +45,7 @@ module.exports = function (config) {
           restart: data
         });
 
-      })
+      });
 
     });
 
@@ -200,8 +194,6 @@ module.exports = function (config) {
 
   }
 
-  var path = require('path');
-
   var glob = require("glob");
 
   // Check if cache of module paths exists
@@ -231,12 +223,12 @@ module.exports = function (config) {
 
     try {
       fs.readFileSync(modulePathCache[enabledModule.name]);
-      var lookup = [modulePathCache[enabledModule.name]];
+      lookup = [modulePathCache[enabledModule.name]];
     } catch (e) {
 
       // Check if module path is a site path
       var rootParent = iris.rootPath.substring(0, iris.rootPath.length - 7);
-      var lookup = glob.sync("{" + rootParent + "/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "}");
+      lookup = glob.sync("{" + rootParent + "/**/" + enabledModule.name + ".iris.module" + "," + iris.sitePath + "/modules/**/" + enabledModule.name + ".iris.module" + "}");
 
       lookup.reverse();
 
@@ -275,7 +267,7 @@ module.exports = function (config) {
       "path": modulePath,
       "name": enabledModule.name,
       "weight": moduleInfo.weight
-    })
+    });
 
   });
 
@@ -295,13 +287,13 @@ module.exports = function (config) {
 
     }
 
-  })
+  });
   
   toEnable.forEach(function (currentModule) {
 
     var moduleInfo = currentModule.info,
       modulePath = currentModule.path,
-      name = currentModule.name
+      name = currentModule.name;
 
     if (moduleInfo.dependencies) {
 
@@ -344,7 +336,7 @@ module.exports = function (config) {
 
     }
 
-  })
+  });
 
   iris.mkdirSync(iris.sitePath + "/" + "local");
 
@@ -367,7 +359,7 @@ module.exports = function (config) {
 
     Object.freeze(iris);
 
-  })
+  });
 
   /**
    * Catch all callback which is run last. If this is called then the GET request has not been defined 

@@ -15,7 +15,7 @@ var routes = {
       title: "Mail system"
     }]
   }
-}
+};
 
 /**
  * Admin page callback: mail settings admin page.
@@ -29,7 +29,7 @@ iris.route.get('/admin/config/mail-settings', routes.mail, function (req, res) {
     title: "Administer mail system"
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -77,7 +77,7 @@ process.on("dbReady", function () {
     });
   }
 
-})
+});
 
 /**
  * Implements hook_triggers_[action_name].
@@ -208,7 +208,7 @@ iris.modules.email.globals.mailTransporter = function () {
 
   return nodemailer.createTransport();
 
-}
+};
 
 
 /**
@@ -253,4 +253,4 @@ iris.modules.email.globals.sendEmail = function (args, authPass) {
 
   });
 
-}
+};
