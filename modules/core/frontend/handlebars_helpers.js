@@ -24,7 +24,7 @@ iris.modules.frontend.registerSocketListener("liveEmbedRegister", function (sock
 
   }
 
-})
+});
 
 // Delete embed if no longer in use by socket
 
@@ -42,13 +42,13 @@ iris.modules.frontend.registerHook("hook_socket_disconnected", 0, function (this
 
       }
 
-    })
+    });
 
-  })
+  });
 
   thisHook.pass(data);
 
-})
+});
 
 iris.modules.frontend.globals.parseIrisEmbed = function (settings, authPass, liveToken) {
 
@@ -116,11 +116,11 @@ iris.modules.frontend.globals.parseIrisEmbed = function (settings, authPass, liv
 
         fail(reason);
 
-      })
+      });
 
   });
 
-}
+};
 
 /**
  * @member hook_frontend_handlebars_extend
@@ -243,7 +243,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     } else {
 
-      var title = arguments[0];
+      title = arguments[0];
 
       if (typeof arguments[1] === "string") {
 
@@ -275,7 +275,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
           embedOptions = embedOptions.split("$this." + variable).join(that[variable]);
 
-        })
+        });
 
       } catch (e) {
 
@@ -286,7 +286,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
         embedOptions = embedOptions.split("$" + variable).join(options.data.root[variable]);
 
-      })
+      });
 
       embedOptions = embedOptions.split("$this").join(this);
 
@@ -320,7 +320,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       if (!options.data.root.finalParse) {
 
-        return ("{{{iris '" + title + "' '" + embedOptions + "'}}}")
+        return ("{{{iris '" + title + "' '" + embedOptions + "'}}}");
 
       }
 
@@ -336,7 +336,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
         vars: vars,
         blockEmbed: block,
         template: options.fn
-      }
+      };
 
       if (liveUpdate) {
 
@@ -370,7 +370,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
             });
 
-          }
+          };
 
           settings.sendResult = function (authPass) {
 
@@ -387,9 +387,9 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
               }
 
-            })
+            });
 
-          }
+          };
 
           if (!iris.modules.frontend.globals.liveEmbeds[title]) {
 
@@ -407,7 +407,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
               iris.modules.frontend.globals.parseIrisEmbed(iris.modules.frontend.globals.liveEmbeds[title][token], thisHook.authPass).then(function (embedOutput) {
 
-              })
+              });
 
               delete iris.modules.frontend.globals.liveEmbeds[token];
 
@@ -435,7 +435,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     });
 
-  })
+  });
 
   Handlebars.registerHelper('iris_handlebars_ignore', function (options) {
 
