@@ -31,12 +31,13 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
 
   }
 
+  var output = "";
 
   if (vars.tags && vars.tags[tagName]) {
 
     var tagContainer = vars.tags[tagName];
 
-    var output = "<!-- " + tagName + " -->";
+    output += "<!-- " + tagName + " -->";
 
     output += "\n";
 
