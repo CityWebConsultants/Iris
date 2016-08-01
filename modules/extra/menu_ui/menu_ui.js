@@ -10,7 +10,7 @@ var routes = {
       title: "Menu"
     }]
   }
-}
+};
 
 /**
  * Embed for [[[menu __]]] menus made using the UI.
@@ -37,13 +37,13 @@ iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (this
 
         thisHook.fail(noaccess);
 
-      })
+      });
 
     }, function (fail) {
 
       thisHook.fail(fail);
 
-    })
+    });
 
   }, function (fail) {
 
@@ -51,7 +51,7 @@ iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (this
 
   });
 
-})
+});
 
 /**
  * Function for getting menu add/edit form.
@@ -109,7 +109,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
           }
         }
       }
-    }
+    };
 
     // Hide menu title if editing
 
@@ -161,7 +161,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
           }
         }
       }
-    }
+    };
 
     thisHook.pass(data);
 
@@ -193,11 +193,11 @@ iris.modules.menu_ui.registerHook("hook_form_submit__menu", 0, function (thisHoo
 
           }
 
-        })
+        });
 
       }
 
-    })
+    });
 
   }
 
@@ -209,7 +209,7 @@ iris.modules.menu_ui.registerHook("hook_form_submit__menu", 0, function (thisHoo
         redirect: "/admin/structure/menu"
       });
 
-    }
+    };
 
     thisHook.pass(data);
 
@@ -239,7 +239,7 @@ iris.app.get("/admin/structure/menu/create", function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_menu_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -271,7 +271,7 @@ iris.app.get("/admin/structure/menu/edit/:menuName", function (req, res) {
     menuName: req.params.menuName
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -303,7 +303,7 @@ iris.app.get("/admin/structure/menu/delete/:menuName", function (req, res) {
     menuName: req.params.menuName
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -377,7 +377,7 @@ iris.modules.menu_ui.globals.getMenuList = function () {
 
             menus.push(menu.replace(".json", ""));
 
-          })
+          });
 
         }
 
@@ -385,9 +385,9 @@ iris.modules.menu_ui.globals.getMenuList = function () {
 
       }
 
-    )
-  })
-}
+    );
+  });
+};
 
 /**
  * List of menus page.
@@ -412,7 +412,7 @@ iris.route.get("/admin/structure/menu", routes.menu, function (req, res) {
       menuList: menuList
     }, req.authPass, req).then(function (success) {
 
-      res.send(success)
+      res.send(success);
 
     }, function (fail) {
 
@@ -422,6 +422,6 @@ iris.route.get("/admin/structure/menu", routes.menu, function (req, res) {
 
     });
 
-  })
+  });
 
 });

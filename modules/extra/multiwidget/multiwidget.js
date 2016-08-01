@@ -162,7 +162,7 @@ iris.modules.forms.globals.registerWidget(function () {
         });
         
 
-      }
+      };
 
       var removeCKEditor = function (elem) {
         if (ckeditor && ckeditor.instances && ckeditor.instances[$(elem).attr("id")]) {
@@ -190,7 +190,7 @@ iris.modules.forms.globals.registerWidget(function () {
         if (editor) {
           aceeditor.edit(editor).destroy();
         }
-      }
+      };
 
 
       var editor = null;
@@ -211,7 +211,7 @@ iris.modules.forms.globals.registerWidget(function () {
         textarea.parent().append(diveditor);
 
         if (widgetOption.val() == "--") {
-          removeAceEditor(editor)
+          removeAceEditor(editor);
           removeCKEditor(diveditor);
           diveditor.css("display", "none");
           textarea.css("display", "block");
@@ -283,4 +283,4 @@ iris.modules.multiwidget.registerHook("hook_entity_view_field__longtexts", 0, fu
   }
 
 
-})
+});

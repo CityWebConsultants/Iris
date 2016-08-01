@@ -67,7 +67,7 @@ iris.modules.triggers.registerHook("hook_triggers_http_request", 0, function (th
     port: params.port,
     method: params.method
 
-  }
+  };
 
   // Change parameters to object
 
@@ -79,7 +79,7 @@ iris.modules.triggers.registerHook("hook_triggers_http_request", 0, function (th
 
       prepared[parameter.key] = parameter.value;
 
-    })
+    });
 
     params.parameters = prepared;
 
@@ -92,7 +92,7 @@ iris.modules.triggers.registerHook("hook_triggers_http_request", 0, function (th
     options.headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Content-Length': Buffer.byteLength(data)
-    }
+    };
 
     var req = protocol[params.protocol].request(options);
 
@@ -129,4 +129,4 @@ iris.modules.triggers.registerHook("hook_triggers_http_request", 0, function (th
 
   thisHook.pass(data);
 
-})
+});
