@@ -84,15 +84,17 @@ iris.route.get("/admin", routes.admin, function (req, res) {
  */
 iris.route.get("/admin/logs", routes.logs, function (req, res) {
 
+  var rawLogs;
+  
   try {
 
-    var rawLogs = fs.readFileSync(iris.sitePath + '/' + "/logs/main.log", "utf8");
+    rawLogs = fs.readFileSync(iris.sitePath + '/' + "/logs/main.log", "utf8");
 
   } catch (e) {
 
     fs.writeFileSync("", iris.sitePath + '/' + "/logs/main.log");
 
-    var rawLogs = "";
+    rawLogs = "";
 
   }
 
@@ -124,6 +126,8 @@ iris.route.get("/admin/logs", routes.logs, function (req, res) {
     });
 
   });
+  
+  var keys;
 
   if (logs[0]) {
 
