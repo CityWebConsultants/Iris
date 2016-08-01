@@ -16,7 +16,7 @@ iris.modules.ckeditor.registerHook("hook_entity_field_widget_form__ckeditor_fiel
     title: fieldSettings.label,
     "description": fieldSettings.description,
     "default": value
-  }
+  };
 
   thisHook.pass(data);
 
@@ -56,9 +56,9 @@ iris.modules.forms.globals.registerWidget(function () {
 
           });
 
-        };
+        }
 
-      })
+      });
 
     });
 
@@ -72,7 +72,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
     }
 
-  }
+  };
 
   JSONForm.elementTypes['ckeditor'].template = '<textarea class="ckeditor" id="<%= id %>" name="<%= node.name %>" <%= JSONForm.requiredFlip(node.required) %> ><%= value %></textarea>';
   JSONForm.elementTypes['ckeditor'].fieldTemplate = true;
@@ -92,7 +92,7 @@ iris.app.post('/admin/file/ckeditorupload', function (req, res) {
     } catch (e) {
       if (e.code != 'EEXIST') throw e;
     }
-  }
+  };
 
   mkdirSync(iris.sitePath + "/" + "files");
 

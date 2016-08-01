@@ -419,7 +419,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       var uniqueId = formName + token;
 
 
-      var output = "<form data-params='" + formParams + "' method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
+      output = "<form data-params='" + formParams + "' method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
       output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}" + "\n if(typeof iris.forms.renderForm == \"function\") iris.forms.renderForm('" + uniqueId + "');</script>";
 
@@ -436,6 +436,8 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       }
 
       var jsdom = require("jsdom");
+      
+      var action = "";
 
       if (thisHook.context.vars.req) {
 
@@ -452,7 +454,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
         var actionURL = url.parse(thisHook.context.vars.req.url).pathname + "?" + querystring.stringify(query);
 
-        var action = "action='" + actionURL + "'";
+        action = "action='" + actionURL + "'";
 
       }
 
@@ -532,7 +534,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
     }, function (fail) {
 
-      if (fail = "No such hook exists") {
+      if (fail === "No such hook exists") {
 
         renderForm(formTemplate, function (output) {
 

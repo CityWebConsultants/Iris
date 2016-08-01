@@ -49,11 +49,11 @@ iris.modules.ip_access.registerHook("hook_form_render__ip_access", 0, function (
       }
     }
 
-  }
+  };
 
   thisHook.pass(data);
 
-})
+});
 
 iris.modules.ip_access.registerHook("hook_form_submit__ip_access", 0, function (thisHook, data) {
 
@@ -104,7 +104,7 @@ iris.modules.ip_access.registerHook("hook_request_intercept", 0, function (thisH
 
       valid = minimatch(currentUrl, path);
 
-    })
+    });
 
     if (valid) {
 
@@ -130,7 +130,7 @@ iris.modules.ip_access.registerHook("hook_request_intercept", 0, function (thisH
 
     }
 
-  })
+  });
 
   if (block) {
 
@@ -171,7 +171,7 @@ iris.route.get("/admin/structure/ip_access", {
 
     iris.modules.frontend.globals.parseTemplateFile(["admin_ip_access"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-      res.send(success)
+      res.send(success);
 
     }, function (fail) {
 
@@ -181,6 +181,6 @@ iris.route.get("/admin/structure/ip_access", {
 
     });
 
-  })
+  });
 
 });

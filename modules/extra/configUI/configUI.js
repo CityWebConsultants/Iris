@@ -46,7 +46,7 @@ var routes = {
     description: "Show the difference between current and staging configurations.",
     permissions: ["can access admin pages"]
   }
-}
+};
 
 /**
  * Admin API callback: Export configurations.
@@ -83,7 +83,7 @@ iris.route.get("/admin/config/export", routes.export, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_export_config"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -102,7 +102,7 @@ iris.route.get("/admin/config/import", routes.import, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_import_config"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -136,7 +136,7 @@ iris.route.get("/admin/config/diff", routes.diff, function (req, res) {
 
   try {
 
-    current = fs.readFileSync(iris.sitePath + "/configurations/" + req.query.path, "utf8")
+    current = fs.readFileSync(iris.sitePath + "/configurations/" + req.query.path, "utf8");
 
   } catch (e) {
 
@@ -145,7 +145,7 @@ iris.route.get("/admin/config/diff", routes.diff, function (req, res) {
 
   try {
 
-    staging = fs.readFileSync(iris.sitePath + "/staging/" + req.query.path, "utf8")
+    staging = fs.readFileSync(iris.sitePath + "/staging/" + req.query.path, "utf8");
 
   } catch (e) {
 
@@ -246,7 +246,7 @@ var showConfigDiff = function (callback) {
 
     }
 
-  })
+  });
 
   stagingFiles.forEach(function (file) {
 
@@ -274,7 +274,7 @@ var showConfigDiff = function (callback) {
 
     }
 
-  })
+  });
 
   var clashes = [];
 
@@ -283,10 +283,10 @@ var showConfigDiff = function (callback) {
     clashes.push({
       file: file,
       diff: JSON.stringify(output[file])
-    })
+    });
 
-  })
+  });
 
   callback(clashes);
 
-}
+};

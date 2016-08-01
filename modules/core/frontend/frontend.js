@@ -276,9 +276,11 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
     iris.modules.frontend.globals.templateRegistry.external.forEach(function (directory) {
 
+      var files;
+      
       try {
 
-        var files = glob.sync(directory + "/" + "**");
+        files = glob.sync(directory + "/" + "**");
 
       } catch (e) {
 
@@ -465,10 +467,12 @@ var merge = require("merge");
 var parseTemplate = function (html, authPass, context) {
 
   return new Promise(function (pass, fail) {
+    
+    var allVariables;
 
     if (context) {
 
-      var allVariables = context;
+      allVariables = context;
 
     } else {
 
