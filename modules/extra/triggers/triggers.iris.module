@@ -1,5 +1,5 @@
 {
   "name": "Triggers",
-  "description": "Events and actions",
+  "description": "Listen out for events on the system such as the creation of entities, visiting of pages and trigger events such as email sending, API calls and logging.",
   "weight": 0
 }

@@ -60,7 +60,7 @@ iris.modules.nedb.registerHook("hook_db_createEntity__nedb", 0, function (thisHo
 
   // Get new entity eid
 
-  var update = {}
+  var update = {};
 
   eidCounts.update({
     entityType: thisHook.context.entityType
@@ -132,9 +132,9 @@ iris.modules.nedb.registerHook("hook_db_deleteEntity__nedb", 0, function (thisHo
 
     }
 
-  })
+  });
 
-})
+});
 
 // Delete schema
 
@@ -159,8 +159,8 @@ iris.modules.nedb.registerHook("hook_db_deleteSchema__nedb", 0, function (thisHo
         thisHook.pass(data);
       }
 
-    })
+    });
 
-  })
+  });
 
 });

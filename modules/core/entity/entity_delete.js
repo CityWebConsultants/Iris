@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise*/
-
 var fs = require('fs');
 
 /**
@@ -45,10 +42,12 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
       value: data.eid
         }]
   }).then(function (result) {
+    
+    var doc;
 
     if (result && result[0]) {
 
-      var doc = result;
+      doc = result;
 
     }
 
@@ -145,15 +144,15 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
         thisHook.fail(fail);
 
-      })
+      });
 
     }, function (fail) {
 
-      return false
-
       thisHook.fail(fail);
+      return false;
 
-    })
+
+    });
 
   };
 
@@ -213,7 +212,7 @@ iris.modules.entity.registerHook("hook_schema_delete", 0, function (thisHook, da
 
       thisHook.fail(fail);
 
-    })
+    });
 
   } else {
     thisHook.fail(400);

@@ -59,7 +59,7 @@ describe('Entity', function () {
                       credentials: res
                     });
                   } else {
-                    console.log("Anonymous connected with Iris")
+                    console.log("Anonymous connected with Iris");
                   }
                 });
                 
@@ -106,7 +106,7 @@ describe('Entity', function () {
                     });
 
                   } else {
-                    console.log("Anonymous connected with Iris")
+                    console.log("Anonymous connected with Iris");
                   }
 
                 });

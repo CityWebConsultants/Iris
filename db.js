@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @file Manages the database connection and schemas for entity types.
@@ -43,7 +43,7 @@ iris.dbPopulate = function () {
 
       delete iris.entityTypes[entityType];
 
-    })
+    });
 
   }
 
@@ -179,7 +179,7 @@ iris.dbPopulate = function () {
 
       try {
 
-        var fieldType = iris.fieldTypes[fieldType];
+        fieldType = iris.fieldTypes[fieldType];
         var name = fieldType.name;
         var type = fieldType.type;
 
@@ -194,7 +194,7 @@ iris.dbPopulate = function () {
 
       }
 
-    })
+    });
 
     iris.entityTypes[schema] = JSON.parse(stringySchema);
 
@@ -210,7 +210,7 @@ iris.dbPopulate = function () {
 
     }
 
-  }
+  };
 
   Object.keys(iris.entityTypes).forEach(function (entityType) {
 
@@ -233,9 +233,9 @@ iris.dbPopulate = function () {
 
       schemaLoaded();
 
-    })
+    });
 
-  })
+  });
 
 };
 
@@ -244,20 +244,14 @@ iris.dbPopulate = function () {
  * isContent boolean variable determines whether the entity type appears on a content page 
  */
 
-iris.dbSchemaRegister = function (name, fields, isContent) {
-
-  if (!isContent) {
-
-    var isContent = false;
-
-  }
+iris.dbSchemaRegister = function (name, fields, isContent = false) {
 
   return new Promise(function (resolve, reject) {
 
     var schema = {
       entityTypeName: name,
       fields: fields
-    }
+    };
 
     Object.defineProperty(iris.entityTypes, name, {
       enumerable: isContent,
@@ -279,6 +273,6 @@ iris.dbSchemaRegister = function (name, fields, isContent) {
 
     });
 
-  })
+  });
 
 };

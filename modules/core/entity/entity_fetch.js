@@ -21,7 +21,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
     fetchRequest = thisHook.context;
 
   }
-  
+
   var entityTypes = [];
 
   // Populate list of targetted DB entities
@@ -74,9 +74,10 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     }
 
-    if (fieldQuery.operator.toLowerCase().indexOf("is") !== -1) {
+    var queryItem = {},
+      negativeQueryItem = {};
 
-      var queryItem = {};
+    if (fieldQuery.operator.toLowerCase().indexOf("is") !== -1) {
 
       queryItem[fieldQuery["field"]] = fieldQuery.value;
 
@@ -104,8 +105,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     if (fieldQuery.operator.toLowerCase().indexOf("gt") !== -1) {
 
-      var queryItem = {};
-
       queryItem[fieldQuery["field"]] = {
         $gt: fieldQuery.value
       };
@@ -115,8 +114,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
     }
 
     if (fieldQuery.operator.toLowerCase().indexOf("includes") !== -1) {
-
-      var queryItem = {};
 
       if (typeof fieldQuery.value !== "object") {
 
@@ -152,8 +149,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
     }
 
     if (fieldQuery.operator.toLowerCase().indexOf("contains") !== -1) {
-
-      var queryItem = {};
 
       var regex = new RegExp(fieldQuery.value, "i");
 
@@ -221,7 +216,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
             no(fail);
 
-          })
+          });
 
         };
 
@@ -309,7 +304,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
       var output = [];
 
-      for (entity in entities) {
+      for (var entity in entities) {
 
         output.push(entities[entity]);
 
@@ -442,7 +437,7 @@ iris.app.get("/fetch", function (req, res) {
 
     res.respond(400, fail);
 
-  })
+  });
 
 });
 
@@ -470,7 +465,15 @@ iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHoo
  */
 iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
 
-  var entity = JSON.parse(JSON.stringify(entity));
+  if (entity) {
+
+    entity = JSON.parse(JSON.stringify(entity));
+
+  } else {
+
+    thisHook.pass(entity);
+
+  }
 
   // Add timestamp TODO need a general way of doing this now database is not MongoDB only.
 
@@ -556,7 +559,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       }
 
-    })
+    });
 
     var fieldCheckedCounter = 0;
 

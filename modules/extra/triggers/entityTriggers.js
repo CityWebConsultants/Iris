@@ -6,13 +6,13 @@ var fieldsToArgs = function (fields) {
 
   Object.keys(fields).forEach(function (fieldName) {
 
-    if (typeof fields[fieldName] == "object" && !Array.isArray(fields[fieldName])) {
-
+    if (fields[fieldName] && typeof fields[fieldName] == "object" && !Array.isArray(fields[fieldName])) {
+      
       Object.keys(fields[fieldName]).forEach(function (subfield) {
 
         output[fieldName + "." + subfield] = fields[fieldName][subfield];
 
-      })
+      });
 
     } else {
 
@@ -20,11 +20,11 @@ var fieldsToArgs = function (fields) {
 
     }
 
-  })
+  });
 
   return output;
 
-}
+};
 
 iris.modules.triggers.registerHook("hook_entity_created", 0, function (thisHook, data) {
 
@@ -43,7 +43,7 @@ iris.modules.triggers.registerHook("hook_entity_deleted", 0, function (thisHook,
 });
 
 iris.modules.triggers.registerHook("hook_entity_updated", 0, function (thisHook, data) {
-
+  
   var newFields = fieldsToArgs(thisHook.context.new);
   var oldFields = fieldsToArgs(thisHook.context.previous);
 
@@ -54,13 +54,13 @@ iris.modules.triggers.registerHook("hook_entity_updated", 0, function (thisHook,
 
     fields["new." + fieldName] = newFields[fieldName];
 
-  })
+  });
 
   Object.keys(oldFields).forEach(function (fieldName) {
 
     fields["old." + fieldName] = oldFields[fieldName];
 
-  })
+  });
 
   fields.eid = thisHook.context.new.eid;
 
@@ -68,7 +68,7 @@ iris.modules.triggers.registerHook("hook_entity_updated", 0, function (thisHook,
 
   thisHook.pass(data);
 
-})
+});
 
 process.on("dbReady", function () {
 
@@ -86,7 +86,7 @@ process.on("dbReady", function () {
 
         if (typeof fieldType.type === "string") {
 
-          fields.push(fieldName)
+          fields.push(fieldName);
 
         } else {
 
@@ -96,11 +96,11 @@ process.on("dbReady", function () {
 
             fields.push(fieldName + "." + subfield);
 
-          })
+          });
 
         }
 
-      })
+      });
 
     }
 
@@ -113,12 +113,12 @@ process.on("dbReady", function () {
       editArgs.push("old." + fieldName);
       editArgs.push("new." + fieldName);
 
-    })
+    });
 
     iris.modules.triggers.globals.registerEvent(entityType + "_updated", editArgs.concat(["eid"]));
 
     iris.modules.triggers.globals.registerEvent(entityType + "_deleted", ["eid"]);
 
-  })
+  });
 
-})
+});

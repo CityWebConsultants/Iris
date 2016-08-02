@@ -106,7 +106,7 @@ var referenceField = function (thisHook, data) {
     "type": "object",
     "title": "Field settings",
     "properties": settings
-  }
+  };
 
   data.settingsOverride = true;
 
@@ -179,7 +179,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
       "autocomplete": {
         "source": '/entity-reference/' + fieldSettings.settings.entityType + '/' + fieldSettings.settings[fieldSettings.settings.entityType]
       }
-    }
+    };
 
     thisHook.pass(data);
 
@@ -187,7 +187,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 
     console.log(fail);
 
-  })
+  });
 
 });
 
@@ -230,13 +230,13 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
             }
           }
         }
-      }
+      };
 
       thisHook.pass(data);
 
     }
 
-  }
+  };
 
   if (!value.length) {
 
@@ -272,7 +272,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 
     });
 
-  })
+  });
 
 });
 
@@ -288,7 +288,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__ent
     data = {
       entityType: null,
       eid: null
-    }
+    };
 
 
   } else {
@@ -298,7 +298,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__ent
     data = {
       entityType: entityType,
       eid: parseInt(eid)
-    }
+    };
 
   }
 
@@ -317,7 +317,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__ent
     data = [{
       entityType: null,
       eid: null
-    }]
+    }];
 
 
   } else {
@@ -332,14 +332,14 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__ent
         data.push({
           entityType: entityType,
           eid: parseInt(eid)
-        })
+        });
 
       } catch (e) {
 
 
       }
 
-    })
+    });
 
   }
 
@@ -414,9 +414,9 @@ iris.modules.entityReference.registerHook("hook_entity_fetch", 1, function (this
                   field: referenceField,
                   entityIndex: index,
                   fieldIndex: innerIndex
-                })
+                });
 
-              })
+              });
 
             } else {
 
@@ -424,15 +424,15 @@ iris.modules.entityReference.registerHook("hook_entity_fetch", 1, function (this
                 search: entity[referenceField],
                 field: referenceField,
                 entityIndex: index
-              })
+              });
 
             }
 
           }
 
-        })
+        });
 
-      })
+      });
 
       if (hooks.length) {
 
@@ -447,7 +447,7 @@ iris.modules.entityReference.registerHook("hook_entity_fetch", 1, function (this
 
           }
 
-        }
+        };
 
         hooks.forEach(function (hook) {
 
@@ -480,9 +480,9 @@ iris.modules.entityReference.registerHook("hook_entity_fetch", 1, function (this
 
             done();
 
-          })
+          });
 
-        })
+        });
 
       } else {
 
@@ -504,5 +504,5 @@ iris.modules.entityReference.registerHook("hook_entity_fetch", 1, function (this
   }
 
 
-})
+});
 

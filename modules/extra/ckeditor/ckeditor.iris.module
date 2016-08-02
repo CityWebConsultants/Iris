@@ -3,5 +3,6 @@
   "weight": 4,
   "dependencies":{
     "entityUI": "1"
-  }
+  },
+  "description": "Enables use of the CKEditor WYSIWYG editor on text areas."
 }

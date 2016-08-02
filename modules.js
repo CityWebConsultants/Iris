@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @file Base for the module system. Provides functions for module registration and management.

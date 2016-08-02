@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise,$,JSONForm,document,FormData,alert*/
-
 /**
  * @file Provides a file upload field for entity forms
  */

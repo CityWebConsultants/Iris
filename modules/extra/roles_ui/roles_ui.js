@@ -13,7 +13,7 @@ var routes = {
       title: "Roles"
     }]
   }
-}
+};
 
 /**
  * Admin page callback: Roles.
@@ -26,7 +26,7 @@ iris.route.get("/admin/users/roles", routes.roles, function (req, res) {
 
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -108,7 +108,7 @@ iris.modules.roles_ui.registerHook("hook_form_submit__manageRoles", 0, function 
 
       formatRoles[item.roleName] = {
         "name": item.roleName
-      }
+      };
 
     });
 

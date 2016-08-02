@@ -1,4 +1,5 @@
 {
   "name": "Text filters",
-  "weight": 3
+  "weight": 3,
+  "description": "Creates an admin interface for making filters that filter out HTML tags and attributes from content before it is viewed on the site. These can be added to textarea fields on an entity type."
 }

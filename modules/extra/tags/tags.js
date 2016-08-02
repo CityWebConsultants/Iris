@@ -17,7 +17,7 @@ iris.modules.tags.registerHook("hook_form_render__field_settings__tags", 0, func
         }
       }
     }
-  }
+  };
 
   thisHook.pass(data);
 
@@ -52,7 +52,7 @@ iris.modules.tags.registerHook("hook_entity_field_fieldType_form__tags", 0, func
         "source": fieldSettings.settings.tags
       }
     }
-  }
+  };
 
   thisHook.pass(data);
 

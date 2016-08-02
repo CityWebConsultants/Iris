@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
+
+
 
 iris.registerModule("paths",__dirname);
 
@@ -24,11 +24,11 @@ process.on("dbReady", function () {
               entityType: entity.entityType
             };
 
-          })
+          });
 
         }
 
-      })
+      });
 
     }
 

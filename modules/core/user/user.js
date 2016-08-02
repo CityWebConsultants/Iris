@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
-
 /**
  * @file User management module
  */
@@ -40,7 +37,6 @@ var routes = {
   },
   logout: {
     "menu": [{
-      weight: 5,
       menuName: "admin_toolbar",
       parent: null,
       title: "Logout",
@@ -168,7 +164,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
   if (params[3]) {
     action = params[3];
   }
-  
+
   iris.invokeHook("hook_entity_fetch", "root", null, {
     "entities": ["user"],
     "queries": [{
@@ -178,9 +174,11 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
       }]
   }).then(function (entities) {
 
+    var account;
+
     if (entities) {
 
-      var account = entities[0];
+      account = entities[0];
 
     }
 
@@ -210,7 +208,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
               entityType: "user",
               eid: eid,
               lastlogin: Date.now()
-            }
+            };
 
             iris.invokeHook("hook_entity_edit", "root", null, userEntity);
 
@@ -290,7 +288,7 @@ iris.route.get("/user/logout", routes.logout, function (req, res) {
 
     res.redirect("/");
 
-  }
+  };
   iris.invokeHook("hook_user_logout", req.authPass, null, res).then(function (success) {
 
     res = success;
@@ -403,7 +401,7 @@ iris.modules.user.registerHook("hook_form_render__passwordReset", 0, function (t
  * Submit handler for passwordReset.
  */
 iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function (thisHook, data) {
-    
+
   iris.invokeHook("hook_entity_fetch", "root", null, {
     "entities": ["user"],
     "queries": [{
@@ -412,7 +410,7 @@ iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function 
       "value": thisHook.context.params.username
       }]
   }).then(function (entities) {
-    
+
     if (entities) {
 
       var doc = entities[0];
@@ -427,8 +425,8 @@ iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function 
     }
 
     thisHook.pass(data);
-  })
-})
+  });
+});
 
 /**
  * Submit handler for passwordReset.
@@ -444,9 +442,11 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
       }]
   }).then(function (entities) {
 
+    var doc;
+
     if (entities) {
 
-      var doc = entities[0];
+      doc = entities[0];
 
     }
 
@@ -463,17 +463,17 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
       "name": doc.username,
       "sitename": thisHook.req.headers.host
     }, thisHook.req.authPass, thisHook.req).then(function (body) {
-      
+
       var email;
-      
-      if(!iris.config.siteEmail){
-        
-        email = "irisjs@irisjs.org"
-        
+
+      if (!iris.config.siteEmail) {
+
+        email = "irisjs@irisjs.org";
+
       } else {
-        
-        email = iris.config.siteEmail
-        
+
+        email = iris.config.siteEmail;
+
       }
 
       var args = {
@@ -482,7 +482,7 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
         subject: 'Password reset',
         body: body
       };
-            
+
       iris.modules.email.globals.sendEmail(args, thisHook.authPass);
 
       thisHook.pass(data);
@@ -502,7 +502,7 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
 
   });
 
-})
+});
 
 /**
  * Defines form set_first_user.
@@ -527,7 +527,7 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
       data.schema.username = {
         "type": "text",
         "title": ap.t("Administrator email address")
-      }
+      };
 
       data.schema.password = {
         "type": "password",
@@ -600,9 +600,11 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
 
         iris.modules.user.globals.login(auth, thisHook.context.res, function (uid) {
 
+          var enabled = [];
+
           if (thisHook.context.params.profile == 'standard') {
 
-            var enabled = [
+            enabled = [
               {
                 "name": "menu_ui"
               }, {
@@ -719,7 +721,7 @@ iris.modules.user.globals.login = function (auth, res, callback) {
                 entityType: "user",
                 eid: userid,
                 lastlogin: Date.now()
-              }
+              };
 
               iris.invokeHook("hook_entity_edit", "root", null, userEntity);
 
@@ -825,9 +827,11 @@ iris.modules.user.globals.getRole = function (userid, callback) {
       }]
     }).then(function (entities) {
 
+      var doc;
+
       if (entities) {
 
-        var doc = entities[0];
+        doc = entities[0];
 
       }
 
@@ -890,7 +894,7 @@ iris.modules.user.registerHook("hook_entity_updated", 1, function (thisHook, ent
  */
 iris.modules.user.registerHook("hook_entity_presave_user", 1, function (thisHook, data) {
 
-  if (data.lastlogin == null) {
+  if (data.lastlogin === null) {
 
     delete data.lastlogin;
 
@@ -1002,14 +1006,18 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
   function parse_cookies(_cookies) {
     var cookies = {};
 
-    _cookies && _cookies.split(';').forEach(function (cookie) {
-      var parts = cookie.split('=');
-      cookies[parts[0].trim()] = (parts[1] || '').trim();
-    });
+    if (!_cookies) {
+
+      _cookies.split(';').forEach(function (cookie) {
+        var parts = cookie.split('=');
+        cookies[parts[0].trim()] = (parts[1] || '').trim();
+      });
+
+    }
 
     return cookies;
+    
   }
-
 
   var cookies = parse_cookies(thisHook.context.socket.handshake.headers.cookie);
 
@@ -1034,4 +1042,4 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
 iris.modules.user.globals.userPassRehash = function (password, timestamp, lastlogin, eid) {
 
-}
+};

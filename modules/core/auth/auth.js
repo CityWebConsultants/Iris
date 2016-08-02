@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise*/
-
 "use strict";
 
 var fs = require('fs');
@@ -516,7 +513,7 @@ iris.modules.auth.registerHook("hook_restart_send", 0, function (thisHook, data)
 
   thisHook.pass(data);
 
-})
+});
 
 iris.app.post("/logout", function (req, res) {
 

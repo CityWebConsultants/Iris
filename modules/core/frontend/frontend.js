@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @file Hooks and functions for the templating and routing systems that make up the 
@@ -276,9 +276,11 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
     iris.modules.frontend.globals.templateRegistry.external.forEach(function (directory) {
 
+      var files;
+      
       try {
 
-        var files = glob.sync(directory + "/" + "**");
+        files = glob.sync(directory + "/" + "**");
 
       } catch (e) {
 
@@ -465,10 +467,12 @@ var merge = require("merge");
 var parseTemplate = function (html, authPass, context) {
 
   return new Promise(function (pass, fail) {
+    
+    var allVariables;
 
     if (context) {
 
-      var allVariables = context;
+      allVariables = context;
 
     } else {
 
@@ -629,9 +633,9 @@ var parseEmbeds = function (html, variables, authPass) {
 
               embed.split(",").map(function (current) {
 
-                embedOptions.push(current.trim())
+                embedOptions.push(current.trim());
 
-              })
+              });
 
             }
 
@@ -651,7 +655,7 @@ var parseEmbeds = function (html, variables, authPass) {
             }
 
             var filler = '';
-            if (embed && embed != '' || category == 'MAINCONTENT') {
+            if (embed && embed !== '' || category == 'MAINCONTENT') {
               filler = ' ' + embed;
             }
             html = html.split("[[[" + category + filler + "]]]").join(parsedEmbed);

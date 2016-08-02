@@ -51,7 +51,7 @@ var routes = {
       title: "Blocks"
     }]
   }
-}
+};
 
 /**
  * Admin page callback: create block of type :type.
@@ -62,7 +62,7 @@ iris.route.get("/admin/blocks/create/:type", routes.createBlock, function (req, 
     blocktype: req.params.type,
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -84,7 +84,7 @@ iris.route.get("/admin/blocks/edit/:type/:id", routes.editBlock, function (req, 
     blockid: req.params.id
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -106,7 +106,7 @@ iris.route.get("/admin/blocks/delete/:type/:id", routes.deleteBlock, function (r
     blockid: req.params.id
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -146,9 +146,9 @@ iris.modules.forms.registerHook("hook_form_submit__newBlockForm", 0, function (t
 
     res.json({
       redirect: "/admin/blocks/create/" + thisHook.context.params.blockType
-    })
+    });
 
-  }
+  };
 
   thisHook.pass(data);
 
@@ -172,7 +172,7 @@ iris.modules.blocks.globals.registerBlock = function (config) {
 
   iris.modules.blocks.globals.blocks[config.type][config.id] = config;
 
-}
+};
 
 // Read all blocks saved by the user
 
@@ -200,19 +200,19 @@ glob(iris.configPath + "/blocks/*/*.json", function (er, files) {
 
         iris.saveConfig(config, "blocks" + "/" + config.blockType, config.blockTitle, function () {
 
-        })
+        });
 
       }
 
     } catch (e) {
 
-      iris.log("error", e)
+      iris.log("error", e);
 
     }
 
-  })
+  });
 
-})
+});
 
 iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (thisHook, data) {
   
@@ -236,7 +236,7 @@ iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (this
         type: blockType,
         config: iris.modules.blocks.globals.blocks[blockType][blockName]
 
-      }
+      };
 
       iris.invokeHook("hook_block_render", thisHook.authPass, parameters, null).then(function (html) {
 
@@ -256,7 +256,7 @@ iris.modules.blocks.registerHook("hook_frontend_embed__block", 0, function (this
 
         thisHook.pass("");
 
-      })
+      });
 
     } else {
 
@@ -280,7 +280,7 @@ iris.modules.blocks.globals.registerBlockType = function (name) {
 
   if (!name) {
 
-    iris.log("error", "block types must have a name")
+    iris.log("error", "block types must have a name");
 
   } else {
 
@@ -371,7 +371,7 @@ iris.modules.blocks.registerHook("hook_form_render", 0, function (thisHook, data
 
     thisHook.pass(data);
 
-  };
+  }
 
 });
 
@@ -458,9 +458,9 @@ iris.modules.blocks.registerHook("hook_form_submit", 0, function (thisHook, data
 
         res.json({
           redirect: "/admin/blocks"
-        })
+        });
 
-      }
+      };
 
       thisHook.pass(data);
 
@@ -493,7 +493,7 @@ iris.route.get("/admin/blocks", routes.menu, function (req, res) {
     blockTypes: Object.keys(iris.modules.blocks.globals.blockTypes),
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -503,4 +503,4 @@ iris.route.get("/admin/blocks", routes.menu, function (req, res) {
 
   });
 
-})
+});
