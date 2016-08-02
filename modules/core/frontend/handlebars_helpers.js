@@ -107,7 +107,7 @@ iris.modules.frontend.globals.parseIrisEmbed = function (settings, authPass, liv
 
         } else {
 
-          pass();
+          pass("");
 
         }
 
@@ -242,7 +242,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       extraSettings = options.hash;
 
     } else {
-      
+
       title = arguments[0];
 
       if (arguments[1] && typeof arguments[1] === "string") {
@@ -256,7 +256,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       }
 
     }
-    
+
 
     // Mark if this is being used as a block as some embeds will want to do things differently for that
 
@@ -328,7 +328,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
     return new Promise(function (pass, fail) {
 
       // Create unique ID for embed if liveupdating
-      
+
       var settings = {
         title: title,
         embedOptions: extraSettings.config,
@@ -336,9 +336,9 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
         blockEmbed: block,
         template: options.fn
       };
-      
+
       Object.assign(settings, extraSettings);
-      
+
       if (liveUpdate) {
 
         var crypto = require('crypto');
@@ -416,7 +416,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
           }, iris.modules.frontend.globals.liveEmbedTimeout);
 
-          iris.modules.frontend.globals.parseIrisEmbed(settings, thisHook.authPass, token).then(function (result) {
+          iris.modules.frontend.globals.parseIrisEmbed(settings, thisHook.authPass, token).then(function (result = "") {
 
             pass(result);
 
@@ -426,7 +426,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       } else {
 
-        iris.modules.frontend.globals.parseIrisEmbed(settings, thisHook.authPass).then(function (result) {
+        iris.modules.frontend.globals.parseIrisEmbed(settings, thisHook.authPass).then(function (result = "") {
 
           pass(result);
 
