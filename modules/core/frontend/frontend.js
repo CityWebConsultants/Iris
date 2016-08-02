@@ -277,7 +277,7 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
     iris.modules.frontend.globals.templateRegistry.external.forEach(function (directory) {
 
       var files;
-      
+
       try {
 
         files = glob.sync(directory + "/" + "**");
@@ -469,11 +469,11 @@ var merge = require("merge");
 var parseTemplate = function (html, authPass, context) {
 
   return new Promise(function (pass, fail) {
-    
+
     var allVariables;
 
     var allVariables;
-    
+
     if (context) {
 
       allVariables = context;
@@ -761,27 +761,34 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     variables: data.vars
   }, Handlebars).then(function () {
 
-    Handlebars.compile(data.html)(data.vars).then(function (html) {
+    try {
+      Handlebars.compile(data.html)(data.vars).then(function (html) {
 
-      data.html = html;
+        data.html = html;
 
-      // Final parse
+        // Final parse
 
-      data.vars.finalParse = true;
+        data.vars.finalParse = true;
 
-      Handlebars.compile(data.html)(data.vars).then(function (finalHTML) {
+        Handlebars.compile(data.html)(data.vars).then(function (finalHTML) {
 
-        data.html = finalHTML;
+          data.html = finalHTML;
 
-        thisHook.pass(data);
+          thisHook.pass(data);
+
+        });
+
+      }, function (fail) {
+
+        thisHook.fail(fail);
 
       });
 
-    }, function (fail) {
+    } catch (e) {
 
-      thisHook.fail(fail);
-
-    });
+      thisHook.fail(e);
+      
+    }
 
   }, function (fail) {
 
