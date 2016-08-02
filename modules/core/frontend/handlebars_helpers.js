@@ -230,28 +230,33 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
   Handlebars.registerHelper("iris", function () {
 
     var options = arguments[arguments.length - 1],
-      embedOptions,
       title,
+      extraSettings = {},
       block,
       liveUpdate;
 
     if (Object.keys(options.hash).length) {
 
       title = options.hash.embed;
-      embedOptions = options.hash.config;
       liveUpdate = options.hash.liveupdate;
+      extraSettings = options.hash;
 
     } else {
-
+      
       title = arguments[0];
 
-      if (typeof arguments[1] === "string") {
+      if (arguments[1] && typeof arguments[1] === "string") {
 
-        embedOptions = arguments[1];
+        extraSettings.config = arguments[1];
+
+      } else {
+
+        extraSettings.config = "{}";
 
       }
 
     }
+    
 
     // Mark if this is being used as a block as some embeds will want to do things differently for that
 
@@ -265,46 +270,38 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     }
 
-    if (embedOptions) {
+    var that = this;
+    var stringSettings = "";
+
+    Object.keys(extraSettings).forEach(function (settingKey) {
 
       try {
 
-        var that = this;
+        stringSettings += ` ${settingKey}='${extraSettings[settingKey]}' `;
 
         Object.keys(this).forEach(function (variable) {
 
-          embedOptions = embedOptions.split("$this." + variable).join(that[variable]);
+          extraSettings[settingKey] = extraSettings[settingKey].split("$this." + variable).join(that[variable]);
 
         });
 
+        Object.keys(options.data.root).forEach(function (variable) {
+
+          extraSettings[settingKey] = extraSettings[settingKey].split("$" + variable).join(options.data.root[variable]);
+
+        });
+
+        extraSettings[settingKey] = extraSettings[settingKey].split("$this").join(this);
+
+        extraSettings[settingKey] = JSON.parse(extraSettings[settingKey]);
+
       } catch (e) {
 
+        delete extraSettings[settingKey];
 
       }
 
-      Object.keys(options.data.root).forEach(function (variable) {
-
-        embedOptions = embedOptions.split("$" + variable).join(options.data.root[variable]);
-
-      });
-
-      embedOptions = embedOptions.split("$this").join(this);
-
-    } else {
-
-      embedOptions = "{}";
-
-    }
-
-    var JSONembedOptions;
-
-    try {
-
-      JSONembedOptions = JSON.parse(embedOptions);
-
-    } catch (e) {
-
-    }
+    });
 
     var vars = {};
 
@@ -320,7 +317,9 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       if (!options.data.root.finalParse) {
 
-        return ("{{{iris '" + title + "' '" + embedOptions + "'}}}");
+        var rawTagEmbed = "{{{iris embed='" + title + "' " + stringSettings + "}}}";
+
+        return rawTagEmbed;
 
       }
 
@@ -329,15 +328,17 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
     return new Promise(function (pass, fail) {
 
       // Create unique ID for embed if liveupdating
-
+      
       var settings = {
         title: title,
-        embedOptions: JSONembedOptions,
+        embedOptions: extraSettings.config,
         vars: vars,
         blockEmbed: block,
         template: options.fn
       };
-
+      
+      Object.assign(settings, extraSettings);
+      
       if (liveUpdate) {
 
         var crypto = require('crypto');
@@ -349,11 +350,11 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
           var token = title + "_" + buf.toString('hex');
 
           settings.getResult = function (authPass) {
-            
-            if(!authPass){
-              
+
+            if (!authPass) {
+
               authPass = thisHook.authPass;
-              
+
             }
 
             return new Promise(function (pass, fail) {
