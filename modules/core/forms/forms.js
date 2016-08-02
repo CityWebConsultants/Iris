@@ -165,7 +165,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
         var token = iris.modules.forms.globals.formRenderCache[body.formToken];
 
-        if (token.authPass.userid === thisHook.authPass.userid && body.formid === token.formid) {
+        if (token.userid === thisHook.authPass.userid && body.formid === token.formid) {
 
         } else {
 
@@ -360,7 +360,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
       iris.modules.forms.globals.formRenderCache[token] = {
         formid: formName,
-        authPass: thisHook.authPass
+        userid: thisHook.authPass.userid
       };
 
       form.schema.formToken = {
