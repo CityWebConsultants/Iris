@@ -331,7 +331,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       var settings = {
         title: title,
-        embedOptions: extraSettings.config,
+        embedOptions: extraSettings.embedOptions ? extraSettings.embedOptions : extraSettings.config,
         vars: vars,
         blockEmbed: block,
         template: options.fn
