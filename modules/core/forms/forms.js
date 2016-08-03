@@ -26,9 +26,9 @@ setInterval(function () {
 
     }
 
-  })
+  });
 
-}, 86400000)
+}, 86400000);
 
 var toSource = require('tosource');
 
@@ -282,6 +282,14 @@ iris.route.get("/modules/forms/extrafields.js", function (req, res) {
  */
 iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHook, data) {
 
+  if(!thisHook.context.embedOptions.formID){
+    
+    thisHook.fail("No formID");
+    
+    return false;
+    
+  }
+  
   var variables = thisHook.context.vars;
 
   // Add scripts for forms
