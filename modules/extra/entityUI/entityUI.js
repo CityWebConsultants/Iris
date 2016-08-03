@@ -269,7 +269,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
         if (data.schema && data.schema.path) {
 
           data.schema.path.title = thisHook.authPass.t("Path");
-          data.schema.path.description = thisHook.authPass.t("Enter a path for the entity with a leading slash");
+          data.schema.path.description = thisHook.authPass.t("Enter a path for the entity. Leading / is required.");
 
         }
 
