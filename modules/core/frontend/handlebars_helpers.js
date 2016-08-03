@@ -275,6 +275,14 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     Object.keys(extraSettings).forEach(function (settingKey) {
 
+      if (typeof extraSettings[settingKey] !== "string") {
+
+        // Already JSON
+
+        return false;
+
+      }
+
       try {
 
         stringSettings += ` ${settingKey}='${extraSettings[settingKey]}' `;
@@ -355,6 +363,16 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       }
 
+      if (extraSettings.embedOptions) {
+
+        Object.keys(extraSettings.embedOptions).forEach(function (key) {
+
+          embedOptions[key] = extraSettings.embedOptions[key];
+
+        });
+
+      }
+
       var settings = {
         title: title,
         embedOptions: embedOptions,
@@ -362,7 +380,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
         blockEmbed: block,
         template: options.fn
       };
-      
+
       if (liveUpdate) {
 
         var crypto = require('crypto');
@@ -387,11 +405,15 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
                 pass(result);
 
+              }, function (reason) {
+
+                fail(reason);
+
               });
 
-            }, function (fail) {
+            }, function (failReason) {
 
-              fail(fail);
+              fail(failReason);
 
             });
 
@@ -428,12 +450,6 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
             if (iris.modules.frontend.globals.liveEmbeds[title][token] && !iris.modules.frontend.globals.liveEmbeds[title][token].socket) {
 
-              // Check output
-
-              iris.modules.frontend.globals.parseIrisEmbed(iris.modules.frontend.globals.liveEmbeds[title][token], thisHook.authPass).then(function (embedOutput) {
-
-              });
-
               delete iris.modules.frontend.globals.liveEmbeds[token];
 
             }
@@ -444,6 +460,12 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
             pass(result);
 
+          }, function (fail) {
+
+            iris.log("error", fail);
+
+            pass("");
+
           });
 
         });
@@ -453,6 +475,12 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
         iris.modules.frontend.globals.parseIrisEmbed(settings, thisHook.authPass).then(function (result = "") {
 
           pass(result);
+
+        }, function (fail) {
+
+          iris.log("error", fail);
+
+          pass("");
 
         });
 
