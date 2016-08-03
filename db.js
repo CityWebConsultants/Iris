@@ -221,7 +221,6 @@ iris.dbPopulate = function () {
       fieldType: 'Textfield',
       fieldTypeType: 'String',
       label: 'path',
-      unique: true,
       fixed: true, // A fixed field isn't shown on the schema edit page as it can't be edited/deleted 
       weight: 1111, // JSON doesn't support infinity - ugh
       machineName: 'path'
