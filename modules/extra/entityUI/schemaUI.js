@@ -597,24 +597,24 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
 
       var recurseFields = function (object, elementParent) {
 
-          for (element in object) {
+        for (element in object) {
 
-            if (element == parent) {
+          if (element == parent) {
 
-              parentSchema = object[element];
-              fields = object[element].subfields;
+            parentSchema = object[element];
+            fields = object[element].subfields;
 
-              return;
+            return;
 
-            } else if (typeof object[element].fieldType != 'undefined' && object[element].fieldType == 'Fieldset') {
+          } else if (typeof object[element].fieldType != 'undefined' && object[element].fieldType == 'Fieldset') {
 
-              recurseFields(object[element].subfields, element);
-
-            }
+            recurseFields(object[element].subfields, element);
 
           }
-        };
-        // Do recursion to find the desired fields to list as they may be nested.
+
+        }
+      };
+      // Do recursion to find the desired fields to list as they may be nested.
       recurseFields(entityTypeSchema.fields, parent);
 
     } else {
@@ -636,6 +636,13 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
         var field = JSON.parse(JSON.stringify(parentSchema.subfields[fieldName]));
       }
 
+      // Hide field if set to fixed (like path) as it shouldn't be able to be removed from the schema
+
+      if (field.fixed) {
+
+        return false;
+
+      }
 
       row['fieldLabel'] = field.label;
       row['fieldId'] = fieldName;
@@ -698,18 +705,18 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
     });
     tableHtml += '</tbody></table>';
 
-    var displayFieldTypes = function(){
+    var displayFieldTypes = function () {
       var allowedFieldTypes = {};
-      for(var key in iris.fieldTypes){
-        if(!iris.fieldTypes[key].hidden){
+      for (var key in iris.fieldTypes) {
+        if (!iris.fieldTypes[key].hidden) {
           allowedFieldTypes[key] = iris.fieldTypes[key];
         }
       }
-       
+
       return Object.keys(allowedFieldTypes).concat(["Fieldset"]);
     };
-    
-    
+
+
     var weightFields = {
       "type": "array",
       "title": ap.t("weights"),

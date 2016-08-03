@@ -144,12 +144,12 @@ iris.route.get("/:type/:id/delete", routes.delete, function (req, res) {
 
     });
 
-  }, function(fail){
-    
-     iris.modules.frontend.globals.displayErrorPage(404, req, res);
+  }, function (fail) {
 
-      return false;
-    
+    iris.modules.frontend.globals.displayErrorPage(404, req, res);
+
+    return false;
+
   });
 
 });
@@ -263,6 +263,15 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
       counter += 1;
 
       if (counter === fieldCount) {
+
+        // Change path field (on all entities) name and description
+
+        if (data.schema && data.schema.path) {
+
+          data.schema.path.title = thisHook.authPass.t("Path");
+          data.schema.path.description = thisHook.authPass.t("Enter a path for the entity with a leading slash");
+
+        }
 
         data.form.push("entityType");
 
@@ -704,6 +713,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
         }
 
         data.schema[fieldName] = form;
+
         fieldLoaded();
 
       }, editingEntity ? editingEntity[fieldName] : null, fieldName);
