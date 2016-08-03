@@ -295,15 +295,37 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
         Object.keys(options.data.root).forEach(function (variable) {
 
-          extraSettings[settingKey] = extraSettings[settingKey].split("$" + variable).join(options.data.root[variable]);
+          if (typeof options.data.root[variable] === "object") {
+
+            try {
+
+              Object.keys(options.data.root[variable]).forEach(function (subkey) {
+
+                extraSettings[settingKey] = extraSettings[settingKey].split("$" + variable + "." + subkey).join(options.data.root[variable][subkey]);
+
+              });
+
+            } catch (e) {
+
+
+
+            }
+
+
+          } else {
+
+            extraSettings[settingKey] = extraSettings[settingKey].split("$" + variable).join(options.data.root[variable]);
+
+          }
 
         });
 
         extraSettings[settingKey] = extraSettings[settingKey].split("$this").join(this);
-
+        
         try {
-
+          
           extraSettings[settingKey] = JSON.parse(extraSettings[settingKey]);
+          
 
         } catch (e) {
 
