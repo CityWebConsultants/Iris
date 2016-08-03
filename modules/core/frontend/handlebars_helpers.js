@@ -293,7 +293,15 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
         extraSettings[settingKey] = extraSettings[settingKey].split("$this").join(this);
 
-        extraSettings[settingKey] = JSON.parse(extraSettings[settingKey]);
+        try {
+
+          extraSettings[settingKey] = JSON.parse(extraSettings[settingKey]);
+
+        } catch (e) {
+
+          // Not valid JSON. Send as is. Could force JSON but not sure if needed.
+
+        }
 
       } catch (e) {
 
@@ -329,16 +337,32 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       // Create unique ID for embed if liveupdating
 
+      var embedOptions = {};
+
+      Object.keys(extraSettings).forEach(function (key) {
+
+        embedOptions[key] = extraSettings[key];
+
+      });
+
+      if (extraSettings.config) {
+
+        Object.keys(extraSettings.config).forEach(function (key) {
+
+          embedOptions[key] = extraSettings.config[key];
+
+        });
+
+      }
+
       var settings = {
         title: title,
-        embedOptions: extraSettings.embedOptions ? extraSettings.embedOptions : extraSettings.config,
+        embedOptions: embedOptions,
         vars: vars,
         blockEmbed: block,
         template: options.fn
       };
-
-      Object.assign(settings, extraSettings);
-
+      
       if (liveUpdate) {
 
         var crypto = require('crypto');
