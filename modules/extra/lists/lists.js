@@ -2,6 +2,14 @@ var fs = require("fs");
 
 process.on("dbReady", function () {
 
+  // Unset all hooks as this will overwrite them with new dynamic ones
+
+  Object.keys(iris.modules.lists.hooks).forEach(function (hook) {
+
+    delete iris.modules.lists.hooks[hook];
+
+  })
+
   // Create a view block type for each entity
 
   Object.keys(iris.entityTypes).forEach(function (entityType) {
@@ -161,11 +169,11 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
       query.sort[config.sort.field] = config.sort.order;
 
     }
-    
+
     var template = config.output.split("list").join("list_" + config.blockTitle);
-        
+
     var query = "[[[entity list_" + config.blockTitle + "," + JSON.stringify(query) + "]]]" + template;
-    
+
     thisHook.pass(query);
 
   } else {
