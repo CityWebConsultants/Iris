@@ -1,7 +1,7 @@
 {
   "undef": true,
   "unused": false,
-  "predef": ["iris","Promise", "CKEDITOR", "JSONForm", "ckeditor", "jQuery", "$", "e","describe","it","expect","beforeEach","jasmine","alert"],
+  "predef": ["iris","Promise", "CKEDITOR", "JSONForm", "ckeditor", "jQuery", "$", "e","describe","it","expect","beforeEach","jasmine","alert","ace"],
   "node" : true,
   "browser": true,
   "sub" : true,
