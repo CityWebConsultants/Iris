@@ -83,6 +83,8 @@ process.on("dbReady", function () {
         var field = iris.entityTypes[entityType].fields[fieldName];
 
         var fieldType = iris.fieldTypes[field.fieldType];
+        
+        // TODO make fieldsets work
 
         if (!fieldType) {
 
