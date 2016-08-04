@@ -84,17 +84,19 @@ iris.modules.triggers.registerHook("hook_triggers_http_request", 0, function (th
     params.parameters = prepared;
 
   }
+  
+  var req;
 
   if (params.method === "POST") {
 
-    var data = querystring.stringify(params.parameters);
+    data = querystring.stringify(params.parameters);
 
     options.headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Content-Length': Buffer.byteLength(data)
     };
 
-    var req = protocol[params.protocol].request(options);
+    req = protocol[params.protocol].request(options);
 
     req.write(data);
     req.end();
@@ -111,7 +113,7 @@ iris.modules.triggers.registerHook("hook_triggers_http_request", 0, function (th
 
     options.path += "?" + qs;
 
-    var req = protocol[params.protocol].request(options, function (res) {
+    req = protocol[params.protocol].request(options, function (res) {
 
       // Do something with data response?
 
