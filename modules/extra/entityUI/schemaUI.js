@@ -1332,70 +1332,30 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafield", 0, function 
   delete thisHook.context.params.entityType;
   delete thisHook.context.params.fieldName;
 
-  // savedElement becomes a reference to the field to be saved. This is particularly needed for when the
-  // the field is nested somewhere within the schema tree.
+  // savedElement becomes a reference to the field to be saved.
+
   var savedElement = {};
 
-  // Recursive function
-  var recurseFields = function (object, elementParent) {
+  var lookupField = function (object) {
 
-    // If the element doesn't exist, add it to the schema.
-    if (parent == elementParent && !object[fieldName]) {
+    Object.keys(object).forEach(function (subfield) {
+      
+      if (subfield === parent && object[subfield].subfields && object[subfield].subfields[fieldName]) {
 
-      treeArray.push(fieldName);
+        savedElement = object[subfield].subfields[fieldName];
 
-      // First element in tree.
-      savedElement = schema.fields[treeArray[0]];
+      } else if (object[subfield].fieldType === "Fieldset" && object[subfield].subfields) {
 
-      // If nested, go down each level.
-      for (var i = 1; i < treeArray.length; i++) {
-        savedElement = savedElement.subfields[treeArray[i]];
-      }
-      return;
-    }
-
-    // Loop over each field.
-    Object.keys(object).forEach(function (element) {
-
-      // If a branch has been searched but doesn't contain the disired field, remove the element from the 
-      // traversal array.
-      if (treeArray.length > 0 && treeArray[treeArray.length - 1] != element && treeArray[treeArray.length - 1] != elementParent) {
-
-        treeArray.pop();
-
-      }
-
-      // Found the diresed field.
-      if (element == fieldName) {
-
-        treeArray.push(element);
-
-        // Add route field.
-        savedElement = schema.fields[treeArray[0]];
-
-        // If field is nested, traverse to the correct leaf.
-        for (var i = 1; i < treeArray.length; i++) {
-          savedElement = savedElement.subfields[treeArray[i]];
-        }
-        return;
-
-      } else if (typeof object[element].fieldType != 'undefined' && object[element].fieldType == 'Fieldset') {
-
-        // If a fieldset, drill into it.
-        treeArray.push(element);
-        recurseFields(object[element].subfields, element);
+        lookupField(object[subfield].subfields);
 
       }
 
     });
+
   };
 
-
-  // Tree traversal record, add each node to the leaf in here.
-  var treeArray = [];
-
   if (!schema.fields[fieldName]) {
-    recurseFields(schema.fields, '');
+    lookupField(schema.fields);
   } else {
     savedElement = schema.fields[fieldName];
   }
