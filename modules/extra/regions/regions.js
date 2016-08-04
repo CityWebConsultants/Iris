@@ -170,7 +170,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
 
           var settings = block.settings;
 
-          var block = block.block;
+          block = block.block;
 
           if (block.toLowerCase() === "none") {
 

@@ -26,9 +26,9 @@ setInterval(function () {
 
     }
 
-  })
+  });
 
-}, 86400000)
+}, 86400000);
 
 var toSource = require('tosource');
 
