@@ -15,6 +15,7 @@
     "express": "^4.13.3",
     "glob": "^5.0.15",
     "handlebars": "^4.0.4",
+    "handlebars-helpers": "^0.7.3",
     "i18n": "^0.8.1",
     "jsdom": "^9.3.0",
     "jsondiffpatch": "^0.1.43",
