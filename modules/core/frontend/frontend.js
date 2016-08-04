@@ -716,6 +716,10 @@ var Handlebars = require('handlebars');
 var promisedHandlebars = require('promised-handlebars');
 var Handlebars = promisedHandlebars(require('handlebars'));
 
+var helpers = require('handlebars-helpers')({
+  handlebars: Handlebars
+});
+
 iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
 
   if (!data.vars) {
@@ -785,7 +789,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     } catch (e) {
 
       thisHook.fail(e);
-      
+
     }
 
   }, function (fail) {

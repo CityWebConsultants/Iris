@@ -136,10 +136,6 @@ iris.modules.frontend.globals.parseIrisEmbed = function (settings, authPass, liv
 
 iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, function (thisHook, Handlebars) {
 
-  var helpers = require('handlebars-helpers')({
-    handlebars:Handlebars
-  });
-
   // Check route access
 
   Handlebars.registerHelper("iris_menu", function (item) {
