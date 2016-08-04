@@ -83,7 +83,7 @@ var referenceField = function (thisHook, data) {
 
     var extraClass = '';
 
-    if (!hasValue && index == 0) {
+    if (!hasValue && index === 0) {
       extraClass = 'open';
     } else if (data.value.settings && data.value.settings.entityType && data.value.settings.entityType == schema) {
       extraClass = 'open';
@@ -157,7 +157,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 
     if (entity && entity.length) {
 
-      var entity = entity[0];
+      entity = entity[0];
 
       value = entity[fieldSettings.settings[value.entityType]] + "[" + value.eid + "]";
 
@@ -258,7 +258,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 
       if (entity && entity.length) {
 
-        var entity = entity[0];
+        entity = entity[0];
 
         newValue.push(entity[fieldSettings.settings[current.entityType]] + "[" + current.eid + "]");
 

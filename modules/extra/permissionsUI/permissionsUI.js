@@ -47,14 +47,16 @@ iris.modules.permissionsUI.registerHook("hook_form_render__permissions", 0, func
 
   // Check if menu name supplied and previous values available
 
+  var current;
+  
   try {
     var currentPermissions = fs.readFileSync(iris.sitePath + "/configurations/auth/permissions.json", "utf8");
 
-    var current = JSON.parse(currentPermissions);
+    current = JSON.parse(currentPermissions);
 
   } catch (e) {
 
-    var current = {};
+    current = {};
 
   }
 

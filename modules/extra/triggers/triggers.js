@@ -59,7 +59,7 @@ iris.route.get("/admin/config/triggers/create", routes.create, function (req, re
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_triggers_form"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -69,7 +69,7 @@ iris.route.get("/admin/config/triggers/create", routes.create, function (req, re
 
   });
 
-})
+});
 
 /**
  * Admin page callback: Edit action.
@@ -81,7 +81,7 @@ iris.route.get("/admin/config/triggers/edit/:action", routes.edit, function (req
     action: iris.sanitizeName(req.params.action)
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -91,7 +91,7 @@ iris.route.get("/admin/config/triggers/edit/:action", routes.edit, function (req
 
   });
 
-})
+});
 
 /**
  * Admin page callback: Triggers UI.
@@ -103,7 +103,7 @@ iris.route.get("/admin/config/triggers", routes.triggers, function (req, res) {
     actions: iris.configStore.triggers,
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -113,7 +113,7 @@ iris.route.get("/admin/config/triggers", routes.triggers, function (req, res) {
 
   });
 
-})
+});
 
 /**
  * Admin page callback: Delete trigger.
@@ -124,7 +124,7 @@ iris.route.get("/admin/config/triggers/delete/:name", routes.delete, function (r
     action: req.params.name
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -156,9 +156,9 @@ glob(iris.configPath + "/triggers/*.json", function (er, files) {
 
         });
     }
-  })
+  });
 
-})
+});
 
 /**
  * Function to register a new action
@@ -178,9 +178,9 @@ iris.modules.triggers.globals.registerAction = function (name, parametersArray) 
 
     parameters: parametersArray
 
-  }
+  };
 
-}
+};
 
 /**
  * Function to register a new event
@@ -207,9 +207,9 @@ iris.modules.triggers.globals.registerEvent = function (name, parametersArray) {
 
     parameters: parametersArray
 
-  }
+  };
 
-}
+};
 
 /**
  * Function to trigger a given event
@@ -273,7 +273,7 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
                 }
 
-              })
+              });
 
               //Process query based on operator
 
@@ -401,11 +401,11 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
                         parameter = parameter.split("[" + variable + "]").join(params[variable]);
 
-                        rule.actions[index].parameters[parameterName] = parameter
+                        rule.actions[index].parameters[parameterName] = parameter;
 
                       }
 
-                    })
+                    });
 
                   } else if (Array.isArray(parameter)) {
 
@@ -434,20 +434,20 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
                             }
 
-                          })
+                          });
 
                         }
 
-                      })
+                      });
 
 
-                    })
+                    });
 
                     rule.actions[index].parameters[parameterName] = parameter;
 
                   }
 
-                })
+                });
 
                 iris.invokeHook("hook_triggers_" + actionName, authPass, {
                   params: rule.actions[index].parameters
@@ -463,9 +463,9 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
 
                   iris.log("error", actionName + " " + fail);
 
-                })
+                });
 
-              })
+              });
 
             }
 
@@ -474,7 +474,7 @@ iris.modules.triggers.globals.triggerEvent = function (name, authPass, params) {
         }
 
 
-      })
+      });
 
     },
     function (fail) {
@@ -490,16 +490,16 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
   var ap = thisHook.authPass;
 
   if (!data.schema) {
-    data.schema = {}
+    data.schema = {};
   }
 
   data.schema.name = {
     "title": ap.t("Name of action")
-  }
+  };
 
   data.schema.event = {
     "title": ap.t("Event")
-  }
+  };
 
   // Generate form presentation
 
@@ -509,7 +509,7 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
 
   data.form.push({
     key: "name"
-  })
+  });
 
   //  Add in helpers
   //  for parameters available from event
@@ -524,7 +524,7 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
 
       tokens.push("[" + token + "]");
 
-    })
+    });
 
     events[eventType] = {
       "type": "object",
@@ -568,12 +568,12 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
           }
         }
       }
-    }
-  })
+    };
+  });
 
   data.schema.events = {
     "type": "object"
-  }
+  };
 
   data.schema.events.properties = {};
 
@@ -582,17 +582,17 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
     "required": true,
     "options": Object.keys(events),
     "title": ap.t("Choose an event type")
-  }
+  };
 
   Object.keys(events).forEach(function (event) {
 
     data.schema.events.properties[event] = events[event];
 
-  })
+  });
 
   data.form.push({
     key: "events"
-  })
+  });
 
   // Get list of actions and their fields
 
@@ -605,13 +605,13 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
     actions[actionType] = {
       "type": "object",
       "properties": iris.modules.triggers.globals.actions[actionType].parameters
-    }
+    };
 
-  })
+  });
 
   data.schema.actions = {
     "type": "array"
-  }
+  };
 
   data.schema.actions.items = {
     "type": "object",
@@ -622,17 +622,17 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
         "title": ap.t("Choose an action type")
       }
     }
-  }
+  };
 
   Object.keys(actions).forEach(function (action) {
 
     data.schema.actions.items.properties[action] = actions[action];
 
-  })
+  });
 
   data.form.push({
     key: "actions"
-  })
+  });
 
   // Add submit button
 
@@ -660,7 +660,7 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
 
         action: action.action
 
-      }
+      };
 
       data.value.actions[index][action.action] = action.parameters;
 
@@ -669,7 +669,7 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
 
   thisHook.pass(data);
 
-})
+});
 
 // Register action save hook
 
@@ -703,11 +703,11 @@ iris.modules.triggers.registerHook("hook_form_submit__actions", 0, function (thi
 
         delete subField[subField.action];
 
-      })
+      });
 
     }
 
-  })
+  });
 
   iris.saveConfig(thisHook.context.params, "triggers", iris.sanitizeName(thisHook.context.params.name), function (saved) {
 
@@ -721,7 +721,7 @@ iris.modules.triggers.registerHook("hook_form_submit__actions", 0, function (thi
 
     thisHook.pass(data);
 
-  })
+  });
 
 });
 
@@ -805,7 +805,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
         }
 
-      })
+      });
 
     } else {
 
@@ -832,7 +832,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
         }
 
-      })
+      });
 
     }
 
@@ -873,7 +873,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
       }
 
-    })
+    });
 
   };
 
@@ -887,7 +887,7 @@ iris.modules.triggers.registerHook("hook_triggers_event", 0, function (thisHook,
 
   thisHook.pass(data);
 
-})
+});
 
 // Some default events and actions for logging messages on page view
 
@@ -899,13 +899,13 @@ iris.modules.triggers.registerHook("hook_request_intercept", 0, function (thisHo
     "url": thisHook.context.req.url,
     "userid": thisHook.authPass.userid,
     "roles": thisHook.authPass.roles.join(",")
-  }
+  };
 
   iris.modules.triggers.globals.triggerEvent("page_visit", thisHook.authPass, params);
 
   thisHook.pass(data);
 
-})
+});
 
 iris.modules.triggers.globals.registerAction("log", {
 
@@ -925,11 +925,11 @@ iris.modules.triggers.globals.registerAction("log", {
 
 iris.modules.triggers.registerHook("hook_triggers_log", 0, function (thisHook, data) {
 
-  iris.log(thisHook.context.params.level, thisHook.context.params.message)
+  iris.log(thisHook.context.params.level, thisHook.context.params.message);
 
   thisHook.pass(data);
 
-})
+});
 
 require(__dirname + "/entityTriggers.js");
 require(__dirname + "/httpTriggers.js");
