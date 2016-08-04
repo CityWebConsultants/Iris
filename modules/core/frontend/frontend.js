@@ -720,6 +720,12 @@ var helpers = require('handlebars-helpers')({
   handlebars: Handlebars
 });
 
+process.on("dbReady", function () {
+
+  iris.invokeHook("hook_frontend_handlebars_extend", "root", {}, Handlebars);
+
+});
+
 iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
 
   if (!data.vars) {
@@ -759,44 +765,34 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     data.vars["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
   }
 
-  iris.invokeHook("hook_frontend_handlebars_extend", thisHook.authPass, {
-    variables: data.vars
-  }, Handlebars).then(function () {
+  try {
+    Handlebars.compile(data.html)(data.vars).then(function (html) {
 
-    try {
-      Handlebars.compile(data.html)(data.vars).then(function (html) {
+      data.html = html;
 
-        data.html = html;
+      // Final parse
 
-        // Final parse
+      data.vars.finalParse = true;
 
-        data.vars.finalParse = true;
+      Handlebars.compile(data.html)(data.vars).then(function (finalHTML) {
 
-        Handlebars.compile(data.html)(data.vars).then(function (finalHTML) {
+        data.html = finalHTML;
 
-          data.html = finalHTML;
-
-          thisHook.pass(data);
-
-        });
-
-      }, function (fail) {
-
-        thisHook.fail(fail);
+        thisHook.pass(data);
 
       });
 
-    } catch (e) {
+    }, function (fail) {
 
-      thisHook.fail(e);
+      thisHook.fail(fail);
 
-    }
+    });
 
-  }, function (fail) {
+  } catch (e) {
 
-    thisHook.pass(fail);
+    thisHook.fail(e);
 
-  });
+  }
 
 });
 
