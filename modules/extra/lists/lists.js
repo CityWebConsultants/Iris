@@ -8,7 +8,7 @@ process.on("dbReady", function () {
 
     delete iris.modules.lists.hooks[hook];
 
-  })
+  });
 
   // Create a view block type for each entity
 
@@ -172,9 +172,9 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
 
     var template = config.output.split("list").join("list_" + config.blockTitle);
 
-    var query = "[[[entity list_" + config.blockTitle + "," + JSON.stringify(query) + "]]]" + template;
+    var sendQuery = "[[[entity list_" + config.blockTitle + "," + JSON.stringify(query) + "]]]" + template;
 
-    thisHook.pass(query);
+    thisHook.pass(sendQuery);
 
   } else {
 
