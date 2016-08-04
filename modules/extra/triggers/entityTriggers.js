@@ -7,7 +7,7 @@ var fieldsToArgs = function (fields) {
   Object.keys(fields).forEach(function (fieldName) {
 
     if (fields[fieldName] && typeof fields[fieldName] == "object" && !Array.isArray(fields[fieldName])) {
-      
+
       Object.keys(fields[fieldName]).forEach(function (subfield) {
 
         output[fieldName + "." + subfield] = fields[fieldName][subfield];
@@ -43,7 +43,7 @@ iris.modules.triggers.registerHook("hook_entity_deleted", 0, function (thisHook,
 });
 
 iris.modules.triggers.registerHook("hook_entity_updated", 0, function (thisHook, data) {
-  
+
   var newFields = fieldsToArgs(thisHook.context.new);
   var oldFields = fieldsToArgs(thisHook.context.previous);
 
@@ -83,6 +83,12 @@ process.on("dbReady", function () {
         var field = iris.entityTypes[entityType].fields[fieldName];
 
         var fieldType = iris.fieldTypes[field.fieldType];
+
+        if (!fieldType) {
+
+          return false;
+
+        }
 
         if (typeof fieldType.type === "string") {
 
