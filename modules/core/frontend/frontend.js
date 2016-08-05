@@ -179,6 +179,25 @@ iris.modules.frontend.globals.getTemplate = function (entity, authPass, optional
 
 var glob = require("glob");
 
+var externalFiles = {};
+var internalFiles = {};
+
+process.on("dbReady", function () {
+
+  iris.modules.frontend.globals.templateRegistry.theme.forEach(function (directory) {
+
+    internalFiles[directory] = glob.sync(directory + "/" + "**");
+
+  });
+
+  iris.modules.frontend.globals.templateRegistry.external.forEach(function (directory) {
+
+    externalFiles[directory] = glob.sync(directory + "/" + "**");
+
+  });
+
+});
+
 /**
  * @function findTemplate
  * @memberof frontend
@@ -251,42 +270,96 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
     var found = [];
 
-    iris.modules.frontend.globals.templateRegistry.theme.forEach(function (directory) {
+    var counter = 0;
 
-      try {
+    var done = function () {
 
-        var files = glob.sync(directory + "/" + "**");
+      counter += 1;
 
-        var result = lookForTemplate(files, args);
+      if (counter === iris.modules.frontend.globals.templateRegistry.theme.length + iris.modules.frontend.globals.templateRegistry.external.length) {
 
-        if (result) {
+        // Sort so that longest and hence most specific filenames are at the top
+        var sortLength = function (a, b) {
 
-          found.push({
-            filename: result,
-            rank: 1
+          if (a.filename.split('_').length > b.filename.split('_').length) {
+            return -1;
+          }
+
+          if (a.filename.split('_').length < b.filename.split('_').length) {
+            return 1;
+          }
+
+          return 0;
+
+        };
+
+        found.sort(sortLength);
+
+        // Filter out filenames less specific than the top
+        found = found.filter(function (value) {
+
+          if (path.basename(value.filename).split('_').length < path.basename(found[0].filename).split('_').length) {
+            return false;
+          } else {
+            return true;
+          }
+
+        });
+
+        // Sort by rank
+        var sortRank = function (a, b) {
+
+          if (a.rank > b.rank) {
+            return -1;
+          }
+
+          if (a.rank < b.rank) {
+            return 1;
+          }
+
+          return 0;
+
+        };
+
+        found.sort(sortRank);
+
+        if (found[0]) {
+
+          fs.readFile(found[0].filename, "utf-8", function (err, data) {
+
+            yes(data);
+
           });
+
+        } else {
+
+          if (Object.keys(iris.entityTypes).indexOf(paths[0]) !== -1) {
+
+            iris.modules.frontend.globals.findTemplate(["entity"], "html").then(function (html) {
+
+              yes(html);
+
+            }, function (fail) {
+
+              no(false);
+
+            });
+
+          } else {
+
+            no(false);
+
+          }
 
         }
 
-      } catch (e) {
-
       }
 
-    });
+    };
 
-    iris.modules.frontend.globals.templateRegistry.external.forEach(function (directory) {
+    Object.keys(externalFiles).forEach(function (directory) {
 
-      var files;
-
-      try {
-
-        files = glob.sync(directory + "/" + "**");
-
-      } catch (e) {
-
-        return false;
-
-      }
+      var files = externalFiles[directory];
 
       var result = lookForTemplate(files, args);
 
@@ -299,81 +372,29 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
       }
 
-    });
-
-    // Sort so that longest and hence most specific filenames are at the top
-    var sortLength = function (a, b) {
-
-      if (a.filename.split('_').length > b.filename.split('_').length) {
-        return -1;
-      }
-
-      if (a.filename.split('_').length < b.filename.split('_').length) {
-        return 1;
-      }
-
-      return 0;
-
-    };
-
-    found.sort(sortLength);
-
-    // Filter out filenames less specific than the top
-    found = found.filter(function (value) {
-
-      if (path.basename(value.filename).split('_').length < path.basename(found[0].filename).split('_').length) {
-        return false;
-      } else {
-        return true;
-      }
+      done();
 
     });
 
-    // Sort by rank
-    var sortRank = function (a, b) {
 
-      if (a.rank > b.rank) {
-        return -1;
-      }
+    Object.keys(internalFiles).forEach(function (directory) {
 
-      if (a.rank < b.rank) {
-        return 1;
-      }
+      var files = internalFiles[directory];
 
-      return 0;
+      var result = lookForTemplate(files, args);
 
-    };
+      if (result) {
 
-    found.sort(sortRank);
-
-    if (found[0]) {
-      fs.readFile(found[0].filename, "utf-8", function (err, data) {
-
-        yes(data);
-
-      });
-
-    } else {
-
-      if (Object.keys(iris.entityTypes).indexOf(paths[0]) !== -1) {
-
-        iris.modules.frontend.globals.findTemplate(["entity"], "html").then(function (html) {
-
-          yes(html);
-
-        }, function (fail) {
-
-          no(false);
-
+        found.push({
+          filename: result,
+          rank: 1
         });
 
-      } else {
-
-        no(false);
-
       }
 
-    }
+      done();
+
+    });
 
   });
 
