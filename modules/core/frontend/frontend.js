@@ -400,6 +400,26 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
 };
 
+
+// Debug template for performance checks
+
+iris.route.get("/debug", {}, function (req, res) {
+
+  iris.modules.frontend.globals.parseTemplateFile(["404"], null, {}, req.authPass, req).then(function (success) {
+
+    res.send(success);
+
+  }, function (fail) {
+
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    iris.log("error", fail);
+
+  });
+
+});
+
+
 // Function for finding embeds within a template, returns keyed list of embed types. Used for hook_frontend_embed__
 
 var findEmbeds = function (text, leaveCurlies) {
