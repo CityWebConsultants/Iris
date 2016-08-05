@@ -228,7 +228,9 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
   });
 
   Handlebars.registerHelper("iris", function () {
-
+    
+    var clientAuthPass = this.req.authPass;
+    
     var options = arguments[arguments.length - 1],
       title,
       extraSettings = {},
@@ -256,8 +258,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       }
 
     }
-
-
+    
     // Mark if this is being used as a block as some embeds will want to do things differently for that
 
     if (options.fn) {
@@ -362,7 +363,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       }
 
     }
-
+    
     return new Promise(function (pass, fail) {
 
       // Create unique ID for embed if liveupdating
@@ -402,7 +403,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
         blockEmbed: block,
         template: options.fn
       };
-
+      
       if (liveUpdate) {
 
         var crypto = require('crypto');
@@ -417,7 +418,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
             if (!authPass) {
 
-              authPass = thisHook.authPass;
+              authPass = clientAuthPass;
 
             }
 
@@ -478,7 +479,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
           }, iris.modules.frontend.globals.liveEmbedTimeout);
 
-          iris.modules.frontend.globals.parseIrisEmbed(settings, thisHook.authPass, token).then(function (result = "") {
+          iris.modules.frontend.globals.parseIrisEmbed(settings, clientAuthPass, token).then(function (result = "") {
 
             pass(result);
 
@@ -494,7 +495,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
       } else {
 
-        iris.modules.frontend.globals.parseIrisEmbed(settings, thisHook.authPass).then(function (result = "") {
+        iris.modules.frontend.globals.parseIrisEmbed(settings, clientAuthPass).then(function (result = "") {
 
           pass(result);
 
