@@ -25,13 +25,15 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   }
 
-  if (queryCache[JSON.stringify(fetchRequest)]) {
+  var success;
 
-    entities = queryCache[JSON.stringify(fetchRequest)];
+  var entities = {};
 
-    success();
+  //Query complete, now run on all entities and collect them
 
-  } else {
+  var dbActions = [];
+
+  if (!queryCache[JSON.stringify(fetchRequest)]) {
 
     var entityTypes = [];
 
@@ -193,12 +195,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     }
 
-    var entities = {};
-
-    //Query complete, now run on all entities and collect them
-
-    var dbActions = [];
-
     var util = require('util');
 
     entityTypes.forEach(function (type) {
@@ -273,9 +269,17 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   }
 
-  var success = function () {
-
-    queryCache[JSON.stringify(fetchRequest)] = entities;
+  success = function () {
+    
+    if(queryCache[JSON.stringify(fetchRequest)]){
+      
+      entities = queryCache[JSON.stringify(fetchRequest)];
+      
+    } else {
+      
+      queryCache[JSON.stringify(fetchRequest)] = entities;
+      
+    }
 
     var viewHooks = [];
 
@@ -408,12 +412,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   };
 
-  if (!dbActions.length) {
-
-    thisHook.pass(null);
-
-  }
-
   iris.promiseChain(dbActions, null, success, fail);
 
 });
@@ -489,7 +487,7 @@ iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHoo
 iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
 
   thisHook.pass(entity);
-  
+
   return false;
 
   if (entity) {
