@@ -228,9 +228,9 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
   });
 
   Handlebars.registerHelper("iris", function () {
-    
-    var clientAuthPass = this.req.authPass;
-    
+
+    var clientAuthPass = this.authPass;
+
     var options = arguments[arguments.length - 1],
       title,
       extraSettings = {},
@@ -258,7 +258,13 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       }
 
     }
-    
+
+    if (!clientAuthPass && options.data.root) {
+
+      clientAuthPass = options.data.root.authPass;
+
+    }
+
     // Mark if this is being used as a block as some embeds will want to do things differently for that
 
     if (options.fn) {
@@ -363,7 +369,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
       }
 
     }
-    
+
     return new Promise(function (pass, fail) {
 
       // Create unique ID for embed if liveupdating
@@ -403,7 +409,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
         blockEmbed: block,
         template: options.fn
       };
-      
+
       if (liveUpdate) {
 
         var crypto = require('crypto');

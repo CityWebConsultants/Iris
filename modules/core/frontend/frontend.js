@@ -524,7 +524,7 @@ var parseTemplate = function (html, authPass, context) {
  */
 
 iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function (thisHook, data) {
-
+  
   // Split embed code by double underscores
 
   if (thisHook.context.embedOptions.template) {
@@ -737,7 +737,9 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     },
     rank: 0
   };
-
+  
+  data.vars.authPass = thisHook.authPass;
+  
   if (iris.modules.frontend.globals.activeTheme) {
     data.vars["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
   }
