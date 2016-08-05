@@ -720,12 +720,6 @@ var helpers = require('handlebars-helpers')({
   handlebars: Handlebars
 });
 
-process.on("dbReady", function () {
-
-  iris.invokeHook("hook_frontend_handlebars_extend", "root", {}, Handlebars);
-
-});
-
 iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
 
   if (!data.vars) {
@@ -765,34 +759,44 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     data.vars["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
   }
 
-  try {
-    Handlebars.compile(data.html)(data.vars).then(function (html) {
+  iris.invokeHook("hook_frontend_handlebars_extend", thisHook.authPass, {
+    variables: data.vars
+  }, Handlebars).then(function () {
 
-      data.html = html;
+    try {
+      Handlebars.compile(data.html)(data.vars).then(function (html) {
 
-      // Final parse
+        data.html = html;
 
-      data.vars.finalParse = true;
+        // Final parse
 
-      Handlebars.compile(data.html)(data.vars).then(function (finalHTML) {
+        data.vars.finalParse = true;
 
-        data.html = finalHTML;
+        Handlebars.compile(data.html)(data.vars).then(function (finalHTML) {
 
-        thisHook.pass(data);
+          data.html = finalHTML;
+
+          thisHook.pass(data);
+
+        });
+
+      }, function (fail) {
+
+        thisHook.fail(fail);
 
       });
 
-    }, function (fail) {
+    } catch (e) {
 
-      thisHook.fail(fail);
+      thisHook.fail(e);
 
-    });
+    }
 
-  } catch (e) {
+  }, function (fail) {
 
-    thisHook.fail(e);
+    thisHook.pass(fail);
 
-  }
+  });
 
 });
 
