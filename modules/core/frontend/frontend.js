@@ -12,7 +12,7 @@
 
 iris.registerModule("frontend", __dirname);
 
-var fs = require('fs');
+var fs = require('graceful-fs')
 var express = require('express');
 var path = require('path');
 
@@ -327,9 +327,17 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
           fs.readFile(found[0].filename, "utf-8", function (err, data) {
 
-            yes(data);
+            if (err) {
 
-          });
+              no(err);
+
+            } else {
+
+              yes(data);
+
+            }
+
+          })
 
         } else {
 
@@ -455,7 +463,7 @@ var merge = require("merge");
  */
 
 iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function (thisHook, data) {
-  
+
   // Split embed code by double underscores
 
   if (thisHook.context.embedOptions.template) {
@@ -668,9 +676,9 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     },
     rank: 0
   };
-  
+
   data.vars.authPass = thisHook.authPass;
-  
+
   if (iris.modules.frontend.globals.activeTheme) {
     data.vars["iris_theme"] = iris.modules.frontend.globals.activeTheme.name;
   }
