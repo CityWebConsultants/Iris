@@ -278,7 +278,7 @@ iris.route.get("/modules/forms/extrafields.js", function (req, res) {
 });
 
 /*
- * This implementation of hook_frontend_template_parse adds a "form" block.
+ * This implementation of hook_frontend_embed adds a "form" block.
  */
 iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHook, data) {
 

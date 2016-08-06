@@ -443,76 +443,7 @@ iris.route.get("/debug", {}, function (req, res) {
 
 var merge = require("merge");
 
-var parseTemplate = function (html, authPass, context) {
 
-  return new Promise(function (pass, fail) {
-
-    var allVariables;
-
-    if (context) {
-
-      allVariables = context;
-
-    } else {
-
-      allVariables = {};
-
-    }
-    var complete = function (HTML, final) {
-
-      iris.invokeHook("hook_frontend_template_parse", authPass, {
-        context: context
-      }, {
-        html: HTML,
-        variables: allVariables
-      }).then(function (parsedData) {
-
-        if (parsedData.variables) {
-
-          Object.keys(parsedData.variables).forEach(function (variable) {
-            allVariables[variable] = parsedData.variables[variable];
-          });
-
-        }
-
-        if (final) {
-
-          pass({
-            html: parsedData.html,
-            variables: allVariables
-          });
-
-        } else {
-
-          complete(parsedData.html, true);
-
-        }
-
-      });
-
-    };
-
-    if (!context) {
-
-      context = {};
-
-    }
-
-    if (!context.entity) {
-
-      context.entity = {};
-
-    }
-
-    var entity = context.entity;
-
-    var output = html;
-
-    complete(output);
-
-  });
-
-};
 
 /**
  * @member hook_frontend_embed
