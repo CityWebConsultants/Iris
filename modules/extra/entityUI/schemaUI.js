@@ -636,6 +636,13 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
         field = JSON.parse(JSON.stringify(parentSchema.subfields[fieldName]));
       }
 
+      // Hide field if set to fixed (like path) as it shouldn't be able to be removed from the schema
+
+      if (field.fixed) {
+
+        return false;
+
+      }
 
       row['fieldLabel'] = field.label;
       row['fieldId'] = fieldName;
@@ -1508,7 +1515,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
   // Fetch current schema
 
   var entityType = thisHook.context.params.entityType;
-  var fieldName = thisHook.context.params.fieldName;
+  var fieldName = thisHook.context.params.field;
   var parent = thisHook.context.params.parent;
   var schema = JSON.parse(JSON.stringify(iris.entityTypes[entityType]));
 

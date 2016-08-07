@@ -15,11 +15,11 @@
 
   <body class="{{current.entityType}}-{{current.eid}}">
       
-    [[[menu admin_toolbar]]]
-
+    {{iris embed="menu" name="admin_toolbar"}}
+    
     <header id="page-header">
         
-        [[[region header]]]
+    {{{iris embed="region" region="header"}}}
         
     </header>   
       
@@ -35,7 +35,7 @@
   
     <footer id="page-footer">
         
-        [[[region footer]]]
+    {{{iris embed="region" region="footer"}}}
         
     </footer>
 

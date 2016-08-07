@@ -154,12 +154,12 @@ iris.modules.forms.registerHook("hook_form_submit__regions", 0, function (thisHo
 
 iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (thisHook, data) {
 
-  var regionName = thisHook.context.embedID;
-
+  var regionName = thisHook.context.embedOptions.region;
+  
   // Get list of regions
 
   iris.readConfig("regions", "regions").then(function (output) {
-
+    
       if (output[regionName]) {
         // Render each block in the region
 
@@ -167,7 +167,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
         var blockData = {};
 
         output[regionName].forEach(function (block, index) {
-
+          
           var settings = block.settings;
 
           block = block.block;
@@ -201,7 +201,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
                 yes(blockData);
 
               }, function (fail) {
-
+                
                 yes("");
 
               });
@@ -257,7 +257,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
 var minimatch = require("minimatch");
 
 iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, data) {
-
+  
   if (thisHook.context.instanceSettings) {
 
     if (thisHook.context.instanceSettings.pathVisibility) {
@@ -267,7 +267,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
       var showing = true;
 
       var paths = thisHook.context.instanceSettings.pathVisibility.replace(/\r\n/g, '\n').split("\n");
-
+      
       if (thisHook.context.context && thisHook.context.context.req && thisHook.context.context.req.url) {
 
         var currentUrl = thisHook.context.context.req.url;
@@ -279,7 +279,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
           showing = minimatch(currentUrl, path);
 
         });
-
+        
         if (showing) {
 
           thisHook.pass(data);
