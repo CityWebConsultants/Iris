@@ -188,8 +188,18 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
   // Handle for a user's messages
 
   Handlebars.registerHelper("iris_messages", function () {
+    
+    var options = arguments[arguments.length - 1];
 
-    var messages = iris.readMessages(thisHook.authPass.userid);
+    var authPass = this.authPass;
+
+    if (!authPass && options.data.root) {
+
+      authPass = options.data.root.authPass;
+
+    }
+    
+    var messages = iris.readMessages(authPass);
 
     var output = "";
 

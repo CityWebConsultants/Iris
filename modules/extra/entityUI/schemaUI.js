@@ -423,13 +423,12 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaDelete", 0, function
  * Allows the user to delete a field from the schema.
  */
 iris.modules.entityUI.registerHook("hook_form_render__schemafieldDelete", 0, function (thisHook, data) {
-  
+
   var entityType = thisHook.context.params.entityType;
 
-  var fieldName = thisHook.context.params.fieldName;
+  var fieldName = thisHook.context.params.field;
 
   var schema = iris.entityTypes[entityType];
-
 
   data.schema.message = {
     "type": "markup",
@@ -492,7 +491,6 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
 
   if (schema && !schema[fieldName]) {
 
-
     var recurseFields = function (object, elementParent) {
 
       Object.keys(object).forEach(function (element) {
@@ -529,7 +527,6 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
   iris.saveConfig(schema, "entity", entityType, function (data) {
 
     iris.dbPopulate();
-
 
     thisHook.pass(function (res) {
 
@@ -570,7 +567,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
  * There is also the option to add a new field here.
  */
 iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, function (thisHook, data) {
-  
+
   var ap = thisHook.authPass;
   if (thisHook.context.params.entityType) {
 
@@ -807,11 +804,12 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
  * Save the field weights if re-ordered and/or add a new field to this object in the schema.
  */
 iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, function (thisHook, data) {
-
+  
+  
   // Fetch current schema
   var schema = JSON.parse(JSON.stringify(iris.entityTypes[thisHook.context.params.entityType]));
 
-  var fieldName = thisHook.context.params.fieldName;
+  var fieldName = thisHook.context.params.field;
   var entityType = thisHook.context.params.entityType;
   var parent = thisHook.context.params.parentItem;
 
@@ -894,11 +892,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
 
   // Save updated schema.
   iris.saveConfig(schema, "entity", entityType, function (data) {
-
+    
     iris.dbPopulate();
 
     thisHook.pass(function (res) {
-
+            
       iris.message(thisHook.authPass.userid, thisHook.authPass.t("Fields sucessfully saved"), "success");
       var redirect = '/admin/schema/' + entityType;
 
@@ -911,6 +909,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
           redirect += '/fields';
         }
       }
+      
       res.send({
         redirect: redirect
       });
@@ -1123,8 +1122,6 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
  */
 iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (thisHook, data) {
 
-
-  var entityType = thisHook.context.params.entityTypeName;
   var finishedSchema = {
     fields: iris.entityTypes[entityType] && iris.entityTypes[entityType].fields ? iris.entityTypes[entityType].fields : {}
   };
@@ -1337,7 +1334,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafield", 0, function 
   var lookupField = function (object) {
 
     Object.keys(object).forEach(function (subfield) {
-      
+
       if (subfield === parent && object[subfield].subfields && object[subfield].subfields[fieldName]) {
 
         savedElement = object[subfield].subfields[fieldName];

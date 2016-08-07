@@ -1,6 +1,3 @@
-
-
-
 /**
  * @file Manages the database connection and schemas for entity types.
  *
@@ -21,7 +18,7 @@ var fs = require('fs');
 
 iris.invokeHook("hook_db_connect__" + iris.config.dbEngine, "root", iris.config, null).then(function () {
 
-  iris.dbPopulate();
+  iris.dbPopulate(true);
 
   iris.status.ready = true;
 
@@ -31,7 +28,7 @@ iris.invokeHook("hook_db_connect__" + iris.config.dbEngine, "root", iris.config,
 
 });
 
-iris.dbPopulate = function () {
+iris.dbPopulate = function (firstTime) {
 
   iris.fieldTypes = {};
 
@@ -206,7 +203,7 @@ iris.dbPopulate = function () {
     schemaCounter += 1;
     if (schemaCounter === Object.keys(iris.entityTypes).length) {
 
-      process.emit("dbReady", true);
+      process.emit("dbReady", firstTime);
 
     }
 

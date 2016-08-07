@@ -34,20 +34,6 @@ iris.modules.frontend.globals.templateRegistry = {
 
 iris.app.use("/", express.static(iris.sitePath + '/static'));
 
-/**
- * Add theme folders from modules to external list.
- */
-
-process.on("dbReady", function () {
-
-  Object.keys(iris.modules).reverse().forEach(function (moduleName) {
-
-    iris.modules.frontend.globals.templateRegistry.external.push(iris.modules[moduleName].path + '/templates');
-
-  });
-
-});
-
 // Load in file for setting active theme
 
 require("./theme");
@@ -183,6 +169,18 @@ var externalFiles = {};
 var internalFiles = {};
 
 process.on("dbReady", function () {
+  
+  iris.modules.frontend.globals.templateRegistry.external = [];
+
+  Object.keys(iris.modules).reverse().forEach(function (moduleName) {
+
+    iris.modules.frontend.globals.templateRegistry.external.push(iris.modules[moduleName].path + '/templates');
+
+  });
+
+});
+
+var refreshFiles = function () {
 
   iris.modules.frontend.globals.templateRegistry.theme.forEach(function (directory) {
 
@@ -196,7 +194,7 @@ process.on("dbReady", function () {
 
   });
 
-});
+}
 
 /**
  * @function findTemplate
@@ -210,6 +208,8 @@ process.on("dbReady", function () {
  * @returns promise which, if successful, takes the template HTML output as its first argument.
  */
 iris.modules.frontend.globals.findTemplate = function (paths, extension) {
+
+  refreshFiles();
 
   if (!extension) {
 
@@ -636,10 +636,12 @@ var helpers = require('handlebars-helpers')({
   handlebars: Handlebars
 });
 
-process.on("dbReady", function () {
+process.on("dbReady", function (firstTime) {
 
-  iris.invokeHook("hook_frontend_handlebars_extend", "root", null, Handlebars);
-
+  if (firstTime) {
+    iris.invokeHook("hook_frontend_handlebars_extend", "root", null, Handlebars);
+  }
+  
 })
 
 iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
