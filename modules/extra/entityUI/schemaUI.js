@@ -804,8 +804,8 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
  * Save the field weights if re-ordered and/or add a new field to this object in the schema.
  */
 iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, function (thisHook, data) {
-  
-  
+
+
   // Fetch current schema
   var schema = JSON.parse(JSON.stringify(iris.entityTypes[thisHook.context.params.entityType]));
 
@@ -892,11 +892,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
 
   // Save updated schema.
   iris.saveConfig(schema, "entity", entityType, function (data) {
-    
+
     iris.dbPopulate();
 
     thisHook.pass(function (res) {
-            
+
       iris.message(thisHook.authPass.userid, thisHook.authPass.t("Fields sucessfully saved"), "success");
       var redirect = '/admin/schema/' + entityType;
 
@@ -909,7 +909,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
           redirect += '/fields';
         }
       }
-      
+
       res.send({
         redirect: redirect
       });
@@ -1121,6 +1121,8 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
  * Save the base entity details.
  */
 iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (thisHook, data) {
+
+  var entityType = thisHook.context.params.entityType;
 
   var finishedSchema = {
     fields: iris.entityTypes[entityType] && iris.entityTypes[entityType].fields ? iris.entityTypes[entityType].fields : {}
