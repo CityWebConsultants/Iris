@@ -33,6 +33,8 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   var dbActions = [];
 
+  // TODO enable query caching -- commented out for now
+
   if (true || !queryCache[JSON.stringify(fetchRequest)]) {
 
     var entityTypes = [];
@@ -271,15 +273,17 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   success = function () {
 
-//    if (queryCache[JSON.stringify(fetchRequest)]) {
-//
-//      entities = queryCache[JSON.stringify(fetchRequest)];
-//
-//    } else {
-//
-//      queryCache[JSON.stringify(fetchRequest)] = entities;
-//
-//    }
+    // TODO enable query caching -- commented out for now
+
+    //    if (queryCache[JSON.stringify(fetchRequest)]) {
+    //
+    //      entities = queryCache[JSON.stringify(fetchRequest)];
+    //
+    //    } else {
+    //
+    //      queryCache[JSON.stringify(fetchRequest)] = entities;
+    //
+    //    }
 
     var viewHooks = [];
 
