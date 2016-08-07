@@ -1515,7 +1515,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
   // Fetch current schema
 
   var entityType = thisHook.context.params.entityType;
-  var fieldName = thisHook.context.params.fieldName;
+  var fieldName = thisHook.context.params.field;
   var parent = thisHook.context.params.parent;
   var schema = JSON.parse(JSON.stringify(iris.entityTypes[entityType]));
 
