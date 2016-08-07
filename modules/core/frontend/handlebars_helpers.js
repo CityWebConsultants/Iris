@@ -190,7 +190,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
   Handlebars.registerHelper("iris_messages", function () {
     
     var options = arguments[arguments.length - 1];
-
+    
     var authPass = this.authPass;
 
     if (!authPass && options.data.root) {
@@ -199,7 +199,7 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     }
     
-    var messages = iris.readMessages(authPass);
+    var messages = iris.readMessages(authPass.userid);
 
     var output = "";
 
