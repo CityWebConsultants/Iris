@@ -140,11 +140,19 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
   Handlebars.registerHelper("iris_menu", function (item) {
 
+    var clientAuthPass = this.authPass;
+
+    if (!clientAuthPass && options.data.root) {
+
+      clientAuthPass = options.data.root.authPass;
+
+    }
+
     var route = iris.findRoute(item, "get");
 
     if (route && route.options && route.options.permissions) {
 
-      if (iris.modules.auth.globals.checkPermissions(route.options.permissions, thisHook.authPass)) {
+      if (iris.modules.auth.globals.checkPermissions(route.options.permissions, clientAuthPass)) {
 
         return item;
 
