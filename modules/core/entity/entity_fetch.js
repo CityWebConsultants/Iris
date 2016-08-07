@@ -270,16 +270,16 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
   }
 
   success = function () {
-    
-    if(queryCache[JSON.stringify(fetchRequest)]){
-      
-      entities = queryCache[JSON.stringify(fetchRequest)];
-      
-    } else {
-      
-      queryCache[JSON.stringify(fetchRequest)] = entities;
-      
-    }
+
+//    if (queryCache[JSON.stringify(fetchRequest)]) {
+//
+//      entities = queryCache[JSON.stringify(fetchRequest)];
+//
+//    } else {
+//
+//      queryCache[JSON.stringify(fetchRequest)] = entities;
+//
+//    }
 
     var viewHooks = [];
 
