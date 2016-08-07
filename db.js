@@ -211,6 +211,21 @@ iris.dbPopulate = function (firstTime) {
 
   Object.keys(iris.entityTypes).forEach(function (entityType) {
 
+    if (!iris.entityTypes[entityType].fields) {
+
+      iris.entityTypes[entityType].fields = {};
+
+    }
+
+    iris.entityTypes[entityType].fields.path = {
+      fieldType: 'Textfield',
+      fieldTypeType: 'String',
+      label: 'path',
+      fixed: true, // A fixed field isn't shown on the schema edit page as it can't be edited/deleted 
+      weight: 1111, // JSON doesn't support infinity - ugh
+      machineName: 'path'
+    };
+
     iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
       schema: entityType,
       schemaConfig: JSON.parse(JSON.stringify(iris.entityTypes[entityType]))
