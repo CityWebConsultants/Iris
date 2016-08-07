@@ -185,44 +185,6 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
     return JSON.stringify(context);
   });
 
-  // Handle for a user's messages
-
-  Handlebars.registerHelper("iris_messages", function () {
-    
-    var options = arguments[arguments.length - 1];
-    
-    var authPass = this.authPass;
-
-    if (!authPass && options.data.root) {
-
-      authPass = options.data.root.authPass;
-
-    }
-    
-    var messages = iris.readMessages(authPass.userid);
-
-    var output = "";
-
-    if (messages.length) {
-
-      output += "<ul class='iris-messages'>";
-
-      messages.forEach(function (message) {
-
-        output += "<li class='alert alert-" + message.type + "'>" + message.message + "</li >";
-
-      });
-
-      output += "</ul>";
-
-      iris.clearMessages(thisHook.authPass.userid);
-
-    }
-
-    return output;
-
-  });
-
   Handlebars.registerHelper('helperMissing', function (args) {
 
     if (args.data.root.stripCurlies || args.data.root.finalParse) {
