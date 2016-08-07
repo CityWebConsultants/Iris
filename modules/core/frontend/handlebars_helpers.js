@@ -142,11 +142,13 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
     var clientAuthPass = this.authPass;
 
-    if (!clientAuthPass && options.data.root) {
+    var options = arguments[arguments.length - 1];
 
-      clientAuthPass = options.data.root.authPass;
+      if (!clientAuthPass && options.data.root) {
 
-    }
+        clientAuthPass = options.data.root.authPass;
+
+      }
 
     var route = iris.findRoute(item, "get");
 
