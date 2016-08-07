@@ -33,7 +33,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   var dbActions = [];
 
-  if (!queryCache[JSON.stringify(fetchRequest)]) {
+  if (true || !queryCache[JSON.stringify(fetchRequest)]) {
 
     var entityTypes = [];
 
