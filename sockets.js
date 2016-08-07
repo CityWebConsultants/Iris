@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
-
 "use strict";
 
 /**
@@ -38,7 +35,7 @@ iris.sendSocketMessage = function (userids, message, data) {
 
     var connected_socket = iris.socketServer.clients().connected;
     Object.keys(connected_socket).forEach(function (client) {
-      if(!connected_socket[client].authPass){
+      if (!connected_socket[client].authPass) {
         connected_socket[client].emit(message, data);
       }
     });
@@ -54,7 +51,11 @@ iris.sendSocketMessage = function (userids, message, data) {
 
       Object.keys(user.sockets).forEach(function (socket) {
 
-        iris.socketServer.clients().connected[socket.id].socket.emit(message, data);
+        if (iris.socketServer.clients().connected[socket]) {
+
+          iris.socketServer.clients().connected[socket].emit(message, data);
+
+        }
 
       });
 
@@ -175,8 +176,22 @@ iris.socketServer.on("connection", function (socket) {
 
     }
 
+    var authPass;
+
+    if (socket.authPass) {
+
+      authPass = socket.authPass;
+
+    } else {
+
+      authPass = "anon";
+
+    }
+
     // Run hook for disconnected socket.
-    iris.invokeHook("hook_socket_disconnected", socket.authPass, socket.authPass, Date.now());
+    iris.invokeHook("hook_socket_disconnected", authPass, {
+      socket: socket
+    }, Date.now());
 
   });
 

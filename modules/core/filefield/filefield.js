@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise,$,JSONForm,document,FormData,alert*/
-
 /**
  * @file Provides a file upload field for entity forms
  */
@@ -9,7 +6,7 @@
  * @namespace filefield
  */
 
-iris.registerModule("filefield");
+iris.registerModule("filefield",__dirname);
 
 var busboy = require('connect-busboy');
 
@@ -117,10 +114,13 @@ iris.modules.forms.globals.registerWidget(function () {
 
   $(document).on("change", "input.filefield", function (data) {
 
+
     var fileInput = data.target;
     var file = fileInput.files[0];
     var formData = new FormData();
     formData.append('file', file);
+
+    $(fileInput).parent().addClass("uploading");
 
     var id = $(data.target).attr("id").replace("FILEFIELD", "");
 
@@ -142,11 +142,15 @@ iris.modules.forms.globals.registerWidget(function () {
       processData: false,
     }).done(function (response) {
 
+      $(fileInput).parent().removeClass("uploading");
+
       $(fileInput).parent().find(".currentFile").hide();
 
       $('input[name="' + id + '"]').attr("value", response);
 
     }).fail(function (error) {
+
+      $(fileInput).parent().removeClass("uploading");
 
       $('input[name="' + id + '"]').attr("value", null);
       $(fileInput).parent().find(".currentFile").hide();

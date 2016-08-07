@@ -1,6 +1,6 @@
 {
   "name": "lists",
-  "description": "Provides a block to display fields from entities - currently experimental / unsuable",
+  "description": "Provides an entity query builder and a block to display lists of entities",
   "dependencies": {
     "blocks": "1"
   },

@@ -17,7 +17,7 @@ var routes = {
       title: "Permissions"
     }]
   }
-}
+};
 
 /**
  * Admin page callback: Permissions UI.
@@ -28,7 +28,7 @@ iris.route.get("/admin/users/permissions", routes.perms, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_permissions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -47,14 +47,16 @@ iris.modules.permissionsUI.registerHook("hook_form_render__permissions", 0, func
 
   // Check if menu name supplied and previous values available
 
+  var current;
+  
   try {
     var currentPermissions = fs.readFileSync(iris.sitePath + "/configurations/auth/permissions.json", "utf8");
 
-    var current = JSON.parse(currentPermissions);
+    current = JSON.parse(currentPermissions);
 
   } catch (e) {
 
-    var current = {};
+    current = {};
 
   }
 
@@ -85,7 +87,7 @@ iris.modules.permissionsUI.registerHook("hook_form_render__permissions", 0, func
           "type": "string",
           "enum": Object.keys(roles)
         }
-      }
+      };
 
       items.push({
         "key": permission,
@@ -93,20 +95,20 @@ iris.modules.permissionsUI.registerHook("hook_form_render__permissions", 0, func
         "activeClass": "btn-success"
       });
 
-    })
+    });
 
     form.push({
       "type": "fieldset",
       "title": category,
       "expandable": true,
       "items": items
-    })
+    });
 
   });
 
   permissionSchema.formid = {
     "type": "hidden"
-  }
+  };
 
   form.push({
     "key": "formid"
@@ -125,7 +127,7 @@ iris.modules.permissionsUI.registerHook("hook_form_render__permissions", 0, func
 
     data.schema[item] = permissionSchema[item];
 
-  })
+  });
 
   data.form = form;
   data.value = current;
@@ -134,7 +136,7 @@ iris.modules.permissionsUI.registerHook("hook_form_render__permissions", 0, func
 
   thisHook.pass(data);
 
-})
+});
 
 iris.modules.permissionsUI.registerHook("hook_form_submit__permissions", 0, function (thisHook, data) {
 
@@ -144,7 +146,7 @@ iris.modules.permissionsUI.registerHook("hook_form_submit__permissions", 0, func
 
     res.json("/admin");
 
-  }
+  };
 
   thisHook.pass(data);
 

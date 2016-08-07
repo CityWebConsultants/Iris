@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise*/
-
 /**
  * @file Functions and hooks for editing entities
  */
@@ -32,7 +29,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   //Set entity type
 
-  if (!data.entityType || !iris.dbCollections[data.entityType]) {
+  if (!data.entityType || !iris.entityTypes[data.entityType]) {
 
     thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
     return false;
@@ -41,15 +38,20 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   //Check entity actually exists
 
-  iris.dbCollections[data.entityType].findOne({
-    eid: data.eid
-  }, function (err, doc) {
+  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+    entities: [data.entityType],
+    queries: [{
+      field: 'eid',
+      operator: 'IS',
+      value: data.eid
+        }]
+  }).then(function (result) {
+    
+    var doc;
 
-    if (err) {
+    if (result && result[0]) {
 
-      thisHook.fail(iris.error(500, "Database error"));
-      iris.log("error", err);
-      return false;
+      doc = result[0];
 
     }
 
@@ -64,17 +66,17 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
       previous = doc;
 
-      previous = previous.toObject();
-
       delete previous["__v"];
       delete previous["_id"];
 
       var type = data.entityType;
       Object.keys(data).forEach(function (field) {
 
+        // TODO: Does this check fieldsets?
+
         if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
 
-          var schemaField = iris.dbCollections[type].schema.tree[field];
+          var schemaField = iris.entityTypes[type].fields[field];
 
           if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 
@@ -224,7 +226,6 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   var update = function (validatedEntity) {
 
-
     var conditions = {
       eid: validatedEntity.eid
     };
@@ -235,16 +236,12 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
     var update = validatedEntity;
 
     update.entityType = data.entityType;
-    iris.dbCollections[data.entityType].update(conditions, update, callback);
 
-    function callback(err, numAffected) {
-
-      if (err) {
-
-        thisHook.fail(err);
-        return false;
-
-      }
+    iris.invokeHook("hook_db_updateEntity__" + iris.config.dbEngine, thisHook.authPass, {
+      eid: conditions.eid,
+      entityType: validatedEntity.entityType,
+      update: update
+    }).then(function (result) {
 
       thisHook.pass("Updated");
 
@@ -255,9 +252,12 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
         new: data
       }, data);
 
-      iris.log("info", data.entityType + " " + conditions.eid + " edited by " + thisHook.authPass.userid);
+    }, function (fail) {
 
-    }
+      console.log(fail);
+      thisHook.fail(fail);
+
+    });
 
   };
 

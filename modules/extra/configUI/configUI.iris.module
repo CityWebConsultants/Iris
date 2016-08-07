@@ -1,5 +1,5 @@
 {
   "name": "Configuration UI",
-  "description": "Admin pages for importingexporting system configurations",
+  "description": "Admin pages for importing and exporting system configurations",
   "weight": 0
 }

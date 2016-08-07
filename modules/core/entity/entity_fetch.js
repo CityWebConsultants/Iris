@@ -14,45 +14,70 @@
  *
  * @returns the fetched entities
  */
+
+var queryCache = {};
+
 iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fetchRequest) {
 
-  var entityTypes = [];
+  if (thisHook.context) {
 
-  // Populate list of targetted DB entities
-
-  if (Array.isArray(fetchRequest.entities)) {
-
-    fetchRequest.entities.forEach(function (entity) {
-
-      if (iris.dbCollections[entity]) {
-
-        entityTypes.push(entity);
-
-      }
-
-    });
-
-  } else {
-
-    thisHook.fail("Not a valid query");
-
-    return false;
+    fetchRequest = thisHook.context;
 
   }
 
-  //Assemble query
+  var success;
 
-  var query = {
-    $and: []
-  };
+  var entities = {};
 
-  if (!fetchRequest.queries) {
+  //Query complete, now run on all entities and collect them
 
-    fetchRequest.queries = [];
+  var dbActions = [];
 
-  }
+  // TODO enable query caching -- commented out for now
 
-  if (Array.isArray(fetchRequest.queries)) {
+  if (true || !queryCache[JSON.stringify(fetchRequest)]) {
+
+    var entityTypes = [];
+
+    // Populate list of targetted DB entities
+
+    if (Array.isArray(fetchRequest.entities)) {
+
+      fetchRequest.entities.forEach(function (entityType) {
+
+        if (iris.entityTypes[entityType]) {
+
+          entityTypes.push(entityType);
+
+        }
+
+      });
+
+    } else {
+
+      thisHook.fail("Not a valid query");
+
+      return false;
+
+    }
+
+    //Assemble query
+
+    var query = {
+      $and: []
+    };
+
+    if (!fetchRequest.queries) {
+
+      fetchRequest.queries = [];
+
+    }
+
+    if (!Array.isArray(fetchRequest.queries)) {
+
+      return thisHook.fail("not a valid query");
+
+    }
 
     fetchRequest.queries.forEach(function (fieldQuery) {
 
@@ -64,9 +89,10 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
       }
 
-      if (fieldQuery.operator.toLowerCase().indexOf("is") !== -1) {
+      var queryItem = {},
+        negativeQueryItem = {};
 
-        var queryItem = {};
+      if (fieldQuery.operator.toLowerCase().indexOf("is") !== -1) {
 
         queryItem[fieldQuery["field"]] = fieldQuery.value;
 
@@ -94,8 +120,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
       if (fieldQuery.operator.toLowerCase().indexOf("gt") !== -1) {
 
-        var queryItem = {};
-
         queryItem[fieldQuery["field"]] = {
           $gt: fieldQuery.value
         };
@@ -105,8 +129,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
       }
 
       if (fieldQuery.operator.toLowerCase().indexOf("includes") !== -1) {
-
-        var queryItem = {};
 
         if (typeof fieldQuery.value !== "object") {
 
@@ -143,8 +165,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
       if (fieldQuery.operator.toLowerCase().indexOf("contains") !== -1) {
 
-        var queryItem = {};
-
         var regex = new RegExp(fieldQuery.value, "i");
 
         queryItem[fieldQuery["field"]] = {
@@ -177,39 +197,41 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     }
 
-    var entities = {};
-
-    //Query complete, now run on all entities and collect them
-
-    var dbActions = [];
-
     var util = require('util');
 
     entityTypes.forEach(function (type) {
 
       dbActions.push(iris.promise(function (data, yes, no) {
 
-          var util = require("util");
-
           var fetch = function (query) {
 
-            iris.dbCollections[type].find(query).lean().sort(fetchRequest.sort).skip(fetchRequest.skip).limit(fetchRequest.limit).exec(function (err, doc) {
+            var queryObject = {
+              query: query,
+              entityType: type,
+              limit: fetchRequest.limit,
+              sort: fetchRequest.sort,
+              skip: fetchRequest.skip
+            }
 
-              if (err) {
+            if (!queryCache[type]) {
 
-                no(err);
+              queryCache[type] = {};
 
-              } else {
+            }
 
-                doc.forEach(function (element) {
+            iris.invokeHook("hook_db_fetch__" + iris.config.dbEngine, thisHook.authPass, queryObject).then(function (fetched) {
 
-                  entities[element._id] = element;
+              fetched.forEach(function (element) {
 
-                });
+                entities[element._id] = element;
 
-                yes();
+              });
 
-              }
+              yes();
+
+            }, function (fail) {
+
+              no(fail);
 
             });
 
@@ -247,152 +269,154 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     });
 
-    var success = function () {
+  }
 
-      var viewHooks = [];
+  success = function () {
 
-      Object.keys(entities).forEach(function (_id) {
+    // TODO enable query caching -- commented out for now
 
-        viewHooks.push(iris.promise(function (data, yes, no) {
+    //    if (queryCache[JSON.stringify(fetchRequest)]) {
+    //
+    //      entities = queryCache[JSON.stringify(fetchRequest)];
+    //
+    //    } else {
+    //
+    //      queryCache[JSON.stringify(fetchRequest)] = entities;
+    //
+    //    }
 
-          //General entity view hook
+    var viewHooks = [];
 
-          iris.invokeHook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
+    Object.keys(entities).forEach(function (_id, index) {
 
-            if (viewChecked === undefined) {
-              no("permission denied");
-              return false;
-            }
+      viewHooks.push(new Promise(function (yes, no) {
 
-            entities[_id] = viewChecked;
+        //General entity view hook
 
-            iris.invokeHook("hook_entity_view_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
+        iris.invokeHook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
 
-              entities[_id] = validated;
-              yes();
+          if (viewChecked === undefined) {
+            no("permission denied");
+            return false;
+          }
 
-            }, function (fail) {
+          entities[_id] = viewChecked;
 
-              if (fail === "No such hook exists") {
+          iris.invokeHook("hook_entity_view3_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
 
-                yes();
-
-              } else {
-
-                no(fail);
-
-              }
-
-            });
+            entities[_id] = validated;
+            yes();
 
           }, function (fail) {
 
-            no(fail);
+            if (fail === "No such hook exists") {
+
+              yes();
+
+            } else {
+
+              no(fail);
+
+            }
 
           });
 
-        }));
+        }, function (fail) {
 
-      });
+          no(fail);
 
-      iris.promiseChain(viewHooks, null, function () {
+        });
 
-        var output = [];
+      }));
 
-        for (entity in entities) {
+    });
 
-          output.push(entities[entity]);
+    Promise.all(viewHooks).then(function () {
 
-        }
+      var output = [];
 
-        iris.invokeHook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
+      for (var entity in entities) {
 
-            // Apply sort if one is set
+        output.push(entities[entity]);
 
-            // Check if sort is present and run it if so
+      }
 
-            var sort = function (property, direction) {
+      iris.invokeHook("hook_entity_view_bulk", thisHook.authPass, null, output).then(function (output) {
 
-              if (direction === "asc") {
+          // Apply sort if one is set
 
-                output.sort(function asc(a, b) {
-                  if (a[property] < b[property]) {
-                    return -1;
-                  }
-                  if (a[property] > b[property]) {
-                    return 1;
-                  }
-                  return 0;
-                });
+          // Check if sort is present and run it if so
 
-              } else if (direction === "desc") {
+          var sort = function (property, direction) {
 
-                output.sort(function asc(a, b) {
-                  if (a[property] > b[property]) {
-                    return -1;
-                  }
-                  if (a[property] < b[property]) {
-                    return 1;
-                  }
-                  return 0;
-                });
+            if (direction === "asc") {
 
-              }
+              output.sort(function asc(a, b) {
+                if (a[property] < b[property]) {
+                  return -1;
+                }
+                if (a[property] > b[property]) {
+                  return 1;
+                }
+                return 0;
+              });
 
-            };
+            } else if (direction === "desc") {
 
-            if (fetchRequest.sort) {
-
-              Object.keys(fetchRequest.sort).forEach(function (sorter) {
-
-                sort(sorter, fetchRequest.sort[sorter]);
-
+              output.sort(function asc(a, b) {
+                if (a[property] > b[property]) {
+                  return -1;
+                }
+                if (a[property] < b[property]) {
+                  return 1;
+                }
+                return 0;
               });
 
             }
 
-            if (fetchRequest.limit && output.length > fetchRequest.limit) {
+          };
 
-              output.length = fetchRequest.limit;
+          if (fetchRequest.sort) {
 
-            }
+            Object.keys(fetchRequest.sort).forEach(function (sorter) {
 
-            thisHook.pass(output);
+              sort(sorter, fetchRequest.sort[sorter]);
 
-          },
-          function (fail) {
+            });
 
-            thisHook.fail(fail);
+          }
 
-          });
+          if (fetchRequest.limit && output.length > fetchRequest.limit) {
 
-      }, function (fail) {
+            output.length = fetchRequest.limit;
 
-        thisHook.fail("Fetch failed");
+          }
 
-      });
+          thisHook.pass(output);
 
-    };
+        },
+        function (fail) {
 
-    var fail = function (fail) {
+          thisHook.fail(fail);
 
-      thisHook.fail(fail);
+        });
 
-    };
+    }, function (fail) {
 
-    if (!dbActions.length) {
+      thisHook.fail("Fetch failed");
 
-      thisHook.pass(null);
+    });
 
-    }
+  };
 
-    iris.promiseChain(dbActions, null, success, fail);
+  var fail = function (fail) {
 
-  } else {
+    thisHook.fail(fail);
 
-    thisHook.fail("not a valid query");
+  };
 
-  }
+  iris.promiseChain(dbActions, null, success, fail);
 
 });
 
@@ -438,7 +462,7 @@ iris.app.get("/fetch", function (req, res) {
 
     res.respond(400, fail);
 
-  })
+  });
 
 });
 
@@ -466,13 +490,24 @@ iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHoo
  */
 iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
 
-  // Add timestamp
+  thisHook.pass(entity);
 
-  var entity = JSON.parse(JSON.stringify(entity));
+  return false;
 
-  var mongoid = mongoose.Types.ObjectId(entity._id);
+  if (entity) {
 
-  entity.timestamp = Date.parse(mongoid.getTimestamp());
+    entity = JSON.parse(JSON.stringify(entity));
+
+  } else {
+
+    thisHook.pass(entity);
+
+  }
+
+  // Add timestamp TODO need a general way of doing this now database is not MongoDB only.
+
+  //  var mongoid = mongoose.Types.ObjectId(entity._id);
+  //  entity.timestamp = Date.parse(mongoid.getTimestamp());
 
   // Check if user can see entity type
 
@@ -481,11 +516,10 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
   var viewAny = iris.modules.auth.globals.checkPermissions(["can view any " + entity.entityType], thisHook.authPass);
   if (!viewAny && !(isOwn && viewOwn)) {
 
-      //Can't view any of this type, delete it
-      entity = undefined;
+    //Can't view any of this type, delete it
+    entity = undefined;
 
   }
-
 
   // Strip out any fields on the entity that a user shouldn't be able to see according to field permissions
 
@@ -497,7 +531,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       if (field !== "entityAuthor" && field !== "entityType" && field !== "eid" && field !== "_id" && field !== "__v") {
 
-        var schemaField = iris.dbCollections[type].schema.tree[field];
+        var schemaField = iris.entityTypes[type].fields[field];
 
         if (schemaField && thisHook.authPass.roles.indexOf("admin") === -1) {
 
@@ -535,7 +569,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     var entityType = entity.entityType;
 
-    var schema = iris.dbSchemaConfig[entityType];
+    var schema = iris.entityTypes[entityType];
 
     // Loop over all the fields on the entity
 
@@ -554,7 +588,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       }
 
-    })
+    });
 
     var fieldCheckedCounter = 0;
 
@@ -572,7 +606,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
     // Run hook for each field
 
-    if(fieldHooks.length === 0) {
+    if (fieldHooks.length === 0) {
       thisHook.pass(entity);
     }
 
@@ -580,7 +614,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
 
       iris.invokeHook("hook_entity_view_field__" + field.type, thisHook.authPass, {
         entityType: entity.entityType,
-        field: iris.dbSchemaConfig[entity.entityType].fields[field.field]
+        field: iris.entityTypes[entity.entityType].fields[field.field]
       }, entity[field.field]).then(function (newValue) {
 
         entity[field.field] = newValue;
@@ -599,7 +633,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
   } else {
 
     thisHook.pass(entity);
-    
+
   }
 
 });

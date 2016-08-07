@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
-
 /**
  * @file Implements the hook invocation function for the hook system.
  */
@@ -22,6 +19,23 @@
  *
  * @returns a promise which, if successful, contains the final hook variables as its first argument
  */
+
+// Debug functions storing last hooks
+
+iris.hookStack = [];
+
+var storeHook = function (hook) {
+
+  iris.hookStack.unshift(hook);
+
+  if (iris.hookStack.length > 10) {
+
+    iris.hookStack.length = 10;
+
+  }
+
+}
+
 var hook = function (hookname, authPass, staticVariables, variables) {
 
   "use strict";
@@ -70,6 +84,14 @@ var hook = function (hookname, authPass, staticVariables, variables) {
       return false;
 
     }
+
+    // Store hook for debugging
+
+    storeHook({
+      "hook": hookname,
+      "client": auth.userid,
+      "time": Date.now()
+    })
 
     var hookcalls = [];
 
@@ -163,8 +185,12 @@ var hook = function (hookname, authPass, staticVariables, variables) {
           try {
             hookcall.event(thisHook, vars);
           } catch (e) {
-            if (e.stack) {
+            if (e.stack && Array.isArray(e.stack)) {
               iris.log("error", "Error when calling hook " + thisHook.name + " from " + thisHook.path + " on line " + e.stack[0].getLineNumber() + " of " + e.stack[0].getFileName() + " " + e.message);
+            } else {
+
+              iris.log("error", e.stack);
+
             }
             no("Hook error");
           }

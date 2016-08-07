@@ -3,5 +3,6 @@
   "weight": 2,
   "dependencies": {
     "blocks": "1"
-  }
+  },
+  "description": "Allows users to create regions in their theme and assign blocks to them. For example a header, main content area and footer."
 }

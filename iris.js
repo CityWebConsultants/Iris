@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @file Launch script run by user to start an Iris site. Keeps sessions persistent by managing a sub-process.

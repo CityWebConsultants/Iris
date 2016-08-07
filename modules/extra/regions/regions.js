@@ -14,7 +14,7 @@ var routes = {
       title: "Regions"
     }]
   }
-}
+};
 
 /**
  * Admin page callback: Regions UI.
@@ -25,7 +25,7 @@ iris.route.get("/admin/regions", routes.regions, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -47,9 +47,9 @@ iris.modules.forms.registerHook("hook_form_render__regions", 0, function (thisHo
 
     Object.keys(iris.modules.blocks.globals.blocks[blockType]).forEach(function (block) {
 
-      blocks.push(block + "|" + blockType)
+      blocks.push(block + "|" + blockType);
 
-    })
+    });
 
   });
 
@@ -98,15 +98,15 @@ iris.modules.forms.registerHook("hook_form_render__regions", 0, function (thisHo
           },
 
         }
-      }
+      };
 
-    })
+    });
 
     Object.keys(form).forEach(function (property) {
 
       data.schema[property] = form[property];
 
-    })
+    });
 
     // Load in past values
 
@@ -170,7 +170,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
 
           var settings = block.settings;
 
-          var block = block.block;
+          block = block.block;
 
           if (block.toLowerCase() === "none") {
 
@@ -188,7 +188,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
             instanceSettings: settings,
             config: iris.modules.blocks.globals.blocks[blockType][blockName],
             context: thisHook.context.vars
-          }
+          };
 
           blockPromises.push(function (object) {
 
@@ -278,7 +278,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
 
           showing = minimatch(currentUrl, path);
 
-        })
+        });
 
         if (showing) {
 

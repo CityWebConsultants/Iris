@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise*/
-
 "use strict";
 
 var fs = require('fs');
@@ -28,7 +25,7 @@ mkdirSync(iris.configPath + "/" + "auth");
 
 var crypto = require('crypto');
 
-iris.registerModule("auth");
+iris.registerModule("auth",__dirname);
 
 iris.modules.auth.globals = {
 
@@ -288,12 +285,12 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 
 });
 
-iris.modules.auth.globals.AttachAuthPass = function (session, userid) {
-
+iris.modules.auth.globals.AttachAuthPass = function (session, uid) {
+  
   session.getAuthPass = function () {
-
+   
     var token = Object.keys(session.tokens)[0];
-    var userid = userid;
+    var userid = uid;
 
     return new Promise(function (pass, fail) {
 
@@ -369,7 +366,7 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
         thisHook.fail(fail);
 
       });
-
+      
       iris.modules.auth.globals.AttachAuthPass(iris.modules.auth.globals.userList[data.userid],data.userid);
 
       iris.modules.auth.globals.userList[data.userid].lastActivity = Date.now();
@@ -516,7 +513,7 @@ iris.modules.auth.registerHook("hook_restart_send", 0, function (thisHook, data)
 
   thisHook.pass(data);
 
-})
+});
 
 iris.app.post("/logout", function (req, res) {
 
@@ -551,8 +548,8 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
       }, function (fail) {
 
-        thisHook.context.res.status(403);
-        thisHook.context.res.end(403);
+        thisHook.context.res.status("403");
+        thisHook.context.res.end("403");
         thisHook.fail(data);
 
       });

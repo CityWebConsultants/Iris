@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
+
+
 
 // Password field hook
 
@@ -123,6 +123,25 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__Number",
 
 });
 
+iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Boolean]", 0, function (thisHook, data) {
+
+  var value = thisHook.context.value;
+  var fieldSettings = thisHook.context.fieldSettings;
+
+  data = {
+    "type": "array",
+    "title": fieldSettings.label,
+    "default": value,
+    "description": fieldSettings.description,
+    "items": {
+      "type": "boolean"
+    }
+  };
+
+  thisHook.pass(data);
+
+});
+
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Number]", 0, function (thisHook, data) {
 
   var value = thisHook.context.value;
@@ -141,7 +160,6 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_form__[Number]
   thisHook.pass(data);
 
 });
-
 var dateToForm = function (value) {
 
   Number.prototype.padZero = function (len) {
@@ -151,6 +169,12 @@ var dateToForm = function (value) {
     while (s.length < len) s = c + s;
     return s;
   };
+
+  if (typeof value == 'string') {
+
+    value = new Date(value);
+
+  }
 
   if (value) {
 
@@ -264,6 +288,12 @@ iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[String]
 });
 
 iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Number]", 0, function (thisHook, data) {
+
+  thisHook.pass(thisHook.context.value);
+
+});
+
+iris.modules.entity.registerHook("hook_entity_field_fieldTypeType_save__[Boolean]", 0, function (thisHook, data) {
 
   thisHook.pass(thisHook.context.value);
 

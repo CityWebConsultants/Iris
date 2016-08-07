@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise*/
-
 var fs = require('fs');
 
 /**
@@ -28,7 +25,7 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
   }
 
-  if (!data.entityType || !iris.dbCollections[data.entityType]) {
+  if (!data.entityType || !iris.entityTypes[data.entityType]) {
 
     thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
     return false;
@@ -37,14 +34,20 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
   //Check entity actually exists
 
-  iris.dbCollections[data.entityType].findOne({
-    eid: data.eid
-  }, function (err, doc) {
+  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+    entities: [data.entityType],
+    queries: [{
+      field: 'eid',
+      operator: 'IS',
+      value: data.eid
+        }]
+  }).then(function (result) {
+    
+    var doc;
 
-    if (err) {
+    if (result && result[0]) {
 
-      thisHook.fail(iris.error(500, "Database error"));
-      return false;
+      doc = result;
 
     }
 
@@ -56,7 +59,7 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
     }
 
     if (doc) {
-      
+
       data.entityAuthor = doc.entityAuthor;
 
       runDelete(data);
@@ -100,29 +103,56 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
   var deleteEntity = function (validatedEntity) {
 
-    var conditions = {
-      eid: validatedEntity.eid
-    };
+    /**
+     * @member hook_entity_predelete
+     * @memberof entity
+     *
+     * @desc Entity pre-deletion hook
+     *
+     * Runs before an entity has been removed from the database
+     *
+     * Hook context must include an eid and entityType.
+     */
 
-    delete validatedEntity.eid;
+    iris.invokeHook("hook_entity_predelete", thisHook.authPass, {
+      eid: validatedEntity.eid,
+      entityType: data.entityType
+    }).then(function () {
 
-    var update = validatedEntity;
+      var conditions = {
+        eid: validatedEntity.eid
+      };
 
-    update.entityType = data.entityType;
+      delete validatedEntity.eid;
 
-    iris.dbCollections[data.entityType].findOneAndRemove(conditions, update, callback);
+      var update = validatedEntity;
 
-    function callback(err, numAffected) {
+      update.entityType = data.entityType;
 
-      thisHook.pass("Deleted");
+      iris.invokeHook("hook_db_deleteEntity__" + iris.config.dbEngine, thisHook.authPass, {
+        eid: conditions.eid,
+        entityType: data.entityType
+      }).then(function () {
 
-      data.eid = conditions.eid;
+        thisHook.pass("Deleted");
 
-      iris.invokeHook("hook_entity_deleted", thisHook.authPass, null, data);
+        data.eid = conditions.eid;
 
-      iris.log("info", data.entityType + " " + conditions.eid + " deleted by " + thisHook.authPass.userid);
+        iris.invokeHook("hook_entity_deleted", thisHook.authPass, null, data);
 
-    }
+      }, function (fail) {
+
+        thisHook.fail(fail);
+
+      });
+
+    }, function (fail) {
+
+      thisHook.fail(fail);
+      return false;
+
+
+    });
 
   };
 
@@ -147,48 +177,40 @@ iris.app.post("/entity/delete/:type/:eid", function (req, res) {
 
 
 /*
-*  Things to remove...
-*  1. Database table
-*  2. identitycounters index
-*  3. iris.dbCollections[schema]
-*  4. configurations/entity/{{schema.json}}
-*
+ *  Remove database schema
  */
 iris.modules.entity.registerHook("hook_schema_delete", 0, function (thisHook, data) {
   if (iris.modules.auth.globals.checkPermissions(["can delete schema " + data.schema], thisHook.authPass)) {
 
-    if(!iris.dbCollections[data.schema]) return thisHook.fail(iris.error(400, "Invalid schema"));
+    if (!iris.entityTypes[data.schema]) {
 
-    var mongoose = require('mongoose');
+      return thisHook.fail(iris.error(400, "Invalid schema"));
 
-    // 1.
-    var tableName = data.schema;
-    if(data.schema.substr(tableName.length - 1) != "s"){
-      tableName = data.schema + "s";
     }
 
-    mongoose.connection.db.dropCollection(tableName, function(err){
-      // 26 - ns not found, collection may not exist in database
-      if(err && (err.code != 26)) return thisHook.fail("Error deleting collection");
+    iris.invokeHook("hook_db_deleteSchema__" + iris.config.dbEngine, thisHook.authPass, {
+      schema: data.schema
+    }).then(function () {
 
-
-      // 2.
-      mongoose.connection.db.collection("identitycounters").remove({"model": data.schema});
-
-      // 3.
-      delete iris.dbCollections[data.schema];
-
-      // 4.
       var filePath = iris.sitePath + "/configurations/entity/" + data.schema.replace("../", "") + ".json";
-      fs.exists(filePath, function(exists) {
+      fs.exists(filePath, function (exists) {
 
-        if(exists)
+        if (exists) {
+
           fs.unlinkSync(filePath);
 
+        }
+
         iris.dbPopulate();
+
       });
 
       return thisHook.pass(data);
+
+
+    }, function (fail) {
+
+      thisHook.fail(fail);
 
     });
 

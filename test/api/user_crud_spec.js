@@ -71,10 +71,10 @@ frisby.create('Set first time user')
                       { json : true })
                       .expectStatus(200)
                       .expectHeaderContains('content-type', 'application/json')
-                      .toss()        
+                      .toss();        
               })
-              .toss()
+              .toss();
     })
-    .toss()
+    .toss();
 })
 .toss();

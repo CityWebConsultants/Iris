@@ -1,3 +1,9 @@
+{{#if eid}}
+  
+{{{iris 'form' '{"formID":"entity","eid":$eid,"entityType":"$type"}'}}}
 
-  <div class="admin-header admin-header-padding">Edit {{type}} {{#if eid}}{{eid}}{{/if}}</div>
-  [[[form entity,{{type}},{{eid}}]]]
+{{else}}
+  
+{{{iris 'form' '{"formID":"entity","entityType":"$type"}'}}}
+  
+{{/if}}

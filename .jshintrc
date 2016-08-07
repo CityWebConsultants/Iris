@@ -1,12 +1,13 @@
 {
   "undef": true,
   "unused": false,
-  "predef": ["iris","mongoose","Promise", "CKEDITOR", "JSONForm", "ckeditor", "jQuery", "$", "e"],
+  "predef": ["iris","Promise", "CKEDITOR", "JSONForm", "ckeditor", "jQuery", "$", "e","describe","it","expect","beforeEach","jasmine","alert","ace"],
   "node" : true,
   "browser": true,
   "sub" : true,
   "loopfunc": true,
   "maxdepth": 4,
-  "maxerr": 2000
+  "maxerr": 2000,
+  "esversion":6
 }
 

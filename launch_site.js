@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @file Launches Iris with the settings and context of the given site.
@@ -24,19 +24,19 @@ process.on("message", function (m) {
   }
 
   if (m.persist) {
-        
+
     iris.invokeHook("hook_restart_receive", "root", m.persist, m.persist);
-    
+
   }
 
-})
+});
 
 /**
  * Handle unhandledRejection.
  */
 process.on("unhandledRejection", function (e) {
 
-  if (e.stack) {
+  if (e.stack && Array.isArray(e.stack)) {
 
     e.stack.forEach(function (error, index) {
 
@@ -52,6 +52,10 @@ process.on("unhandledRejection", function (e) {
 
     });
 
+
+  } else {
+
+    console.log(e);
 
   }
 

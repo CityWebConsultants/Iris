@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
-
 /**
  * @file Methods and hooks to implement menus for navigation and categorisation
  */
@@ -9,7 +6,7 @@
  * @namespace menu
  */
 
-iris.registerModule("menu");
+iris.registerModule("menu",__dirname);
 
 /**
  * Embed function for [[[menu __]]] embeds.
@@ -18,7 +15,7 @@ iris.registerModule("menu");
 
 iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHook, data) {
 
-  var menuName = thisHook.context.embedID;
+  var menuName = thisHook.context.embedOptions.menuName;
 
   var menuItems = [];
 
@@ -92,7 +89,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
   // Top level items first
 
   var fillMenu = function () {
-    var MenuTree = new Array();
+    var MenuTree = [];
 
     var isItemExist = function (arr, item) {
       var found = false;
@@ -142,7 +139,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     });
 
     return MenuTree;
-  }
+  };
 
   var MenuTreeArray = fillMenu();
 
@@ -177,7 +174,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
     });
 
-  }
+  };
 
   MenuTreeArray.sort(sort);
 
@@ -188,7 +185,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     // Menu ready, check access
     var parseTemplate = ["menu", menuName];
 
-    if (embedOptions && embedOptions.template != undefined) {
+    if (embedOptions && embedOptions.template !== undefined) {
       parseTemplate.push(embedOptions.template);
     }
 
@@ -326,8 +323,9 @@ iris.modules.menu.registerHook("hook_frontend_handlebars_extend", 1, function (t
   iris.modules.frontend.globals.findTemplate(["submenu"]).then(function (template) {
 
     Handlebars.registerPartial('submenu', template);
+    thisHook.pass(Handlebars);
   });
 
-  thisHook.pass(Handlebars);
+  
 
 });

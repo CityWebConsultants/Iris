@@ -102,7 +102,7 @@
    * The jsonform object whose methods will be exposed to the window object
    */
   var jsonform = {util:{}};
-  iris.jsonform = jsonform;
+
 
   // From backbonejs
   var escapeHTML = function (string) {
@@ -1173,8 +1173,12 @@ jsonform.elementTypes = {
       if (!node || !node.schemaElement || !node.schemaElement.items) return;
       choices = node.formElement.options;
       if (!choices) return;
-      if (!node.value || !Array.isArray(node.value))
+      if (!node.value) {
         node.value = [];
+      }
+      else if (!Array.isArray(node.value)) {
+        node.value = [node.value];
+      }
       choiceshtml = '';
       _.each(choices, function (choice, idx) {
         choiceshtml += _template(template, {

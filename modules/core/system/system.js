@@ -1,11 +1,8 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise,$,window */
-
 /**
  * @file General hooks and functions for the admin system.
  */
 
-iris.registerModule("system");
+iris.registerModule("system",__dirname);
 
 require('./system_routing.js');
 
@@ -55,7 +52,7 @@ iris.modules.system.registerHook("hook_restart_send", 0, function (thisHook, dat
 
   thisHook.pass(data);
 
-})
+});
 
 iris.modules.system.registerHook("hook_restart_receive", 0, function (thisHook, data) {
     
@@ -83,7 +80,7 @@ iris.modules.system.registerHook("hook_restart_receive", 0, function (thisHook, 
   
   thisHook.pass(data);
 
-})
+});
 
 // Placeholder hook TODO for sending socket message to update log page
 

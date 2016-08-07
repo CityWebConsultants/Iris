@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
+
+
 
 /**
  * @file Express HTTP server setup and management functions.
@@ -283,7 +283,11 @@ methods.forEach(function (method) {
 
     }
 
-    iris.routes[route] = {};
+    if(!iris.routes[route]){
+      
+      iris.routes[route] = {};
+      
+    }
 
     iris.routes[route][method] = {
 
