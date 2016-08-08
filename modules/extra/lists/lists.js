@@ -6,7 +6,11 @@ process.on("dbReady", function () {
 
   Object.keys(iris.modules.lists.hooks).forEach(function (hook) {
 
-    delete iris.modules.lists.hooks[hook];
+    if (hook.indexOf("hook_form_render__blockForm") !== -1) {
+
+      delete iris.modules.lists.hooks[hook];
+
+    }
 
   });
 
@@ -45,7 +49,7 @@ process.on("dbReady", function () {
         },
         rank: 7
       };
-            
+
       if (thisHook.context.params && iris.modules.blocks.globals.blocks["List-of-" + entityType] && iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params.blockID]) {
 
         var existingView = iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params.blockID];
@@ -53,7 +57,7 @@ process.on("dbReady", function () {
         existingView.output = "{{{{iris_handlebars_ignore}}}}" + existingView.output + "{{{{/iris_handlebars_ignore}}}}";
 
         data.value = existingView;
-        
+
       }
 
       // Add in fields
@@ -123,11 +127,12 @@ process.on("dbReady", function () {
 
 // Render blocks
 
-iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data) {
+iris.modules.lists.registerHook("hook_block_render", 1, function (thisHook, data) {
 
   if (thisHook.context.type.split("-")[0] === "List") {
 
     var config = thisHook.context.config;
+
 
     if (config.conditions) {
 
@@ -170,15 +175,13 @@ iris.modules.lists.registerHook("hook_block_render", 0, function (thisHook, data
 
     }
 
-    var template = config.output.split("list").join("list_" + config.blockTitle);
-
-    var sendQuery = "[[[entity list_" + config.blockTitle + "," + JSON.stringify(query) + "]]]" + template;
-
+    var sendQuery = "{{#iris embed='entity' embedOptions='" + JSON.stringify(query) + "' as |list|}}" + config.output + "{{/iris}}";
+    
     thisHook.pass(sendQuery);
 
   } else {
 
-    thisHook.fail(data);
+    thisHook.pass(data);
 
   }
 
