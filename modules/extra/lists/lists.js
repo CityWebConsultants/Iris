@@ -45,15 +45,15 @@ process.on("dbReady", function () {
         },
         rank: 7
       };
+            
+      if (thisHook.context.params && iris.modules.blocks.globals.blocks["List-of-" + entityType] && iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params.blockID]) {
 
-      if (thisHook.context.params && iris.modules.blocks.globals.blocks["List-of-" + entityType] && iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params]) {
-
-        var existingView = iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params];
+        var existingView = iris.modules.blocks.globals.blocks["List-of-" + entityType][thisHook.context.params.blockID];
 
         existingView.output = "{{{{iris_handlebars_ignore}}}}" + existingView.output + "{{{{/iris_handlebars_ignore}}}}";
 
         data.value = existingView;
-
+        
       }
 
       // Add in fields
