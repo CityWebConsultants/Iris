@@ -18,7 +18,7 @@ var routes = {
 
 iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (thisHook, data) {
 
-  var menuName = thisHook.context.embedOptions.menuName;
+  var menuName = thisHook.context.embedOptions.menu;
 
   iris.readConfig('menu', menuName).then(function (config) {
 

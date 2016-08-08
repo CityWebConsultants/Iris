@@ -274,11 +274,11 @@ Forms each need a formID parameter. Any other parameters will be passed into the
 
 ##### Menu
 
-Menus take a `menuName` parameter and an optional `template` parameter that can override the menu template. Menus can be created in the user interface.
+Menus take a `menu` parameter and an optional `template` parameter that can override the menu template. Menus can be created in the user interface.
 
 ```HTML
 
-{{{iris embed='menu' menuName="admin_toolbar"}}}
+{{{iris embed='menu' menu="admin_toolbar"}}}
 
 ```
 
