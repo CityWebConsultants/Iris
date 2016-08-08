@@ -490,10 +490,6 @@ iris.modules.entity.registerHook("hook_entity_query_alter", 0, function (thisHoo
  */
 iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, entity) {
 
-  thisHook.pass(entity);
-
-  return false;
-
   if (entity) {
 
     entity = JSON.parse(JSON.stringify(entity));
