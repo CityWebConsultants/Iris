@@ -31,8 +31,8 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
   //Set author and entity type
 
   if (!data.entityType || !iris.entityTypes[data.entityType]) {
-
-    thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
+    
+    thisHook.fail("Needs to have a valid entityType");
     return false;
 
   }

@@ -12,7 +12,7 @@
 
 iris.registerModule("frontend", __dirname);
 
-var fs = require('graceful-fs')
+var fs = require('graceful-fs');
 var express = require('express');
 var path = require('path');
 
@@ -169,7 +169,7 @@ var externalFiles = {};
 var internalFiles = {};
 
 process.on("dbReady", function () {
-  
+
   iris.modules.frontend.globals.templateRegistry.external = [];
 
   Object.keys(iris.modules).reverse().forEach(function (moduleName) {
@@ -179,6 +179,8 @@ process.on("dbReady", function () {
   });
 
 });
+
+var loadedTemplatePaths;
 
 var refreshFiles = function () {
 
@@ -193,6 +195,20 @@ var refreshFiles = function () {
     externalFiles[directory] = glob.sync(directory + "/" + "**");
 
   });
+
+  loadedTemplatePaths = true;
+
+};
+
+// Experimental flag for refreshing files only after certain period
+
+if (iris.config.cacheTemplatePaths) {
+
+  setInterval(function () {
+
+    refreshFiles();
+
+  }, iris.config.cacheTemplatePaths);
 
 }
 
@@ -209,7 +225,15 @@ var refreshFiles = function () {
  */
 iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
-  refreshFiles();
+  if (iris.config.cacheTemplatePaths && loadedTemplatePaths) {
+
+    // Running from cache
+
+  } else {
+
+    refreshFiles();
+
+  }
 
   if (!extension) {
 
@@ -337,7 +361,7 @@ iris.modules.frontend.globals.findTemplate = function (paths, extension) {
 
             }
 
-          })
+          });
 
         } else {
 
@@ -622,8 +646,8 @@ process.on("dbReady", function (firstTime) {
   if (firstTime) {
     iris.invokeHook("hook_frontend_handlebars_extend", "root", null, Handlebars);
   }
-  
-})
+
+});
 
 iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHook, data) {
 
