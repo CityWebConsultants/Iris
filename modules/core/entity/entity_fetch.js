@@ -15,7 +15,7 @@
  * @returns the fetched entities
  */
 
-var queryCache = {};
+iris.modules.entity.globals.queryCache = {};
 
 iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fetchRequest) {
 
@@ -35,7 +35,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   // TODO enable query caching -- commented out for now
 
-  if (true || !queryCache[JSON.stringify(fetchRequest)]) {
+  if (!iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)]) {
 
     var entityTypes = [];
 
@@ -213,12 +213,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
               skip: fetchRequest.skip
             }
 
-            if (!queryCache[type]) {
-
-              queryCache[type] = {};
-
-            }
-
             iris.invokeHook("hook_db_fetch__" + iris.config.dbEngine, thisHook.authPass, queryObject).then(function (fetched) {
 
               fetched.forEach(function (element) {
@@ -273,17 +267,19 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   success = function () {
 
-    // TODO enable query caching -- commented out for now
+    if (iris.config.cacheQueries) {
+      
+      if (iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)]) {
 
-    //    if (queryCache[JSON.stringify(fetchRequest)]) {
-    //
-    //      entities = queryCache[JSON.stringify(fetchRequest)];
-    //
-    //    } else {
-    //
-    //      queryCache[JSON.stringify(fetchRequest)] = entities;
-    //
-    //    }
+        entities = iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)];
+
+      } else {
+
+        iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)] = entities;
+
+      }
+      
+    }
 
     var viewHooks = [];
 
