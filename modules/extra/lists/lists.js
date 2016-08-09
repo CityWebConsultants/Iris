@@ -179,7 +179,7 @@ iris.modules.lists.registerHook("hook_block_render", 1, function (thisHook, data
 
     }
 
-    var liveupdate;
+    var liveupdate = "";
 
     if (config.liveupdate) {
 
