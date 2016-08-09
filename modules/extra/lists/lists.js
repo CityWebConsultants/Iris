@@ -112,6 +112,10 @@ process.on("dbReady", function () {
               "enum": ["asc", "desc"]
             }
           }
+        },
+        "liveupdate": {
+          "type": "boolean",
+          "title": "Live update?"
         }
       };
 
@@ -175,8 +179,16 @@ iris.modules.lists.registerHook("hook_block_render", 1, function (thisHook, data
 
     }
 
-    var sendQuery = "{{#iris embed='entity' embedOptions='" + JSON.stringify(query) + "' as |list|}}" + config.output + "{{/iris}}";
-    
+    var liveupdate;
+
+    if (config.liveupdate) {
+
+      liveupdate = "liveupdate=true"
+
+    }
+
+    var sendQuery = "{{#iris embed='entity' " + liveupdate + " embedOptions='" + JSON.stringify(query) + "' as |list|}}" + config.output + "{{/iris}}";
+
     thisHook.pass(sendQuery);
 
   } else {
