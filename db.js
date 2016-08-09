@@ -223,7 +223,8 @@ iris.dbPopulate = function (firstTime) {
       label: 'path',
       fixed: true, // A fixed field isn't shown on the schema edit page as it can't be edited/deleted 
       weight: 1111, // JSON doesn't support infinity - ugh
-      machineName: 'path'
+      machineName: 'path',
+      permissions: ["anonymous", "authenticated"]
     };
 
     iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
@@ -270,7 +271,7 @@ iris.dbSchemaRegister = function (name, fields, content = false) {
       schema.systemOnly = true;
 
     }
-    
+
     iris.entityTypes[name] = schema;
 
     iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
