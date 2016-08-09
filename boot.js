@@ -259,6 +259,12 @@ module.exports = function (config) {
 
     }
 
+    if (!moduleInfo.weight) {
+
+      moduleInfo.weight = 0;
+
+    }
+
     toEnable.push({
       "info": moduleInfo,
       "path": modulePath,
