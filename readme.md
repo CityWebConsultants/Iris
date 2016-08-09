@@ -39,7 +39,7 @@ Here's an example of using the neDB database built into Iris. This is a quick wa
 var config = {
   "sitePath": "/mysite", // this is where your configuration and templates will go 
   "port": 4000, // the port the site will run on
-  "dbEngine": "nedb" // using neDB a database bundled in with Iris (MongoDB is also supported),
+  "dbEngine": "nedb", // using neDB a database bundled in with Iris (MongoDB is also supported),
   "siteEmail": "you@yoursite.org",
   "max_file_size": 10 // Max file upload size
 }

@@ -256,7 +256,7 @@ iris.dbPopulate = function (firstTime) {
  * isContent boolean variable determines whether the entity type appears on a content page 
  */
 
-iris.dbSchemaRegister = function (name, fields, isContent = false) {
+iris.dbSchemaRegister = function (name, fields, content = false) {
 
   return new Promise(function (resolve, reject) {
 
@@ -265,12 +265,13 @@ iris.dbSchemaRegister = function (name, fields, isContent = false) {
       fields: fields
     };
 
-    Object.defineProperty(iris.entityTypes, name, {
-      enumerable: isContent,
-      writable: true,
-      configurable: true,
-      value: schema
-    });
+    if (!content) {
+
+      schema.systemOnly = true;
+
+    }
+    
+    iris.entityTypes[name] = schema;
 
     iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
       schema: name,

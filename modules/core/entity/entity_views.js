@@ -18,6 +18,10 @@ var updateEmbeds = function () {
 
   }
 
+  // Clear query cache in same hook
+
+  iris.modules.entity.globals.queryCache = {};
+
 };
 
 /**
@@ -29,7 +33,7 @@ var updateEmbeds = function () {
  * This hook is run once an entity has been created; useful for live updates or keeping track of changes
  */
 iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, entity) {
-  
+
   updateEmbeds();
 
   for (var authUser in iris.modules.auth.globals.userList) {
@@ -71,7 +75,7 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
  * This hook is run when an entity is updated/edited; useful for live updates or keeping track of changes
  */
 iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
-  
+
   updateEmbeds();
 
   for (var authUser in iris.modules.auth.globals.userList) {
@@ -113,7 +117,7 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
  * This hook is run when an entity is deleted; useful for live updates or keeping track of changes
  */
 iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, entity) {
-  
+
   updateEmbeds();
 
   for (var authUser in iris.modules.auth.globals.userList) {

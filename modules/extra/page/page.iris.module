@@ -1,5 +1,8 @@
 {
   "name": "Page",
   "description": "Provides a page entity type",
-  "weight": 0
+  "weight": 5,
+  "dependencies": {
+    "ckeditor": "1.0.0"
+  }
 }

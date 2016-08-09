@@ -157,13 +157,13 @@ iris.route.get("/:type/:id/delete", routes.delete, function (req, res) {
 // Render entity form
 
 iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (thisHook, data) {
-      
+
   // Check if entity type exists in the system
 
   var entityType = thisHook.context.params.entityType;
-  
+
   var schema = iris.entityTypes[entityType];
-    
+
   if (!schema) {
 
     thisHook.fail("No such schema");
@@ -975,8 +975,22 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
 iris.route.get("/admin/entitylist", routes.entitylist, function (req, res) {
 
+  // Remove system entity types
+
+  var entityTypes = [];
+
+  Object.keys(iris.entityTypes).forEach(function (type) {
+
+    if (!iris.entityTypes[type].systemOnly) {
+
+      entityTypes.push(type);
+
+    }
+
+  });
+
   iris.modules.frontend.globals.parseTemplateFile(["admin_entitytypelist"], ['admin_wrapper'], {
-    entityTypes: Object.keys(iris.entityTypes)
+    entityTypes: entityTypes
   }, req.authPass, req).then(function (success) {
 
     res.send(success);
