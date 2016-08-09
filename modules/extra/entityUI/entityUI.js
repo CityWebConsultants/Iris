@@ -394,7 +394,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
                   if (typeof fieldTypeType === "object") {
 
-                    var form = {
+                    form = {
                       type: "object",
                       title: fieldName,
                       properties: {}

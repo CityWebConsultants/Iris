@@ -12,6 +12,24 @@ iris.registerModule("forms", __dirname);
 
 iris.modules.forms.globals.formRenderCache = {};
 
+// Clear formRenderCache every 24 hours. TODO this is a tiny memory leak but it could add up on huge sites, needs a proper way of invalidating a form.
+
+setInterval(function () {
+
+  Object.keys(iris.modules.forms.globals.formRenderCache).forEach(function (cacheItem) {
+
+    var date = iris.modules.forms.globals.formRenderCache[cacheItem].date;
+
+    if ((Date.now() - date) > 86400000) {
+
+      delete iris.modules.forms.globals.formRenderCache[cacheItem];
+
+    }
+
+  });
+
+}, 86400000);
+
 var toSource = require('tosource');
 
 /**
@@ -165,7 +183,7 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
 
         var token = iris.modules.forms.globals.formRenderCache[body.formToken];
 
-        if (token.authPass.userid === thisHook.authPass.userid && body.formid === token.formid) {
+        if (token.userid === thisHook.authPass.userid && body.formid === token.formid) {
 
         } else {
 
@@ -360,7 +378,8 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
       iris.modules.forms.globals.formRenderCache[token] = {
         formid: formName,
-        authPass: thisHook.authPass
+        userid: thisHook.authPass.userid,
+        date: Date.now()
       };
 
       form.schema.formToken = {
@@ -436,7 +455,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
       }
 
       var jsdom = require("jsdom");
-      
+
       var action = "";
 
       if (thisHook.context.vars.req) {

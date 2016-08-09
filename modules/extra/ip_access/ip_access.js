@@ -4,7 +4,8 @@ iris.modules.ip_access.globals.blockedIPs = [];
 
 iris.modules.ip_access.registerHook("hook_form_render__ip_access", 0, function (thisHook, data) {
 
-  var config;
+  var config,
+      current;
 
   try {
     config = iris.readConfigSync("ip_access", "ip_access");
@@ -16,7 +17,7 @@ iris.modules.ip_access.registerHook("hook_form_render__ip_access", 0, function (
 
   if (config) {
 
-    var current = config.list;
+    current = config.list;
 
   }
 
@@ -92,14 +93,14 @@ iris.modules.ip_access.registerHook("hook_request_intercept", 0, function (thisH
 
   ipSettings.list.forEach(function (listItem) {
 
-    var vaild = true;
+    var valid = true;
 
     var paths = listItem.path.replace(/\r\n/g, '\n').split("\n");
 
     var currentUrl = req.url;
 
     // Loop over paths
-
+  
     paths.forEach(function (path) {
 
       valid = minimatch(currentUrl, path);

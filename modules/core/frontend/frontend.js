@@ -613,17 +613,17 @@ var parseEmbeds = function (html, variables, authPass) {
 
           // Split parameters by , to get arguments
 
-          var arguments = embed.split(","),
-            embedID = arguments[0],
+          var Arguments = embed.split(","),
+            embedID = Arguments[0],
             embedOptions;
 
-          if (arguments[1]) {
+          if (Arguments[1]) {
 
             try {
 
-              arguments.shift();
+              Arguments.shift();
 
-              embedOptions = JSON.parse(arguments.join(","));
+              embedOptions = JSON.parse(Arguments.join(","));
 
             } catch (e) {
 

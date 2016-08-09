@@ -259,7 +259,7 @@ iris.modules.multiwidget.registerHook("hook_entity_view_field__longtexts", 0, fu
 
       data.forEach(function(item){
     
-        filterConfig = iris.readConfigSync("textfilters", item.filter);
+        var filterConfig = iris.readConfigSync("textfilters", item.filter);
 
         var sanitizeHtml = require('sanitize-html');
     
