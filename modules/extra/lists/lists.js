@@ -183,7 +183,7 @@ iris.modules.lists.registerHook("hook_block_render", 1, function (thisHook, data
 
     if (config.liveupdate) {
 
-      liveupdate = "liveupdate=true"
+      liveupdate = "liveupdate=true";
 
     }
 
