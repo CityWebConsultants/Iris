@@ -85,8 +85,22 @@ var routes = {
 
 iris.route.get("/admin/structure/entities", routes.entities, function (req, res) {
 
+  // Remove system entity types
+
+  var entityTypes = [];
+
+  Object.keys(iris.entityTypes).forEach(function (type) {
+
+    if (!iris.entityTypes[type].systemOnly) {
+
+      entityTypes.push(type);
+
+    }
+
+  });
+
   iris.modules.frontend.globals.parseTemplateFile(["admin_entity_types"], ['admin_wrapper'], {
-    entityTypes: Object.keys(iris.entityTypes)
+    entityTypes: entityTypes
   }, req.authPass, req).then(function (success) {
 
     res.send(success);
