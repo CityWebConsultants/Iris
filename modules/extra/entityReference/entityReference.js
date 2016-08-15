@@ -37,21 +37,64 @@ iris.route.get("/entity-reference/:type/:field", {}, function (req, res) {
 var referenceField = function (thisHook, data) {
 
   var collections = iris.entityTypes;
+  var schema_collections = Object.keys(collections);
+  schema_collections.push("----");
+  schema_collections.sort();
   var settings = {
+    source: {
+      "type": "text",
+      "title": "Select source",
+      "enum": ["Entity","Custom URL"],
+    },
+    customUrl: {
+      "type": "text",
+      "title": "Enter URL"
+    },
     entityType: {
       "type": "text",
       "title": "Select entity type",
-      "enum": Object.keys(collections),
+      "enum": schema_collections,
     }
   };
 
   data.form.push("title");
+  data.form.push({
+    "key": "settings.source",
+    "onChange": function (e) {
+      var choice = $(e.target).val();
+      if(choice == "Entity"){
+        $('input[name="settings.customUrl"]').parent().parent().hide();
+        $('select[name="settings.entityType"]').parent().parent().show();
+      }
+      if(choice == "Custom URL"){
+        $('input[name="settings.customUrl"]').parent().parent().show();
+        $('select[name="settings.entityType"]').parent().parent().hide();
+        $('select[name="settings.entityType"]').parent().parent().next().hide();
+      }
+
+    },
+    "onInsert": function (e) {
+       $(document).ready(function() {
+         $(e.target).change();
+       });
+
+    }
+  });
+  data.form.push({
+    "key": "settings.customUrl"
+  });
   data.form.push({
     "key": "settings.entityType",
     "onChange": function (e) {
       var choice = $(e.target).val();
       $('.choose-fields').removeClass('open');
       $('.choose-fields.jsonform-error-settings---' + choice).addClass('open');
+    },
+    "onInsert": function (e) {
+       $(document).ready(function() {
+         $(e.target).change();
+       });
+
     }
   });
 
@@ -61,19 +104,20 @@ var referenceField = function (thisHook, data) {
     hasValue = true;
 
   }
-
-  Object.keys(collections).forEach(function (schema, index) {
+  schema_collections.forEach(function (schema, index) {
 
     var fields = [];
-    Object.keys(collections[schema].fields).forEach(function (field) {
+    if(collections[schema]){
+      Object.keys(collections[schema].fields).forEach(function (field) {
 
-      if (collections[schema].fields[field].fieldType == 'Textfield') {
+        if (collections[schema].fields[field].fieldType == 'Textfield') {
 
-        fields.push(field);
+          fields.push(field);
 
-      }
+        }
 
-    });
+      });
+    }
 
     settings[schema] = {
       "type": "text",
@@ -83,7 +127,7 @@ var referenceField = function (thisHook, data) {
 
     var extraClass = '';
 
-    if (!hasValue && index === 0) {
+    if (!hasValue && index == 0) {
       extraClass = 'open';
     } else if (data.value.settings && data.value.settings.entityType && data.value.settings.entityType == schema) {
       extraClass = 'open';
@@ -109,7 +153,6 @@ var referenceField = function (thisHook, data) {
   };
 
   data.settingsOverride = true;
-
   thisHook.pass(data);
 
 };
@@ -157,9 +200,13 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 
     if (entity && entity.length) {
 
-      entity = entity[0];
+      var entity = entity[0];
 
       value = entity[fieldSettings.settings[value.entityType]] + "[" + value.eid + "]";
+
+    } else if (value.value){
+
+      value = value.value;
 
     } else {
 
@@ -174,12 +221,23 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
       "description": fieldSettings.description,
     };
 
-    data.form = {
-      "type": "text",
-      "autocomplete": {
-        "source": '/entity-reference/' + fieldSettings.settings.entityType + '/' + fieldSettings.settings[fieldSettings.settings.entityType]
-      }
-    };
+    if( fieldSettings.settings.source == "Custom URL" ){
+        data.form = {
+          "type": "text",
+          "autocomplete": {
+            "source": fieldSettings.settings.customUrl
+          }
+      };
+    }
+    else{
+      data.form = {
+        "type": "text",
+        "autocomplete": {
+          "source": '/entity-reference/' + fieldSettings.settings.entityType + '/' + fieldSettings.settings[fieldSettings.settings.entityType]
+        }
+      };
+    }
+    
 
     thisHook.pass(data);
 
@@ -258,7 +316,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 
       if (entity && entity.length) {
 
-        entity = entity[0];
+        var entity = entity[0];
 
         newValue.push(entity[fieldSettings.settings[current.entityType]] + "[" + current.eid + "]");
 
@@ -279,31 +337,37 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__entity_reference", 0, function (thisHook, data) {
 
   var settings = thisHook.context.field.settings;
+  if(settings.source == "Custom URL"){
 
-  var entityType = settings.entityType;
-
-  if (!thisHook.context.value) {
-
-
-    data = {
-      entityType: null,
-      eid: null
-    };
-
-
-  } else {
-
-    var eid = thisHook.context.value.match(/[^[\]]+(?=])/g)[0];
-
-    data = {
-      entityType: entityType,
-      eid: parseInt(eid)
-    };
-
+    thisHook.pass({
+        value: thisHook.context.value
+    });
   }
+  else{
+    var entityType = settings.entityType;
 
-  thisHook.pass(data);
+    if (!thisHook.context.value) {
 
+
+      data = {
+        entityType: null,
+        eid: null
+      };
+
+
+    } else {
+
+      var eid = thisHook.context.value.match(/[^[\]]+(?=])/g)[0];
+
+      data = {
+        entityType: entityType,
+        eid: parseInt(eid)
+      };
+
+    }
+
+    thisHook.pass(data);
+  }
 });
 
 iris.modules.entityReference.registerHook("hook_entity_field_fieldType_save__entity_references", 0, function (thisHook, data) {
