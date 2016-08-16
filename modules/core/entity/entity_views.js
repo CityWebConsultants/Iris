@@ -14,7 +14,7 @@ var updateEmbeds = function () {
 
       iris.modules.frontend.globals.liveEmbeds.entity[embed].sendResult();
 
-    })
+    });
 
   }
 
