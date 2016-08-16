@@ -211,7 +211,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
               limit: fetchRequest.limit,
               sort: fetchRequest.sort,
               skip: fetchRequest.skip
-            }
+            };
 
             iris.invokeHook("hook_db_fetch__" + iris.config.dbEngine, thisHook.authPass, queryObject).then(function (fetched) {
 
@@ -268,7 +268,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
   success = function () {
 
     if (iris.config.cacheQueries) {
-      
+
       if (iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)]) {
 
         entities = iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)];
@@ -278,7 +278,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
         iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)] = entities;
 
       }
-      
+
     }
 
     var viewHooks = [];
@@ -345,9 +345,9 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
           var sort = function (property, direction) {
 
-            if (direction === "asc") {
+            if (direction === 1) {
 
-              output.sort(function asc(a, b) {
+              output.sort(function (a, b) {
                 if (a[property] < b[property]) {
                   return -1;
                 }
@@ -357,9 +357,9 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
                 return 0;
               });
 
-            } else if (direction === "desc") {
+            } else if (direction === -1) {
 
-              output.sort(function asc(a, b) {
+              output.sort(function (a, b) {
                 if (a[property] > b[property]) {
                   return -1;
                 }
@@ -383,9 +383,10 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
           }
 
+
           if (fetchRequest.limit && output.length > fetchRequest.limit) {
 
-            output.length = fetchRequest.limit;
+            output = output.slice(0, fetchRequest.limit);
 
           }
 
