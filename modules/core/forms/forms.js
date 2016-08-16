@@ -282,14 +282,14 @@ iris.route.get("/modules/forms/extrafields.js", function (req, res) {
  */
 iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHook, data) {
 
-  if(!thisHook.context.embedOptions.formID){
-    
+  if (!thisHook.context.embedOptions.formID) {
+
     thisHook.fail("No formID");
-    
+
     return false;
-    
+
   }
-  
+
   var variables = thisHook.context.vars;
 
   // Add scripts for forms
@@ -535,7 +535,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
   var formName = thisHook.context.embedOptions.formID;
   thisHook.context.embedID = formName;
-    
+
   var formTemplate = {
     schema: {},
     form: [],
@@ -547,7 +547,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
     params: formParams,
     context: variables
   }, formTemplate).then(function (formTemplate) {
-        
+
     iris.invokeHook("hook_form_render__" + formName, thisHook.authPass, {
       formId: thisHook.context.embedID,
       params: formParams,
@@ -562,19 +562,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
     }, function (fail) {
 
-      if (fail === "No such hook exists") {
-
-        renderForm(formTemplate, function (output) {
-
-          thisHook.pass(output);
-
-        });
-
-      } else {
-
-        thisHook.fail();
-
-      }
+      thisHook.fail();
 
     });
 
@@ -583,17 +571,6 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
     thisHook.fail();
 
   });
-
-});
-
-/**
- * @memberof forms
- *
- * @desc Prepare a form for display by adding or changing fields at the render stage
- */
-iris.modules.forms.registerHook("hook_form_render", 0, function (thisHook, data) {
-
-  thisHook.pass(data);
 
 });
 
