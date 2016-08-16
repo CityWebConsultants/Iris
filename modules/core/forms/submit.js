@@ -8,6 +8,8 @@
  */
 iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, data) {
 
+  var cachedForm;
+
   // Call submit handlers that specify the form name
   var specificFormSubmit = function (data) {
 
@@ -30,14 +32,10 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
   // Call all generic submit handlers.
   var genericFormSubmit = function (data) {
 
-    var previous = body.formPrevious;
-
-    delete body.formPrevious;
-
     iris.invokeHook("hook_form_submit__" + formid, thisHook.authPass, {
       params: body,
       formid: formid,
-      previous: previous,
+      previous: cachedForm,
       req: thisHook.context.req,
       res: thisHook.context.res
     }, data).then(specificFormSubmit, function (fail) {
@@ -146,6 +144,8 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
       // Check if form id exists in cache, if not stop
 
       if (iris.modules.forms.globals.formRenderCache[body.formToken]) {
+
+        cachedForm = iris.modules.forms.globals.formRenderCache[body.formToken].form;
 
         var token = iris.modules.forms.globals.formRenderCache[body.formToken];
 

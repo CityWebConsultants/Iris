@@ -24,20 +24,18 @@ var renderForm = function (formName, formParams, form, authPass, callback, req) 
 
     var token = buf.toString('hex');
 
+    // Add form object to formRenderCache
+
     iris.modules.forms.globals.formRenderCache[token] = {
       formid: formName,
       userid: authPass.userid,
-      date: Date.now()
+      date: Date.now(),
+      form: form
     };
 
     form.schema.formToken = {
       "type": "hidden",
       "default": token
-    };
-
-    form.schema.formPrevious = {
-      "type": "hidden",
-      "default": JSON.stringify(form)
     };
 
     // Unset form render object if not set (JSON form provides a default)
@@ -57,10 +55,6 @@ var renderForm = function (formName, formParams, form, authPass, callback, req) 
       });
       form.form.push({
         key: "formid"
-      });
-
-      form.form.push({
-        key: "formPrevious"
       });
 
     }
