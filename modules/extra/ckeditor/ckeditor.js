@@ -30,7 +30,9 @@ iris.modules.forms.globals.registerWidget(function () {
 
   document.addEventListener('formsLoaded', function (e) {
 
-    $.getScript("//cdn.ckeditor.com/4.5.3/standard/ckeditor.js", function () {
+    $.getScript("/modules/ckeditor/ckeditor/ckeditor.js", function () {
+
+      CKEDITOR.basePath = "/modules/ckeditor/ckeditor/";
 
       $(".ckeditor").each(function () {
         CKEDITOR.replace(this, {
