@@ -30,9 +30,9 @@ iris.modules.forms.globals.registerWidget(function () {
 
   document.addEventListener('formsLoaded', function (e) {
 
-    $.getScript("/modules/ckeditor/ckeditor/ckeditor.js", function () {
+    window.CKEDITOR_BASEPATH = '/modules/ckeditor/ckeditor/';
 
-      CKEDITOR.basePath = "/modules/ckeditor/ckeditor/";
+    $.getScript("/modules/ckeditor/ckeditor/ckeditor.js", function () {
 
       CKEDITOR.config.filebrowserUploadUrl = '/admin/file/ckeditorupload';
       CKEDITOR.config.allowedContent = true;
@@ -40,7 +40,7 @@ iris.modules.forms.globals.registerWidget(function () {
       $(".ckeditor").each(function () {
         CKEDITOR.replace(this, {
 
-//          customConfig: '/modules/ckeditor/config.js'
+          //          customConfig: '/modules/ckeditor/config.js
 
         });
       });
