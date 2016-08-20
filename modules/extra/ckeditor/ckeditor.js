@@ -34,10 +34,13 @@ iris.modules.forms.globals.registerWidget(function () {
 
       CKEDITOR.basePath = "/modules/ckeditor/ckeditor/";
 
+      CKEDITOR.config.filebrowserUploadUrl = '/admin/file/ckeditorupload';
+      CKEDITOR.config.allowedContent = true;
+
       $(".ckeditor").each(function () {
         CKEDITOR.replace(this, {
 
-          customConfig: '/modules/ckeditor/config.js'
+//          customConfig: '/modules/ckeditor/config.js'
 
         });
       });
