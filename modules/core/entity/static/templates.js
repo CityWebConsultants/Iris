@@ -24,9 +24,7 @@ if (!window.iris) {
 
 irisReady(function () {
 
-  if (window.io && iris.server) {
-
-    iris.socketreceiver = io(iris.server);
+  if (iris.socketreceiver) {
 
     iris.socketreceiver.on('entityCreate', function (data) {
 
@@ -513,42 +511,3 @@ iris.entityPreFetch = function (result, variableName, query) {
   }
 
 };
-
-iris.liveLoadUpdate = function () {
-
-  var entityContainers;
-
-  if (iris.fetched) {
-
-    var entityContainers = {};
-
-    Object.keys(iris.fetched).forEach(function (index) {
-
-      entityContainers[index] = iris.fetched[index].entities
-
-    })
-
-  }
-
-  var liveLoaders = document.querySelectorAll(".iris-live-load");
-  var i;
-  for (i = 0; i < liveLoaders.length; i += 1) {
-
-    var parent = liveLoaders[i];
-    
-    var templateCode = parent.querySelector(".iris-live-load-source").getAttribute("data-iris-live-load-template").split("&#34;").join('"');
-
-    var template = Handlebars.compile(templateCode);
-    var child = parent.querySelector(".iris-live-load-output");
-
-    child.innerHTML = template(entityContainers);
-
-  }
-
-}
-
-document.addEventListener('entityListUpdate', function (e) {
-
-  iris.liveLoadUpdate();
-  
-}, false);

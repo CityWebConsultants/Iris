@@ -14,6 +14,9 @@
  *
  * @returns the fetched entities
  */
+
+iris.modules.entity.globals.queryCache = {};
+
 iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fetchRequest) {
 
   if (thisHook.context) {
@@ -22,165 +25,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   }
 
-  var entityTypes = [];
-
-  // Populate list of targetted DB entities
-
-  if (Array.isArray(fetchRequest.entities)) {
-
-    fetchRequest.entities.forEach(function (entityType) {
-
-      if (iris.entityTypes[entityType]) {
-
-        entityTypes.push(entityType);
-
-      }
-
-    });
-
-  } else {
-
-    thisHook.fail("Not a valid query");
-
-    return false;
-
-  }
-
-  //Assemble query
-
-  var query = {
-    $and: []
-  };
-
-  if (!fetchRequest.queries) {
-
-    fetchRequest.queries = [];
-
-  }
-
-  if (!Array.isArray(fetchRequest.queries)) {
-
-    return thisHook.fail("not a valid query");
-
-  }
-
-  fetchRequest.queries.forEach(function (fieldQuery) {
-
-    try {
-
-      fieldQuery.value = JSON.parse(fieldQuery.value);
-
-    } catch (e) {
-
-    }
-
-    var queryItem = {},
-      negativeQueryItem = {};
-
-    if (fieldQuery.operator.toLowerCase().indexOf("is") !== -1) {
-
-      queryItem[fieldQuery["field"]] = fieldQuery.value;
-
-      // Check if negative
-
-      if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
-
-        query.$and.push(queryItem);
-
-      } else {
-
-        negativeQueryItem = {};
-
-        negativeQueryItem[Object.keys(queryItem)[0]] = {
-
-          $ne: queryItem[Object.keys(queryItem)[0]]
-
-        };
-
-        query.$and.push(negativeQueryItem);
-
-      }
-
-    }
-
-    if (fieldQuery.operator.toLowerCase().indexOf("gt") !== -1) {
-
-      queryItem[fieldQuery["field"]] = {
-        $gt: fieldQuery.value
-      };
-
-      query.$and.push(queryItem);
-
-    }
-
-    if (fieldQuery.operator.toLowerCase().indexOf("includes") !== -1) {
-
-      if (typeof fieldQuery.value !== "object") {
-
-        queryItem[fieldQuery["field"]] = fieldQuery.value;
-
-      } else {
-
-        queryItem[fieldQuery["field"]] = {
-          '$elemMatch': fieldQuery.value
-        };
-
-      }
-
-      // Check if negative
-
-      if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
-
-        query.$and.push(queryItem);
-
-      } else {
-
-        negativeQueryItem = {};
-
-        negativeQueryItem[Object.keys(queryItem)[0]] = {
-
-          $ne: queryItem[Object.keys(queryItem)[0]]
-
-        };
-
-        query.$and.push(negativeQueryItem);
-      }
-
-    }
-
-    if (fieldQuery.operator.toLowerCase().indexOf("contains") !== -1) {
-
-      var regex = new RegExp(fieldQuery.value, "i");
-
-      queryItem[fieldQuery["field"]] = {
-        '$regex': regex
-      };
-
-      // Check if negative
-
-      if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
-
-        query.$and.push(queryItem);
-
-      } else {
-
-        queryItem[fieldQuery["field"]].$not = regex;
-
-        delete queryItem[fieldQuery["field"]].$regex;
-
-        query.$and.push(queryItem);
-
-      }
-
-    }
-
-  });
-
-  if (fetchRequest.queries.length === 0) {
-
-    query = [];
-
-  }
+  var success;
 
   var entities = {};
 
@@ -188,29 +33,223 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
   var dbActions = [];
 
-  var util = require('util');
+  // TODO enable query caching -- commented out for now
 
-  entityTypes.forEach(function (type) {
+  if (!iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)]) {
 
-    dbActions.push(iris.promise(function (data, yes, no) {
+    var entityTypes = [];
 
-        var fetch = function (query) {
+    // Populate list of targetted DB entities
 
-          iris.invokeHook("hook_db_fetch__" + iris.config.dbEngine, thisHook.authPass, {
-            query: query,
-            entityType: type,
-            limit: fetchRequest.limit,
-            sort: fetchRequest.sort,
-            skip: fetchRequest.skip
-          }).then(function (fetched) {
+    if (Array.isArray(fetchRequest.entities)) {
 
-            fetched.forEach(function (element) {
+      fetchRequest.entities.forEach(function (entityType) {
 
-              entities[element._id] = element;
+        if (iris.entityTypes[entityType]) {
+
+          entityTypes.push(entityType);
+
+        }
+
+      });
+
+    } else {
+
+      thisHook.fail("Not a valid query");
+
+      return false;
+
+    }
+
+    //Assemble query
+
+    var query = {
+      $and: []
+    };
+
+    if (!fetchRequest.queries) {
+
+      fetchRequest.queries = [];
+
+    }
+
+    if (!Array.isArray(fetchRequest.queries)) {
+
+      return thisHook.fail("not a valid query");
+
+    }
+
+    fetchRequest.queries.forEach(function (fieldQuery) {
+
+      try {
+
+        fieldQuery.value = JSON.parse(fieldQuery.value);
+
+      } catch (e) {
+
+      }
+
+      var queryItem = {},
+        negativeQueryItem = {};
+
+      if (fieldQuery.operator.toLowerCase().indexOf("is") !== -1) {
+
+        queryItem[fieldQuery["field"]] = fieldQuery.value;
+
+        // Check if negative
+
+        if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
+
+          query.$and.push(queryItem);
+
+        } else {
+
+          negativeQueryItem = {};
+
+          negativeQueryItem[Object.keys(queryItem)[0]] = {
+
+            $ne: queryItem[Object.keys(queryItem)[0]]
+
+          };
+
+          query.$and.push(negativeQueryItem);
+
+        }
+
+      }
+
+      if (fieldQuery.operator.toLowerCase().indexOf("gt") !== -1) {
+
+        queryItem[fieldQuery["field"]] = {
+          $gt: fieldQuery.value
+        };
+
+        query.$and.push(queryItem);
+
+      }
+
+      if (fieldQuery.operator.toLowerCase().indexOf("includes") !== -1) {
+
+        if (typeof fieldQuery.value !== "object") {
+
+          queryItem[fieldQuery["field"]] = fieldQuery.value;
+
+        } else {
+
+          queryItem[fieldQuery["field"]] = {
+            '$elemMatch': fieldQuery.value
+          };
+
+        }
+
+        // Check if negative
+
+        if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
+
+          query.$and.push(queryItem);
+
+        } else {
+
+          negativeQueryItem = {};
+
+          negativeQueryItem[Object.keys(queryItem)[0]] = {
+
+            $ne: queryItem[Object.keys(queryItem)[0]]
+
+          };
+
+          query.$and.push(negativeQueryItem);
+        }
+
+      }
+
+      if (fieldQuery.operator.toLowerCase().indexOf("contains") !== -1) {
+
+        var regex = new RegExp(fieldQuery.value, "i");
+
+        queryItem[fieldQuery["field"]] = {
+          '$regex': regex
+        };
+
+        // Check if negative
+
+        if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
+
+          query.$and.push(queryItem);
+
+        } else {
+
+          queryItem[fieldQuery["field"]].$not = regex;
+
+          delete queryItem[fieldQuery["field"]].$regex;
+
+          query.$and.push(queryItem);
+
+        }
+
+      }
+
+    });
+
+    if (fetchRequest.queries.length === 0) {
+
+      query = [];
+
+    }
+
+    var util = require('util');
+
+    entityTypes.forEach(function (type) {
+
+      dbActions.push(iris.promise(function (data, yes, no) {
+
+          var fetch = function (query) {
+
+            var queryObject = {
+              query: query,
+              entityType: type,
+              limit: fetchRequest.limit,
+              sort: fetchRequest.sort,
+              skip: fetchRequest.skip
+            };
+
+            iris.invokeHook("hook_db_fetch__" + iris.config.dbEngine, thisHook.authPass, queryObject).then(function (fetched) {
+
+              fetched.forEach(function (element) {
+
+                entities[element._id] = element;
+
+              });
+
+              yes();
+
+            }, function (fail) {
+
+              no(fail);
 
             });
 
-            yes();
+          };
+
+          iris.invokeHook("hook_entity_query_alter", thisHook.authPass, null, query).then(function (query) {
+
+            iris.invokeHook("hook_entity_query_alter_" + type, thisHook.authPass, null, query).then(function (query) {
+
+              fetch(query);
+
+            }, function (fail) {
+
+              if (fail === "No such hook exists") {
+
+                fetch(query);
+
+              } else {
+
+                no(fail);
+
+              }
+
+            });
 
           }, function (fail) {
 
@@ -218,47 +257,35 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
           });
 
-        };
+        })
 
-        iris.invokeHook("hook_entity_query_alter", thisHook.authPass, null, query).then(function (query) {
+      );
 
-          iris.invokeHook("hook_entity_query_alter_" + type, thisHook.authPass, null, query).then(function (query) {
+    });
 
-            fetch(query);
+  }
 
-          }, function (fail) {
+  success = function () {
 
-            if (fail === "No such hook exists") {
+    if (iris.config.cacheQueries) {
+      
+      if (iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)]) {
 
-              fetch(query);
+        entities = iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)];
 
-            } else {
+      } else {
 
-              no(fail);
+        iris.modules.entity.globals.queryCache[JSON.stringify(fetchRequest)] = entities;
 
-            }
-
-          });
-
-        }, function (fail) {
-
-          no(fail);
-
-        });
-
-      })
-
-    );
-
-  });
-
-  var success = function () {
+      }
+      
+    }
 
     var viewHooks = [];
 
-    Object.keys(entities).forEach(function (_id) {
+    Object.keys(entities).forEach(function (_id, index) {
 
-      viewHooks.push(iris.promise(function (data, yes, no) {
+      viewHooks.push(new Promise(function (yes, no) {
 
         //General entity view hook
 
@@ -300,7 +327,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     });
 
-    iris.promiseChain(viewHooks, null, function () {
+    Promise.all(viewHooks).then(function () {
 
       var output = [];
 
@@ -384,12 +411,6 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
     thisHook.fail(fail);
 
   };
-
-  if (!dbActions.length) {
-
-    thisHook.pass(null);
-
-  }
 
   iris.promiseChain(dbActions, null, success, fail);
 

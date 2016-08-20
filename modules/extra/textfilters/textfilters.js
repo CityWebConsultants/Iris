@@ -228,9 +228,9 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter", 0, functio
 
   };
 
-  if (thisHook.context.params) {
+  if (thisHook.context.params.formatname) {
 
-    iris.readConfig("textfilters", thisHook.context.params).then(function (config) {
+    iris.readConfig("textfilters", thisHook.context.params.formatname).then(function (config) {
 
       renderForm(config);
 
@@ -323,12 +323,12 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter_delete", 0, 
     data.schema = {};
 
   }
-
+  
   data.schema["textformat"] = {
     type: "hidden",
-    default: thisHook.context.params
+    default: thisHook.context.params.formatName
   };
-
+  
   thisHook.pass(data);
 
 });
@@ -340,7 +340,7 @@ iris.modules.textfilters.registerHook("hook_form_render__textfilter_delete", 0, 
 iris.modules.textfilters.registerHook("hook_form_submit__textfilter_delete", 0, function (thisHook, data) {
 
   var format = iris.sanitizeName(thisHook.context.params.textformat);
-
+  
   iris.deleteConfig("textfilters", format, function (err) {
 
     var data = function (res) {

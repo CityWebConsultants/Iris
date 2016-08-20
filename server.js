@@ -1,6 +1,3 @@
-
-
-
 /**
  * @file Express HTTP server setup and management functions.
  */
@@ -219,7 +216,17 @@ iris.app.use(function (req, res, next) {
       res: res
     }).then(function () {
 
-      next();
+      if (res.headerSent) {
+
+        // Headers already sent by intercept hook
+
+        return false;
+
+      } else {
+
+        next();
+
+      }
 
     }, function (error) {
 
@@ -283,10 +290,10 @@ methods.forEach(function (method) {
 
     }
 
-    if(!iris.routes[route]){
-      
+    if (!iris.routes[route]) {
+
       iris.routes[route] = {};
-      
+
     }
 
     iris.routes[route][method] = {

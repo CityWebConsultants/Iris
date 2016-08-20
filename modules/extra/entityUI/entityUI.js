@@ -144,12 +144,12 @@ iris.route.get("/:type/:id/delete", routes.delete, function (req, res) {
 
     });
 
-  }, function(fail){
-    
-     iris.modules.frontend.globals.displayErrorPage(404, req, res);
+  }, function (fail) {
 
-      return false;
-    
+    iris.modules.frontend.globals.displayErrorPage(404, req, res);
+
+    return false;
+
   });
 
 });
@@ -160,8 +160,9 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
   // Check if entity type exists in the system
 
-  var entityType = thisHook.context.params[1],
-    schema = iris.entityTypes[entityType];
+  var entityType = thisHook.context.params.entityType;
+
+  var schema = iris.entityTypes[entityType];
 
   if (!schema) {
 
@@ -263,6 +264,15 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
       counter += 1;
 
       if (counter === fieldCount) {
+
+        // Change path field (on all entities) name and description
+
+        if (data.schema && data.schema.path) {
+
+          data.schema.path.title = thisHook.authPass.t("Path");
+          data.schema.path.description = thisHook.authPass.t("Enter a path for the entity. Leading / is required.");
+
+        }
 
         data.form.push("entityType");
 
@@ -704,6 +714,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
         }
 
         data.schema[fieldName] = form;
+
         fieldLoaded();
 
       }, editingEntity ? editingEntity[fieldName] : null, fieldName);
@@ -716,7 +727,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
 
   // Check if an entity id was provided
 
-  var eid = thisHook.context.params[2];
+  var eid = thisHook.context.params.eid;
 
   if (eid) {
 
@@ -964,8 +975,22 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
 
 iris.route.get("/admin/entitylist", routes.entitylist, function (req, res) {
 
+  // Remove system entity types
+
+  var entityTypes = [];
+
+  Object.keys(iris.entityTypes).forEach(function (type) {
+
+    if (!iris.entityTypes[type].systemOnly) {
+
+      entityTypes.push(type);
+
+    }
+
+  });
+
   iris.modules.frontend.globals.parseTemplateFile(["admin_entitytypelist"], ['admin_wrapper'], {
-    entityTypes: Object.keys(iris.entityTypes)
+    entityTypes: entityTypes
   }, req.authPass, req).then(function (success) {
 
     res.send(success);
@@ -1069,11 +1094,11 @@ iris.modules.entityUI.registerHook("hook_form_render__entity_delete", 0, functio
 
     "eid": {
       type: "hidden",
-      "default": thisHook.context.params[1]
+      "default": thisHook.context.params.eid
     },
     "entityType": {
       "type": "hidden",
-      default: thisHook.context.params[2]
+      default: thisHook.context.params.entityType
     }
 
   };

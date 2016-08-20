@@ -8,24 +8,25 @@
     <script type="text/javascript" src="/modules/system/bootstrap/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="/themes/base/style.css">
     <link rel="shortcut icon" href="/themes/base/favicon.png" type="image/x-icon">
-    [[[tags headTags,"-jQuery"]]]
+    
+      {{{iris 'tags' '{"name":"headTags","exclude":"-jQuery"}'}}}
     
   </head>
 
   <body class="{{current.entityType}}-{{current.eid}}">
       
-    [[[menu admin_toolbar]]]
-
+    {{iris embed="menu" name="admin_toolbar"}}
+    
     <header id="page-header">
         
-        [[[region header]]]
+    {{{iris embed="region" region="header"}}}
         
     </header>   
       
     <div id="content"> 
         <div class="container">
             
-            {{{iris_messages}}}
+            {{{iris embed="messages"}}}
             
             [[[MAINCONTENT]]]
             
@@ -34,7 +35,7 @@
   
     <footer id="page-footer">
         
-        [[[region footer]]]
+    {{{iris embed="region" region="footer"}}}
         
     </footer>
 

@@ -643,9 +643,9 @@ iris.modules.triggers.registerHook("hook_form_render__actions", 0, function (thi
 
   // Check if already submitted form exists
 
-  if (thisHook.context.params && iris.configStore.triggers[thisHook.context.params]) {
+  if (thisHook.context.params.action && iris.configStore.triggers[thisHook.context.params.action]) {
 
-    data.value = iris.configStore.triggers[thisHook.context.params];
+    data.value = iris.configStore.triggers[thisHook.context.params.action];
 
     // Swap values back into format schema understands. This is madness.
 
@@ -735,7 +735,7 @@ iris.modules.triggers.registerHook("hook_form_render__action_delete", 0, functio
 
   data.schema["action"] = {
     type: "hidden",
-    default: thisHook.context.params
+    default: thisHook.context.params.action
   };
 
   thisHook.pass(data);
