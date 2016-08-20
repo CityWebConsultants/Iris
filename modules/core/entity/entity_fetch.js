@@ -211,7 +211,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
               limit: fetchRequest.limit,
               sort: fetchRequest.sort,
               skip: fetchRequest.skip
-            }
+            };
 
             iris.invokeHook("hook_db_fetch__" + iris.config.dbEngine, thisHook.authPass, queryObject).then(function (fetched) {
 
@@ -298,7 +298,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
           entities[_id] = viewChecked;
 
-          iris.invokeHook("hook_entity_view3_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
+          iris.invokeHook("hook_entity_view_" + viewChecked.entityType, thisHook.authPass, null, entities[_id]).then(function (validated) {
 
             entities[_id] = validated;
             yes();
