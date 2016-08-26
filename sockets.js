@@ -14,6 +14,10 @@ iris.socketListeners = {};
 
 iris.socketServer = io(iris.server);
 
+iris.socketServer.use(function (socket, next) {
+  iris.sessions(socket.handshake, {}, next);
+});
+
 /**
  * Sends a socket message to any specified users
  *
@@ -72,7 +76,7 @@ iris.sendSocketMessage = function (userids, message, data) {
  * @param {string} token - The session token that the authenticating user should possess.
  * @param {object} socket - The socket object being used for the request.
  */
-iris.socketLogin = function (userid, token, socket) {
+iris.socketLogin = function (userid, token, socket, callback) {
 
   //Paired
 
@@ -104,19 +108,19 @@ iris.socketLogin = function (userid, token, socket) {
 
       }, function (fail) {
 
-        if (fail !== "No such hook exists") {
-
-          iris.log("error", fail);
-
-        }
+        iris.log("error", fail);
 
       });
 
     }
 
+    callback(socket);
+
     socket.emit("pair", true);
 
   }, function (fail) {
+
+    callback(socket);
 
     iris.log("error", fail);
 
@@ -139,18 +143,14 @@ iris.socketServer.on("connection", function (socket) {
 
   }
 
-  // Run socket through connection hook for things like getting user data from cookies
+  // Run socket through connection hook
   iris.invokeHook("hook_socket_connect", "root", {
     socket: socket
   }, null).then(function () {
-
+        
   }, function (fail) {
 
-    if (fail !== "No such hook exists") {
-
-      iris.log("error", fail);
-
-    }
+    iris.log("error", fail);
 
   });
 

@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
   if (window.io) {
 
-    iris.socketreceiver = io(iris.server);
+    iris.socketreceiver = window.io(iris.server);
 
   }
 
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
       var embedID = liveUpdaters[i].getAttribute("data-liveupdate");
 
-      iris.socketreceiver.emit("liveEmbedRegister", embedID)
+      iris.socketreceiver.emit("liveEmbedRegister", embedID);
 
     }
 
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
       block.innerHTML = data.content;
 
-    })
+    });
 
   }
 
