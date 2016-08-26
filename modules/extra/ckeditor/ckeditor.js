@@ -22,6 +22,24 @@ iris.modules.ckeditor.registerHook("hook_entity_field_widget_form__ckeditor_fiel
 
 });
 
+var toSource = require('tosource');
+
+iris.app.get("/modules/ckeditor/config.js", function (req, res) {
+
+  res.set('Content-Type', 'text/javascript');
+
+  var output = "";
+
+  Object.keys(iris.modules.ckeditor.globals.config).forEach(function (setting) {
+
+    output += "CKEDITOR.config['" + setting + "'] = " + toSource(iris.modules.ckeditor.globals.config[setting]); 
+
+  });
+
+  res.send(output);
+
+});
+
 // Register CKeditor JSONform widget
 
 iris.modules.forms.globals.registerWidget(function () {
@@ -40,7 +58,7 @@ iris.modules.forms.globals.registerWidget(function () {
       $(".ckeditor").each(function () {
         CKEDITOR.replace(this, {
 
-          //          customConfig: '/modules/ckeditor/config.js
+          customConfig: '/modules/ckeditor/config.js'
 
         });
       });
