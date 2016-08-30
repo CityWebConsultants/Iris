@@ -578,3 +578,11 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
   }
 
 });
+
+// API endpoint to check auth token/cookies
+
+iris.app.get("/checkauth", function (req, res) {
+
+  res.respond(200, req.authPass.userid);
+
+});

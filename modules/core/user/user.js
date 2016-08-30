@@ -1023,3 +1023,17 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
   }
 
 });
+
+// Delete user from auth list if deleted
+
+iris.modules.user.registerHook("hook_entity_deleted", 1, function (thisHook, entity) {
+  
+  if (entity.entityType === "user") {
+
+    delete iris.modules.auth.globals.userList[entity.eid];
+
+  }
+
+  thisHook.pass(entity);
+
+});
