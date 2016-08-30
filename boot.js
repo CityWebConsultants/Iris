@@ -154,9 +154,6 @@ module.exports = function (config) {
   require('./modules/core/auth/auth.js');
 
   // End database set up
-
-  require('./modules/core/sessions/sessions.js');
-
   require('./modules/core/entity/entity.js');
 
   require('./modules/core/frontend/frontend.js');
