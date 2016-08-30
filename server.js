@@ -20,14 +20,20 @@ iris.app.use(function (req, res, next) {
   }
 });
 
-iris.sessions = require('express-session')({
-  secret: 'iris',
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    secure: false
-  }
-});
+if (!iris.config.expressSessionsConfig) {
+
+  iris.config.expressSessionsConfig = {
+    secret: 'iris',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false
+    }
+  };
+
+}
+
+iris.sessions = require("express-session")(iris.config.expressSessionsConfig);
 
 iris.app.use(iris.sessions);
 
