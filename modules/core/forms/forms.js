@@ -46,14 +46,14 @@ iris.modules.forms.registerHook("hook_catch_request", 0, function (thisHook, dat
   // Call all generic submit handlers.
   var genericFormSubmit = function (data) {
 
-   // var previous = body.formPrevious;
+    var previous = body.formPrevious;
 
-    //delete body.formPrevious;
+    delete body.formPrevious;
 
     iris.invokeHook("hook_form_submit__" + formid, thisHook.authPass, {
       params: body,
       formid: formid,
-     // previous: previous,
+      previous: previous,
       req: thisHook.context.req,
       res: thisHook.context.res
     }, data).then(specificFormSubmit, function (fail) {
@@ -368,10 +368,18 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
         "default": token
       };
 
-      /*form.schema.formPrevious = {
-        "type": "hidden",
-        "default": JSON.stringify(form)
-      };*/
+      if (thisHook.context.vars.embedID != 'entity') {
+        form.schema.formPrevious = {
+          "type": "hidden",
+          "default": JSON.stringify(form)
+        };
+      }
+      else {
+        form.schema.formPrevious = {
+          "type": "hidden",
+          "default": ''
+        };
+      }
 
       // Unset form render object if not set (JSON form provides a default)
 
@@ -392,9 +400,9 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
           key: "formid"
         });
 
-        /*form.form.push({
+        form.form.push({
           key: "formPrevious"
-        });*/
+        });
 
       }
 

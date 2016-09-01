@@ -24,6 +24,10 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__select", 0, 
   var value = thisHook.context.value;
   var fieldSettings = thisHook.context.fieldSettings;
 
+  if (!fieldSettings.settings) {
+    fieldSettings.settings = {options : []};
+  }
+
   data = {
     "type": "text",
     title: fieldSettings.label,

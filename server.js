@@ -11,6 +11,8 @@ var express = require('express'),
 
 iris.app = express();
 
+iris.app.use(bodyParser.json({limit: '50mb'}));
+iris.app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 // Redirect trailing slashes in urls (unless root url)
 
 iris.app.use(function (req, res, next) {
