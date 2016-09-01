@@ -200,7 +200,10 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
             userid: eid
           }).then(function (token) {
 
-            iris.modules.sessions.globals.writeCookies(eid, token.id, res, 8.64e7, {});
+            req.session.credentials = {
+              "userid": eid,
+              token: token
+            };
 
             // Add last login timestamp to user entity.
 
@@ -598,7 +601,7 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
           username: thisHook.context.params.username
         };
 
-        iris.modules.user.globals.login(auth, thisHook.context.res, function (uid) {
+        iris.modules.user.globals.login(auth, thisHook.context.req, function (uid) {
 
           var enabled = [];
 
@@ -686,7 +689,7 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
  * @param {object} res - Express response object
  * @param {function} callback - Callback which is run with the userid of the logged in user (if successful) as its first argument, or, if unsuccessful, an error message
  */
-iris.modules.user.globals.login = function (auth, res, callback) {
+iris.modules.user.globals.login = function (auth, req, callback) {
 
   iris.invokeHook("hook_entity_fetch", "root", null, {
     "entities": ["user"],
@@ -711,9 +714,12 @@ iris.modules.user.globals.login = function (auth, res, callback) {
             userid: userid
           }).then(function (token) {
 
-            if (res) {
+            if (req) {
 
-              iris.modules.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
+              req.session.credentials = {
+                userid: userid,
+                token: token.id
+              };
 
               // Add last login timestamp to user entity.
 
@@ -1003,35 +1009,13 @@ iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook
 
 iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, data) {
 
-  function parse_cookies(_cookies) {
-    var cookies = {};
+  if (thisHook.context.socket.handshake.session && thisHook.context.socket.handshake.session.credentials) {
 
-    if (!_cookies) {
+    iris.socketLogin(thisHook.context.socket.handshake.session.credentials.userid, thisHook.context.socket.handshake.session.credentials.token, thisHook.context.socket, function () {
 
-      _cookies.split(';').forEach(function (cookie) {
-        var parts = cookie.split('=');
-        cookies[parts[0].trim()] = (parts[1] || '').trim();
-      });
-
-    }
-
-    return cookies;
-    
-  }
-
-  var cookies = parse_cookies(thisHook.context.socket.handshake.headers.cookie);
-
-  if (cookies && cookies.userid && cookies.token) {
-
-    // Check access token and userid are valid
-
-    if (iris.modules.auth.globals.checkAccessToken(cookies.userid, cookies.token)) {
-
-      iris.socketLogin(cookies.userid, cookies.token, thisHook.context.socket);
-
-    } else {
       thisHook.pass(data);
-    }
+
+    });
 
   } else {
 
@@ -1040,6 +1024,16 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
 });
 
-iris.modules.user.globals.userPassRehash = function (password, timestamp, lastlogin, eid) {
+// Delete user from auth list if deleted
 
-};
+iris.modules.user.registerHook("hook_entity_deleted", 1, function (thisHook, entity) {
+  
+  if (entity.entityType === "user") {
+
+    delete iris.modules.auth.globals.userList[entity.eid];
+
+  }
+
+  thisHook.pass(entity);
+
+});
