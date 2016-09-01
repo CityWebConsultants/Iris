@@ -20,15 +20,14 @@ iris.app.use(function (req, res, next) {
   }
 });
 
-if (!iris.config.expressSessionsConfig) {
+var crypto = require("crypto");
 
+if (!iris.config.expressSessionsConfig) {
+    
   iris.config.expressSessionsConfig = {
-    secret: 'iris',
+    secret: crypto.randomBytes(8).toString('hex'),
     resave: false,
     saveUninitialized: true,
-    cookie: {
-      secure: false
-    }
   };
 
 }
