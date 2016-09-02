@@ -194,9 +194,9 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   var preSave = function () {
 
-    iris.invokeHook("hook_entity_presave", thisHook.authPass, null, data).then(function (successData) {
+    iris.invokeHook("hook_entity_presave", thisHook.authPass, {req : thisHook.context.req}, data).then(function (successData) {
 
-      iris.invokeHook("hook_entity_presave_" + data.entityType, thisHook.authPass, null, data).then(function (pass) {
+      iris.invokeHook("hook_entity_presave_" + data.entityType, thisHook.authPass, thisHook.context, data).then(function (pass) {
 
         update(pass);
 
@@ -268,7 +268,7 @@ iris.app.post("/entity/edit/:type/:eid", function (req, res) {
   req.body.entityType = req.params.type;
   req.body.eid = req.params.eid;
 
-  iris.invokeHook("hook_entity_edit", req.authPass, null, req.body).then(function (success) {
+  iris.invokeHook("hook_entity_edit", req.authPass, null, req).then(function (success) {
 
     res.respond(200, success);
 

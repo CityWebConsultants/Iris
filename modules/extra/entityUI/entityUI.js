@@ -804,8 +804,8 @@ iris.modules.entityUI.registerHook("hook_form_submit__entity", 0, function (this
         hook = "hook_entity_create";
 
       }
-
-      iris.invokeHook(hook, thisHook.authPass, finalValues, finalValues).then(function (success) {
+      var req = {req: thisHook.context.req, res: thisHook.context.res};
+      iris.invokeHook(hook, thisHook.authPass, req, finalValues).then(function (success) {
 
         data.callback = "/admin/structure/entities";
         thisHook.pass(data);
