@@ -20,6 +20,22 @@ iris.app.use(function (req, res, next) {
   }
 });
 
+var crypto = require("crypto");
+
+if (!iris.config.expressSessionsConfig) {
+    
+  iris.config.expressSessionsConfig = {
+    secret: crypto.randomBytes(8).toString('hex'),
+    resave: false,
+    saveUninitialized: true,
+  };
+
+}
+
+iris.sessions = require("express-session")(iris.config.expressSessionsConfig);
+
+iris.app.use(iris.sessions);
+
 //Set up bodyParser
 
 iris.app.use(bodyParser.json());
@@ -175,9 +191,35 @@ iris.app.use(function (req, res, next) {
 
   }
 
-  iris.modules.auth.globals.credentialsToPass(req.body.credentials || req.query.credentials, req, res).then(function (authPass) {
+  // Check if auth is sent via session, query or post
+
+  var auth = {};
+
+  if (req.body.credentials) {
+
+    auth.userid = req.body.credentials.userid;
+    auth.token = req.body.credentials.token;
+
+  }
+
+  if (req.query.credentials) {
+
+    auth.userid = req.query.credentials.userid;
+    auth.token = req.query.credentials.token;
+
+  }
+
+  if (req.session.credentials) {
+
+    auth.userid = req.session.credentials.userid;
+    auth.token = req.session.credentials.token;
+
+  }
+
+  iris.modules.auth.globals.credentialsToPass(auth, req, res).then(function (authPass) {
 
     delete req.body.credentials;
+    delete req.query.credentials;
 
     req.authPass = authPass;
 
