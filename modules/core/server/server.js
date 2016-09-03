@@ -23,6 +23,8 @@ iris.app.use(function (req, res, next) {
   }
 });
 
+// Sessions
+
 var crypto = require("crypto");
 
 if (!iris.config.expressSessionsConfig) {
@@ -41,13 +43,27 @@ iris.app.use(iris.sessions);
 
 //Set up bodyParser
 
-iris.app.use(bodyParser.json());
+if (!iris.config.bodyParserJSON) {
 
-iris.app.use(bodyParser.urlencoded({
-  extended: true,
-  parameterLimit: 10000,
-  limit: 10485760
-}));
+  iris.config.bodyParserJSON = {
+    limit: "8mb"
+  };
+
+}
+
+if (!iris.config.bodyParserURLencoded) {
+
+  iris.config.bodyParserURLencoded = {
+    extended: true,
+    parameterLimit: 10000,
+    limit: 10485760
+  };
+
+}
+
+iris.app.use(bodyParser.json(iris.config.bodyParserJSON));
+
+iris.app.use(bodyParser.urlencoded(iris.config.bodyParserURLencoded));
 
 // I18n.
 if (!fs.existsSync(iris.configPath + '/locales')) {
