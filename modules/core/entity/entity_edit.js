@@ -194,7 +194,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
   var preSave = function () {
 
-    iris.invokeHook("hook_entity_presave", thisHook.authPass, {req : thisHook.context.req}, data).then(function (successData) {
+    iris.invokeHook("hook_entity_presave", thisHook.authPass, thisHook.context, data).then(function (successData) {
 
       iris.invokeHook("hook_entity_presave_" + data.entityType, thisHook.authPass, thisHook.context, data).then(function (pass) {
 
