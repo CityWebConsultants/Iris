@@ -241,6 +241,8 @@ iris.app.use(function (req, res, next) {
     delete req.query.credentials;
 
     req.authPass = authPass;
+    
+    authPass.req = req;
 
     // Check if it matches any routes stored with iris_route.
 
