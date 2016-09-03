@@ -400,25 +400,31 @@ iris.app.use("/files", express.static(iris.sitePath + '/files'));
 
 //Server and request function router once everything has done
 
-if (iris.config.https) {
+iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, data) {
+  
+  if (iris.config.https) {
 
-  var https = require('https');
+    var https = require('https');
 
-  var tls_options = {
-    key: fs.readFileSync(iris.config.https_key),
-    cert: fs.readFileSync(iris.config.https_cert)
-  };
+    var tls_options = {
+      key: fs.readFileSync(iris.config.https_key),
+      cert: fs.readFileSync(iris.config.https_cert)
+    };
 
-  iris.server = https.createServer(tls_options, iris.app);
+    iris.server = https.createServer(tls_options, iris.app);
 
-  iris.server.listen(iris.config.port);
+    iris.server.listen(iris.config.port);
 
-} else {
+  } else {
 
-  var http = require('http');
+    var http = require('http');
 
-  iris.server = http.createServer(iris.app);
+    iris.server = http.createServer(iris.app);
 
-  iris.server.listen(iris.config.port);
+    iris.server.listen(iris.config.port);
 
-}
+  }
+  
+  thisHook.pass(data);
+
+})

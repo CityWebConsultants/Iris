@@ -146,9 +146,9 @@ module.exports = function (config) {
   iris.modules = {};
 
   //Core modules
-  
+
   require('./modules/core/server/server.js');
-  
+
   require('./modules/core/auth/auth.js');
 
   require('./modules/core/entity/entity.js');
@@ -352,9 +352,11 @@ module.exports = function (config) {
 
   process.on("dbReady", function () {
 
-    // Free iris object, no longer extensible
+    iris.invokeHook("hook_system_ready", "root").then(function () {
 
-    Object.freeze(iris);
+      Object.freeze(iris);
+
+    })
 
   });
 
