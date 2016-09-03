@@ -133,27 +133,24 @@ module.exports = function (config) {
 
   iris.invokeHook = require('./hook');
 
-  //Require HTTP sever
+  //Load in module system
 
-  require('./server');
+  require('./modules');
 
   //Require sockets
 
   require('./sockets');
-
-  //Load in module system
-
-  require('./modules');
 
   // Create iris modules object
 
   iris.modules = {};
 
   //Core modules
-
+  
+  require('./modules/core/server/server.js');
+  
   require('./modules/core/auth/auth.js');
 
-  // End database set up
   require('./modules/core/entity/entity.js');
 
   require('./modules/core/frontend/frontend.js');
@@ -288,7 +285,7 @@ module.exports = function (config) {
     }
 
   });
-  
+
   toEnable.forEach(function (currentModule) {
 
     var moduleInfo = currentModule.info,

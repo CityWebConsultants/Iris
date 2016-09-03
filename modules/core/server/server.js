@@ -1,12 +1,15 @@
+var express = require('express');
+iris.app = express();
+
+iris.registerModule("server", __dirname);
+
 /**
  * @file Express HTTP server setup and management functions.
  */
-var express = require('express'),
-  bodyParser = require('body-parser'),
+
+var bodyParser = require('body-parser'),
   i18n = require("i18n"),
   fs = require("fs");
-
-iris.app = express();
 
 // Redirect trailing slashes in urls (unless root url)
 
@@ -23,7 +26,7 @@ iris.app.use(function (req, res, next) {
 var crypto = require("crypto");
 
 if (!iris.config.expressSessionsConfig) {
-    
+
   iris.config.expressSessionsConfig = {
     secret: crypto.randomBytes(8).toString('hex'),
     resave: false,
@@ -379,7 +382,7 @@ iris.populateRoutes = function () {
 
 iris.app.use("/files", express.static(iris.sitePath + '/files'));
 
-//Server and request function router
+//Server and request function router once everything has done
 
 if (iris.config.https) {
 
