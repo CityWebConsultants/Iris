@@ -18,7 +18,7 @@ var routes = {
 
 iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (thisHook, data) {
 
-  var menuName = thisHook.context.embedID;
+  var menuName = thisHook.context.embedOptions.menu;
 
   iris.readConfig('menu', menuName).then(function (config) {
 
@@ -62,7 +62,7 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
   // Check if menu name supplied and previous values available
   var ap = thisHook.authPass;
   
-  var menuId = thisHook.context.params;
+  var menuId = thisHook.context.params.menuName;
   
   iris.readConfig('menu', menuId).then(function (config) {
 
@@ -225,7 +225,7 @@ iris.modules.menu_ui.registerHook("hook_form_submit__menu", 0, function (thisHoo
  * Page callback for creating a new menu.
  */
 
-iris.app.get("/admin/structure/menu/create", function (req, res) {
+iris.route.get("/admin/structure/menu/create", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -255,7 +255,7 @@ iris.app.get("/admin/structure/menu/create", function (req, res) {
  * Page for editing an existing menu.
  */
 
-iris.app.get("/admin/structure/menu/edit/:menuName", function (req, res) {
+iris.route.get("/admin/structure/menu/edit/:menuName", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -287,7 +287,7 @@ iris.app.get("/admin/structure/menu/edit/:menuName", function (req, res) {
  * Page for deleting an existing menu.
  */
 
-iris.app.get("/admin/structure/menu/delete/:menuName", function (req, res) {
+iris.route.get("/admin/structure/menu/delete/:menuName", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -329,7 +329,7 @@ iris.modules.menu.registerHook("hook_form_render__menu_delete", 0, function (thi
 
   data.schema["menuName"] = {
     type: "hidden",
-    default: thisHook.context.params[1]
+    default: thisHook.context.params.menuName
   };
 
   thisHook.pass(data);

@@ -4,54 +4,25 @@
 
 var fs = require("fs");
 
-/**
- * Implements hook_frontend_embed
- * Process entity embeds
- */
+require("./entity_embeds");
 
-iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thisHook, data) {
+var updateEmbeds = function () {
 
-  iris.invokeHook("hook_entity_fetch", thisHook.authPass, thisHook.context.embedOptions, thisHook.context.embedOptions).then(function (result) {
+  if (iris.modules.frontend.globals.liveEmbeds.entity) {
 
-    thisHook.context.vars[thisHook.context.embedID] = result;
+    Object.keys(iris.modules.frontend.globals.liveEmbeds.entity).forEach(function (embed) {
 
-    thisHook.context.vars.tags.headTags["socket.io"] = {
-      type: "script",
-      attributes: {
-        "src": "/socket.io/socket.io.js"
-      },
-      rank: -1
-    };
+      iris.modules.frontend.globals.liveEmbeds.entity[embed].sendResult();
 
-    thisHook.context.vars.tags.headTags["handlebars"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/entity/handlebars.min.js"
-      },
-      rank: -1
-    };
+    });
 
-    thisHook.context.vars.tags.headTags["entity_fetch"] = {
-      type: "script",
-      attributes: {
-        "src": "/modules/entity/templates.js"
-      },
-      rank: 0
-    };
+  }
 
-    var entityPackage = "\n" + "iris.entityPreFetch(" + JSON.stringify(result) + ", '" + thisHook.context.embedID + "'" + ", " + JSON.stringify(thisHook.context.embedOptions) + ")";
+  // Clear query cache in same hook
 
-    var loader = entityPackage;
+  iris.modules.entity.globals.queryCache = {};
 
-    thisHook.pass("<script>" + loader + "</script>");
-
-  }, function (error) {
-
-    thisHook.pass(data);
-
-  });
-
-});
+};
 
 /**
  * @member hook_entity_created
@@ -62,6 +33,8 @@ iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thi
  * This hook is run once an entity has been created; useful for live updates or keeping track of changes
  */
 iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, entity) {
+
+  updateEmbeds();
 
   for (var authUser in iris.modules.auth.globals.userList) {
 
@@ -103,6 +76,8 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
  */
 iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
 
+  updateEmbeds();
+
   for (var authUser in iris.modules.auth.globals.userList) {
 
     iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
@@ -142,6 +117,8 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
  * This hook is run when an entity is deleted; useful for live updates or keeping track of changes
  */
 iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, entity) {
+
+  updateEmbeds();
 
   for (var authUser in iris.modules.auth.globals.userList) {
 

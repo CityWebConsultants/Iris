@@ -25,7 +25,7 @@ mkdirSync(iris.configPath + "/" + "auth");
 
 var crypto = require('crypto');
 
-iris.registerModule("auth",__dirname);
+iris.registerModule("auth", __dirname);
 
 iris.modules.auth.globals = {
 
@@ -129,8 +129,19 @@ iris.modules.auth.globals = {
 
       } else {
 
-        authPass.userid = "anonymous";
+        // Check if session id exists, if so make this the userid
+
         authPass.roles = ["anonymous"];
+
+        if (req && req.session) {
+
+          authPass.userid = "anon_" + req.sessionID;
+
+        } else {
+
+          authPass.userid = "anonymous";
+
+        }
 
       }
 
@@ -286,9 +297,9 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 });
 
 iris.modules.auth.globals.AttachAuthPass = function (session, uid) {
-  
+
   session.getAuthPass = function () {
-   
+
     var token = Object.keys(session.tokens)[0];
     var userid = uid;
 
@@ -366,8 +377,8 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
         thisHook.fail(fail);
 
       });
-      
-      iris.modules.auth.globals.AttachAuthPass(iris.modules.auth.globals.userList[data.userid],data.userid);
+
+      iris.modules.auth.globals.AttachAuthPass(iris.modules.auth.globals.userList[data.userid], data.userid);
 
       iris.modules.auth.globals.userList[data.userid].lastActivity = Date.now();
 
@@ -548,8 +559,8 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
       }, function (fail) {
 
-        thisHook.context.res.status(403);
-        thisHook.context.res.end(403);
+        thisHook.context.res.status("403");
+        thisHook.context.res.end("403");
         thisHook.fail(data);
 
       });
@@ -565,5 +576,13 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
     thisHook.pass(data);
 
   }
+
+});
+
+// API endpoint to check auth token/cookies
+
+iris.app.get("/checkauth", function (req, res) {
+
+  res.respond(200, req.authPass.userid);
 
 });

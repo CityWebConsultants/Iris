@@ -85,8 +85,22 @@ var routes = {
 
 iris.route.get("/admin/structure/entities", routes.entities, function (req, res) {
 
+  // Remove system entity types
+
+  var entityTypes = [];
+
+  Object.keys(iris.entityTypes).forEach(function (type) {
+
+    if (!iris.entityTypes[type].systemOnly) {
+
+      entityTypes.push(type);
+
+    }
+
+  });
+
   iris.modules.frontend.globals.parseTemplateFile(["admin_entity_types"], ['admin_wrapper'], {
-    entityTypes: Object.keys(iris.entityTypes)
+    entityTypes: entityTypes
   }, req.authPass, req).then(function (success) {
 
     res.send(success);
@@ -369,7 +383,7 @@ iris.route.get("/admin/schema/:type/fields/:field/delete", routes.fieldDelete, f
 });
 
 iris.modules.entityUI.registerHook("hook_form_render__schemaDelete", 0, function (thisHook, data) {
-  var entityType = thisHook.context.params[1];
+  var entityType = thisHook.context.params.entityType;
 
   data.schema = {
     "schema": {
@@ -424,13 +438,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaDelete", 0, function
  */
 iris.modules.entityUI.registerHook("hook_form_render__schemafieldDelete", 0, function (thisHook, data) {
 
+  var entityType = thisHook.context.params.entityType;
 
-  var entityType = thisHook.context.params[1];
-
-  var fieldName = thisHook.context.params[2];
+  var fieldName = thisHook.context.params.field;
 
   var schema = iris.entityTypes[entityType];
-
 
   data.schema.message = {
     "type": "markup",
@@ -493,7 +505,6 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
 
   if (schema && !schema[fieldName]) {
 
-
     var recurseFields = function (object, elementParent) {
 
       Object.keys(object).forEach(function (element) {
@@ -530,7 +541,6 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
   iris.saveConfig(schema, "entity", entityType, function (data) {
 
     iris.dbPopulate();
-
 
     thisHook.pass(function (res) {
 
@@ -572,11 +582,10 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
  */
 iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, function (thisHook, data) {
 
-
   var ap = thisHook.authPass;
-  if (thisHook.context.params[1]) {
+  if (thisHook.context.params.entityType) {
 
-    var entityType = thisHook.context.params[1];
+    var entityType = thisHook.context.params.entityType;
 
     if (!iris.entityTypes[entityType]) {
 
@@ -591,7 +600,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
 
     var entityTypeSchema = iris.entityTypes[entityType];
     // Parent is required to know which fields to list.
-    var parent = thisHook.context.params[2];
+    var parent = thisHook.context.params.parent;
 
     var parentSchema,
       fields;
@@ -641,6 +650,13 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
         field = JSON.parse(JSON.stringify(parentSchema.subfields[fieldName]));
       }
 
+      // Hide field if set to fixed (like path) as it shouldn't be able to be removed from the schema
+
+      if (field.fixed) {
+
+        return false;
+
+      }
 
       row['fieldLabel'] = field.label;
       row['fieldId'] = fieldName;
@@ -810,10 +826,11 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
  */
 iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, function (thisHook, data) {
 
+
   // Fetch current schema
   var schema = JSON.parse(JSON.stringify(iris.entityTypes[thisHook.context.params.entityType]));
 
-  var fieldName = thisHook.context.params.fieldName;
+  var fieldName = thisHook.context.params.field;
   var entityType = thisHook.context.params.entityType;
   var parent = thisHook.context.params.parentItem;
 
@@ -913,6 +930,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
           redirect += '/fields';
         }
       }
+
       res.send({
         redirect: redirect
       });
@@ -1055,9 +1073,9 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
   var entityType;
 
   // Check entityType field is provided.
-  if (thisHook.context.params && thisHook.context.params[1]) {
+  if (thisHook.context.params && thisHook.context.params.entityType) {
 
-    entityType = thisHook.context.params[1];
+    entityType = thisHook.context.params.entityType;
 
     if (!iris.entityTypes[entityType]) {
 
@@ -1125,8 +1143,8 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
  */
 iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (thisHook, data) {
 
+  var entityType = thisHook.context.params.entityType;
 
-  var entityType = thisHook.context.params.entityTypeName;
   var finishedSchema = {
     fields: iris.entityTypes[entityType] && iris.entityTypes[entityType].fields ? iris.entityTypes[entityType].fields : {}
   };
@@ -1181,9 +1199,9 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function (thisHook, data) {
 
   data.form = [];
-  var entityType = thisHook.context.params[1];
-  var fieldName = thisHook.context.params[2];
-  var parent = thisHook.context.params[3];
+  var entityType = thisHook.context.params.entityType;
+  var fieldName = thisHook.context.params.field;
+  var parent = thisHook.context.params.parent;
 
   var field = {};
 
@@ -1339,7 +1357,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafield", 0, function 
   var lookupField = function (object) {
 
     Object.keys(object).forEach(function (subfield) {
-      
+
       if (subfield === parent && object[subfield].subfields && object[subfield].subfields[fieldName]) {
 
         savedElement = object[subfield].subfields[fieldName];
@@ -1510,9 +1528,9 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
 
   // Fetch current schema
 
-  var entityType = thisHook.context.params[1];
-  var fieldName = thisHook.context.params[2];
-  var parent = thisHook.context.params[3];
+  var entityType = thisHook.context.params.entityType;
+  var fieldName = thisHook.context.params.field;
+  var parent = thisHook.context.params.parent;
   var schema = JSON.parse(JSON.stringify(iris.entityTypes[entityType]));
 
   var field = {};

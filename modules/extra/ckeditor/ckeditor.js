@@ -22,20 +22,52 @@ iris.modules.ckeditor.registerHook("hook_entity_field_widget_form__ckeditor_fiel
 
 });
 
+var toSource = require('tosource');
+
+iris.app.get("/modules/ckeditor/config.js", function (req, res) {
+
+  res.set('Content-Type', 'text/javascript');
+
+  var output = "";
+
+  iris.invokeHook("hook_ckeditor_config", req.authPass, {
+    name: req.query.name
+  }, {}).then(function (config) {
+
+    Object.keys(config).forEach(function (setting) {
+
+      output += "CKEDITOR.config['" + setting + "'] = " + toSource(config[setting]);
+
+    });
+
+    res.send(output);
+
+  })
+
+});
+
 // Register CKeditor JSONform widget
 
 iris.modules.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['ckeditor'] = Object.create(JSONForm.elementTypes['text']);
 
+  JSONForm.elementTypes['ckeditor']
+
   document.addEventListener('formsLoaded', function (e) {
 
-    $.getScript("//cdn.ckeditor.com/4.5.3/standard/ckeditor.js", function () {
+    window.CKEDITOR_BASEPATH = '/modules/ckeditor/ckeditor/';
 
-      $(".ckeditor").each(function () {
+    $.getScript("/modules/ckeditor/ckeditor/ckeditor.js", function () {
+
+      CKEDITOR.config.filebrowserUploadUrl = '/admin/file/ckeditorupload';
+      CKEDITOR.config.allowedContent = true;
+
+      $(".ckeditor").each(function (index, element) {
+
         CKEDITOR.replace(this, {
 
-          customConfig: '/modules/ckeditor/config.js'
+          customConfig: '/modules/ckeditor/config.js' + "?name=" + $(element).attr("name")
 
         });
       });

@@ -24,7 +24,7 @@ iris.modules.menu_block.registerHook("hook_block_render", 0, function (thisHook,
 
     var config = thisHook.context.config;
 
-    thisHook.pass("[[[menu " + config.menu + "]]]");
+    thisHook.pass("{{{iris embed='menu' menu='" + config.menu + "'}}}");
 
   } else {
 

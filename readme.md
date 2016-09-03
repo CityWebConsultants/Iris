@@ -1,20 +1,54 @@
 # Iris
 
-Iris is a modular content management system and web application framework built using Node.js and MongoDB. 
+Iris is a modular content management system and web application framework built using Node.js.
 
-After a year of keeping it to ourselves, we'd love for you to try out Iris, let us know what we've done right and wrong and help us build it by contributing to its source code via pull requests and by building modules and themes.
+## Key features
+
+* Admin interface for creating entity types (content types) and adding fields
+* User, permission and role system managed through the user interface
+* Entity type reference system for categorising and tagging content and more.
+* Themes, blocks, regions and an easy to use template system powered by Handlebars
+* Forms that can be embedded straight into templates and created with easy to write JSON form schema.
+* Content feeds and lists can be pulled in directly into a template with an in-template database query system and automatically live update when new content is added or content is changed/deleted.
+* Built with progressive enhancement in mind so forms and content feeds work without client side JavaScript.
+* A user interface for creating and editing menus.
+* Clean templating which leaves you in full control of how you write your markup. Content can even be easily loaded into a liveupdating clientside JavaScript database for use with Angular, React or other frameworks.
+* Register actions to do things such as send emails or make HTTP requests when something happens like a page is visited or content is created. All through the admin interface.
+* A database abstraction layer for use with your choice of database (support for NeDB and MongoDB built in)
+* Built for use with version control with simple export and import of JSON configuration. No configuration is stored in the database, keeping content and config completely seperate.
+* Reusable HTML filters to strip out tags or attributes on content types.
+* Includes a full REST API for dealing with content and authentication externally.
+* Built on a hook and module system that allows easy creation of new modules (there's a hook for almost everything) to bring in new features or change existing ones. Any npm module can also be easily slotted in to work with your site.
+* A built in text-translation system for multilingual support
+* A log page to view system status and error messages
 
 ## Quick start
 
-You'll need Node.js and MongoDB. After you've got them:
-
-* Install iris via npm
+* Install iris into a directory via npm
 
 ```
 npm install irisjs
 ```
 
-* Create a launch file in the directory you launched from. Call it something like `mysite.js`. In this file, require the `irisjs` module and pass in some configuration options. For example:
+* Create a launch file in the directory. Call it something like `mysite.js`. In this file, require the `irisjs` module and pass in some configuration options.
+
+Here's an example of using the neDB database built into Iris. This is a quick way to get started.
+
+```JavaScript
+
+var config = {
+  "sitePath": "/mysite", // this is where your configuration and templates will go 
+  "port": 4000, // the port the site will run on
+  "dbEngine": "nedb", // using neDB a database bundled in with Iris (MongoDB is also supported),
+  "siteEmail": "you@yoursite.org",
+  "max_file_size": 10 // Max file upload size
+}
+
+require("irisjs")(config);
+
+```
+
+Here's an example to use with a MongoDB database
 
 ```JavaScript
 
@@ -29,9 +63,8 @@ var config = {
   "db_name": "test1", // what do you want the database name to be?
 }
 
-require("irisjs")(config);
-
 ```
+
 
 * Run this file using node.js:
 
@@ -39,124 +72,226 @@ require("irisjs")(config);
 node mysite.js
 ```
 
-* Visit `localhost:4000` or wherever you ran the site from.
+Any of the configuration settings above can be overwritten by passing them as parameters to this launch file for example `node mysite.js port=5000`
 
-[Look at the Iris documentation for more details](https://github.com/CityWebConsultants/Iris/wiki).
+* Visit `localhost:4000` or wherever you ran the site from. You should be greeted by a form to create your first user account.
 
-## Key features
+* From then on visit `/admin` to access the administration interface
 
-* [Admin interface](#admin-interface)
-* [Permissions and roles](#permissions-and-roles)
-* [Extensible modules and themes](#modules-and-themes)
-* [Built on an extensible Hook system](#hook-system)
-* [Entity and field management](#entity-and-field-management)
-* [Blocks and regions](#blocks-and-regions)
-* [Use your favourite frontend framework with fallback to server-loaded HTML.](#progressive-enhancement)
-* [Automatic live loading/updating of content](#live-loading-and-updating)
-* [A JSON based form system](#form-system)
-* [Registering actions to trigger after certain events](#triggers)
-* [HTML filters to strip out/allow specific attributes and elements](#text-filters)
-* [A full log page and system](#logging)
-* [Database entity queries through simple widgets placed in HTML.](#entity-queries)
-* [Simple export and import of configuration.](#made-for-version-control)
-* [Built using and for Windows, Linux and Mac OS.](#operating-system-support)
+## Basic guide for site builders
 
-### Admin interface
+This guide is intended for front end developers and does not include anything about the behind the scenes API. Developers should consult the GitHub hosted wiki (https://github.com/CityWebConsultants/Iris/wiki) for information about creating modules, extending Iris, creating forms, hooking into content displays and more.
 
-Almost everything in Iris aside from making your own modules and themes can be done in its own admin interface. Manage entities, entity types, fields permissions, actions to trigger when a condition is met, organise blocks and regions and a lot more.
+### An example .gitignore file
 
-### Permissions and roles
-
-Iris comes packaged with a session management and authentication system that shows users only what you want them to see. This includes stripping out specific fields from content for some people and showing them the rest. All manageable through the admin interface and easily extensible using the API. Anonymous, authenticated and admin roles are built in. Add your own with one line of code and they'll be instantly usable throughout the system.
-
-### Modules and themes
-
-Iris is modular, in fact, most of its functionality is made up of core Iris modules (we've put in a few inessential extra ones for you as well). Want to add a feature, simply write a Node.js module using the Iris hook system and API and use and distribute it as you want.
-
-Themes are even simpler.  Handlebars templates are built in on the server side but you can use any front-end framework you want while using our own embed helpers for things like forms, blocks, menus, regions and entity loading. Iris uses a cascading template look up system allowing you to easily override any HTML file in your own theme. Themes can even have parent themes so you can build something while taking advantage of a base layer.
-
-### Hook system
-
-So you really like a form that someone's made for Iris but you want to change something on it. You don't want to hack away at their module code. The Hook system almost every part of Iris is built on makes this sort of thing really easy. Let's take a look:
-
-``` JavaScript
-
-iris.modules.mymodule.registerHook("hook_form_render__someform", 0, function(thisHook, form){
-
-  form.schema.title = {
-  
-    "type": "text",
-    "description": "Just changing the form field description a bit"
-    "default": form.schema.title.default
-  
-  }
-  
-  thisHook.pass( data);
-
-})
+Iris is very well suited for version control. In the `/admin/config` section you will find a way of exporting your configuration (entity types, permissions etc) to a `staging` folder or importing it from a staging folder. Here is a recommended .gitignore file to put in your project. The nedb folder is if you are using the nedb database as that is where the actual entity content is stored.
 
 ```
 
-And it's overriden. Changing rendering information, acting on system or user events, changing data mid-way through a process... the Iris hook system was made for module makers to be able to change whatever they need to without hacking around with other people's files.
-
-### Entity and field management
-
-Entities are pieces of content stored in the database (pages, blogs, messages in a messageboard and users for example). You can make entity types, add fields to them and then add, edit and delete entities all through the user interface. Access control, field rendering and templating is all there for you to use  once you get your entities made.
-
-### Text filters
-
-Want to only allow certain HTML elements or attributes? Register a text filter and re-use it on different entity types to strip out any unwanted HTML.
-
-### Blocks and regions
-
-A block is a piece of content that renders on a page. They can be placed (via the admin interface) in an Iris theme's regions (header, sidebar...) Iris modules can register block types. We've put in two such modules to get you started:
-
-#### Custom block
-
-A simple piece of template HTML.
-
-#### List block
-
-Pick an entity type, list some conditions you want to display (where the title contains "Hello" maybe?), pick which fields you want to display, add HTML classes and elements around them and hit save in the UI. You have a list block. Oh, and if you enable the Angular Live Load module it will automatically update when new content fits the criteria. Without a page refresh.
-
-### Progressive enhancement
-
-Iris should work perfectly with any frontend framework you throw at it. Pick React, Angular or anything else but spare some time for those users with slow connections or JavaScript disabled, or those users that are in fact search engine crawelers. Iris renders whatever you want on the server side while pushing variables for loaded entities into the client side JavaScript. It's the best of both worlds.
-
-### Live loading and updating
-
-Put in the clientside socket.io library on a page with an entity embed on it and a client side entity database will update whenever relevant entities are updated, edited or deleted. Perfect for live uploading templates. So much so that we packaged in an Angular Live Load module that does just this. You don't have to use that module though, as the data is readily available in plain JavaScript variables regardless, ready for you to use in whichever way you want.
-
-### Form system
-
-Want to create a form for your Iris module? Simply create a schema using the specifications of the JSON Form library, latch onto the Iris form render hook and it'll render and appear. You'll probably want a submit handler too to manage results, validation and redirects. There's a hook for that as well.
-
-### Triggers
-
-Want to send an email when a user visits a certain page and they have a certain role or userid? The triggers module lets you do this and more. You can even use text tokens provided by an event (different events provide different tokesn) as variables in an action.
-
-The triggers module is most powerful when in the hands of a module developer as they can register new actions and events for others to use in their applications and sites. 
-
-### Logging
-
-Iris comes with a multi-level logging system with a colour coded log screen. Write logs with one line of module code or even use the triggers module user interface to write new logs automatically when something happens.
-
-### Entity queries
-
-Want to insert a list of an entity types (or several) on a page? Don't worry about writing database queries. Iris comes with an entity embed code system that not only loads in the entity ready to be used in Handlebars (or on the client side as a JavaScript varaible including live loading via websockets). Here's an example:
+iris/logs
+iris/files
+iris/nedb
+iris/local
+iris/configurations
+node_modules
 
 ```
 
-[[[entity page,pageList,title|contains|"hello",5,title|asc]]]
+### Iris modules
+
+Iris modules can be enabled via the `/admin/modules` page. Iris comes with lots of modules to get you started and can easily be extended with more.
+
+### Creating entity types
+
+In the admin menu, visit the structure -> entities section in the admin menu (enable the `entity ui` module in the modules page of the administration interface first if necessary) and select `create entity type` to create a new entity type. Alternatively, select an existing type and select manage fields.
+
+You will be able to reorder and add fields to an entity. When choosing a field, the plural names of fields are those which allow multiple pieces of information (multiple dates for example) to be added to an entity.
+
+For long text fields, head to the widget tab to enable the CKEditor WYSIWYG editor for a field.
+
+Once done with adding all of your fields go to the content screen and start creating content. Your fields should be available to edit.
+
+Each piece of content automatically has a `path` field which is used if you want the entity to be accessed via a custom url. Every entity is automatically accessible via the `/entityType/entityID` path for example `/page/1`. To set a home page, use the `/` path.
+
+## Changing permissions
+
+Before anyone can see your content you'll need to allow them to do so. Head over to the users -> permissions screen to edit permissions so that anonymous users can view content of the `page` type for example.
+
+## Creating a theme and templates to display content
+
+Iris comes with a basic theme for the page content type but you will mostly want to create your own. Here's how:
+
+* Create a folder in your site directory (specified with the `sitePath` configuration parameter) called `themes`.
+* In this directory, create a subdirectory with your theme name. `myTheme` for example.
+* In the `myTheme` directory, add a file called `myTheme.iris.theme` (change the myTheme part for whatever you named your theme).
+* Add two directories to your theme `templates` and `static`.
+* Add the following JSON configuration to the theme:
+
+```JSON
+
+{
+  "name":"My theme", 
+  "regions":["header","content","footer"]
+}
 
 ```
-This would make a new handlebars variable called pageList available which you can use in the same template to get any entities successfuly fetched by the query inside (up to five containing the "hello" in the title). The variable for those entities would also be added on the client side for you to use in React, Angular or any other front end JavaScript. Slot in socket.io and it will update automatically when something in the database has changed.
 
-### Made for version control
+* Visit the themes tab in the Iris menu and select your theme.
 
-Iris was built with version control in mind so, instead of storing blocks, regions, fields and entity types, views and other configuration in the database, all configuration you'd want to put through Git or another version control system is stored in easily exportable/importable JSON files. You can see if and what has changed through the graphical interface. You can even edit these configuration files manually if you want as they're written to be human-readable. The exporting and importing is again done through the user interface, though if you prefer drag and drop exporting and importing you can do that too.
+### Creating some template files
 
-### Operating system support
+Every template in Iris is a simple HTML file that is parsed through the Handlebars-powered template engine. When Iris searches for templates it looks for them in module and theme template folders passing in a few search arguments.
 
-Iris was made using computers running Windows, Linux and OSX. It should run on all three.
+If looking for a template to display a `page` entity, Iris looks for templates named `page.html` .  It also passes in the entity ID so you could easily override a template for a page with `page__1.html`. General entity pages (if no other template is found, can be stored at `entity.html`).
 
+Error pages take the name of their status code, so use `404.html` for a 404 page.
+
+Any system templates provided by modules can be overriden in your theme (you could even replace the whole admin theme if you wanted to).
+
+#### The HTML wrapper template
+
+A special template file called `html.html` is used for the wrapper of the page (everything that goes around it). This can also be overriden for more specific templates, `html__page__1.html` for example.
+
+For the wrapper template to work it needs to include a special tag of `[[[MAINCONTENT]]]` . Put this wherever you want the inner template markup to display.
+
+It is also wise to include the following markup for any messages that dispaly to a user:
+
+```
+{{{iris embed="messages"}}}
+
+```
+
+And the following in the `<head></head>` to include any clientside scripts or stylesheets loaded by an Iris module.
+
+```
+{{{iris embed="tags" name="headTags"}}}
+
+```
+
+#### Including custom templates within other templates 
+
+You can also embed arbitrary templates using the same lookup system directly in templates by using the following tag:
+
+```
+{{{iris embed="template" template="sidebar__$current.enityType__$current.id"}}}
+```
+
+This would look for a sidebar.html template but also a `sidebar__page__1` template or `sidebar__page` template if available. The `$` sign infront of a parameter inside the embed allows you to use a variable from the Handlebars scope. The `current` variable is the current entity you're on the page of.
+
+### Using Handlebars
+
+For full information about Handlebars, use the Handlebars documentation at http://handlebarsjs.com . Iris also includes the Assemble Handlebars helpers library documented at https://github.com/assemble/handlebars-helpers
+
+This documentation will only mention the tags specific to Iris.
+
+#### Global template variables
+
+##### {{current}}
+
+Use the `current` Handlebars variable to get the entity currently being viewed. Only fields available to the client will be visible so make sure you check their permissions on a field and entity type level.
+
+To print a title and body for example
+
+```HTML
+<h1>{{current.title}}</h1>
+
+{{{current.body}}}
+
+```
+
+Not the triple brackets around the `current.body` tag, allowing it to contain HTML.
+
+##### {{req}}
+
+The full node.js request object is passed down to your templates to play with if available. This includes query strings passed to the url (useful for pagination and other arguments) and the user's ID if logged in. View the express.js and node.js documentation for more information about what you can find here.
+
+#### Special Iris embeds
+
+Iris contains lots of its own embed types all preceded by `iris` in the Handlebars tag. You've seen the `messages`, `tags` and `template` embeds already.
+
+##### Iris embed parameters
+
+Many Iris embed types take extra parameters. These can be passed in the following ways:
+
+* A simple text parameter `param1="hello"
+* A parameter based on a handlebars variable in the current scope `param2 = current.title`
+* A JSON parameter `param3='{"type":"hello"}'
+* A JSON parameter with a variable inside it (from the current scope) preceded by a dollar sign `param4='{"type":"$current.title"}'`
+* A single `embedOptions` JSON parameter with all the values you want to pass ` embedOptions='{"title":"hello", "world":true}' `
+
+##### Entity embeds
+
+Entities and lists of entities that aren't the currently viewed entity can be loaded into any template. Relevant permissions are checked for the current user.
+
+The entity query system takes the following parameters:
+
+* entities - an array of entity types look through
+* limit - how many to fetch
+* sort - a JSON object of a field name and `asc` or `desc`. For example `{"title":"asc"}`
+* skip - how many to skip. An offset. Useful in pagination.
+* queries - an array of JSON objects containing the following keys
+  * field - which field to query
+  * operator - IS, CONTAINS, INCLUDES
+  * value - the value to check through the operator
+* liveupdate - true or false depending on whether to live update the embed whenever an entity in the fetched list gets updated or a new one is added.
+* loadscripts - true or false depending on whether to load clientside scripts that put the entities (and their live loading) into a clientside database for use with systems such as Angular or React. The variableName parameter is there to give the clientside database collection for the embed a human-friendly name.
+
+Here's an example:
+
+```HTML
+
+{{#iris embed='entity' variableName='myEntities' loadscripts=true liveupdate=true entities='["comment"]' queries='[{"field":"title","operator":"contains","value":"hello"}]' as |list|}}
+
+  {{#each list}}
+
+    {{this.title}}
+
+  {{/each}}
+
+{{/iris}}
+
+```
+
+##### Tag embeds
+
+Tags have a `name` parameter for the tag container name and an exclude parameter that takes a JSON array of tags to exclude from the container (for example if you are already loading in jQuery and don't want it to be loaded in twice). Most of the core Iris application uses the headTags container but other modules may include other containers.
+
+```HTML
+
+{{{iris embed='tags' name='headTags' exclude='["socket.io"]'}}}
+
+```
+
+##### Forms Embeds
+
+Forms each need a formID parameter. Any other parameters will be passed into the form render hooks. More information about forms can be found in the developer wiki.
+
+```HTML
+
+{{{iris embed="form" formID="login"}}}
+
+```
+
+##### Menu
+
+Menus take a `menu` parameter and an optional `template` parameter that can override the menu template. Menus can be created in the user interface.
+
+```HTML
+
+{{{iris embed='menu' menu="admin_toolbar"}}}
+
+```
+
+### Template
+
+Template embeds simply take the template lookup you want to use to embed a template.
+
+```HTML
+
+{{{iris embed='template' template="sidebar"}}}
+
+```
+
+-----------
+
+For more information about all aspects of Iris, visit the developer wiki at https://github.com/CityWebConsultants/Iris/wiki

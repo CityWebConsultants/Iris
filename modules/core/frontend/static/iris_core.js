@@ -8,6 +8,42 @@ if (!window.iris) {
 
 iris.server = document.location.protocol + "//" + document.location.hostname + ":" + document.location.port;
 
+document.addEventListener("DOMContentLoaded", function (event) {
+
+  // socket.io and liveupdates
+
+  if (window.io) {
+
+    iris.socketreceiver = window.io(iris.server);
+
+  }
+
+  if (iris.socketreceiver) {
+
+    var liveUpdaters = document.querySelectorAll("[data-liveupdate]");
+
+    var liveEmbed;
+
+    for (var i = 0; i < liveUpdaters.length; i += 1) {
+
+      var embedID = liveUpdaters[i].getAttribute("data-liveupdate");
+
+      iris.socketreceiver.emit("liveEmbedRegister", embedID);
+
+    }
+
+    iris.socketreceiver.on("liveUpdate", function (data) {
+
+      var block = document.querySelector('[data-liveupdate="' + data.id + '"]');
+
+      block.innerHTML = data.content;
+
+    });
+
+  }
+
+});
+
 // Function for reading cookies
 
 (function () {

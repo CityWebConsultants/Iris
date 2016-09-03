@@ -1,6 +1,3 @@
-
-
-
 /**
  * @file Manages the database connection and schemas for entity types.
  *
@@ -21,7 +18,7 @@ var fs = require('fs');
 
 iris.invokeHook("hook_db_connect__" + iris.config.dbEngine, "root", iris.config, null).then(function () {
 
-  iris.dbPopulate();
+  iris.dbPopulate(true);
 
   iris.status.ready = true;
 
@@ -31,7 +28,7 @@ iris.invokeHook("hook_db_connect__" + iris.config.dbEngine, "root", iris.config,
 
 });
 
-iris.dbPopulate = function () {
+iris.dbPopulate = function (firstTime) {
 
   iris.fieldTypes = {};
 
@@ -206,13 +203,29 @@ iris.dbPopulate = function () {
     schemaCounter += 1;
     if (schemaCounter === Object.keys(iris.entityTypes).length) {
 
-      process.emit("dbReady", true);
+      process.emit("dbReady", firstTime);
 
     }
 
   };
 
   Object.keys(iris.entityTypes).forEach(function (entityType) {
+
+    if (!iris.entityTypes[entityType].fields) {
+
+      iris.entityTypes[entityType].fields = {};
+
+    }
+
+    iris.entityTypes[entityType].fields.path = {
+      fieldType: 'Textfield',
+      fieldTypeType: 'String',
+      label: 'path',
+      fixed: true, // A fixed field isn't shown on the schema edit page as it can't be edited/deleted 
+      weight: 1111, // JSON doesn't support infinity - ugh
+      machineName: 'path',
+      permissions: ["anonymous", "authenticated"]
+    };
 
     iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
       schema: entityType,
@@ -244,7 +257,7 @@ iris.dbPopulate = function () {
  * isContent boolean variable determines whether the entity type appears on a content page 
  */
 
-iris.dbSchemaRegister = function (name, fields, isContent = false) {
+iris.dbSchemaRegister = function (name, fields, content = false) {
 
   return new Promise(function (resolve, reject) {
 
@@ -253,12 +266,13 @@ iris.dbSchemaRegister = function (name, fields, isContent = false) {
       fields: fields
     };
 
-    Object.defineProperty(iris.entityTypes, name, {
-      enumerable: isContent,
-      writable: true,
-      configurable: true,
-      value: schema
-    });
+    if (!content) {
+
+      schema.systemOnly = true;
+
+    }
+
+    iris.entityTypes[name] = schema;
 
     iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
       schema: name,
