@@ -157,8 +157,7 @@ iris.app.use(function (req, res, next) {
 
 });
 
-
-iris.app.use(function (req, res, next) {
+var mainHandler = function (req, res, next) {
 
   try {
 
@@ -312,7 +311,7 @@ iris.app.use(function (req, res, next) {
 
   });
 
-});
+};
 
 // Menu registering function
 
@@ -399,7 +398,6 @@ iris.populateRoutes = function () {
 //Public files folder
 
 iris.app.use("/files", express.static(iris.sitePath + '/files'));
-
 
 /**
  * Catch all callback which is run last. If this is called then the GET request has not been defined 
@@ -498,7 +496,7 @@ var catchRequest = function (req, res) {
 
   }
 
-}
+};
 
 /**
  * Used for catching express.js errors such as errors in handlebars etc. It logs the error in the system
@@ -536,11 +534,15 @@ var errorHandler = function (err, req, res, next) {
 
   }
 
-}
+};
+
+iris.app.use(mainHandler);
 
 //Server and request function router once everything has done
 
 iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, data) {
+
+  iris.populateRoutes();
 
   iris.app.use(catchRequest);
   iris.app.use(errorHandler);
@@ -570,4 +572,4 @@ iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, dat
 
   thisHook.pass(data);
 
-})
+});

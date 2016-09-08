@@ -339,10 +339,6 @@ module.exports = function (config) {
 
   fs.writeFileSync(iris.sitePath + "/local/modulePathCache.json", JSON.stringify(foundModules));
 
-  // Populate routes stored using iris.route
-
-  iris.populateRoutes();
-
   //Set up database
 
   require('./modules/core/mongodb/mongodb.js');
@@ -356,7 +352,7 @@ module.exports = function (config) {
 
       Object.freeze(iris);
 
-    })
+    });
 
   });
 
