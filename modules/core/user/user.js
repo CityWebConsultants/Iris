@@ -285,9 +285,9 @@ iris.route.get("/user/logout", routes.logout, function (req, res) {
 
     delete iris.modules.auth.globals.userList[req.authPass.userid];
 
-    res.clearCookie('userid');
-    res.clearCookie('token');
-    res.clearCookie('admin_auth');
+    if (req.session) {
+      req.session.destroy();
+    }
 
     res.redirect("/");
 
@@ -1027,7 +1027,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 // Delete user from auth list if deleted
 
 iris.modules.user.registerHook("hook_entity_deleted", 1, function (thisHook, entity) {
-  
+
   if (entity.entityType === "user") {
 
     delete iris.modules.auth.globals.userList[entity.eid];
