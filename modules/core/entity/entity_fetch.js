@@ -103,6 +103,34 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     }
 
+    if (fieldQuery.operator.toLowerCase().indexOf("in") !== -1) {
+
+      queryItem[fieldQuery["field"]] = {
+        $in: fieldQuery.value
+      };
+
+      // Check if negative
+
+      if (fieldQuery.operator.toLowerCase().indexOf("not") === -1) {
+
+        query.$and.push(queryItem);
+
+      } else {
+
+        negativeQueryItem = {};
+
+        negativeQueryItem[Object.keys(queryItem)[0]] = {
+
+          $ne: queryItem[Object.keys(queryItem)[0]]
+
+        };
+
+        query.$and.push(negativeQueryItem);
+
+      }
+
+    }
+
     if (fieldQuery.operator.toLowerCase().indexOf("gt") !== -1) {
 
       queryItem[fieldQuery["field"]] = {
