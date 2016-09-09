@@ -140,7 +140,7 @@ iris.app.use(function (req, res, next) {
 });
 
 var mainHandler = function (req, res, next) {
-  
+
   if (!iris.status.ready) {
 
     setTimeout(function () {
@@ -559,6 +559,14 @@ iris.app.use(mainHandler);
 //Server and request function router once everything has done
 
 iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, data) {
+
+  // Add static folders for modules
+
+  Object.keys(iris.modules).forEach(function (currentModule) {
+
+    iris.app.use('/modules/' + currentModule, express.static(iris.modules[currentModule].path + "/static"));
+
+  });
 
   iris.populateRoutes();
 
