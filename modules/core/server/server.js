@@ -574,33 +574,49 @@ iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, dat
 
   }
 
-  // Session store
+  iris.invokeHook("hook_session_store", "root", {
+    session: session
+  }, undefined).then(function (store) {
 
-  var NedbStore = require('nedb-session-store')(session);
+    // Default nedb store if none set
 
-  iris.config.expressSessionsConfig.store = new NedbStore({
-    filename: 'sessions.db'
+    if (typeof store === "undefined") {
+
+      // Session store
+
+      var NedbStore = require('nedb-session-store')(session);
+
+      iris.config.expressSessionsConfig.store = new NedbStore({
+        filename: iris.sitePath + "/temp/" + "sessions.db"
+      });
+
+    } else {
+
+      iris.config.expressSessionsConfig.store = store;
+
+    }
+
+    iris.sessions = session(iris.config.expressSessionsConfig);
+
+    iris.app.use(iris.sessions);
+
+    iris.app.use(mainHandler);
+
+    // Add static folders for modules
+
+    Object.keys(iris.modules).forEach(function (currentModule) {
+
+      iris.app.use('/modules/' + currentModule, express.static(iris.modules[currentModule].path + "/static"));
+
+    });
+
+    iris.populateRoutes();
+
+    iris.app.use(catchRequest);
+    iris.app.use(errorHandler);
+
+    thisHook.pass(data);
+
   });
-
-  iris.sessions = session(iris.config.expressSessionsConfig);
-
-  iris.app.use(iris.sessions);
-
-  iris.app.use(mainHandler);
-
-  // Add static folders for modules
-
-  Object.keys(iris.modules).forEach(function (currentModule) {
-
-    iris.app.use('/modules/' + currentModule, express.static(iris.modules[currentModule].path + "/static"));
-
-  });
-
-  iris.populateRoutes();
-
-  iris.app.use(catchRequest);
-  iris.app.use(errorHandler);
-
-  thisHook.pass(data);
 
 });
