@@ -140,6 +140,19 @@ iris.app.use(function (req, res, next) {
 });
 
 var mainHandler = function (req, res, next) {
+  
+  if (!iris.status.ready) {
+
+    setTimeout(function () {
+
+      res.redirect(req.url);
+
+    }, 500);
+
+
+    return false;
+
+  }
 
   try {
 
@@ -518,27 +531,34 @@ var errorHandler = function (err, req, res, next) {
 
 };
 
+// Sessions
+
+var session = require("express-session");
+
+var NedbStore = require('nedb-session-store')(session);
+
+if (!iris.config.expressSessionsConfig) {
+
+  iris.config.expressSessionsConfig = {
+    secret: iris.config.processID,
+    resave: false,
+    saveUninitialized: true,
+    store: new NedbStore({
+      filename: 'sessions.db'
+    })
+  };
+
+}
+
+iris.sessions = session(iris.config.expressSessionsConfig);
+
+iris.app.use(iris.sessions);
+
+iris.app.use(mainHandler);
+
 //Server and request function router once everything has done
 
 iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, data) {
-
-  // Sessions
-  
-  if (!iris.config.expressSessionsConfig) {
-
-    iris.config.expressSessionsConfig = {
-      secret: iris.config.processID,
-      resave: false,
-      saveUninitialized: true,
-    };
-
-  }
-
-  iris.sessions = require("express-session")(iris.config.expressSessionsConfig);
-
-  iris.app.use(iris.sessions);
-
-  iris.app.use(mainHandler);
 
   iris.populateRoutes();
 

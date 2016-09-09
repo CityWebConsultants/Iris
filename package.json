@@ -28,6 +28,7 @@
     "mongoose-auto-increment": "^5.0.1",
     "ncp": "^2.0.0",
     "nedb": "^1.8.0",
+    "nedb-session-store": "^1.1.1",
     "nodemailer": "^1.11.0",
     "path-to-regexp": "^1.2.1",
     "promised-handlebars": "^2.0.0",
