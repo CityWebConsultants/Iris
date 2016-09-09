@@ -512,7 +512,7 @@ iris.app.post('/auth/maketoken', function (req, res) {
 
 });
 
-iris.app.get('/auth/checkauth', function (req, res) {
+iris.route.get('/auth/checkauth', function (req, res) {
 
   res.send(req.authPass);
 
@@ -581,7 +581,7 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
 // API endpoint to check auth token/cookies
 
-iris.app.get("/checkauth", function (req, res) {
+iris.route.get("/checkauth", function (req, res) {
 
   res.respond(200, req.authPass.userid);
 

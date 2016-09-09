@@ -531,34 +531,37 @@ var errorHandler = function (err, req, res, next) {
 
 };
 
-// Sessions
-
-var session = require("express-session");
-
-var NedbStore = require('nedb-session-store')(session);
-
-if (!iris.config.expressSessionsConfig) {
-
-  iris.config.expressSessionsConfig = {
-    secret: iris.config.processID,
-    resave: false,
-    saveUninitialized: true,
-    store: new NedbStore({
-      filename: 'sessions.db'
-    })
-  };
-
-}
-
-iris.sessions = session(iris.config.expressSessionsConfig);
-
-iris.app.use(iris.sessions);
-
-iris.app.use(mainHandler);
-
 //Server and request function router once everything has done
 
 iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, data) {
+
+  // Sessions
+
+  var session = require("express-session");
+
+  if (!iris.config.expressSessionsConfig) {
+
+    iris.config.expressSessionsConfig = {
+      secret: iris.config.processID,
+      resave: false,
+      saveUninitialized: true
+    };
+
+  }
+  
+  // Session store
+  
+  var NedbStore = require('nedb-session-store')(session);
+
+  iris.config.expressSessionsConfig.store = new NedbStore({
+    filename: 'sessions.db'
+  });
+
+  iris.sessions = session(iris.config.expressSessionsConfig);
+
+  iris.app.use(iris.sessions);
+
+  iris.app.use(mainHandler);
 
   // Add static folders for modules
 
