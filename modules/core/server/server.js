@@ -23,24 +23,6 @@ iris.app.use(function (req, res, next) {
   }
 });
 
-// Sessions
-
-var crypto = require("crypto");
-
-if (!iris.config.expressSessionsConfig) {
-
-  iris.config.expressSessionsConfig = {
-    secret: crypto.randomBytes(8).toString('hex'),
-    resave: false,
-    saveUninitialized: true,
-  };
-
-}
-
-iris.sessions = require("express-session")(iris.config.expressSessionsConfig);
-
-iris.app.use(iris.sessions);
-
 //Set up bodyParser
 
 if (!iris.config.bodyParserJSON) {
@@ -536,11 +518,27 @@ var errorHandler = function (err, req, res, next) {
 
 };
 
-iris.app.use(mainHandler);
-
 //Server and request function router once everything has done
 
 iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, data) {
+
+  // Sessions
+  
+  if (!iris.config.expressSessionsConfig) {
+
+    iris.config.expressSessionsConfig = {
+      secret: iris.config.processID,
+      resave: false,
+      saveUninitialized: true,
+    };
+
+  }
+
+  iris.sessions = require("express-session")(iris.config.expressSessionsConfig);
+
+  iris.app.use(iris.sessions);
+
+  iris.app.use(mainHandler);
 
   iris.populateRoutes();
 
