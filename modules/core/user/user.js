@@ -279,6 +279,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
  * Page callback.
  * User logout.
  */
+
 iris.route.get("/user/logout", routes.logout, function (req, res) {
 
   var logout = function () {
@@ -286,12 +287,15 @@ iris.route.get("/user/logout", routes.logout, function (req, res) {
     delete iris.modules.auth.globals.userList[req.authPass.userid];
 
     if (req.session) {
-      req.session.destroy();
+      req.session.destroy(function () {
+
+        res.redirect("/");
+
+      });
     }
 
-    res.redirect("/");
-
   };
+
   iris.invokeHook("hook_user_logout", req.authPass, null, res).then(function (success) {
 
     res = success;
