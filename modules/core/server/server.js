@@ -531,6 +531,31 @@ var errorHandler = function (err, req, res, next) {
 
 };
 
+// Server listening
+
+if (iris.config.https) {
+
+  var https = require('https');
+
+  var tls_options = {
+    key: fs.readFileSync(iris.config.https_key),
+    cert: fs.readFileSync(iris.config.https_cert)
+  };
+
+  iris.server = https.createServer(tls_options, iris.app);
+
+  iris.server.listen(iris.config.port);
+
+} else {
+
+  var http = require('http');
+
+  iris.server = http.createServer(iris.app);
+
+  iris.server.listen(iris.config.port);
+
+}
+
 //Server and request function router once everything has done
 
 iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, data) {
@@ -548,9 +573,9 @@ iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, dat
     };
 
   }
-  
+
   // Session store
-  
+
   var NedbStore = require('nedb-session-store')(session);
 
   iris.config.expressSessionsConfig.store = new NedbStore({
@@ -575,29 +600,6 @@ iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, dat
 
   iris.app.use(catchRequest);
   iris.app.use(errorHandler);
-
-  if (iris.config.https) {
-
-    var https = require('https');
-
-    var tls_options = {
-      key: fs.readFileSync(iris.config.https_key),
-      cert: fs.readFileSync(iris.config.https_cert)
-    };
-
-    iris.server = https.createServer(tls_options, iris.app);
-
-    iris.server.listen(iris.config.port);
-
-  } else {
-
-    var http = require('http');
-
-    iris.server = http.createServer(iris.app);
-
-    iris.server.listen(iris.config.port);
-
-  }
 
   thisHook.pass(data);
 
