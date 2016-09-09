@@ -158,7 +158,7 @@ iris.modules.entity.registerHook("hook_entity_delete", 0, function (thisHook, da
 
 });
 
-iris.app.post("/entity/delete/:type/:eid", function (req, res) {
+iris.route.post("/entity/delete/:type/:eid", function (req, res) {
 
   req.body.entityType = req.params.type;
   req.body.eid = req.params.eid;

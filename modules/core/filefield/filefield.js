@@ -14,7 +14,7 @@ iris.app.use(busboy());
 
 var fs = require('fs');
 
-iris.app.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (req, res) {
+iris.route.post('/admin/file/fileFieldUpload/:filename/:form/:parameters', function (req, res) {
 
   // Make temp file directory and files directory if they don't exist
 

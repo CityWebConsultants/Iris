@@ -181,7 +181,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
 });
 
-iris.app.post("/entity/create/:type", function (req, res) {
+iris.route.post("/entity/create/:type", function (req, res) {
 
   req.body.entityType = req.params.type;
 

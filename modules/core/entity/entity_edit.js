@@ -263,7 +263,7 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
 });
 
-iris.app.post("/entity/edit/:type/:eid", function (req, res) {
+iris.route.post("/entity/edit/:type/:eid", function (req, res) {
 
   req.body.entityType = req.params.type;
   req.body.eid = req.params.eid;

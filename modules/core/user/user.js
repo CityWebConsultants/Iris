@@ -89,7 +89,7 @@ iris.route.get("/user/password", routes.password, function (req, res) {
 
 // Username + password to token
 
-iris.app.post("/api/login", function (req, res) {
+iris.route.post("/api/login", function (req, res) {
 
   if (req.body.username && req.body.password) {
 

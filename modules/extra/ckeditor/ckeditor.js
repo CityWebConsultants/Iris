@@ -114,7 +114,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
 var fs = require('fs');
 
-iris.app.post('/admin/file/ckeditorupload', function (req, res) {
+iris.route.post('/admin/file/ckeditorupload', function (req, res) {
 
   var mkdirSync = function (path) {
     try {
