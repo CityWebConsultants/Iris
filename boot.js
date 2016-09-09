@@ -137,10 +137,6 @@ module.exports = function (config) {
 
   require('./modules');
 
-  //Require sockets
-
-  require('./sockets');
-
   // Create iris modules object
 
   iris.modules = {};
@@ -148,6 +144,10 @@ module.exports = function (config) {
   //Core modules
 
   require('./modules/core/server/server.js');
+  
+  //Require sockets
+
+  require('./modules/core/websockets/websockets.js');
 
   require('./modules/core/auth/auth.js');
 
