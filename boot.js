@@ -30,7 +30,7 @@ module.exports = function (config) {
 
   iris.restart = function (authPass, data = {}) {
 
-    process.nextTick(function () {
+    setTimeout(function () {
 
       iris.message(authPass.userid, "Server restarted", "success");
 
@@ -44,7 +44,7 @@ module.exports = function (config) {
 
       });
 
-    });
+    },500);
 
   };
 
