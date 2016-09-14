@@ -556,69 +556,67 @@ if (iris.config.https) {
 
 }
 
-// Sessions
-
-var session = require("express-session");
-
-if (!iris.config.expressSessionsConfig) {
-
-  iris.config.expressSessionsConfig = {
-    secret: iris.config.processID,
-    resave: false,
-    saveUninitialized: true
-  };
-
-}
-
-iris.invokeHook("hook_session_store", "root", {
-  session: session
-}, undefined).then(function (store) {
-
-  // Default nedb store if none set
-
-  if (typeof store === "undefined") {
-
-    // Session store
-
-    var NedbStore = require('nedb-session-store')(session);
-
-    iris.config.expressSessionsConfig.store = new NedbStore({
-      filename: iris.sitePath + "/temp/" + "sessions.db"
-    });
-
-  } else {
-
-    iris.config.expressSessionsConfig.store = store;
-
-  }
-
-  iris.sessions = session(iris.config.expressSessionsConfig);
-
-  iris.app.use(iris.sessions);
-
-  iris.app.use(mainHandler);
-
-  iris.invokeHook("hook_server_ready", "root");
-
-});
-
 //Server and request function router once everything has done
 
 iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, data) {
 
-  // Add static folders for modules
+  // Sessions
 
-  iris.populateRoutes();
+  var session = require("express-session");
 
-  Object.keys(iris.modules).forEach(function (currentModule) {
+  if (!iris.config.expressSessionsConfig) {
 
-    iris.app.use('/modules/' + currentModule, express.static(iris.modules[currentModule].path + "/static"));
+    iris.config.expressSessionsConfig = {
+      secret: iris.config.processID,
+      resave: false,
+      saveUninitialized: true
+    };
+
+  }
+
+  iris.invokeHook("hook_session_store", "root", {
+    session: session
+  }, undefined).then(function (store) {
+
+    // Default nedb store if none set
+
+    if (typeof store === "undefined") {
+
+      // Session store
+
+      var NedbStore = require('nedb-session-store')(session);
+
+      iris.config.expressSessionsConfig.store = new NedbStore({
+        filename: iris.sitePath + "/temp/" + "sessions.db"
+      });
+
+    } else {
+
+      iris.config.expressSessionsConfig.store = store;
+
+    }
+
+    iris.sessions = session(iris.config.expressSessionsConfig);
+
+    iris.app.use(iris.sessions);
+
+    iris.app.use(mainHandler);
+
+    // Add static folders for modules
+
+    Object.keys(iris.modules).forEach(function (currentModule) {
+
+      iris.app.use('/modules/' + currentModule, express.static(iris.modules[currentModule].path + "/static"));
+
+    });
+
+    iris.populateRoutes();
+
+    iris.app.use(catchRequest);
+    iris.app.use(errorHandler);
+
+    thisHook.pass(data);
 
   });
-
-  iris.app.use(catchRequest);
-  iris.app.use(errorHandler);
-
-  thisHook.pass(data);
 
 });
