@@ -468,7 +468,7 @@ iris.modules.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, use
 
 });
 
-iris.app.post('/auth/clearauth', function (req, res) {
+iris.route.post('/auth/clearauth', function (req, res) {
 
   iris.invokeHook("hook_auth_clearauth", req.authPass, req.body.userid, req.body.userid).then(function (success) {
 
@@ -482,7 +482,7 @@ iris.app.post('/auth/clearauth', function (req, res) {
 
 });
 
-iris.app.post('/auth/deletetoken', function (req, res) {
+iris.route.post('/auth/deletetoken', function (req, res) {
 
   iris.invokeHook("hook_auth_deletetoken", req.authPass, req.body, req.authPass).then(function (success) {
 
@@ -496,7 +496,7 @@ iris.app.post('/auth/deletetoken', function (req, res) {
 
 });
 
-iris.app.post('/auth/maketoken', function (req, res) {
+iris.route.post('/auth/maketoken', function (req, res) {
 
   iris.invokeHook("hook_auth_maketoken", req.authPass, null, {
     userid: req.body.userid
@@ -512,7 +512,7 @@ iris.app.post('/auth/maketoken', function (req, res) {
 
 });
 
-iris.app.get('/auth/checkauth', function (req, res) {
+iris.route.get('/auth/checkauth', function (req, res) {
 
   res.send(req.authPass);
 
@@ -526,7 +526,7 @@ iris.modules.auth.registerHook("hook_restart_send", 0, function (thisHook, data)
 
 });
 
-iris.app.post("/logout", function (req, res) {
+iris.route.post("/logout", function (req, res) {
 
   iris.invokeHook("hook_auth_clearauth", "root", null, req.authPass.userid);
 
@@ -581,7 +581,7 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
 // API endpoint to check auth token/cookies
 
-iris.app.get("/checkauth", function (req, res) {
+iris.route.get("/checkauth", function (req, res) {
 
   res.respond(200, req.authPass.userid);
 

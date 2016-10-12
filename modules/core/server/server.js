@@ -1,12 +1,15 @@
+var express = require('express');
+iris.app = express();
+
+iris.registerModule("server", __dirname);
+
 /**
  * @file Express HTTP server setup and management functions.
  */
-var express = require('express'),
-  bodyParser = require('body-parser'),
+
+var bodyParser = require('body-parser'),
   i18n = require("i18n"),
   fs = require("fs");
-
-iris.app = express();
 
 // Redirect trailing slashes in urls (unless root url)
 
@@ -20,31 +23,29 @@ iris.app.use(function (req, res, next) {
   }
 });
 
-var crypto = require("crypto");
+//Set up bodyParser
 
-if (!iris.config.expressSessionsConfig) {
-    
-  iris.config.expressSessionsConfig = {
-    secret: crypto.randomBytes(8).toString('hex'),
-    resave: false,
-    saveUninitialized: true,
+if (!iris.config.bodyParserJSON) {
+
+  iris.config.bodyParserJSON = {
+    limit: "8mb"
   };
 
 }
 
-iris.sessions = require("express-session")(iris.config.expressSessionsConfig);
+if (!iris.config.bodyParserURLencoded) {
 
-iris.app.use(iris.sessions);
+  iris.config.bodyParserURLencoded = {
+    extended: true,
+    parameterLimit: 10000,
+    limit: 10485760
+  };
 
-//Set up bodyParser
+}
 
-iris.app.use(bodyParser.json());
+iris.app.use(bodyParser.json(iris.config.bodyParserJSON));
 
-iris.app.use(bodyParser.urlencoded({
-  extended: true,
-  parameterLimit: 10000,
-  limit: 10485760
-}));
+iris.app.use(bodyParser.urlencoded(iris.config.bodyParserURLencoded));
 
 // I18n.
 if (!fs.existsSync(iris.configPath + '/locales')) {
@@ -138,8 +139,20 @@ iris.app.use(function (req, res, next) {
 
 });
 
+var mainHandler = function (req, res, next) {
 
-iris.app.use(function (req, res, next) {
+  if (!iris.status.ready) {
+
+    setTimeout(function () {
+
+      res.redirect(req.url);
+
+    }, 500);
+
+
+    return false;
+
+  }
 
   try {
 
@@ -223,6 +236,8 @@ iris.app.use(function (req, res, next) {
 
     req.authPass = authPass;
 
+    authPass.req = req;
+
     // Check if it matches any routes stored with iris_route.
 
     var pathToRegexp = require('path-to-regexp');
@@ -291,7 +306,7 @@ iris.app.use(function (req, res, next) {
 
   });
 
-});
+};
 
 // Menu registering function
 
@@ -379,7 +394,144 @@ iris.populateRoutes = function () {
 
 iris.app.use("/files", express.static(iris.sitePath + '/files'));
 
-//Server and request function router
+/**
+ * Catch all callback which is run last. If this is called then the GET request has not been defined 
+ * anywhere in the system and will therefore return 404 error. 
+ * This is also required for form submissions, POST requests are caught in hook_catch_request for example
+ * where they are then forwarded to the required submit handler function.
+ */
+
+var catchRequest = function (req, res) {
+
+  if (!res.headersSent) {
+
+    iris.invokeHook("hook_catch_request", req.authPass, {
+      req: req,
+      res: res
+    }, null).then(function (success) {
+
+        if (typeof success === "function") {
+
+          var output = success(res, req);
+
+          if (output && output.then) {
+
+            output.then(function () {
+
+              if (!res.headersSent) {
+
+                res.redirect(req.url);
+
+              }
+
+            }, function (fail) {
+
+              res.send(fail);
+
+            });
+
+          } else {
+
+            if (!res.headersSent) {
+
+              res.redirect(req.url);
+
+            }
+
+          }
+
+        } else {
+
+          iris.invokeHook("hook_display_error_page", req.authPass, {
+            error: 404,
+            req: req,
+            res: res
+          }).then(function (success) {
+
+            if (!res.headersSent) {
+
+              res.status(404).send(success);
+
+            }
+
+
+          }, function (fail) {
+
+            if (!res.headersSent) {
+
+              res.status(404).send("404");
+
+            }
+
+          });
+
+        }
+
+      },
+      function (fail) {
+
+        iris.log("error", "Error on request to " + req.url);
+        iris.log("error", fail);
+
+        iris.invokeHook("hook_display_error_page", req.authPass, {
+          error: 500,
+          req: req,
+          res: res
+        }).then(function (success) {
+
+          res.status(500).send(success);
+
+        }, function (fail) {
+
+          res.status(500).send("500");
+
+        });
+
+      });
+
+  }
+
+};
+
+/**
+ * Used for catching express.js errors such as errors in handlebars etc. It logs the error in the system
+ * then returns a 500 error to the client.
+ */
+
+var errorHandler = function (err, req, res, next) {
+
+  if (err) {
+
+    if (err.stack && err.stack[0] && err.stack[0].getLineNumber) {
+
+      iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
+
+    } else {
+
+      iris.log("error", err);
+
+    }
+
+    iris.invokeHook("hook_display_error_page", req.authPass, {
+      error: 500,
+      req: req,
+      res: res
+    }).then(function (success) {
+
+      res.status(500).send(success);
+
+    }, function (fail) {
+
+      // Used if you don't have a 500 error template file.
+      res.status(500).send('Something went wrong');
+
+    });
+
+  }
+
+};
+
+// Server listening
 
 if (iris.config.https) {
 
@@ -403,3 +555,68 @@ if (iris.config.https) {
   iris.server.listen(iris.config.port);
 
 }
+
+//Server and request function router once everything has done
+
+iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, data) {
+
+  // Sessions
+
+  var session = require("express-session");
+
+  if (!iris.config.expressSessionsConfig) {
+
+    iris.config.expressSessionsConfig = {
+      secret: iris.config.processID,
+      resave: false,
+      saveUninitialized: true
+    };
+
+  }
+
+  iris.invokeHook("hook_session_store", "root", {
+    session: session
+  }, undefined).then(function (store) {
+
+    // Default nedb store if none set
+
+    if (typeof store === "undefined") {
+
+      // Session store
+
+      var NedbStore = require('nedb-session-store')(session);
+
+      iris.config.expressSessionsConfig.store = new NedbStore({
+        filename: iris.sitePath + "/temp/" + "sessions.db"
+      });
+
+    } else {
+
+      iris.config.expressSessionsConfig.store = store;
+
+    }
+
+    iris.sessions = session(iris.config.expressSessionsConfig);
+
+    iris.app.use(iris.sessions);
+
+    iris.app.use(mainHandler);
+
+    // Add static folders for modules
+
+    Object.keys(iris.modules).forEach(function (currentModule) {
+
+      iris.app.use('/modules/' + currentModule, express.static(iris.modules[currentModule].path + "/static"));
+
+    });
+
+    iris.populateRoutes();
+
+    iris.app.use(catchRequest);
+    iris.app.use(errorHandler);
+
+    thisHook.pass(data);
+
+  });
+
+});

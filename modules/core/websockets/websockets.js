@@ -4,6 +4,8 @@
  * @file Socket.io server setup and management functions
  */
 
+iris.registerModule("websockets", __dirname);
+
 var io = require('socket.io');
 
 //Function for registering socket events
@@ -147,7 +149,7 @@ iris.socketServer.on("connection", function (socket) {
   iris.invokeHook("hook_socket_connect", "root", {
     socket: socket
   }, null).then(function () {
-        
+
   }, function (fail) {
 
     iris.log("error", fail);

@@ -24,7 +24,7 @@ iris.modules.ckeditor.registerHook("hook_entity_field_widget_form__ckeditor_fiel
 
 var toSource = require('tosource');
 
-iris.app.get("/modules/ckeditor/config.js", function (req, res) {
+iris.route.get("/modules/ckeditor/config.js", function (req, res) {
 
   res.set('Content-Type', 'text/javascript');
 
@@ -42,7 +42,7 @@ iris.app.get("/modules/ckeditor/config.js", function (req, res) {
 
     res.send(output);
 
-  })
+  });
 
 });
 
@@ -51,9 +51,7 @@ iris.app.get("/modules/ckeditor/config.js", function (req, res) {
 iris.modules.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['ckeditor'] = Object.create(JSONForm.elementTypes['text']);
-
-  JSONForm.elementTypes['ckeditor']
-
+  
   document.addEventListener('formsLoaded', function (e) {
 
     window.CKEDITOR_BASEPATH = '/modules/ckeditor/ckeditor/';
@@ -116,7 +114,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
 var fs = require('fs');
 
-iris.app.post('/admin/file/ckeditorupload', function (req, res) {
+iris.route.post('/admin/file/ckeditorupload', function (req, res) {
 
   var mkdirSync = function (path) {
     try {

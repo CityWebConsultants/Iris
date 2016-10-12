@@ -89,7 +89,7 @@ iris.route.get("/user/password", routes.password, function (req, res) {
 
 // Username + password to token
 
-iris.app.post("/api/login", function (req, res) {
+iris.route.post("/api/login", function (req, res) {
 
   if (req.body.username && req.body.password) {
 
@@ -279,19 +279,23 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
  * Page callback.
  * User logout.
  */
+
 iris.route.get("/user/logout", routes.logout, function (req, res) {
 
   var logout = function () {
 
     delete iris.modules.auth.globals.userList[req.authPass.userid];
 
-    res.clearCookie('userid');
-    res.clearCookie('token');
-    res.clearCookie('admin_auth');
+    if (req.session) {
+      req.session.destroy(function () {
 
-    res.redirect("/");
+        res.redirect("/");
+
+      });
+    }
 
   };
+
   iris.invokeHook("hook_user_logout", req.authPass, null, res).then(function (success) {
 
     res = success;
@@ -1027,7 +1031,7 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 // Delete user from auth list if deleted
 
 iris.modules.user.registerHook("hook_entity_deleted", 1, function (thisHook, entity) {
-  
+
   if (entity.entityType === "user") {
 
     delete iris.modules.auth.globals.userList[entity.eid];

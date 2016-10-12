@@ -30,7 +30,7 @@ module.exports = function (config) {
 
   iris.restart = function (authPass, data = {}) {
 
-    process.nextTick(function () {
+    setTimeout(function () {
 
       iris.message(authPass.userid, "Server restarted", "success");
 
@@ -44,7 +44,7 @@ module.exports = function (config) {
 
       });
 
-    });
+    },500);
 
   };
 
@@ -133,14 +133,6 @@ module.exports = function (config) {
 
   iris.invokeHook = require('./hook');
 
-  //Require HTTP sever
-
-  require('./server');
-
-  //Require sockets
-
-  require('./sockets');
-
   //Load in module system
 
   require('./modules');
@@ -151,9 +143,14 @@ module.exports = function (config) {
 
   //Core modules
 
+  require('./modules/core/server/server.js');
+  
+  //Require sockets
+
+  require('./modules/core/websockets/websockets.js');
+
   require('./modules/core/auth/auth.js');
 
-  // End database set up
   require('./modules/core/entity/entity.js');
 
   require('./modules/core/frontend/frontend.js');
@@ -288,7 +285,7 @@ module.exports = function (config) {
     }
 
   });
-  
+
   toEnable.forEach(function (currentModule) {
 
     var moduleInfo = currentModule.info,
@@ -342,10 +339,6 @@ module.exports = function (config) {
 
   fs.writeFileSync(iris.sitePath + "/local/modulePathCache.json", JSON.stringify(foundModules));
 
-  // Populate routes stored using iris.route
-
-  iris.populateRoutes();
-
   //Set up database
 
   require('./modules/core/mongodb/mongodb.js');
@@ -355,146 +348,11 @@ module.exports = function (config) {
 
   process.on("dbReady", function () {
 
-    // Free iris object, no longer extensible
+    iris.invokeHook("hook_system_ready", "root").then(function () {
 
-    Object.freeze(iris);
+      Object.freeze(iris);
 
-  });
-
-  /**
-   * Catch all callback which is run last. If this is called then the GET request has not been defined 
-   * anywhere in the system and will therefore return 404 error. 
-   * This is also required for form submissions, POST requests are caught in hook_catch_request for example
-   * where they are then forwarded to the required submit handler function.
-   */
-
-  iris.app.use(function (req, res) {
-
-    if (!res.headersSent) {
-
-      iris.invokeHook("hook_catch_request", req.authPass, {
-        req: req,
-        res: res
-      }, null).then(function (success) {
-
-          if (typeof success === "function") {
-
-            var output = success(res, req);
-
-            if (output && output.then) {
-
-              output.then(function () {
-
-                if (!res.headersSent) {
-
-                  res.redirect(req.url);
-
-                }
-
-              }, function (fail) {
-
-                res.send(fail);
-
-              });
-
-            } else {
-
-              if (!res.headersSent) {
-
-                res.redirect(req.url);
-
-              }
-
-            }
-
-          } else {
-
-            iris.invokeHook("hook_display_error_page", req.authPass, {
-              error: 404,
-              req: req,
-              res: res
-            }).then(function (success) {
-
-              if (!res.headersSent) {
-
-                res.status(404).send(success);
-
-              }
-
-
-            }, function (fail) {
-
-              if (!res.headersSent) {
-
-                res.status(404).send("404");
-
-              }
-
-            });
-
-          }
-
-        },
-        function (fail) {
-
-          iris.log("error", "Error on request to " + req.url);
-          iris.log("error", fail);
-
-          iris.invokeHook("hook_display_error_page", req.authPass, {
-            error: 500,
-            req: req,
-            res: res
-          }).then(function (success) {
-
-            res.status(500).send(success);
-
-          }, function (fail) {
-
-            res.status(500).send("500");
-
-          });
-
-        });
-
-    }
-
-  });
-
-  /**
-   * Used for catching express.js errors such as errors in handlebars etc. It logs the error in the system
-   * then returns a 500 error to the client.
-   */
-
-  iris.app.use(function (err, req, res, next) {
-
-    if (err) {
-
-      if (err.stack && err.stack[0] && err.stack[0].getLineNumber) {
-
-        iris.log("error", "Error on line " + err.stack[0].getLineNumber() + " of " + err.stack[0].getFileName() + " " + err.message);
-
-      } else {
-
-        iris.log("error", err);
-
-      }
-
-      iris.invokeHook("hook_display_error_page", req.authPass, {
-        error: 500,
-        req: req,
-        res: res
-      }).then(function (success) {
-
-        res.status(500).send(success);
-
-      }, function (fail) {
-
-        // Used if you don't have a 500 error template file.
-        res.status(500).send('Something went wrong');
-
-      });
-
-    }
+    });
 
   });
 
