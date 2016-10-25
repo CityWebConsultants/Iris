@@ -6,6 +6,7 @@ var dbCollections = {};
 
 iris.modules.mongodb.registerHook("hook_db_connect__mongodb", 0, function (thisHook, data) {
 
+  mongoose.Promise = global.Promise;
   var fs = require('fs');
 
   var connectionUri = 'mongodb://' + iris.config.db_server;
