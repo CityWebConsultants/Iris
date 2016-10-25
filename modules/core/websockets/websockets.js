@@ -16,8 +16,12 @@ iris.socketListeners = {};
 
 iris.socketServer = io(iris.server);
 
-iris.socketServer.use(function (socket, next) {
-  iris.sessions(socket.handshake, {}, next);
+iris.modules.websockets.registerHook("hook_system_ready", 0, function (thisHook, data) {
+
+  iris.socketServer.use(function (socket, next) {
+    iris.sessions(socket.handshake, {}, next);
+  });
+
 });
 
 /**
