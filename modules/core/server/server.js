@@ -401,7 +401,7 @@ iris.app.use("/files", express.static(iris.sitePath + '/files'));
  * where they are then forwarded to the required submit handler function.
  */
 
-iris.modules.server.globals.catchRequest = function (req, res) {
+var catchRequest = function (req, res) {
 
   if (!res.headersSent) {
 
@@ -498,7 +498,7 @@ iris.modules.server.globals.catchRequest = function (req, res) {
  * then returns a 500 error to the client.
  */
 
-iris.modules.server.globals.errorHandler = function (err, req, res, next) {
+var errorHandler = function (err, req, res, next) {
 
   if (err) {
 
@@ -611,6 +611,9 @@ iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, dat
     });
 
     iris.populateRoutes();
+
+    iris.app.use(catchRequest);
+    iris.app.use(errorHandler);
 
     thisHook.pass(data);
 

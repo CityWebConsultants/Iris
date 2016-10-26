@@ -1,4 +1,7 @@
-iris.registerModule("paths", __dirname);
+
+
+
+iris.registerModule("paths",__dirname);
 
 iris.modules.paths.globals.entityPaths = {};
 
@@ -153,77 +156,73 @@ iris.modules.paths.registerHook("hook_entity_updated", 0, function (thisHook, da
 
 // Handle custom paths
 
-iris.modules.paths.registerHook("hook_system_ready", 1, function (thisHook, data) {
+iris.app.use(function (req, res, next) {
 
-  iris.app.use(function (req, res, next) {
+  if (req.method !== "GET") {
 
-    if (req.method !== "GET") {
+    next();
+    return false;
 
-      next();
-      return false;
+  }
 
-    }
+  // we only want the pathname, not hash/querystrings
+  var url = require('url'),
+    currentPath = url.parse(req.url).pathname;
 
-    // we only want the pathname, not hash/querystrings
-    var url = require('url'),
-      currentPath = url.parse(req.url).pathname;
+  // Look up entity with the current 'path'
 
-    // Look up entity with the current 'path'
+  if (iris.modules.paths.globals.entityPaths[currentPath]) {
 
-    if (iris.modules.paths.globals.entityPaths[currentPath]) {
-
-      iris.invokeHook("hook_entity_fetch", "root", null, {
-        "entities": [iris.modules.paths.globals.entityPaths[currentPath].entityType],
-        "queries": [{
-          "field": "eid",
-          "operator": "is",
-          "value": iris.modules.paths.globals.entityPaths[currentPath].eid
+    iris.invokeHook("hook_entity_fetch", "root", null, {
+      "entities": [iris.modules.paths.globals.entityPaths[currentPath].entityType],
+      "queries": [{
+        "field": "eid",
+        "operator": "is",
+        "value": iris.modules.paths.globals.entityPaths[currentPath].eid
       }]
-      }).then(function (entities) {
+    }).then(function (entities) {
 
-        if (entities) {
+      if (entities) {
 
-          var doc = entities[0];
-          iris.modules.frontend.globals.getTemplate(doc, req.authPass, {
-            req: req
-          }).then(function (html) {
+        var doc = entities[0];
 
-            res.send(html);
+        iris.modules.frontend.globals.getTemplate(doc, req.authPass, {
+          req: req
+        }).then(function (html) {
 
-            next();
-
-          }, function (fail) {
-            iris.invokeHook("hook_display_error_page", req.authPass, {
-              error: 500,
-              req: req
-            }).then(function (success) {
-
-              res.send(success);
-
-            }, function (fail) {
-
-              res.send("500");
-
-            });
-
-          });
-
-        } else {
+          res.send(html);
 
           next();
 
-        }
+        }, function (fail) {
 
-      });
+          iris.invokeHook("hook_display_error_page", req.authPass, {
+            error: 500,
+            req: req
+          }).then(function (success) {
 
-    } else {
+            res.send(success);
 
-      next();
+          }, function (fail) {
 
-    }
+            res.send("500");
 
-  });
+          });
 
-  thisHook.pass(data);
+        });
 
-})
+      } else {
+
+        next();
+
+      }
+
+    });
+
+  } else {
+
+    next();
+
+  }
+
+});
