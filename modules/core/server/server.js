@@ -556,6 +556,9 @@ if (iris.config.https) {
 
 }
 
+iris.modules.server.globals.catchRequest = catchRequest;
+iris.modules.server.globals.errorHandler = errorHandler;
+
 //Server and request function router once everything has done
 
 iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, data) {
@@ -611,9 +614,6 @@ iris.modules.server.registerHook("hook_system_ready", 0, function (thisHook, dat
     });
 
     iris.populateRoutes();
-
-    iris.app.use(catchRequest);
-    iris.app.use(errorHandler);
 
     thisHook.pass(data);
 
