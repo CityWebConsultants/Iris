@@ -22,6 +22,8 @@ iris.modules.websockets.registerHook("hook_system_ready", 0, function (thisHook,
     iris.sessions(socket.handshake, {}, next);
   });
 
+  thisHook.pass(data);
+
 });
 
 /**
