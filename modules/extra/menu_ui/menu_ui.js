@@ -1,4 +1,3 @@
-
 var routes = {
   menu: {
     title: "Menu Listing",
@@ -18,7 +17,15 @@ var routes = {
 
 iris.modules.menu_ui.registerHook("hook_frontend_embed__menu", 2, function (thisHook, data) {
 
-  var menuName = thisHook.context.embedOptions.menu;
+  if (thisHook.context.embedOptions.menu) {
+
+    console.log('"menu" embed parameter has been changed to "name". You should change the template embed code for menu "' + thisHook.context.embedOptions.menu + '"');
+
+    thisHook.context.embedOptions.name = thisHook.context.embedOptions.menu;
+
+  }
+
+  var menuName = thisHook.context.embedOptions.name;
 
   iris.readConfig('menu', menuName).then(function (config) {
 
@@ -61,9 +68,9 @@ iris.modules.menu_ui.registerHook("hook_form_render__menu", 0, function (thisHoo
 
   // Check if menu name supplied and previous values available
   var ap = thisHook.authPass;
-  
+
   var menuId = thisHook.context.params.menuName;
-  
+
   iris.readConfig('menu', menuId).then(function (config) {
 
     data.value = config;
