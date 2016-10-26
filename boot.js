@@ -44,7 +44,7 @@ module.exports = function (config) {
 
       });
 
-    }, 500);
+    },500);
 
   };
 
@@ -144,7 +144,7 @@ module.exports = function (config) {
   //Core modules
 
   require('./modules/core/server/server.js');
-
+  
   //Require sockets
 
   require('./modules/core/websockets/websockets.js');
@@ -349,9 +349,6 @@ module.exports = function (config) {
   process.on("dbReady", function () {
 
     iris.invokeHook("hook_system_ready", "root").then(function () {
-
-      iris.app.use(iris.modules.server.globals.catchRequest);
-      iris.app.use(iris.modules.server.globals.errorHandler);
 
       Object.freeze(iris);
 
