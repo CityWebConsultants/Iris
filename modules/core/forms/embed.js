@@ -111,6 +111,8 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
     console.log('"formid" embed parameter has been changed to "name". You should change the template embed code for form "' + thisHook.context.embedOptions.formID + '"');
 
     thisHook.context.embedOptions.name = thisHook.context.embedOptions.formID;
+    
+    delete thisHook.context.embedOptions.formID;
 
   }
 

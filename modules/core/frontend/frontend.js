@@ -475,6 +475,8 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
     thisHook.context.embedOptions.name = thisHook.context.embedOptions.template;
 
+    delete thisHook.context.embedOptions.template;
+
   }
 
   if (thisHook.context.embedOptions.name) {

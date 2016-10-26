@@ -20,6 +20,8 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     console.log('"menu" embed parameter has been changed to "name". You should change the template embed code for menu "' + thisHook.context.embedOptions.menu + '"');
 
     thisHook.context.embedOptions.name = thisHook.context.embedOptions.menu;
+    
+    delete thisHook.context.embedOptions.menu;
 
   }
 
