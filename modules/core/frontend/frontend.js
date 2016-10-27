@@ -471,7 +471,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
   if (thisHook.context.embedOptions.template) {
 
-    console.log('"template" embed parameter has been changed to "name". You should change the template embed code for template "' + thisHook.context.embedOptions.template + '"');
+    console.warn('"template" embed parameter has been changed to "name". You should change the template embed code for template "' + thisHook.context.embedOptions.template + '"');
 
     thisHook.context.embedOptions.name = thisHook.context.embedOptions.template;
 
