@@ -268,7 +268,7 @@ Forms each need a formID parameter. Any other parameters will be passed into the
 
 ```HTML
 
-{{{iris embed="form" formID="login"}}}
+{{{iris embed="form" name="login"}}}
 
 ```
 
@@ -278,7 +278,7 @@ Menus take a `menu` parameter and an optional `template` parameter that can over
 
 ```HTML
 
-{{{iris embed='menu' menu="admin_toolbar"}}}
+{{{iris embed='menu' name="admin_toolbar"}}}
 
 ```
 
@@ -288,7 +288,7 @@ Template embeds simply take the template lookup you want to use to embed a templ
 
 ```HTML
 
-{{{iris embed='template' template="sidebar"}}}
+{{{iris embed='template' name="sidebar"}}}
 
 ```
 

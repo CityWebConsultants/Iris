@@ -469,11 +469,21 @@ var merge = require("merge");
 
 iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function (thisHook, data) {
 
-  // Split embed code by double underscores
-
   if (thisHook.context.embedOptions.template) {
 
-    var searchArray = thisHook.context.embedOptions.template.split("__");
+    console.log('"template" embed parameter has been changed to "name". You should change the template embed code for template "' + thisHook.context.embedOptions.template + '"');
+
+    thisHook.context.embedOptions.name = thisHook.context.embedOptions.template;
+
+    delete thisHook.context.embedOptions.template;
+
+  }
+
+  if (thisHook.context.embedOptions.name) {
+
+    // Split embed code by double underscores
+
+    var searchArray = thisHook.context.embedOptions.name.split("__");
 
     // Get template
 
@@ -483,7 +493,7 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
 
     }, function (fail) {
 
-      iris.log("error", "Tried to embed template " + thisHook.context.embedOptions.template + " but no matching template file found.");
+      iris.log("error", "Tried to embed template " + thisHook.context.embedOptions.name + " but no matching template file found.");
 
       thisHook.pass("");
 
