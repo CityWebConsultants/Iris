@@ -34,7 +34,7 @@ require('./entity_fetch');
 
 // Get list of entity types
 
-iris.app.get("/api/entitySchema", function (req, res) {
+iris.route.get("/api/entitySchema", function (req, res) {
 
   // If not admin, present 403 page
 
@@ -59,7 +59,7 @@ iris.app.get("/api/entitySchema", function (req, res) {
 
 });
 
-iris.app.get("/api/entitySchema/:type", function (req, res) {
+iris.route.get("/api/entitySchema/:type", function (req, res) {
 
   // If not admin, present 403 page
 

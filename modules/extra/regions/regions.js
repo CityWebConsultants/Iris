@@ -153,8 +153,18 @@ iris.modules.forms.registerHook("hook_form_submit__regions", 0, function (thisHo
 // Load regions
 
 iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (thisHook, data) {
+  
+  if (thisHook.context.embedOptions.region) {
 
-  var regionName = thisHook.context.embedOptions.region;
+    console.warn('"region" embed parameter has been changed to "name". You should change the template embed code for region "' + thisHook.context.embedOptions.region + '"');
+
+    thisHook.context.embedOptions.name = thisHook.context.embedOptions.region;
+    
+    delete thisHook.context.embedOptions.region;
+
+  }
+
+  var regionName = thisHook.context.embedOptions.name;
   
   // Get list of regions
 

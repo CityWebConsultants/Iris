@@ -117,8 +117,6 @@ iris.registerModule = function (name, modulePath) {
 
     iris.modules[name].path = modulePath;
 
-    iris.app.use('/modules/' + name, express.static(iris.modules[name].path + "/static"));
-
     Object.seal(iris.modules[name]);
 
   }

@@ -1,6 +1,3 @@
-
-
-
 /**
  * @file Launch script run by user to start an Iris site. Keeps sessions persistent by managing a sub-process.
  * Launch.js is the parent process that remains persistant even if there is a fatal error or the server is 
@@ -16,6 +13,12 @@ module.exports = function (parameters) {
   }
 
   parameters.launchPath = process.cwd();
+
+  // Create a unique process ID for the instance
+
+  var crypto = require("crypto");
+
+  parameters.processID = crypto.randomBytes(8).toString('hex');
 
   process.argv.forEach(function (val, index, array) {
 
@@ -54,11 +57,11 @@ module.exports = function (parameters) {
     sub.send(parameters);
 
     sub.on('message', function (cmd) {
-      
+
       if (cmd === 'started') {
 
         restartCounter = 0;
-        
+
         // Passes persistant sessions and messages to child process.
         sub.send({
           persist: persistentData
@@ -67,7 +70,7 @@ module.exports = function (parameters) {
       }
 
       if (cmd.restart) {
-                        
+
         sub.on('exit', function () {
 
           if (restartCounter > 1) {
@@ -76,7 +79,7 @@ module.exports = function (parameters) {
             process.exit();
 
           } else {
-            
+
             persistentData = cmd.restart;
             start();
 

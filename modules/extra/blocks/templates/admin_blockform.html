@@ -2,12 +2,12 @@
 
   <div class="admin-header admin-header-padding">Editing {{blocktype}} {{blockid}}</div>
 
-  {{{iris 'form' '{"formID":"blockForm_$blocktype","blockID":"$blockid"}'}}}
+  {{{iris 'form' '{"name":"blockForm_$blocktype","blockID":"$blockid"}'}}}
 
 {{else}}
 
   <div class="admin-header admin-header-padding">Creating new {{blocktype}}</div>
  
-  {{{iris 'form' '{"formID":"blockForm_$blocktype"}'}}}
+  {{{iris 'form' '{"name":"blockForm_$blocktype"}'}}}
 
 {{/if}}
