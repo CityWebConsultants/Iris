@@ -106,9 +106,19 @@ var renderForm = function (formName, formParams, form, authPass, callback, req) 
  */
 iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHook, data) {
 
-  if (!thisHook.context.embedOptions.formID) {
+  if (thisHook.context.embedOptions.formID) {
 
-    thisHook.fail("No formID");
+    console.warn('"formid" embed parameter has been changed to "name". You should change the template embed code for form "' + thisHook.context.embedOptions.formID + '"');
+
+    thisHook.context.embedOptions.name = thisHook.context.embedOptions.formID;
+    
+    delete thisHook.context.embedOptions.formID;
+
+  }
+
+  if (!thisHook.context.embedOptions.name) {
+
+    thisHook.fail("No form name");
 
     return false;
 
@@ -183,7 +193,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
   var formParams = thisHook.context.embedOptions;
 
-  var formName = thisHook.context.embedOptions.formID;
+  var formName = thisHook.context.embedOptions.name;
   thisHook.context.embedID = formName;
 
   var formTemplate = {

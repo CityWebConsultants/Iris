@@ -4,6 +4,8 @@
  * @file Socket.io server setup and management functions
  */
 
+iris.registerModule("websockets", __dirname);
+
 var io = require('socket.io');
 
 //Function for registering socket events
@@ -14,8 +16,14 @@ iris.socketListeners = {};
 
 iris.socketServer = io(iris.server);
 
-iris.socketServer.use(function (socket, next) {
-  iris.sessions(socket.handshake, {}, next);
+iris.modules.websockets.registerHook("hook_system_ready", 0, function (thisHook, data) {
+
+  iris.socketServer.use(function (socket, next) {
+    iris.sessions(socket.handshake, {}, next);
+  });
+
+  thisHook.pass(data);
+
 });
 
 /**
@@ -147,7 +155,7 @@ iris.socketServer.on("connection", function (socket) {
   iris.invokeHook("hook_socket_connect", "root", {
     socket: socket
   }, null).then(function () {
-        
+
   }, function (fail) {
 
     iris.log("error", fail);

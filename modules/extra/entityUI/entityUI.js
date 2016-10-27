@@ -43,7 +43,7 @@ iris.route.get("/admin/users/list", routes.userlist, function (req, res) {
 
 });
 
-iris.app.get("/:type/:eid/edit", function (req, res) {
+iris.route.get("/:type/:eid/edit", function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_entity"], ['admin_wrapper'], {
     eid: req.params.eid,

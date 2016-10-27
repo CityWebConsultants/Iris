@@ -417,7 +417,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
 });
 
-iris.app.get("/fetch", function (req, res) {
+iris.route.get("/fetch", function (req, res) {
 
   // Check if user can fetch this entity type
 

@@ -6,7 +6,7 @@
  * @namespace menu
  */
 
-iris.registerModule("menu",__dirname);
+iris.registerModule("menu", __dirname);
 
 /**
  * Embed function for [[[menu __]]] embeds.
@@ -15,8 +15,18 @@ iris.registerModule("menu",__dirname);
 
 iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHook, data) {
 
-  var menuName = thisHook.context.embedOptions.menu;
+  if (thisHook.context.embedOptions.menu) {
 
+    console.warn('"menu" embed parameter has been changed to "name". You should change the template embed code for menu "' + thisHook.context.embedOptions.menu + '"');
+
+    thisHook.context.embedOptions.name = thisHook.context.embedOptions.menu;
+    
+    delete thisHook.context.embedOptions.menu;
+
+  }
+
+  var menuName = thisHook.context.embedOptions.name;
+  
   var menuItems = [];
 
   var embedOptions = thisHook.context.embedOptions;
@@ -32,7 +42,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
         // Route has a menu
 
         route.options.menu.forEach(function (menu) {
-          
+
           if (menu.menuName === menuName) {
 
             if (!menu.weight) {
@@ -55,7 +65,7 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
     }
 
   });
-  
+
   // Order by path
 
   menuItems.sort(function (a, b) {
@@ -95,8 +105,8 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
       var found = false;
       for (var i = 0; i < arr.length; i++) {
         if (arr[i] && (arr[i].path == item.path)) {
-           found = true;
-           break;
+          found = true;
+          break;
         }
       }
       return found;
@@ -112,20 +122,17 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
                 data.children.push(item);
               }
 
-            }
-            else {
+            } else {
               data.children = [item];
 
             }
-          }
-          else {
+          } else {
             if (data.children && data.children.length) {
               findParent(data.children, item);
             }
           }
         });
-      }
-      else {
+      } else {
 
         if (!isItemExist(menu, item)) {
           menu.push(item);
@@ -161,9 +168,9 @@ iris.modules.menu.registerHook("hook_frontend_embed__menu", 0, function (thisHoo
 
   };
 
-  var recursiveSort = function(menu) {
+  var recursiveSort = function (menu) {
 
-    menu.forEach(function(item) {
+    menu.forEach(function (item) {
 
       if (item.children) {
 
@@ -326,6 +333,6 @@ iris.modules.menu.registerHook("hook_frontend_handlebars_extend", 1, function (t
     thisHook.pass(Handlebars);
   });
 
-  
+
 
 });

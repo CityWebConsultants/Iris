@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=6.0.0"
   },
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Modular content management and web application framework built with Node.js and MongoDB",
   "main": "iris.js",
   "dependencies": {
@@ -28,6 +28,7 @@
     "mongoose-auto-increment": "^5.0.1",
     "ncp": "^2.0.0",
     "nedb": "^1.8.0",
+    "nedb-session-store": "^1.1.1",
     "nodemailer": "^1.11.0",
     "path-to-regexp": "^1.2.1",
     "promised-handlebars": "^2.0.0",
@@ -40,11 +41,12 @@
     "url": "https://github.com/CityWebConsultants/Iris.git"
   },
   "author": "City Web Consultants",
-  "license": "GPL-2.0",
+  "license": "ISC",
   "devDependencies": {
     "frisby": "^0.8.5",
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^1.0.0",
+    "grunt-git-authors": "^3.2.0",
     "grunt-jasmine-node-coverage": "^0.4.1",
     "jasmine-node": "^1.14.5",
     "jshint": "^2.9.1"
