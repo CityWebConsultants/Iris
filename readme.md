@@ -27,7 +27,7 @@ Iris is a modular content management system and web application framework built 
 * Install iris into a directory via npm
 
 ```
-npm install https://github.com/FilipNest/Iris
+npm install irisjs
 ```
 
 * Create a launch file in the directory. Call it something like `mysite.js`. In this file, require the `irisjs` module and pass in some configuration options.
