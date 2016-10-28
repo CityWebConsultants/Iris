@@ -173,7 +173,7 @@ And the following in the `<head></head>` to include any clientside scripts or st
 You can also embed arbitrary templates using the same lookup system directly in templates by using the following tag:
 
 ```
-{{{iris embed="template" template="sidebar__$current.enityType__$current.id"}}}
+{{{iris embed="template" name="sidebar__$current.enityType__$current.id"}}}
 ```
 
 This would look for a sidebar.html template but also a `sidebar__page__1` template or `sidebar__page` template if available. The `$` sign infront of a parameter inside the embed allows you to use a variable from the Handlebars scope. The `current` variable is the current entity you're on the page of.
