@@ -513,86 +513,94 @@ iris.modules.frontend.registerHook("hook_frontend_embed__template", 0, function 
  * It will check for entity paths for urls like /[entity_type]/[entity_id] and redirect to their
  * pretty url if one is set.
  */
-iris.app.use(function (req, res, next) {
 
-  if (req.method !== "GET") {
+iris.modules.frontend.registerHook("hook_system_ready", 1, function (thisHook, data) {
 
-    next();
-    return false;
+  iris.app.use(function (req, res, next) {
 
-  }
+    if (req.method !== "GET") {
 
-  // Lookup entity type & id from path
-
-  var splitUrl = req.url.split('/');
-
-  if (splitUrl && splitUrl.length === 3 && Object.keys(iris.entityTypes).indexOf(splitUrl[1]) !== -1) {
-
-    for (var path in iris.modules.paths.globals.entityPaths) {
-
-      if (iris.modules.paths.globals.entityPaths[path].eid && iris.modules.paths.globals.entityPaths[path].eid.toString() === splitUrl[2] && iris.modules.paths.globals.entityPaths[path].entityType === splitUrl[1]) {
-
-        res.redirect(path);
-
-        return false;
-
-      }
+      next();
+      return false;
 
     }
 
-    iris.invokeHook("hook_entity_fetch", req.authPass, null, {
-      entities: [splitUrl[1]],
-      queries: [{
-        field: 'eid',
-        operator: 'IS',
-        value: splitUrl[2]
-        }]
-    }).then(function (result) {
+    // Lookup entity type & id from path
 
-      if (result && result[0]) {
+    var splitUrl = req.url.split('/');
 
-        iris.modules.frontend.globals.getTemplate(result[0], req.authPass, {
-          req: req
-        }).then(function (html) {
+    if (splitUrl && splitUrl.length === 3 && Object.keys(iris.entityTypes).indexOf(splitUrl[1]) !== -1) {
 
-          res.send(html);
+      for (var path in iris.modules.paths.globals.entityPaths) {
 
-          next();
+        if (iris.modules.paths.globals.entityPaths[path].eid && iris.modules.paths.globals.entityPaths[path].eid.toString() === splitUrl[2] && iris.modules.paths.globals.entityPaths[path].entityType === splitUrl[1]) {
 
-        }, function (fail) {
+          res.redirect(path);
 
-          iris.invokeHook("hook_display_error_page", req.authPass, {
-            error: 500,
-            req: req
-          }).then(function (success) {
+          return false;
 
-            res.send(success);
-
-          }, function (fail) {
-
-            res.send("500");
-
-          });
-
-        });
-
-      } else {
-
-        next();
+        }
 
       }
 
-    }, function (error) {
+      iris.invokeHook("hook_entity_fetch", req.authPass, null, {
+        entities: [splitUrl[1]],
+        queries: [{
+          field: 'eid',
+          operator: 'IS',
+          value: splitUrl[2]
+        }]
+      }).then(function (result) {
+
+        if (result && result[0]) {
+
+          iris.modules.frontend.globals.getTemplate(result[0], req.authPass, {
+            req: req
+          }).then(function (html) {
+
+            res.send(html);
+
+            next();
+
+          }, function (fail) {
+
+            iris.invokeHook("hook_display_error_page", req.authPass, {
+              error: 500,
+              req: req
+            }).then(function (success) {
+
+              res.send(success);
+
+            }, function (fail) {
+
+              res.send("500");
+
+            });
+
+          });
+
+        } else {
+
+          next();
+
+        }
+
+      }, function (error) {
+
+        next();
+
+      });
+
+    } else {
 
       next();
 
-    });
+    }
 
-  } else {
 
-    next();
-
-  }
+  });
+  
+  thisHook.pass(data);
 
 });
 
