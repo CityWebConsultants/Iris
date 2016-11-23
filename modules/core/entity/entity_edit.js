@@ -294,26 +294,20 @@ iris.route.post("/entity/edit/:type/:eid", function (req, res) {
  *
  * This hook returns successfully only if the authPass allows for the entity provided to be created.
  */
-iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, data) {
+iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, entity) {
 
-  if (!iris.modules.auth.globals.checkPermissions(["can edit any " + data.entityType], thisHook.authPass)) {
 
-    if (!iris.modules.auth.globals.checkPermissions(["can edit own " + data.entityType], thisHook.authPass)) {
+  if (!(entity.access && entity.access === true)) {
+
+    var isOwn = thisHook.authPass.userid == entity.entityAuthor;
+    var viewOwn = iris.modules.auth.globals.checkPermissions(["can edit own " + entity.entityType], thisHook.authPass);
+    var viewAny = iris.modules.auth.globals.checkPermissions(["can edit any " + entity.entityType], thisHook.authPass);
+    if (!viewAny && !(isOwn && viewOwn)) {
 
       thisHook.fail("Access denied");
       return false;
 
-    } else {
-
-      if (data.entityAuthor !== thisHook.authPass.userid) {
-
-        thisHook.fail("Access denied");
-        return false;
-
-      }
-
     }
-
   }
 
   thisHook.pass(data);
