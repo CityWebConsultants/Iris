@@ -540,11 +540,7 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
   // Check if a matching route is found
 
-  if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissions) {
-
-    var permissions = thisHook.context.req.irisRoute.options.permissions;
-
-    var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.context.req.authPass);
+  var actOnResult = function(access) {
 
     if (!access) {
 
@@ -565,11 +561,31 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
       });
 
-    } else {
+    }
+    else {
 
       thisHook.pass(data);
 
     }
+
+  };
+
+  if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissionsCallback) {
+
+    if (typeof thisHook.context.req.irisRoute.options.permissionsCallback == 'function') {
+
+      thisHook.context.req.irisRoute.options.permissionsCallback(thisHook.context.req, actOnResult);
+
+    }
+
+  }
+  else if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissions) {
+
+    var permissions = thisHook.context.req.irisRoute.options.permissions;
+
+    var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.context.req.authPass);
+
+    actOnResult(access);
 
   } else {
 
