@@ -185,7 +185,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 
   }, function (fail) {
 
-    console.log(fail);
+    thisHook.pass(data);
 
   });
 
