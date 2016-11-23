@@ -319,7 +319,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
         iris.invokeHook("hook_entity_view", thisHook.authPass, null, entities[_id]).then(function (viewChecked) {
 
-          if (viewChecked.access === false) {
+          if (viewChecked === undefined) {
             no("permission denied");
             return false;
           }
@@ -538,7 +538,7 @@ iris.modules.entity.registerHook("hook_entity_view", 0, function (thisHook, enti
   if (!viewAny && !(isOwn && viewOwn)) {
 
     //Can't view any of this type, delete it
-    entity.access = false;
+    entity = undefined;
 
   }
 
