@@ -146,7 +146,7 @@ iris.modules.entityReference.registerHook("hook_entity_field_fieldType_form__ent
 
   }
 
-  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+  iris.invokeHook("hook_entity_fetch", 'root', null, {
     "entities": [value.entityType],
     queries: [{
       "operator": "is",
@@ -390,7 +390,7 @@ iris.modules.entityReference.registerHook("hook_frontend_embed__form", 1, functi
 // allow refrences for entities to be loaded by passing a parameter to the entity fetch call
 
 iris.modules.entityReference.registerHook("hook_entity_fetch", 1, function (thisHook, data) {
-    
+
   if (data && data.length) {
 
     if (thisHook.context && thisHook.context.loadReferences) {
@@ -451,7 +451,7 @@ iris.modules.entityReference.registerHook("hook_entity_fetch", 1, function (this
 
         hooks.forEach(function (hook) {
 
-          iris.invokeHook("hook_entity_fetch", thisHook.authPass, {
+          iris.invokeHook("hook_entity_fetch", 'root', {
             entities: [hook.search.entityType],
             queries: [{
               "field": "eid",
