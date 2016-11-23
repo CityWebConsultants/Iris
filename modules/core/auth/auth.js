@@ -564,7 +564,6 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
     }
     else {
 
-      console.log('paddeeded');
       thisHook.pass(data);
 
     }
