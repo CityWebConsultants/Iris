@@ -296,7 +296,6 @@ iris.route.post("/entity/edit/:type/:eid", function (req, res) {
  */
 iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHook, entity) {
 
-
   if (!(entity.access && entity.access === true)) {
 
     var isOwn = thisHook.authPass.userid == entity.entityAuthor;
@@ -310,6 +309,6 @@ iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHoo
     }
   }
 
-  thisHook.pass(data);
+  thisHook.pass(entity);
 
 });
