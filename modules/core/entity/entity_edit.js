@@ -254,7 +254,6 @@ iris.modules.entity.registerHook("hook_entity_edit", 0, function (thisHook, data
 
     }, function (fail) {
 
-      console.log(fail);
       thisHook.fail(fail);
 
     });
@@ -303,7 +302,8 @@ iris.modules.entity.registerHook("hook_entity_access_edit", 0, function (thisHoo
     var viewAny = iris.modules.auth.globals.checkPermissions(["can edit any " + entity.entityType], thisHook.authPass);
     if (!viewAny && !(isOwn && viewOwn)) {
 
-      thisHook.fail("Access denied");
+      entity.access = false;
+      thisHook.pass(entity);
       return false;
 
     }

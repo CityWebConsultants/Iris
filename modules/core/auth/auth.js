@@ -197,47 +197,51 @@ iris.modules.auth.globals = {
 
   checkPermissions: function (permissionsArray, authPass) {
 
-    var fs = require('fs'),
-      permissions;
-
-    //Load in permissions if available
-
-    try {
-      var currentPermissions = fs.readFileSync(iris.sitePath + "/configurations/auth/permissions.json", "utf8");
-
-      permissions = JSON.parse(currentPermissions);
-
-    } catch (e) {
-
-      permissions = {};
-
-    }
-
-    var access = false;
-
-    permissionsArray.forEach(function (permission) {
-
-      authPass.roles.forEach(function (role) {
-
-        if (permissions[permission] && permissions[permission].indexOf(role) !== -1) {
-
-          access = true;
-
-        }
-
-      });
-
-    });
-
     if (authPass.roles.indexOf("admin") >= 0) {
 
       access = true;
+
+    }
+    else {
+      var fs = require('fs'),
+        permissions;
+
+      //Load in permissions if available
+
+      try {
+        var currentPermissions = fs.readFileSync(iris.sitePath + "/configurations/auth/permissions.json", "utf8");
+
+        permissions = JSON.parse(currentPermissions);
+
+      }
+      catch (e) {
+
+        permissions = {};
+
+      }
+
+      var access = false;
+
+      permissionsArray.forEach(function (permission) {
+
+        authPass.roles.forEach(function (role) {
+
+          if (permissions[permission] && permissions[permission].indexOf(role) !== -1) {
+
+            access = true;
+
+          }
+
+        });
+
+      });
 
     }
 
     return access;
 
   }
+
 };
 
 iris.modules.auth.globals.registerPermission("can make access token", "auth");

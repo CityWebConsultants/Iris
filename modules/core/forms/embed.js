@@ -222,7 +222,7 @@ iris.modules.forms.registerHook("hook_frontend_embed__form", 0, function (thisHo
 
     }, function (fail) {
 
-      thisHook.fail();
+      thisHook.fail(fail);
 
     });
 

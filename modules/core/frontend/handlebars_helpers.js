@@ -471,11 +471,11 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
             pass(result);
 
-          }, function (fail) {
+          }, function (reason) {
 
-            iris.log("error", fail);
+            iris.log("error", reason);
 
-            pass("");
+            fail(reason);
 
           });
 
@@ -487,11 +487,11 @@ iris.modules.frontend.registerHook("hook_frontend_handlebars_extend", 0, functio
 
           pass(result);
 
-        }, function (fail) {
+        }, function (reason) {
 
-          iris.log("error", fail);
+          iris.log("error", reason);
 
-          pass("");
+          fail(reason);
 
         });
 
