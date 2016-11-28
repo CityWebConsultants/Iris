@@ -429,7 +429,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
     }, function (fail) {
 
-      thisHook.fail("Fetch failed");
+      thisHook.fail("Fetch failed: " + fail);
 
     });
 

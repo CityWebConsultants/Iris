@@ -54,7 +54,16 @@ iris.route.get("/:type/:eid/edit", function (req, res) {
 
   }, function (fail) {
 
-    iris.modules.frontend.globals.displayErrorPage(500, req, res);
+    if (fail === 'Fetch failed: permission denied') {
+
+      iris.modules.frontend.globals.displayErrorPage(403, req, res);
+
+    }
+    else {
+
+      iris.modules.frontend.globals.displayErrorPage(500, req, res);
+
+    }
 
     iris.log("error", fail);
 
@@ -745,6 +754,10 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
         renderFields(doc[0]);
 
       }
+
+    }, function(fail) {
+
+      thisHook.fail(fail);
 
     });
 
