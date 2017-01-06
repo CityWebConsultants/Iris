@@ -541,10 +541,22 @@ if (iris.config.https) {
     key: fs.readFileSync(iris.config.https_key),
     cert: fs.readFileSync(iris.config.https_cert)
   };
+  
+  if(iris.config.https_ca){
+     tls_options.ca = fs.readFileSync(iris.config.https_ca);
+  }
 
   iris.server = https.createServer(tls_options, iris.app);
 
   iris.server.listen(iris.config.port);
+  
+  var http = require('http');
+  var tapp = express();
+  tapp.use(function (req, res) {
+      res.redirect('https:/' + '/' + req.headers.host + req.url);  
+  });
+  iris.config.unsecured_port = iris.config.unsecured_port : 80;
+  http.createServer(tapp).listen(iris.config.unsecured_port);
 
 } else {
 
