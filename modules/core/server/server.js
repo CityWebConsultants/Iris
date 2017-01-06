@@ -555,7 +555,7 @@ if (iris.config.https) {
   tapp.use(function (req, res) {
       res.redirect('https:/' + '/' + req.headers.host + req.url);  
   });
-  iris.config.unsecured_port = iris.config.unsecured_port : 80;
+  iris.config.unsecured_port = iris.config.unsecured_port ? iris.config.unsecured_port : 80;
   http.createServer(tapp).listen(iris.config.unsecured_port);
 
 } else {
