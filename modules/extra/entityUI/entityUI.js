@@ -553,6 +553,7 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                 if (fields[subfields[i]].subfields) {
                   current = subfields[i];
                   getFieldPath(fields[subfields[i]].subfields, parent, field, current);
+                  current = parent;
                 } else {
                   key.pop();
                 }
