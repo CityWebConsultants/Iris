@@ -293,6 +293,9 @@ iris.route.get("/user/logout", routes.logout, function (req, res) {
 
       });
     }
+    else {
+      res.redirect("/");
+    }
 
   };
 
