@@ -44,7 +44,8 @@ iris.modules.system.registerHook("hook_form_submit__login", 0, function (thisHoo
       iris.message(thisHook.authPass.userid, "Wrong credentials", "danger");
 
     }
-
+    thisHook.context.res.cookie('userid', thisHook.context.req.session.credentials.userid);
+    thisHook.context.res.cookie('token', thisHook.context.req.session.credentials.token);
     thisHook.pass(data);
 
   });
