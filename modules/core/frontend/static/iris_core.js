@@ -35,8 +35,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
     iris.socketreceiver.on("liveUpdate", function (data) {
 
       var block = document.querySelector('[data-liveupdate="' + data.id + '"]');
-
-      block.innerHTML = data.content;
+      if(block){
+        block.innerHTML = data.content;
+      }
 
     });
 
