@@ -1,5 +1,5 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
+
+
 
 // Password field hook
 
@@ -29,7 +29,7 @@ iris.modules.entity.registerHook("hook_entity_field_fieldType_form__select", 0, 
     title: fieldSettings.label,
     "description": fieldSettings.description,
     "default": value,
-    "enum": fieldSettings.settings.options
+    "enum": (fieldSettings.settings)?  fieldSettings.settings.options : [""]
   };
 
   thisHook.pass(data);

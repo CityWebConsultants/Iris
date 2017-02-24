@@ -16,9 +16,33 @@ iris.modules.ckeditor.registerHook("hook_entity_field_widget_form__ckeditor_fiel
     title: fieldSettings.label,
     "description": fieldSettings.description,
     "default": value
-  }
+  };
 
   thisHook.pass(data);
+
+});
+
+var toSource = require('tosource');
+
+iris.route.get("/modules/ckeditor/config.js", function (req, res) {
+
+  res.set('Content-Type', 'text/javascript');
+
+  var output = "";
+
+  iris.invokeHook("hook_ckeditor_config", req.authPass, {
+    name: req.query.name
+  }, {}).then(function (config) {
+
+    Object.keys(config).forEach(function (setting) {
+
+      output += "CKEDITOR.config['" + setting + "'] = " + toSource(config[setting]);
+
+    });
+
+    res.send(output);
+
+  });
 
 });
 
@@ -27,15 +51,21 @@ iris.modules.ckeditor.registerHook("hook_entity_field_widget_form__ckeditor_fiel
 iris.modules.forms.globals.registerWidget(function () {
 
   JSONForm.elementTypes['ckeditor'] = Object.create(JSONForm.elementTypes['text']);
-
+  
   document.addEventListener('formsLoaded', function (e) {
 
-    $.getScript("//cdn.ckeditor.com/4.5.3/standard/ckeditor.js", function () {
+    window.CKEDITOR_BASEPATH = '/modules/ckeditor/ckeditor/';
 
-      $(".ckeditor").each(function () {
+    $.getScript("/modules/ckeditor/ckeditor/ckeditor.js", function () {
+
+      CKEDITOR.config.filebrowserUploadUrl = '/admin/file/ckeditorupload';
+      CKEDITOR.config.allowedContent = true;
+
+      $(".ckeditor").each(function (index, element) {
+
         CKEDITOR.replace(this, {
 
-          customConfig: '/modules/ckeditor/config.js'
+          customConfig: '/modules/ckeditor/config.js' + "?name=" + $(element).attr("name")
 
         });
       });
@@ -56,9 +86,9 @@ iris.modules.forms.globals.registerWidget(function () {
 
           });
 
-        };
+        }
 
-      })
+      });
 
     });
 
@@ -72,7 +102,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
     }
 
-  }
+  };
 
   JSONForm.elementTypes['ckeditor'].template = '<textarea class="ckeditor" id="<%= id %>" name="<%= node.name %>" <%= JSONForm.requiredFlip(node.required) %> ><%= value %></textarea>';
   JSONForm.elementTypes['ckeditor'].fieldTemplate = true;
@@ -84,7 +114,7 @@ iris.modules.forms.globals.registerWidget(function () {
 
 var fs = require('fs');
 
-iris.app.post('/admin/file/ckeditorupload', function (req, res) {
+iris.route.post('/admin/file/ckeditorupload', function (req, res) {
 
   var mkdirSync = function (path) {
     try {
@@ -92,7 +122,7 @@ iris.app.post('/admin/file/ckeditorupload', function (req, res) {
     } catch (e) {
       if (e.code != 'EEXIST') throw e;
     }
-  }
+  };
 
   mkdirSync(iris.sitePath + "/" + "files");
 

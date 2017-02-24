@@ -1,3 +1,5 @@
 {
-  "name": "Menu creator"
+  "name": "Menu creator",
+  "description": "Allows menus to be created via the admin user interface.",
+  "weight": 1
 }

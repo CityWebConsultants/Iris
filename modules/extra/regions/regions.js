@@ -14,7 +14,7 @@ var routes = {
       title: "Regions"
     }]
   }
-}
+};
 
 /**
  * Admin page callback: Regions UI.
@@ -25,7 +25,7 @@ iris.route.get("/admin/regions", routes.regions, function (req, res) {
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_regions"], ['admin_wrapper'], {}, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -47,9 +47,9 @@ iris.modules.forms.registerHook("hook_form_render__regions", 0, function (thisHo
 
     Object.keys(iris.modules.blocks.globals.blocks[blockType]).forEach(function (block) {
 
-      blocks.push(block + "|" + blockType)
+      blocks.push(block + "|" + blockType);
 
-    })
+    });
 
   });
 
@@ -98,15 +98,15 @@ iris.modules.forms.registerHook("hook_form_render__regions", 0, function (thisHo
           },
 
         }
-      }
+      };
 
-    })
+    });
 
     Object.keys(form).forEach(function (property) {
 
       data.schema[property] = form[property];
 
-    })
+    });
 
     // Load in past values
 
@@ -153,13 +153,23 @@ iris.modules.forms.registerHook("hook_form_submit__regions", 0, function (thisHo
 // Load regions
 
 iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (thisHook, data) {
+  
+  if (thisHook.context.embedOptions.region) {
 
-  var regionName = thisHook.context.embedID;
+    console.warn('"region" embed parameter has been changed to "name". You should change the template embed code for region "' + thisHook.context.embedOptions.region + '"');
 
+    thisHook.context.embedOptions.name = thisHook.context.embedOptions.region;
+    
+    delete thisHook.context.embedOptions.region;
+
+  }
+
+  var regionName = thisHook.context.embedOptions.name;
+  
   // Get list of regions
 
   iris.readConfig("regions", "regions").then(function (output) {
-
+    
       if (output[regionName]) {
         // Render each block in the region
 
@@ -167,10 +177,10 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
         var blockData = {};
 
         output[regionName].forEach(function (block, index) {
-
+          
           var settings = block.settings;
 
-          var block = block.block;
+          block = block.block;
 
           if (block.toLowerCase() === "none") {
 
@@ -188,7 +198,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
             instanceSettings: settings,
             config: iris.modules.blocks.globals.blocks[blockType][blockName],
             context: thisHook.context.vars
-          }
+          };
 
           blockPromises.push(function (object) {
 
@@ -201,7 +211,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
                 yes(blockData);
 
               }, function (fail) {
-
+                
                 yes("");
 
               });
@@ -257,7 +267,7 @@ iris.modules.regions.registerHook("hook_frontend_embed__region", 0, function (th
 var minimatch = require("minimatch");
 
 iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, data) {
-
+  
   if (thisHook.context.instanceSettings) {
 
     if (thisHook.context.instanceSettings.pathVisibility) {
@@ -267,7 +277,7 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
       var showing = true;
 
       var paths = thisHook.context.instanceSettings.pathVisibility.replace(/\r\n/g, '\n').split("\n");
-
+      
       if (thisHook.context.context && thisHook.context.context.req && thisHook.context.context.req.url) {
 
         var currentUrl = thisHook.context.context.req.url;
@@ -278,8 +288,8 @@ iris.modules.regions.registerHook("hook_block_render", 0, function (thisHook, da
 
           showing = minimatch(currentUrl, path);
 
-        })
-
+        });
+        
         if (showing) {
 
           thisHook.pass(data);

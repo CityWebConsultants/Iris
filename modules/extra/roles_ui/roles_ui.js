@@ -13,7 +13,7 @@ var routes = {
       title: "Roles"
     }]
   }
-}
+};
 
 /**
  * Admin page callback: Roles.
@@ -26,7 +26,7 @@ iris.route.get("/admin/users/roles", routes.roles, function (req, res) {
 
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -43,7 +43,7 @@ iris.readConfig('auth', 'auth_roles').then(function (config) {
   // config is now accessible as a standard JavaScript object
   var roles = iris.modules.auth.globals.roles;
 
-  for (key in config) {
+  for (var key in config) {
     iris.modules.auth.globals.registerRole(key);
   }
 
@@ -70,7 +70,7 @@ iris.modules.roles_ui.registerHook("hook_form_render__manageRoles", 0, function 
 
   delete roles.anonymous;
   delete roles.authenticated;
-  for (key in roles) {
+  for (var key in roles) {
     rolesDefaults.push({
       "roleName": key
     });
@@ -108,7 +108,7 @@ iris.modules.roles_ui.registerHook("hook_form_submit__manageRoles", 0, function 
 
       formatRoles[item.roleName] = {
         "name": item.roleName
-      }
+      };
 
     });
 

@@ -1,11 +1,13 @@
+<script src="/modules/forms/jsonform/deps/opt/ace/ace.js"></script>
+<script src="/modules/forms/jsonform/deps/opt/ace/mode-javascript.js"></script>
 
 {{#if action}}
 
-  [[[form actions,"{{action}}"]]]
+{{{iris 'form' '{"name":"actions","action":"$action"}'}}}
 
 {{else}}
 
-  [[[form actions]]]
+{{{iris 'form' '{"name":"actions"}'}}}
 
 {{/if}}
 

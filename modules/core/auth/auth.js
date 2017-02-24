@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise*/
-
 "use strict";
 
 var fs = require('fs');
@@ -28,7 +25,7 @@ mkdirSync(iris.configPath + "/" + "auth");
 
 var crypto = require('crypto');
 
-iris.registerModule("auth",__dirname);
+iris.registerModule("auth", __dirname);
 
 iris.modules.auth.globals = {
 
@@ -132,8 +129,19 @@ iris.modules.auth.globals = {
 
       } else {
 
-        authPass.userid = "anonymous";
+        // Check if session id exists, if so make this the userid
+
         authPass.roles = ["anonymous"];
+
+        if (req && req.session) {
+
+          authPass.userid = "anon_" + req.sessionID;
+
+        } else {
+
+          authPass.userid = "anonymous";
+
+        }
 
       }
 
@@ -189,47 +197,51 @@ iris.modules.auth.globals = {
 
   checkPermissions: function (permissionsArray, authPass) {
 
-    var fs = require('fs'),
-      permissions;
-
-    //Load in permissions if available
-
-    try {
-      var currentPermissions = fs.readFileSync(iris.sitePath + "/configurations/auth/permissions.json", "utf8");
-
-      permissions = JSON.parse(currentPermissions);
-
-    } catch (e) {
-
-      permissions = {};
-
-    }
-
-    var access = false;
-
-    permissionsArray.forEach(function (permission) {
-
-      authPass.roles.forEach(function (role) {
-
-        if (permissions[permission] && permissions[permission].indexOf(role) !== -1) {
-
-          access = true;
-
-        }
-
-      });
-
-    });
-
     if (authPass.roles.indexOf("admin") >= 0) {
 
       access = true;
+
+    }
+    else {
+      var fs = require('fs'),
+        permissions;
+
+      //Load in permissions if available
+
+      try {
+        var currentPermissions = fs.readFileSync(iris.sitePath + "/configurations/auth/permissions.json", "utf8");
+
+        permissions = JSON.parse(currentPermissions);
+
+      }
+      catch (e) {
+
+        permissions = {};
+
+      }
+
+      var access = false;
+
+      permissionsArray.forEach(function (permission) {
+
+        authPass.roles.forEach(function (role) {
+
+          if (permissions[permission] && permissions[permission].indexOf(role) !== -1) {
+
+            access = true;
+
+          }
+
+        });
+
+      });
 
     }
 
     return access;
 
   }
+
 };
 
 iris.modules.auth.globals.registerPermission("can make access token", "auth");
@@ -289,9 +301,9 @@ iris.modules.auth.registerHook("hook_auth_authpass", 0, function (thisHook, data
 });
 
 iris.modules.auth.globals.AttachAuthPass = function (session, uid) {
-  
+
   session.getAuthPass = function () {
-   
+
     var token = Object.keys(session.tokens)[0];
     var userid = uid;
 
@@ -369,8 +381,8 @@ iris.modules.auth.registerHook("hook_auth_maketoken", 0, function (thisHook, dat
         thisHook.fail(fail);
 
       });
-      
-      iris.modules.auth.globals.AttachAuthPass(iris.modules.auth.globals.userList[data.userid],data.userid);
+
+      iris.modules.auth.globals.AttachAuthPass(iris.modules.auth.globals.userList[data.userid], data.userid);
 
       iris.modules.auth.globals.userList[data.userid].lastActivity = Date.now();
 
@@ -460,7 +472,7 @@ iris.modules.auth.registerHook("hook_auth_clearauth", 0, function (thisHook, use
 
 });
 
-iris.app.post('/auth/clearauth', function (req, res) {
+iris.route.post('/auth/clearauth', function (req, res) {
 
   iris.invokeHook("hook_auth_clearauth", req.authPass, req.body.userid, req.body.userid).then(function (success) {
 
@@ -474,7 +486,7 @@ iris.app.post('/auth/clearauth', function (req, res) {
 
 });
 
-iris.app.post('/auth/deletetoken', function (req, res) {
+iris.route.post('/auth/deletetoken', function (req, res) {
 
   iris.invokeHook("hook_auth_deletetoken", req.authPass, req.body, req.authPass).then(function (success) {
 
@@ -488,7 +500,7 @@ iris.app.post('/auth/deletetoken', function (req, res) {
 
 });
 
-iris.app.post('/auth/maketoken', function (req, res) {
+iris.route.post('/auth/maketoken', function (req, res) {
 
   iris.invokeHook("hook_auth_maketoken", req.authPass, null, {
     userid: req.body.userid
@@ -504,7 +516,7 @@ iris.app.post('/auth/maketoken', function (req, res) {
 
 });
 
-iris.app.get('/auth/checkauth', function (req, res) {
+iris.route.get('/auth/checkauth', function (req, res) {
 
   res.send(req.authPass);
 
@@ -516,9 +528,9 @@ iris.modules.auth.registerHook("hook_restart_send", 0, function (thisHook, data)
 
   thisHook.pass(data);
 
-})
+});
 
-iris.app.post("/logout", function (req, res) {
+iris.route.post("/logout", function (req, res) {
 
   iris.invokeHook("hook_auth_clearauth", "root", null, req.authPass.userid);
 
@@ -532,11 +544,7 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
   // Check if a matching route is found
 
-  if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissions) {
-
-    var permissions = thisHook.context.req.irisRoute.options.permissions;
-
-    var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.context.req.authPass);
+  var actOnResult = function(access) {
 
     if (!access) {
 
@@ -551,22 +559,50 @@ iris.modules.auth.registerHook("hook_request_intercept", 0, function (thisHook, 
 
       }, function (fail) {
 
-        thisHook.context.res.status(403);
-        thisHook.context.res.end(403);
+        thisHook.context.res.status("403");
+        thisHook.context.res.end("403");
         thisHook.fail(data);
 
       });
 
-    } else {
+    }
+    else {
 
       thisHook.pass(data);
 
     }
+
+  };
+
+  if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissionsCallback) {
+
+    if (typeof thisHook.context.req.irisRoute.options.permissionsCallback == 'function') {
+
+      thisHook.context.req.irisRoute.options.permissionsCallback(thisHook.context.req, actOnResult);
+
+    }
+
+  }
+  else if (thisHook.context.req.irisRoute && thisHook.context.req.irisRoute.options && thisHook.context.req.irisRoute.options.permissions) {
+
+    var permissions = thisHook.context.req.irisRoute.options.permissions;
+
+    var access = iris.modules.auth.globals.checkPermissions(permissions, thisHook.context.req.authPass);
+
+    actOnResult(access);
 
   } else {
 
     thisHook.pass(data);
 
   }
+
+});
+
+// API endpoint to check auth token/cookies
+
+iris.route.get("/checkauth", function (req, res) {
+
+  res.respond(200, req.authPass.userid);
 
 });

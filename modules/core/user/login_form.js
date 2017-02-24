@@ -16,7 +16,7 @@ iris.modules.forms.registerHook("hook_form_render__login", 0, function (thisHook
       type: 'markup',
       markup : '<a href="/user/password">' + thisHook.authPass.t('Forgot your password?') + '</a>'
     }
-  }
+  };
 
   data.form = [
     'username',
@@ -33,18 +33,19 @@ iris.modules.forms.registerHook("hook_form_render__login", 0, function (thisHook
 });
 
 iris.modules.system.registerHook("hook_form_submit__login", 0, function (thisHook, data) {
-
+  
   iris.modules.user.globals.login({
     username: thisHook.context.params.username,
     password: thisHook.context.params.password
-  }, thisHook.context.res, function (userid) {
+  }, thisHook.context.req, function (userid) {
 
     if (!userid) {
 
       iris.message(thisHook.authPass.userid, "Wrong credentials", "danger");
 
     }
-
+    thisHook.context.res.cookie('userid', thisHook.context.req.session.credentials.userid);
+    thisHook.context.res.cookie('token', thisHook.context.req.session.credentials.token);
     thisHook.pass(data);
 
   });

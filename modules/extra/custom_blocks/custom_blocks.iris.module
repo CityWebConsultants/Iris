@@ -3,5 +3,6 @@
   "weight": 3,
    "dependencies": {
     "blocks": "1"
-  }
+  },
+  "description": "Allow static HTML template blocks to be created."
 }

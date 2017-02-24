@@ -94,9 +94,9 @@ frisby.create('Set first time user')
                           .expectHeaderContains('content-type', 'application/json')
                           .toss();
                       })
-                    .toss()
+                    .toss();
                   })
-                 .toss()
+                 .toss();
               })
              .toss();
         })

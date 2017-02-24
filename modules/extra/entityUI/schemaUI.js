@@ -85,11 +85,25 @@ var routes = {
 
 iris.route.get("/admin/structure/entities", routes.entities, function (req, res) {
 
+  // Remove system entity types
+
+  var entityTypes = [];
+
+  Object.keys(iris.entityTypes).forEach(function (type) {
+
+    if (!iris.entityTypes[type].systemOnly) {
+
+      entityTypes.push(type);
+
+    }
+
+  });
+
   iris.modules.frontend.globals.parseTemplateFile(["admin_entity_types"], ['admin_wrapper'], {
-    entityTypes: Object.keys(iris.entityTypes)
+    entityTypes: entityTypes
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -144,7 +158,7 @@ iris.route.get("/admin/schema/:type/edit", routes.editType, function (req, res) 
     entityType: req.params.type
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -164,7 +178,7 @@ iris.route.get("/admin/schema/:type/delete", routes.deleteType, function (req, r
     entityType: req.params.type
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -192,7 +206,7 @@ iris.route.get("/admin/schema/:type/fields", routes.fields, function (req, res) 
     bodyClass: 'schema-admin'
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -222,7 +236,7 @@ iris.route.get("/admin/schema/:type/fieldset/:fieldset", routes.fieldset, functi
     bodyClass: 'schema-admin'
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -273,7 +287,7 @@ iris.modules.entityUI.globals.fieldForm = function (type, field, parent, req, re
     bodyClass: 'schema-admin'
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -283,7 +297,7 @@ iris.modules.entityUI.globals.fieldForm = function (type, field, parent, req, re
 
   });
 
-}
+};
 
 /**
  * Page callback to edit specific root level field of an entity.
@@ -295,7 +309,7 @@ iris.route.get("/admin/schema/:type/fields/:field/widget", routes.widget, functi
     type: req.params.type
   });
 
-  iris.modules.entityUI.globals.widgetForm(req.params.type, req.params.field, '', req, res)
+  iris.modules.entityUI.globals.widgetForm(req.params.type, req.params.field, '', req, res);
 
 });
 
@@ -309,7 +323,7 @@ iris.route.get("/admin/schema/:type/fieldset/:fieldset/:field/widget", routes.fi
     type: req.params.type
   });
 
-  iris.modules.entityUI.globals.widgetForm(req.params.type, req.params.field, req.params.fieldset, req, res)
+  iris.modules.entityUI.globals.widgetForm(req.params.type, req.params.field, req.params.fieldset, req, res);
 
 });
 
@@ -322,7 +336,7 @@ iris.modules.entityUI.globals.widgetForm = function (type, field, parent, req, r
     bodyClass: 'schema-admin no-legend'
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -332,7 +346,7 @@ iris.modules.entityUI.globals.widgetForm = function (type, field, parent, req, r
 
   });
 
-}
+};
 
 /**
  * Page callback to delete field of an entity.
@@ -352,7 +366,7 @@ iris.route.get("/admin/schema/:type/fields/:field/delete", routes.fieldDelete, f
   }, req.authPass, req).then(function (success) {
 
 
-    res.send(success)
+    res.send(success);
 
 
   }, function (fail) {
@@ -369,7 +383,7 @@ iris.route.get("/admin/schema/:type/fields/:field/delete", routes.fieldDelete, f
 });
 
 iris.modules.entityUI.registerHook("hook_form_render__schemaDelete", 0, function (thisHook, data) {
-  var entityType = thisHook.context.params[1];
+  var entityType = thisHook.context.params.entityType;
 
   data.schema = {
     "schema": {
@@ -424,13 +438,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaDelete", 0, function
  */
 iris.modules.entityUI.registerHook("hook_form_render__schemafieldDelete", 0, function (thisHook, data) {
 
+  var entityType = thisHook.context.params.entityType;
 
-  var entityType = thisHook.context.params[1];
-
-  var fieldName = thisHook.context.params[2];
+  var fieldName = thisHook.context.params.field;
 
   var schema = iris.entityTypes[entityType];
-
 
   data.schema.message = {
     "type": "markup",
@@ -493,7 +505,6 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
 
   if (schema && !schema[fieldName]) {
 
-
     var recurseFields = function (object, elementParent) {
 
       Object.keys(object).forEach(function (element) {
@@ -512,7 +523,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
 
       });
 
-    }
+    };
 
     recurseFields(schema.fields, '');
 
@@ -530,7 +541,6 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
   iris.saveConfig(schema, "entity", entityType, function (data) {
 
     iris.dbPopulate();
-
 
     thisHook.pass(function (res) {
 
@@ -572,11 +582,10 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldDelete", 0, fun
  */
 iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, function (thisHook, data) {
 
-
   var ap = thisHook.authPass;
-  if (thisHook.context.params[1]) {
+  if (thisHook.context.params.entityType) {
 
-    var entityType = thisHook.context.params[1];
+    var entityType = thisHook.context.params.entityType;
 
     if (!iris.entityTypes[entityType]) {
 
@@ -591,30 +600,33 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
 
     var entityTypeSchema = iris.entityTypes[entityType];
     // Parent is required to know which fields to list.
-    var parent = thisHook.context.params[2];
+    var parent = thisHook.context.params.parent;
+
+    var parentSchema,
+      fields;
 
     if (parent) {
 
       var recurseFields = function (object, elementParent) {
 
-          for (element in object) {
+        for (var element in object) {
 
-            if (element == parent) {
+          if (element == parent) {
 
-              parentSchema = object[element];
-              fields = object[element].subfields;
+            parentSchema = object[element];
+            fields = object[element].subfields;
 
-              return;
+            return;
 
-            } else if (typeof object[element].fieldType != 'undefined' && object[element].fieldType == 'Fieldset') {
+          } else if (typeof object[element].fieldType != 'undefined' && object[element].fieldType == 'Fieldset') {
 
-              recurseFields(object[element].subfields, element);
+            recurseFields(object[element].subfields, element);
 
-            }
+          }
 
-          };
         }
-        // Do recursion to find the desired fields to list as they may be nested.
+      };
+      // Do recursion to find the desired fields to list as they may be nested.
       recurseFields(entityTypeSchema.fields, parent);
 
     } else {
@@ -630,12 +642,21 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
 
       var row = {};
 
+      var field;
+
       if (!parentSchema.subfields) {
-        var field = JSON.parse(JSON.stringify(parentSchema[fieldName]));
+        field = JSON.parse(JSON.stringify(parentSchema[fieldName]));
       } else {
-        var field = JSON.parse(JSON.stringify(parentSchema.subfields[fieldName]));
+        field = JSON.parse(JSON.stringify(parentSchema.subfields[fieldName]));
       }
 
+      // Hide field if set to fixed (like path) as it shouldn't be able to be removed from the schema
+
+      if (field.fixed) {
+
+        return false;
+
+      }
 
       row['fieldLabel'] = field.label;
       row['fieldId'] = fieldName;
@@ -689,27 +710,27 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
 
       tableHtml += '<tr>';
       tableHtml += '<td><span class="glyphicon glyphicon-resize-vertical"></span></td>';
-      for (tableCell in tableRow) {
+      for (var tableCell in tableRow) {
         tableHtml += "<td class=\"" + tableCell + "\">" + tableRow[tableCell] + "</td>";
-      };
+      }
 
       tableHtml += '</tr>';
 
     });
     tableHtml += '</tbody></table>';
 
-    var displayFieldTypes = function(){
+    var displayFieldTypes = function () {
       var allowedFieldTypes = {};
-      for(var key in iris.fieldTypes){
-        if(!iris.fieldTypes[key].hidden){
+      for (var key in iris.fieldTypes) {
+        if (!iris.fieldTypes[key].hidden) {
           allowedFieldTypes[key] = iris.fieldTypes[key];
         }
       }
-       
+
       return Object.keys(allowedFieldTypes).concat(["Fieldset"]);
     };
-    
-    
+
+
     var weightFields = {
       "type": "array",
       "title": ap.t("weights"),
@@ -805,10 +826,11 @@ iris.modules.entityUI.registerHook("hook_form_render__schemaFieldListing", 0, fu
  */
 iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, function (thisHook, data) {
 
+
   // Fetch current schema
   var schema = JSON.parse(JSON.stringify(iris.entityTypes[thisHook.context.params.entityType]));
 
-  var fieldName = thisHook.context.params.fieldName;
+  var fieldName = thisHook.context.params.field;
   var entityType = thisHook.context.params.entityType;
   var parent = thisHook.context.params.parentItem;
 
@@ -817,11 +839,15 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
   var newSchema = {
     entityTypeName: entityType,
     fields: iris.entityTypes[entityType].fields
-  }
+  };
+
+  var parentItem;
 
   var recurseFields = function (object, elementParent) {
 
+
     Object.keys(object).forEach(function (element) {
+
 
       if (element == parent) {
 
@@ -840,7 +866,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
       }
 
     });
-  }
+  };
 
   if (parent) {
     // Recursion required to find which field in the schema tree to update.
@@ -861,11 +887,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
         schemaRef["weight"] = thisHook.context.params.weightFields[i].weight;
       }
 
-    };
+    }
   }
 
   // Prepare new field.
-  if (thisHook.context.params.label != '' && thisHook.context.params.machineName != '') {
+  if (thisHook.context.params.label !== '' && thisHook.context.params.machineName !== '') {
 
     if (parentItem.fieldType == 'Fieldset') {
       parentItem = parentItem.subfields;
@@ -895,15 +921,16 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemaFieldListing", 0, fu
       iris.message(thisHook.authPass.userid, thisHook.authPass.t("Fields sucessfully saved"), "success");
       var redirect = '/admin/schema/' + entityType;
 
-      if (thisHook.context.params.machineName != '') {
+      if (thisHook.context.params.machineName !== '') {
         redirect += '/fields/' + thisHook.context.params.machineName;
       } else {
-        if (parent != '') {
+        if (parent !== '') {
           redirect += '/fieldset/' + parent;
         } else {
           redirect += '/fields';
         }
       }
+
       res.send({
         redirect: redirect
       });
@@ -1001,7 +1028,7 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
       }
 
     }
-  }
+  };
 
   var readableTypeList = ["[String]", "[Number]", "[Boolean]", "[Date]"];
 
@@ -1043,10 +1070,12 @@ iris.modules.entityUI.registerHook("hook_generate_fieldBasicForm", 0, function (
  */
 iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (thisHook, data) {
 
-  // Check entityType field is provided.
-  if (thisHook.context.params && thisHook.context.params[1]) {
+  var entityType;
 
-    var entityType = thisHook.context.params[1];
+  // Check entityType field is provided.
+  if (thisHook.context.params && thisHook.context.params.entityType) {
+
+    entityType = thisHook.context.params.entityType;
 
     if (!iris.entityTypes[entityType]) {
 
@@ -1058,7 +1087,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
 
     }
 
-  };
+  }
 
   var schema = iris.entityTypes[entityType];
 
@@ -1087,7 +1116,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
       "title": "Description",
       "default": schema['entityTypeDescription'] ? schema['entityTypeDescription'] : ''
     }
-  }
+  };
 
   data.form = [
       "*",
@@ -1114,8 +1143,8 @@ iris.modules.entityUI.registerHook("hook_form_render__schema", 0, function (this
  */
 iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (thisHook, data) {
 
+  var entityType = thisHook.context.params.entityType;
 
-  var entityType = thisHook.context.params.entityTypeName;
   var finishedSchema = {
     fields: iris.entityTypes[entityType] && iris.entityTypes[entityType].fields ? iris.entityTypes[entityType].fields : {}
   };
@@ -1133,7 +1162,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 
       // Redirect to entity edit form or entity field settings form depending on how many fields are saved
 
-      if (Object.keys(finishedSchema.fields).length == 0) {
+      if (Object.keys(finishedSchema.fields).length === 0) {
 
         iris.message(thisHook.authPass.userid, thisHook.authPass.t("New entity type created"), "success");
         res.json({
@@ -1152,7 +1181,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 
       }
 
-    }
+    };
 
     thisHook.pass(data);
 
@@ -1170,9 +1199,9 @@ iris.modules.entityUI.registerHook("hook_form_submit__schema", 0, function (this
 iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function (thisHook, data) {
 
   data.form = [];
-  var entityType = thisHook.context.params[1];
-  var fieldName = thisHook.context.params[2];
-  var parent = thisHook.context.params[3];
+  var entityType = thisHook.context.params.entityType;
+  var fieldName = thisHook.context.params.field;
+  var parent = thisHook.context.params.parent;
 
   var field = {};
 
@@ -1196,7 +1225,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
         }
 
       });
-    }
+    };
     recurseFields(iris.entityTypes[entityType].fields, parent);
 
 
@@ -1233,16 +1262,16 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafield", 0, function 
       data.schema.entityType = {
         "type": "hidden",
         "default": entityType
-      }
+      };
 
       data.schema.fieldName = {
         "type": "hidden",
         "default": fieldName
-      }
+      };
       data.schema.parent = {
         "type": "hidden",
         "default": parent
-      }
+      };
 
       data.form.push("fields");
       data.form.push("entityType");
@@ -1321,70 +1350,30 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafield", 0, function 
   delete thisHook.context.params.entityType;
   delete thisHook.context.params.fieldName;
 
-  // savedElement becomes a reference to the field to be saved. This is particularly needed for when the
-  // the field is nested somewhere within the schema tree.
+  // savedElement becomes a reference to the field to be saved.
+
   var savedElement = {};
 
-  // Recursive function
-  var recurseFields = function (object, elementParent) {
+  var lookupField = function (object) {
 
-    // If the element doesn't exist, add it to the schema.
-    if (parent == elementParent && !object[fieldName]) {
+    Object.keys(object).forEach(function (subfield) {
 
-      treeArray.push(fieldName);
+      if (subfield === parent && object[subfield].subfields && object[subfield].subfields[fieldName]) {
 
-      // First element in tree.
-      savedElement = schema.fields[treeArray[0]];
+        savedElement = object[subfield].subfields[fieldName];
 
-      // If nested, go down each level.
-      for (var i = 1; i < treeArray.length; i++) {
-        savedElement = savedElement.subfields[treeArray[i]];
-      }
-      return;
-    }
+      } else if (object[subfield].fieldType === "Fieldset" && object[subfield].subfields) {
 
-    // Loop over each field.
-    Object.keys(object).forEach(function (element) {
-
-      // If a branch has been searched but doesn't contain the disired field, remove the element from the 
-      // traversal array.
-      if (treeArray.length > 0 && treeArray[treeArray.length - 1] != element && treeArray[treeArray.length - 1] != elementParent) {
-
-        treeArray.pop();
-
-      }
-
-      // Found the diresed field.
-      if (element == fieldName) {
-
-        treeArray.push(element);
-
-        // Add route field.
-        savedElement = schema.fields[treeArray[0]];
-
-        // If field is nested, traverse to the correct leaf.
-        for (var i = 1; i < treeArray.length; i++) {
-          savedElement = savedElement.subfields[treeArray[i]];
-        }
-        return;
-
-      } else if (typeof object[element].fieldType != 'undefined' && object[element].fieldType == 'Fieldset') {
-
-        // If a fieldset, drill into it.
-        treeArray.push(element);
-        recurseFields(object[element].subfields, element);
+        lookupField(object[subfield].subfields);
 
       }
 
     });
-  }
 
-
-  // Tree traversal record, add each node to the leaf in here.
-  var treeArray = [];
+  };
 
   if (!schema.fields[fieldName]) {
-    recurseFields(schema.fields, '');
+    lookupField(schema.fields);
   } else {
     savedElement = schema.fields[fieldName];
   }
@@ -1458,7 +1447,7 @@ iris.modules.entityUI.registerHook("hook_form_render__field_settings__textfield"
         "default": "256"
       }
     }
-  }
+  };
 
   thisHook.pass(data);
 
@@ -1479,7 +1468,7 @@ iris.modules.entityUI.registerHook("hook_form_render__field_settings__fieldset",
         "markup": "<a href=\"/admin/schema/" + data.value.entityType + "/fieldset/" + data.value.fieldName + "\">" + thisHook.authPass.t('Manage subfields') + "</a>"
       }
     }
-  }
+  };
 
   thisHook.pass(data);
 
@@ -1503,7 +1492,7 @@ iris.modules.entityUI.registerHook("hook_form_render__field_settings__select", 0
         }
       }
     }
-  }
+  };
 
   thisHook.pass(data);
 
@@ -1539,9 +1528,9 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
 
   // Fetch current schema
 
-  var entityType = thisHook.context.params[1];
-  var fieldName = thisHook.context.params[2];
-  var parent = thisHook.context.params[3];
+  var entityType = thisHook.context.params.entityType;
+  var fieldName = thisHook.context.params.field;
+  var parent = thisHook.context.params.parent;
   var schema = JSON.parse(JSON.stringify(iris.entityTypes[entityType]));
 
   var field = {};
@@ -1566,7 +1555,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
         }
 
       });
-    }
+    };
     recurseFields(iris.entityTypes[entityType].fields, parent);
 
 
@@ -1577,11 +1566,11 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
   }
 
   var fieldTypeName = field.fieldType;
-
+  var widgets;
 
   if (iris.modules.entityUI.globals.fieldWidgets[fieldTypeName]) {
 
-    var widgets = iris.modules.entityUI.globals.fieldWidgets[fieldTypeName];
+    widgets = iris.modules.entityUI.globals.fieldWidgets[fieldTypeName];
 
   } else {
 
@@ -1623,22 +1612,22 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
     "title": thisHook.authPass.t("Make a choice"),
     "enum": Object.keys(widgets),
     "description": thisHook.authPass.t("Pick a widget to use to display this field to the user on entity forms")
-  }
+  };
 
   data.schema.entityType = {
     "type": "hidden",
     "default": entityType
-  }
+  };
 
   data.schema.fieldName = {
     "type": "hidden",
     "default": fieldName
-  }
+  };
 
   data.schema.parent = {
     "type": "hidden",
     "default": parent
-  }
+  };
 
   data.form = [{
     "type": "selectfieldset",
@@ -1652,13 +1641,13 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
     data.form[0].items.push({
       key: widgetName,
       "legend": widgetName
-    })
+    });
 
-  })
+  });
 
   data.form.push({
     key: "entityType",
-  })
+  });
 
   data.form.push({
     key: "fieldName",
@@ -1671,7 +1660,7 @@ iris.modules.entityUI.registerHook("hook_form_render__schemafieldwidgets", 0, fu
   data.form.push({
     type: "submit",
     value: thisHook.authPass.t("Save widget settings")
-  })
+  });
 
   // Check if widgets already set and prepopulate form if so
 
@@ -1762,7 +1751,7 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldwidgets", 0, fu
       }
 
     });
-  }
+  };
 
 
   // Tree traversal record, add each node to the leaf in here.
@@ -1804,11 +1793,11 @@ iris.modules.entityUI.registerHook("hook_form_submit__schemafieldwidgets", 0, fu
         "redirect": "/admin/schema/" + iris.sanitizeName(entityType) + "/fields"
       });
 
-    }
+    };
 
     thisHook.pass(data);
 
-  })
+  });
 
 });
 

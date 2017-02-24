@@ -18,7 +18,7 @@ var routes = {
       title: "Autopath"
     }]
   }
-}
+};
 
 /**
  * Create route for autopath administration page.
@@ -37,13 +37,13 @@ iris.route.get("/admin/structure/autopath", routes.adminStructure, function (req
 
     }
 
-  })
+  });
 
   iris.modules.frontend.globals.parseTemplateFile(["admin_autopath"], ['admin_wrapper'], {
     entityTypes: entityTypes
   }, req.authPass, req).then(function (success) {
 
-    res.send(success)
+    res.send(success);
 
   }, function (fail) {
 
@@ -53,7 +53,7 @@ iris.route.get("/admin/structure/autopath", routes.adminStructure, function (req
 
   });
 
-})
+});
 
 /**
  * Register autopath settings form (admin page shows one for each entity type). 
@@ -61,9 +61,9 @@ iris.route.get("/admin/structure/autopath", routes.adminStructure, function (req
  */
 
 iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (thisHook, data) {
-
-  var entityType = thisHook.context.params[1];
-
+  
+  var entityType = thisHook.context.params.entityType;
+  
   var tokens = [];
 
   Object.keys(iris.entityTypes[entityType].fields).forEach(function (fieldName) {
@@ -76,7 +76,7 @@ iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (th
 
     }
 
-  })
+  });
 
   var render = function (savedPattern) {
 
@@ -85,7 +85,7 @@ iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (th
       "type": "hidden",
       "default": entityType
 
-    }
+    };
 
     data.schema.pattern = {
 
@@ -95,7 +95,7 @@ iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (th
         tokens: tokens.join(" ")
       }),
 
-    }
+    };
 
     if (savedPattern) {
 
@@ -105,11 +105,11 @@ iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (th
 
     thisHook.pass(data);
 
-  }
+  };
 
   iris.readConfig("autopath", entityType).then(function (savedPattern) {
 
-    render(savedPattern)
+    render(savedPattern);
 
   }, function (fail) {
 
@@ -117,7 +117,7 @@ iris.modules.autopath.registerHook("hook_form_render__autopath", 0, function (th
 
   });
 
-})
+});
 
 /**
  * Register autopath settings form submit handler to save config. 
@@ -138,7 +138,7 @@ iris.modules.autopath.registerHook("hook_form_submit__autopath", 0, function (th
 
     thisHook.pass(data);
 
-  })
+  });
 
 
 });
@@ -160,7 +160,7 @@ iris.modules.autopath.registerHook("hook_form_render__entity", 2, function (this
 
     data.schema.path.description = thisHook.authPass.t("{{desc}} Leave empty or clear to set path automatically based on autopath settings.", {
       desc: data.schema.path.description
-    })
+    });
 
     thisHook.pass(data);
 
@@ -193,7 +193,7 @@ iris.modules.autopath.registerHook("hook_entity_presave", 2, function (thisHook,
 
           }
 
-        })
+        });
 
         data.path = savedPattern;
 

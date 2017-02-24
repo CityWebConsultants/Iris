@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
-
 /**
  * @file User management module
  */
@@ -40,7 +37,6 @@ var routes = {
   },
   logout: {
     "menu": [{
-      weight: 5,
       menuName: "admin_toolbar",
       parent: null,
       title: "Logout",
@@ -93,7 +89,7 @@ iris.route.get("/user/password", routes.password, function (req, res) {
 
 // Username + password to token
 
-iris.app.post("/api/login", function (req, res) {
+iris.route.post("/api/login", function (req, res) {
 
   if (req.body.username && req.body.password) {
 
@@ -169,7 +165,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
     action = params[3];
   }
 
-  iris.invokeHook("hook_entity_fetch", req.authPass, null, {
+  iris.invokeHook("hook_entity_fetch", "root", null, {
     "entities": ["user"],
     "queries": [{
       "field": "eid",
@@ -178,9 +174,11 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
       }]
   }).then(function (entities) {
 
+    var account;
+
     if (entities) {
 
-      var account = entities[0];
+      account = entities[0];
 
     }
 
@@ -202,7 +200,10 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
             userid: eid
           }).then(function (token) {
 
-            iris.modules.sessions.globals.writeCookies(eid, token.id, res, 8.64e7, {});
+            req.session.credentials = {
+              "userid": eid,
+              token: token
+            };
 
             // Add last login timestamp to user entity.
 
@@ -210,7 +211,7 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
               entityType: "user",
               eid: eid,
               lastlogin: Date.now()
-            }
+            };
 
             iris.invokeHook("hook_entity_edit", "root", null, userEntity);
 
@@ -278,19 +279,26 @@ iris.route.get("/user/reset/*", routes.reset, function (req, res) {
  * Page callback.
  * User logout.
  */
+
 iris.route.get("/user/logout", routes.logout, function (req, res) {
 
-  var logout = function() {
+  var logout = function () {
 
     delete iris.modules.auth.globals.userList[req.authPass.userid];
 
-    res.clearCookie('userid');
-    res.clearCookie('token');
-    res.clearCookie('admin_auth');
+    if (req.session) {
+      req.session.destroy(function () {
 
-    res.redirect("/");
+        res.redirect("/");
 
-  }
+      });
+    }
+    else {
+      res.redirect("/");
+    }
+
+  };
+
   iris.invokeHook("hook_user_logout", req.authPass, null, res).then(function (success) {
 
     res = success;
@@ -404,7 +412,7 @@ iris.modules.user.registerHook("hook_form_render__passwordReset", 0, function (t
  */
 iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function (thisHook, data) {
 
-  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+  iris.invokeHook("hook_entity_fetch", "root", null, {
     "entities": ["user"],
     "queries": [{
       "field": "username",
@@ -427,15 +435,15 @@ iris.modules.user.registerHook("hook_form_validate__passwordReset", 0, function 
     }
 
     thisHook.pass(data);
-  })
-})
+  });
+});
 
 /**
  * Submit handler for passwordReset.
  */
 iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (thisHook, data) {
 
-  iris.invokeHook("hook_entity_fetch", thisHook.authPass, null, {
+  iris.invokeHook("hook_entity_fetch", "root", null, {
     "entities": ["user"],
     "queries": [{
       "field": "username",
@@ -444,9 +452,11 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
       }]
   }).then(function (entities) {
 
+    var doc;
+
     if (entities) {
 
-      var doc = entities[0];
+      doc = entities[0];
 
     }
 
@@ -464,12 +474,25 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
       "sitename": thisHook.req.headers.host
     }, thisHook.req.authPass, thisHook.req).then(function (body) {
 
+      var email;
+
+      if (!iris.config.siteEmail) {
+
+        email = "irisjs@irisjs.org";
+
+      } else {
+
+        email = iris.config.siteEmail;
+
+      }
+
       var args = {
-        from: 'adam@therabbitden.com',
+        from: email,
         to: thisHook.context.params.username,
         subject: 'Password reset',
         body: body
       };
+
       iris.modules.email.globals.sendEmail(args, thisHook.authPass);
 
       thisHook.pass(data);
@@ -489,7 +512,7 @@ iris.modules.user.registerHook("hook_form_submit__passwordReset", 0, function (t
 
   });
 
-})
+});
 
 /**
  * Defines form set_first_user.
@@ -514,7 +537,7 @@ iris.modules.user.registerHook("hook_form_render__set_first_user", 0, function (
       data.schema.username = {
         "type": "text",
         "title": ap.t("Administrator email address")
-      }
+      };
 
       data.schema.password = {
         "type": "password",
@@ -585,43 +608,45 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
           username: thisHook.context.params.username
         };
 
-        iris.modules.user.globals.login(auth, thisHook.context.res, function (uid) {
+        iris.modules.user.globals.login(auth, thisHook.context.req, function (uid) {
+
+          var enabled = [];
 
           if (thisHook.context.params.profile == 'standard') {
 
-            var enabled = [
+            enabled = [
               {
-                name: 'blocks'
-              },
-              {
-                name: 'roles_ui'
-              },
-              {
-                name: 'configUI'
-              },
-              {
-                name: 'custom_blocks'
-              },
-              {
-                name: 'entityUI'
-              },
-              {
-                name: 'ckeditor'
-              },
-              {
-                name: 'permissionsUI'
-              },
-              {
-                name: 'page'
-              },
-              {
-                name: 'menu_block'
-              },
-              {
-                name: 'regions'
-              },
-              {
-                name: 'lists'
+                "name": "menu_ui"
+              }, {
+                "name": "autopath"
+              }, {
+                "name": "entityReference"
+              }, {
+                "name": "page"
+              }, {
+                "name": "configUI"
+              }, {
+                "name": "roles_ui"
+              }, {
+                "name": "entityUI"
+              }, {
+                "name": "permissionsUI"
+              }, {
+                "name": "blocks"
+              }, {
+                "name": "triggers"
+              }, {
+                "name": "menu_block"
+              }, {
+                "name": "regions"
+              }, {
+                "name": "custom_blocks"
+              }, {
+                "name": "textfilters"
+              }, {
+                "name": "ckeditor"
+              }, {
+                "name": "tags"
               }
             ];
 
@@ -671,7 +696,7 @@ iris.modules.user.registerHook("hook_form_submit__set_first_user", 0, function (
  * @param {object} res - Express response object
  * @param {function} callback - Callback which is run with the userid of the logged in user (if successful) as its first argument, or, if unsuccessful, an error message
  */
-iris.modules.user.globals.login = function (auth, res, callback) {
+iris.modules.user.globals.login = function (auth, req, callback) {
 
   iris.invokeHook("hook_entity_fetch", "root", null, {
     "entities": ["user"],
@@ -696,9 +721,12 @@ iris.modules.user.globals.login = function (auth, res, callback) {
             userid: userid
           }).then(function (token) {
 
-            if (res) {
+            if (req) {
 
-              iris.modules.sessions.globals.writeCookies(userid, token.id, res, 8.64e7, {});
+              req.session.credentials = {
+                userid: userid,
+                token: token.id
+              };
 
               // Add last login timestamp to user entity.
 
@@ -706,7 +734,7 @@ iris.modules.user.globals.login = function (auth, res, callback) {
                 entityType: "user",
                 eid: userid,
                 lastlogin: Date.now()
-              }
+              };
 
               iris.invokeHook("hook_entity_edit", "root", null, userEntity);
 
@@ -812,9 +840,11 @@ iris.modules.user.globals.getRole = function (userid, callback) {
       }]
     }).then(function (entities) {
 
+      var doc;
+
       if (entities) {
 
-        var doc = entities[0];
+        doc = entities[0];
 
       }
 
@@ -877,7 +907,7 @@ iris.modules.user.registerHook("hook_entity_updated", 1, function (thisHook, ent
  */
 iris.modules.user.registerHook("hook_entity_presave_user", 1, function (thisHook, data) {
 
-  if (data.lastlogin == null) {
+  if (data.lastlogin === null) {
 
     delete data.lastlogin;
 
@@ -986,31 +1016,13 @@ iris.modules.user.registerHook("hook_entity_created_user", 0, function (thisHook
 
 iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, data) {
 
-  function parse_cookies(_cookies) {
-    var cookies = {};
+  if (thisHook.context.socket.handshake.session && thisHook.context.socket.handshake.session.credentials) {
 
-    _cookies && _cookies.split(';').forEach(function (cookie) {
-      var parts = cookie.split('=');
-      cookies[parts[0].trim()] = (parts[1] || '').trim();
-    });
+    iris.socketLogin(thisHook.context.socket.handshake.session.credentials.userid, thisHook.context.socket.handshake.session.credentials.token, thisHook.context.socket, function () {
 
-    return cookies;
-  }
-
-
-  var cookies = parse_cookies(thisHook.context.socket.handshake.headers.cookie);
-
-  if (cookies && cookies.userid && cookies.token) {
-
-    // Check access token and userid are valid
-
-    if (iris.modules.auth.globals.checkAccessToken(cookies.userid, cookies.token)) {
-
-      iris.socketLogin(cookies.userid, cookies.token, thisHook.context.socket);
-
-    } else {
       thisHook.pass(data);
-    }
+
+    });
 
   } else {
 
@@ -1019,6 +1031,16 @@ iris.modules.user.registerHook("hook_socket_connect", 0, function (thisHook, dat
 
 });
 
-iris.modules.user.globals.userPassRehash = function (password, timestamp, lastlogin, eid) {
+// Delete user from auth list if deleted
 
-}
+iris.modules.user.registerHook("hook_entity_deleted", 1, function (thisHook, entity) {
+
+  if (entity.entityType === "user") {
+
+    delete iris.modules.auth.globals.userList[entity.eid];
+
+  }
+
+  thisHook.pass(entity);
+
+});

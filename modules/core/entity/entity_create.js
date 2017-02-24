@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise*/
-
 /**
  * @file Functions and hooks for creating entities
  */
@@ -34,8 +31,8 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
   //Set author and entity type
 
   if (!data.entityType || !iris.entityTypes[data.entityType]) {
-
-    thisHook.fail(iris.error(400, "Needs to have a valid entityType"));
+    
+    thisHook.fail("Needs to have a valid entityType");
     return false;
 
   }
@@ -168,15 +165,13 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
         iris.invokeHook("hook_entity_created_" + data.entityType, thisHook.authPass, null, doc);
 
-        iris.log("info", data.entityType + " created by " + doc.entityAuthor);
-
         thisHook.pass(doc);
 
       }, function (fail) {
 
-        thisHook.fail(err);
+        thisHook.fail(fail);
 
-      })
+      });
 
     };
 
@@ -186,7 +181,7 @@ iris.modules.entity.registerHook("hook_entity_create", 0, function (thisHook, da
 
 });
 
-iris.app.post("/entity/create/:type", function (req, res) {
+iris.route.post("/entity/create/:type", function (req, res) {
 
   req.body.entityType = req.params.type;
 
@@ -337,7 +332,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
       }
 
-    }
+    };
 
     uniqueFields.forEach(function (field) {
 
@@ -351,7 +346,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
           "value": field[fieldName]
         }]
 
-      }
+      };
 
       iris.invokeHook("hook_entity_fetch", "root", null, fetch).then(function (clash) {
 
@@ -365,7 +360,7 @@ iris.modules.entity.registerHook("hook_entity_presave", 0, function (thisHook, d
 
       });
 
-    })
+    });
 
   }
 

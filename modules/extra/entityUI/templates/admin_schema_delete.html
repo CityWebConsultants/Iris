@@ -23,14 +23,14 @@
   <div class="admin-header admin-header-padding">Delete Schema: {{entityType}}</div>
 
   <div id="current-fields">
-    [[[form schemaDelete,{{entityType}}]]]
+    
+      {{{iris 'form' '{"name":"schemaDelete","entityType":"$entityType"}'}}}
+
   </div>
 
 {{else}}
 
 <h1>Schema Not Found</h1>
-
-[[[form schema,{{entityType}}]]]
 
 {{/if}}
 

@@ -1,2 +1,9 @@
+{{#if parent}}
 
-[[[form schemafieldwidgets,{{entityType}},{{field}},{{parent}}]]]
+{{{iris 'form' '{"name":"schemafieldwidgets","entityType":"$entityType","field":"$field","parent":"$parent"}'}}}
+
+{{else}}
+
+{{{iris 'form' '{"name":"schemafieldwidgets","entityType":"$entityType","field":"$field"}'}}}
+
+{{/if}}

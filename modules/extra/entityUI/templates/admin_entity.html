@@ -1,9 +1,9 @@
 {{#if eid}}
   
-  [[[form entity,{{type}},{{eid}}]]]
-  
+{{{iris 'form' '{"name":"entity","eid":$eid,"entityType":"$type"}'}}}
+
 {{else}}
   
-  [[[form entity,{{type}}]]]
+{{{iris 'form' '{"name":"entity","entityType":"$type"}'}}}
   
 {{/if}}

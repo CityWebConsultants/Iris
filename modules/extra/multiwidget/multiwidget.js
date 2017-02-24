@@ -1,6 +1,4 @@
 
-
-iris.modules.entityUI.globals.registerFieldWidget("Longtext", "multiwidget field");
 iris.modules.entityUI.globals.registerFieldWidget("Longtexts", "editorwidget field");
 
 iris.modules.multiwidget.registerHook("hook_entity_field_fieldType_form__longtexts", 0, function (thisHook, data) {
@@ -151,6 +149,7 @@ iris.modules.forms.globals.registerWidget(function () {
                 customConfig: '/modules/ckeditor/config.js'
   
               });
+              ckeditor.instances[$(elem).attr("id")].setData(textarea.val());
               ckeditor.instances[$(elem).attr("id")].on('change', function (e) {
   
                 var data = e.editor.getData();
@@ -163,7 +162,7 @@ iris.modules.forms.globals.registerWidget(function () {
         });
         
 
-      }
+      };
 
       var removeCKEditor = function (elem) {
         if (ckeditor && ckeditor.instances && ckeditor.instances[$(elem).attr("id")]) {
@@ -191,7 +190,7 @@ iris.modules.forms.globals.registerWidget(function () {
         if (editor) {
           aceeditor.edit(editor).destroy();
         }
-      }
+      };
 
 
       var editor = null;
@@ -212,7 +211,7 @@ iris.modules.forms.globals.registerWidget(function () {
         textarea.parent().append(diveditor);
 
         if (widgetOption.val() == "--") {
-          removeAceEditor(editor)
+          removeAceEditor(editor);
           removeCKEditor(diveditor);
           diveditor.css("display", "none");
           textarea.css("display", "block");
@@ -260,7 +259,7 @@ iris.modules.multiwidget.registerHook("hook_entity_view_field__longtexts", 0, fu
 
       data.forEach(function(item){
     
-        filterConfig = iris.readConfigSync("textfilters", item.filter);
+        var filterConfig = iris.readConfigSync("textfilters", item.filter);
 
         var sanitizeHtml = require('sanitize-html');
     
@@ -284,4 +283,4 @@ iris.modules.multiwidget.registerHook("hook_entity_view_field__longtexts", 0, fu
   }
 
 
-})
+});

@@ -1,7 +1,7 @@
 {
   "name": "menu block",
   "description": "Provides a block for menus",
-  "weight": 1,
+  "weight": 2,
   "dependencies": {
     "blocks": "1",
     "menu_ui": "1"

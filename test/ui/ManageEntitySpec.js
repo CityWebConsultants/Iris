@@ -87,8 +87,9 @@ casper.test.begin('Test Entity Management', 4, function (test) {
     */
     var options = {
       url: config.baseURL + "/page/5/delete",
-      waitFor: 'form[id="delete-confirm"]',
-      formId: 'form[id="delete-confirm"]',
+      waitFor: 'form[data-formid="entity_delete"]',
+      
+      formId: 'form[data-formid="entity_delete"]',
       data: {
       }
     };

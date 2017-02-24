@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
-
 /**
  * @file Manages the database connection and schemas for entity types.
  *
@@ -21,7 +18,7 @@ var fs = require('fs');
 
 iris.invokeHook("hook_db_connect__" + iris.config.dbEngine, "root", iris.config, null).then(function () {
 
-  iris.dbPopulate();
+  iris.dbPopulate(true);
 
   iris.status.ready = true;
 
@@ -31,7 +28,7 @@ iris.invokeHook("hook_db_connect__" + iris.config.dbEngine, "root", iris.config,
 
 });
 
-iris.dbPopulate = function () {
+iris.dbPopulate = function (firstTime) {
 
   iris.fieldTypes = {};
 
@@ -43,7 +40,7 @@ iris.dbPopulate = function () {
 
       delete iris.entityTypes[entityType];
 
-    })
+    });
 
   }
 
@@ -179,7 +176,7 @@ iris.dbPopulate = function () {
 
       try {
 
-        var fieldType = iris.fieldTypes[fieldType];
+        fieldType = iris.fieldTypes[fieldType];
         var name = fieldType.name;
         var type = fieldType.type;
 
@@ -194,7 +191,7 @@ iris.dbPopulate = function () {
 
       }
 
-    })
+    });
 
     iris.entityTypes[schema] = JSON.parse(stringySchema);
 
@@ -206,13 +203,29 @@ iris.dbPopulate = function () {
     schemaCounter += 1;
     if (schemaCounter === Object.keys(iris.entityTypes).length) {
 
-      process.emit("dbReady", true);
+      process.emit("dbReady", firstTime);
 
     }
 
-  }
+  };
 
   Object.keys(iris.entityTypes).forEach(function (entityType) {
+
+    if (!iris.entityTypes[entityType].fields) {
+
+      iris.entityTypes[entityType].fields = {};
+
+    }
+
+    iris.entityTypes[entityType].fields.path = {
+      fieldType: 'Textfield',
+      fieldTypeType: 'String',
+      label: 'path',
+      fixed: true, // A fixed field isn't shown on the schema edit page as it can't be edited/deleted 
+      weight: 1111, // JSON doesn't support infinity - ugh
+      machineName: 'path',
+      permissions: ["anonymous", "authenticated"]
+    };
 
     iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
       schema: entityType,
@@ -233,8 +246,47 @@ iris.dbPopulate = function () {
 
       schemaLoaded();
 
-    })
+    });
 
-  })
+  });
+
+};
+
+/**
+ * Function for registering a DB schema directly in code
+ * isContent boolean variable determines whether the entity type appears on a content page 
+ */
+
+iris.dbSchemaRegister = function (name, fields, content = false) {
+
+  return new Promise(function (resolve, reject) {
+
+    var schema = {
+      entityTypeName: name,
+      fields: fields
+    };
+
+    if (!content) {
+
+      schema.systemOnly = true;
+
+    }
+
+    iris.entityTypes[name] = schema;
+
+    iris.invokeHook("hook_db_schema__" + iris.config.dbEngine, "root", {
+      schema: name,
+      schemaConfig: JSON.parse(JSON.stringify(schema))
+    }).then(function () {
+
+      resolve();
+
+    }, function (fail) {
+
+      reject(fail);
+
+    });
+
+  });
 
 };

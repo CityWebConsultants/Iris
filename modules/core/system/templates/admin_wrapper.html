@@ -10,22 +10,27 @@
   <link rel="stylesheet" href="/modules/system/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="/modules/system/admin.css" />
   <script type="text/javascript" src="/modules/system/bootstrap/js/bootstrap.min.js"></script>
-  [[[tags headTags,"-jQuery"]]]
+  
+{{{iris 'tags' '{"name":"headTags","exclude":"-jQuery"}'}}}
 
 </head>
 
 <body class="{{bodyClass}}">
 
   <section class="col-sm-2" id="admin_sidebar">
-    [[[menu admin_toolbar,{"template":"admin_sidebar"}]]]
+    
+  {{{iris 'menu' '{"name":"admin_toolbar","template":"admin_sidebar"}'}}}
+    
   </section>
   <section class="col-sm-10 col-sm-offset-2" id="main_content">
 
     <h1>{{req.irisRoute.options.title}}</h1>
     <p class="center">{{req.irisRoute.options.description}}</p>
 
-    {{{iris_messages}}}
-    [[[tabs]]]
+    {{{iris embed="messages"}}}
+    
+    {{{iris 'tabs'}}}
+    
     [[[MAINCONTENT]]]
 
   </section>

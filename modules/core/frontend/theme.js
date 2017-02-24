@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
-
 var path = require("path");
 var fs = require("fs");
 var express = require("express");
@@ -35,14 +32,14 @@ iris.modules.frontend.globals.setActiveTheme = function (themeName) {
 
     var found = glob.sync("{" + iris.rootPath + "/themes/*/" + themeName + ".iris.theme" + "," + iris.sitePath + "/themes/*/" + themeName + ".iris.theme" + "," + iris.rootPath + "/home/themes/*/" + themeName + ".iris.theme" + "}");
 
-    var path = require("path");
-
+    var path = require("path"),
+        theme;
 
     if (found.length) {
 
       var themeInfo = JSON.parse(fs.readFileSync(found[0]), "utf8");
 
-      var theme = {
+      theme = {
         name: themeName,
         path: path.dirname(found[0]),
         info: themeInfo

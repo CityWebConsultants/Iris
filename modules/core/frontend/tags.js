@@ -1,6 +1,3 @@
-/*jshint nomen: true, node:true, sub:true */
-/* globals iris,mongoose,Promise */
-
 /**
  * @member hook_frontend_embed__tags
  * @memberof frontend
@@ -10,24 +7,14 @@
  */
 iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thisHook, data) {
 
-  var tagName = thisHook.context.embedID;
-
-  // TODO - Allow JSON object for more tag options
-  
-  var tagExclude = thisHook.context.embedOptions;
+  var tagName = thisHook.context.embedOptions.name;
+    
+  var tagExclude = thisHook.context.embedOptions.exclude;
 
   var vars = thisHook.context.vars;
-
-  if (!vars.finalParse) {
-
-    thisHook.fail(data);
-    return false;
-
-  }
-
-
+    
   var tags = [];
-  if(vars.tags[tagName] != undefined){
+  if(vars.tags[tagName] !== undefined){
 
     Object.keys(vars.tags[tagName]).forEach(function(item, index){
       tags.push({item: item, rank: vars.tags[tagName][item].rank, data: JSON.stringify(vars.tags[tagName][item])});
@@ -35,21 +22,22 @@ iris.modules.frontend.registerHook("hook_frontend_embed__tags", 0, function (thi
 
     tags.sort(function(a, b){
       return  a.rank - b.rank;
-    })
+    });
 
     vars.tags[tagName] = {};
     tags.forEach(function(item, index){
       vars.tags[tagName][item.item] = JSON.parse(item.data);
     });
 
-  };
+  }
 
+  var output = "";
 
   if (vars.tags && vars.tags[tagName]) {
 
     var tagContainer = vars.tags[tagName];
 
-    var output = "<!-- " + tagName + " -->";
+    output += "<!-- " + tagName + " -->";
 
     output += "\n";
 

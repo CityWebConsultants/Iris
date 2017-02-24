@@ -1,13 +1,13 @@
 {{#if blockid}}
 
   <div class="admin-header admin-header-padding">Editing {{blocktype}} {{blockid}}</div>
-  [[[form blockForm_{{blocktype}},"{{blockid}}"]]]
+
+  {{{iris 'form' '{"name":"blockForm_$blocktype","blockID":"$blockid"}'}}}
 
 {{else}}
 
   <div class="admin-header admin-header-padding">Creating new {{blocktype}}</div>
-  [[[form blockForm_{{blocktype}}]]]
+ 
+  {{{iris 'form' '{"name":"blockForm_$blocktype"}'}}}
 
 {{/if}}
-
-

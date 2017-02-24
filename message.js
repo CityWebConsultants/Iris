@@ -1,10 +1,10 @@
-/*jshint nomen: true, node:true */
-/* globals iris,mongoose,Promise */
+
+
 
 iris.messageStore = {};
 
 iris.message = function (userid, message, type) {
-
+    
   if (!iris.messageStore[userid]) {
 
     iris.messageStore[userid] = [];

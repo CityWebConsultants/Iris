@@ -1,5 +1,9 @@
 {{#if formatname}}
-[[[form textfilter,"{{formatname}}"]]]
+
+{{{iris 'form' '{"name":"textfilter","formatname":"$formatname"}'}}}
+
 {{else}}
-[[[form textfilter]]]
+
+{{{iris 'form' '{"name":"textfilter"}'}}}
+
 {{/if}}

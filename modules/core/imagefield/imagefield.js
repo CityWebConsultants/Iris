@@ -21,7 +21,7 @@ iris.modules.imagefield.registerHook("hook_entity_field_fieldType_form__image", 
         "title": thisHook.authPass.t("Image alternative text")
       }
     }
-  }
+  };
 
   if (value && value.path) {
 
