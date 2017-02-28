@@ -140,33 +140,36 @@ iris.modules.entity.globals.checkAllTemplates = function(entity) {
 
   }
 
-  Object.keys(iris.modules.auth.globals.templates).forEach(function(template) {
+  if (iris.modules.auth.globals.templates) {
 
-    if (iris.modules.auth.globals.templates[template].entities.indexOf(entity.entityType) > -1) {
+    Object.keys(iris.modules.auth.globals.templates).forEach(function (template) {
 
-      var hit = checkTemplate(entity, iris.modules.auth.globals.templates[template]);
+      if (iris.modules.auth.globals.templates[template].entities.indexOf(entity.entityType) > -1) {
 
-      if (hit) {
+        var hit = checkTemplate(entity, iris.modules.auth.globals.templates[template]);
 
-        iris.modules.auth.globals.templates[template].users.forEach(function (user) {
+          if (hit) {
 
-          iris.modules.auth.globals.userList[user].getAuthPass().then(function (authPass) {
+            iris.modules.auth.globals.templates[template].users.forEach(function (user) {
 
-            iris.invokeHook("hook_entity_view", authPass, null, entity).then(function (data) {
+              iris.modules.auth.globals.userList[user].getAuthPass().then(function (authPass) {
 
-              iris.sendSocketMessage([authPass.userid], "entityCreate", {data: data, template: template});
+                iris.invokeHook("hook_entity_view", authPass, null, entity).then(function (data) {
+
+                  iris.sendSocketMessage([authPass.userid], "entityCreate", {data: data, template: template});
+
+                });
+
+              });
 
             });
 
-          });
-
-        });
+          }
 
       }
 
-    }
-
-  });
+    });
+  }
 
 }
 
