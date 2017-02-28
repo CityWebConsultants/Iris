@@ -112,10 +112,10 @@ iris.modules.email.registerHook("hook_form_render__mailSettings", 0, function (t
 
     var merge = require('merge')
 
-      data.schema = merge(data.schema, success.schema);
-
+    data.schema = merge(data.schema, success.schema)
 
     let defaultMail = iris.readConfigSync('email', 'mail_system')
+
     data.form = [
       {
         "key": "mailSystem",
@@ -243,20 +243,19 @@ iris.modules.email.globals.sendEmail = function (args, authPass) {
       config.mailSystem = 'email';
     }
 
-          // Get selected mail system
-          var transporter = iris.modules[config.mailSystem].globals.mailTransporter();
+    // Get selected mail system
+    var transporter = iris.modules[config.mailSystem].globals.mailTransporter();
 
-          iris.invokeHook("hook_sendMail", authPass, transporter, args).then(function (success) {
+    iris.invokeHook("hook_sendMail", authPass, transporter, args).then(function (success) {
 
-              iris.log('info', 'Email sent to: ' + success.to);
-              iris.message(authPass.userid, authPass.t("Email sent"), "info");
-          }, function (fail) {
+      iris.log('info', 'Email sent to: ' + success.to);
+      iris.message(authPass.userid, authPass.t("Email sent"), "info");
 
-              iris.log("error", JSON.stringify(fail));
+    }, function (fail) {
 
-          });
+      iris.log("error", JSON.stringify(fail));
 
-
+    });
 
   }, function (fail) {
 
