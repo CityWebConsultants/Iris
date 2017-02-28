@@ -33,9 +33,9 @@ iris.route.get('/admin/config/mail-settings', routes.mail, function (req, res) {
 
   }, function (fail) {
 
-    iris.modules.email.globals.displayErrorPage(500, req, res);
+    iris.modules.frontend.globals.displayErrorPage(500, req, res);
 
-    iris.log("error", e);
+    iris.log("error", fail);
 
   });
 
@@ -110,16 +110,34 @@ iris.modules.email.registerHook("hook_form_render__mailSettings", 0, function (t
       "enum": Object.keys(success.mailSystem)
     };
 
+    var merge = require('merge')
+
+      data.schema = merge(data.schema, success.schema);
+
+
+    let defaultMail = iris.readConfigSync('email', 'mail_system')
     data.form = [
       {
         "key": "mailSystem",
         "type": "select",
         "titleMap": success.mailSystem
-        },
-      {
+      }
+    ];
+
+    if (success.form) {
+      data.form = data.form.concat(success.form);
+    }
+
+    data.form.push({
         "type": "submit",
         "title": thisHook.authPass.t("Submit")
-        }];
+    });
+
+    if (defaultMail) {
+      Object.keys(defaultMail).forEach(function(key) {
+        data.value[key] = defaultMail[key];
+      });
+    }
 
 
     thisHook.pass(data);
@@ -144,10 +162,7 @@ iris.modules.email.registerHook("hook_form_submit__mailSettings", 0, function (t
   iris.saveConfig(thisHook.context.params, 'email', 'mail_system');
 
   iris.message(thisHook.authPass.userid, "Settings saved", "info");
-  thisHook.pass(function (res) {
-    res.send("/admin/config/mail-settings");
-
-  });
+  thisHook.pass(data);
 
 });
 
@@ -227,18 +242,20 @@ iris.modules.email.globals.sendEmail = function (args, authPass) {
     if (typeof config.mailSystem == 'undefined') {
       config.mailSystem = 'email';
     }
-    // Get selected mail system
-    var transporter = iris.modules[config.mailSystem].globals.mailTransporter();
 
-    iris.invokeHook("hook_sendMail", authPass, transporter, args).then(function (success) {
+          // Get selected mail system
+          var transporter = iris.modules[config.mailSystem].globals.mailTransporter();
 
-      iris.log('info', 'Email sent to: ' + success.to);
-      iris.message(authPass.userid, authPass.t("Email sent"), "info");
-    }, function (fail) {
-      
-      iris.log("error", JSON.stringify(fail));
+          iris.invokeHook("hook_sendMail", authPass, transporter, args).then(function (success) {
 
-    });
+              iris.log('info', 'Email sent to: ' + success.to);
+              iris.message(authPass.userid, authPass.t("Email sent"), "info");
+          }, function (fail) {
+
+              iris.log("error", JSON.stringify(fail));
+
+          });
+
 
 
   }, function (fail) {
