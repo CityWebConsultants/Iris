@@ -3,6 +3,7 @@
  */
 
 var fs = require("fs");
+var mpath = require("mpath");
 
 /**
  * Implements hook_frontend_embed
@@ -89,13 +90,13 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 
   });*/
 
-  iris.modules.entity.globals.checkAllTemplates(entity);
+  iris.modules.entity.globals.checkAllTemplates(entity, "entityCreate");
 
   thisHook.pass(entity);
 
 });
 
-iris.modules.entity.globals.checkAllTemplates = function(entity) {
+iris.modules.entity.globals.checkAllTemplates = function(entity, event) {
 
   var checkTemplate = function(entity, template) {
 
@@ -105,11 +106,18 @@ iris.modules.entity.globals.checkAllTemplates = function(entity) {
 
       //Process query based on operator
 
-      switch (query.operator) {
+      let entityField = mpath.get(query.field, entity);
+      
+      switch (query.operator.toUpperCase()) {
 
         case "IS":
 
-          if (entity[query.field] !== query.operator) {
+          if (Array.isArray(entityField) && entityField.indexOf(query.value) === -1) {
+
+              outcome = false;
+
+          }
+          else if (!Array.isArray(entityField) && entityField !== query.value) {
 
             outcome = false;
 
@@ -117,7 +125,7 @@ iris.modules.entity.globals.checkAllTemplates = function(entity) {
           break;
         case "INCLUDES":
 
-          if (entity[query.field].indexOf(query.operator) === -1) {
+          if (entityField.indexOf(query.value) === -1) {
 
             outcome = false;
 
@@ -126,7 +134,7 @@ iris.modules.entity.globals.checkAllTemplates = function(entity) {
 
         case "CONTAINS":
 
-          if (entity[query.field].toString().toLowerCase().indexOf(query.operator.toString().toLowerCase()) === -1) {
+          if (entityField.toString().toLowerCase().indexOf(query.value.toString().toLowerCase()) === -1) {
 
             outcome = false;
 
@@ -156,7 +164,7 @@ iris.modules.entity.globals.checkAllTemplates = function(entity) {
 
                 iris.invokeHook("hook_entity_view", authPass, null, entity).then(function (data) {
 
-                  iris.sendSocketMessage([authPass.userid], "entityCreate", {data: data, template: template});
+                  iris.sendSocketMessage([authPass.userid], event, {data: data, template: template});
 
                 });
 
@@ -210,7 +218,7 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 
   });*/
 
-  iris.modules.entity.globals.checkAllTemplates(entity);
+  iris.modules.entity.globals.checkAllTemplates(entity, "entityUpdate");
 
   thisHook.pass(entity);
 

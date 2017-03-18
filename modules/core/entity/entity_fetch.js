@@ -394,7 +394,7 @@ iris.modules.entity.registerHook("hook_entity_fetch", 0, function (thisHook, fet
 
 });
 
-iris.app.get("/fetch", function (req, res) {
+iris.route.get("/fetch", function (req, res) {
 
   // Check if user can fetch this entity type
 
@@ -433,11 +433,16 @@ iris.app.get("/fetch", function (req, res) {
     if (!iris.modules.auth.globals.templates) {
       iris.modules.auth.globals.templates = {};
     }
-    if (!iris.modules.auth.globals.templates[req.query.template]) {
-      iris.modules.auth.globals.templates[req.query.template] = req.query;
-      iris.modules.auth.globals.templates[req.query.template].users = [];
+
+    if (!iris.modules.auth.globals.templates[req.query.stringified]) {
+      iris.modules.auth.globals.templates[req.query.stringified] = req.query;
+      iris.modules.auth.globals.templates[req.query.stringified].users = [];
     }
-    iris.modules.auth.globals.templates[req.query.template].users.push(req.authPass.userid);
+
+    if (iris.modules.auth.globals.templates[req.query.stringified].users.indexOf(req.authPass.userid) == -1) {
+        iris.modules.auth.globals.templates[req.query.stringified].users.push(req.authPass.userid);
+    }
+
     res.respond(200, success);
 
   }, function (fail) {

@@ -29,11 +29,17 @@ irisReady(function () {
     iris.socketreceiver.on('entityCreate', function (data) {
 
       if (data && data.data) {
-        if (iris.fetched[data.template]) {
-          var loader = iris.fetched[data.template], inserted = [], updated = [];
-          iris.updateContent(data.data, loader, inserted, updated);
-          iris.finaliseUpdate(data.data, false, inserted, updated, data.template);
-        }
+
+        $.each(iris.fetched, function (key, item) {
+
+          if (item.stringified = data.template) {
+            var loader = iris.fetched[key], inserted = [], updated = [];
+            iris.updateContent(data.data, loader, inserted, updated);
+            iris.finaliseUpdate(data.data, false, inserted, updated, key);
+          }
+
+        });
+
       }
       else if (data) {
 
@@ -46,11 +52,17 @@ irisReady(function () {
     iris.socketreceiver.on('entityUpdate', function (data) {
 
       if (data && data.data) {
-        if (iris.fetched[data.template]) {
-          var loader = iris.fetched[data.template], inserted = [], updated = [];
-          iris.updateContent(data.data, loader, inserted, updated);
-          iris.finaliseUpdate(data.data, true, inserted, updated,data.template);
-        }
+
+        $.each(iris.fetched, function (key, item) {
+
+          if (item.stringified = data.template) {
+            var loader = iris.fetched[key], inserted = [], updated = [];
+            iris.updateContent(data.data, loader, inserted, updated);
+            iris.finaliseUpdate(data.data, true, inserted, updated, key);
+          }
+
+        });
+
       }
       else
       if (data) {
@@ -414,6 +426,8 @@ iris.fetchEntities = function (variableName, query) {
 
   sendQuery.template = variableName;
 
+  sendQuery.stringified = sendQuery.queries + sendQuery.entities;
+
   var querystring = formatParams(sendQuery);
 
   var request = new XMLHttpRequest();
@@ -446,7 +460,8 @@ iris.fetchEntities = function (variableName, query) {
 
           window.iris.fetched[variableName] = {
             query: query,
-            entities: []
+            entities: [],
+            stringified: sendQuery.stringified
           };
 
           result.forEach(function (entity) {
