@@ -32,7 +32,7 @@ irisReady(function () {
 
         $.each(iris.fetched, function (key, item) {
 
-          if (item.stringified = data.template) {
+          if (item.stringified == data.template) {
             var loader = iris.fetched[key], inserted = [], updated = [];
             iris.updateContent(data.data, loader, inserted, updated);
             iris.finaliseUpdate(data.data, false, inserted, updated, key);
@@ -55,7 +55,7 @@ irisReady(function () {
 
         $.each(iris.fetched, function (key, item) {
 
-          if (item.stringified = data.template) {
+          if (item.stringified == data.template) {
             var loader = iris.fetched[key], inserted = [], updated = [];
             iris.updateContent(data.data, loader, inserted, updated);
             iris.finaliseUpdate(data.data, true, inserted, updated, key);
@@ -436,6 +436,9 @@ iris.fetchEntities = function (variableName, query) {
 
   request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
+  var clonedSendQuery = JSON.parse(JSON.stringify(sendQuery));
+  var clonedQuery = JSON.parse(JSON.stringify(query));
+
   request.onload = function () {
 
     if (request.status >= 200 && request.status < 400) {
@@ -459,9 +462,9 @@ iris.fetchEntities = function (variableName, query) {
           window.iris.fetched ? null : window.iris.fetched = {};
 
           window.iris.fetched[variableName] = {
-            query: query,
+            query: clonedQuery,
             entities: [],
-            stringified: sendQuery.stringified
+            stringified: clonedSendQuery.stringified
           };
 
           result.forEach(function (entity) {
