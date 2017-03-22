@@ -106,6 +106,16 @@ iris.app.use(function (req, res, next) {
 
 });
 
+// this will satisfy the preflight requirement of http request from CORS using XMLHttpRequest
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+// http://stackoverflow.com/questions/8153832/xmlhttprequest-changes-post-to-option
+iris.app.options("/*", function(req, res, next){
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.send(200);
+});
+
 //Set up response sending
 
 iris.app.use(function (req, res, next) {
