@@ -1,11 +1,35 @@
 
-
-
 /**
  * @file Base for the module system. Provides functions for module registration and management.
  */
 
 iris.modules = {};
+
+// Function to get the caller file, used for listing the previous hook in a hook chain
+
+function getCaller() {
+    var originalFunc = Error.prepareStackTrace;
+
+    var callerfile;
+    try {
+        var err = new Error();
+        var currentfile;
+
+        Error.prepareStackTrace = function (err, stack) { return stack; };
+
+        currentfile = err.stack.shift().getFileName();
+
+        while (err.stack.length) {
+            callerfile = err.stack.shift().getFileName();
+
+            if(currentfile !== callerfile) break;
+        }
+    } catch (e) {}
+
+    Error.prepareStackTrace = originalFunc; 
+
+    return callerfile;
+}
 
 var moduleTemplate = (function () {
 
@@ -45,7 +69,6 @@ var moduleTemplate = (function () {
           iris.socketListeners[name] = [];
 
         }
-
         iris.socketListeners[name].push(callback);
 
       } else {
@@ -56,7 +79,8 @@ var moduleTemplate = (function () {
 
     },
     registerHook: function (hookname, rank, callback) {
-
+      
+  
       if (typeof hookname === "string" && typeof rank === "number" && typeof callback === "function") {
 
         if (!hooks[hookname]) {
@@ -64,10 +88,11 @@ var moduleTemplate = (function () {
           hooks[hookname] = {
 
             rank: rank,
-            event: callback
+            event: callback,
+            registration: getCaller()
 
           };
-
+          
         } else {
 
           console.log("Hook " + hookname + " already defined in this module");
