@@ -335,6 +335,12 @@ module.exports = function (config) {
 
   });
 
+  // Require launching file for user defined hooks etc but stop it creating a feedback loop.
+
+  process.running = true;
+
+  require(config.launchFile);
+
   iris.mkdirSync(iris.sitePath + "/" + "local");
 
   fs.writeFileSync(iris.sitePath + "/local/modulePathCache.json", JSON.stringify(foundModules));
