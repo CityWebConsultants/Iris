@@ -4,97 +4,119 @@
  * restarted via the admin form. The parent process forks a child process to load the actual site.
  */
 
-module.exports = function (parameters) {
+if (process.running) {
 
-  if (!parameters) {
+  module.exports = function () {
 
-    parameters = {};
+    return new Promise(function (resolve, reject) {
+
+      resolve(iris);
+
+    })
 
   }
 
-  parameters.launchPath = process.cwd();
+} else {
 
-  // Create a unique process ID for the instance
+  module.exports = function (parameters) {
 
-  var crypto = require("crypto");
+    if (!parameters) {
 
-  parameters.processID = crypto.randomBytes(8).toString('hex');
+      parameters = {};
 
-  process.argv.forEach(function (val, index, array) {
-
-    if (val.indexOf("=") !== -1) {
-      val = val.split("=");
-      parameters[val[0]] = val[1];
     }
 
-  });
+    parameters.launchFile = module.parent.filename;
+    parameters.launchPath = process.cwd();
 
-  var fork = require('child_process').fork;
+    // Create a unique process ID for the instance
 
-  // Check how many restarts have been performed to catch startup restart loops
+    var crypto = require("crypto");
 
-  var restartCounter = 2;
+    parameters.processID = crypto.randomBytes(8).toString('hex');
 
-  var persistentData = {};
+    process.argv.forEach(function (val, index, array) {
 
-  var start = function () {
-
-    var options = {
-      env: {
-        'NODE_ENV': process.env.NODE_ENV
+      if (val.indexOf("=") !== -1) {
+        val = val.split("=");
+        parameters[val[0]] = val[1];
       }
-    };
 
-    process.argv.forEach(function (item) {
-      var itemParts = item.split("=");
-      if (itemParts[0] == "--debug-port") {
-        options.execArgv = ['--debug=' + itemParts[1]];
-      }
     });
 
-    var sub = fork(__dirname + "/launch_site.js", [], options);
+    var fork = require('child_process').fork;
 
-    sub.send(parameters);
+    // Check how many restarts have been performed to catch startup restart loops
 
-    sub.on('message', function (cmd) {
+    var restartCounter = 2;
 
-      if (cmd === 'started') {
+    var persistentData = {};
 
-        restartCounter = 0;
+    var start = function () {
 
-        // Passes persistant sessions and messages to child process.
-        sub.send({
-          persist: persistentData
-        });
+      var options = {
+        env: {
+          'NODE_ENV': process.env.NODE_ENV
+        }
+      };
 
-      }
+      process.argv.forEach(function (item) {
+        var itemParts = item.split("=");
+        if (itemParts[0] == "--debug-port") {
+          options.execArgv = ['--debug=' + itemParts[1]];
+        }
+      });
 
-      if (cmd.restart) {
+      var sub = fork(__dirname + "/launch_site.js", [], options);
 
-        sub.on('exit', function () {
+      sub.send(parameters);
 
-          if (restartCounter > 1) {
+      sub.on('message', function (cmd) {
 
-            console.error("Too many restarts. Error on startup.");
-            process.exit();
+        if (cmd === 'started') {
 
-          } else {
+          restartCounter = 0;
 
-            persistentData = cmd.restart;
-            start();
+          // Passes persistant sessions and messages to child process.
+          sub.send({
+            persist: persistentData
+          });
 
-          }
+        }
 
-          restartCounter += 1;
+        if (cmd.restart) {
 
-        });
-        sub.kill();
-      }
+          sub.on('exit', function () {
+
+            if (restartCounter > 1) {
+
+              console.error("Too many restarts. Error on startup.");
+              process.exit();
+
+            } else {
+
+              persistentData = cmd.restart;
+              start();
+
+            }
+
+            restartCounter += 1;
+
+          });
+          sub.kill();
+        }
+
+      });
+
+    };
+
+    start();
+
+    return new Promise(function (pass, fail) {
+
+      // Dummy, not loaded yet.
 
     });
 
   };
-
-  start();
-
-};
+}
