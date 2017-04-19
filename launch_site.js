@@ -34,9 +34,9 @@ process.on("message", function (m) {
 /**
  * Handle unhandledRejection.
  */
-process.on("unhandledRejection", function (e) {
+process.on("unhandledRejection", function (e,r) {
 
-  if (e.stack && Array.isArray(e.stack)) {
+  if (e && e.stack && Array.isArray(e.stack)) {
 
     e.stack.forEach(function (error, index) {
 
@@ -55,7 +55,18 @@ process.on("unhandledRejection", function (e) {
 
   } else {
 
-    console.log(e);
+    if(!e){
+       console.log(r);
+       iris.log("error", "unhandledRejection : " +  r.toString());
+
+    }
+
+    else{
+      console.log(e);
+      iris.log("error", "unhandledRejection : " + e.toString());
+
+    }
+    
 
   }
 
