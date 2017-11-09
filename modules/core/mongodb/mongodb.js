@@ -2,7 +2,7 @@ iris.registerModule("mongodb", __dirname);
 
 var mongoose = require('mongoose');
 
-var dbCollections = {};
+iris.dbCollections = {};
 
 iris.modules.mongodb.registerHook("hook_db_connect__mongodb", 0, function (thisHook, data) {
 
@@ -70,13 +70,16 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
     // set index through the schema
     for (var i in schemaConfig) {
-      if (schemaConfig[i].required === true) {
-        schemaConfig[i].index = true;
-      }
-      if (schemaConfig[i].unique) {
-        schemaConfig[i].index = {
-          unique: true
-        };
+
+      if (schemaConfig[i]) {
+        if (schemaConfig[i].required === true) {
+          schemaConfig[i].index = true;
+        }
+        if (schemaConfig[i].unique) {
+          schemaConfig[i].index = {
+            unique: true
+          };
+        }
       }
     }
 
@@ -88,25 +91,49 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
   // Schema ready, now unstringify it and save it as a database model
 
-  var typeConverter = function (type) {
+  var typeConverter = function (field, type) {
+
+    dataType = '';
 
     switch (type) {
       case "[String]":
-        return [String];
+        dataType = [String];
+        break;
       case "String":
-        return String;
+        dataType =  String;
+        break;
       case "[Number]":
-        return [Number];
+        dataType =  [Number];
+        break;
       case "Number":
-        return Number;
+        dataType =  Number;
+        break;
       case "[Boolean]":
-        return [Boolean];
+        dataType =  [Boolean];
+        break;
       case "Boolean":
-        return Boolean;
+        dataType =  Boolean;
+        break;
       case "Date":
-        return Date;
+        dataType =  Date;
+        break;
       case "[Date]":
-        return [Date];
+        dataType =  [Date];
+        break;
+      case "Point" :
+
+        dataType = new mongoose.Schema({
+          type: { $type: String },
+          coordinates: { $type: Array }
+        }, { typeKey: '$type' }); //{type: {type :String, } , coordinates: [Number]};
+        break;
+      case "[Point]" :
+
+        dataType =  [ new mongoose.Schema({
+          type: { $type: String },
+          coordinates: { $type: Array }
+        }, { typeKey: '$type' })];
+        break;
     }
 
     // May be an array of more complex field
@@ -129,7 +156,7 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
       });
 
-      return [mongoose.Schema(typeObject, {
+      dataType =  [mongoose.Schema(typeObject, {
         "_id": false
       })];
 
@@ -151,15 +178,13 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
       });
 
-      return mongoose.Schema(typeObject);
-
-    } else {
-
-      return false;
+      dataType =  mongoose.Schema(typeObject);
 
     }
 
-    return false;
+    field.type = dataType;
+
+    return field;
 
   };
 
@@ -174,14 +199,26 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
   }
 
+  var removeFields = function (field) {
+
+    var reserved = ['index', 'type', 'maxItems', 'validate'];
+
+    Object.keys(field).forEach(function(key) {
+      if (reserved.indexOf(key) == -1) {
+        delete field[key];
+      }
+    });
+  }
+
   var fieldConverter = function (field) {
 
     var fieldType = field.fieldType;
 
     if (iris.fieldTypes[fieldType]) {
 
-      field.type = typeConverter(iris.fieldTypes[fieldType].type);
-      field.readableType = iris.fieldTypes[fieldType].type;
+      field = typeConverter(field, iris.fieldTypes[fieldType].type);
+
+      removeFields(field);
 
       return field;
 
@@ -213,6 +250,8 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 
       field.type = [fieldsetSchema];
 
+      removeFields(field);
+
       return field;
 
     }
@@ -222,25 +261,27 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
   Object.keys(schemaConfig.fields).forEach(function (fieldName) {
 
     finalSchema[fieldName] = fieldConverter(schemaConfig.fields[fieldName]);
-    
-    if (finalSchema[fieldName].maxItems) {
 
-      var arrayLimit = function (val) {
+    if (finalSchema[fieldName]) {
 
-        if (Array.isArray(val)) {
+      if (finalSchema[fieldName].maxItems) {
 
-          return val.length <= finalSchema[fieldName].maxItems;
+        var arrayLimit = function (val) {
 
-        } else {
+          if (Array.isArray(val)) {
 
-          return true;
+            return val.length <= finalSchema[fieldName].maxItems;
 
-        }
+          } else {
 
-      };
+            return true;
 
-      finalSchema[fieldName].validate = [arrayLimit, '{PATH} exceeds the limit of ' + finalSchema[fieldName].maxItems];
+          }
 
+        };
+
+        finalSchema[fieldName].validate = [arrayLimit, '{PATH} exceeds the limit of ' + finalSchema[fieldName].maxItems];
+      }
     }
 
   });
@@ -289,11 +330,11 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
       startAt: 1,
     });
 
-    dbCollections[schema] = mongoose.model(schema, readySchema);
+    iris.dbCollections[schema] = mongoose.model(schema, readySchema);
 
   } catch (e) {
 
-    iris.log("error", e);
+    iris.log("error", e.message);
 
   }
 
@@ -302,7 +343,7 @@ iris.modules.mongodb.registerHook("hook_db_schema__mongodb", 0, function (thisHo
 });
 
 iris.modules.mongodb.registerHook("hook_db_fetch__mongodb", 0, function (thisHook, data) {
-  dbCollections[thisHook.context.entityType].find(thisHook.context.query).lean().sort(thisHook.context.sort).skip(thisHook.context.skip).limit(thisHook.context.limit).exec(function (err, doc) {
+  iris.dbCollections[thisHook.context.entityType].find(thisHook.context.query).lean().sort(thisHook.context.sort).skip(thisHook.context.skip).limit(thisHook.context.limit).exec(function (err, doc) {
 
     data = doc;
 
@@ -324,7 +365,7 @@ iris.modules.mongodb.registerHook("hook_db_fetch__mongodb", 0, function (thisHoo
 
 iris.modules.mongodb.registerHook("hook_db_deleteEntity__mongodb", 0, function (thisHook, data) {
 
-  dbCollections[thisHook.context.entityType].findOneAndRemove({
+  iris.dbCollections[thisHook.context.entityType].findOneAndRemove({
     eid: thisHook.context.eid
   }, function (err, pass) {
 
@@ -346,7 +387,7 @@ iris.modules.mongodb.registerHook("hook_db_deleteEntity__mongodb", 0, function (
 
 iris.modules.mongodb.registerHook("hook_db_createEntity__mongodb", 0, function (thisHook, data) {
 
-  var entity = new dbCollections[thisHook.context.entityType](thisHook.context.fields);
+  var entity = new iris.dbCollections[thisHook.context.entityType](thisHook.context.fields);
 
   entity.save(function (err, doc) {
 
@@ -370,7 +411,7 @@ iris.modules.mongodb.registerHook("hook_db_createEntity__mongodb", 0, function (
 
 iris.modules.mongodb.registerHook("hook_db_updateEntity__mongodb", 0, function (thisHook, data) {
 
-  dbCollections[thisHook.context.entityType].update({
+  iris.dbCollections[thisHook.context.entityType].update({
     eid: thisHook.context.eid
   }, thisHook.context.update, function (err, updated) {
 
@@ -411,7 +452,7 @@ iris.modules.mongodb.registerHook("hook_db_deleteSchema__mongodb", 0, function (
       "model": thisHook.context.schema
     });
 
-    delete dbCollections[thisHook.context.schema];
+    delete iris.dbCollections[thisHook.context.schema];
 
     thisHook.pass(data);
 
