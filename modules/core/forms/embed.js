@@ -79,7 +79,7 @@ var renderForm = function (formName, formParams, form, authPass, callback, req) 
 
     var uniqueId = formName + token;
 
-    output = "<form data-params='" + formParams + "' method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
+    output = "<form data-params='" + formParams.name + "' method='POST' data-formid='" + formName + "' id='" + uniqueId + "' ng-non-bindable ></form> \n";
 
     output += "<script>iris.forms['" + uniqueId + "'] = { form: " + toSource(form) + ", onComplete: 'formComplete_" + formName + "'}" + "\n if(typeof iris.forms.renderForm == \"function\") iris.forms.renderForm('" + uniqueId + "');</script>";
 

@@ -162,13 +162,15 @@ iris.forms.onSubmit = function (errors, values) {
     },
     success: function (data) {
 
+      $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
+
       if (data.errors && data.errors.length > 0) {
 
         processErrors(data.errors);
 
       } else if (data.messages && data.messages.length > 0) {
 
-        $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
+
 
         $("body").animate({
           scrollTop: $("[data-formid='" + values.formid + "'").offset().top
@@ -192,7 +194,13 @@ iris.forms.onSubmit = function (errors, values) {
 
         }
 
-      } else {
+      }
+      else if (data.callback) {
+
+        window.location.href = data.callback;
+
+      }
+      else if (data.restart) {
 
         function waitForRestart() {
 
@@ -212,24 +220,31 @@ iris.forms.onSubmit = function (errors, values) {
 
         }
 
-        if (data.callback) {
+        setTimeout(waitForRestart, 2000);
 
-          data.redirect = data.callback;
+      }
+      else {
+
+        if (data.execute) {
+
+          function executeFunctionByName(functionName, context , args) {
+            var args = Array.prototype.slice.call(arguments, 2);
+            var namespaces = functionName.split(".");
+            var func = namespaces.pop();
+            for (var i = 0; i < namespaces.length; i++) {
+              context = context[namespaces[i]];
+            }
+            return context[func].apply(context, args);
+          }
+
+          executeFunctionByName(data.functionName, window, data.arguments);
 
         }
-
-        if (data.restart) {
-
-          setTimeout(waitForRestart, 2000);
-
-        } else {
-
+        else {
           window.location.href = data.redirect ? data.redirect : window.location.href;
-
         }
 
       }
-
     }
   });
 
