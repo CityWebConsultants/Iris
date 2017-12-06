@@ -99,6 +99,8 @@ $(window).load(function () {
 
 iris.forms.onSubmit = function (errors, values) {
 
+  var hasReturned = false;
+
   function processErrors(errors) {
 
     $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
@@ -144,7 +146,11 @@ iris.forms.onSubmit = function (errors, values) {
   }
 
   setTimeout(function () {
-    $('#' + values.formid + values.formToken).find('button[type=submit]').addClass('active');
+
+    if (!hasReturned) {
+      $('#' + values.formid + values.formToken).find('button[type=submit]').addClass('active');
+    }
+
   }, 300);
 
   $.ajax({
@@ -155,6 +161,7 @@ iris.forms.onSubmit = function (errors, values) {
     dataType: "json",
     error: function (jqXHR, textStatus, errorThrown) {
 
+      hasReturned = true;
       processErrors([{
         'message': "Error processing form"
       }]);
@@ -162,6 +169,7 @@ iris.forms.onSubmit = function (errors, values) {
     },
     success: function (data) {
 
+      hasReturned = true;
       $('#' + values.formid + values.formToken).find('button[type=submit]').removeClass('active');
 
       if (data.errors && data.errors.length > 0) {
@@ -203,6 +211,7 @@ iris.forms.onSubmit = function (errors, values) {
       }
       else if (data.restart) {
 
+        hasReturned = false;
         function waitForRestart() {
 
           $.ajax({
