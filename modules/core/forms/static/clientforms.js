@@ -195,7 +195,8 @@ iris.forms.onSubmit = function (errors, values) {
         }
 
       }
-      else if (data.callback) {
+
+      if (data.callback) {
 
         window.location.href = data.callback;
 
