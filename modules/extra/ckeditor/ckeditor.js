@@ -36,7 +36,7 @@ iris.route.get("/modules/ckeditor/config.js", function (req, res) {
 
     Object.keys(config).forEach(function (setting) {
 
-      output += "CKEDITOR.config['" + setting + "'] = " + toSource(config[setting]);
+      output += "CKEDITOR.config['" + setting + "'] = " + toSource(config[setting]) + ';';
 
     });
 
@@ -134,7 +134,14 @@ iris.route.post('/admin/file/ckeditorupload', function (req, res) {
     file.pipe(fstream);
     fstream.on('close', function () {
 
-      res.end("<script>window.parent.CKEDITOR.tools.callFunction('" + req.query.CKEditorFuncNum + "','/files/" + filename + "','Uploaded!');</script>");
+      if (iris.config.host) {
+        var host = iris.config.host;
+      }
+      else {
+        var host = '';
+      }
+
+      res.end("<script>window.parent.CKEDITOR.tools.callFunction('" + req.query.CKEditorFuncNum + "', '" + host + "/files/" + filename + "','Uploaded!');</script>");
 
     });
   });
