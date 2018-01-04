@@ -580,6 +580,21 @@ iris.modules.entityUI.registerHook("hook_form_render__entity", 0, function (this
                 } else if (form.default) {
                   fieldset.default[index][subFieldName] = form.default;
                 }
+                else if (form.properties) {
+
+                  Object.keys(form.properties).forEach(function(key) {
+
+                    if (form.properties[key].default) {
+
+                      if (!fieldset.default[index][subFieldName]) {
+                        fieldset.default[index][subFieldName] = {};
+                      }
+                      fieldset.default[index][subFieldName][key] = form.properties[key].default;
+                    }
+
+                  });
+
+                }
 
                 delete form.default;
 
