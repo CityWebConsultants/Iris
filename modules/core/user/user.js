@@ -703,7 +703,7 @@ iris.modules.user.globals.login = function (auth, req, callback) {
     "queries": [{
       "field": "username",
       "operator": "is",
-      "value": auth.username
+      "value": new RegExp(["^", auth.username, "$"].join(""), "i")
       }]
   }).then(function (entities) {
 
