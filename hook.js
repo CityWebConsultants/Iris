@@ -22,6 +22,7 @@
 
 // Debug functions storing last hooks
 
+
 iris.hookStack = [];
 
 var storeHook = function (hook) {
@@ -108,7 +109,8 @@ var hook = function (hookname, authPass, staticVariables, variables) {
           event: moduleHooks[hookname].event,
           parentModule: element,
           name: hookname,
-          rank: moduleHooks[hookname].rank
+          rank: moduleHooks[hookname].rank,
+          registration: moduleHooks[hookname].registration
 
         };
 
@@ -181,6 +183,12 @@ var hook = function (hookname, authPass, staticVariables, variables) {
           thisHook.path = hookcall.parentModule;
           thisHook.rank = hookcall.rank;
           thisHook.index = index;
+
+          if (hookcalls[index - 1]) {
+
+            thisHook.previousHook = hookcalls[index - 1].registration
+
+          }
 
           try {
             hookcall.event(thisHook, vars);
