@@ -3,26 +3,56 @@
  */
 
 var fs = require("fs");
+var mpath = require("mpath");
 
-require("./entity_embeds");
+/**
+ * Implements hook_frontend_embed
+ * Process entity embeds
+ */
 
-var updateEmbeds = function () {
+iris.modules.entity.registerHook("hook_frontend_embed__entity", 0, function (thisHook, data) {
 
-  if (iris.modules.frontend.globals.liveEmbeds.entity) {
+  iris.invokeHook("hook_entity_fetch", thisHook.authPass, thisHook.context, thisHook.context.embedOptions).then(function (result) {
 
-    Object.keys(iris.modules.frontend.globals.liveEmbeds.entity).forEach(function (embed) {
+    thisHook.context.vars[thisHook.context.embedID] = result;
 
-      iris.modules.frontend.globals.liveEmbeds.entity[embed].sendResult();
+    thisHook.context.vars.tags.headTags["socket.io"] = {
+      type: "script",
+      attributes: {
+        "src": "/socket.io/socket.io.js"
+      },
+      rank: -1
+    }
 
-    });
+    thisHook.context.vars.tags.headTags["handlebars"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/entity/handlebars.min.js"
+      },
+      rank: -1
+    }
 
-  }
+    thisHook.context.vars.tags.headTags["entity_fetch"] = {
+      type: "script",
+      attributes: {
+        "src": "/modules/entity/templates.js"
+      },
+      rank: 0
+    };
 
-  // Clear query cache in same hook
+    var entityPackage = "\n" + "iris.entityPreFetch(" + JSON.stringify(result) + ", '" + thisHook.context.embedID + "'" + ", " + JSON.stringify(thisHook.context.embedOptions) + ")";
 
-  iris.modules.entity.globals.queryCache = {};
+    var loader = entityPackage;
 
-};
+    thisHook.pass("<script>" + loader + "</script>");
+
+  }, function (error) {
+
+    thisHook.pass(data);
+
+  });
+
+});
 
 /**
  * @member hook_entity_created
@@ -34,9 +64,7 @@ var updateEmbeds = function () {
  */
 iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, entity) {
 
-  updateEmbeds();
-
-  for (var authUser in iris.modules.auth.globals.userList) {
+  /*for (var authUser in iris.modules.auth.globals.userList) {
 
     iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
 
@@ -60,11 +88,99 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
 
     iris.sendSocketMessage(["anon"], "entityCreate", data);
 
-  });
+  });*/
+
+  iris.modules.entity.globals.checkAllTemplates(entity, "entityCreate");
 
   thisHook.pass(entity);
 
 });
+
+iris.modules.entity.globals.checkAllTemplates = function(entity, event) {
+
+  var checkTemplate = function(entity, template) {
+
+    var queries = template.queries, outcome = true;
+
+    queries.forEach(function (query) {
+
+      //Process query based on operator
+
+      let entityField = mpath.get(query.field, entity);
+      
+      switch (query.operator.toUpperCase()) {
+
+        case "IS":
+
+          if (Array.isArray(entityField) && entityField.indexOf(query.value) === -1) {
+
+              outcome = false;
+
+          }
+          else if (!Array.isArray(entityField) && entityField !== query.value) {
+
+            outcome = false;
+
+          }
+          break;
+        case "INCLUDES":
+
+          if (entityField.indexOf(query.value) === -1) {
+
+            outcome = false;
+
+          }
+          break;
+
+        case "CONTAINS":
+
+          if (entityField.toString().toLowerCase().indexOf(query.value.toString().toLowerCase()) === -1) {
+
+            outcome = false;
+
+          }
+          break;
+      }
+
+    });
+
+    return outcome;
+
+  }
+
+  if (iris.modules.auth.globals.templates) {
+
+    Object.keys(iris.modules.auth.globals.templates).forEach(function (template) {
+
+      if (iris.modules.auth.globals.templates[template].entities.indexOf(entity.entityType) > -1) {
+
+        var hit = checkTemplate(entity, iris.modules.auth.globals.templates[template]);
+
+          if (hit) {
+
+            iris.modules.auth.globals.templates[template].users.forEach(function (user) {
+
+              iris.modules.auth.globals.userList[user].getAuthPass().then(function (authPass) {
+
+                iris.invokeHook("hook_entity_view", authPass, null, entity).then(function (data) {
+
+                  iris.sendSocketMessage([authPass.userid], event, {data: data, template: template});
+
+                });
+
+              });
+
+            });
+
+          }
+
+      }
+
+    });
+  }
+
+}
+
 
 /**
  * @member hook_entity_updated
@@ -76,9 +192,7 @@ iris.modules.entity.registerHook("hook_entity_created", 0, function (thisHook, e
  */
 iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, entity) {
 
-  updateEmbeds();
-
-  for (var authUser in iris.modules.auth.globals.userList) {
+  /*for (var authUser in iris.modules.auth.globals.userList) {
 
     iris.modules.auth.globals.userList[authUser].getAuthPass().then(function (authPass) {
 
@@ -102,7 +216,9 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
 
     iris.sendSocketMessage(["anon"], "entityUpdate", data);
 
-  });
+  });*/
+
+  iris.modules.entity.globals.checkAllTemplates(entity, "entityUpdate");
 
   thisHook.pass(entity);
 
@@ -117,8 +233,6 @@ iris.modules.entity.registerHook("hook_entity_updated", 0, function (thisHook, e
  * This hook is run when an entity is deleted; useful for live updates or keeping track of changes
  */
 iris.modules.entity.registerHook("hook_entity_deleted", 0, function (thisHook, entity) {
-
-  updateEmbeds();
 
   for (var authUser in iris.modules.auth.globals.userList) {
 

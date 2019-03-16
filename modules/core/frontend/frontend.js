@@ -691,7 +691,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     attributes: {
       "src": "/socket.io/socket.io.js"
     },
-    rank: -1
+    rank: -3
   };
 
   data.vars.tags.headTags["iris_core"] = {
@@ -699,7 +699,7 @@ iris.modules.frontend.registerHook("hook_frontend_template", 1, function (thisHo
     attributes: {
       "src": "/modules/frontend/iris_core.js"
     },
-    rank: 0
+    rank: -2
   };
 
   data.vars.authPass = thisHook.authPass;
