@@ -2,6 +2,7 @@
   "name": "Entity Reference",
   "type": {
     "eid": "Number",
-    "entityType": "String"
+    "entityType": "String",
+    "value": "String"
   }
 }
