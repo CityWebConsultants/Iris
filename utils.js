@@ -198,10 +198,10 @@ iris.typeCheck = function (allowed, entity, data) {
  *
  * @returns a sanitized string ready for use as a filename
  */
-iris.sanitizeName = function (name) {
 
-  // Doesn't currently support anything not English
-  return name.replace(/[^a-zA-Z]+/g, '_').toLowerCase();
+iris.sanitizeName = function (name = "") {
+
+  return name.replace(/\s+/g, '_').replace(/[^a-zA-Z-]/g, '_').toLowerCase();
 
 };
 
